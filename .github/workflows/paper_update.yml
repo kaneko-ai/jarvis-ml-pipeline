@@ -23,6 +23,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run pipeline (dry-run)
+      - name: Run pipeline
         run: |
-          python run_pipeline.py configs/paper_update_cd13.yaml --dry-run
+          python run_pipeline.py configs/paper_update_cd13.yaml
