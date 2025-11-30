@@ -1,0 +1,18 @@
+job_name: "cd13_update_2025_11_30"
+
+search:
+  # ここはあとで具体的に変える前提
+  query: "CDH13[Title/Abstract] AND (cancer OR tumor)"
+  date_from: "2020-01-01"
+  date_to: "2025-11-30"
+  max_results: 30
+
+paths:
+  raw_dir: "data/raw/cd13_2025_11_30"
+  processed_dir: "data/processed/cd13_2025_11_30"
+  index_path: "data/index/cd13_2025_11_30.faiss"
+  report_path: "reports/cd13_2025_11_30.md"
+
+options:
+  overwrite: false
+  dry_run: false
