@@ -1,0 +1,14 @@
+# Python venv
+.venv/
+venv/
+
+# Python キャッシュ
+__pycache__/
+*.pyc
+
+# ローカルデータ
+data/
+reports/
+
+# VS Code
+.vscode/
