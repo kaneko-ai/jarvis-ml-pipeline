@@ -10,8 +10,9 @@ search:
 paths:
   raw_dir: "data/raw/cd13_2025_11_30"
   processed_dir: "data/processed/cd13_2025_11_30"
-  index_path: "data/index/cd13_2025_11_30.faiss"
+  index_path: "data/index/cd13_2025_11_30_tfidf.joblib"
   report_path: "reports/cd13_2025_11_30.md"
+
 
 options:
   overwrite: false
