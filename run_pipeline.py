@@ -265,53 +265,66 @@ def build_index(config: Dict[str, Any]) -> None:
     """
     chunks.jsonl から TF-IDF ベースのインデックスを構築し、
     joblib ファイルとして保存する。
+    チャンクが 0 件の場合でも「空インデックス」を保存する。
     """
     processed_dir = pathlib.Path(config["paths"]["processed_dir"])
     index_path = pathlib.Path(config["paths"]["index_path"])
     index_path.parent.mkdir(parents=True, exist_ok=True)
 
     chunks_path = processed_dir / "chunks.jsonl"
-    if not chunks_path.exists():
-        print(f"[build_index] WARNING: chunks file not found: {chunks_path}", file=sys.stderr)
-        # 空インデックスを作ってもいいが、今は何もせずに戻る
-        return
-
     texts: List[str] = []
     metadata: List[Dict[str, Any]] = []
 
-    with chunks_path.open("r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                rec = json.loads(line)
-            except json.JSONDecodeError:
-                continue
+    if chunks_path.exists():
+        with chunks_path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    rec = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
 
-            text = str(rec.get("text", "")).strip()
-            if not text:
-                continue
+                text = str(rec.get("text", "")).strip()
+                if not text:
+                    continue
 
-            texts.append(text)
-            metadata.append(
-                {
-                    "source": rec.get("source"),
-                    "source_type": rec.get("source_type"),
-                    "chunk_id": rec.get("chunk_id"),
-                }
-            )
+                texts.append(text)
+                metadata.append(
+                    {
+                        "source": rec.get("source"),
+                        "source_type": rec.get("source_type"),
+                        "chunk_id": rec.get("chunk_id"),
+                    }
+                )
+    else:
+        print(
+            f"[build_index] WARNING: chunks file not found: {chunks_path}",
+            file=sys.stderr,
+        )
 
     if not texts:
-        print("[build_index] WARNING: no chunks found to index.", file=sys.stderr)
+        # 空インデックスを保存しておく
+        print(
+            "[build_index] WARNING: no chunks found to index. "
+            "Saving empty index.",
+            file=sys.stderr,
+        )
+        index_obj = {
+            "vectorizer": None,
+            "matrix": None,
+            "metadata": [],
+        }
+        dump(index_obj, index_path)
+        print(f"[build_index] wrote EMPTY index to {index_path}")
         return
 
     print(f"[build_index] building TF-IDF index for {len(texts)} chunks...")
 
-    # シンプルな TF-IDF ベクトライザ
     vectorizer = TfidfVectorizer(
-        max_features=20000,   # 将来的に調整可
-        ngram_range=(1, 2),   # 単語 + bi-gram
+        max_features=20000,
+        ngram_range=(1, 2),
     )
 
     matrix = vectorizer.fit_transform(texts)
@@ -327,6 +340,7 @@ def build_index(config: Dict[str, Any]) -> None:
         f"[build_index] wrote TF-IDF index to {index_path} "
         f"shape={matrix.shape}"
     )
+
 
 
 
