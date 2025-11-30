@@ -140,12 +140,71 @@ def build_index(config: Dict[str, Any]) -> None:
     print(f"[build_index] would build index at: {index_path}")
 
 
+def _extract_year(pubdate: Optional[str]) -> str:
+    """PubMed の pubdate 文字列から年だけを取り出す（簡易実装）。"""
+    if not pubdate:
+        return ""
+    for token in str(pubdate).split():
+        if token.isdigit() and len(token) == 4:
+            return token
+    return ""
+
+
 def generate_report(config: Dict[str, Any]) -> None:
-    """レポート生成（今はダミー）。"""
+    """pubmed_metadata.json を読み込み、文献一覧の Markdown レポートを生成する。"""
+    raw_dir = pathlib.Path(config["paths"]["raw_dir"])
+    meta_path = raw_dir / "pubmed_metadata.json"
+
     report_path = pathlib.Path(config["paths"]["report_path"])
     report_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.write_text("# Dummy report\n\nTODO: 実装\n", encoding="utf-8")
-    print(f"[generate_report] wrote dummy report: {report_path}")
+
+    if not meta_path.exists():
+        # fetch_papers がまだ実行されていない場合など
+        msg = f"[generate_report] WARNING: metadata JSON not found: {meta_path}"
+        print(msg, file=sys.stderr)
+        report_path.write_text(
+            "# CDH13 文献レポート\n\n"
+            f"{msg}\n",
+            encoding="utf-8",
+        )
+        print(f"[generate_report] wrote warning report: {report_path}")
+        return
+
+    # メタデータ JSON の読み込み
+    data = json.loads(meta_path.read_text(encoding="utf-8"))
+    records: List[Dict[str, Any]] = data.get("records", [])
+    query = data.get("query")
+    date_from = data.get("date_from")
+    date_to = data.get("date_to")
+    num_hit = data.get("num_hit", len(records))
+
+    # Markdown を組み立てる
+    lines: List[str] = []
+    lines.append("# CDH13 文献サマリ（自動生成）\n")
+    lines.append("## 概要\n")
+    lines.append(f"- 検索クエリ: `{query}`")
+    lines.append(f"- 期間: {date_from} 〜 {date_to}")
+    lines.append(f"- 取得件数 (PubMed): {num_hit}")
+    lines.append("")
+
+    lines.append("## 文献一覧\n")
+    lines.append("| # | 年 | PMID | タイトル | ジャーナル |")
+    lines.append("|---|----|------|----------|------------|")
+
+    for i, rec in enumerate(records, start=1):
+        pmid = rec.get("pmid", "")
+        title = (rec.get("title") or "").replace("|", "／")
+        journal = (rec.get("journal") or "").replace("|", "／")
+        year = _extract_year(rec.get("pubdate"))
+        # Obsidian で PMID を検索しやすいようにリンク風にする余地もあるが、まずは素直に出す
+        lines.append(f"| {i} | {year} | {pmid} | {title} | {journal} |")
+
+    lines.append("")  # 最後に空行
+
+    report_md = "\n".join(lines)
+    report_path.write_text(report_md, encoding="utf-8")
+    print(f"[generate_report] wrote markdown report: {report_path}")
+
 
 
 # ---- パイプライン制御 -----------------------------------
