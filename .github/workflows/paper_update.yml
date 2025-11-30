@@ -34,4 +34,5 @@ jobs:
           path: |
             data/raw/cd13_2025_11_30/pubmed_metadata.json
             data/processed/cd13_2025_11_30/chunks.jsonl
+            data/index/cd13_2025_11_30_tfidf.joblib
             reports/cd13_2025_11_30.md
