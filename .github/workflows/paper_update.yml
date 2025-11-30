@@ -1,9 +1,7 @@
 name: Paper Update (CD13)
 
 on:
-  # 手動トリガー
   workflow_dispatch:
-  # 週1実行（例：毎週日曜の 23:00 JST くらい）
   schedule:
     - cron: "0 14 * * 0"
 
@@ -35,5 +33,5 @@ jobs:
           name: cd13_2025_11_30_outputs
           path: |
             data/raw/cd13_2025_11_30/pubmed_metadata.json
-            data/processed/cd13_2025_11_30/chunks.jsonl   # ★ 追加
+            data/processed/cd13_2025_11_30/chunks.jsonl
             reports/cd13_2025_11_30.md
