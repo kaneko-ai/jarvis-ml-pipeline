@@ -1,0 +1,18 @@
+# configs/paper_update_cd73_light.yaml
+job_name: cd73_update_light
+
+search:
+  query: "NT5E[Title/Abstract] OR CD73[Title/Abstract]"
+  date_from: "2022-01-01"   # 直近3年だけ
+  date_to: "2025-11-30"
+  max_results: 20           # 本数も絞る
+
+paths:
+  raw_dir: "data/raw/cd73_light"
+  processed_dir: "data/processed/cd73_light"
+  index_path: "data/index/cd73_light_tfidf.joblib"
+  report_path: "reports/cd73_light.md"
+
+options:
+  overwrite: false
+  dry_run: false

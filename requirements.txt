@@ -3,3 +3,4 @@ requests
 PyPDF2
 scikit-learn
 joblib
+pymupdf

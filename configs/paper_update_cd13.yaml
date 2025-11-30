@@ -1,7 +1,6 @@
-job_name: "cd13_update_2025_11_30"
+job_name: cd13_update_2025_11_30
 
 search:
-  # ここはあとで具体的に変える前提
   query: "CDH13[Title/Abstract] AND (cancer OR tumor)"
   date_from: "2020-01-01"
   date_to: "2025-11-30"
@@ -13,7 +12,6 @@ paths:
   index_path: "data/index/cd13_2025_11_30_tfidf.joblib"
   report_path: "reports/cd13_2025_11_30.md"
 
-
 options:
-  overwrite: false
+  overwrite: false  # pmc/ 以下の PDF を上書きしたいときだけ true にする
   dry_run: false
