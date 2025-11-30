@@ -4,8 +4,10 @@ import pathlib
 import sys
 from typing import Any, Dict, List, Optional
 
+from PyPDF2 import PdfReader
 import requests
 import yaml
+
 
 
 # ---- PubMed API ヘルパー ---------------------------------
@@ -82,6 +84,61 @@ def pubmed_esummary(pmids: List[str]) -> List[Dict[str, Any]]:
     print(f"[pubmed_esummary] collected {len(records)} records")
     return records
 
+# ---- PDF / テキスト抽出 & チャンク化 ----------------------
+
+
+def pdf_to_text(pdf_path: pathlib.Path) -> str:
+    """PDF 1 ファイルからテキストを抽出する（単純版）。"""
+    text_parts: List[str] = []
+    try:
+        reader = PdfReader(str(pdf_path))
+    except Exception as e:
+        print(f"[pdf_to_text] ERROR: failed to open {pdf_path}: {e}", file=sys.stderr)
+        return ""
+
+    for i, page in enumerate(reader.pages):
+        try:
+            page_text = page.extract_text() or ""
+        except Exception as e:
+            print(
+                f"[pdf_to_text] WARNING: failed to extract page {i} of {pdf_path}: {e}",
+                file=sys.stderr,
+            )
+            continue
+        if page_text.strip():
+            text_parts.append(page_text)
+
+    return "\n\n".join(text_parts)
+
+
+def split_into_chunks(
+    text: str,
+    chunk_size: int = 1200,
+    overlap: int = 200,
+) -> List[str]:
+    """シンプルな文字数ベースのチャンク分割."""
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    text = text.strip()
+    if not text:
+        return []
+
+    chunks: List[str] = []
+    start = 0
+    n = len(text)
+
+    while start < n:
+        end = start + chunk_size
+        chunk = text[start:end].strip()
+        if chunk:
+            chunks.append(chunk)
+        # 次のスタート位置：オーバーラップを残してずらす
+        start = end - overlap
+        if start < 0:
+            start = 0
+
+    return chunks
+
+
 
 # ---- 各ステージ -------------------------------------------
 
@@ -127,10 +184,78 @@ def fetch_papers(config: Dict[str, Any]) -> None:
 
 
 def extract_and_chunk(config: Dict[str, Any]) -> None:
-    """PDF→テキスト→チャンク（今はダミー）。"""
+    """
+    data/raw/... 以下の PDF / TXT からテキストを抽出し、
+    チャンクに分割して JSONL として保存する。
+    """
+    raw_dir = pathlib.Path(config["paths"]["raw_dir"])
     processed_dir = pathlib.Path(config["paths"]["processed_dir"])
     processed_dir.mkdir(parents=True, exist_ok=True)
-    print(f"[extract_and_chunk] would process PDFs into: {processed_dir}")
+
+    chunks_path = processed_dir / "chunks.jsonl"
+
+    all_chunks: List[Dict[str, Any]] = []
+
+    if not raw_dir.exists():
+        print(f"[extract_and_chunk] raw_dir not found: {raw_dir}", file=sys.stderr)
+    else:
+        # 1) PDF ファイル
+        for pdf_path in raw_dir.rglob("*.pdf"):
+            rel = pdf_path.relative_to(raw_dir)
+            print(f"[extract_and_chunk] processing PDF: {rel}")
+            text = pdf_to_text(pdf_path)
+            if not text.strip():
+                print(
+                    f"[extract_and_chunk] WARNING: no text extracted from {rel}",
+                    file=sys.stderr,
+                )
+                continue
+
+            chunks = split_into_chunks(text)
+            for i, ch in enumerate(chunks):
+                all_chunks.append(
+                    {
+                        "source": str(rel),
+                        "source_type": "pdf",
+                        "chunk_id": i,
+                        "text": ch,
+                    }
+                )
+
+        # 2) すでにテキスト化された .txt ファイルがあれば、それも対象にする
+        for txt_path in raw_dir.rglob("*.txt"):
+            rel = txt_path.relative_to(raw_dir)
+            # pubmed_metadata.json などは除外
+            if rel.name == "pubmed_metadata.json":
+                continue
+
+            print(f"[extract_and_chunk] processing TXT: {rel}")
+            try:
+                text = txt_path.read_text(encoding="utf-8")
+            except UnicodeDecodeError:
+                text = txt_path.read_text(encoding="cp932", errors="ignore")
+
+            chunks = split_into_chunks(text)
+            for i, ch in enumerate(chunks):
+                all_chunks.append(
+                    {
+                        "source": str(rel),
+                        "source_type": "txt",
+                        "chunk_id": i,
+                        "text": ch,
+                    }
+                )
+
+    # 結果の保存
+    with chunks_path.open("w", encoding="utf-8") as f:
+        for rec in all_chunks:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+
+    print(
+        f"[extract_and_chunk] wrote {len(all_chunks)} chunks "
+        f"to {chunks_path}"
+    )
+
 
 
 def build_index(config: Dict[str, Any]) -> None:
