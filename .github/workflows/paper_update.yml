@@ -1,9 +1,11 @@
 name: Paper Update (CD13)
 
 on:
-  workflow_dispatch:      # 手動トリガー
+  # 手動トリガー
+  workflow_dispatch:
+  # 週1実行（例：毎週日曜の 23:00 JST くらい）
   schedule:
-    - cron: "0 14 * * 0"  # 毎週日曜、日本時間の夜〜早朝に相当（調整可）
+    - cron: "0 14 * * 0"
 
 jobs:
   run-pipeline:
@@ -26,3 +28,12 @@ jobs:
       - name: Run pipeline
         run: |
           python run_pipeline.py configs/paper_update_cd13.yaml
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cd13_2025_11_30_outputs
+          path: |
+            data/raw/cd13_2025_11_30/pubmed_metadata.json
+            data/processed/cd13_2025_11_30/chunks.jsonl
+            reports/cd13_2025_11_30.md
