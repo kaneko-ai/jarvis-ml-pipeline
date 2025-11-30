@@ -35,5 +35,5 @@ jobs:
           name: cd13_2025_11_30_outputs
           path: |
             data/raw/cd13_2025_11_30/pubmed_metadata.json
-            data/processed/cd13_2025_11_30/chunks.jsonl
+            data/processed/cd13_2025_11_30/chunks.jsonl   # ★ 追加
             reports/cd13_2025_11_30.md
