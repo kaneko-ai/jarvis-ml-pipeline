@@ -1,13 +1,28 @@
-name: Paper Update (CD13)
+name: Paper Update
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 14 * * 0"
 
 jobs:
   run-pipeline:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        target:
+          - name: cd13_2025_11_30
+            config: configs/paper_update_cd13.yaml
+            report: reports/cd13_2025_11_30.md
+            chunks: data/processed/cd13_2025_11_30/chunks.jsonl
+            index: data/index/cd13_2025_11_30_tfidf.joblib
+            meta: data/raw/cd13_2025_11_30/pubmed_metadata.json
+
+          - name: cd73_light
+            config: configs/paper_update_cd73_light.yaml
+            report: reports/cd73_light.md
+            chunks: data/processed/cd73_light/chunks.jsonl
+            index: data/index/cd73_light_tfidf.joblib
+            meta: data/raw/cd73_light/pubmed_metadata.json
 
     steps:
       - name: Checkout repository
@@ -21,18 +36,20 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install -r requirements.txt
 
       - name: Run pipeline
+        env:
+          NCBI_API_KEY: ${{ secrets.NCBI_API_KEY }}
         run: |
-          python run_pipeline.py configs/paper_update_cd13.yaml
+          python run_pipeline.py ${{ matrix.target.config }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: cd13_2025_11_30_outputs
+          name: ${{ matrix.target.name }}_outputs
           path: |
-            data/raw/cd13_2025_11_30/pubmed_metadata.json
-            data/processed/cd13_2025_11_30/chunks.jsonl
-            data/index/cd13_2025_11_30_tfidf.joblib
-            reports/cd13_2025_11_30.md
+            ${{ matrix.target.report }}
+            ${{ matrix.target.chunks }}
+            ${{ matrix.target.index }}
+            ${{ matrix.target.meta }}
