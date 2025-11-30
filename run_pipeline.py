@@ -5,8 +5,11 @@ import sys
 from typing import Any, Dict, List, Optional
 
 from PyPDF2 import PdfReader
+from joblib import dump
+from sklearn.feature_extraction.text import TfidfVectorizer
 import requests
 import yaml
+
 
 
 
@@ -259,10 +262,72 @@ def extract_and_chunk(config: Dict[str, Any]) -> None:
 
 
 def build_index(config: Dict[str, Any]) -> None:
-    """FAISS index 構築（今はダミー）。"""
+    """
+    chunks.jsonl から TF-IDF ベースのインデックスを構築し、
+    joblib ファイルとして保存する。
+    """
+    processed_dir = pathlib.Path(config["paths"]["processed_dir"])
     index_path = pathlib.Path(config["paths"]["index_path"])
     index_path.parent.mkdir(parents=True, exist_ok=True)
-    print(f"[build_index] would build index at: {index_path}")
+
+    chunks_path = processed_dir / "chunks.jsonl"
+    if not chunks_path.exists():
+        print(f"[build_index] WARNING: chunks file not found: {chunks_path}", file=sys.stderr)
+        # 空インデックスを作ってもいいが、今は何もせずに戻る
+        return
+
+    texts: List[str] = []
+    metadata: List[Dict[str, Any]] = []
+
+    with chunks_path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            text = str(rec.get("text", "")).strip()
+            if not text:
+                continue
+
+            texts.append(text)
+            metadata.append(
+                {
+                    "source": rec.get("source"),
+                    "source_type": rec.get("source_type"),
+                    "chunk_id": rec.get("chunk_id"),
+                }
+            )
+
+    if not texts:
+        print("[build_index] WARNING: no chunks found to index.", file=sys.stderr)
+        return
+
+    print(f"[build_index] building TF-IDF index for {len(texts)} chunks...")
+
+    # シンプルな TF-IDF ベクトライザ
+    vectorizer = TfidfVectorizer(
+        max_features=20000,   # 将来的に調整可
+        ngram_range=(1, 2),   # 単語 + bi-gram
+    )
+
+    matrix = vectorizer.fit_transform(texts)
+
+    index_obj = {
+        "vectorizer": vectorizer,
+        "matrix": matrix,
+        "metadata": metadata,
+    }
+
+    dump(index_obj, index_path)
+    print(
+        f"[build_index] wrote TF-IDF index to {index_path} "
+        f"shape={matrix.shape}"
+    )
+
 
 
 def _extract_year(pubdate: Optional[str]) -> str:
