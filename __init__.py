@@ -10,6 +10,8 @@ __all__ = [
     "TaskStatus",
     "LLMClient",
     "Router",
+    "Planner",
+    "ExecutionEngine",
 ]
 
 
@@ -32,4 +34,12 @@ def __getattr__(name: str):
         from jarvis_core.router import Router
 
         return Router
+    if name == "Planner":
+        from jarvis_core.planner import Planner
+
+        return Planner
+    if name == "ExecutionEngine":
+        from jarvis_core.executor import ExecutionEngine
+
+        return ExecutionEngine
     raise AttributeError(name)
