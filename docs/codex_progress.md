@@ -10,7 +10,7 @@
 
 ## Milestones (M1–M4) and Status
 - **M1: Minimal Jarvis Core (CLI base)** — Status: 進行中
-- **M2: External Tool Integration Skeleton** — Status: 未着手
+- **M2: External Tool Integration Skeleton** — Status: 進行中
 - **M3: Self-Evaluation & Retry** — Status: 未着手
 - **M4: UI Layer Connectivity (antigravity/MyGPT)** — Status: 未着手
 
@@ -22,10 +22,10 @@
 - [ ] Simple CLI entry (e.g., `python -m jarvis_core.cli`) demonstrating end-to-end flow
 
 ### M2: Agent Registry / Router & Tool Interfaces
-- [ ] Config-driven agent registry (YAML/TOML) mapping categories to agents/tools
-- [ ] Router that selects agents based on task metadata and registry configuration
-- [ ] Interface stubs for literature tools (paper-fetcher, mygpt-paper-analyzer) and job-hunting utilities
-- [ ] Basic configuration loader with environment override support
+- [x] Config-driven agent registry (YAML/TOML) mapping categories to agents/tools
+- [x] Router that selects agents based on task metadata and registry configuration
+- [x] Interface stubs for literature tools (paper-fetcher, mygpt-paper-analyzer) and job-hunting utilities
+- [x] Basic configuration loader with environment override support
 
 ### M3: Self-Evaluation & Retry Logic
 - [ ] Validation functions for common outputs (JSON schema, file existence checks, minimal sanity rules)
@@ -42,6 +42,8 @@
 ## In-Progress Log
 - 2025-12-01T02:18Z — Repository review and initial codex_progress.md scaffold added (setup for M1 planning).
 - 2025-12-01T03:00Z — Implemented Task model at `jarvis_core/task.py` with enums for category/priority/status, added tests in `tests/test_task_model.py`, pytest passing locally.
+- 2025-12-01T04:00Z — Started M2 agent registry/router/tool stubs implementation (Codex run).
+- 2025-12-01T05:00Z — Implemented YAML-backed AgentRegistry, router Task integration, stub agents, config loader, and pytest coverage for registry and router.
 
 ## Blockers
 - None identified yet.
