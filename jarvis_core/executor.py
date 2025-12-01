@@ -61,12 +61,16 @@ class ExecutionEngine:
 
         return executed
 
-    def _execute_with_retry(self, subtask: Task) -> tuple[object | None, EvaluationResult | None, int]:
+    def _execute_with_retry(
+        self,
+        subtask: Task,
+    ) -> tuple[object | None, EvaluationResult | None, int]:
         """Execute a subtask with optional validation and retry policy."""
 
         attempt = 1
         last_result: object | None = None
         last_evaluation: EvaluationResult | None = None
+
         while True:
             last_result = self.router.run(subtask)
 
