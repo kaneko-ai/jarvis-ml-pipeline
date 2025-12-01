@@ -9,9 +9,9 @@
 - It favors small, iterative improvements while preserving public interfaces and avoiding hardcoded secrets.
 
 ## Milestones (M1–M4) and Status
-- **M1: Minimal Jarvis Core (CLI base)** — Status: 進行中
+- **M1: Minimal Jarvis Core (CLI base)** — Status: 完了
 - **M2: External Tool Integration Skeleton** — Status: 進行中
-- **M3: Self-Evaluation & Retry** — Status: 未着手
+- **M3: Self-Evaluation & Retry** — Status: 進行中
 - **M4: UI Layer Connectivity (antigravity/MyGPT)** — Status: 未着手
 
 ## Subtasks
@@ -28,10 +28,10 @@
 - [x] Basic configuration loader with environment override support
 
 ### M3: Self-Evaluation & Retry Logic
-- [ ] Validation functions for common outputs (JSON schema, file existence checks, minimal sanity rules)
-- [ ] Retry policy with capped attempts and error-type differentiation
-- [ ] Mechanism to enqueue corrective subtasks when validation fails
-- [ ] Logging of evaluation outcomes and retry decisions
+- [x] Validation functions for common outputs (JSON schema, file existence checks, minimal sanity rules)
+- [x] Retry policy with capped attempts and error-type differentiation
+- [x] Mechanism to enqueue corrective subtasks when validation fails
+- [x] Logging of evaluation outcomes and retry decisions
 
 ### M4: UI / API Connectivity
 - [ ] HTTP or CLI wrapper callable from antigravity actions
@@ -47,6 +47,7 @@
 - 2025-12-01T06:00Z — Implemented minimal Planner and ExecutionEngine for M1 with pytest coverage.
 - 2025-12-01T07:00Z — Added simple CLI entry via `jarvis_core.cli` with pytest coverage.
 - 2025-12-01T08:00Z — Added AgentRegistry/Router documentation, sample config, and runnable example script for M2.
+- 2025-12-01T09:00Z — Added validation helpers, retry policy, and integrated evaluation/retry into ExecutionEngine with tests.
 
 ## Blockers
 - None identified yet.
