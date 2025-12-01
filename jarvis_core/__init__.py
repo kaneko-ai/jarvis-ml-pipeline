@@ -22,7 +22,6 @@ def run_jarvis(task: str) -> str:
     Imports heavy dependencies lazily so that lightweight modules (e.g.,
     task modeling) can be used without requiring LLM dependencies.
     """
-
     from .llm import LLMClient  # Local import to avoid optional dependency at package import time
     from .router import Router
 
