@@ -437,5 +437,80 @@ Codex 側の制約に達するまで、次のループを自律的に繰り返�
   - 次に人間があなたに投げるべきタスク例
   を `docs/codex_progress.md` と Pull Request 説明欄に明記して終了してください。
 
+# Paper Survey Pipeline Specification (CD73/CDH13-oriented)
+
+## 0. 目的・スコープ
+- 修論・論文用の文献サーベイを、Jarvis Core 経由で半自動化する。
+- 対象: PubMed / PMC を主とした生命科学論文（当面は CD73 / CDH13 周辺）。
+
+## 1. 入出力仕様 (Interface)
+
+### 1.1 タスク入力 (Task.inputs)
+- category: `paper_survey`
+- goal: 人間が書く自然言語ゴール
+- inputs:
+  - query: PubMed クエリ（例: `"NT5E[Title/Abstract] OR CD73[Title/Abstract]"`）
+  - date_range: from/to
+  - max_results: 上限PMID数
+  - filters: open_access, IF、年限など
+
+### 1.2 期待する出力
+- structured_result (JSON)
+  - papers: [...論文ごとのメタ情報 + メモ...]
+  - survey_summary: 修論のどこに効くか（背景/考察）
+  - artifacts: 生成された TXT / BibTeX のパス
+
+## 2. パイプライン全体フロー
+
+1. PubMed 検索 (Search)
+2. メタデータ取得 (Metadata fetch)
+3. PDF / Fulltext 取得 (Fetch)
+4. テキスト化 & チャンク (Parse & Chunk)
+5. スコアリング / ranking (Rank)
+6. サマリー & 出力構造化 (Summarize & Structure)
+
+各ステップについて:
+- 入力
+- 出力
+- 想定する Agent
+- 失敗時の挙動（Retry / スキップ条件）
+
+## 3. Jarvis Core との連携ポイント
+
+### 3.1 Planner レベルの定義
+- `TaskCategory.PAPER_SURVEY` に対する標準サブタスク列
+  - SUBTASK 1: "pubmed_search"
+  - SUBTASK 2: "fetch_metadata"
+  - SUBTASK 3: "download_fulltext"
+  - SUBTASK 4: "parse_and_chunk"
+  - SUBTASK 5: "rank_and_filter"
+  - SUBTASK 6: "summarize_for_thesis"
+
+### 3.2 Agent Registry 上のエージェント割り当て
+- `paper_fetcher` → SUBTASK 1–3 を担当
+- `mygpt_paper_analyzer` → SUBTASK 4–6 を担当
+- 各エージェントの capabilities をどう定義するか
+
+## 4. Self-Evaluation & Retry のルール
+
+- 例: 「pubmed_search の結果が0件」なら query を緩めて再検索
+- 「download_fulltext の成功率が X% 未満」なら、
+  - Open Access のみに限定して警告を出す
+- JSON schema バリデーション項目
+
+## 5. 実装段階ごとのスコープ
+
+- Phase 1: ダミー実装（外部ツールなしでモックデータを返す）
+- Phase 2: paper-fetcher との実接続（PubMed API）
+- Phase 3: mygpt-paper-analyzer 連携（解析・ranking）
+- Phase 4: 修論テンプレに沿った自動サマリー出力
+
+## 6. 将来拡張
+
+- Tohoku VPN 経由の学内アクセス
+- IF / citation に基づく ranking
+- 研究テーマごとのテンプレ（CDH13 / CD73 など）
+
+
 以上の方針に従い、「kaneko-ai/jarvis-ml-pipeline」の Jarvis Core を、`docs/jarvis_vision.md` に沿って段階的かつ安全に育ててください。
 
