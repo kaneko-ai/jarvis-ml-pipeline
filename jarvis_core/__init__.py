@@ -1,6 +1,7 @@
 """Jarvis Core package exports."""
 
 from .task import Task, TaskCategory, TaskPriority, TaskStatus
+from .registry import AgentRegistry
 
 __all__ = [
     "run_jarvis",
@@ -8,6 +9,7 @@ __all__ = [
     "TaskCategory",
     "TaskPriority",
     "TaskStatus",
+    "AgentRegistry",
     "LLMClient",
     "Router",
 ]
@@ -20,7 +22,6 @@ def run_jarvis(task: str) -> str:
     Imports heavy dependencies lazily so that lightweight modules (e.g.,
     task modeling) can be used without requiring LLM dependencies.
     """
-
     from .llm import LLMClient  # Local import to avoid optional dependency at package import time
     from .router import Router
 
@@ -39,4 +40,8 @@ def __getattr__(name: str):
         from .router import Router
 
         return Router
+    if name == "AgentRegistry":
+        from .registry import AgentRegistry
+
+        return AgentRegistry
     raise AttributeError(name)
