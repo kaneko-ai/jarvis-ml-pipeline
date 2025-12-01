@@ -1,10 +1,21 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Dict
 
-from .agents import ThesisAgent, ESEditAgent, MiscAgent, AgentResult
+from .agents import (
+    ESEditAgent,
+    JobAssistantAgent,
+    MiscAgent,
+    PaperFetcherAgent,
+    ThesisAgent,
+    AgentResult,
+)
+from .agents.literature import LiteratureSurveyAgent
 from .llm import LLMClient
+from .registry import AgentRegistry
+from .task import Task, TaskCategory
 
 
 @dataclass
@@ -20,8 +31,13 @@ class Router:
     ログ保存など余計な処理は一旦すべて削っている。
     """
 
-    def __init__(self, llm: LLMClient) -> None:
+    def __init__(self, llm: LLMClient, registry: AgentRegistry | None = None) -> None:
         self.llm = llm
+        if registry:
+            self.registry = registry
+        else:
+            default_path = Path(__file__).resolve().parent.parent / "configs" / "agents.yaml"
+            self.registry = AgentRegistry.from_file(default_path)
 
     # ---------- ルーティングロジック ----------
 
@@ -48,22 +64,30 @@ class Router:
             "就活",
             "インターン",
         ]
+        paper_keywords = ["文献", "サーベイ", "論文", "paper"]
 
         if any(k in t for k in thesis_keywords):
-            return "thesis"
+            return TaskCategory.THESIS.value
         if any(k in t for k in es_keywords):
-            return "es"
+            return TaskCategory.JOB_HUNTING.value
+        if any(k in t for k in paper_keywords):
+            return TaskCategory.LITERATURE_REVIEW.value
 
-        return "misc"
+        return TaskCategory.GENERIC.value
 
     def plan_route(self, task: str) -> RoutePlan:
         task_type = self._detect_task_type(task)
+        agent_name: str | None = None
 
-        if task_type == "thesis":
-            agent_name = "thesis"
-        elif task_type == "es":
+        if task_type == TaskCategory.JOB_HUNTING.value and self.registry.get_agent("es_edit"):
             agent_name = "es_edit"
-        else:
+
+        if agent_name is None:
+            default = self.registry.get_default_agent_for_category(task_type)
+            if default:
+                agent_name = default.name
+
+        if agent_name is None:
             agent_name = "misc"
 
         return RoutePlan(
@@ -72,15 +96,64 @@ class Router:
             meta={"raw_task": task[:200]},
         )
 
+    def _select_agent_for_task(self, task: Task):
+        inputs = task.inputs or {}
+        agent_hint = inputs.get("agent_hint") if isinstance(inputs, dict) else None
+
+        category_cfg = self.registry.get_category_config(task.category.value)
+        agent_config = category_cfg.get("config", {}) if isinstance(category_cfg, dict) else {}
+
+        if agent_hint:
+            try:
+                return self.registry.create_agent_instance(agent_hint, config=agent_config), agent_config
+            except KeyError:
+                pass
+
+        default = self.registry.get_default_agent_for_category(task.category.value)
+        if default:
+            return self.registry.create_agent_instance(default.name, config=agent_config), agent_config
+
+        return MiscAgent(), agent_config
+
+    def _render_task_text(self, task: Task) -> str:
+        context = ""
+        if isinstance(task.inputs, dict):
+            query = task.inputs.get("query")
+            ctx = task.inputs.get("context")
+            parts = [task.goal]
+            if query:
+                parts.append(f"Query: {query}")
+            if ctx:
+                parts.append(f"Context: {ctx}")
+            context = "\n".join(parts)
+        return context or task.goal
+
+    def run_task(self, task: Task) -> AgentResult:
+        agent, _config = self._select_agent_for_task(task)
+        if hasattr(agent, "run_task"):
+            return agent.run_task(task)
+
+        task_text = self._render_task_text(task)
+        return agent.run_single(self.llm, task_text)
+
     # ---------- 実行 ----------
 
-    def run(self, task: str) -> AgentResult:
+    def run(self, task: str | Task) -> AgentResult:
+        if isinstance(task, Task):
+            return self.run_task(task)
+
         plan = self.plan_route(task)
 
         if plan.agent_name == "thesis":
             agent = ThesisAgent()
         elif plan.agent_name == "es_edit":
             agent = ESEditAgent()
+        elif plan.agent_name == "paper_fetcher":
+            agent = PaperFetcherAgent()
+        elif plan.agent_name == "literature_survey":
+            agent = LiteratureSurveyAgent()
+        elif plan.agent_name == "job_assistant":
+            agent = JobAssistantAgent()
         else:
             agent = MiscAgent()
 
