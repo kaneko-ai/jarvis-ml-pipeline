@@ -17,8 +17,8 @@
 ## Subtasks
 ### M1: Minimal Jarvis Core
 - [x] Task model defined with id/category/goal/inputs/constraints/priority/status/history
-- [ ] Minimal planner that expands user goals into ordered subtasks (hardcoded per category acceptable)
-- [ ] Execution engine that sequences subtasks and invokes dummy agents
+- [x] Minimal planner that expands user goals into ordered subtasks (hardcoded per category acceptable)
+- [x] Execution engine that sequences subtasks and invokes dummy agents
 - [ ] Simple CLI entry (e.g., `python -m jarvis_core.cli`) demonstrating end-to-end flow
 
 ### M2: Agent Registry / Router & Tool Interfaces
@@ -44,6 +44,7 @@
 - 2025-12-01T03:00Z — Implemented Task model at `jarvis_core/task.py` with enums for category/priority/status, added tests in `tests/test_task_model.py`, pytest passing locally.
 - 2025-12-01T04:00Z — Started M2 agent registry/router/tool stubs implementation (Codex run).
 - 2025-12-01T05:00Z — Implemented YAML-backed AgentRegistry, router Task integration, stub agents, config loader, and pytest coverage for registry and router.
+- 2025-12-01T06:00Z — Implemented minimal Planner and ExecutionEngine for M1 with pytest coverage.
 
 ## Blockers
 - None identified yet.
