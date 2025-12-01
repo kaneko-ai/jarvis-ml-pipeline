@@ -34,6 +34,7 @@
 - [x] Logging of evaluation outcomes and retry decisions
 
 ### M4: UI / API Connectivity
+- [x] FastAPI ベースの `/jarvis` API を追加し、uvicorn で起動可能 (例: `uvicorn jarvis_core.api:app --reload`)
 - [ ] HTTP or CLI wrapper callable from antigravity actions
 - [ ] Task ID–based progress query endpoint or CLI command
 - [ ] Auth/config plumbing separated from business logic (no hardcoded secrets)
