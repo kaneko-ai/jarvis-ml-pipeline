@@ -4,3 +4,7 @@ PyPDF2
 scikit-learn
 joblib
 pymupdf
+
+fastapi
+uvicorn[standard]
+pydantic
