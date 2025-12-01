@@ -19,7 +19,7 @@
 - [x] Task model defined with id/category/goal/inputs/constraints/priority/status/history
 - [x] Minimal planner that expands user goals into ordered subtasks (hardcoded per category acceptable)
 - [x] Execution engine that sequences subtasks and invokes dummy agents
-- [ ] Simple CLI entry (e.g., `python -m jarvis_core.cli`) demonstrating end-to-end flow
+- [x] Simple CLI entry (e.g., `python -m jarvis_core.cli`) demonstrating end-to-end flow
 
 ### M2: Agent Registry / Router & Tool Interfaces
 - [x] Config-driven agent registry (YAML/TOML) mapping categories to agents/tools
@@ -45,6 +45,7 @@
 - 2025-12-01T04:00Z — Started M2 agent registry/router/tool stubs implementation (Codex run).
 - 2025-12-01T05:00Z — Implemented YAML-backed AgentRegistry, router Task integration, stub agents, config loader, and pytest coverage for registry and router.
 - 2025-12-01T06:00Z — Implemented minimal Planner and ExecutionEngine for M1 with pytest coverage.
+- 2025-12-01T07:00Z — Added simple CLI entry via `jarvis_core.cli` with pytest coverage.
 
 ## Blockers
 - None identified yet.
