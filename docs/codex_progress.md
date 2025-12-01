@@ -34,10 +34,21 @@
 - [x] Logging of evaluation outcomes and retry decisions
 
 ### M4: UI / API Connectivity
+- [x] FastAPI ベースの `/jarvis` API を追加し、uvicorn で起動可能 (例: `uvicorn jarvis_core.api:app --reload`)
+- [x] 文献サーベイエージェント API (`POST /literature-survey`) を追加
 - [ ] HTTP or CLI wrapper callable from antigravity actions
 - [ ] Task ID–based progress query endpoint or CLI command
 - [ ] Auth/config plumbing separated from business logic (no hardcoded secrets)
 - [ ] Documentation for integrating with MyGPT or future dashboard
+
+FastAPI 起動例: `uvicorn jarvis_core.api:app --reload`
+文献サーベイ API 呼び出し例:
+
+```bash
+curl -X POST "http://localhost:8000/literature-survey" \
+  -H "Content-Type: application/json" \
+  -d '{"topic": "免疫チェックポイント阻害", "max_papers": 5, "language": "ja"}'
+```
 
 ## In-Progress Log
 - 2025-12-01T02:18Z — Repository review and initial codex_progress.md scaffold added (setup for M1 planning).
