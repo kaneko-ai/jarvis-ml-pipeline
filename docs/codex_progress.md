@@ -46,6 +46,7 @@
 - 2025-12-01T05:00Z — Implemented YAML-backed AgentRegistry, router Task integration, stub agents, config loader, and pytest coverage for registry and router.
 - 2025-12-01T06:00Z — Implemented minimal Planner and ExecutionEngine for M1 with pytest coverage.
 - 2025-12-01T07:00Z — Added simple CLI entry via `jarvis_core.cli` with pytest coverage.
+- 2025-12-01T08:00Z — Added AgentRegistry/Router documentation, sample config, and runnable example script for M2.
 
 ## Blockers
 - None identified yet.

@@ -1,0 +1,56 @@
+# Example Agent Registry configuration
+# Copy to configs/agents.yaml and adjust entrypoints or defaults as needed.
+
+agents:
+  paper_fetcher:
+    category: paper_survey
+    description: "Fetches and triages papers from external sources (stub)."
+    entrypoint: "jarvis_core.agents:PaperFetcherAgent"
+    capabilities:
+      - search_pubmed
+      - download_pdf
+  mygpt_paper_analyzer:
+    category: paper_survey
+    description: "Analyzes PDF papers via MyGPT pipeline (stub)."
+    entrypoint: "jarvis_core.agents:MyGPTPaperAnalyzerAgent"
+    capabilities:
+      - summarize
+      - rank_relevance
+  job_assistant:
+    category: job_hunting
+    description: "Job hunting helper for ES and interview prep (stub)."
+    entrypoint: "jarvis_core.agents:JobAssistantAgent"
+    capabilities:
+      - draft_es
+      - generate_interview_questions
+  es_edit:
+    category: job_hunting
+    description: "Entry sheet editing agent (stub)."
+    entrypoint: "jarvis_core.agents:ESEditAgent"
+    capabilities:
+      - edit_es
+      - rewrite_pr
+  misc:
+    category: generic
+    description: "Generic fallback agent (stub)."
+    entrypoint: "jarvis_core.agents:MiscAgent"
+    capabilities:
+      - generic_answer
+
+categories:
+  paper_survey:
+    # Default agent used when no explicit agent_hint is provided.
+    default_agent: paper_fetcher
+    # Available agents for literature-related tasks (in priority order).
+    agents:
+      - paper_fetcher
+      - mygpt_paper_analyzer
+  job_hunting:
+    default_agent: job_assistant
+    agents:
+      - job_assistant
+      - es_edit
+  generic:
+    default_agent: misc
+    agents:
+      - misc
