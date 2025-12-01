@@ -41,24 +41,10 @@
 - [ ] Auth/config plumbing separated from business logic (no hardcoded secrets)
 - [ ] Documentation for integrating with MyGPT or future dashboard
 
-FastAPI 起動例: `uvicorn jarvis_core.api:app --reload`
+FastAPI 起動例: `uvicorn jarvis_core.api:app --reload`  
 文献サーベイ API 呼び出し例:
 
 ```bash
 curl -X POST "http://localhost:8000/literature-survey" \
   -H "Content-Type: application/json" \
   -d '{"topic": "免疫チェックポイント阻害", "max_papers": 5, "language": "ja"}'
-```
-
-## In-Progress Log
-- 2025-12-01T02:18Z — Repository review and initial codex_progress.md scaffold added (setup for M1 planning).
-- 2025-12-01T03:00Z — Implemented Task model at `jarvis_core/task.py` with enums for category/priority/status, added tests in `tests/test_task_model.py`, pytest passing locally.
-- 2025-12-01T04:00Z — Started M2 agent registry/router/tool stubs implementation (Codex run).
-- 2025-12-01T05:00Z — Implemented YAML-backed AgentRegistry, router Task integration, stub agents, config loader, and pytest coverage for registry and router.
-- 2025-12-01T06:00Z — Implemented minimal Planner and ExecutionEngine for M1 with pytest coverage.
-- 2025-12-01T07:00Z — Added simple CLI entry via `jarvis_core.cli` with pytest coverage.
-- 2025-12-01T08:00Z — Added AgentRegistry/Router documentation, sample config, and runnable example script for M2.
-- 2025-12-01T09:00Z — Added validation helpers, retry policy, and integrated evaluation/retry into ExecutionEngine with tests.
-
-## Blockers
-- None identified yet.
