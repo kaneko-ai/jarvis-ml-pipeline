@@ -176,3 +176,45 @@ class MiscAgent(BaseAgent):
         )
         thought, answer = self._parse_yaml_like(raw)
         return AgentResult(thought=thought, answer=answer, score=0.0)
+
+
+class PaperFetcherAgent(BaseAgent):
+    """Stub for paper-fetcher style agent."""
+
+    name = "paper_fetcher"
+
+    def run_single(self, llm: LLMClient, task: str) -> AgentResult:  # noqa: ARG002
+        return AgentResult(
+            thought="Gathering paper sources (stub)",
+            answer=f"Stub: fetching papers for '{task}'",
+            score=0.0,
+            meta={"source": "paper_fetcher_stub"},
+        )
+
+
+class MyGPTPaperAnalyzerAgent(BaseAgent):
+    """Stub for mygpt-paper-analyzer integration."""
+
+    name = "mygpt_paper_analyzer"
+
+    def run_single(self, llm: LLMClient, task: str) -> AgentResult:  # noqa: ARG002
+        return AgentResult(
+            thought="Analyzing papers via MyGPT (stub)",
+            answer=f"Stub: analyzing papers for '{task}'",
+            score=0.0,
+            meta={"source": "mygpt_paper_analyzer_stub"},
+        )
+
+
+class JobAssistantAgent(BaseAgent):
+    """Stub for job-hunting assistant (ES, interview prep)."""
+
+    name = "job_assistant"
+
+    def run_single(self, llm: LLMClient, task: str) -> AgentResult:  # noqa: ARG002
+        return AgentResult(
+            thought="Drafting job-hunting support output (stub)",
+            answer=f"Stub: job assistance for '{task}'",
+            score=0.0,
+            meta={"source": "job_assistant_stub"},
+        )
