@@ -1,97 +1,66 @@
-# Agent Registry & Router Guide
+# Agent Registry / Router 運用ガイド（実務用）
 
-This guide explains how to configure and use the AgentRegistry and Router components that power Jarvis Core task routing. It complements `docs/jarvis_vision.md` and focuses on practical setup.
+このファイルは **AgentRegistry と Router をどう設定・運用するか** に限定する。  
+アーキテクチャ全体、I/O契約（Task/SubTask/AgentResult）、ログ仕様、ToolGate（ツール乱用抑制）などの設計は正本に集約する。
 
-## Configuration format (YAML)
-Agent definitions live in a YAML file such as `configs/agents.yaml` (or `configs/agents.example.yaml` as a starter). The file has two top-level keys:
+- 正本：[`docs/JARVIS_MASTER.md`](./JARVIS_MASTER.md)
+  - I/O契約：正本「5. AgentのI/Oスキーマ（契約）」
+  - ログ仕様：正本「6. ログ（trace）仕様」
+  - ツール乱用抑制：正本「7. ツール乱用抑制（ToolGate）」
 
-- `agents`: map of agent name → definition
-  - `category`: logical TaskCategory the agent serves (e.g., `paper_survey`, `thesis`, `job_hunting`, `generic`).
-  - `entrypoint`: Python import path in `module:ClassName` form.
-  - `description`: human-friendly text for documentation.
-  - `capabilities`: list of strings describing what the agent can do.
-- `categories`: map of category → config
-  - `default_agent`: fallback agent name for the category.
-  - `agents`: ordered list of available agent names for that category.
+---
 
-Example (see `configs/agents.example.yaml` for a complete, commented file):
+## 1. AgentRegistry の役割
+- **設定ファイル（YAML）** で「カテゴリ→利用可能エージェント→デフォルト」を定義する
+- 実装と設定を分離し、差し替え（スタブ→実装）を容易にする
+- Routerは、Task（または文字列入力）を受け取り、Registryに従ってエージェントを選ぶ
+
+---
+
+## 2. 設定フォーマット（YAML）
+エージェント定義は `configs/agents.yaml` に置く。
+
+### 2.1 トップレベルキー
+- `agents`：`{ agent_name: agent_definition }`
+- `categories`：`{ category_name: category_config }`
+
+### 2.2 agents（エージェント定義）
+各エージェントは以下を持つ。
+- `category`：論理カテゴリ（例：`paper_survey`, `thesis`, `job_hunting`, `generic`）
+- `entrypoint`：`module:ClassName` 形式（例：`jarvis_core.agents:PaperSurveyAgent`）
+- `description`：人間向け説明
+- `capabilities`：能力タグ（検索、要約、引用監査など）
+
+### 2.3 categories（カテゴリ定義）
+- `default_agent`：カテゴリの既定エージェント名
+- `agents`：優先順のエージェント候補リスト（上ほど優先）
+
+---
+
+## 3. 設定例（最小）
 ```yaml
 agents:
-  paper_fetcher:
+  PaperSurveyAgent:
     category: paper_survey
-    entrypoint: "jarvis_core.agents:PaperFetcherAgent"
-    description: "Fetches and triages papers (stub)"
-    capabilities: ["search_pubmed", "download_pdf"]
-  mygpt_paper_analyzer:
-    category: paper_survey
-    entrypoint: "jarvis_core.agents:MyGPTPaperAnalyzerAgent"
-    description: "Analyzes PDFs (stub)"
-    capabilities: ["summarize", "rank_relevance"]
-  job_assistant:
-    category: job_hunting
-    entrypoint: "jarvis_core.agents:JobAssistantAgent"
-    description: "Job-hunting helper (stub)"
-    capabilities: ["draft_es", "interview_prep"]
-  misc:
-    category: generic
-    entrypoint: "jarvis_core.agents:MiscAgent"
-    description: "Generic fallback agent"
-    capabilities: ["generic_answer"]
+    entrypoint: jarvis_core.agents:PaperSurveyAgent
+    description: "論文サーベイと要約（まずはスタブでも可）"
+    capabilities: ["retrieve", "summarize", "cite"]
+
+  ThesisAgent:
+    category: thesis
+    entrypoint: jarvis_core.agents:ThesisAgent
+    description: "修論文章の整形・校閲・構成支援"
+    capabilities: ["rewrite", "structure", "consistency_check"]
 
 categories:
   paper_survey:
-    default_agent: paper_fetcher
-    agents: [paper_fetcher, mygpt_paper_analyzer]
-  job_hunting:
-    default_agent: job_assistant
-    agents: [job_assistant]
+    default_agent: PaperSurveyAgent
+    agents: [PaperSurveyAgent]
+
+  thesis:
+    default_agent: ThesisAgent
+    agents: [ThesisAgent]
+
   generic:
-    default_agent: misc
-    agents: [misc]
-```
-
-## Loading the registry
-```python
-from pathlib import Path
-from jarvis_core.registry import AgentRegistry
-
-config_path = Path("configs/agents.yaml")
-registry = AgentRegistry.from_file(config_path)
-```
-`AgentRegistry.from_file` accepts an optional `overrides` dict to merge on top of the base YAML. This makes it easy to swap entrypoints or change defaults in different environments without editing the file directly.
-
-## How routing works
-- **String input**: `Router.run("goal text")` uses simple keyword heuristics to detect a category, then picks the category default agent (or `misc` as fallback) and calls `agent.run_single(...)`.
-- **Task input**: `Router.run(task: Task)` respects `task.category` and checks `task.inputs.get("agent_hint")` first. If an `agent_hint` is present and known, it is used. Otherwise the category default agent is selected.
-- Task context (`goal`, optional `inputs.query`/`inputs.context`) is rendered into text and passed to the agent.
-
-## Swapping in real tools
-The registry decouples configuration from code. To replace a stub with a real implementation:
-1. Implement the agent class with a `run_single(self, llm, task: str) -> AgentResult` method (see `jarvis_core.agents.BaseAgent`).
-2. Update the relevant `entrypoint` in your config file to point to the new class (e.g., `"my_pkg.real_agents:PaperFetcherAgent"`).
-3. (Optional) Add capabilities or adjust defaults in `categories` to favor the new tool.
-
-## Minimal end-to-end usage
-```python
-from jarvis_core.registry import AgentRegistry
-from jarvis_core.router import Router
-from jarvis_core.task import Task, TaskCategory
-
-class DummyLLM:
-    def chat(self, messages):
-        return "dummy response"
-
-registry = AgentRegistry.from_file("configs/agents.yaml")
-router = Router(llm=DummyLLM(), registry=registry)
-
-task = Task(
-    id="demo-1",
-    category=TaskCategory.PAPER_SURVEY,
-    goal="Find papers about CRISPR quality control",
-    inputs={"query": "CRISPR quality control"},
-)
-result = router.run(task)
-print(result.answer)
-```
-
-This sample uses stub agents that do not call external services, so it runs without API keys. For LLM-backed agents, supply a real `LLMClient` (requires `GEMINI_API_KEY` or `GOOGLE_API_KEY`).
+    default_agent: ThesisAgent
+    agents: [ThesisAgent]
