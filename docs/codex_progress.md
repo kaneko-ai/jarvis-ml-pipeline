@@ -1,53 +1,42 @@
-# Codex Progress - Jarvis Core
+# Codex Progress（進捗トラッキング）
 
-## Vision Summary
-- Jarvis Core turns open-ended research and career questions into structured tasks and orchestrates the right agents to execute them.
-- It converts natural language goals into actionable subtasks with clear inputs, constraints, and priorities.
-- It routes work to domain agents (literature, thesis writing, job hunting, news) via a registry and lightweight execution engine.
-- It validates outputs, triggers retries when results are incomplete or malformed, and keeps decisions auditable.
-- It centralizes logging and progress so humans can trace when, what, and which agent acted.
-- It favors small, iterative improvements while preserving public interfaces and avoiding hardcoded secrets.
+このファイルは **進捗（状態）だけ** を管理する。  
+仕様（Done条件・設計）は正本 `docs/JARVIS_MASTER.md` に集約する。
 
-## Milestones (M1–M4) and Status
-- **M1: Minimal Jarvis Core (CLI base)** — Status: 完了
-- **M2: External Tool Integration Skeleton** — Status: 進行中
-- **M3: Self-Evaluation & Retry** — Status: 進行中
-- **M4: UI Layer Connectivity (antigravity/MyGPT)** — Status: 未着手
+- 正本：[`docs/JARVIS_MASTER.md`](./JARVIS_MASTER.md)
+  - マイルストーン定義：正本「9. マイルストーン（M1–M4）」
+  - 直近優先順位：正本「10. 直近の実装優先順位」
 
-## Subtasks
-### M1: Minimal Jarvis Core
-- [x] Task model defined with id/category/goal/inputs/constraints/priority/status/history
-- [x] Minimal planner that expands user goals into ordered subtasks (hardcoded per category acceptable)
-- [x] Execution engine that sequences subtasks and invokes dummy agents
-- [x] Simple CLI entry (e.g., `python -m jarvis_core.cli`) demonstrating end-to-end flow
+---
 
-### M2: Agent Registry / Router & Tool Interfaces
-- [x] Config-driven agent registry (YAML/TOML) mapping categories to agents/tools
-- [x] Router that selects agents based on task metadata and registry configuration
-- [x] Interface stubs for literature tools (paper-fetcher, mygpt-paper-analyzer) and job-hunting utilities
-- [x] Basic configuration loader with environment override support
+## 現在のステータス（短く）
+- M1: Minimal Core — Status: （未設定）
+- M2: Tool統合（文献） — Status: （未設定）
+- M3: 自己評価と再試行 — Status: （未設定）
+- M4: UI/API接続 — Status: （未設定）
 
-### M3: Self-Evaluation & Retry Logic
-- [x] Validation functions for common outputs (JSON schema, file existence checks, minimal sanity rules)
-- [x] Retry policy with capped attempts and error-type differentiation
-- [x] Mechanism to enqueue corrective subtasks when validation fails
-- [x] Logging of evaluation outcomes and retry decisions
+---
 
-### M4: UI / API Connectivity
-- [ ] HTTP or CLI wrapper callable from antigravity actions
-- [ ] Task ID–based progress query endpoint or CLI command
-- [ ] Auth/config plumbing separated from business logic (no hardcoded secrets)
-- [ ] Documentation for integrating with MyGPT or future dashboard
+## M1: Minimal Core（Done条件は正本に準拠）
+- [ ] CLI/APIが必ず Planner→Executor→Router の正規ルートを通る
+- [ ] Task→SubTask→AgentResult が一貫I/Oで流れる
+- [ ] JSONLログ（run_id/task_id/subtask_id）が残る
 
-## In-Progress Log
-- 2025-12-01T02:18Z — Repository review and initial codex_progress.md scaffold added (setup for M1 planning).
-- 2025-12-01T03:00Z — Implemented Task model at `jarvis_core/task.py` with enums for category/priority/status, added tests in `tests/test_task_model.py`, pytest passing locally.
-- 2025-12-01T04:00Z — Started M2 agent registry/router/tool stubs implementation (Codex run).
-- 2025-12-01T05:00Z — Implemented YAML-backed AgentRegistry, router Task integration, stub agents, config loader, and pytest coverage for registry and router.
-- 2025-12-01T06:00Z — Implemented minimal Planner and ExecutionEngine for M1 with pytest coverage.
-- 2025-12-01T07:00Z — Added simple CLI entry via `jarvis_core.cli` with pytest coverage.
-- 2025-12-01T08:00Z — Added AgentRegistry/Router documentation, sample config, and runnable example script for M2.
-- 2025-12-01T09:00Z — Added validation helpers, retry policy, and integrated evaluation/retry into ExecutionEngine with tests.
+## M2: Tool統合（文献）
+- [ ] Paper系Agentが paper_pipeline を呼び、索引更新→検索→要約まで一気通貫で通る
+- [ ] 成果物（index/chunks/meta/report）が AgentResult の artifacts に載る
+- [ ] ローカル索引優先→外部取得（全文）という段階制御ができる
 
-## Blockers
-- None identified yet.
+## M3: 自己評価と再試行
+- [ ] Judgeが最低2種類（形式＋引用/整合）で動く
+- [ ] Judge失敗時に、リトライ方針（何を変えて再試行するか）がログに残る
+- [ ] リトライ回数・理由・結果が集計できる
+
+## M4: UI/API接続
+- [ ] `/run` と `/status/{run_id}` が存在し、外部UIから進捗参照できる
+- [ ] 結果を“最終報告フォーマット”で返す（Summarizer相当の整形）
+
+---
+
+## 次にやること（更新用メモ）
+- 進捗更新はこのファイルで良いが、設計変更は必ず `JARVIS_MASTER.md` を更新すること。
