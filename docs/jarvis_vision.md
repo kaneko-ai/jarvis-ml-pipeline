@@ -1,205 +1,107 @@
-
-# Jarvis Vision（正本）
+# docs/jarvis_vision.md
 Last Updated: 2025-12-20
 
-このファイルは本リポジトリにおける **Jarvis（javis）の正本（Master）** である。  
-設計・仕様・運用ルールの「正」は必ずここに集約する。
+## 0. この文書の役割（概要のみ）
+このファイルは Jarvis（javis）の **全体像を短く把握するための概要**である。  
+仕様・設計判断・ロードマップ・I/O契約の正本は `docs/JARVIS_MASTER.md` に一本化する。
+
+- 正本：`docs/JARVIS_MASTER.md`
 
 ---
 
-## 1. システム全体像（レイヤ構造）
+## 1. Jarvisとは何か（1文）
+Jarvisは、研究・執筆・就活のタスクを「計画→実行→検証→記録」の手順に落とし、再現可能に回す **個人向けオーケストレーター**である。
 
+---
+
+## 2. 何を最優先にするか（運用が壊れないための原則）
+- 実行経路（Plan→Act→Verify→Store）を強制する
+- 根拠が不足する出力は言い切らない（根拠不足・不明を明示）
+- 出力形式を固定し、後から検証できる形にする
+- ログ（JSONL）を必須にして観測可能にする
+- 内部思考（thought）を保存しない（運用上の害が大きい）
+
+---
+
+## 3. 今回「作らない」もの（明示的に凍結）
+- Web UI（`/run` と `/status`）
+- PDF→スライド自動生成、Podcast生成、PDF→動画
+- GitHub Actions強化（通知/差分要約/Slack等）
+- LoRAでの専用モデル化
+- セキュリティ自動監査（BugTrace系）
+
+理由：中核の配線と品質ゲートが未固定な段階で拡張すると、全機能が負債化するため。
+
+---
+
+## 4. 最小アーキテクチャ（概念図）
 ```text
-[UI層]
-  ChatGPT / MyGPT / antigravity / 将来Dashboard
+[CLI/呼び出し口]
+      |
+      v
+[Jarvis Core]
+  Plan -> Act -> Verify -> Store
+      |
+      v
+[Tools]
+  - 文献索引検索（ローカル）
+  - 文献取得/チャンク化（必要時）
+      |
+      v
+[Data/Artifacts]
+  - chunks / index / reports / logs
+5. 次に見るべき文書
+仕様・ロードマップ：docs/JARVIS_MASTER.md
 
-        ↓（自然言語 + 最小メタ）
+進捗管理：docs/codex_progress.md
 
-[Jarvis Core（このrepoの担当範囲）]
-  Planner
-    → Router / Registry
-      → Execution
-        → Validation / Retry
-          → Logging / Progress
+設定運用（agents.yaml）：docs/agent_registry.md
 
-        ↓（疎結合）
-
-[Tools / Services層]
-  paper_pipeline
-  retrieval（keyword + vector + rerank）
-  mygpt-paper-analyzer
-  OCR / 図抽出 / ES支援 / ニュース監視
-
-        ↓
-
-[データ層]
-  PDF / BibTeX / citation
-  チャンク / 索引 / ベクトルDB
-  Obsidian Vault
-  GitHub（コード・設定）
-2. jarvis-ml-pipeline の責務と非責務
-2.1 責務（スコープ内）
-自然言語タスクを Task として受け取る
-
-Task を SubTask に分解する（Planner）
-
-Agent を選択する（Registry / Router）
-
-SubTask を順次実行する（Execution）
-
-妥当性検証・再試行を行う（Validation / Retry）
-
-実行を再現可能な形で記録する（Logging）
-
-2.2 非責務（スコープ外）
-UI 実装
-
-独自 LLM の事前学習・研究
-
-高リスクな自動操作の中核化
-
-3. Task モデル（抽象仕様）
-json
-コードをコピーする
-{
-  "id": "task-id",
-  "category": "paper_survey | thesis | study | job_hunting | generic",
-  "goal": "自然言語の目的",
-  "inputs": {
-    "query": "string",
-    "files": [],
-    "context": "string"
-  },
-  "constraints": {
-    "language": "ja",
-    "citation_required": true
-  },
-  "priority": 1,
-  "status": "pending | running | done | failed",
-  "history": []
-}
-4. Orchestration / Agent 層
-4.1 Planner
-Task を順序付き SubTask に分解する
-
-4.2 Registry / Router
-YAML 定義に基づき Agent を選択する
-
-4.3 Execution
-SubTask を逐次実行する
-
-4.4 Validation / Retry
-出力の最低限の妥当性を保証する
-
-4.5 Logging
-run_id / task_id / subtask_id を JSONL で記録する
-
-5. マイルストーン
-M1
-CLI が Planner → Execution → Router 経路で動作
-
-M2
-外部ツール（paper_pipeline 等）を Agent 経由で呼べる
-
-M3
-Self-Evaluation / Retry が動作
-
-M4
-UI（antigravity / MyGPT）と接続
-
-6. CodeX 用プロンプト
-text
-コードをコピーする
-あなたは Jarvis Core を改善するエンジニアです。
-正本仕様は docs/jarvis_vision.md にあります。
-仕様を最優先し、小さな変更で改善してください。
 yaml
 コードをコピーする
-
----
-
-# ② `docs/codex_progress.md`  
-👉 **このコードブロックを「全部」コピーして置き換え**
 
 ```markdown
-# Codex Progress
+# docs/codex_progress.md
 Last Updated: 2025-12-20
 
-このファイルは進捗のみを管理する。
+## 0. このファイルの目的（進捗だけ）
+このファイルは **進捗（状態）だけ** を管理する。  
+仕様（Done条件・設計・改修順序）は正本 `docs/JARVIS_MASTER.md` に集約する。
+
+- 正本：`docs/JARVIS_MASTER.md`
 
 ---
 
-## Milestones
-
-- M1: Minimal Core — 部分完了
-- M2: Tool Integration — 未完了
-- M3: Self-Evaluation — 未完了
-- M4: UI Integration — 未着手
-
----
-
-## M1
-- [x] Task モデル
-- [x] Registry / Router
-- [ ] CLI 正規経路（Planner → Execution）
-
-## M2
-- [ ] paper_survey E2E（スタブ可）
-- [ ] artifacts 出力
-
-## M3
-- [ ] Judge 実装
-- [ ] Retry 方針
-
-## M4
-- [ ] /run API
-- [ ] /status API
-③ docs/agent_registry.md
-👉 このコードブロックを「全部」コピーして置き換え
-
-markdown
-コードをコピーする
-# Agent Registry / Router Guide
-Last Updated: 2025-12-20
-
-本ファイルは AgentRegistry と Router の運用ルールのみを扱う。
+## 1. 現在のステータス（短く）
+- M1：実行経路の統一（Plan→Act→Verify→Store の強制） — Status: Planned
+- M2：文献パイプラインのツール化（paper_survey E2E） — Status: Planned
+- M3：品質ゲート（根拠不足の言い切り禁止） — Status: Planned
+- M4：拡張可能な構造へ整形（docs一本化＋tools中心） — Status: Planned
 
 ---
 
-## 設定ファイル（configs/agents.yaml）
+## 2. M1（DoDは正本に準拠）
+- [ ] CLI / `run_jarvis()` が必ず ExecutionEngine を通る
+- [ ] JSONLログ（run_id/task_id/subtask_id）が残る
+- [ ] 出力が `answer/citations/meta` に固定される（thought保存なし）
 
-```yaml
-agents:
-  PaperSurveyAgent:
-    category: paper_survey
-    entrypoint: jarvis_core.agents:PaperSurveyAgent
-    capabilities: [retrieve, summarize, cite]
+## 3. M2
+- [ ] `paper_survey` が「索引検索→根拠→要約」で一気通貫
+- [ ] PaperFetcherAgent がスタブを脱し、citations を必ず返す
+- [ ] 検索結果が `chunk_id/source/locator/text` で取り回せる
 
-categories:
-  paper_survey:
-    default_agent: PaperSurveyAgent
-    agents: [PaperSurveyAgent]
-Router の基本動作
-Task.category を優先
+## 4. M3
+- [ ] `paper_survey` と `thesis` で citations が無ければ fail/partial を返す
+- [ ] 失敗理由（missing_citations 等）がログに残る
+- [ ] validator関連のテストが追加される
 
-default_agent を使用
-
-文字列入力は暫定的に generic 扱い
-
-注意点
-設定で差し替え可能性を維持する
-
-ログなしの分岐は作らない
-
-yaml
-コードをコピーする
+## 5. M4
+- [ ] `jarvis_core/tools/` が拡張点として固定される
+- [ ] docsが一本化され、重複・破損が解消される
+- [ ] 最短導線の examples が存在する（任意）
 
 ---
 
-
-
-
-
-
-
-
+## 6. 次の更新ルール
+- 設計を変えたら、まず `docs/JARVIS_MASTER.md` を更新する
+- ここはチェックボックスとStatusだけを更新する
