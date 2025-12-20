@@ -1,9 +1,4 @@
----
 
-# ① `docs/jarvis_vision.md`  
-👉 **このコードブロックを「全部」コピーして、`docs/jarvis_vision.md` を丸ごと置き換えてください**
-
-```markdown
 # Jarvis Vision（正本）
 Last Updated: 2025-12-20
 
