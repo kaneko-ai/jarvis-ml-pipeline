@@ -1,104 +1,88 @@
-# JARVIS_MASTER.md
-Last Updated: 2025-12-18
+# docs/JARVIS_MASTER.md
+Last Updated: 2025-12-20
 Repo: kaneko-ai/jarvis-ml-pipeline
 
-## 0. この文書の目的（CodeX向け）
-本書は、Jarvis（javis）の「現在地」「目的地」「設計境界」「実装優先度」「I/O契約」「運用（ログ・評価・安全）」を1ファイルに集約した“正本”である。
-CodeX（および将来の開発者）は、まず本書を読み、設計判断と実装の順序を迷わないこと。
+## 0. この文書の位置づけ（唯一の正本）
+本書は Jarvis（javis）の **仕様・設計判断・I/O契約・運用ルール・ロードマップ（M1〜M4）・改修順序**を 1ファイルに集約した「唯一の正本」である。  
+**設計の変更は必ず本書を先に更新**し、他docsは本書を参照する。
+
+> 重要：現時点では「実装を進めない」前提で、計画を詳細に固定する。  
+> したがって本書は「実装メモ」ではなく「将来の実装を迷わせない設計仕様書」である。
 
 ---
 
-## 1. 目的地（Jarvisの完成形）
+## 1. 目的地（Jarvisの完成形：このrepoの担当範囲）
 Jarvisは、生命科学研究・修論執筆・文献サーベイ・就職活動を長期的に支援する「研究者向けパーソナル・オーケストレーター」である。
 
-### 1.1 このリポジトリの担当範囲
-本repo `jarvis-ml-pipeline` は、Jarvis全体のうち **Orchestration / Agent層（Jarvis Core）** を担当する。
-つまり「複数ツール・複数エージェントを束ね、品質と再現性を担保し、運用可能にする司令塔」が責務。
-
-### 1.2 非ゴール（このrepoでやらない）
-- 独自LLMの事前学習・新規学習アルゴリズム開発（研究PJとして別管理）
-- “モデルそのもの”の最強化を主目的とした寄り道（Jarvis性能は多くの場合、検索・評価・観測可能性がボトルネック）
-- OS/VPN/ブラウザ自動化などの高リスク操作を中核機能に据えること（必要なら別層で隔離）
+本repo `jarvis-ml-pipeline` の責務は **Orchestration / Agent層（Jarvis Core）** と、当面は同居している **文献パイプライン（run_pipeline / 検索）**を、将来の拡張に耐える形へ整理し、運用可能な“核”として固定すること。
 
 ---
 
-## 2. 現在地（zip時点の実装スナップショット）
-### 2.1 Jarvis Core（司令塔の骨格）
+## 2. 現在地（添付zip時点の事実）
+### 2.1 Jarvis Core（骨格はある）
 - `jarvis_core/` に Task / Planner / Router / Registry / Executor / Retry / Validation / Logging の骨格が存在。
-- ただし、現状は「部品は揃っているが配線が一貫していない」部分がある（例：CLIがPlanner→Executorの正規ルートを必ず通る設計に統一されていない等）。
+- ただし **実行経路（入口→計画→実行→検証→保存）が統一されていない**懸念がある（設計はあるが、経路が固定されていない）。
 
-### 2.2 文献パイプライン（実務に使える原型）
-- `run_pipeline.py`：PubMed検索→メタ取得→PMC OA PDF取得→PDFテキスト化→チャンク化→TF-IDF索引→レポート出力。
-- `.github/workflows/paper_update.yml`：Actionsで定期更新し、成果物をartifact化する構造がある。
-- `search/`：検索API（FastAPI試作）や簡易サーバ、CLI検索が存在。
+### 2.2 文献パイプライン（実務価値が高い資産）
+- `run_pipeline.py`：PubMed検索→メタ取得→（可能なら）PDF取得→PDFテキスト化→チャンク化→TF-IDF索引→レポート出力。
+- `search_index.py` / `search/`：索引検索（CLI）や簡易API（FastAPI）試作。
 
-### 2.3 重要な構造リスク（放置すると破綻する）
-- Core（司令塔）と文献パイプライン（ツール層）が“並走”しており、統合点が曖昧。
-- 依存関係（requirements）の網羅性と再現性が弱い可能性がある（実際にimportしているライブラリがrequirementsに未反映になり得る）。
-- `.venv/` や `__pycache__/` 等がリポジトリ成果物に混入し得る（容量と差分と再現性の敵）。
+### 2.3 放置すると確実に破綻する構造リスク
+- Core（司令塔）と文献パイプライン（ツール層）が「並走」し、統合点が曖昧なまま機能追加すると、運用不能になる。
+- 出力の品質保証（根拠・引用・不確実性表記）が仕様として固定されていないと、結果が信用できず手戻りが増える。
 
 ---
 
-## 3. 目標アーキテクチャ（境界を明確化する）
-### 3.1 レイヤー構造（原則）
-- UI層：ChatGPT / MyGPT / antigravity / 将来Dashboard
-- Core層：Planner / Router / Executor / Judge / Logger（このrepoの中核）
-- Tools/Services層：paper_fetcher、RAG検索、再ランキング、PDF抽出、図抽出、ES支援など（別repo可）
-- Data層：PDF、メタ、チャンク、索引、ベクトルDB、Obsidian
+## 3. 今回の意思決定（スコープ凍結）
+以下は **当面作らない（凍結）**。議論の余地なく、ロードマップから外す。
 
-### 3.2 Core ↔ Tools の接続ルール
-- Coreは「何を・どの順で・どの品質基準で」行うかを決める。
-- Toolsは「指定された処理を、決められたI/O契約で」返す。
-- CoreはToolsの内部実装に依存しない（API/CLI/関数呼び出しを抽象化）。
+- Web UI（`/run` と `/status`）
+- PDF→スライド自動生成（MVidEra系）
+- Podcast生成
+- PDF→動画
+- GitHub Actions定期実行の強化（失敗通知/差分要約/Slack等）
+- LoRAでの専用モデル化
+- セキュリティ自動監査（BugTrace系）
 
----
-
-## 4. 統合後のディレクトリ設計（推奨）
-現状の `run_pipeline.py` と `search/` を「Tools層」としてCoreから呼べる形に寄せる。
-
-推奨ツリー（最終形の一例）：
-
-/jarvis_core/ # 司令塔（計画・実行・評価・ログ）
-/jarvis_tools/
-/paper_pipeline/ # run_pipeline.py相当（取得/抽出/チャンク/索引）
-/retrieval/ # keyword+vector+rerank の検索器
-/parsers/ # PDF/HTML/画像などの抽出器
-/configs/ # agents.yaml, pipeline yaml等
-/data/ # 生成物（git管理外推奨）
-/reports/ # 生成レポート（git管理外推奨）
-/docs/ # 設計・運用（本書を正本に）
-/tests/
-/scripts/
-/.github/workflows/
-
-
-運用原則：
-- `data/` と `reports/` は原則git管理しない（再現はパイプラインで担保）。
-- Coreが参照するのは「生成物のパス」と「メタ情報」と「検索API」であり、ファイルの置き場所は設定で切替可能にする。
+理由：現状の最大課題は「機能不足」ではなく **中核の配線と品質ゲート不在**であり、ここを先に固めない限り、追加機能はすべて負債化するため。
 
 ---
 
-## 5. AgentのI/Oスキーマ（契約）
+## 4. 目標アーキテクチャ（最小核）
+### 4.1 レイヤ（最小）
+- Interface：CLI（まずここだけ）
+- Core：Plan → Act → Verify → Store（本repoの核）
+- Tools：文献パイプライン（索引更新/検索/抽出）を“道具”として呼べること
+- Data：PDF/メタ/チャンク/索引/レポート（原則git管理外）
+
+### 4.2 “核”の非交渉原則（設計規約）
+1) **実行経路の強制**：入口は必ず Plan→Act→Verify→Store を通る  
+2) **根拠優先**：根拠（チャンク等）が不足する場合、言い切らない（「根拠不足」「わかりません」）  
+3) **出力スキーマ固定**：成果物は統一スキーマで返す（後述）  
+4) **観測可能性（ログ）必須**：run_id / task_id / subtask_id で JSONL を残す  
+5) **内部思考の保存禁止**：thoughtを成果物・ログに保存しない（運用を汚染し、後で害になる）
+
+---
+
+## 5. I/O契約（共通スキーマ：将来の実装は必ず準拠）
 ### 5.1 用語
-- Task：ユーザーの要求を表す最上位単位
-- SubTask：Taskを実行可能な粒度へ分割したもの
-- Agent：SubTaskを処理する専門モジュール
-- Tool：Agentが呼び出す外部処理（検索・取得・解析など）
-- Judge：品質評価（自己評価、引用妥当性、形式検証など）
+- Task：ユーザー要求の最上位単位
+- SubTask：Taskを実行可能粒度に分割した単位
+- Agent：SubTaskを処理する実行主体（薄く保つ）
+- Tool：検索・取得・抽出などの外部処理（実体はここに寄せる）
+- Validator：品質ゲート（根拠/形式/禁止事項）
 
-### 5.2 共通データ構造（JSON互換）
-#### Task（入力）
+### 5.2 Task（入力：JSON互換）
 ```json
 {
   "task_id": "uuid",
   "title": "string",
-  "category": "paper|thesis|job|news|ops|other",
+  "category": "paper_survey|thesis|job_hunting|generic",
   "priority": 1,
   "user_goal": "string",
   "constraints": {
     "language": "ja",
-    "citation_required": true,
-    "time_horizon": "short|mid|long"
+    "citation_required": true
   },
   "inputs": {
     "query": "string",
@@ -107,7 +91,7 @@ Jarvisは、生命科学研究・修論執筆・文献サーベイ・就職活�
   }
 }
 
-SubTask
+5.3 SubTask（内部：JSON互換）
 {
   "subtask_id": "uuid",
   "parent_task_id": "uuid",
@@ -121,30 +105,36 @@ SubTask
   "quality_gates": ["gate_id_1", "gate_id_2"]
 }
 
-AgentResult（出力）
+5.4 AgentResult（出力：最小スキーマ固定）
+
+重要：thought（内部思考）フィールドは禁止。
+代わりに「根拠」「推測」を分離し、推測は推測と明記する。
+
 {
   "status": "success|fail|partial",
-  "summary": "string",
-  "outputs": { "any": "json" },
-  "artifacts": [
-    { "type": "file|dataset|index", "path": "string", "desc": "string" }
-  ],
-  "metrics": {
-    "latency_ms": 0,
-    "tool_calls": 0,
-    "tokens_in": 0,
-    "tokens_out": 0
-  },
+  "answer": "string",
   "citations": [
-    { "source": "string", "locator": "string", "note": "string" }
+    {
+      "chunk_id": "string",
+      "source": "string",
+      "locator": "page:3|pmid:...|url:...",
+      "quote": "string"
+    }
   ],
-  "warnings": ["string"],
-  "next_actions": ["string"]
+  "meta": {
+    "retrieval": {
+      "index_path": "string",
+      "query_used": "string",
+      "top_k": 5,
+      "hits": 5
+    },
+    "warnings": ["string"]
+  }
 }
 
-6. ログ（trace）仕様（観測可能性を“必須要件”にする）
+6. ログ仕様（運用要件：JSONL）
 
-方針：後から「何が起きたか」を再構成できないシステムは運用不能。ログは贅沢品ではなく仕様。
+方針：後から「何が起きたか」を再構成できないシステムは運用不能。ログは仕様。
 
 6.1 形式
 
@@ -152,164 +142,128 @@ JSONL（1行1イベント）
 
 すべての実行に run_id、すべてのタスクに task_id、すべてのサブタスクに subtask_id
 
-すべてのツール呼び出しに tool_call_id と入出力ハッシュ
-
-6.2 Eventスキーマ（例）
+6.2 Event例
 {
-  "ts": "2025-12-18T12:00:00+09:00",
+  "ts": "2025-12-20T12:00:00+09:00",
   "level": "INFO|WARN|ERROR",
   "run_id": "uuid",
   "task_id": "uuid",
   "subtask_id": "uuid",
-  "event": "PLAN_CREATED|AGENT_SELECTED|TOOL_CALLED|TOOL_RETURNED|JUDGE_PASSED|JUDGE_FAILED|RETRY|DONE",
+  "event": "PLAN_CREATED|AGENT_SELECTED|TOOL_CALLED|TOOL_RETURNED|VALIDATION_PASSED|VALIDATION_FAILED|RETRY|DONE",
   "agent": "AgentName",
   "tool": "ToolName",
-  "input_hash": "sha256",
-  "output_hash": "sha256",
   "payload": { "any": "json" }
 }
 
-6.3 最低限取るべきメトリクス
+7. 新ロードマップ（M1〜M4：作り直し版）
 
-サブタスク別：所要時間、失敗率、リトライ回数、ツール呼び出し回数
+注意：ここでの M1〜M4 は「今後の実装計画」であり、現時点では未着手でよい。
+ただし 完了条件（DoD）と改修順序は先に固定する。
 
-出力品質：Judgeスコア、引用不足フラグ、形式不正フラグ
+M1：実行経路の統一（Plan→Act→Verify→Store の配線を強制）
 
-コスト：tokens_in/out（LLM依存なら）
+目的：入口が Router直行する等の揺らぎを排除し、Coreの“核”を固定する。
 
-7. ツール乱用抑制（Tool Overuse Mitigation：必須）
+DoD
 
-ツールが増えるほど、無駄呼び出しがコスト・遅延・破綻要因になる。
-原則：まず内部推論で足りるか判定し、足りない場合のみ最小ツールを選ぶ。
+CLI（または run_jarvis()）が必ず ExecutionEngine を通る
 
-7.1 ToolGate（疑似仕様）
+全実行で JSONLログ（run_id）が残る
 
-入力：SubTask + 現在のコンテキスト
+出力が 5.4 の AgentResult 最小スキーマに収束する
 
-出力：use_tool: yes/no と tool_candidates[] と reason
+thought保存なし
 
-ルール：
+改修順序（ファイル単位：計画）
 
-既にローカル索引に答えがあるなら外部検索しない
+jarvis_core/__init__.py：run_jarvis() を ExecutionEngine 経由にする
 
-引用必須タスクで根拠が不足なら検索を許可
+jarvis_core/cli.py：入口を一本化（config受け取り、run_id表示）
 
-高コストツールは段階承認（rerank→全文取得の順）
+jarvis_core/executor.py：最終結果を必ず返す（finalizerを置く）
 
-8. RAGをModular化する最小分割案（いまのTF-IDFを進化させる道筋）
-8.1 最小モジュール（段階導入）
+jarvis_core/agents.py：thought依存を排除し、answer/citations/metaに収束
 
-Ingest（取得）
+tests/*：DummyLLM返却と期待値をスキーマに合わせて修正
 
-Parse（テキスト化）
+M2：文献パイプラインを“ツール化”し、Paper系タスクで必ず使える状態にする
 
-Chunk（チャンク化：まずはフラット、次に階層）
+目的：run_pipeline.py と索引検索を、LLM（Agent）から道具として呼ぶ。
 
-Index（keyword + vector）
+DoD
 
-Retrieve（候補取得）
+paper_survey で「ローカル索引検索→根拠（citations）→要約」が一気通貫
 
-Rerank（並べ替え：軽量→高精度へ）
+検索結果は chunk_id/source/locator/text で取り回せる
 
-BuildContext（文脈構成：重複排除、章節優先）
+PaperFetcherAgent がスタブでなくなる（最低限のE2E）
 
-Generate（要約/回答）
+改修順序（計画）
 
-Judge（妥当性/引用/形式チェック）
+新規 jarvis_core/tools/：検索とパイプライン呼び出しを関数化
 
-Report（最終整形）
+search_index.py：ロジックを tools に移植し、スクリプトは薄いラッパにする
 
-8.2 階層チャンク（論文・修論に効く）
+jarvis_core/agents.py：PaperFetcherAgentで retrieval tool を呼び、citationsを付ける
 
-doc_id, section, subsection, paragraph_id, page, figure_ref をメタに持つ
+jarvis_core/planner.py：paper_survey手順を現実的に更新（検索→抽出→要約）
 
-目的：検索精度だけでなく、説明可能性（なぜその根拠か）を上げる
+M3：Verify（品質ゲート）を仕様化（根拠不足の言い切りを禁止）
 
-8.3 ハイブリッド検索（最短で効く）
+目的：「信用できる出力」を気分ではなく実装で担保する。
 
-keyword（TF-IDF/BM25相当） + embedding（意味検索）を足し算
+DoD
 
-その上で reranker を挟む（上位20→上位5に絞る等）
+paper_survey と thesis は、根拠が不足する場合「根拠不足/わかりません」を返す
 
-9. マイルストーン（M1–M4）定義（Done条件を明文化）
-M1: Minimal Core
+citations必須ルールが validator で強制される
 
-Done条件：
+失敗理由がログに残る（例：missing_citations / no_hits）
 
-CLI/APIが必ず Planner→Executor→Router の正規ルートを通る
+改修順序（計画）
 
-Task→SubTask→AgentResult が一貫したI/Oで流れる
+jarvis_core/validation.py：CitationValidator（最小）を実装
 
-JSONLログが残る
+jarvis_core/executor.py：validation失敗時の挙動（fail/partial/retry）を固定
 
-M2: Tool統合（文献）
+tests/*：根拠不足で fail/partial になるテストを追加
 
-Done条件：
+M4：拡張可能な構造へ整形（Skill中心への地ならし＋docsの一本化）
 
-Paper系Agentが paper_pipeline を呼び出し、索引更新→検索→要約まで通る
+目的：将来、機能を増やす場所を固定し、迷子とスパゲティ化を防ぐ。
 
-成果物パスとメタがAgentResultに載る
+DoD
 
-M3: 自己評価と再試行
+機能追加は原則 jarvis_core/tools/ と configs/ の追加で完結する
 
-Done条件：
+docsが一本化され、他docsは正本への参照のみになる（重複排除）
 
-Judgeが最低2種類（形式＋引用/整合）あり、失敗時にリトライ方針が動く
+最短の使用例（examples）が存在し、再現可能に動く
 
-リトライの理由がログに残る
+改修順序（計画）
 
-M4: UI/API接続
+docs/jarvis_vision.md：正本を名乗らせず「概要」に落とす
 
-Done条件：
+docs/agent_registry.md：スキーマと運用規約を本書に整合
 
-/run と /status/{run_id} があり、外部UIから進捗参照可能
+docs/codex_progress.md：M1〜M4（新定義）に合わせて更新
 
-実行結果を“最終報告フォーマット”で返す
+（任意）examples/：paper_survey最短導線の例を追加
 
-10. 直近の実装優先順位（最短で強くする）
+8. リポジトリ衛生（実装前に必ずやるべき運用ルール）
 
-優先度A（今すぐ）：
+.venv/, __pycache__/, logs/, data/, reports/ は git 管理しない
 
-Coreの配線統一：CLI/APIは正規ルート固定（Planner→Executor→Router）
+依存関係は requirements.txt（またはpyproject）に集約し、再現性を担保する
 
-Tools層の明確化：run_pipeline.py と search/ を jarvis_tools/ に寄せる（またはAgentとして接続点を作る）
+docsは「正本のみ」が設計変更の入口になる
 
-ログJSONL：run_id/task_id/subtask_idの一貫性を最優先
+9. 参照（このrepo内の関係）
 
-優先度B（次）：
-4) 階層メタ付きチャンク
-5) ハイブリッド検索 + rerank
-6) ToolGate導入（無駄ツール呼び出し抑制）
+進捗だけ：docs/codex_progress.md
 
-優先度C（余力）：
-7) ワークフロー自動生成（候補生成→実行→judge→採用の小さな探索）
-8) 画像/図の評価自動化（必要になってから）
+設定運用：docs/agent_registry.md
 
-11. 参照資料（設計の出典として扱う候補）
-
-Retrieval-Augmented Generation for Large Language Models: A Survey
-
-BookRAG: Hierarchical Structure-aware Index-based RAG for Complex Documents
-
-AgentOps: Observability of LLM Agents
-
-SMART: Tool Overuse Mitigation
-
-AGAPI: Agentic AI Platform / 多API統合設計
-
-その他（あなたが添付した資料一式）
-
-本書は、それらの“思想”をJarvisの要件へ落とすための実装仕様である。
-
-12. 既存docsとの関係（移行方針）
-
-docs/jarvis_vision.md：本書への参照リンクだけ残し、重複は削る（正本は本書）
-
-docs/codex_progress.md：マイルストーンのチェックリスト（本書のM1–M4に整合させる）
-
-docs/agent_registry.md：agents.yamlの書き方・運用手順（本書のI/O契約に合わせる）
+概要：docs/jarvis_vision.md
 
 以上。
-
-
----
