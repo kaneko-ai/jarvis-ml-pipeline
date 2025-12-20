@@ -1,17 +1,40 @@
-# Jarvis Vision（参照用）
+# Jarvis Vision（正本）
+Last Updated: 2025-12-20
 
-このファイルは **参照用の入り口** です。  
-Jarvis（javis）の「目的地」「現在地」「設計境界」「I/O契約」「運用（ログ・評価・安全）」「マイルストーン定義」は、すべて以下の正本に集約します。
+このファイルは本リポジトリにおける **Jarvis（javis）の正本（Master）** である。  
+設計・仕様・運用ルールの「正」は必ずここに集約する（他docsは補助）。
 
-- 正本：[`docs/JARVIS_MASTER.md`](./JARVIS_MASTER.md)
+---
 
-## 運用ルール（重要）
-- 仕様を変更する場合：**必ず `JARVIS_MASTER.md` を編集**する  
-- このファイルには：**概要とリンク以外は書かない**（重複を作らない）
+## 1. システム全体像（レイヤ構造）
 
-## 最小の要約（1分で把握するためのメモ）
-- 本repoは Jarvis全体のうち **Orchestration / Agent層（Jarvis Core）** を担当する
-- Coreは「計画→実行→評価→ログ」を担い、外部ツール（文献取得/RAG/解析）は疎結合で統合する
-- 性能の主戦場は「モデル自作」ではなく **検索品質（RAG）・自己評価・観測可能性・ツール乱用抑制** である
+Jarvis 全体のレイヤ構造は以下の通りとする。
 
-詳しくは正本を参照。
+```text
+[UI層]
+  ChatGPT / MyGPT / antigravity / 将来Dashboard
+
+        ↓（自然言語 + 最小メタ）
+
+[Jarvis Core（このrepoの担当範囲）]
+  Planner（分解）
+    → Router / Registry（呼び分け）
+      → Execution（実行管理）
+        → Validation / Retry（自己評価と再試行）
+          → Logging / Progress（追跡可能性）
+
+        ↓（疎結合）
+
+[Tools/Services層（別repo/別モジュール可）]
+  paper_pipeline（PubMed/PMC取得・抽出・索引）
+  retrieval（keyword+vector+rerank）
+  mygpt-paper-analyzer（Next.js+FastAPI+FAISS 等）
+  OCR / 図抽出 / ES支援 / ニュース監視 など
+
+        ↓
+
+[データ層]
+  PDF / メタデータ（BibTeX・citation）
+  チャンク / 索引 / ベクトルDB（FAISS等）
+  Obsidian Vault（ノート・要約）
+  GitHub（コード・設定）
