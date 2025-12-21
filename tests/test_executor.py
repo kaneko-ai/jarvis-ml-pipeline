@@ -53,18 +53,18 @@ class DummyRouter:
 def make_subtasks():
     return [
         Task(
-            id="root:1",
+            task_id="root:1",
+            title="Step 1",
             category=TaskCategory.JOB_HUNTING,
-            goal="Step 1",
             inputs={},
             constraints={},
             priority=TaskPriority.NORMAL,
             status=TaskStatus.PENDING,
         ),
         Task(
-            id="root:2",
+            task_id="root:2",
+            title="Step 2",
             category=TaskCategory.JOB_HUNTING,
-            goal="Step 2",
             inputs={},
             constraints={},
             priority=TaskPriority.NORMAL,
@@ -80,9 +80,9 @@ def test_execution_engine_runs_subtasks_and_updates_status():
     engine = ExecutionEngine(planner=planner, router=router)
 
     root_task = Task(
-        id="root",
+        task_id="root",
+        title="Prepare materials",
         category=TaskCategory.JOB_HUNTING,
-        goal="Prepare materials",
         inputs={},
         constraints={},
         priority=TaskPriority.NORMAL,

@@ -1,16 +1,31 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Dict, Any
 
 from .llm import LLMClient, Message
 
 
 @dataclass
+class Citation:
+    """Citation reference per JARVIS_MASTER.md Section 5.4."""
+
+    chunk_id: str
+    source: str
+    locator: str  # "page:3" | "pmid:..." | "url:..."
+    quote: str
+
+
+@dataclass
 class AgentResult:
-    thought: str
+    """Agent output per JARVIS_MASTER.md Section 5.4.
+
+    Note: thought field is explicitly prohibited by spec.
+    """
+
+    status: str  # "success" | "fail" | "partial"
     answer: str
-    score: float = 0.0
+    citations: List[Citation] = field(default_factory=list)
     meta: Dict[str, Any] | None = None
 
 
@@ -39,72 +54,66 @@ class BaseAgent:
         system_prompt = (
             "あなたは高度なアシスタントです。"
             "以下のタスクに対して、複数の候補案を作成し、"
-            "各候補について THOUGHT, ANSWER, SCORE を日本語で出力してください。"
+            "各候補について ANSWER を日本語で出力してください。"
             "出力は厳密なJSON配列とし、各要素は "
-            '{"thought":..., "answer":..., "score":...} の形式にしてください。'
-            "scoreは0〜1の実数で、自分で考える完成度を表してください。"
+            '{"answer":...} の形式にしてください。'
         )
         user_prompt = f"タスク: {task}\n候補数: {n_candidates}"
 
-        raw = llm.chat(
-            [
-                Message(role="system", content=system_prompt),
-                Message(role="user", content=user_prompt),
-            ]
-        )
+        try:
+            raw = llm.chat(
+                [
+                    Message(role="system", content=system_prompt),
+                    Message(role="user", content=user_prompt),
+                ]
+            )
+        except Exception:
+            single = self.run_single(llm, task)
+            return [single]
 
         try:
             parsed = json.loads(raw)
         except json.JSONDecodeError:
-            # JSONになっていなければ単一案にフォールバック
             single = self.run_single(llm, task)
             return [single]
 
         results: List[AgentResult] = []
         for item in parsed[:n_candidates]:
-            results.append(
-                AgentResult(
-                    thought=item.get("thought", ""),
-                    answer=item.get("answer", ""),
-                    score=float(item.get("score", 0.0)),
-                    meta={"raw": item},
+            answer = self._extract_answer(item.get("answer", ""))
+            if answer:
+                results.append(
+                    AgentResult(status="success", answer=answer, citations=[])
                 )
-            )
+            else:
+                results.append(
+                    AgentResult(
+                        status="fail",
+                        answer="",
+                        citations=[],
+                        meta={"warnings": ["empty_answer"]},
+                    )
+                )
         if not results:
             results.append(self.run_single(llm, task))
         return results
 
     @staticmethod
-    def _parse_yaml_like(text: str) -> tuple[str, str]:
-        """
-        thought: |-
-          ...
-        answer: |-
-          ...
-        という簡易YAMLライクな出力から thought / answer を抜き出す。
-        """
-        thought = ""
-        answer = ""
-        current: str | None = None
-        for line in text.splitlines():
-            stripped = line.strip()
-            if stripped.startswith("thought:"):
-                current = "thought"
-                continue
-            if stripped.startswith("answer:"):
-                current = "answer"
-                continue
-            if current == "thought":
-                thought += line + "\n"
-            elif current == "answer":
-                answer += line + "\n"
+    def _extract_answer(text: str) -> str:
+        """Extract answer from LLM output.
 
-        # もし thought/answer がどちらも空なら、
-        # LLMの出力全体をそのまま answer として扱う
-        if not thought.strip() and not answer.strip():
-            return "", text.strip()
+        This is the single point for answer extraction.
+        Currently returns the full text; future extensions
+        (e.g., JSON parsing, citation extraction) will be added here.
 
-        return thought.strip(), answer.strip()
+        Args:
+            text: Raw LLM output.
+
+        Returns:
+            Extracted answer string.
+        """
+        if text is None:
+            return ""
+        return str(text).strip()
 
 
 class ThesisAgent(BaseAgent):
@@ -115,21 +124,31 @@ class ThesisAgent(BaseAgent):
             "あなたは修士論文執筆支援の専門アシスタントです。"
             "生命科学・抗体関連の背景・考察を、専門性を保ちつつ、"
             "日本語N1レベルで簡潔かつ論理的に書き直してください。"
-            "出力は次のYAML形式に従ってください。\n"
-            "thought: |-\n"
-            "  （内部思考の要約：200字以内）\n"
-            "answer: |-\n"
-            "  （修論にそのまま貼れる形の本文）\n"
+            "修論にそのまま貼れる形の本文を出力してください。"
         )
-        raw = llm.chat(
-            [
-                Message(role="system", content=system_prompt),
-                Message(role="user", content=task),
-            ]
-        )
-
-        thought, answer = self._parse_yaml_like(raw)
-        return AgentResult(thought=thought, answer=answer, score=0.0)
+        try:
+            raw = llm.chat(
+                [
+                    Message(role="system", content=system_prompt),
+                    Message(role="user", content=task),
+                ]
+            )
+            answer = self._extract_answer(raw)
+            if not answer:
+                return AgentResult(
+                    status="fail",
+                    answer="",
+                    citations=[],
+                    meta={"warnings": ["empty_answer"]},
+                )
+            return AgentResult(status="success", answer=answer, citations=[])
+        except Exception:
+            return AgentResult(
+                status="fail",
+                answer="",
+                citations=[],
+                meta={"warnings": ["llm_error"]},
+            )
 
 
 class ESEditAgent(BaseAgent):
@@ -140,21 +159,31 @@ class ESEditAgent(BaseAgent):
             "あなたは製薬業界就活のエントリーシート添削アシスタントです。"
             "文系人事にも伝わるように専門用語を噛み砕き、"
             "独自性と論理性を両立した文章に整えてください。"
-            "出力は次のYAML形式に従ってください。\n"
-            "thought: |-\n"
-            "  （文章構成・強みの整理：200字以内）\n"
-            "answer: |-\n"
-            "  （ESにそのまま貼れる文章）\n"
+            "ESにそのまま貼れる文章を出力してください。"
         )
-        raw = llm.chat(
-            [
-                Message(role="system", content=system_prompt),
-                Message(role="user", content=task),
-            ]
-        )
-
-        thought, answer = self._parse_yaml_like(raw)
-        return AgentResult(thought=thought, answer=answer, score=0.0)
+        try:
+            raw = llm.chat(
+                [
+                    Message(role="system", content=system_prompt),
+                    Message(role="user", content=task),
+                ]
+            )
+            answer = self._extract_answer(raw)
+            if not answer:
+                return AgentResult(
+                    status="fail",
+                    answer="",
+                    citations=[],
+                    meta={"warnings": ["empty_answer"]},
+                )
+            return AgentResult(status="success", answer=answer, citations=[])
+        except Exception:
+            return AgentResult(
+                status="fail",
+                answer="",
+                citations=[],
+                meta={"warnings": ["llm_error"]},
+            )
 
 
 class MiscAgent(BaseAgent):
@@ -163,19 +192,31 @@ class MiscAgent(BaseAgent):
     def run_single(self, llm: LLMClient, task: str) -> AgentResult:
         system_prompt = (
             "あなたは一般的な質問に答える汎用アシスタントです。"
-            "日本語N1レベルで簡潔かつ正確に回答してください。\n"
-            "出力形式:\n"
-            "thought: |-\n"
-            "answer: |-\n"
+            "日本語N1レベルで簡潔かつ正確に回答してください。"
         )
-        raw = llm.chat(
-            [
-                Message(role="system", content=system_prompt),
-                Message(role="user", content=task),
-            ]
-        )
-        thought, answer = self._parse_yaml_like(raw)
-        return AgentResult(thought=thought, answer=answer, score=0.0)
+        try:
+            raw = llm.chat(
+                [
+                    Message(role="system", content=system_prompt),
+                    Message(role="user", content=task),
+                ]
+            )
+            answer = self._extract_answer(raw)
+            if not answer:
+                return AgentResult(
+                    status="fail",
+                    answer="",
+                    citations=[],
+                    meta={"warnings": ["empty_answer"]},
+                )
+            return AgentResult(status="success", answer=answer, citations=[])
+        except Exception:
+            return AgentResult(
+                status="fail",
+                answer="",
+                citations=[],
+                meta={"warnings": ["llm_error"]},
+            )
 
 
 class PaperFetcherAgent(BaseAgent):
@@ -185,9 +226,9 @@ class PaperFetcherAgent(BaseAgent):
 
     def run_single(self, llm: LLMClient, task: str) -> AgentResult:  # noqa: ARG002
         return AgentResult(
-            thought="Gathering paper sources (stub)",
+            status="success",
             answer=f"Stub: fetching papers for '{task}'",
-            score=0.0,
+            citations=[],
             meta={"source": "paper_fetcher_stub"},
         )
 
@@ -199,9 +240,9 @@ class MyGPTPaperAnalyzerAgent(BaseAgent):
 
     def run_single(self, llm: LLMClient, task: str) -> AgentResult:  # noqa: ARG002
         return AgentResult(
-            thought="Analyzing papers via MyGPT (stub)",
+            status="success",
             answer=f"Stub: analyzing papers for '{task}'",
-            score=0.0,
+            citations=[],
             meta={"source": "mygpt_paper_analyzer_stub"},
         )
 
@@ -213,8 +254,9 @@ class JobAssistantAgent(BaseAgent):
 
     def run_single(self, llm: LLMClient, task: str) -> AgentResult:  # noqa: ARG002
         return AgentResult(
-            thought="Drafting job-hunting support output (stub)",
+            status="success",
             answer=f"Stub: job assistance for '{task}'",
-            score=0.0,
+            citations=[],
             meta={"source": "job_assistant_stub"},
         )
+

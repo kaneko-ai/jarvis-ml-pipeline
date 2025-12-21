@@ -15,20 +15,57 @@ __all__ = [
 ]
 
 
-def run_jarvis(task: str) -> str:
+def run_jarvis(goal: str, category: str = "generic") -> str:
     """
-    High-level wrapper that orchestrates a task through the router.
+    High-level wrapper that orchestrates a task through the ExecutionEngine.
+
+    This function creates a Task from the provided goal and category,
+    executes it via the ExecutionEngine, and returns the final answer.
+
+    Args:
+        goal: The user's goal or request as a string.
+        category: Task category. One of: "paper_survey", "thesis",
+            "job_hunting", "generic". Defaults to "generic".
+
+    Returns:
+        The final answer as a string.
 
     Imports heavy dependencies lazily so that lightweight modules (e.g.,
     task modeling) can be used without requiring LLM dependencies.
     """
-    from .llm import LLMClient  # Local import to avoid optional dependency at package import time
+    import uuid
+
+    from .executor import ExecutionEngine
+    from .llm import LLMClient
+    from .planner import Planner
     from .router import Router
+    from .evidence import EvidenceStore
+
+    # Validate and convert category
+    try:
+        task_category = TaskCategory(category)
+    except ValueError:
+        task_category = TaskCategory.GENERIC
 
     llm = LLMClient(model="gemini-2.0-flash")
     router = Router(llm)
-    result = router.run(task)
-    return result.answer
+    planner = Planner()
+    evidence_store = EvidenceStore()
+    engine = ExecutionEngine(
+        planner=planner,
+        router=router,
+        evidence_store=evidence_store,
+    )
+
+    root_task = Task(
+        task_id=str(uuid.uuid4()),
+        title=goal,
+        category=task_category,
+        user_goal=goal,
+        inputs={"query": goal},
+    )
+
+    return engine.run_and_get_answer(root_task)
 
 
 def __getattr__(name: str):

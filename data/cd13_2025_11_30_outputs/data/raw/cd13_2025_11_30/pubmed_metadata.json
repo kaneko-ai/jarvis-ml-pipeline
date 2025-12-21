@@ -1,0 +1,579 @@
+{
+  "query": "CDH13[Title/Abstract] AND (cancer OR tumor)",
+  "date_from": "2020-01-01",
+  "date_to": "2025-11-30",
+  "max_results": 30,
+  "num_hit": 30,
+  "records": [
+    {
+      "pmid": "39545598",
+      "title": "CDH2 and CDH13 as potential prognostic and therapeutic targets for adrenocortical carcinoma.",
+      "journal": "Cancer biology & therapy",
+      "pubdate": "2024 Dec 31",
+      "doi_or_elocation": "doi: 10.1080/15384047.2024.2428469",
+      "authors": [
+        "Situ Y",
+        "Deng L",
+        "Huang Z",
+        "Jiang X",
+        "Zhao L",
+        "Zhang J",
+        "Lu L",
+        "Liang Q",
+        "Xu Q",
+        "Shao Z",
+        "Liang M"
+      ]
+    },
+    {
+      "pmid": "39471526",
+      "title": "Cellular responses to neoadjuvant FOLFOX6-bevacizumab treatment in colorectal cancers analyzed by single-cell transcriptome analysis.",
+      "journal": "Pathology, research and practice",
+      "pubdate": "2024 Nov",
+      "doi_or_elocation": "doi: 10.1016/j.prp.2024.155681",
+      "authors": [
+        "Shin S",
+        "Kim HH",
+        "Kim JW",
+        "Rim D",
+        "An C",
+        "Chung YJ",
+        "Lee SH"
+      ]
+    },
+    {
+      "pmid": "39179585",
+      "title": "Small RNA activation of CDH13 expression overcome BCR-ABL1-independent imatinib-resistance and their signaling pathway studies in chronic myeloid leukemia.",
+      "journal": "Cell death & disease",
+      "pubdate": "2024 Aug 23",
+      "doi_or_elocation": "doi: 10.1038/s41419-024-07006-9",
+      "authors": [
+        "Su R",
+        "Wen Z",
+        "Zhan X",
+        "Long Y",
+        "Wang X",
+        "Li C",
+        "Su Y",
+        "Fei J"
+      ]
+    },
+    {
+      "pmid": "32474857",
+      "title": "Relationship between Methylation of FHIT and CDH13 Gene Promoter Region and Liver Cancer.",
+      "journal": "Current medical science",
+      "pubdate": "2020 Jun",
+      "doi_or_elocation": "doi: 10.1007/s11596-020-2202-4",
+      "authors": [
+        "Tuoya AD",
+        "Wang DX",
+        "Xing YS",
+        "Liu RJ",
+        "Hu YX",
+        "Zhang MD",
+        "Bai TY",
+        "Lv XL",
+        "Li J",
+        "Chang FH"
+      ]
+    },
+    {
+      "pmid": "39832203",
+      "title": "Methylation status of selected genes in non-small cell lung carcinoma - current knowledge and future perspectives.",
+      "journal": "Neoplasma",
+      "pubdate": "2024 Dec",
+      "doi_or_elocation": "doi: 10.4149/neo_2024_240925N403",
+      "authors": [
+        "Put A",
+        "Smesny Trtkova K",
+        "Skarda J"
+      ]
+    },
+    {
+      "pmid": "40954501",
+      "title": "Machine learning model in multi-omics perspective demystifies the prognostic significance of crotonylation heterogeneity in clear cell renal cell carcinoma.",
+      "journal": "BMC urology",
+      "pubdate": "2025 Sep 15",
+      "doi_or_elocation": "doi: 10.1186/s12894-025-01914-4",
+      "authors": [
+        "Dai H",
+        "Zhao K",
+        "Zhao Y",
+        "Jiang K",
+        "Hang Z",
+        "Huang X",
+        "Luo W",
+        "Nie J",
+        "Qin C",
+        "Zhou W"
+      ]
+    },
+    {
+      "pmid": "40618698",
+      "title": "Leveraging machine learning and single-cell RNA sequencing strategies to develop a risk prognosis scoring based on liquid-liquid phase separation feature genes in pediatric hepatoblastoma.",
+      "journal": "Computers in biology and medicine",
+      "pubdate": "2025 Sep",
+      "doi_or_elocation": "doi: 10.1016/j.compbiomed.2025.110685",
+      "authors": [
+        "Cai DQ",
+        "Cai D",
+        "Zhao Z",
+        "Zheng Z",
+        "Jian Z",
+        "Shi M",
+        "Chen Y",
+        "Chen J",
+        "Lin Y"
+      ]
+    },
+    {
+      "pmid": "32238407",
+      "title": "APOB Genotypes and CDH13 Haplotypes in the Cholesterol-Related Pathway Genes Predict Non-Small Cell Lung Cancer Survival.",
+      "journal": "Cancer epidemiology, biomarkers & prevention : a publication of the American Association for Cancer Research, cosponsored by the American Society of Preventive Oncology",
+      "pubdate": "2020 Jun",
+      "doi_or_elocation": "doi: 10.1158/1055-9965.EPI-19-1262",
+      "authors": [
+        "Deng W",
+        "Liu H",
+        "Luo S",
+        "Clarke J",
+        "Glass C",
+        "Su L",
+        "Lin L",
+        "Christiani DC",
+        "Wei Q"
+      ]
+    },
+    {
+      "pmid": "32127937",
+      "title": "Cadherin 13 Inhibits Pancreatic Cancer Progression and Epithelial-mesenchymal Transition by Wnt/β-Catenin Signaling.",
+      "journal": "Journal of Cancer",
+      "pubdate": "2020",
+      "doi_or_elocation": "doi: 10.7150/jca.37762",
+      "authors": [
+        "Xu D",
+        "Yuan H",
+        "Meng Z",
+        "Yang C",
+        "Li Z",
+        "Li M",
+        "Zhang Z",
+        "Gan Y",
+        "Tu H"
+      ]
+    },
+    {
+      "pmid": "36482494",
+      "title": "Hsa_circ_0000119 promoted ovarian cancer development via enhancing the methylation of CDH13 by sponging miR-142-5p.",
+      "journal": "Journal of biochemical and molecular toxicology",
+      "pubdate": "2023 Mar",
+      "doi_or_elocation": "doi: 10.1002/jbt.23264",
+      "authors": [
+        "Ma G",
+        "Li Y",
+        "Meng F",
+        "Sui C",
+        "Wang Y",
+        "Cheng D"
+      ]
+    },
+    {
+      "pmid": "33407434",
+      "title": "Interactive association between dietary fat and sex on CDH13 cg02263260 methylation.",
+      "journal": "BMC medical genomics",
+      "pubdate": "2021 Jan 6",
+      "doi_or_elocation": "doi: 10.1186/s12920-020-00858-y",
+      "authors": [
+        "Shiu BH",
+        "Lu WY",
+        "Tantoh DM",
+        "Chou MC",
+        "Nfor ON",
+        "Huang CC",
+        "Liaw YP"
+      ]
+    },
+    {
+      "pmid": "40457471",
+      "title": "Impact of DNA methylation on the recurrence risk of stage I non-small cell lung cancer with EGFR mutations.",
+      "journal": "Clinical epigenetics",
+      "pubdate": "2025 Jun 2",
+      "doi_or_elocation": "doi: 10.1186/s13148-025-01899-9",
+      "authors": [
+        "Li Y",
+        "Yang Z",
+        "Wu F",
+        "Liang Q",
+        "Herman JG",
+        "Brock MV",
+        "Liu W",
+        "Yu F",
+        "He X",
+        "Chen C"
+      ]
+    },
+    {
+      "pmid": "38732110",
+      "title": "Analysis of CDO1, PITX2, and CDH13 Gene Methylation in Early Endometrial Cancer for Prediction of Medical Treatment Outcomes.",
+      "journal": "International journal of molecular sciences",
+      "pubdate": "2024 Apr 30",
+      "doi_or_elocation": "doi: 10.3390/ijms25094892",
+      "authors": [
+        "Krasnyi AM",
+        "Gadzhieva LT",
+        "Kokoeva DN",
+        "Kosenko MG",
+        "Yarotskaya EL",
+        "Pavlovich SV",
+        "Ashrafyan LA",
+        "Sukhikh GT"
+      ]
+    },
+    {
+      "pmid": "32456486",
+      "title": "Methylation patterns in dysplasia in inflammatory bowel disease patients.",
+      "journal": "Scandinavian journal of gastroenterology",
+      "pubdate": "2020 Jun",
+      "doi_or_elocation": "doi: 10.1080/00365521.2020.1766552",
+      "authors": [
+        "Rosa I",
+        "Silva P",
+        "da Mata S",
+        "Magro F",
+        "Carneiro F",
+        "Peixoto A",
+        "Silva M",
+        "Sousa HT",
+        "Roseira J",
+        "Parra J",
+        "Barosa R",
+        "Vieira A",
+        "Brito MJ",
+        "Lago P",
+        "Coelho A",
+        "Moleiro J",
+        "Pereira da Silva J",
+        "Fonseca R",
+        "Albuquerque C",
+        "Dias Pereira A",
+        "Grupo de Estudos em Doença Inflamatória Intestinal – GEDII"
+      ]
+    },
+    {
+      "pmid": "39855182",
+      "title": "BIBR1591 INDUCES APOPTOSIS IN BREAST CANCER CELL LINE AND INCREASES EXPRESSION OF DAPK1, AND NR4A3.",
+      "journal": "Georgian medical news",
+      "pubdate": "2024 Nov",
+      "doi_or_elocation": "",
+      "authors": [
+        "Alsarraf Z",
+        "Nori A",
+        "Oraibi A",
+        "Al-Hussaniy H",
+        "Jabbar A"
+      ]
+    },
+    {
+      "pmid": "35499926",
+      "title": "Translational Genomic Research: The Association between Genetic Profiles and Cognitive Functioning or Cardiac Function Among Breast Cancer Survivors Completing Chemotherapy.",
+      "journal": "Biological research for nursing",
+      "pubdate": "2022 Oct",
+      "doi_or_elocation": "doi: 10.1177/10998004221094386",
+      "authors": [
+        "Park JY",
+        "Lengacher CA",
+        "Reich RR",
+        "Park HY",
+        "Whiting J",
+        "Nguyen AT",
+        "Rodríguez C",
+        "Meng H",
+        "Tinsley S",
+        "Chauca K",
+        "Gordillo-Casero L",
+        "Wittenberg T",
+        "Joshi A",
+        "Lin K",
+        "Ismail-Khan R",
+        "Kiluk JV",
+        "Kip KE"
+      ]
+    },
+    {
+      "pmid": "35071744",
+      "title": "The miR-23a/27a/24-2 cluster promotes postoperative progression of early-stage non-small cell lung cancer.",
+      "journal": "Molecular therapy oncolytics",
+      "pubdate": "2022 Mar 17",
+      "doi_or_elocation": "doi: 10.1016/j.omto.2021.12.014",
+      "authors": [
+        "Fan X",
+        "Tao S",
+        "Li Q",
+        "Deng B",
+        "Tan QY",
+        "Jin H"
+      ]
+    },
+    {
+      "pmid": "36381315",
+      "title": "CDH13 is a prognostic biomarker and a potential therapeutic target for patients with clear cell renal cell carcinoma.",
+      "journal": "American journal of cancer research",
+      "pubdate": "2022",
+      "doi_or_elocation": "",
+      "authors": [
+        "Shao Y",
+        "Li W",
+        "Zhang L",
+        "Xue B",
+        "Chen Y",
+        "Zhang Z",
+        "Wang D",
+        "Wu B"
+      ]
+    },
+    {
+      "pmid": "32641859",
+      "title": "DNA polymerase beta modulates cancer progression via enhancing CDH13 expression by promoter demethylation.",
+      "journal": "Oncogene",
+      "pubdate": "2020 Aug",
+      "doi_or_elocation": "doi: 10.1038/s41388-020-1386-1",
+      "authors": [
+        "Wang M",
+        "Long K",
+        "Li E",
+        "Li L",
+        "Li B",
+        "Ci S",
+        "He L",
+        "Pan F",
+        "Hu Z",
+        "Guo Z"
+      ]
+    },
+    {
+      "pmid": "39543761",
+      "title": "A genome-wide association study in Swedish colorectal cancer patients with gastric- and prostate cancer in relatives.",
+      "journal": "Hereditary cancer in clinical practice",
+      "pubdate": "2024 Nov 14",
+      "doi_or_elocation": "doi: 10.1186/s13053-024-00299-z",
+      "authors": [
+        "Samola Winnberg J",
+        "Vermani L",
+        "Liu W",
+        "Soller V",
+        "Thutkawkorapin J",
+        "Lindblad M",
+        "Lindblom A"
+      ]
+    },
+    {
+      "pmid": "36232772",
+      "title": "Investigation of Transcriptome Patterns in Endometrial Cancers from Obese and Lean Women.",
+      "journal": "International journal of molecular sciences",
+      "pubdate": "2022 Sep 29",
+      "doi_or_elocation": "doi: 10.3390/ijms231911471",
+      "authors": [
+        "Takenaka K",
+        "Curry-Hyde A",
+        "Olzomer EM",
+        "Farrell R",
+        "Byrne FL",
+        "Janitz M"
+      ]
+    },
+    {
+      "pmid": "33899544",
+      "title": "Systemic analysis of the expression levels and prognosis of breast cancer-related cadherins.",
+      "journal": "Experimental biology and medicine (Maywood, N.J.)",
+      "pubdate": "2021 Aug",
+      "doi_or_elocation": "doi: 10.1177/15353702211010417",
+      "authors": [
+        "Xu M",
+        "Liu C",
+        "Pu L",
+        "Lai J",
+        "Li J",
+        "Ning Q",
+        "Liu X",
+        "Deng S"
+      ]
+    },
+    {
+      "pmid": "30803927",
+      "title": "Prognostic DNA Methylation Biomarkers in High-risk Non-muscle-invasive Bladder Cancer: A Systematic Review to Identify Loci for Prospective Validation.",
+      "journal": "European urology focus",
+      "pubdate": "2020 Jul 15",
+      "doi_or_elocation": "doi: 10.1016/j.euf.2019.02.012",
+      "authors": [
+        "Gurung PMS",
+        "Barnett AR",
+        "Wilson JS",
+        "Hudson J",
+        "Ward DG",
+        "Messing EM",
+        "Bryan RT"
+      ]
+    },
+    {
+      "pmid": "35092367",
+      "title": "Association of Estrogen-Related Polygenetic Risk Scores with Breast Cancer and Interactions with Alcohol Intake, Early Menarche, and Nulligravida.",
+      "journal": "Asian Pacific journal of cancer prevention : APJCP",
+      "pubdate": "2022 Jan 1",
+      "doi_or_elocation": "doi: 10.31557/APJCP.2022.23.1.13",
+      "authors": [
+        "Song SS",
+        "Kang S",
+        "Park S"
+      ]
+    },
+    {
+      "pmid": "34386506",
+      "title": "PTEN Hamartoma Tumor Syndrome: Skin Manifestations and Insights Into Their Molecular Pathogenesis.",
+      "journal": "Frontiers in medicine",
+      "pubdate": "2021",
+      "doi_or_elocation": "doi: 10.3389/fmed.2021.688105",
+      "authors": [
+        "Innella G",
+        "Bonora E",
+        "Neri I",
+        "Virdi A",
+        "Guglielmo A",
+        "Pradella LM",
+        "Ceccarelli C",
+        "Amato LB",
+        "Lanzoni A",
+        "Miccoli S",
+        "Gasparre G",
+        "Zuntini R",
+        "Turchetti D"
+      ]
+    },
+    {
+      "pmid": "36628559",
+      "title": "DNA methylation of selected tumor suppressor genes in endometrial hyperplasia.",
+      "journal": "Biomedical papers of the Medical Faculty of the University Palacky, Olomouc, Czechoslovakia",
+      "pubdate": "2024 Mar",
+      "doi_or_elocation": "doi: 10.5507/bp.2022.053",
+      "authors": [
+        "Dvorak O",
+        "Ndukwe M",
+        "Slavickova M",
+        "Laco J",
+        "Spacek J"
+      ]
+    },
+    {
+      "pmid": "37577021",
+      "title": "Epigenetic methylation changes: implication as biomarkers in oral and maxillofacial area cancers.",
+      "journal": "Medicine and pharmacy reports",
+      "pubdate": "2023 Jul",
+      "doi_or_elocation": "doi: 10.15386/mpr-2570",
+      "authors": [
+        "Aghiorghiesei O",
+        "Irimie AI",
+        "Braicu C",
+        "Raduly L",
+        "Nutu A",
+        "Balint E",
+        "Mehterov N",
+        "Vladimirov B",
+        "Sarafian V",
+        "Lucaciu O",
+        "Campian R",
+        "Berindan-Neagoe I"
+      ]
+    },
+    {
+      "pmid": "33927218",
+      "title": "KLK3 SNP-SNP interactions for prediction of prostate cancer aggressiveness.",
+      "journal": "Scientific reports",
+      "pubdate": "2021 Apr 29",
+      "doi_or_elocation": "doi: 10.1038/s41598-021-85169-7",
+      "authors": [
+        "Lin HY",
+        "Huang PY",
+        "Cheng CH",
+        "Tung HY",
+        "Fang Z",
+        "Berglund AE",
+        "Chen A",
+        "French-Kwawu J",
+        "Harris D",
+        "Pow-Sang J",
+        "Yamoah K",
+        "Cleveland JL",
+        "Awasthi S",
+        "Rounbehler RJ",
+        "Gerke T",
+        "Dhillon J",
+        "Eeles R",
+        "Kote-Jarai Z",
+        "Muir K",
+        "UKGPCS collaborators",
+        "Schleutker J",
+        "Pashayan N",
+        "APCB (Australian Prostate Cancer BioResource)",
+        "Neal DE",
+        "Nielsen SF",
+        "Nordestgaard BG",
+        "Gronberg H",
+        "Wiklund F",
+        "Giles GG",
+        "Haiman CA",
+        "Travis RC",
+        "Stanford JL",
+        "Kibel AS",
+        "Cybulski C",
+        "Khaw KT",
+        "Maier C",
+        "Thibodeau SN",
+        "Teixeira MR",
+        "Cannon-Albright L",
+        "Brenner H",
+        "Kaneva R",
+        "Pandha H",
+        "PRACTICAL consortium",
+        "Srinivasan S",
+        "Clements J",
+        "Batra J",
+        "Park JY"
+      ]
+    },
+    {
+      "pmid": "33948387",
+      "title": "The shifting landscape of genetic alterations separating endometriosis and ovarian endometrioid carcinoma.",
+      "journal": "American journal of cancer research",
+      "pubdate": "2021",
+      "doi_or_elocation": "",
+      "authors": [
+        "Gaia-Oltean AI",
+        "Pop LA",
+        "Cojocneanu RM",
+        "Buse M",
+        "Zimta AA",
+        "Kubelac P",
+        "Irimie A",
+        "Coza OF",
+        "Roman H",
+        "Berindan-Neagoe I"
+      ]
+    },
+    {
+      "pmid": "34991696",
+      "title": "The CpG island methylator phenotype increases the risk of high-grade squamous intraepithelial lesions and cervical cancer.",
+      "journal": "Clinical epigenetics",
+      "pubdate": "2022 Jan 6",
+      "doi_or_elocation": "doi: 10.1186/s13148-021-01224-0",
+      "authors": [
+        "Loaeza-Loaeza J",
+        "Illades-Aguiar B",
+        "Del Moral-Hernández O",
+        "Castro-Coronel Y",
+        "Leyva-Vázquez MA",
+        "Dircio-Maldonado R",
+        "Ortiz-Ortiz J",
+        "Hernández-Sotelo D"
+      ]
+    }
+  ]
+}

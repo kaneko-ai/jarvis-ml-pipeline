@@ -13,7 +13,7 @@ from jarvis_core.registry import AgentRegistry  # noqa: E402
 
 class DummyLLM:
     def chat(self, messages):  # pragma: no cover - simple stub
-        return "thought:\n  dummy\nanswer:\n  dummy"
+        return "dummy answer"
 
 
 def test_registry_loads_agents_from_yaml():
