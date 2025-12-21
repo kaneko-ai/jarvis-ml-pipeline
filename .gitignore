@@ -1,14 +1,22 @@
-# Python venv
+﻿# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# venv
 .venv/
 venv/
 
-# Python キャッシュ
-__pycache__/
-*.pyc
+# logs
+logs/
+*.log
 
-# ローカルデータ
-data/
-reports/
+# env
+.env
+.env.*
 
-# VS Code
+# OS/Editor
+.DS_Store
 .vscode/
+.idea/
