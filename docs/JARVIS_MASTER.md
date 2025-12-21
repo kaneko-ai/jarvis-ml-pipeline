@@ -6,7 +6,7 @@ Repo: kaneko-ai/jarvis-ml-pipeline
 本書は Jarvis（javis）の **仕様・設計判断・I/O契約・運用ルール・ロードマップ（M1〜M4）・改修順序**を 1ファイルに集約した「唯一の正本」である。  
 **設計の変更は必ず本書を先に更新**し、他docsは本書を参照する。
 
-> 重要：現時点では「実装を進めない」前提で、計画を詳細に固定する。  
+> 重要：凍結＝機能追加凍結、最小核の実装は進める
 > したがって本書は「実装メモ」ではなく「将来の実装を迷わせない設計仕様書」である。
 
 ---
@@ -76,34 +76,76 @@ Jarvisは、生命科学研究・修論執筆・文献サーベイ・就職活�
 ```json
 {
   "task_id": "uuid",
-  "title": "string",
-  "category": "paper_survey|thesis|job_hunting|generic",
+  "title": "CD73に関する最新論文サーベイ",
+  "category": "paper_survey",
   "priority": 1,
-  "user_goal": "string",
+  "user_goal": "CD73に関する最新論文を調べ、要点を整理してまとめてほしい",
   "constraints": {
     "language": "ja",
     "citation_required": true
   },
   "inputs": {
-    "query": "string",
-    "files": ["path-or-id"],
-    "context_notes": "string"
+    "query": "CD73",
+    "files": [],
+    "context_notes": ""
   }
 }
+
+### 5.2.1 Task の責務と不変条件（Invariants）
+Task は「ユーザー要求を実行可能な単位に正規化した最上位オブジェクト」である。
+
+Task は以下を満たすこと（不変条件）：
+
+task_id はシステムが発行する一意キーであり、同一Taskの再実行でも不変（ログ・再現性のキー）。
+
+user_goal はユーザーの原文またはそれに準ずる要求であり、編集・要約はしない（監査可能性）。
+
+title はユーザー要求の短い要約で、UI/ログ表示用途。意味は変えないが短縮は許容。
+
+Task が 表さない もの：
+
+実行計画（ステップ順、並列化、リトライ戦略等）は Task 自体には持たせない。
+
+LLMの内部思考や中間推論は Task に保存しない。
+
+後方互換：
+
+id は task_id の互換プロパティ、goal は title の互換プロパティとして提供するが、外部公開スキーマは task_id/title/user_goal を正とする。
+
+設計注記：将来、再計画（replan）や差分修復（repair）を導入する場合、Taskとは別に ExecutionPlan を導入し、Taskを不変に保つ。
 
 5.3 SubTask（内部：JSON互換）
 {
   "subtask_id": "uuid",
   "parent_task_id": "uuid",
-  "agent": "AgentName",
-  "objective": "string",
-  "inputs": { "any": "json" },
-  "expected_output": {
-    "type": "text|json|files",
-    "schema": { "any": "json" }
+  "agent": "PaperFetcherAgent",
+  "objective": "CD73に関する関連論文を検索・抽出する",
+  "inputs": {
+    "query": "CD73"
   },
-  "quality_gates": ["gate_id_1", "gate_id_2"]
+  "expected_output": {
+    "type": "text",
+    "schema": {}
+  },
+  "quality_gates": ["citations_required"]
 }
+
+### 5.3.1 SubTask の責務と寿命（Lifecycle）
+SubTask は「Taskを達成するための実行計画（Plan）の構成要素」である。
+
+SubTask は Task から導出されるが、Taskより可変である（再計画で差し替わり得る）。
+
+Planner の責務：
+
+Task(user_goal) を入力として SubTask 群を生成する。
+
+SubTask の粒度は「Agentが一回で完結できる単位」を目安とする。
+
+Executor/ExecutionEngine の責務：
+
+Plannerが生成した SubTask を順次（または並列）実行する。
+
+失敗時に Planner を再呼び出しして良いが、その場合も Task の user_goal は不変。
 
 5.4 AgentResult（出力：最小スキーマ固定）
 
@@ -132,6 +174,36 @@ Jarvisは、生命科学研究・修論執筆・文献サーベイ・就職活�
   }
 }
 
+### 5.4.1 status の厳密定義
+status="success"：要求された出力が生成され、最低限の根拠要件（Citations規約）を満たす。
+
+status="partial"：出力は生成されたが、以下のいずれかに該当する：
+
+要求の一部のみ達成（例：3項目中2項目まで）
+
+根拠不足（Citations規約を満たさない）
+
+外部依存（ネットワーク/レート制限/ソース未取得）により完遂不能
+
+出力はあるが不確実性が高く、利用者に注意喚起が必要
+
+status="fail"：出力生成に失敗、または要求達成の見込みがなく中断。
+
+### 5.4.2 Citations 規約（最低要件）
+AgentResult の citations は、回答の検証可能性を担保するための根拠情報である。
+
+最低要件（MVP）：
+
+事実主張（数値・固有名詞・結論）を含む場合、最低1件以上の citation を付与する。
+
+quote は根拠箇所の抜粋であり、過度に長い引用は避ける（短い抜粋に留める）。
+
+locator は機械的に辿れる形式に統一する（例：page:3 / pmid:123... / url:https://...）。
+
+citations が付けられない場合：
+
+status は partial とし、回答本文に「根拠不足」を明示する。
+
 6. ログ仕様（運用要件：JSONL）
 
 方針：後から「何が起きたか」を再構成できないシステムは運用不能。ログは仕様。
@@ -154,6 +226,26 @@ JSONL（1行1イベント）
   "tool": "ToolName",
   "payload": { "any": "json" }
 }
+
+6.3 LLMプロバイダー切替（無料運用対応）
+
+Gemini APIの429エラー（レート制限）対策として、LLMバックエンドを切替可能にしている。
+
+| 環境変数 | 説明 | デフォルト |
+|----------|------|-----------|
+| `LLM_PROVIDER` | `gemini` または `ollama` | `gemini` |
+| `GEMINI_API_KEY` | Gemini APIキー（providerがgeminiの場合必須） | - |
+| `OLLAMA_BASE_URL` | OllamaサーバーのベースURL | `http://127.0.0.1:11434` |
+| `OLLAMA_MODEL` | Ollamaで使用するモデル | `llama3.2` |
+
+**無料運用の推奨設定（Ollama）:**
+```bash
+export LLM_PROVIDER=ollama
+export OLLAMA_MODEL=llama3.2
+ollama serve  # 別ターミナルで起動
+```
+
+### 6.3.1 Provider 選択の設計注記（将来拡張）
 
 7. 新ロードマップ（M1〜M4：作り直し版）
 
@@ -249,6 +341,8 @@ docs/agent_registry.md：スキーマと運用規約を本書に整合
 docs/codex_progress.md：M1〜M4（新定義）に合わせて更新
 
 （任意）examples/：paper_survey最短導線の例を追加
+
+PR1は実装済み（ExecutionEngine経由）
 
 8. リポジトリ衛生（実装前に必ずやるべき運用ルール）
 

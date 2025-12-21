@@ -37,9 +37,9 @@ def validator_for_success(result):
 
 def make_task(task_id: str) -> Task:
     return Task(
-        id=task_id,
+        task_id=task_id,
+        title="do something",
         category=TaskCategory.GENERIC,
-        goal="do something",
         inputs={},
         constraints={},
         priority=TaskPriority.NORMAL,

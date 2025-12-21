@@ -44,7 +44,7 @@ from jarvis_core.task import Task, TaskCategory, TaskPriority, TaskStatus  # noq
 
 class DummyLLM:
     def chat(self, messages):  # pragma: no cover - simple stub
-        return "thought:\n  dummy\nanswer:\n  dummy"
+        return "dummy answer"
 
 
 def make_router():
@@ -55,9 +55,9 @@ def make_router():
 def test_router_selects_agent_by_category():
     router = make_router()
     task = Task(
-        id="t1",
+        task_id="t1",
+        title="Find CD73 papers",
         category=TaskCategory.PAPER_SURVEY,
-        goal="Find CD73 papers",
         inputs={"query": "CD73", "context": "thesis background"},
         constraints={},
         priority=TaskPriority.NORMAL,
@@ -72,9 +72,9 @@ def test_router_selects_agent_by_category():
 def test_router_respects_agent_hint():
     router = make_router()
     task = Task(
-        id="t2",
+        task_id="t2",
+        title="Analyze PDF",
         category=TaskCategory.PAPER_SURVEY,
-        goal="Analyze PDF",
         inputs={"agent_hint": "mygpt_paper_analyzer", "context": "analysis"},
         constraints={},
         priority=TaskPriority.NORMAL,
@@ -84,3 +84,4 @@ def test_router_respects_agent_hint():
     result = router.run(task)
     assert "analyzing papers" in result.answer
     assert result.meta and result.meta.get("source") == "mygpt_paper_analyzer_stub"
+

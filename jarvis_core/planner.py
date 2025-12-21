@@ -49,9 +49,10 @@ class Planner:
         subtasks: List[Task] = []
         for idx, step in enumerate(recipe, start=1):
             subtask = Task(
-                id=f"{task.id}:{idx}",
+                task_id=f"{task.task_id}:{idx}",
+                title=f"{task.title} — {step}",
                 category=task.category,
-                goal=f"{task.goal} — {step}",
+                user_goal=task.user_goal,
                 inputs=deepcopy(task.inputs),
                 constraints=deepcopy(task.constraints),
                 priority=task.priority,
@@ -61,12 +62,12 @@ class Planner:
                 "event": "planned",
                 "step": idx,
                 "description": step,
-                "source_task": task.id,
+                "source_task": task.task_id,
             })
             subtasks.append(subtask)
 
         task.history.append({
             "event": "plan_generated",
-            "subtasks": [s.id for s in subtasks],
+            "subtasks": [s.task_id for s in subtasks],
         })
         return subtasks

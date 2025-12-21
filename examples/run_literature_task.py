@@ -21,14 +21,15 @@ def main() -> None:
     router = Router(llm=DummyLLM(), registry=registry)
 
     task = Task(
-        id="demo-literature-1",
+        task_id="demo-literature-1",
+        title="Summarize recent papers about CRISPR quality control",
         category=TaskCategory.PAPER_SURVEY,
-        goal="Summarize recent papers about CRISPR quality control",
+        user_goal="Summarize recent papers about CRISPR quality control",
         inputs={"query": "CRISPR quality control"},
     )
 
     result = router.run(task)
-    print(f"[{task.category.value}] {task.goal}")
+    print(f"[{task.category.value}] {task.title}")
     print(f"Agent answer: {result.answer}")
 
 
