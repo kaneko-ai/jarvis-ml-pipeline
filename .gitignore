@@ -13,3 +13,6 @@ Thumbs.db
 
 # Generated artifacts (Jarvis outputs)
 data/
+# run artifacts (generated)
+runs/
+outputs/
