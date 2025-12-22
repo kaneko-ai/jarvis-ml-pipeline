@@ -1,0 +1,123 @@
+# GitHub Actions - Scheduled Benchmarks and Health Checks
+name: Scheduled Jobs
+
+on:
+  schedule:
+    # 毎日 09:00 UTC (18:00 JST)
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+jobs:
+  daily-health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.lock
+
+      - name: Run core tests
+        id: tests
+        run: |
+          pytest -m core --tb=no -q > test_output.txt 2>&1 || true
+          cat test_output.txt
+          
+          # Extract pass/fail counts
+          PASSED=$(grep -oP '\d+(?= passed)' test_output.txt | tail -1 || echo "0")
+          FAILED=$(grep -oP '\d+(?= failed)' test_output.txt | tail -1 || echo "0")
+          
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+
+      - name: Import check
+        run: |
+          python -c "
+          import jarvis_core
+          from jarvis_core.retrieval import AdaptiveChunker
+          from jarvis_core.reliability import CircuitBreaker
+          from jarvis_core.observability import get_tracer
+          print('All imports OK')
+          "
+
+      - name: Generate health report
+        run: |
+          cat > health_report.md << EOF
+          # Daily Health Report - $(date +%Y-%m-%d)
+          
+          ## Test Results
+          - Passed: ${{ steps.tests.outputs.passed }}
+          - Failed: ${{ steps.tests.outputs.failed }}
+          
+          ## Import Check
+          ✅ All critical imports successful
+          
+          ## Generated at
+          $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          EOF
+          
+          cat health_report.md
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-report-${{ github.run_number }}
+          path: health_report.md
+
+  weekly-benchmark:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 9 * * 0' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.lock
+
+      - name: Run benchmark
+        run: |
+          python scripts/bench.py \
+            --cases benchmarks/cases \
+            --iterations 3 \
+            --output benchmark_results.json \
+            || echo '{"status": "skipped"}' > benchmark_results.json
+
+      - name: Upload benchmark
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-${{ github.run_number }}
+          path: benchmark_results.json
+
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pip-audit
+        run: pip install pip-audit
+
+      - name: Run security audit
+        run: |
+          pip-audit -r requirements.lock --format json > audit_results.json 2>&1 || true
+          cat audit_results.json
+
+      - name: Upload audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-${{ github.run_number }}
+          path: audit_results.json

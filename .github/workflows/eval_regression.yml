@@ -1,0 +1,39 @@
+name: Eval Regression
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run regression tests
+        env:
+          LLM_PROVIDER: ollama
+          OLLAMA_MODEL: llama3.2
+        run: |
+          python -m jarvis_core.eval.regression_runner \
+            --gold docs/evals/frozen_immuno_v1.jsonl \
+            --out reports/eval/latest \
+            --skip-llm
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: reports/eval/latest/
+          if-no-files-found: warn

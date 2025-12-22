@@ -1,0 +1,111 @@
+# GitHub Actions Matrix Build
+# RP-515: Parallel test execution across Python versions and OS
+name: CI Matrix
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  PYTHONUNBUFFERED: "1"
+  NO_NETWORK: "1"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      
+      - name: Install linters
+        run: pip install ruff mypy
+      
+      - name: Lint with ruff
+        run: ruff check .
+      
+      - name: Type check with mypy
+        run: mypy jarvis_core --ignore-missing-imports
+
+  test:
+    needs: lint
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+        exclude:
+          - os: windows-latest
+            python-version: "3.10"
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock
+          pip install pytest pytest-xdist pytest-cov
+      
+      - name: Run tests with coverage
+        run: |
+          pytest -m core --cov=jarvis_core --cov-report=xml -n auto
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: coverage.xml
+          flags: unittests-${{ matrix.os }}-py${{ matrix.python-version }}
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run security scan
+        uses: github/codeql-action/analyze@v2
+        with:
+          languages: python
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: jarvis:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
+      - name: Scan image for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: jarvis:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      
+      - name: Upload scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
