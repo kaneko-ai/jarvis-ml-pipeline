@@ -1,0 +1,65 @@
+name: Core Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  core-tests:
+    runs-on: ubuntu-latest
+    name: Core Tests (Blocking)
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # PR-59: Use marker-based test selection
+      - name: Run core tests
+        run: python -m pytest -m core -v --tb=short
+
+      # PR-60: Check core test collection count
+      - name: Check test collection
+        run: python scripts/check_core_collection.py
+
+      # PR-61: Use unified entry point
+      - name: Import checks
+        run: python -m jarvis_core.devtools.ci check-imports
+
+  legacy-tests:
+    runs-on: ubuntu-latest
+    name: Legacy Tests (Non-blocking)
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # PR-59: Run legacy tests (non-blocking)
+      - name: Run legacy tests
+        continue-on-error: true
+        run: python -m pytest -m legacy -v --tb=short || true
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "Legacy tests completed. Failures are tracked in docs/TECH_DEBT.md"

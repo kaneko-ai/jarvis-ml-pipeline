@@ -1,0 +1,36 @@
+name: Benchmark (Weekly)
+
+on:
+  schedule:
+    - cron: '0 4 * * 0'  # Weekly on Sunday 4am UTC
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock
+
+      - name: Run Benchmark
+        continue-on-error: true
+        run: |
+          python scripts/bench.py --cases docs/evals/bench_cases.jsonl --output reports/bench/latest
+
+      - name: Upload Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: reports/bench/latest/
+          retention-days: 30

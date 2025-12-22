@@ -1,0 +1,36 @@
+name: Repair Bench (Weekly)
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'  # Weekly on Sunday 3am UTC
+  workflow_dispatch:
+
+jobs:
+  repair_bench:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.lock
+
+      - name: Run Repair Bench
+        continue-on-error: true
+        run: |
+          python scripts/run_repair_bench.py --output reports/repair_bench/latest
+
+      - name: Upload Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: repair-bench-results
+          path: reports/repair_bench/latest/
+          retention-days: 30
