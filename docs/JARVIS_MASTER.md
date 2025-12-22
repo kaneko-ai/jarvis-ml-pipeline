@@ -344,7 +344,174 @@ docs/codex_progress.md：M1〜M4（新定義）に合わせて更新
 
 PR1は実装済み（ExecutionEngine経由）
 
-8. リポジトリ衛生（実装前に必ずやるべき運用ルール）
+---
+
+## 7. 評価（Evals/回帰）
+
+### 7.1 評価の分類
+| 種類 | 用途 | 更新頻度 |
+|------|------|----------|
+| **Frozen** | 回帰テスト用。結果が安定したらPRで"通るべき"テストとして固定 | コミット時 |
+| **Live** | 監視用。本番環境で品質劣化を検知 | 実行ごと |
+
+### 7.2 最低限の指標（MVP）
+| 指標 | 定義 | 初期しきい値 |
+|------|------|--------------|
+| `fetch_success_rate` | 論文取得成功率 (取得数/検索ヒット数) | ≥ 0.3 |
+| `citation_rate` | 根拠付与率 (citations付き回答/全回答) | ≥ 0.8 |
+| `citation_precision` | 引用精度 (正しい引用/全引用) | ≥ 0.9 |
+| `claim_precision` | 主張精度 (根拠で支持される主張/全主張) | ≥ 0.85 |
+| `unsupported_claim_rate` | 根拠なし主張率 | ≤ 0.1 |
+| `failure_repro_rate` | 失敗再現率 (同一入力で同一失敗) | ≥ 0.95 |
+| `avg_latency_ms` | 平均レイテンシ | ≤ 30000 |
+
+**方針**: しきい値は「初期は緩く、運用で締める」。品質が安定したら段階的に厳格化。
+
+### 7.3 EvalResult スキーマ（JSON）
+```json
+{
+  "schema_version": "1.0",
+  "run_id": "uuid",
+  "task_id": "uuid",
+  "timestamp": "ISO8601",
+  "metrics": {
+    "claim_precision": 0.87,
+    "citation_precision": 0.92,
+    "unsupported_claim_rate": 0.08,
+    "avg_latency_ms": 1500
+  },
+  "thresholds": {
+    "claim_precision": 0.85,
+    "citation_precision": 0.9,
+    "unsupported_claim_rate": 0.1
+  },
+  "pass_fail": "pass",
+  "failing_gates": [],
+  "artifacts_path": "logs/runs/{run_id}/eval/"
+}
+```
+
+### 7.4 Frozen評価セットの運用
+- `data/evals/frozen_*.jsonl` に保存
+- 各エントリに `task`, `expected_entities`, `min_citations` を持つ
+- PRで回帰が出たら **マージ禁止** (CI gateで強制)
+
+---
+
+## 8. ログ仕様（JSONL）拡張
+
+### 8.1 必須フィールド（拡張版）
+```json
+{
+  "ts": "ISO8601",
+  "level": "INFO|WARN|ERROR",
+  "run_id": "uuid",
+  "trace_id": "uuid",
+  "step_id": "int",
+  "task_id": "uuid",
+  "subtask_id": "uuid|null",
+  "event": "PLAN_CREATED|AGENT_SELECTED|TOOL_CALLED|...",
+  "event_type": "COGNITIVE|ACTION|COORDINATION",
+  "agent": "AgentName|null",
+  "tool": "ToolName|null",
+  "payload": {}
+}
+```
+
+### 8.2 event_type (ATS互換)
+| event_type | 説明 |
+|------------|------|
+| `COGNITIVE` | 推論/判断（ただし内部思考そのものは保存禁止） |
+| `ACTION` | 外部ツール呼び出し（検索/API/ファイル操作） |
+| `COORDINATION` | タスク管理/計画更新/リトライ |
+
+### 8.3 再現性フィールド（追加）
+| フィールド | 説明 |
+|-----------|------|
+| `prompt_hash` | プロンプトのSHA256ハッシュ（正規化済み） |
+| `tool_input_hash` | ツール入力のSHA256ハッシュ |
+| `cache_hit` | キャッシュヒット (true/false) |
+
+### 8.4 保存禁止事項（再掲・明確化）
+| 禁止 | 理由 |
+|------|------|
+| chain-of-thought全文 | 運用を汚染し、後で害になる |
+| 生の推論文 | 監査で問題になる可能性 |
+| 長大テキスト | payloadはhashと参照パスで持つ |
+
+**許可**: 要約された理由（短文1-2行）のみ `payload.reason` に入れてよい
+
+---
+
+## 9. CLI + Web（薄いI/O層）
+
+### 9.1 設計原則
+- **コアは単一関数**: `jarvis_core.app.run_task(task_dict, run_config_dict) -> (AgentResult, EvalResult)`
+- CLI と Web は **同じ入力スキーマ** を受け取り **同じ出力** を返す
+- I/O層に業務ロジックを持たせない
+
+### 9.2 CLI仕様
+```bash
+# タスクファイル指定
+python jarvis_cli.py --task-file task.json --out logs/runs/
+
+# 直接指定
+python jarvis_cli.py --goal "CD73の最新研究" --category paper_survey
+```
+
+### 9.3 Web API仕様（最小）
+| エンドポイント | メソッド | 説明 |
+|---------------|---------|------|
+| `/run` | POST | タスク実行。`{task: {}, run_config: {}}`を受け取り、`{run_id, result}`を返す |
+| `/runs/{run_id}` | GET | 保存済み結果を取得 |
+
+**実装優先度**: CLI → Web（Webは後回しでよい）
+
+---
+
+## 10. 取得ポリシー（出版社PDF）
+
+### 10.1 基本方針
+- **自動スクレイピングは禁止**: 出版社サイトへの自動アクセスは行わない
+- **正式ルート**: OA（オープンアクセス）+ ユーザー提供PDFのみ
+
+### 10.2 取得元と優先順位
+| Adapter | 説明 | 自動化 | デフォルト |
+|---------|------|--------|-----------|
+| `pmc_oa` | PMC Open Access | ✅ 可 | ✅ 有効 |
+| `unpaywall` | Unpaywall OA判定 | ✅ 可 | ✅ 有効 |
+| `local_dir` | ユーザー手動取得PDF | - | ✅ 有効 |
+| `publisher` | 出版社直接 | ❌ 禁止 | ❌ 無効 |
+
+### 10.3 取得失敗時の挙動
+- 取得できない論文は `partial` 扱い
+- `meta.warnings` に理由を記録（例: `"no_oa_available"`, `"pdf_extraction_failed"`）
+- **落ちない**: 取得失敗でプロセス全体を止めない
+
+### 10.4 設定例（config.yaml）
+```yaml
+fetch_adapters:
+  - pmc_oa
+  - unpaywall
+  - local_dir
+local_pdf_dir: ~/papers/
+```
+
+---
+
+## 11. 最小核の順序（ロードマップ再整理）
+
+**今後の実装順序（最優先から順に）**:
+1. **評価** (RP-07): 回帰が走れば品質が追える
+2. **観測性** (RP-02): 失敗が追えれば改善できる
+3. **再現性** (RP-03): 同じ失敗が再現できれば収束する
+4. **実行経路統一** (RP-04-06): ツール層固定、workflow実装
+5. **RAG強化** (RP-11): 評価が安定してから
+6. **拡張** (M4): 将来機能
+
+---
+
+## 12. リポジトリ衛生（実装前に必ずやるべき運用ルール）
 
 .venv/, __pycache__/, logs/, data/, reports/ は git 管理しない
 
@@ -352,12 +519,14 @@ PR1は実装済み（ExecutionEngine経由）
 
 docsは「正本のみ」が設計変更の入口になる
 
-9. 参照（このrepo内の関係）
+## 13. 参照（このrepo内の関係）
 
 進捗だけ：docs/codex_progress.md
 
 設定運用：docs/agent_registry.md
 
 概要：docs/jarvis_vision.md
+
+ベースライン：docs/STATE_BASELINE.md
 
 以上。

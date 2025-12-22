@@ -1,0 +1,107 @@
+# Alertmanager Rules
+# RP-532: Alert definitions
+groups:
+  - name: jarvis.alerts
+    rules:
+      # High Error Rate
+      - alert: JarvisHighErrorRate
+        expr: |
+          sum(rate(http_requests_total{job="jarvis-api",status=~"5.."}[5m])) 
+          / sum(rate(http_requests_total{job="jarvis-api"}[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+          runbook_url: "https://docs.jarvis.dev/runbooks/high-error-rate"
+
+      # High Latency
+      - alert: JarvisHighLatency
+        expr: |
+          histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job="jarvis-api"}[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High latency detected"
+          description: "P99 latency is {{ $value | humanizeDuration }} (threshold: 2s)"
+          runbook_url: "https://docs.jarvis.dev/runbooks/high-latency"
+
+      # Pod Not Ready
+      - alert: JarvisPodNotReady
+        expr: |
+          kube_pod_status_ready{namespace="jarvis",condition="true"} == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pod not ready"
+          description: "Pod {{ $labels.pod }} is not ready"
+
+      # Low Available Replicas
+      - alert: JarvisLowReplicas
+        expr: |
+          kube_deployment_status_replicas_available{namespace="jarvis",deployment="jarvis-api"} < 2
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low replica count"
+          description: "Only {{ $value }} replicas available (minimum: 2)"
+
+      # Redis Connection Failed
+      - alert: JarvisRedisDown
+        expr: |
+          up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down"
+          description: "Cannot connect to Redis"
+
+      # PostgreSQL Connection Failed
+      - alert: JarvisPostgresDown
+        expr: |
+          up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "Cannot connect to PostgreSQL"
+
+      # Disk Space Low
+      - alert: JarvisDiskSpaceLow
+        expr: |
+          node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} < 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk space low"
+          description: "Less than 10% disk space available"
+
+      # Memory Usage High
+      - alert: JarvisMemoryHigh
+        expr: |
+          container_memory_usage_bytes{namespace="jarvis"} / container_spec_memory_limit_bytes{namespace="jarvis"} > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 90%"
+
+      # SLO Burn Rate
+      - alert: JarvisSLOBurnRateHigh
+        expr: |
+          sum(rate(http_requests_total{job="jarvis-api",status=~"5.."}[1h])) 
+          / sum(rate(http_requests_total{job="jarvis-api"}[1h])) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "SLO burn rate too high"
+          description: "Error budget consumption rate is unsustainable"

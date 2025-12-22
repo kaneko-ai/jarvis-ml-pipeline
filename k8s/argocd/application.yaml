@@ -1,0 +1,91 @@
+# ArgoCD Application
+# RP-507: GitOps configuration
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jarvis
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  
+  source:
+    repoURL: https://github.com/your-org/jarvis-ml-pipeline.git
+    targetRevision: main
+    path: helm/jarvis
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-production.yaml
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: jarvis
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  
+  # Health checks
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+  
+  # Notifications
+  annotations:
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: jarvis-alerts
+    notifications.argoproj.io/subscribe.on-sync-failed.slack: jarvis-alerts
+---
+# ArgoCD Project
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: jarvis
+  namespace: argocd
+spec:
+  description: JARVIS Research OS
+  
+  sourceRepos:
+    - https://github.com/your-org/jarvis-ml-pipeline.git
+  
+  destinations:
+    - namespace: jarvis
+      server: https://kubernetes.default.svc
+    - namespace: jarvis-staging
+      server: https://kubernetes.default.svc
+  
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+    - group: networking.k8s.io
+      kind: Ingress
+  
+  namespaceResourceBlacklist:
+    - group: ''
+      kind: ResourceQuota
+    - group: ''
+      kind: LimitRange
+  
+  roles:
+    - name: developer
+      description: Developer access
+      policies:
+        - p, proj:jarvis:developer, applications, get, jarvis/*, allow
+        - p, proj:jarvis:developer, applications, sync, jarvis/*, allow
+      groups:
+        - jarvis-developers

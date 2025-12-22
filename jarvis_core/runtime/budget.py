@@ -1,166 +1,171 @@
-"""Budget Manager.
+"""Budget Manager (All-Layer).
 
-Per V4-C10, this provides unified budget management for token/time/calls.
+Per RP-138, enforces budget limits across all layers.
 """
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 from enum import Enum
+import threading
+
+
+class BudgetType(Enum):
+    """Types of budget limits."""
+
+    TIME = "time"
+    DOCS = "docs"
+    TOKENS = "tokens"
+    RETRIES = "retries"
+    TOOL_CALLS = "tool_calls"
+
+
+@dataclass
+class BudgetLimits:
+    """Budget limits for a run."""
+
+    max_seconds: float = 300.0  # 5 minutes default
+    max_docs: int = 100
+    max_tokens: int = 50000
+    max_retries: int = 10
+    max_tool_calls: int = 50
+
+
+@dataclass
+class BudgetUsage:
+    """Current budget usage."""
+
+    seconds_used: float = 0.0
+    docs_used: int = 0
+    tokens_used: int = 0
+    retries_used: int = 0
+    tool_calls_used: int = 0
 
 
 class BudgetExceeded(Exception):
     """Raised when budget is exceeded."""
 
-    def __init__(self, resource: str, used: float, limit: float):
-        self.resource = resource
-        self.used = used
+    def __init__(self, budget_type: BudgetType, limit: float, used: float):
+        self.budget_type = budget_type
         self.limit = limit
-        super().__init__(f"{resource} budget exceeded: {used}/{limit}")
-
-
-@dataclass
-class Budget:
-    """Budget allocation."""
-
-    max_tokens: int = 100000
-    max_time_seconds: float = 300.0
-    max_api_calls: int = 100
-    max_chunks: int = 10000
-
-    # Soft limits for warning
-    warn_at_percent: float = 0.8
-
-    def to_dict(self) -> dict:
-        return {
-            "max_tokens": self.max_tokens,
-            "max_time_seconds": self.max_time_seconds,
-            "max_api_calls": self.max_api_calls,
-            "max_chunks": self.max_chunks,
-            "warn_at_percent": self.warn_at_percent,
-        }
+        self.used = used
+        super().__init__(
+            f"Budget exceeded: {budget_type.value} limit {limit}, used {used}"
+        )
 
 
 class BudgetManager:
-    """Manage budget during execution."""
+    """Manages budget limits across all layers."""
 
-    def __init__(self, budget: Budget = None):
-        self.budget = budget or Budget()
-        self.start_time = time.time()
+    def __init__(self, limits: Optional[BudgetLimits] = None):
+        self.limits = limits or BudgetLimits()
+        self.usage = BudgetUsage()
+        self._start_time = time.time()
+        self._lock = threading.Lock()
 
-        # Usage tracking
-        self.tokens_used = 0
-        self.api_calls = 0
-        self.chunks_processed = 0
+    def check_time(self) -> bool:
+        """Check if time budget is exceeded."""
+        elapsed = time.time() - self._start_time
+        self.usage.seconds_used = elapsed
+        return elapsed <= self.limits.max_seconds
 
-        # Warnings
-        self.warnings: list = []
+    def check_all(self) -> tuple[bool, Optional[BudgetType]]:
+        """Check all budgets. Returns (ok, exceeded_type)."""
+        with self._lock:
+            # Time
+            if not self.check_time():
+                return False, BudgetType.TIME
 
-    def use_tokens(self, count: int) -> None:
-        """Record token usage.
+            # Docs
+            if self.usage.docs_used > self.limits.max_docs:
+                return False, BudgetType.DOCS
 
-        Args:
-            count: Number of tokens used.
+            # Tokens
+            if self.usage.tokens_used > self.limits.max_tokens:
+                return False, BudgetType.TOKENS
 
-        Raises:
-            BudgetExceeded: If token budget exceeded.
-        """
-        self.tokens_used += count
-        self._check_limit("tokens", self.tokens_used, self.budget.max_tokens)
+            # Retries
+            if self.usage.retries_used > self.limits.max_retries:
+                return False, BudgetType.RETRIES
 
-    def use_api_call(self) -> None:
-        """Record an API call."""
-        self.api_calls += 1
-        self._check_limit("api_calls", self.api_calls, self.budget.max_api_calls)
+            # Tool calls
+            if self.usage.tool_calls_used > self.limits.max_tool_calls:
+                return False, BudgetType.TOOL_CALLS
 
-    def use_chunk(self, count: int = 1) -> None:
-        """Record chunk processing."""
-        self.chunks_processed += count
-        self._check_limit("chunks", self.chunks_processed, self.budget.max_chunks)
+            return True, None
 
-    def check_time(self) -> None:
-        """Check time budget."""
-        elapsed = time.time() - self.start_time
-        self._check_limit("time", elapsed, self.budget.max_time_seconds)
+    def add_docs(self, count: int) -> None:
+        """Add to docs usage."""
+        with self._lock:
+            self.usage.docs_used += count
 
-    def _check_limit(self, resource: str, used: float, limit: float) -> None:
-        """Check if limit exceeded."""
-        ratio = used / limit if limit > 0 else 0
+    def add_tokens(self, count: int) -> None:
+        """Add to tokens usage."""
+        with self._lock:
+            self.usage.tokens_used += count
 
-        # Warning at threshold
-        if ratio >= self.budget.warn_at_percent and ratio < 1.0:
-            warning = f"{resource} at {ratio:.0%} of budget"
-            if warning not in self.warnings:
-                self.warnings.append(warning)
+    def add_retry(self) -> None:
+        """Add a retry."""
+        with self._lock:
+            self.usage.retries_used += 1
 
-        # Error at limit
-        if ratio >= 1.0:
-            raise BudgetExceeded(resource, used, limit)
+    def add_tool_call(self) -> None:
+        """Add a tool call."""
+        with self._lock:
+            self.usage.tool_calls_used += 1
 
-    def get_status(self) -> dict:
-        """Get current budget status."""
-        elapsed = time.time() - self.start_time
-        return {
-            "tokens": {
-                "used": self.tokens_used,
-                "limit": self.budget.max_tokens,
-                "percent": self.tokens_used / self.budget.max_tokens * 100,
-            },
-            "time": {
-                "used": elapsed,
-                "limit": self.budget.max_time_seconds,
-                "percent": elapsed / self.budget.max_time_seconds * 100,
-            },
-            "api_calls": {
-                "used": self.api_calls,
-                "limit": self.budget.max_api_calls,
-                "percent": self.api_calls / self.budget.max_api_calls * 100,
-            },
-            "chunks": {
-                "used": self.chunks_processed,
-                "limit": self.budget.max_chunks,
-                "percent": self.chunks_processed / self.budget.max_chunks * 100,
-            },
-            "warnings": self.warnings,
-        }
-
-    def remaining(self) -> dict:
+    def get_remaining(self) -> dict:
         """Get remaining budget."""
-        elapsed = time.time() - self.start_time
+        with self._lock:
+            elapsed = time.time() - self._start_time
+            return {
+                "seconds": max(0, self.limits.max_seconds - elapsed),
+                "docs": max(0, self.limits.max_docs - self.usage.docs_used),
+                "tokens": max(0, self.limits.max_tokens - self.usage.tokens_used),
+                "retries": max(0, self.limits.max_retries - self.usage.retries_used),
+                "tool_calls": max(0, self.limits.max_tool_calls - self.usage.tool_calls_used),
+            }
+
+    def require_budget(self, budget_type: BudgetType) -> None:
+        """Require budget available, raise if exceeded."""
+        ok, exceeded = self.check_all()
+        if not ok and exceeded == budget_type:
+            limit = getattr(self.limits, f"max_{budget_type.value}", 0)
+            used = getattr(self.usage, f"{budget_type.value}_used", 0)
+            raise BudgetExceeded(budget_type, limit, used)
+
+    def summary(self) -> dict:
+        """Get usage summary."""
+        remaining = self.get_remaining()
         return {
-            "tokens": self.budget.max_tokens - self.tokens_used,
-            "time": self.budget.max_time_seconds - elapsed,
-            "api_calls": self.budget.max_api_calls - self.api_calls,
-            "chunks": self.budget.max_chunks - self.chunks_processed,
+            "limits": {
+                "max_seconds": self.limits.max_seconds,
+                "max_docs": self.limits.max_docs,
+                "max_tokens": self.limits.max_tokens,
+            },
+            "usage": {
+                "seconds": self.usage.seconds_used,
+                "docs": self.usage.docs_used,
+                "tokens": self.usage.tokens_used,
+            },
+            "remaining": remaining,
         }
 
-    def should_stop(self) -> bool:
-        """Check if we should stop to preserve budget."""
-        remaining = self.remaining()
-        return any(v <= 0 for v in remaining.values())
+
+# Global budget manager
+_budget_manager: Optional[BudgetManager] = None
 
 
-def create_budget_for_mode(mode: str) -> Budget:
-    """Create budget for execution mode.
+def get_budget_manager() -> BudgetManager:
+    """Get global budget manager."""
+    global _budget_manager
+    if _budget_manager is None:
+        _budget_manager = BudgetManager()
+    return _budget_manager
 
-    Args:
-        mode: 'quick' or 'deep'.
 
-    Returns:
-        Appropriate budget.
-    """
-    if mode == "quick":
-        return Budget(
-            max_tokens=50000,
-            max_time_seconds=60,
-            max_api_calls=20,
-            max_chunks=1000,
-        )
-    else:  # deep
-        return Budget(
-            max_tokens=500000,
-            max_time_seconds=600,
-            max_api_calls=200,
-            max_chunks=10000,
-        )
+def set_budget_manager(manager: BudgetManager) -> None:
+    """Set global budget manager."""
+    global _budget_manager
+    _budget_manager = manager

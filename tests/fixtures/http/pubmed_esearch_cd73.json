@@ -1,0 +1,8 @@
+{
+    "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+    "status_code": 200,
+    "headers": {
+        "content-type": "application/json"
+    },
+    "body": "{\"esearchresult\": {\"count\": \"3\", \"retmax\": \"3\", \"idlist\": [\"12345678\", \"23456789\", \"34567890\"]}}"
+}

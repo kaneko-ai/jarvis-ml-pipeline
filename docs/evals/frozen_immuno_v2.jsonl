@@ -1,0 +1,30 @@
+{"task_id": "immuno_s1_01", "category": "paper_survey", "query": "CD73 immunotherapy cancer", "expected_entities": ["CD73", "NT5E", "adenosine"], "min_citations": 2, "notes": "S1: CD73/腫瘍微小環境"}
+{"task_id": "immuno_s1_02", "category": "paper_survey", "query": "CD73 inhibitor clinical trial", "expected_entities": ["CD73", "AMP"], "min_citations": 2}
+{"task_id": "immuno_s1_03", "category": "paper_survey", "query": "CD73 expression tumor", "expected_entities": ["CD73", "expression"], "min_citations": 2}
+{"task_id": "immuno_s1_04", "category": "paper_survey", "query": "5'-ectonucleotidase cancer", "expected_entities": ["NT5E", "adenosine"], "min_citations": 2}
+{"task_id": "immuno_s1_05", "category": "paper_survey", "query": "adenosine pathway immunosuppression", "expected_entities": ["adenosine", "A2AR"], "min_citations": 2}
+{"task_id": "immuno_s1_06", "category": "paper_survey", "query": "CD73 biomarker prognosis", "expected_entities": ["CD73", "biomarker"], "min_citations": 2}
+{"task_id": "immuno_s2_01", "category": "paper_survey", "query": "PD-1 checkpoint immunotherapy", "expected_entities": ["PDCD1", "PD-L1"], "min_citations": 2}
+{"task_id": "immuno_s2_02", "category": "paper_survey", "query": "CTLA-4 ipilimumab melanoma", "expected_entities": ["CTLA4", "ipilimumab"], "min_citations": 2}
+{"task_id": "immuno_s2_03", "category": "paper_survey", "query": "anti-PD-1 resistance", "expected_entities": ["PD-1", "resistance"], "min_citations": 2}
+{"task_id": "immuno_s2_04", "category": "paper_survey", "query": "pembrolizumab lung cancer", "expected_entities": ["pembrolizumab", "NSCLC"], "min_citations": 2}
+{"task_id": "immuno_s2_05", "category": "paper_survey", "query": "nivolumab renal cell", "expected_entities": ["nivolumab", "RCC"], "min_citations": 2}
+{"task_id": "immuno_s2_06", "category": "paper_survey", "query": "checkpoint combination therapy", "expected_entities": ["PD-1", "CTLA-4"], "min_citations": 2}
+{"task_id": "immuno_s3_01", "category": "paper_survey", "query": "CAR-T cell therapy solid tumor", "expected_entities": ["CAR-T", "CD19"], "min_citations": 2}
+{"task_id": "immuno_s3_02", "category": "paper_survey", "query": "tumor infiltrating lymphocytes TIL", "expected_entities": ["TIL", "lymphocyte"], "min_citations": 2}
+{"task_id": "immuno_s3_03", "category": "paper_survey", "query": "CAR-T cell exhaustion", "expected_entities": ["CAR-T", "exhaustion"], "min_citations": 2}
+{"task_id": "immuno_s3_04", "category": "paper_survey", "query": "CD19 CAR-T ALL", "expected_entities": ["CD19", "ALL"], "min_citations": 2}
+{"task_id": "immuno_s3_05", "category": "paper_survey", "query": "TCR therapy cancer", "expected_entities": ["TCR", "T cell"], "min_citations": 2}
+{"task_id": "immuno_s3_06", "category": "paper_survey", "query": "NK cell immunotherapy", "expected_entities": ["NK", "natural killer"], "min_citations": 2}
+{"task_id": "immuno_s4_01", "category": "paper_survey", "query": "cytokine storm immunotherapy side effect", "expected_entities": ["cytokine", "IL-6"], "min_citations": 2}
+{"task_id": "immuno_s4_02", "category": "paper_survey", "query": "immune related adverse events biomarker", "expected_entities": ["irAE", "biomarker"], "min_citations": 2}
+{"task_id": "immuno_s4_03", "category": "paper_survey", "query": "CRS CAR-T management", "expected_entities": ["CRS", "tocilizumab"], "min_citations": 2}
+{"task_id": "immuno_s4_04", "category": "paper_survey", "query": "autoimmune colitis immunotherapy", "expected_entities": ["colitis", "irAE"], "min_citations": 2}
+{"task_id": "immuno_s4_05", "category": "paper_survey", "query": "steroid immunotherapy side effect", "expected_entities": ["steroid", "corticosteroid"], "min_citations": 2}
+{"task_id": "immuno_s4_06", "category": "paper_survey", "query": "immune checkpoint hepatotoxicity", "expected_entities": ["hepatotoxicity", "liver"], "min_citations": 2}
+{"task_id": "immuno_s5_01", "category": "paper_survey", "query": "tumor microenvironment hypoxia immune", "expected_entities": ["TME", "hypoxia"], "min_citations": 2}
+{"task_id": "immuno_s5_02", "category": "paper_survey", "query": "myeloid derived suppressor cells MDSC", "expected_entities": ["MDSC", "myeloid"], "min_citations": 2}
+{"task_id": "immuno_s5_03", "category": "paper_survey", "query": "Treg tumor immunosuppression", "expected_entities": ["Treg", "regulatory"], "min_citations": 2}
+{"task_id": "immuno_s5_04", "category": "paper_survey", "query": "tumor associated macrophages TAM", "expected_entities": ["TAM", "macrophage"], "min_citations": 2}
+{"task_id": "immuno_s5_05", "category": "paper_survey", "query": "cancer fibroblast stroma", "expected_entities": ["CAF", "fibroblast"], "min_citations": 2}
+{"task_id": "immuno_s5_06", "category": "paper_survey", "query": "immune exclusion cold tumor", "expected_entities": ["cold tumor", "exclusion"], "min_citations": 2}

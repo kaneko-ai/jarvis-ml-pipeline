@@ -1,0 +1,112 @@
+# Default values for jarvis
+# RP-503: Helm Chart values
+
+# Global settings
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+
+# API Deployment
+api:
+  replicaCount: 3
+  image:
+    repository: jarvis
+    tag: ""
+    pullPolicy: IfNotPresent
+  
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8000
+  
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: jarvis.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: jarvis-tls
+        hosts:
+          - jarvis.example.com
+
+# Worker Deployment
+worker:
+  replicaCount: 2
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+
+# Redis configuration
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+  master:
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+
+# PostgreSQL configuration
+postgresql:
+  enabled: true
+  auth:
+    username: jarvis
+    password: jarvis
+    database: jarvis
+  primary:
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+
+# Qdrant configuration
+qdrant:
+  enabled: true
+  replicaCount: 1
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+
+# Monitoring
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+
+# Environment variables
+env:
+  JARVIS_ENV: production
+  LOG_LEVEL: INFO
+
+# Secrets (use external secrets in production)
+secrets:
+  JARVIS_WEB_TOKEN: ""
+  GOOGLE_API_KEY: ""

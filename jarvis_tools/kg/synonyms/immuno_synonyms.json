@@ -1,0 +1,21 @@
+{
+  "CD73": ["NT5E", "5'-nucleotidase", "ecto-5'-nucleotidase"],
+  "PD-1": ["PDCD1", "CD279"],
+  "PD-L1": ["CD274", "B7-H1"],
+  "CTLA-4": ["CTLA4", "CD152"],
+  "CAR-T": ["chimeric antigen receptor T cell", "CAR T-cell"],
+  "TIL": ["tumor infiltrating lymphocytes", "tumor-infiltrating lymphocyte"],
+  "MDSC": ["myeloid-derived suppressor cells", "myeloid derived suppressor cell"],
+  "TAM": ["tumor-associated macrophages", "tumor associated macrophage"],
+  "Treg": ["regulatory T cell", "regulatory T cells", "CD4+CD25+"],
+  "TME": ["tumor microenvironment"],
+  "irAE": ["immune-related adverse event", "immune related adverse events"],
+  "CRS": ["cytokine release syndrome"],
+  "NK": ["natural killer", "natural killer cell"],
+  "A2AR": ["adenosine A2A receptor", "ADORA2A"],
+  "IL-6": ["interleukin-6", "interleukin 6"],
+  "IFN-gamma": ["interferon gamma", "IFNg", "IFNG"],
+  "TNF-alpha": ["tumor necrosis factor alpha", "TNFa", "TNFA"],
+  "HIF-1alpha": ["HIF1A", "hypoxia-inducible factor 1 alpha"],
+  "VEGF": ["vascular endothelial growth factor"]
+}
