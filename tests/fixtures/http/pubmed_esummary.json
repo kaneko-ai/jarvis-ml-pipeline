@@ -1,0 +1,8 @@
+{
+    "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+    "status_code": 200,
+    "headers": {
+        "content-type": "application/json"
+    },
+    "body": "{\"result\": {\"12345678\": {\"uid\": \"12345678\", \"title\": \"CD73 in tumor immunotherapy\", \"authors\": [{\"name\": \"Smith J\"}], \"source\": \"J Immunol\", \"pubdate\": \"2023 Jan\"}, \"23456789\": {\"uid\": \"23456789\", \"title\": \"NT5E expression analysis\", \"authors\": [{\"name\": \"Jones A\"}], \"source\": \"Cancer Res\", \"pubdate\": \"2022 Mar\"}}}"
+}

@@ -17,10 +17,9 @@ __all__ = [
 
 def run_jarvis(goal: str, category: str = "generic") -> str:
     """
-    High-level wrapper that orchestrates a task through the ExecutionEngine.
+    High-level wrapper that orchestrates a task through the unified pipeline.
 
-    This function creates a Task from the provided goal and category,
-    executes it via the ExecutionEngine, and returns the final answer.
+    This function ALWAYS produces telemetry logs at logs/runs/{run_id}/.
 
     Args:
         goal: The user's goal or request as a string.
@@ -29,43 +28,15 @@ def run_jarvis(goal: str, category: str = "generic") -> str:
 
     Returns:
         The final answer as a string.
-
-    Imports heavy dependencies lazily so that lightweight modules (e.g.,
-    task modeling) can be used without requiring LLM dependencies.
     """
-    import uuid
+    from .app import run_task
 
-    from .executor import ExecutionEngine
-    from .llm import LLMClient
-    from .planner import Planner
-    from .router import Router
-    from .evidence import EvidenceStore
-
-    # Validate and convert category
-    try:
-        task_category = TaskCategory(category)
-    except ValueError:
-        task_category = TaskCategory.GENERIC
-
-    llm = LLMClient(model="gemini-2.0-flash")
-    router = Router(llm)
-    planner = Planner()
-    evidence_store = EvidenceStore()
-    engine = ExecutionEngine(
-        planner=planner,
-        router=router,
-        evidence_store=evidence_store,
+    result = run_task(
+        task_dict={"goal": goal, "category": category},
+        run_config_dict=None,
     )
 
-    root_task = Task(
-        task_id=str(uuid.uuid4()),
-        title=goal,
-        category=task_category,
-        user_goal=goal,
-        inputs={"query": goal},
-    )
-
-    return engine.run_and_get_answer(root_task)
+    return result.answer
 
 
 def __getattr__(name: str):

@@ -1,0 +1,31 @@
+{
+    "FETCH_PDF_FAILED": [
+        "SWITCH_FETCH_ADAPTER",
+        "INCREASE_TOP_K"
+    ],
+    "EXTRACT_PDF_FAILED": [
+        "SWITCH_FETCH_ADAPTER",
+        "INCREASE_TOP_K"
+    ],
+    "CITATION_GATE_FAILED": [
+        "INCREASE_TOP_K",
+        "TIGHTEN_MMR",
+        "CITATION_FIRST_PROMPT"
+    ],
+    "LOW_CLAIM_PRECISION": [
+        "TIGHTEN_MMR",
+        "INCREASE_TOP_K"
+    ],
+    "BUDGET_EXCEEDED": [
+        "BUDGET_REBALANCE"
+    ],
+    "MODEL_ERROR": [
+        "MODEL_ROUTER_SAFE_SWITCH"
+    ],
+    "JUDGE_TIMEOUT": [
+        "MODEL_ROUTER_SAFE_SWITCH"
+    ],
+    "ENTITY_MISS": [
+        "INCREASE_TOP_K"
+    ]
+}

@@ -15,6 +15,9 @@ import sys
 
 import pytest
 
+# PR-59: Mark all tests in this file as core
+pytestmark = pytest.mark.core
+
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:

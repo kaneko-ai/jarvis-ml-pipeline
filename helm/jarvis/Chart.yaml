@@ -1,0 +1,26 @@
+apiVersion: v2
+name: jarvis
+description: JARVIS Research OS Helm Chart
+type: application
+version: 1.0.0
+appVersion: "4.4.0"
+
+dependencies:
+  - name: redis
+    version: "17.x.x"
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+  - name: postgresql
+    version: "12.x.x"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+
+maintainers:
+  - name: JARVIS Team
+    email: jarvis@example.com
+
+keywords:
+  - research
+  - ai
+  - nlp
+  - biomedical

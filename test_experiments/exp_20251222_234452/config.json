@@ -1,0 +1,18 @@
+{
+  "experiment_id": "exp_20251222_234452",
+  "name": "Test Experiment",
+  "variants": [
+    "control",
+    "treatment"
+  ],
+  "traffic_split": {
+    "control": 0.5,
+    "treatment": 0.5
+  },
+  "start_date": "2025-12-22T14:44:52.566072Z",
+  "end_date": null,
+  "status": "draft",
+  "metrics": [
+    "success_rate"
+  ]
+}

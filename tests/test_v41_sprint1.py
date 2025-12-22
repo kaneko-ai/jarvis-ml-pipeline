@@ -6,6 +6,9 @@ from datetime import datetime
 
 import pytest
 
+# PR-59: Mark all tests in this file as core
+pytestmark = pytest.mark.core
+
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -187,19 +190,20 @@ class TestBudgetManager:
     """V4-C10 tests."""
 
     def test_budget_tracking(self):
-        from jarvis_core.runtime.budget import BudgetManager, Budget
-        budget = Budget(max_tokens=1000)
-        manager = BudgetManager(budget)
-        manager.use_tokens(500)
-        status = manager.get_status()
-        assert status["tokens"]["used"] == 500
+        from jarvis_core.runtime.budget import BudgetManager, BudgetLimits
+        limits = BudgetLimits(max_tokens=1000)
+        manager = BudgetManager(limits)
+        manager.add_tokens(500)
+        assert manager.usage.tokens_used == 500
 
     def test_budget_exceeded(self):
-        from jarvis_core.runtime.budget import BudgetManager, Budget, BudgetExceeded
-        budget = Budget(max_tokens=100)
-        manager = BudgetManager(budget)
-        with pytest.raises(BudgetExceeded):
-            manager.use_tokens(200)
+        from jarvis_core.runtime.budget import BudgetManager, BudgetLimits, BudgetType
+        limits = BudgetLimits(max_tokens=100)
+        manager = BudgetManager(limits)
+        manager.add_tokens(200)
+        ok, exceeded = manager.check_all()
+        assert not ok
+        assert exceeded == BudgetType.TOKENS
 
 
 class TestTriage:

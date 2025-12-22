@@ -9,6 +9,7 @@ from .schema import (
     TruthLevel,
     create_artifact,
 )
+from .claim_set import ClaimSet, Claim, ClaimType
 
 __all__ = [
     "ArtifactBase",
@@ -19,4 +20,8 @@ __all__ = [
     "Provenance",
     "TruthLevel",
     "create_artifact",
+    "ClaimSet",
+    "Claim",
+    "ClaimType",
 ]
+
