@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS PDF Viewer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a1a;
+            --card: rgba(26, 26, 62, 0.8);
+            --glass: rgba(255, 255, 255, 0.05);
+            --txt: #fff;
+            --txt2: #a0a0c0;
+            --pink: #f472b6;
+            --blue: #60a5fa;
+            --green: #4ade80;
+            --purple: #a78bfa;
+            --border: rgba(255, 255, 255, 0.1)
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--txt);
+            min-height: 100vh
+        }
+
+        .bg {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 20% 20%, rgba(167, 139, 250, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(244, 114, 182, 0.15) 0%, transparent 50%);
+            z-index: -1
+        }
+
+        .container {
+            display: flex;
+            height: 100vh
+        }
+
+        .sidebar {
+            width: 300px;
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem;
+            overflow-y: auto
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--glass);
+            border-bottom: 1px solid var(--border)
+        }
+
+        .viewer {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: var(--bg)
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem
+        }
+
+        .paper-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem
+        }
+
+        .paper-item {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s
+        }
+
+        .paper-item:hover,
+        .paper-item.active {
+            border-color: var(--purple);
+            transform: translateX(4px)
+        }
+
+        .paper-item h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+            line-height: 1.4
+        }
+
+        .paper-item p {
+            font-size: 0.75rem;
+            color: var(--txt2)
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            border: none;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s
+        }
+
+        .btn:hover {
+            transform: scale(1.03)
+        }
+
+        .btn-secondary {
+            background: var(--glass);
+            border: 1px solid var(--border)
+        }
+
+        .pdf-container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            overflow: hidden
+        }
+
+        .pdf-placeholder {
+            padding: 3rem;
+            text-align: center;
+            background: #fafafa;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center
+        }
+
+        .pdf-placeholder h3 {
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 1rem
+        }
+
+        .pdf-placeholder p {
+            color: #666;
+            margin-bottom: 1.5rem
+        }
+
+        .page-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem
+        }
+
+        .page-input {
+            width: 60px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            color: var(--txt);
+            padding: 0.5rem;
+            border-radius: 8px;
+            text-align: center
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: auto
+        }
+
+        .notes-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border)
+        }
+
+        .note-input {
+            width: 100%;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            color: var(--txt);
+            padding: 0.75rem;
+            border-radius: 10px;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 0.75rem
+        }
+
+        .highlights {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem
+        }
+
+        .highlight {
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer
+        }
+
+        .highlight.yellow {
+            background: rgba(251, 191, 36, 0.3)
+        }
+
+        .highlight.green {
+            background: rgba(74, 222, 128, 0.3)
+        }
+
+        .highlight.pink {
+            background: rgba(244, 114, 182, 0.3)
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg"></div>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>📚 Papers</h2>
+            <div class="paper-list">
+                <div class="paper-item active" onclick="loadPaper(1)">
+                    <h4>Deep learning for COVID-19 diagnosis</h4>
+                    <p>Smith J, et al. • Nature Med • 2024</p>
+                </div>
+                <div class="paper-item" onclick="loadPaper(2)">
+                    <h4>Machine learning in drug discovery</h4>
+                    <p>Johnson A, et al. • Science • 2024</p>
+                </div>
+                <div class="paper-item" onclick="loadPaper(3)">
+                    <h4>CRISPR advances in cancer therapy</h4>
+                    <p>Williams B, et al. • Cell • 2024</p>
+                </div>
+                <div class="paper-item" onclick="loadPaper(4)">
+                    <h4>AI-assisted radiology review</h4>
+                    <p>Brown C, et al. • Radiology • 2024</p>
+                </div>
+            </div>
+            <div class="notes-section">
+                <h2>📝 Notes</h2>
+                <textarea class="note-input" placeholder="Add notes here..."></textarea>
+                <button class="btn" onclick="saveNotes()">💾 Save Notes</button>
+                <h3 style="font-size:0.9rem;margin:1rem 0 0.5rem">🖍️ Highlights</h3>
+                <div class="highlights">
+                    <div class="highlight yellow">Key finding on p.3</div>
+                    <div class="highlight green">Methodology p.5-7</div>
+                    <div class="highlight pink">Future work p.12</div>
+                </div>
+            </div>
+        </aside>
+        <main class="main">
+            <div class="toolbar">
+                <div class="page-nav">
+                    <button class="btn btn-secondary" onclick="prevPage()">◀</button>
+                    <span>Page</span>
+                    <input type="number" class="page-input" value="1" min="1" max="15" id="page-num">
+                    <span>of 15</span>
+                    <button class="btn btn-secondary" onclick="nextPage()">▶</button>
+                </div>
+                <div class="zoom-controls">
+                    <button class="btn btn-secondary" onclick="zoomOut()">−</button>
+                    <span id="zoom-level">100%</span>
+                    <button class="btn btn-secondary" onclick="zoomIn()">+</button>
+                    <button class="btn btn-secondary" onclick="toggleFullscreen()">⛶</button>
+                </div>
+                <button class="btn" onclick="downloadPDF()">📥 Download</button>
+                <button class="btn btn-secondary" onclick="window.open('research.html')">🔬 Analyze</button>
+            </div>
+            <div class="viewer">
+                <div class="pdf-container" id="pdf-container">
+                    <div class="pdf-placeholder">
+                        <div style="font-size:4rem;margin-bottom:1rem">📄</div>
+                        <h3>Deep learning for COVID-19 diagnosis</h3>
+                        <p>Smith J, Johnson A, Williams B, et al.</p>
+                        <p style="color:#999;font-size:0.9rem">Nature Medicine • 2024 • 15 pages</p>
+                        <hr style="margin:1.5rem 0;border:none;border-top:1px solid #ddd;width:80%">
+                        <div style="text-align:left;max-width:500px;color:#444;font-size:0.9rem;line-height:1.8">
+                            <p><strong>Abstract:</strong> This study presents a novel deep learning approach for
+                                COVID-19 diagnosis using chest X-ray images. Our model achieves 98.5% accuracy on a
+                                dataset of 50,000 images, outperforming existing methods by 12%.</p>
+                            <br>
+                            <p><strong>Key Findings:</strong></p>
+                            <ul style="padding-left:1.5rem;margin-top:0.5rem">
+                                <li>Novel attention mechanism for feature extraction</li>
+                                <li>Transfer learning from ImageNet improves performance</li>
+                                <li>Real-time inference possible on mobile devices</li>
+                            </ul>
+                        </div>
+                        <button class="btn" style="margin-top:2rem"
+                            onclick="alert('Full PDF view requires PDF.js integration')">View Full PDF</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        let currentPage = 1;
+        let zoomLevel = 100;
+
+        function loadPaper(id) {
+            document.querySelectorAll('.paper-item').forEach((el, i) => {
+                el.classList.toggle('active', i === id - 1);
+            });
+            currentPage = 1;
+            document.getElementById('page-num').value = 1;
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                document.getElementById('page-num').value = currentPage;
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < 15) {
+                currentPage++;
+                document.getElementById('page-num').value = currentPage;
+            }
+        }
+
+        function zoomIn() {
+            if (zoomLevel < 200) {
+                zoomLevel += 25;
+                document.getElementById('zoom-level').textContent = zoomLevel + '%';
+                document.getElementById('pdf-container').style.transform = `scale(${zoomLevel / 100})`;
+            }
+        }
+
+        function zoomOut() {
+            if (zoomLevel > 50) {
+                zoomLevel -= 25;
+                document.getElementById('zoom-level').textContent = zoomLevel + '%';
+                document.getElementById('pdf-container').style.transform = `scale(${zoomLevel / 100})`;
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.querySelector('.viewer').requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function downloadPDF() {
+            alert('Download functionality - would link to actual PDF URL');
+        }
+
+        function saveNotes() {
+            const notes = document.querySelector('.note-input').value;
+            localStorage.setItem('pdf-notes-1', notes);
+            alert('Notes saved!');
+        }
+
+        // Load saved notes
+        document.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem('pdf-notes-1');
+            if (saved) {
+                document.querySelector('.note-input').value = saved;
+            }
+        });
+    </script>
+</body>
+
+</html>
