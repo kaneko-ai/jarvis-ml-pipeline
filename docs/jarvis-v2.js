@@ -1,21 +1,22 @@
-// JARVIS Dashboard V2 - Full 80 Enhancements Integration
-// All 300 features integrated into dashboard
+// JARVIS Dashboard V2 - 日本語版
+// 300機能統合ダッシュボード
 
 const JARVIS_V2 = {
     // ============================================
-    // TABS: New Feature Tabs (21-25)
+    // タブ定義 (日本語)
     // ============================================
     tabs: {
         current: 'dashboard',
+        originalContent: null, // ダッシュボードに戻るための保存
 
         definitions: {
-            dashboard: { icon: '🏠', label: 'Dashboard' },
-            coscientist: { icon: '🧬', label: 'AI Co-Scientist' },
-            protein: { icon: '🔬', label: 'Protein Lab' },
-            lab: { icon: '🤖', label: 'Self-Driving Lab' },
-            metaanalysis: { icon: '📊', label: 'Meta-Analysis' },
-            compliance: { icon: '🔒', label: 'Compliance' },
-            pipeline: { icon: '🔄', label: 'Pipelines' }
+            dashboard: { icon: '🏠', label: 'ダッシュボード' },
+            coscientist: { icon: '🧬', label: 'AI共同研究者' },
+            protein: { icon: '🔬', label: 'タンパク質ラボ' },
+            lab: { icon: '🤖', label: '自動化ラボ' },
+            metaanalysis: { icon: '📊', label: 'メタ分析' },
+            compliance: { icon: '🔒', label: 'コンプライアンス' },
+            pipeline: { icon: '🔄', label: 'パイプライン' }
         },
 
         render() {
@@ -31,38 +32,45 @@ const JARVIS_V2 = {
         },
 
         switch(tabId) {
+            const container = document.getElementById('main-content') || document.querySelector('.container');
+
+            // 初回のダッシュボードコンテンツを保存
+            if (!this.originalContent && container) {
+                this.originalContent = container.innerHTML;
+            }
+
             this.current = tabId;
             this.render();
             JARVIS_V2.content.render(tabId);
-            toast(`Switched to ${this.definitions[tabId].label}`, 'info');
+            toast(`${this.definitions[tabId].label}に切り替えました`, 'info');
         }
     },
 
     // ============================================
-    // AI CO-SCIENTIST TAB (21)
+    // AI共同研究者タブ
     // ============================================
     coscientist: {
         hypotheses: [],
 
         async generateHypothesis(topic) {
-            toast('Generating hypotheses...', 'info');
+            toast('仮説を生成中...', 'info');
             await sleep(1000);
 
             const templates = [
-                `${topic} may influence disease progression through epigenetic mechanisms`,
-                `Increased ${topic} expression could enhance therapeutic response`,
-                `The relationship between ${topic} and outcome is mediated by immune factors`
+                `${topic}はエピジェネティックメカニズムを通じて疾患進行に影響を与える可能性がある`,
+                `${topic}の発現増加は治療応答を強化する可能性がある`,
+                `${topic}と結果の関係は免疫因子によって媒介される`
             ];
 
             this.hypotheses = templates.map((text, i) => ({
-                id: `H${i + 1}`,
+                id: `仮説${i + 1}`,
                 text,
                 confidence: (0.6 + Math.random() * 0.3).toFixed(2),
                 novelty: (0.5 + Math.random() * 0.4).toFixed(2),
                 testability: (0.7 + Math.random() * 0.2).toFixed(2)
             }));
 
-            toast(`Generated ${this.hypotheses.length} hypotheses!`, 'success');
+            toast(`${this.hypotheses.length}件の仮説を生成しました！`, 'success');
             return this.hypotheses;
         },
 
@@ -71,70 +79,70 @@ const JARVIS_V2 = {
                 <div class="card" style="margin-bottom:1rem">
                     <div class="card-header">
                         <span class="card-title">🧪 ${h.id}</span>
-                        <span style="color:var(--green)">Confidence: ${(h.confidence * 100).toFixed(0)}%</span>
+                        <span style="color:var(--green)">信頼度: ${(h.confidence * 100).toFixed(0)}%</span>
                     </div>
                     <p style="margin-bottom:1rem">${h.text}</p>
                     <div class="tags">
-                        <span class="tag" style="background:rgba(74,222,128,0.2);color:var(--green)">Novelty: ${(h.novelty * 100).toFixed(0)}%</span>
-                        <span class="tag" style="background:rgba(96,165,250,0.2);color:var(--blue)">Testable: ${(h.testability * 100).toFixed(0)}%</span>
+                        <span class="tag" style="background:rgba(74,222,128,0.2);color:var(--green)">新規性: ${(h.novelty * 100).toFixed(0)}%</span>
+                        <span class="tag" style="background:rgba(96,165,250,0.2);color:var(--blue)">検証可能性: ${(h.testability * 100).toFixed(0)}%</span>
                     </div>
                 </div>
             `).join('');
         },
 
         async analyzeLiteratureGap(topic) {
-            toast('Analyzing literature gaps...', 'info');
+            toast('文献ギャップを分析中...', 'info');
             await sleep(1500);
 
             return {
                 gaps: [
-                    { type: 'under_studied', description: `Limited research on ${topic} mechanisms`, severity: 'high' },
-                    { type: 'methodological', description: 'Need for improved experimental approaches', severity: 'medium' },
-                    { type: 'translational', description: 'Gap between basic research and clinical application', severity: 'high' }
+                    { type: '研究不足', description: `${topic}のメカニズムに関する研究が限定的`, severity: 'high' },
+                    { type: '方法論的', description: '改善された実験手法が必要', severity: 'medium' },
+                    { type: 'トランスレーショナル', description: '基礎研究と臨床応用のギャップ', severity: 'high' }
                 ]
             };
         },
 
         async designExperiment(hypothesis) {
-            toast('Designing experiment...', 'info');
+            toast('実験を設計中...', 'info');
             await sleep(1200);
 
             return {
-                design: 'Randomized Controlled Trial',
+                design: 'ランダム化比較試験',
                 sample_size: Math.floor(50 + Math.random() * 150),
                 power: 0.8,
-                primary_endpoint: 'Primary outcome measure',
+                primary_endpoint: '主要評価項目',
                 timeline_months: 12
             };
         }
     },
 
     // ============================================
-    // PROTEIN LAB TAB (22)
+    // タンパク質ラボタブ
     // ============================================
     protein: {
         async getAlphaFoldStructure(uniprotId) {
             return {
                 pdb_url: `https://alphafold.ebi.ac.uk/files/AF-${uniprotId}-F1-model_v4.pdb`,
                 viewer_url: `https://alphafold.ebi.ac.uk/entry/${uniprotId}`,
-                confidence: 'high'
+                confidence: '高'
             };
         },
 
         async predictBinding(proteinSeq, ligandSmiles) {
-            toast('Predicting binding affinity...', 'info');
+            toast('結合親和性を予測中...', 'info');
             await sleep(1000);
 
             const kd = (Math.random() * 100).toFixed(2);
             return {
                 predicted_kd: `${kd} nM`,
-                strength: kd < 10 ? 'strong' : kd < 50 ? 'moderate' : 'weak',
+                strength: kd < 10 ? '強い' : kd < 50 ? '中程度' : '弱い',
                 confidence: (0.6 + Math.random() * 0.3).toFixed(2)
             };
         },
 
         async designSequence(length, type) {
-            toast('Designing protein sequence...', 'info');
+            toast('タンパク質配列を設計中...', 'info');
             await sleep(800);
 
             const aa = 'ACDEFGHIKLMNPQRSTVWY';
@@ -142,46 +150,46 @@ const JARVIS_V2 = {
             for (let i = 0; i < length; i++) {
                 seq += aa[Math.floor(Math.random() * aa.length)];
             }
-            return { sequence: seq, length, type, stability: 'moderate' };
+            return { sequence: seq, length, type, stability: '中程度' };
         },
 
         render3DViewer(container, pdbUrl) {
             container.innerHTML = `
                 <div style="text-align:center;padding:2rem">
                     <div style="font-size:4rem;margin-bottom:1rem">🧬</div>
-                    <p>3D Protein Viewer</p>
-                    <p style="color:var(--txt2);font-size:0.85rem">Load structure from AlphaFold</p>
-                    <a href="${pdbUrl}" target="_blank" class="btn" style="margin-top:1rem">View in AlphaFold</a>
+                    <p>3D タンパク質ビューア</p>
+                    <p style="color:var(--txt2);font-size:0.85rem">AlphaFoldから構造を読み込み</p>
+                    <a href="${pdbUrl}" target="_blank" class="btn" style="margin-top:1rem">AlphaFoldで表示</a>
                 </div>
             `;
         }
     },
 
     // ============================================
-    // SELF-DRIVING LAB TAB (23)
+    // 自動化ラボタブ
     // ============================================
     lab: {
         equipment: [],
         samples: [],
 
         registerEquipment(id, name, type) {
-            this.equipment.push({ id, name, type, status: 'idle', lastUsed: null });
+            this.equipment.push({ id, name, type, status: '待機中', lastUsed: null });
         },
 
         sendCommand(equipmentId, command, params) {
             const eq = this.equipment.find(e => e.id === equipmentId);
-            if (!eq) return { error: 'Equipment not found' };
+            if (!eq) return { error: '機器が見つかりません' };
 
-            eq.status = 'running';
+            eq.status = '実行中';
             eq.lastUsed = new Date().toISOString();
             toast(`${eq.name}: ${command}`, 'info');
 
-            return { status: 'command_sent', equipment: equipmentId };
+            return { status: 'コマンド送信済み', equipment: equipmentId };
         },
 
         registerSample(barcode, metadata) {
             this.samples.push({ barcode, ...metadata, registeredAt: new Date().toISOString() });
-            return { status: 'registered', barcode };
+            return { status: '登録完了', barcode };
         },
 
         getLabStatus() {
@@ -200,21 +208,21 @@ const JARVIS_V2 = {
                         <div class="stat">
                             <div class="stat-icon">🔬</div>
                             <div class="stat-val">${status.equipment.length}</div>
-                            <div class="stat-lbl">Equipment</div>
+                            <div class="stat-lbl">機器数</div>
                         </div>
                     </div>
                     <div class="card c4">
                         <div class="stat">
                             <div class="stat-icon">🧫</div>
                             <div class="stat-val">${status.samples}</div>
-                            <div class="stat-lbl">Samples</div>
+                            <div class="stat-lbl">サンプル数</div>
                         </div>
                     </div>
                     <div class="card c4">
                         <div class="stat">
                             <div class="stat-icon">⚗️</div>
                             <div class="stat-val">${status.activeExperiments}</div>
-                            <div class="stat-lbl">Active Experiments</div>
+                            <div class="stat-lbl">実行中の実験</div>
                         </div>
                     </div>
                 </div>
@@ -223,11 +231,11 @@ const JARVIS_V2 = {
     },
 
     // ============================================
-    // META-ANALYSIS TAB (24)
+    // メタ分析タブ
     // ============================================
     metaanalysis: {
         async runMetaAnalysis(studies) {
-            toast('Running meta-analysis...', 'info');
+            toast('メタ分析を実行中...', 'info');
             await sleep(1500);
 
             const effects = studies.map(s => s.effect_size || Math.random());
@@ -237,20 +245,20 @@ const JARVIS_V2 = {
                 pooled_effect: pooled.toFixed(3),
                 n_studies: studies.length,
                 i_squared: (Math.random() * 60).toFixed(1),
-                heterogeneity: pooled > 0.5 ? 'low' : 'moderate'
+                heterogeneity: pooled > 0.5 ? '低' : '中程度'
             };
         },
 
         renderForestPlot(container, studies) {
             container.innerHTML = `
                 <div style="padding:1rem">
-                    <h3 style="margin-bottom:1rem">Forest Plot</h3>
+                    <h3 style="margin-bottom:1rem">フォレストプロット</h3>
                     ${studies.map((s, i) => {
                 const effect = s.effect_size || 0.5;
                 const pos = 50 + effect * 100;
                 return `
                             <div style="display:flex;align-items:center;margin:0.5rem 0">
-                                <span style="width:100px;color:var(--txt2)">Study ${i + 1}</span>
+                                <span style="width:100px;color:var(--txt2)">研究 ${i + 1}</span>
                                 <div style="flex:1;height:20px;background:var(--glass);border-radius:4px;position:relative">
                                     <div style="position:absolute;left:50%;width:1px;height:100%;background:var(--txt2)"></div>
                                     <div style="position:absolute;left:${pos}%;transform:translateX(-50%);width:10px;height:10px;background:var(--purple);border-radius:50%"></div>
@@ -264,27 +272,27 @@ const JARVIS_V2 = {
     },
 
     // ============================================
-    // COMPLIANCE TAB (25)
+    // コンプライアンスタブ
     // ============================================
     compliance: {
         checkHIPAA(text) {
             const patterns = [/\d{3}-\d{2}-\d{4}/, /\b[A-Z]{2}\d{6,8}\b/];
-            const issues = patterns.filter(p => p.test(text)).map(() => 'Potential PHI detected');
+            const issues = patterns.filter(p => p.test(text)).map(() => '個人情報の可能性を検出');
             return { compliant: issues.length === 0, issues };
         },
 
         anonymizeData(data, fields) {
             const result = { ...data };
             fields.forEach(f => {
-                if (result[f]) result[f] = '***REDACTED***';
+                if (result[f]) result[f] = '***非表示***';
             });
             return result;
         },
 
         getAuditLog() {
             return [
-                { action: 'login', user: 'researcher1', timestamp: new Date().toISOString() },
-                { action: 'data_access', user: 'researcher1', timestamp: new Date().toISOString() }
+                { action: 'ログイン', user: 'researcher1', timestamp: new Date().toISOString() },
+                { action: 'データアクセス', user: 'researcher1', timestamp: new Date().toISOString() }
             ];
         },
 
@@ -292,17 +300,17 @@ const JARVIS_V2 = {
             container.innerHTML = `
                 <div class="grid">
                     <div class="card c6">
-                        <div class="card-header"><span class="card-title">🔒 HIPAA Status</span></div>
+                        <div class="card-header"><span class="card-title">🔒 HIPAA ステータス</span></div>
                         <div style="display:flex;align-items:center;gap:1rem">
                             <span style="font-size:3rem">✅</span>
                             <div>
-                                <div style="font-size:1.5rem;font-weight:700;color:var(--green)">Compliant</div>
-                                <div style="color:var(--txt2)">No PHI detected</div>
+                                <div style="font-size:1.5rem;font-weight:700;color:var(--green)">準拠</div>
+                                <div style="color:var(--txt2)">個人情報は検出されませんでした</div>
                             </div>
                         </div>
                     </div>
                     <div class="card c6">
-                        <div class="card-header"><span class="card-title">📜 Audit Log</span></div>
+                        <div class="card-header"><span class="card-title">📜 監査ログ</span></div>
                         <div style="max-height:150px;overflow-y:auto">
                             ${this.getAuditLog().map(log => `
                                 <div style="padding:0.5rem;border-bottom:1px solid var(--border)">
@@ -317,25 +325,25 @@ const JARVIS_V2 = {
     },
 
     // ============================================
-    // PIPELINES TAB (51-55)
+    // パイプラインタブ
     // ============================================
     pipelines: {
         definitions: {
-            hypothesis: { name: 'Hypothesis Pipeline', steps: ['Generate', 'Validate', 'Design', 'Execute'] },
-            protein: { name: 'Protein Pipeline', steps: ['Structure', 'Design', 'Express', 'Validate'] },
-            metaanalysis: { name: 'Meta-Analysis Pipeline', steps: ['Search', 'Screen', 'Extract', 'Analyze'] },
-            grant: { name: 'Grant Pipeline', steps: ['Find', 'Match', 'Draft', 'Submit'] },
-            labautomation: { name: 'Lab Automation Pipeline', steps: ['Protocol', 'Schedule', 'Execute', 'QC'] }
+            hypothesis: { name: '仮説パイプライン', steps: ['生成', '検証', '設計', '実行'] },
+            protein: { name: 'タンパク質パイプライン', steps: ['構造', '設計', '発現', '検証'] },
+            metaanalysis: { name: 'メタ分析パイプライン', steps: ['検索', 'スクリーニング', '抽出', '分析'] },
+            grant: { name: '助成金パイプライン', steps: ['検索', 'マッチング', '下書き', '提出'] },
+            labautomation: { name: 'ラボ自動化パイプライン', steps: ['プロトコル', 'スケジュール', '実行', 'QC'] }
         },
 
         running: {},
 
         async run(pipelineId) {
             const pipeline = this.definitions[pipelineId];
-            if (!pipeline) return { error: 'Pipeline not found' };
+            if (!pipeline) return { error: 'パイプラインが見つかりません' };
 
-            this.running[pipelineId] = { status: 'running', currentStep: 0 };
-            toast(`Starting ${pipeline.name}...`, 'info');
+            this.running[pipelineId] = { status: '実行中', currentStep: 0 };
+            toast(`${pipeline.name}を開始...`, 'info');
 
             for (let i = 0; i < pipeline.steps.length; i++) {
                 this.running[pipelineId].currentStep = i;
@@ -343,10 +351,10 @@ const JARVIS_V2 = {
                 await sleep(1000);
             }
 
-            this.running[pipelineId].status = 'completed';
-            toast(`${pipeline.name} completed!`, 'success');
+            this.running[pipelineId].status = '完了';
+            toast(`${pipeline.name}が完了しました！`, 'success');
 
-            return { status: 'completed', pipeline: pipelineId };
+            return { status: '完了', pipeline: pipelineId };
         },
 
         renderPipelinesDashboard(container) {
@@ -358,7 +366,7 @@ const JARVIS_V2 = {
                             <div class="tags" style="margin-bottom:1rem">
                                 ${p.steps.map(s => `<span class="tag">${s}</span>`).join('')}
                             </div>
-                            <button class="btn" onclick="JARVIS_V2.pipelines.run('${id}')">Run Pipeline</button>
+                            <button class="btn" onclick="JARVIS_V2.pipelines.run('${id}')">パイプライン実行</button>
                         </div>
                     `).join('')}
                 </div>
@@ -367,7 +375,7 @@ const JARVIS_V2 = {
     },
 
     // ============================================
-    // PIPELINE MONITORING (66-70)
+    // モニタリング
     // ============================================
     monitoring: {
         logs: [],
@@ -388,45 +396,7 @@ const JARVIS_V2 = {
     },
 
     // ============================================
-    // WIDGETS (31-35)
-    // ============================================
-    widgets: {
-        hypothesisCard: (hypothesis) => `
-            <div class="card c4">
-                <div class="card-header"><span class="card-title">🧪 ${hypothesis.id}</span></div>
-                <p>${hypothesis.text}</p>
-                <div style="margin-top:1rem">
-                    <span style="color:var(--green)">Confidence: ${(hypothesis.confidence * 100).toFixed(0)}%</span>
-                </div>
-            </div>
-        `,
-
-        labStatus: () => `
-            <div class="card c3">
-                <div class="card-header"><span class="card-title">🤖 Lab Status</span></div>
-                <div class="stat">
-                    <div class="stat-val">${JARVIS_V2.lab.equipment.length}</div>
-                    <div class="stat-lbl">Active Equipment</div>
-                </div>
-            </div>
-        `,
-
-        pipelineMonitor: () => `
-            <div class="card c4">
-                <div class="card-header"><span class="card-title">🔄 Pipeline Monitor</span></div>
-                <div style="padding:1rem">
-                    ${Object.entries(JARVIS_V2.pipelines.running).map(([id, p]) => `
-                        <div style="margin:0.5rem 0">
-                            ${id}: <span style="color:${p.status === 'running' ? 'var(--yellow)' : 'var(--green)'}">${p.status}</span>
-                        </div>
-                    `).join('') || '<div style="color:var(--txt2)">No active pipelines</div>'}
-                </div>
-            </div>
-        `
-    },
-
-    // ============================================
-    // CONTENT RENDERER
+    // コンテンツレンダラー
     // ============================================
     content: {
         render(tabId) {
@@ -453,7 +423,11 @@ const JARVIS_V2 = {
                     JARVIS_V2.pipelines.renderPipelinesDashboard(container);
                     break;
                 default:
-                    this.renderDashboard(container);
+                    // ダッシュボードに戻る：保存されたコンテンツを復元
+                    if (JARVIS_V2.tabs.originalContent) {
+                        container.innerHTML = JARVIS_V2.tabs.originalContent;
+                    }
+                    break;
             }
         },
 
@@ -461,21 +435,21 @@ const JARVIS_V2 = {
             container.innerHTML = `
                 <div class="grid">
                     <div class="card c12">
-                        <div class="card-header"><span class="card-title">🧬 AI Co-Scientist</span></div>
+                        <div class="card-header"><span class="card-title">🧬 AI共同研究者</span></div>
                         <div class="search-box">
-                            <input type="text" id="hypothesis-topic" class="search-input" placeholder="Enter research topic...">
-                            <button class="btn" onclick="JARVIS_V2.generateHypothesesUI()">Generate Hypotheses</button>
+                            <input type="text" id="hypothesis-topic" class="search-input" placeholder="研究トピックを入力...">
+                            <button class="btn" onclick="JARVIS_V2.generateHypothesesUI()">仮説を生成</button>
                         </div>
                     </div>
                     <div class="c12" id="hypothesis-results"></div>
                     <div class="card c6">
-                        <div class="card-header"><span class="card-title">📊 Literature Gap Analysis</span></div>
-                        <button class="btn" onclick="JARVIS_V2.analyzeGapsUI()">Analyze Gaps</button>
+                        <div class="card-header"><span class="card-title">📊 文献ギャップ分析</span></div>
+                        <button class="btn" onclick="JARVIS_V2.analyzeGapsUI()">ギャップを分析</button>
                         <div id="gap-results" style="margin-top:1rem"></div>
                     </div>
                     <div class="card c6">
-                        <div class="card-header"><span class="card-title">🔬 Experiment Designer</span></div>
-                        <button class="btn" onclick="JARVIS_V2.designExperimentUI()">Design Experiment</button>
+                        <div class="card-header"><span class="card-title">🔬 実験デザイナー</span></div>
+                        <button class="btn" onclick="JARVIS_V2.designExperimentUI()">実験を設計</button>
                         <div id="experiment-results" style="margin-top:1rem"></div>
                     </div>
                 </div>
@@ -486,24 +460,24 @@ const JARVIS_V2 = {
             container.innerHTML = `
                 <div class="grid">
                     <div class="card c6">
-                        <div class="card-header"><span class="card-title">🔬 AlphaFold Lookup</span></div>
+                        <div class="card-header"><span class="card-title">🔬 AlphaFold検索</span></div>
                         <div class="search-box">
-                            <input type="text" id="uniprot-id" class="search-input" placeholder="UniProt ID (e.g., P12345)">
-                            <button class="btn" onclick="JARVIS_V2.lookupStructureUI()">Get Structure</button>
+                            <input type="text" id="uniprot-id" class="search-input" placeholder="UniProt ID (例: P12345)">
+                            <button class="btn" onclick="JARVIS_V2.lookupStructureUI()">構造を取得</button>
                         </div>
                         <div id="structure-result"></div>
                     </div>
                     <div class="card c6">
-                        <div class="card-header"><span class="card-title">💊 Binding Predictor</span></div>
-                        <input type="text" id="protein-seq" class="search-input" placeholder="Protein sequence..." style="margin-bottom:0.5rem">
-                        <input type="text" id="ligand-smiles" class="search-input" placeholder="Ligand SMILES...">
-                        <button class="btn" style="margin-top:0.5rem" onclick="JARVIS_V2.predictBindingUI()">Predict Binding</button>
+                        <div class="card-header"><span class="card-title">💊 結合予測</span></div>
+                        <input type="text" id="protein-seq" class="search-input" placeholder="タンパク質配列..." style="margin-bottom:0.5rem">
+                        <input type="text" id="ligand-smiles" class="search-input" placeholder="リガンドSMILES...">
+                        <button class="btn" style="margin-top:0.5rem" onclick="JARVIS_V2.predictBindingUI()">結合を予測</button>
                         <div id="binding-result" style="margin-top:1rem"></div>
                     </div>
                     <div class="card c12" id="protein-viewer">
-                        <div class="card-header"><span class="card-title">🧬 3D Protein Viewer</span></div>
+                        <div class="card-header"><span class="card-title">🧬 3D タンパク質ビューア</span></div>
                         <div style="height:400px;display:flex;align-items:center;justify-content:center;color:var(--txt2)">
-                            Enter a UniProt ID to view structure
+                            UniProt IDを入力して構造を表示
                         </div>
                     </div>
                 </div>
@@ -514,37 +488,33 @@ const JARVIS_V2 = {
             container.innerHTML = `
                 <div class="grid">
                     <div class="card c12">
-                        <div class="card-header"><span class="card-title">📊 Meta-Analysis</span></div>
-                        <p style="color:var(--txt2);margin-bottom:1rem">Add studies to perform meta-analysis</p>
+                        <div class="card-header"><span class="card-title">📊 メタ分析</span></div>
+                        <p style="color:var(--txt2);margin-bottom:1rem">研究を追加してメタ分析を実行</p>
                         <div id="studies-list"></div>
-                        <button class="btn" onclick="JARVIS_V2.addStudyUI()">Add Study</button>
-                        <button class="btn" style="margin-left:0.5rem" onclick="JARVIS_V2.runMetaAnalysisUI()">Run Analysis</button>
+                        <button class="btn" onclick="JARVIS_V2.addStudyUI()">研究を追加</button>
+                        <button class="btn" style="margin-left:0.5rem" onclick="JARVIS_V2.runMetaAnalysisUI()">分析を実行</button>
                     </div>
                     <div class="card c6" id="forest-plot">
-                        <div class="card-header"><span class="card-title">🌲 Forest Plot</span></div>
+                        <div class="card-header"><span class="card-title">🌲 フォレストプロット</span></div>
                         <div style="height:300px;color:var(--txt2);display:flex;align-items:center;justify-content:center">
-                            Run analysis to see plot
+                            分析を実行してプロットを表示
                         </div>
                     </div>
                     <div class="card c6" id="meta-results">
-                        <div class="card-header"><span class="card-title">📈 Results</span></div>
-                        <div style="color:var(--txt2)">No results yet</div>
+                        <div class="card-header"><span class="card-title">📈 結果</span></div>
+                        <div style="color:var(--txt2)">まだ結果はありません</div>
                     </div>
                 </div>
             `;
-        },
-
-        renderDashboard(container) {
-            // Keep existing dashboard but add new widgets
         }
     },
 
     // ============================================
-    // UI HELPERS
+    // UIヘルパー
     // ============================================
     async generateHypothesesUI() {
         const topic = document.getElementById('hypothesis-topic')?.value;
-        if (!topic) { toast('Enter a topic', 'error'); return; }
+        if (!topic) { toast('トピックを入力してください', 'error'); return; }
 
         const hypotheses = await this.coscientist.generateHypothesis(topic);
         const container = document.getElementById('hypothesis-results');
@@ -552,7 +522,7 @@ const JARVIS_V2 = {
     },
 
     async analyzeGapsUI() {
-        const topic = document.getElementById('hypothesis-topic')?.value || 'research';
+        const topic = document.getElementById('hypothesis-topic')?.value || '研究';
         const result = await this.coscientist.analyzeLiteratureGap(topic);
 
         const container = document.getElementById('gap-results');
@@ -566,16 +536,16 @@ const JARVIS_V2 = {
     },
 
     async designExperimentUI() {
-        const result = await this.coscientist.designExperiment('hypothesis');
+        const result = await this.coscientist.designExperiment('仮説');
 
         const container = document.getElementById('experiment-results');
         if (container) {
             container.innerHTML = `
                 <div style="display:grid;gap:0.5rem">
-                    <div><strong>Design:</strong> ${result.design}</div>
-                    <div><strong>Sample Size:</strong> ${result.sample_size}</div>
-                    <div><strong>Power:</strong> ${result.power}</div>
-                    <div><strong>Timeline:</strong> ${result.timeline_months} months</div>
+                    <div><strong>デザイン:</strong> ${result.design}</div>
+                    <div><strong>サンプルサイズ:</strong> ${result.sample_size}</div>
+                    <div><strong>検出力:</strong> ${result.power}</div>
+                    <div><strong>タイムライン:</strong> ${result.timeline_months}ヶ月</div>
                 </div>
             `;
         }
@@ -583,7 +553,7 @@ const JARVIS_V2 = {
 
     async lookupStructureUI() {
         const id = document.getElementById('uniprot-id')?.value;
-        if (!id) { toast('Enter UniProt ID', 'error'); return; }
+        if (!id) { toast('UniProt IDを入力してください', 'error'); return; }
 
         const result = await this.protein.getAlphaFoldStructure(id);
 
@@ -591,7 +561,7 @@ const JARVIS_V2 = {
         if (container) {
             container.innerHTML = `
                 <div style="margin-top:1rem">
-                    <a href="${result.viewer_url}" target="_blank" class="btn">View in AlphaFold</a>
+                    <a href="${result.viewer_url}" target="_blank" class="btn">AlphaFoldで表示</a>
                 </div>
             `;
         }
@@ -610,9 +580,9 @@ const JARVIS_V2 = {
         if (container) {
             container.innerHTML = `
                 <div style="display:grid;gap:0.5rem">
-                    <div><strong>Predicted Kd:</strong> <span style="color:var(--green)">${result.predicted_kd}</span></div>
-                    <div><strong>Strength:</strong> ${result.strength}</div>
-                    <div><strong>Confidence:</strong> ${(result.confidence * 100).toFixed(0)}%</div>
+                    <div><strong>予測Kd:</strong> <span style="color:var(--green)">${result.predicted_kd}</span></div>
+                    <div><strong>強度:</strong> ${result.strength}</div>
+                    <div><strong>信頼度:</strong> ${(result.confidence * 100).toFixed(0)}%</div>
                 </div>
             `;
         }
@@ -629,16 +599,16 @@ const JARVIS_V2 = {
         const container = document.getElementById('studies-list');
         if (container) {
             container.innerHTML = this.maStudies.map((s, i) => `
-                <div class="tag" style="margin:0.25rem">Study ${i + 1}: effect=${s.effect_size.toFixed(2)}, n=${s.sample_size}</div>
+                <div class="tag" style="margin:0.25rem">研究 ${i + 1}: 効果=${s.effect_size.toFixed(2)}, n=${s.sample_size}</div>
             `).join('');
         }
 
-        toast(`Added study ${this.maStudies.length}`, 'success');
+        toast(`研究 ${this.maStudies.length} を追加しました`, 'success');
     },
 
     async runMetaAnalysisUI() {
         if (this.maStudies.length < 2) {
-            toast('Add at least 2 studies', 'error');
+            toast('2件以上の研究を追加してください', 'error');
             return;
         }
 
@@ -650,36 +620,36 @@ const JARVIS_V2 = {
         const results = document.getElementById('meta-results');
         if (results) {
             results.innerHTML = `
-                <div class="card-header"><span class="card-title">📈 Results</span></div>
+                <div class="card-header"><span class="card-title">📈 結果</span></div>
                 <div style="display:grid;gap:0.5rem">
-                    <div><strong>Pooled Effect:</strong> <span style="color:var(--green)">${result.pooled_effect}</span></div>
-                    <div><strong>Studies:</strong> ${result.n_studies}</div>
+                    <div><strong>統合効果:</strong> <span style="color:var(--green)">${result.pooled_effect}</span></div>
+                    <div><strong>研究数:</strong> ${result.n_studies}</div>
                     <div><strong>I²:</strong> ${result.i_squared}%</div>
-                    <div><strong>Heterogeneity:</strong> ${result.heterogeneity}</div>
+                    <div><strong>異質性:</strong> ${result.heterogeneity}</div>
                 </div>
             `;
         }
     },
 
     // ============================================
-    // KEYBOARD SHORTCUTS (40)
+    // キーボードショートカット
     // ============================================
     shortcuts: {
         init() {
             document.addEventListener('keydown', (e) => {
-                // Cmd/Ctrl + K: Focus search
+                // Cmd/Ctrl + K: 検索フォーカス
                 if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
                     e.preventDefault();
                     document.getElementById('query')?.focus();
                 }
-                // Cmd/Ctrl + 1-7: Switch tabs
+                // Cmd/Ctrl + 1-7: タブ切り替え
                 if ((e.metaKey || e.ctrlKey) && e.key >= '1' && e.key <= '7') {
                     e.preventDefault();
                     const tabs = Object.keys(JARVIS_V2.tabs.definitions);
                     const idx = parseInt(e.key) - 1;
                     if (tabs[idx]) JARVIS_V2.tabs.switch(tabs[idx]);
                 }
-                // Escape: Close modals
+                // Escape: モーダルを閉じる
                 if (e.key === 'Escape') {
                     document.querySelectorAll('.modal').forEach(m => m.remove());
                 }
@@ -688,7 +658,7 @@ const JARVIS_V2 = {
     },
 
     // ============================================
-    // ACCESSIBILITY (47-50)
+    // アクセシビリティ
     // ============================================
     a11y: {
         highContrast: false,
@@ -698,7 +668,7 @@ const JARVIS_V2 = {
         toggleHighContrast() {
             this.highContrast = !this.highContrast;
             document.body.classList.toggle('high-contrast', this.highContrast);
-            toast(this.highContrast ? 'High contrast enabled' : 'High contrast disabled', 'info');
+            toast(this.highContrast ? '高コントラスト有効' : '高コントラスト無効', 'info');
         },
 
         setFontSize(size) {
@@ -713,7 +683,7 @@ const JARVIS_V2 = {
     },
 
     // ============================================
-    // MULTI-THEME (46)
+    // テーマ
     // ============================================
     themes: {
         current: 'dark',
@@ -736,7 +706,7 @@ const JARVIS_V2 = {
             document.documentElement.style.setProperty('--txt', theme.txt);
 
             localStorage.setItem('jarvis_theme', themeName);
-            toast(`Theme: ${themeName}`, 'info');
+            toast(`テーマ: ${themeName}`, 'info');
         },
 
         load() {
@@ -746,31 +716,31 @@ const JARVIS_V2 = {
     },
 
     // ============================================
-    // INITIALIZATION
+    // 初期化
     // ============================================
     init() {
-        console.log('JARVIS V2 Loaded - 80 Enhancements');
+        console.log('JARVIS V2 日本語版読み込み完了');
 
-        // Initialize tabs
+        // タブを初期化
         this.tabs.render();
 
-        // Initialize shortcuts
+        // ショートカットを初期化
         this.shortcuts.init();
 
-        // Load theme
+        // テーマを読み込み
         this.themes.load();
 
-        // Register demo equipment
-        this.lab.registerEquipment('eq1', 'Centrifuge', 'centrifuge');
-        this.lab.registerEquipment('eq2', 'PCR Machine', 'pcr');
-        this.lab.registerEquipment('eq3', 'Plate Reader', 'reader');
+        // デモ機器を登録
+        this.lab.registerEquipment('eq1', '遠心分離機', 'centrifuge');
+        this.lab.registerEquipment('eq2', 'PCRマシン', 'pcr');
+        this.lab.registerEquipment('eq3', 'プレートリーダー', 'reader');
 
-        // Log initialization
-        this.monitoring.log('JARVIS V2 initialized');
+        // 初期化ログ
+        this.monitoring.log('JARVIS V2 初期化完了');
     }
 };
 
-// Utility functions
+// ユーティリティ関数
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -783,10 +753,10 @@ function toast(message, type = 'info') {
     }
 }
 
-// Initialize on load
+// ロード時に初期化
 document.addEventListener('DOMContentLoaded', () => {
     JARVIS_V2.init();
 });
 
-// Export globally
+// グローバルにエクスポート
 window.JARVIS_V2 = JARVIS_V2;
