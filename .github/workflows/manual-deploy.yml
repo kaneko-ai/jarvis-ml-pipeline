@@ -65,8 +65,10 @@ jobs:
       # Kubernetes デプロイ (オプション - secrets設定が必要)
       - name: Deploy to Kubernetes
         if: false  # secrets.KUBECONFIG が設定されている場合に有効化
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
         run: |
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > kubeconfig
+          echo "$KUBECONFIG_DATA" | base64 -d > kubeconfig
           export KUBECONFIG=kubeconfig
           
           helm upgrade jarvis helm/jarvis \
