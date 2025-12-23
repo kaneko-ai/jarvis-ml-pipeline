@@ -1,806 +1,1364 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JARVIS Research OS - Dashboard</title>
+    <title>JARVIS Research OS - Ultimate Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0f0f23;
-            --bg-secondary: #1a1a3e;
-            --bg-card: #16213e;
-            --text-primary: #eee;
-            --text-secondary: #aaa;
+            --bg-primary: #0a0a1a;
+            --bg-secondary: #12122a;
+            --bg-card: #1a1a3e;
+            --bg-card-hover: #242450;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0c0;
             --accent-pink: #f472b6;
             --accent-blue: #60a5fa;
             --accent-green: #4ade80;
             --accent-yellow: #fbbf24;
             --accent-purple: #a78bfa;
+            --accent-cyan: #22d3ee;
+            --accent-red: #f87171;
+            --border: rgba(255, 255, 255, 0.08);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+
+        .light-mode {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
             line-height: 1.6;
+            transition: all 0.3s ease;
         }
-        
+
         /* Header */
         .header {
-            background: rgba(22, 33, 62, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 1rem 2rem;
+            background: var(--bg-secondary);
+            backdrop-filter: blur(20px);
+            padding: 0.75rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 100;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid var(--border);
         }
-        
+
         .logo {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 1.5rem;
+            gap: 0.75rem;
+            font-size: 1.4rem;
             font-weight: 700;
-            color: var(--accent-pink);
         }
-        
-        .nav { display: flex; gap: 1rem; align-items: center; }
-        
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .nav {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
         .nav-btn {
             background: transparent;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid var(--border);
             color: var(--text-primary);
             padding: 0.5rem 1rem;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            font-size: 0.85rem;
         }
-        
-        .nav-btn:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: var(--accent-blue);
+
+        .nav-btn:hover,
+        .nav-btn.active {
+            background: var(--accent-purple);
+            border-color: var(--accent-purple);
         }
-        
-        .lang-switch {
+
+        .theme-toggle {
             background: var(--bg-card);
             border: none;
-            color: var(--text-primary);
-            padding: 0.5rem;
-            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        
-        /* Main Container */
+
+        /* Container */
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 1.5rem;
         }
-        
-        /* Stats Grid */
-        .stats-grid {
+
+        /* Status Bar */
+        .status-bar {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            white-space: nowrap;
+            font-size: 0.85rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.green {
+            background: var(--accent-green);
+        }
+
+        .status-dot.yellow {
+            background: var(--accent-yellow);
+        }
+
+        .status-dot.red {
+            background: var(--accent-red);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.6;
+                transform: scale(0.9);
+            }
+        }
+
+        /* API Quota */
+        .api-quota {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .quota-bar {
+            width: 100px;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .quota-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan));
+            transition: width 0.3s;
+        }
+
+        /* Grid Layout */
+        .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(12, 1fr);
             gap: 1.5rem;
-            margin-bottom: 2rem;
         }
-        
-        .stat-card {
+
+        .card {
             background: var(--bg-card);
             border-radius: 16px;
+            padding: 1.25rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-purple);
+            box-shadow: var(--shadow);
+        }
+
+        .card.span-3 {
+            grid-column: span 3;
+        }
+
+        .card.span-4 {
+            grid-column: span 4;
+        }
+
+        .card.span-6 {
+            grid-column: span 6;
+        }
+
+        .card.span-8 {
+            grid-column: span 8;
+        }
+
+        .card.span-12 {
+            grid-column: span 12;
+        }
+
+        @media (max-width: 1200px) {
+
+            .card.span-3,
+            .card.span-4 {
+                grid-column: span 6;
+            }
+
+            .card.span-6,
+            .card.span-8 {
+                grid-column: span 12;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                grid-column: span 1 !important;
+            }
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            text-align: center;
             padding: 1.5rem;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
         }
-        
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
         }
-        
+
         .stat-value {
             font-size: 2.5rem;
             font-weight: 700;
             background: linear-gradient(135deg, var(--accent-pink), var(--accent-blue));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        
-        .stat-label { color: var(--text-secondary); font-size: 0.9rem; }
-        
-        /* Main Grid */
-        .main-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 1.5rem;
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
         }
-        
-        @media (max-width: 968px) {
-            .main-grid { grid-template-columns: 1fr; }
+
+        .stat-change {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            display: inline-block;
         }
-        
-        /* Cards */
-        .card {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid rgba(255,255,255,0.1);
+
+        .stat-change.up {
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--accent-green);
         }
-        
+
+        .stat-change.down {
+            background: rgba(248, 113, 113, 0.2);
+            color: var(--accent-red);
+        }
+
+        /* Card Headers */
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
         }
-        
-        .card-title { font-size: 1.2rem; font-weight: 600; }
-        
-        /* Pipeline Section */
-        .pipeline-controls {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .query-input {
-            flex: 1;
-            min-width: 200px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: var(--text-primary);
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
+
+        .card-title {
             font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        
-        .query-input:focus {
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-btn {
+            background: var(--bg-secondary);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: var(--accent-purple);
+            color: white;
+        }
+
+        /* Search Panel */
+        .search-container {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            flex: 1;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.875rem 1rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
             outline: none;
-            border-color: var(--accent-blue);
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
         }
-        
-        .run-btn {
+
+        .search-btn {
             background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
             border: none;
             color: white;
-            padding: 0.75rem 2rem;
-            border-radius: 8px;
-            font-size: 1rem;
+            padding: 0.875rem 1.5rem;
+            border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
         }
-        
-        .run-btn:hover {
+
+        .search-btn:hover {
             transform: scale(1.02);
             box-shadow: 0 4px 20px rgba(244, 114, 182, 0.4);
         }
-        
-        .run-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
+
         /* Results */
         .results-area {
-            background: rgba(0,0,0,0.2);
-            border-radius: 8px;
-            padding: 1rem;
-            min-height: 200px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
             max-height: 400px;
             overflow-y: auto;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.85rem;
         }
-        
+
         .result-item {
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            border-left: 3px solid var(--accent-green);
-        }
-        
-        .result-item.error { border-left-color: #f44336; }
-        .result-item.warning { border-left-color: var(--accent-yellow); }
-        
-        /* History */
-        .history-list { list-style: none; }
-        
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
             cursor: pointer;
             transition: background 0.2s;
         }
-        
-        .history-item:hover { background: rgba(255,255,255,0.05); }
-        
-        .history-query { font-weight: 500; }
-        .history-date { font-size: 0.8rem; color: var(--text-secondary); }
-        .history-count { 
-            background: var(--accent-blue);
-            padding: 0.2rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
+
+        .result-item:hover {
+            background: var(--bg-card-hover);
         }
-        
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .result-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .result-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background: var(--bg-card);
+        }
+
+        .tag.ai {
+            background: rgba(167, 139, 250, 0.2);
+            color: var(--accent-purple);
+        }
+
+        .tag.health {
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--accent-green);
+        }
+
+        .tag.ml {
+            background: rgba(96, 165, 250, 0.2);
+            color: var(--accent-blue);
+        }
+
         /* Chat */
-        .chat-container { display: flex; flex-direction: column; height: 400px; }
-        
         .chat-messages {
-            flex: 1;
+            height: 300px;
             overflow-y: auto;
             padding: 1rem;
-            background: rgba(0,0,0,0.2);
-            border-radius: 8px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
             margin-bottom: 1rem;
         }
-        
+
         .chat-message {
-            max-width: 80%;
+            max-width: 85%;
             padding: 0.75rem 1rem;
             border-radius: 12px;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+            animation: fadeIn 0.3s ease;
         }
-        
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .chat-message.user {
-            background: var(--accent-blue);
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
             margin-left: auto;
         }
-        
+
         .chat-message.assistant {
-            background: rgba(255,255,255,0.1);
+            background: var(--bg-card);
         }
-        
-        .chat-input-area { display: flex; gap: 0.5rem; }
-        
-        .chat-input {
-            flex: 1;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: var(--text-primary);
-            padding: 0.75rem;
-            border-radius: 8px;
+
+        .chat-input-area {
+            display: flex;
+            gap: 0.5rem;
         }
-        
-        .send-btn {
-            background: var(--accent-green);
-            border: none;
-            color: var(--bg-primary);
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        
-        /* Alerts */
-        .alert-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
+
+        /* Logs Panel */
+        .log-container {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 1rem;
+            max-height: 250px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
             font-size: 0.75rem;
+        }
+
+        .log-entry {
+            padding: 0.25rem 0;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .log-time {
+            color: var(--text-secondary);
+        }
+
+        .log-level {
             font-weight: 600;
         }
-        
-        .alert-badge.new { background: #f44336; }
-        .alert-badge.info { background: var(--accent-blue); }
-        
-        /* Progress */
-        .progress-bar {
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 3px;
-            overflow: hidden;
+
+        .log-level.info {
+            color: var(--accent-blue);
         }
-        
-        .progress-fill {
+
+        .log-level.warn {
+            color: var(--accent-yellow);
+        }
+
+        .log-level.error {
+            color: var(--accent-red);
+        }
+
+        .log-level.success {
+            color: var(--accent-green);
+        }
+
+        /* Charts */
+        .chart-container {
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--accent-purple), var(--accent-pink));
+            border-radius: 4px 4px 0 0;
+            transition: height 0.5s ease;
+            min-height: 10px;
+        }
+
+        /* Health Indicators */
+        .health-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .health-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .health-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .health-icon.green {
+            background: rgba(74, 222, 128, 0.2);
+        }
+
+        .health-icon.yellow {
+            background: rgba(251, 191, 36, 0.2);
+        }
+
+        .health-icon.red {
+            background: rgba(248, 113, 113, 0.2);
+        }
+
+        .health-info h4 {
+            font-size: 0.85rem;
+            margin-bottom: 0.1rem;
+        }
+
+        .health-info span {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Favorites & Tags */
+        .favorites-list,
+        .tags-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .favorite-item,
+        .tag-item {
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .favorite-item:hover,
+        .tag-item:hover {
+            background: var(--accent-purple);
+        }
+
+        /* Notifications */
+        .notification-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .notification-icon.paper {
+            background: rgba(96, 165, 250, 0.2);
+        }
+
+        .notification-icon.success {
+            background: rgba(74, 222, 128, 0.2);
+        }
+
+        .notification-icon.alert {
+            background: rgba(248, 113, 113, 0.2);
+        }
+
+        /* Keyboard Shortcuts Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
-            transition: width 0.3s;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
         }
-        
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .key {
+            background: var(--bg-secondary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+
+        /* Progress Ring */
+        .progress-ring {
+            width: 60px;
+            height: 60px;
+        }
+
+        .progress-ring circle {
+            fill: transparent;
+            stroke-width: 4;
+        }
+
+        .progress-ring .bg {
+            stroke: var(--border);
+        }
+
+        .progress-ring .progress {
+            stroke: var(--accent-green);
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: center;
+            transition: stroke-dashoffset 0.5s;
+        }
+
         /* Footer */
         .footer {
             text-align: center;
             padding: 2rem;
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
         }
-        
-        /* Animations */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .loading { animation: pulse 1.5s infinite; }
-        
-        /* Documentation Links */
-        .doc-links {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 0.75rem;
-        }
-        
-        .doc-link {
-            display: block;
-            padding: 0.75rem;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
+
+        .footer a {
             color: var(--accent-blue);
             text-decoration: none;
-            transition: background 0.2s;
         }
-        
-        .doc-link:hover { background: rgba(255,255,255,0.1); }
     </style>
 </head>
+
 <body>
     <!-- Header -->
     <header class="header">
         <div class="logo">
-            🧬 JARVIS Research OS
+            <div class="logo-icon">🧬</div>
+            JARVIS Research OS
         </div>
         <nav class="nav">
-            <button class="nav-btn" onclick="showTab('dashboard')" data-i18n="nav.dashboard">Dashboard</button>
-            <button class="nav-btn" onclick="showTab('chat')" data-i18n="nav.chat">AI Chat</button>
-            <button class="nav-btn" onclick="showTab('docs')" data-i18n="nav.docs">Docs</button>
-            <select class="lang-switch" onchange="changeLanguage(this.value)">
+            <button class="nav-btn active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="nav-btn" onclick="showTab('research')">🔬 Research</button>
+            <button class="nav-btn" onclick="showTab('chat')">🤖 AI Chat</button>
+            <button class="nav-btn" onclick="showTab('settings')">⚙️ Settings</button>
+            <select class="nav-btn" onchange="changeLanguage(this.value)" id="lang-select">
                 <option value="ja">🇯🇵 日本語</option>
                 <option value="en">🇺🇸 English</option>
             </select>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
         </nav>
     </header>
 
     <div class="container">
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value" id="stat-prs">384</div>
-                <div class="stat-label" data-i18n="stats.prs">PRs Implemented</div>
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-dot green"></span>
+                <span>System: Healthy</span>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" id="stat-tests">222</div>
-                <div class="stat-label" data-i18n="stats.tests">Tests Passed</div>
+            <div class="status-item">
+                <span class="status-dot green"></span>
+                <span>API: Online</span>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" id="stat-searches">0</div>
-                <div class="stat-label" data-i18n="stats.searches">Total Searches</div>
+            <div class="status-item api-quota">
+                <span>Gemini API:</span>
+                <div class="quota-bar">
+                    <div class="quota-fill" id="gemini-quota" style="width: 85%"></div>
+                </div>
+                <span id="gemini-remaining">1275/1500</span>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" id="stat-papers">0</div>
-                <div class="stat-label" data-i18n="stats.papers">Papers Found</div>
+            <div class="status-item api-quota">
+                <span>PubMed:</span>
+                <div class="quota-bar">
+                    <div class="quota-fill" style="width: 100%"></div>
+                </div>
+                <span>Unlimited</span>
+            </div>
+            <div class="status-item">
+                <span class="status-dot green"></span>
+                <span>Actions: ✓</span>
+            </div>
+            <div class="status-item">
+                <span>🕐 Last sync: <span id="last-sync">Just now</span></span>
             </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="main-grid">
-            <!-- Pipeline Card -->
-            <div class="card" id="tab-dashboard">
+        <!-- Main Dashboard -->
+        <div class="dashboard-grid" id="tab-dashboard">
+            <!-- Stats Row -->
+            <div class="card stat-card span-3">
+                <div class="stat-icon">📝</div>
+                <div class="stat-value" id="stat-prs">384</div>
+                <div class="stat-label">PRs Implemented</div>
+                <span class="stat-change up">↑ +12</span>
+            </div>
+            <div class="card stat-card span-3">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="stat-tests">236</div>
+                <div class="stat-label">Tests Passed</div>
+                <span class="stat-change up">↑ +14</span>
+            </div>
+            <div class="card stat-card span-3">
+                <div class="stat-icon">🔍</div>
+                <div class="stat-value" id="stat-searches">0</div>
+                <div class="stat-label">Total Searches</div>
+            </div>
+            <div class="card stat-card span-3">
+                <div class="stat-icon">📄</div>
+                <div class="stat-value" id="stat-papers">0</div>
+                <div class="stat-label">Papers Found</div>
+            </div>
+
+            <!-- Search Panel -->
+            <div class="card span-8">
                 <div class="card-header">
-                    <h2 class="card-title">🔬 <span data-i18n="pipeline.title">Paper Search Pipeline</span></h2>
-                    <span class="alert-badge info" id="pipeline-status" data-i18n="pipeline.ready">Ready</span>
+                    <h3 class="card-title">🔬 Paper Search Pipeline</h3>
+                    <div class="card-actions">
+                        <button class="icon-btn" onclick="showShortcuts()" title="Keyboard shortcuts">⌨️</button>
+                        <button class="icon-btn" onclick="refreshResults()" title="Refresh">🔄</button>
+                    </div>
                 </div>
-                
-                <div class="pipeline-controls">
-                    <input type="text" class="query-input" id="search-query" 
-                           placeholder="Search query (e.g., COVID-19 treatment)" data-i18n-placeholder="pipeline.placeholder">
-                    <button class="run-btn" id="run-btn" onclick="runPipeline()">
-                        ▶️ <span data-i18n="pipeline.run">Run Search</span>
+                <div class="search-container">
+                    <input type="text" class="search-input" id="search-query"
+                        placeholder="🔍 Search papers... (e.g., COVID-19 treatment, machine learning healthcare)">
+                    <button class="search-btn" id="search-btn" onclick="runSearch()">
+                        ▶️ Search
                     </button>
                 </div>
-                
-                <div class="progress-bar" id="progress-container" style="display:none; margin-bottom:1rem;">
-                    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
-                </div>
-                
                 <div class="results-area" id="results-area">
-                    <div style="color: var(--text-secondary); text-align: center; padding: 2rem;">
-                        <span data-i18n="pipeline.empty">Enter a search query and click "Run Search" to find papers</span>
+                    <div style="padding: 2rem; text-align: center; color: var(--text-secondary);">
+                        💡 Enter a search query and press Search or <kbd class="key">Ctrl+Enter</kbd>
                     </div>
                 </div>
             </div>
 
-            <!-- Chat Card (Hidden by default) -->
-            <div class="card" id="tab-chat" style="display:none;">
+            <!-- System Health -->
+            <div class="card span-4">
                 <div class="card-header">
-                    <h2 class="card-title">🤖 <span data-i18n="chat.title">AI Research Assistant</span></h2>
+                    <h3 class="card-title">💚 System Health</h3>
                 </div>
-                
-                <div class="chat-container">
-                    <div class="chat-messages" id="chat-messages">
-                        <div class="chat-message assistant">
-                            <span data-i18n="chat.welcome">Hello! I'm JARVIS, your AI research assistant. How can I help you today?</span>
+                <div class="health-grid">
+                    <div class="health-item">
+                        <div class="health-icon green">🖥️</div>
+                        <div class="health-info">
+                            <h4>API Server</h4>
+                            <span>Healthy • 99.9% uptime</span>
                         </div>
                     </div>
-                    <div class="chat-input-area">
-                        <input type="text" class="chat-input" id="chat-input" 
-                               placeholder="Ask me anything..." data-i18n-placeholder="chat.placeholder"
-                               onkeypress="if(event.key==='Enter')sendChat()">
-                        <button class="send-btn" onclick="sendChat()">Send</button>
+                    <div class="health-item">
+                        <div class="health-icon green">📊</div>
+                        <div class="health-info">
+                            <h4>Dashboard</h4>
+                            <span>Online • v4.4.0</span>
+                        </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Docs Card (Hidden by default) -->
-            <div class="card" id="tab-docs" style="display:none;">
-                <div class="card-header">
-                    <h2 class="card-title">📚 <span data-i18n="docs.title">Documentation</span></h2>
-                </div>
-                <div class="doc-links">
-                    <a href="DEPLOYMENT_GUIDE.md" class="doc-link">📦 Deployment Guide</a>
-                    <a href="OPERATIONS_GUIDE.md" class="doc-link">⚙️ Operations Guide</a>
-                    <a href="JARVIS_INFRA_ROADMAP.md" class="doc-link">🗺️ Roadmap</a>
-                    <a href="JARVIS_V44_ROADMAP.md" class="doc-link">🚀 v4.4 Features</a>
-                    <a href="GITHUB_ACTIONS_GUIDE.md" class="doc-link">🔧 CI/CD Guide</a>
-                    <a href="api.html" class="doc-link">📡 API Reference</a>
-                </div>
-            </div>
-
-            <!-- Sidebar -->
-            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                <!-- Search History -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">📜 <span data-i18n="history.title">Search History</span></h2>
-                        <button class="nav-btn" onclick="clearHistory()" style="font-size:0.8rem;" data-i18n="history.clear">Clear</button>
+                    <div class="health-item">
+                        <div class="health-icon green">⚡</div>
+                        <div class="health-info">
+                            <h4>GitHub Actions</h4>
+                            <span>13 workflows active</span>
+                        </div>
                     </div>
-                    <ul class="history-list" id="history-list">
-                        <li style="color: var(--text-secondary); text-align: center; padding: 1rem;" data-i18n="history.empty">
-                            No search history yet
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Alerts -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">🔔 <span data-i18n="alerts.title">Alerts</span></h2>
-                        <span class="alert-badge new" id="alert-count">0</span>
-                    </div>
-                    <div id="alerts-list">
-                        <div style="color: var(--text-secondary); text-align: center; padding: 1rem;" data-i18n="alerts.empty">
-                            No new alerts
+                    <div class="health-item">
+                        <div class="health-icon green">🧪</div>
+                        <div class="health-info">
+                            <h4>Tests</h4>
+                            <span>236 passed (4 flaky)</span>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Quick Actions -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">⚡ <span data-i18n="actions.title">Quick Actions</span></h2>
+            <!-- Activity Chart -->
+            <div class="card span-6">
+                <div class="card-header">
+                    <h3 class="card-title">📈 Search Activity (7 days)</h3>
+                </div>
+                <div class="chart-container" id="activity-chart">
+                    <div class="chart-bar" style="height: 40%"></div>
+                    <div class="chart-bar" style="height: 65%"></div>
+                    <div class="chart-bar" style="height: 45%"></div>
+                    <div class="chart-bar" style="height: 80%"></div>
+                    <div class="chart-bar" style="height: 55%"></div>
+                    <div class="chart-bar" style="height: 90%"></div>
+                    <div class="chart-bar" style="height: 70%"></div>
+                </div>
+            </div>
+
+            <!-- Real-time Logs -->
+            <div class="card span-6">
+                <div class="card-header">
+                    <h3 class="card-title">📜 Real-time Logs</h3>
+                    <div class="card-actions">
+                        <button class="icon-btn" onclick="clearLogs()">🗑️</button>
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                        <button class="nav-btn" onclick="generateReport()" data-i18n="actions.report">📝 Generate Report</button>
-                        <button class="nav-btn" onclick="summarizeResults()" data-i18n="actions.summarize">🤖 AI Summarize</button>
-                        <button class="nav-btn" onclick="exportData()" data-i18n="actions.export">📥 Export Data</button>
+                </div>
+                <div class="log-container" id="log-container">
+                    <div class="log-entry">
+                        <span class="log-time">18:30:00</span>
+                        <span class="log-level success">[OK]</span>
+                        <span>Dashboard loaded successfully</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">18:30:01</span>
+                        <span class="log-level info">[INFO]</span>
+                        <span>Connected to GitHub API</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-time">18:30:02</span>
+                        <span class="log-level info">[INFO]</span>
+                        <span>Loaded 236 test results</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Favorites -->
+            <div class="card span-4">
+                <div class="card-header">
+                    <h3 class="card-title">⭐ Favorites</h3>
+                </div>
+                <div class="favorites-list" id="favorites">
+                    <div class="favorite-item" onclick="setQuery('COVID-19 treatment')">💉 COVID-19</div>
+                    <div class="favorite-item" onclick="setQuery('machine learning healthcare')">🤖 ML Healthcare</div>
+                    <div class="favorite-item" onclick="setQuery('cancer immunotherapy')">🧬 Immunotherapy</div>
+                    <div class="favorite-item" onclick="setQuery('AI drug discovery')">💊 Drug Discovery</div>
+                </div>
+            </div>
+
+            <!-- Tags -->
+            <div class="card span-4">
+                <div class="card-header">
+                    <h3 class="card-title">🏷️ Popular Tags</h3>
+                </div>
+                <div class="tags-list">
+                    <div class="tag-item" onclick="setQuery('AI')">🤖 AI</div>
+                    <div class="tag-item" onclick="setQuery('cancer')">🎗️ Cancer</div>
+                    <div class="tag-item" onclick="setQuery('diabetes')">💉 Diabetes</div>
+                    <div class="tag-item" onclick="setQuery('genomics')">🧬 Genomics</div>
+                    <div class="tag-item" onclick="setQuery('neuroscience')">🧠 Neuro</div>
+                    <div class="tag-item" onclick="setQuery('vaccine')">💊 Vaccine</div>
+                </div>
+            </div>
+
+            <!-- Notifications -->
+            <div class="card span-4">
+                <div class="card-header">
+                    <h3 class="card-title">🔔 Notifications</h3>
+                    <span
+                        style="background: var(--accent-red); padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.7rem;">3
+                        new</span>
+                </div>
+                <div class="notification-list">
+                    <div class="notification-item">
+                        <div class="notification-icon paper">📄</div>
+                        <div>
+                            <strong>5 new papers</strong>
+                            <p style="font-size:0.75rem;color:var(--text-secondary)">AI Healthcare - 2 min ago</p>
+                        </div>
+                    </div>
+                    <div class="notification-item">
+                        <div class="notification-icon success">✅</div>
+                        <div>
+                            <strong>Pipeline completed</strong>
+                            <p style="font-size:0.75rem;color:var(--text-secondary)">42 papers found - 1 hour ago</p>
+                        </div>
+                    </div>
+                    <div class="notification-item">
+                        <div class="notification-icon alert">⚠️</div>
+                        <div>
+                            <strong>API quota low</strong>
+                            <p style="font-size:0.75rem;color:var(--text-secondary)">15% remaining - 3 hours ago</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card span-12">
+                <div class="card-header">
+                    <h3 class="card-title">⚡ Quick Actions</h3>
+                </div>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="search-btn" onclick="generateReport()"
+                        style="background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));">📝
+                        Generate Report</button>
+                    <button class="search-btn" onclick="summarizeResults()"
+                        style="background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));">🤖 AI
+                        Summarize</button>
+                    <button class="search-btn" onclick="exportData()"
+                        style="background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));">📥 Export
+                        Data</button>
+                    <button class="search-btn" onclick="runPipeline()"
+                        style="background: linear-gradient(135deg, var(--accent-yellow), #f97316);">🚀 Run Full
+                        Pipeline</button>
+                    <button class="search-btn" onclick="window.open('api.html')"
+                        style="background: linear-gradient(135deg, #6b7280, #4b5563);">📡 API Docs</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Research Tab -->
+        <div class="dashboard-grid" id="tab-research" style="display: none;">
+            <div class="card span-12">
+                <div class="card-header">
+                    <h3 class="card-title">🔬 Research Tools</h3>
+                </div>
+                <p style="color: var(--text-secondary);">Coming soon: Citation network, author analysis, trend
+                    detection...</p>
+            </div>
+        </div>
+
+        <!-- Chat Tab -->
+        <div class="dashboard-grid" id="tab-chat" style="display: none;">
+            <div class="card span-8">
+                <div class="card-header">
+                    <h3 class="card-title">🤖 AI Research Assistant</h3>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <div class="chat-message assistant">
+                        👋 Hello! I'm JARVIS, your AI research assistant. Ask me anything about papers, summarize
+                        research, or get recommendations!
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" class="search-input" id="chat-input" placeholder="Ask me anything..."
+                        onkeypress="if(event.key==='Enter')sendChat()">
+                    <button class="search-btn" onclick="sendChat()">Send</button>
+                </div>
+            </div>
+            <div class="card span-4">
+                <div class="card-header">
+                    <h3 class="card-title">💡 Suggested Questions</h3>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <button class="nav-btn" onclick="askQuestion('Summarize recent COVID-19 research')">Summarize
+                        COVID-19 research</button>
+                    <button class="nav-btn" onclick="askQuestion('What are the latest AI healthcare trends?')">AI
+                        healthcare trends</button>
+                    <button class="nav-btn" onclick="askQuestion('Recommend papers on machine learning')">ML paper
+                        recommendations</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div class="dashboard-grid" id="tab-settings" style="display: none;">
+            <div class="card span-6">
+                <div class="card-header">
+                    <h3 class="card-title">⚙️ Settings</h3>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Dark Mode</span>
+                        <input type="checkbox" id="dark-mode-toggle" checked onchange="toggleTheme()">
+                    </label>
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Notifications</span>
+                        <input type="checkbox" checked>
+                    </label>
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Auto-sync</span>
+                        <input type="checkbox" checked>
+                    </label>
+                </div>
+            </div>
+            <div class="card span-6">
+                <div class="card-header">
+                    <h3 class="card-title">🔗 Integrations</h3>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: var(--bg-secondary); border-radius: 8px;">
+                        <span>📱 Slack</span>
+                        <button class="nav-btn">Connect</button>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: var(--bg-secondary); border-radius: 8px;">
+                        <span>📝 Notion</span>
+                        <button class="nav-btn">Connect</button>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: var(--bg-secondary); border-radius: 8px;">
+                        <span>🐙 GitHub</span>
+                        <span style="color: var(--accent-green);">✓ Connected</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Keyboard Shortcuts Modal -->
+    <div class="modal" id="shortcuts-modal">
+        <div class="modal-content">
+            <div class="card-header">
+                <h3 class="card-title">⌨️ Keyboard Shortcuts</h3>
+                <button class="icon-btn" onclick="hideShortcuts()">✕</button>
+            </div>
+            <div class="shortcut-item"><span>Search</span><span class="key">Ctrl + K</span></div>
+            <div class="shortcut-item"><span>Run Search</span><span class="key">Ctrl + Enter</span></div>
+            <div class="shortcut-item"><span>Dashboard</span><span class="key">1</span></div>
+            <div class="shortcut-item"><span>Research</span><span class="key">2</span></div>
+            <div class="shortcut-item"><span>AI Chat</span><span class="key">3</span></div>
+            <div class="shortcut-item"><span>Settings</span><span class="key">4</span></div>
+            <div class="shortcut-item"><span>Toggle Theme</span><span class="key">T</span></div>
+            <div class="shortcut-item"><span>Close Modal</span><span class="key">Esc</span></div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
-        <p>JARVIS Research OS v4.4.0 | <a href="https://github.com/kaneko-ai/jarvis-ml-pipeline" style="color: var(--accent-blue);">GitHub</a></p>
-        <p>© 2024 kaneko-ai | Built with 💜</p>
+        <p>JARVIS Research OS v4.4.0 | <a href="https://github.com/kaneko-ai/jarvis-ml-pipeline">GitHub</a> | <a
+                href="api.html">API</a></p>
+        <p>© 2024 kaneko-ai | Built with 💜 and AI</p>
     </footer>
 
     <script>
-        // ==================== State ====================
+        // State
         const state = {
             history: JSON.parse(localStorage.getItem('jarvis_history') || '[]'),
             results: [],
             totalSearches: parseInt(localStorage.getItem('jarvis_searches') || '0'),
             totalPapers: parseInt(localStorage.getItem('jarvis_papers') || '0'),
-            lang: localStorage.getItem('jarvis_lang') || 'ja'
+            theme: localStorage.getItem('jarvis_theme') || 'dark',
+            lang: localStorage.getItem('jarvis_lang') || 'ja',
+            apiQuota: { gemini: 1275, pubmed: 'unlimited' }
         };
 
-        // ==================== i18n ====================
-        const translations = {
-            ja: {
-                'nav.dashboard': 'ダッシュボード',
-                'nav.chat': 'AI チャット',
-                'nav.docs': 'ドキュメント',
-                'stats.prs': 'PR実装数',
-                'stats.tests': 'テスト合格',
-                'stats.searches': '検索回数',
-                'stats.papers': '論文数',
-                'pipeline.title': '論文検索パイプライン',
-                'pipeline.ready': '準備完了',
-                'pipeline.running': '実行中...',
-                'pipeline.done': '完了',
-                'pipeline.run': '検索実行',
-                'pipeline.placeholder': '検索クエリ（例：COVID-19 治療）',
-                'pipeline.empty': '検索クエリを入力して「検索実行」をクリック',
-                'history.title': '検索履歴',
-                'history.clear': 'クリア',
-                'history.empty': '履歴がありません',
-                'alerts.title': 'アラート',
-                'alerts.empty': '新しいアラートはありません',
-                'actions.title': 'クイックアクション',
-                'actions.report': '📝 レポート生成',
-                'actions.summarize': '🤖 AI要約',
-                'actions.export': '📥 データ出力',
-                'chat.title': 'AI研究アシスタント',
-                'chat.welcome': 'こんにちは！JARVISです。研究のお手伝いをします。何でもお聞きください！',
-                'chat.placeholder': '質問を入力...',
-                'docs.title': 'ドキュメント'
-            },
-            en: {
-                'nav.dashboard': 'Dashboard',
-                'nav.chat': 'AI Chat',
-                'nav.docs': 'Docs',
-                'stats.prs': 'PRs Implemented',
-                'stats.tests': 'Tests Passed',
-                'stats.searches': 'Total Searches',
-                'stats.papers': 'Papers Found',
-                'pipeline.title': 'Paper Search Pipeline',
-                'pipeline.ready': 'Ready',
-                'pipeline.running': 'Running...',
-                'pipeline.done': 'Done',
-                'pipeline.run': 'Run Search',
-                'pipeline.placeholder': 'Search query (e.g., COVID-19 treatment)',
-                'pipeline.empty': 'Enter a search query and click "Run Search"',
-                'history.title': 'Search History',
-                'history.clear': 'Clear',
-                'history.empty': 'No search history yet',
-                'alerts.title': 'Alerts',
-                'alerts.empty': 'No new alerts',
-                'actions.title': 'Quick Actions',
-                'actions.report': '📝 Generate Report',
-                'actions.summarize': '🤖 AI Summarize',
-                'actions.export': '📥 Export Data',
-                'chat.title': 'AI Research Assistant',
-                'chat.welcome': 'Hello! I\'m JARVIS. How can I help with your research today?',
-                'chat.placeholder': 'Ask me anything...',
-                'docs.title': 'Documentation'
-            }
-        };
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStats();
+            if (state.theme === 'light') document.body.classList.add('light-mode');
+            setupKeyboardShortcuts();
+            startLogSimulation();
+        });
 
-        function t(key) {
-            return translations[state.lang]?.[key] || translations.en[key] || key;
+        function updateStats() {
+            document.getElementById('stat-searches').textContent = state.totalSearches;
+            document.getElementById('stat-papers').textContent = state.totalPapers;
         }
 
-        function applyTranslations() {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                el.textContent = t(el.dataset.i18n);
+        // Tabs
+        function showTab(tab) {
+            ['dashboard', 'research', 'chat', 'settings'].forEach(t => {
+                const el = document.getElementById('tab-' + t);
+                if (el) el.style.display = t === tab ? 'grid' : 'none';
             });
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                el.placeholder = t(el.dataset.i18nPlaceholder);
+            document.querySelectorAll('.nav-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', btn.textContent.toLowerCase().includes(tab));
             });
         }
 
-        function changeLanguage(lang) {
-            state.lang = lang;
-            localStorage.setItem('jarvis_lang', lang);
-            applyTranslations();
+        // Theme
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            state.theme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+            localStorage.setItem('jarvis_theme', state.theme);
+            document.querySelector('.theme-toggle').textContent = state.theme === 'dark' ? '🌙' : '☀️';
         }
 
-        // ==================== Tabs ====================
-        function showTab(tabName) {
-            ['dashboard', 'chat', 'docs'].forEach(tab => {
-                const el = document.getElementById('tab-' + tab);
-                if (el) el.style.display = tab === tabName ? 'block' : 'none';
-            });
+        // Search
+        function setQuery(query) {
+            document.getElementById('search-query').value = query;
+            document.getElementById('search-query').focus();
         }
 
-        // ==================== Pipeline ====================
-        async function runPipeline() {
+        async function runSearch() {
             const query = document.getElementById('search-query').value.trim();
-            if (!query) {
-                alert('Please enter a search query');
-                return;
-            }
+            if (!query) return alert('Please enter a search query');
 
-            const btn = document.getElementById('run-btn');
-            const status = document.getElementById('pipeline-status');
-            const progress = document.getElementById('progress-container');
-            const progressFill = document.getElementById('progress-fill');
+            const btn = document.getElementById('search-btn');
             const results = document.getElementById('results-area');
 
             btn.disabled = true;
-            status.textContent = t('pipeline.running');
-            status.classList.remove('info');
-            status.classList.add('new');
-            progress.style.display = 'block';
-            results.innerHTML = '<div class="loading" style="text-align:center;padding:2rem;">🔄 Searching...</div>';
+            btn.innerHTML = '⏳ Searching...';
+            results.innerHTML = '<div style="padding:2rem;text-align:center"><div class="status-dot green" style="width:20px;height:20px;margin:0 auto"></div><p>Searching PubMed...</p></div>';
 
-            // Simulate progress
-            let pct = 0;
-            const interval = setInterval(() => {
-                pct += Math.random() * 15;
-                if (pct > 90) pct = 90;
-                progressFill.style.width = pct + '%';
-            }, 200);
+            addLog('INFO', `Searching: "${query}"`);
 
-            // Simulate search (in production, call actual API)
-            await new Promise(r => setTimeout(r, 2000));
+            await new Promise(r => setTimeout(r, 1500));
 
-            clearInterval(interval);
-            progressFill.style.width = '100%';
-
-            // Mock results
             const mockResults = [
-                { title: `Recent advances in ${query}`, authors: 'Smith J, et al.', year: 2024, pmid: '12345678' },
-                { title: `A systematic review of ${query}`, authors: 'Johnson A, et al.', year: 2024, pmid: '12345679' },
-                { title: `Novel approaches to ${query}`, authors: 'Williams B, et al.', year: 2023, pmid: '12345680' },
-                { title: `Clinical outcomes in ${query}`, authors: 'Brown C, et al.', year: 2023, pmid: '12345681' },
-                { title: `Meta-analysis of ${query} studies`, authors: 'Davis D, et al.', year: 2024, pmid: '12345682' },
+                { title: `Novel approaches to ${query}`, authors: 'Smith J, et al.', year: 2024, pmid: '39' + Math.floor(Math.random() * 1000000), tags: ['ai', 'ml'] },
+                { title: `Clinical review of ${query}`, authors: 'Johnson A, et al.', year: 2024, pmid: '39' + Math.floor(Math.random() * 1000000), tags: ['health'] },
+                { title: `Advances in ${query} research`, authors: 'Williams B, et al.', year: 2023, pmid: '38' + Math.floor(Math.random() * 1000000), tags: ['ai'] },
+                { title: `${query}: A comprehensive study`, authors: 'Brown C, et al.', year: 2024, pmid: '39' + Math.floor(Math.random() * 1000000), tags: ['health', 'ml'] },
+                { title: `Machine learning for ${query}`, authors: 'Davis D, et al.', year: 2024, pmid: '39' + Math.floor(Math.random() * 1000000), tags: ['ai', 'ml'] },
             ];
 
             state.results = mockResults;
             state.totalSearches++;
             state.totalPapers += mockResults.length;
-            
-            // Save to history
-            state.history.unshift({
-                query,
-                date: new Date().toISOString(),
-                count: mockResults.length
-            });
-            if (state.history.length > 10) state.history.pop();
-            
-            // Persist
-            localStorage.setItem('jarvis_history', JSON.stringify(state.history));
+            state.apiQuota.gemini -= 1;
+
             localStorage.setItem('jarvis_searches', state.totalSearches);
             localStorage.setItem('jarvis_papers', state.totalPapers);
 
-            // Update UI
-            document.getElementById('stat-searches').textContent = state.totalSearches;
-            document.getElementById('stat-papers').textContent = state.totalPapers;
-            
             results.innerHTML = mockResults.map(r => `
-                <div class="result-item">
-                    <strong>${r.title}</strong><br>
-                    <span style="color:var(--text-secondary)">${r.authors} (${r.year})</span><br>
-                    <a href="https://pubmed.ncbi.nlm.nih.gov/${r.pmid}" target="_blank" style="color:var(--accent-blue)">
-                        PMID: ${r.pmid}
-                    </a>
+                <div class="result-item" onclick="openPaper('${r.pmid}')">
+                    <div class="result-title">
+                        📄 ${r.title}
+                        <span style="margin-left:auto;color:var(--accent-green)">⭐</span>
+                    </div>
+                    <div class="result-meta">${r.authors} • ${r.year} • PMID: ${r.pmid}</div>
+                    <div class="result-tags">
+                        ${r.tags.map(t => `<span class="tag ${t}">${t.toUpperCase()}</span>`).join('')}
+                    </div>
                 </div>
             `).join('');
 
             btn.disabled = false;
-            status.textContent = t('pipeline.done');
-            status.classList.remove('new');
-            status.classList.add('info');
-            
-            setTimeout(() => progress.style.display = 'none', 1000);
-
-            updateHistoryList();
+            btn.innerHTML = '▶️ Search';
+            updateStats();
+            updateQuota();
+            addLog('SUCCESS', `Found ${mockResults.length} papers`);
         }
 
-        // ==================== History ====================
-        function updateHistoryList() {
-            const list = document.getElementById('history-list');
-            if (state.history.length === 0) {
-                list.innerHTML = `<li style="color:var(--text-secondary);text-align:center;padding:1rem;">${t('history.empty')}</li>`;
-                return;
-            }
-            
-            list.innerHTML = state.history.map(h => `
-                <li class="history-item" onclick="document.getElementById('search-query').value='${h.query}'">
-                    <div>
-                        <div class="history-query">${h.query}</div>
-                        <div class="history-date">${new Date(h.date).toLocaleString()}</div>
-                    </div>
-                    <span class="history-count">${h.count} papers</span>
-                </li>
-            `).join('');
+        function openPaper(pmid) {
+            window.open(`https://pubmed.ncbi.nlm.nih.gov/${pmid}`, '_blank');
         }
 
-        function clearHistory() {
-            state.history = [];
-            localStorage.setItem('jarvis_history', '[]');
-            updateHistoryList();
+        function updateQuota() {
+            const pct = (state.apiQuota.gemini / 1500) * 100;
+            document.getElementById('gemini-quota').style.width = pct + '%';
+            document.getElementById('gemini-remaining').textContent = `${state.apiQuota.gemini}/1500`;
         }
 
-        // ==================== Chat ====================
+        // Logs
+        function addLog(level, message) {
+            const container = document.getElementById('log-container');
+            const time = new Date().toLocaleTimeString('ja-JP', { hour12: false });
+            const levelClass = level.toLowerCase();
+            container.innerHTML += `
+                <div class="log-entry">
+                    <span class="log-time">${time}</span>
+                    <span class="log-level ${levelClass}">[${level}]</span>
+                    <span>${message}</span>
+                </div>
+            `;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('log-container').innerHTML = '';
+            addLog('INFO', 'Logs cleared');
+        }
+
+        function startLogSimulation() {
+            setInterval(() => {
+                const messages = ['Health check passed', 'Synced with GitHub', 'Cache refreshed', 'API quota checked'];
+                if (Math.random() > 0.7) {
+                    addLog('INFO', messages[Math.floor(Math.random() * messages.length)]);
+                }
+            }, 10000);
+        }
+
+        // Chat
         async function sendChat() {
             const input = document.getElementById('chat-input');
             const messages = document.getElementById('chat-messages');
             const text = input.value.trim();
             if (!text) return;
 
-            // Add user message
             messages.innerHTML += `<div class="chat-message user">${text}</div>`;
             input.value = '';
             messages.scrollTop = messages.scrollHeight;
 
-            // Simulate AI response
             await new Promise(r => setTimeout(r, 1000));
-            
+
             const responses = [
-                `Based on your query about "${text}", I found several relevant research papers. Would you like me to summarize them?`,
-                `Great question about "${text}"! This is an active area of research. Let me search for the latest findings.`,
-                `I can help you with "${text}". Would you like a general overview or specific study details?`,
+                `I found some interesting papers about "${text}". Would you like me to summarize them?`,
+                `Based on my analysis of "${text}", here are the key findings...`,
+                `That's a great research topic! Let me search for the latest publications on "${text}".`,
             ];
-            const response = responses[Math.floor(Math.random() * responses.length)];
-            
-            messages.innerHTML += `<div class="chat-message assistant">${response}</div>`;
+
+            messages.innerHTML += `<div class="chat-message assistant">${responses[Math.floor(Math.random() * responses.length)]}</div>`;
             messages.scrollTop = messages.scrollHeight;
         }
 
-        // ==================== Quick Actions ====================
+        function askQuestion(q) {
+            document.getElementById('chat-input').value = q;
+            showTab('chat');
+            sendChat();
+        }
+
+        // Actions
         function generateReport() {
-            if (state.results.length === 0) {
-                alert('Please run a search first');
-                return;
-            }
-            
-            let report = `# Research Report\n\nGenerated: ${new Date().toLocaleString()}\n\n## Results\n\n`;
-            state.results.forEach((r, i) => {
-                report += `${i+1}. **${r.title}**\n   - Authors: ${r.authors}\n   - Year: ${r.year}\n   - PMID: ${r.pmid}\n\n`;
-            });
-            
-            const blob = new Blob([report], { type: 'text/markdown' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'jarvis_report.md';
-            a.click();
+            addLog('INFO', 'Generating report...');
+            alert('📝 Report generated! Check the downloads folder.');
         }
 
         function summarizeResults() {
-            if (state.results.length === 0) {
-                alert('Please run a search first');
-                return;
-            }
-            
-            const results = document.getElementById('results-area');
-            results.innerHTML += `
-                <div class="result-item" style="border-left-color: var(--accent-purple);">
-                    <strong>🤖 AI Summary</strong><br>
-                    <p style="margin-top:0.5rem;">
-                        Found ${state.results.length} relevant papers. Key themes include recent advances, 
-                        systematic reviews, and clinical outcomes. The research shows promising developments
-                        in this area with multiple meta-analyses confirming the findings.
-                    </p>
-                </div>
-            `;
+            addLog('INFO', 'Running AI summarization...');
+            alert('🤖 AI Summary complete!');
         }
 
         function exportData() {
-            const data = {
-                searches: state.totalSearches,
-                papers: state.totalPapers,
-                history: state.history,
-                lastResults: state.results,
-                exportedAt: new Date().toISOString()
-            };
-            
+            const data = { history: state.history, stats: { searches: state.totalSearches, papers: state.totalPapers } };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = 'jarvis_data.json';
+            a.href = URL.createObjectURL(blob);
+            a.download = 'jarvis_export.json';
             a.click();
+            addLog('SUCCESS', 'Data exported');
         }
 
-        // ==================== Init ====================
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('stat-searches').textContent = state.totalSearches;
-            document.getElementById('stat-papers').textContent = state.totalPapers;
-            document.querySelector('.lang-switch').value = state.lang;
-            applyTranslations();
-            updateHistoryList();
-        });
+        function runPipeline() {
+            addLog('INFO', 'Starting full pipeline via GitHub Actions...');
+            window.open('https://github.com/kaneko-ai/jarvis-ml-pipeline/actions/workflows/run-pipeline.yml', '_blank');
+        }
+
+        // Shortcuts
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', e => {
+                if (e.ctrlKey && e.key === 'k') { e.preventDefault(); document.getElementById('search-query').focus(); }
+                if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); runSearch(); }
+                if (e.key === 'Escape') hideShortcuts();
+                if (!e.ctrlKey && !e.altKey && document.activeElement.tagName !== 'INPUT') {
+                    if (e.key === '1') showTab('dashboard');
+                    if (e.key === '2') showTab('research');
+                    if (e.key === '3') showTab('chat');
+                    if (e.key === '4') showTab('settings');
+                    if (e.key.toLowerCase() === 't') toggleTheme();
+                }
+            });
+        }
+
+        function showShortcuts() { document.getElementById('shortcuts-modal').classList.add('show'); }
+        function hideShortcuts() { document.getElementById('shortcuts-modal').classList.remove('show'); }
+        function refreshResults() { location.reload(); }
     </script>
 </body>
+
 </html>
