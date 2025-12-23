@@ -7,6 +7,8 @@
     <title>JARVIS Research OS</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="jarvis-ext.js"></script>
+    <script src="jarvis-v2.js"></script>
     <style>
         :root {
             --bg: #0a0a1a;
@@ -760,7 +762,8 @@
                         onclick="runSearch()">🔍 Search</button></div>
                 <div class="results" id="results">
                     <div style="padding:2rem;text-align:center;color:var(--txt2)">💡 Enter a query and press Search or
-                        <kbd class="key">Ctrl+Enter</kbd></div>
+                        <kbd class="key">Ctrl+Enter</kbd>
+                    </div>
                 </div>
             </div>
             <div class="card c4">
@@ -915,10 +918,12 @@
                 <div style="display:flex;flex-direction:column;gap:0.75rem">
                     <div
                         style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;background:var(--glass);border-radius:8px">
-                        <span>📱 Slack</span><button class="nav-btn">Connect</button></div>
+                        <span>📱 Slack</span><button class="nav-btn">Connect</button>
+                    </div>
                     <div
                         style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;background:var(--glass);border-radius:8px">
-                        <span>🐙 GitHub</span><span style="color:var(--green)">✓ Connected</span></div>
+                        <span>🐙 GitHub</span><span style="color:var(--green)">✓ Connected</span>
+                    </div>
                 </div>
             </div>
         </div>
