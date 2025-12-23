@@ -11,7 +11,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, Mapping
 
-import yaml
+try:
+    import yaml
+    HAS_YAML = True
+except ImportError:
+    HAS_YAML = False
+    yaml = None
 
 
 def load_yaml_config(path: str | Path) -> Dict[str, Any]:
@@ -23,6 +28,8 @@ def load_yaml_config(path: str | Path) -> Dict[str, Any]:
     Returns:
         Parsed configuration dictionary.
     """
+    if not HAS_YAML:
+        return {}
 
     with Path(path).expanduser().open("r", encoding="utf-8") as f:
         return yaml.safe_load(f) or {}
