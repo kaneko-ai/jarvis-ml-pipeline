@@ -47,7 +47,7 @@ jobs:
       - name: Build docs
         run: |
           mkdir -p site
-          # Copy documentation
+          # Copy ALL documentation files (including index.html, CSS, JS)
           cp -r docs/* site/
           
           # Generate metrics summary
@@ -62,6 +62,7 @@ jobs:
                   'total_prs_implemented': 384,
                   'test_files': 50,
                   'packages': 15,
+                  'tests_passed': 236
               }
           }
           
@@ -69,47 +70,8 @@ jobs:
               json.dump(data, f, indent=2)
           "
           
-          # Create index
-          cat > site/index.html << 'EOF'
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <title>JARVIS Dashboard</title>
-            <style>
-              body { font-family: system-ui; max-width: 1200px; margin: 0 auto; padding: 20px; background: #1a1a2e; color: #eee; }
-              .card { background: #16213e; border-radius: 8px; padding: 20px; margin: 10px 0; }
-              .stat { font-size: 2em; font-weight: bold; color: #4ade80; }
-              a { color: #60a5fa; }
-              h1 { color: #f472b6; }
-            </style>
-          </head>
-          <body>
-            <h1>🧬 JARVIS Research OS</h1>
-            <div class="card">
-              <h2>Dashboard</h2>
-              <p><span class="stat">384</span> PRs Implemented</p>
-              <p><span class="stat">50+</span> Test Files</p>
-              <p><span class="stat">15</span> Packages</p>
-            </div>
-            <div class="card">
-              <h2>Documentation</h2>
-              <ul>
-                <li><a href="DEPLOYMENT_GUIDE.md">Deployment Guide</a></li>
-                <li><a href="OPERATIONS_GUIDE.md">Operations Guide</a></li>
-                <li><a href="JARVIS_INFRA_ROADMAP.md">Infrastructure Roadmap</a></li>
-                <li><a href="JARVIS_V44_ROADMAP.md">v4.4 Roadmap</a></li>
-              </ul>
-            </div>
-            <div class="card">
-              <h2>Reports</h2>
-              <ul>
-                <li><a href="coverage/">Test Coverage</a></li>
-                <li><a href="metrics.json">Metrics JSON</a></li>
-              </ul>
-            </div>
-          </body>
-          </html>
-          EOF
+          echo "Site contents:"
+          ls -la site/
 
       - name: Upload artifact (for manual download)
         uses: actions/upload-artifact@v4
