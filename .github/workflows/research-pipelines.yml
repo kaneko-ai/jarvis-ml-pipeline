@@ -1,0 +1,423 @@
+# JARVIS Research Pipelines
+# New pipelines for hypothesis, protein, meta-analysis, grant, and lab automation (51-55)
+name: Research Pipelines
+
+on:
+  workflow_dispatch:
+    inputs:
+      pipeline:
+        description: 'Pipeline to run'
+        required: true
+        type: choice
+        options:
+          - hypothesis
+          - protein
+          - meta-analysis
+          - grant
+          - lab-automation
+          - all
+      topic:
+        description: 'Research topic'
+        required: false
+        default: 'machine learning cancer treatment'
+
+jobs:
+  # ============================================
+  # 51. HYPOTHESIS PIPELINE
+  # ============================================
+  hypothesis-pipeline:
+    if: inputs.pipeline == 'hypothesis' || inputs.pipeline == 'all'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      
+      - name: Install dependencies
+        run: pip install -r requirements.lock
+      
+      - name: Generate Hypotheses
+        id: generate
+        run: |
+          python -c "
+          from jarvis_core.scientist.coscientist import HypothesisGenerator
+          import json
+          
+          hg = HypothesisGenerator()
+          hypotheses = hg.generate_hypotheses('${{ inputs.topic }}', n=5)
+          
+          print('Generated Hypotheses:')
+          for h in hypotheses:
+              print(f\"  {h['id']}: {h['text'][:60]}... (conf: {h['confidence']})\")
+          
+          with open('hypotheses.json', 'w') as f:
+              json.dump(hypotheses, f, indent=2)
+          "
+      
+      - name: Analyze Literature Gaps
+        run: |
+          python -c "
+          from jarvis_core.scientist.coscientist import LiteratureGapAnalyzer
+          import json
+          
+          analyzer = LiteratureGapAnalyzer()
+          gaps = analyzer.find_gaps('${{ inputs.topic }}')
+          
+          print('Literature Gaps:')
+          for gap in gaps:
+              print(f\"  [{gap['severity']}] {gap['type']}: {gap['description']}\")
+          
+          with open('gaps.json', 'w') as f:
+              json.dump(gaps, f, indent=2)
+          "
+      
+      - name: Design Experiments
+        run: |
+          python -c "
+          from jarvis_core.scientist.coscientist import ExperimentDesignerPro
+          import json
+          
+          with open('hypotheses.json') as f:
+              hypotheses = json.load(f)
+          
+          designer = ExperimentDesignerPro()
+          designs = []
+          
+          for h in hypotheses[:3]:
+              design = designer.design_experiment(h['text'])
+              designs.append({'hypothesis': h['id'], **design})
+          
+          with open('experiment_designs.json', 'w') as f:
+              json.dump(designs, f, indent=2)
+          
+          print(f'Designed {len(designs)} experiments')
+          "
+      
+      - name: Upload Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: hypothesis-results-${{ github.run_number }}
+          path: |
+            hypotheses.json
+            gaps.json
+            experiment_designs.json
+
+  # ============================================
+  # 52. PROTEIN PIPELINE
+  # ============================================
+  protein-pipeline:
+    if: inputs.pipeline == 'protein' || inputs.pipeline == 'all'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      
+      - name: Install dependencies
+        run: pip install -r requirements.lock
+      
+      - name: Get AlphaFold Structure
+        run: |
+          python -c "
+          from jarvis_core.protein.biomolecule import AlphaFoldIntegration
+          import json
+          
+          af = AlphaFoldIntegration()
+          
+          # Example UniProt IDs
+          proteins = ['P12345', 'Q9Y6K1', 'P53350']
+          
+          results = []
+          for uniprot_id in proteins:
+              urls = af.get_structure_url(uniprot_id)
+              results.append(urls)
+              print(f'{uniprot_id}: {urls[\"viewer_url\"]}')
+          
+          with open('structures.json', 'w') as f:
+              json.dump(results, f, indent=2)
+          "
+      
+      - name: Predict Binding Affinity
+        run: |
+          python -c "
+          from jarvis_core.protein.biomolecule import BindingAffinityPredictor
+          import json
+          
+          predictor = BindingAffinityPredictor()
+          
+          # Example protein-ligand pairs
+          pairs = [
+              ('MVLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDLSH', 'CCO'),
+              ('MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTG', 'C1=CC=CC=C1')
+          ]
+          
+          results = []
+          for seq, smiles in pairs:
+              result = predictor.predict_binding(seq, smiles)
+              results.append(result)
+              print(f'Binding: {result}')
+          
+          with open('binding_predictions.json', 'w') as f:
+              json.dump(results, f, indent=2)
+          "
+      
+      - name: Design Protein Sequence
+        run: |
+          python -c "
+          from jarvis_core.protein.biomolecule import ProteinSequenceDesigner
+          import json
+          
+          designer = ProteinSequenceDesigner()
+          
+          designs = []
+          for struct_type in ['helix', 'sheet', 'mixed']:
+              design = designer.design_sequence(50, struct_type)
+              designs.append(design)
+              print(f'{struct_type}: {design[\"sequence\"][:30]}...')
+          
+          with open('designed_sequences.json', 'w') as f:
+              json.dump(designs, f, indent=2)
+          "
+      
+      - name: Upload Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: protein-results-${{ github.run_number }}
+          path: |
+            structures.json
+            binding_predictions.json
+            designed_sequences.json
+
+  # ============================================
+  # 53. META-ANALYSIS PIPELINE
+  # ============================================
+  meta-analysis-pipeline:
+    if: inputs.pipeline == 'meta-analysis' || inputs.pipeline == 'all'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      
+      - name: Install dependencies
+        run: pip install -r requirements.lock
+      
+      - name: Search Literature
+        run: |
+          python -c "
+          from jarvis_core.integrations.pubmed import get_pubmed_client
+          import json
+          
+          client = get_pubmed_client()
+          results = client.search('${{ inputs.topic }}', max_results=20)
+          
+          with open('search_results.json', 'w') as f:
+              json.dump(results, f, indent=2)
+          
+          print(f'Found {len(results)} papers')
+          "
+      
+      - name: Run Meta-Analysis
+        run: |
+          python -c "
+          from jarvis_core.advanced.features import MetaAnalysisBot
+          import json
+          import random
+          
+          # Simulate extracted effect sizes
+          studies = [
+              {'study_id': f'study_{i}', 'effect_size': random.uniform(0.2, 0.8), 'sample_size': random.randint(50, 200)}
+              for i in range(10)
+          ]
+          
+          ma = MetaAnalysisBot()
+          result = ma.run_meta_analysis(studies)
+          
+          output = {'studies': studies, 'meta_result': result}
+          
+          with open('meta_analysis.json', 'w') as f:
+              json.dump(output, f, indent=2)
+          
+          print(f'Pooled effect: {result[\"pooled_effect_size\"]}')
+          print(f'Heterogeneity I²: {result[\"heterogeneity_i2\"]}%')
+          "
+      
+      - name: Upload Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: meta-analysis-results-${{ github.run_number }}
+          path: |
+            search_results.json
+            meta_analysis.json
+
+  # ============================================
+  # 54. GRANT PIPELINE
+  # ============================================
+  grant-pipeline:
+    if: inputs.pipeline == 'grant' || inputs.pipeline == 'all'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      
+      - name: Install dependencies
+        run: pip install -r requirements.lock
+      
+      - name: Match Funding Opportunities
+        run: |
+          python -c "
+          from jarvis_core.scientist.coscientist import FundingOpportunityMatcher
+          import json
+          
+          matcher = FundingOpportunityMatcher()
+          
+          project = {
+              'title': '${{ inputs.topic }}',
+              'keywords': '${{ inputs.topic }}'.split()
+          }
+          
+          matches = matcher.match(project)
+          
+          with open('funding_matches.json', 'w') as f:
+              json.dump(matches, f, indent=2)
+          
+          print('Funding Opportunities:')
+          for m in matches:
+              print(f\"  {m['source']}: {m['match_score']*100:.0f}% match\")
+          "
+      
+      - name: Generate IRB Template
+        run: |
+          python -c "
+          from jarvis_core.scientist.coscientist import IRBDocumentGenerator
+          
+          gen = IRBDocumentGenerator()
+          
+          project = {
+              'title': '${{ inputs.topic }} Study',
+              'purpose': 'To investigate ${{ inputs.topic }}',
+              'sample_size': 100
+          }
+          
+          doc = gen.generate(project)
+          
+          with open('irb_template.md', 'w') as f:
+              f.write(doc)
+          
+          print('IRB template generated')
+          "
+      
+      - name: Upload Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: grant-results-${{ github.run_number }}
+          path: |
+            funding_matches.json
+            irb_template.md
+
+  # ============================================
+  # 55. LAB AUTOMATION PIPELINE
+  # ============================================
+  lab-automation-pipeline:
+    if: inputs.pipeline == 'lab-automation' || inputs.pipeline == 'all'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      
+      - name: Install dependencies
+        run: pip install -r requirements.lock
+      
+      - name: Generate Pipetting Protocol
+        run: |
+          python -c "
+          from jarvis_core.lab.automation import AutomatedPipetting
+          import json
+          
+          pipette = AutomatedPipetting()
+          
+          # Serial dilution protocol
+          protocol = pipette.create_serial_dilution(
+              start_conc=100.0,
+              dilution_factor=2,
+              num_dilutions=8
+          )
+          
+          with open('pipetting_protocol.json', 'w') as f:
+              json.dump(protocol, f, indent=2)
+          
+          print(f'Generated {len(protocol)} pipetting steps')
+          "
+      
+      - name: Generate OpenTrons Protocol
+        run: |
+          python -c "
+          from jarvis_core.lab.automation import RoboticArmIntegration
+          
+          robot = RoboticArmIntegration()
+          
+          steps = [
+              {'action': 'transfer', 'source': 'A1', 'dest': 'B1', 'volume': 100},
+              {'action': 'transfer', 'source': 'B1', 'dest': 'C1', 'volume': 50},
+              {'action': 'transfer', 'source': 'C1', 'dest': 'D1', 'volume': 25}
+          ]
+          
+          protocol = robot.generate_protocol(steps)
+          
+          with open('opentrons_protocol.py', 'w') as f:
+              f.write(protocol)
+          
+          print('OpenTrons protocol generated')
+          "
+      
+      - name: Run QC Checks
+        run: |
+          python -c "
+          from jarvis_core.lab.automation import QualityControlAgent
+          import json
+          
+          qc = QualityControlAgent()
+          qc.add_rule('absorbance', 'od600', 0.1)
+          qc.add_rule('purity', 'a260_280', 1.8)
+          
+          # Simulated data
+          data = {'od600': 0.5, 'a260_280': 1.95}
+          
+          result = qc.check(data)
+          
+          with open('qc_results.json', 'w') as f:
+              json.dump(result, f, indent=2)
+          
+          print(f'QC Status: {result[\"overall\"]}')
+          "
+      
+      - name: Upload Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab-automation-results-${{ github.run_number }}
+          path: |
+            pipetting_protocol.json
+            opentrons_protocol.py
+            qc_results.json
