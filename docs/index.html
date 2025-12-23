@@ -1,315 +1,998 @@
-<header class="header glass">
-    <div class="logo">
-        <div class="logo-icon">🧬</div>
-        JARVIS Research OS
-    </div>
-    <nav class="nav">
-        <button class="nav-btn active" data-tab="dashboard" onclick="showTab('dashboard')">📊 Dashboard</button>
-        <button class="nav-btn" data-tab="research" onclick="showTab('research')">🔬 Research</button>
-        <button class="nav-btn" data-tab="chat" onclick="showTab('chat')">🤖 AI Chat</button>
-        <button class="nav-btn" data-tab="settings" onclick="showTab('settings')">⚙️ Settings</button>
-        <select class="nav-btn" onchange="JARVIS.state.lang=this.value;localStorage.setItem('jarvis_lang',this.value)">
-            <option value="ja">🇯🇵 日本語</option>
-            <option value="en">🇺🇸 English</option>
-        </select>
-        <button class="theme-toggle icon-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
-    </nav>
-</header>
+<!DOCTYPE html>
+<html lang="ja">
 
-<div class="container">
-    <!-- Status Bar -->
-    <div class="status-bar glass">
-        <div class="status-item"><span class="status-dot green"></span>System: Healthy</div>
-        <div class="status-item"><span class="status-dot green"></span>API: Online</div>
-        <div class="status-item" style="display:flex;align-items:center;gap:0.75rem">
-            <span>Gemini:</span>
-            <div class="quota-bar">
-                <div class="quota-fill" id="gemini-quota" style="width:85%"></div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS Research OS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a1a;
+            --bg2: #12122a;
+            --card: rgba(26, 26, 62, 0.8);
+            --glass: rgba(255, 255, 255, 0.05);
+            --txt: #fff;
+            --txt2: #a0a0c0;
+            --pink: #f472b6;
+            --blue: #60a5fa;
+            --green: #4ade80;
+            --yellow: #fbbf24;
+            --purple: #a78bfa;
+            --cyan: #22d3ee;
+            --red: #f87171;
+            --border: rgba(255, 255, 255, 0.1);
+            --blur: blur(20px)
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--txt);
+            min-height: 100vh;
+            line-height: 1.6
+        }
+
+        .bg {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 20% 20%, rgba(167, 139, 250, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(244, 114, 182, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(96, 165, 250, 0.1) 0%, transparent 60%);
+            z-index: -1;
+            animation: pulse 15s infinite
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.7
+            }
+        }
+
+        .header {
+            background: var(--glass);
+            backdrop-filter: var(--blur);
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.4rem;
+            font-weight: 700
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 15px rgba(244, 114, 182, 0.4)
+        }
+
+        .nav {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center
+        }
+
+        .nav-btn {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            color: var(--txt);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem
+        }
+
+        .nav-btn:hover,
+        .nav-btn.active {
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            border-color: transparent;
+            transform: translateY(-2px)
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1.5rem
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem
+        }
+
+        .c3 {
+            grid-column: span 3
+        }
+
+        .c4 {
+            grid-column: span 4
+        }
+
+        .c6 {
+            grid-column: span 6
+        }
+
+        .c8 {
+            grid-column: span 8
+        }
+
+        .c12 {
+            grid-column: span 12
+        }
+
+        @media(max-width:1200px) {
+
+            .c3,
+            .c4 {
+                grid-column: span 6
+            }
+
+            .c6,
+            .c8 {
+                grid-column: span 12
+            }
+        }
+
+        @media(max-width:768px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+
+            [class*="c"] {
+                grid-column: span 1 !important
+            }
+
+            .header {
+                padding: 0.75rem 1rem;
+                flex-wrap: wrap
+            }
+
+            .nav {
+                flex-wrap: wrap
+            }
+        }
+
+        .card {
+            background: var(--card);
+            backdrop-filter: var(--blur);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            transition: all 0.4s
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--purple);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 40px rgba(167, 139, 250, 0.15)
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem
+        }
+
+        .stat {
+            text-align: center;
+            padding: 1.5rem
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem
+        }
+
+        .stat-val {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--pink), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .stat-lbl {
+            color: var(--txt2);
+            font-size: 0.85rem;
+            margin-top: 0.25rem
+        }
+
+        .stat-chg {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            margin-top: 0.5rem;
+            display: inline-block;
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--green)
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--glass);
+            backdrop-filter: var(--blur);
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            border: 1px solid var(--border)
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg2);
+            border-radius: 10px;
+            white-space: nowrap;
+            font-size: 0.85rem
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 10px var(--green);
+            animation: blink 2s infinite
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.6
+            }
+        }
+
+        .quota-bar {
+            width: 100px;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden
+        }
+
+        .quota-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--green), var(--cyan));
+            transition: width 0.5s
+        }
+
+        .search-box {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem
+        }
+
+        .search-input {
+            flex: 1;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            color: var(--txt);
+            padding: 1rem;
+            border-radius: 14px;
+            font-size: 1rem;
+            transition: all 0.3s
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--purple);
+            box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.2)
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(244, 114, 182, 0.3)
+        }
+
+        .btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 25px rgba(244, 114, 182, 0.5)
+        }
+
+        .results {
+            background: var(--glass);
+            border-radius: 14px;
+            max-height: 400px;
+            overflow-y: auto
+        }
+
+        .result {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s
+        }
+
+        .result:hover {
+            background: var(--bg2);
+            padding-left: 1.5rem
+        }
+
+        .result:last-child {
+            border-bottom: none
+        }
+
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem
+        }
+
+        .result-meta {
+            font-size: 0.8rem;
+            color: var(--txt2)
+        }
+
+        .tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            background: var(--card);
+            border: 1px solid var(--border)
+        }
+
+        .tag.ai {
+            background: rgba(167, 139, 250, 0.2);
+            color: var(--purple);
+            border-color: var(--purple)
+        }
+
+        .tag.health {
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--green);
+            border-color: var(--green)
+        }
+
+        .health-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem
+        }
+
+        .health-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem;
+            background: var(--glass);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.2s
+        }
+
+        .health-item:hover {
+            border-color: var(--green);
+            transform: translateX(4px)
+        }
+
+        .health-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            background: rgba(74, 222, 128, 0.2)
+        }
+
+        .health-info h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.1rem
+        }
+
+        .health-info span {
+            font-size: 0.75rem;
+            color: var(--txt2)
+        }
+
+        .chart-box {
+            height: 220px;
+            padding: 1rem;
+            background: var(--glass);
+            border-radius: 14px
+        }
+
+        .log-box {
+            background: var(--glass);
+            border-radius: 12px;
+            padding: 1rem;
+            max-height: 250px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.75rem
+        }
+
+        .log {
+            padding: 0.3rem 0;
+            display: flex;
+            gap: 0.75rem;
+            border-bottom: 1px dashed var(--border)
+        }
+
+        .log:last-child {
+            border-bottom: none
+        }
+
+        .log-time {
+            color: var(--txt2);
+            min-width: 70px
+        }
+
+        .log-lvl {
+            font-weight: 600;
+            min-width: 60px
+        }
+
+        .log-lvl.info {
+            color: var(--blue)
+        }
+
+        .log-lvl.success {
+            color: var(--green)
+        }
+
+        .log-lvl.error {
+            color: var(--red)
+        }
+
+        .favs,
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem
+        }
+
+        .fav-item,
+        .tag-item {
+            padding: 0.6rem 1rem;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem
+        }
+
+        .fav-item:hover,
+        .tag-item:hover {
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            border-color: transparent;
+            transform: scale(1.05)
+        }
+
+        .notif-list {
+            max-height: 220px;
+            overflow-y: auto
+        }
+
+        .notif {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.875rem;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s
+        }
+
+        .notif:hover {
+            background: var(--glass);
+            padding-left: 1rem
+        }
+
+        .notif:last-child {
+            border-bottom: none
+        }
+
+        .notif-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            background: rgba(96, 165, 250, 0.2)
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap
+        }
+
+        .quick-actions .btn {
+            flex: 1;
+            min-width: 150px;
+            justify-content: center
+        }
+
+        .icon-btn {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--txt2);
+            transition: all 0.2s
+        }
+
+        .icon-btn:hover {
+            background: var(--purple);
+            color: white;
+            border-color: var(--purple)
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center
+        }
+
+        .modal.show {
+            display: flex
+        }
+
+        .modal-content {
+            background: var(--card);
+            backdrop-filter: var(--blur);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 550px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto
+        }
+
+        .shortcut {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .key {
+            background: var(--bg2);
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            border: 1px solid var(--border)
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2.5rem;
+            color: var(--txt2);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem
+        }
+
+        .footer a {
+            color: var(--blue);
+            text-decoration: none
+        }
+
+        .footer a:hover {
+            color: var(--pink)
+        }
+
+        .chat-msgs {
+            height: 350px;
+            overflow-y: auto;
+            padding: 1rem;
+            background: var(--glass);
+            border-radius: 14px;
+            margin-bottom: 1rem
+        }
+
+        .chat-msg {
+            max-width: 85%;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 0.75rem
+        }
+
+        .chat-msg.user {
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            margin-left: auto
+        }
+
+        .chat-msg.bot {
+            background: var(--card);
+            border: 1px solid var(--border)
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 0.75rem
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg"></div>
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">🧬</div>JARVIS Research OS
+        </div>
+        <nav class="nav">
+            <button class="nav-btn active" onclick="showTab('dash')">📊 Dashboard</button>
+            <button class="nav-btn" onclick="showTab('research')">🔬 Research</button>
+            <button class="nav-btn" onclick="showTab('chat')">🤖 AI Chat</button>
+            <button class="nav-btn" onclick="showTab('settings')">⚙️ Settings</button>
+            <select class="nav-btn" onchange="localStorage.setItem('lang',this.value)">
+                <option value="ja">🇯🇵 日本語</option>
+                <option value="en">🇺🇸 English</option>
+            </select>
+            <button class="icon-btn" onclick="toggleTheme()" title="Theme">🌙</button>
+        </nav>
+    </header>
+    <div class="container">
+        <div class="status-bar">
+            <div class="status-item"><span class="dot"></span>System: Healthy</div>
+            <div class="status-item"><span class="dot"></span>API: Online</div>
+            <div class="status-item" style="display:flex;align-items:center;gap:0.75rem"><span>Gemini:</span>
+                <div class="quota-bar">
+                    <div class="quota-fill" id="quota" style="width:85%"></div>
+                </div><span id="quota-txt">1275/1500</span>
             </div>
-            <span id="gemini-remaining">1275/1500</span>
+            <div class="status-item"><span class="dot"></span>GitHub: ✓</div>
+            <div class="status-item">🕐 Last sync: Just now</div>
         </div>
-        <div class="status-item"><span class="status-dot green"></span>GitHub: ✓</div>
-        <div class="status-item">🕐 Last sync: Just now</div>
-    </div>
-
-    <!-- Dashboard Tab -->
-    <div class="grid" id="tab-dashboard">
-        <!-- Stats -->
-        <div class="card stat-card col-3 animate-in">
-            <div class="stat-icon">📝</div>
-            <div class="stat-value">384</div>
-            <div class="stat-label">PRs Implemented</div>
-            <span class="stat-change up">↑ +12</span>
-        </div>
-        <div class="card stat-card col-3 animate-in">
-            <div class="stat-icon">✅</div>
-            <div class="stat-value">236</div>
-            <div class="stat-label">Tests Passed</div>
-            <span class="stat-change up">↑ +14</span>
-        </div>
-        <div class="card stat-card col-3 animate-in">
-            <div class="stat-icon">🔍</div>
-            <div class="stat-value" id="stat-searches">0</div>
-            <div class="stat-label">Total Searches</div>
-        </div>
-        <div class="card stat-card col-3 animate-in">
-            <div class="stat-icon">📄</div>
-            <div class="stat-value" id="stat-papers">0</div>
-            <div class="stat-label">Papers Found</div>
-        </div>
-
-        <!-- Search -->
-        <div class="card col-8">
-            <div class="card-header">
-                <h3 class="card-title">🔬 Paper Search Pipeline</h3>
-                <div class="card-actions">
-                    <button class="icon-btn" onclick="showShortcuts()" title="Shortcuts">⌨️</button>
-                    <button class="icon-btn" onclick="location.reload()" title="Refresh">🔄</button>
+        <div class="grid" id="tab-dash">
+            <div class="card stat c3">
+                <div class="stat-icon">📝</div>
+                <div class="stat-val">384</div>
+                <div class="stat-lbl">PRs Implemented</div><span class="stat-chg">↑ +12</span>
+            </div>
+            <div class="card stat c3">
+                <div class="stat-icon">✅</div>
+                <div class="stat-val">236</div>
+                <div class="stat-lbl">Tests Passed</div><span class="stat-chg">↑ +14</span>
+            </div>
+            <div class="card stat c3">
+                <div class="stat-icon">🔍</div>
+                <div class="stat-val" id="searches">0</div>
+                <div class="stat-lbl">Total Searches</div>
+            </div>
+            <div class="card stat c3">
+                <div class="stat-icon">📄</div>
+                <div class="stat-val" id="papers">0</div>
+                <div class="stat-lbl">Papers Found</div>
+            </div>
+            <div class="card c8">
+                <div class="card-header">
+                    <h3 class="card-title">🔬 Paper Search Pipeline</h3>
+                    <div class="card-actions"><button class="icon-btn" onclick="showModal('shortcuts')"
+                            title="Shortcuts">⌨️</button><button class="icon-btn" onclick="location.reload()"
+                            title="Refresh">🔄</button></div>
+                </div>
+                <div class="search-box"><input type="text" class="search-input" id="query"
+                        placeholder="🔍 Search papers... (e.g., COVID-19 treatment)"><button class="btn" id="search-btn"
+                        onclick="runSearch()">🔍 Search</button></div>
+                <div class="results" id="results">
+                    <div style="padding:2rem;text-align:center;color:var(--txt2)">💡 Enter a query and press Search or
+                        <kbd class="key">Ctrl+Enter</kbd></div>
                 </div>
             </div>
-            <div class="search-container">
-                <input type="text" class="search-input" id="search-query"
-                    placeholder="🔍 Search papers... (e.g., COVID-19 treatment)">
-                <button class="search-btn" id="search-btn" onclick="runSearch()">🔍 Search</button>
-            </div>
-            <div class="results-area" id="results-area">
-                <div style="padding:2rem;text-align:center;color:var(--text-secondary)">💡 Enter a query and press
-                    Search or <kbd class="key">Ctrl+Enter</kbd></div>
-            </div>
-        </div>
-
-        <!-- Health -->
-        <div class="card col-4">
-            <div class="card-header">
-                <h3 class="card-title">💚 System Health</h3>
-            </div>
-            <div class="health-grid">
-                <div class="health-item">
-                    <div class="health-icon green">🖥️</div>
-                    <div class="health-info">
-                        <h4>API Server</h4><span>Healthy • 99.9%</span>
+            <div class="card c4">
+                <div class="card-header">
+                    <h3 class="card-title">💚 System Health</h3>
+                </div>
+                <div class="health-grid">
+                    <div class="health-item">
+                        <div class="health-icon">🖥️</div>
+                        <div class="health-info">
+                            <h4>API Server</h4><span>Healthy • 99.9%</span>
+                        </div>
+                    </div>
+                    <div class="health-item">
+                        <div class="health-icon">📊</div>
+                        <div class="health-info">
+                            <h4>Dashboard</h4><span>Online • v4.4</span>
+                        </div>
+                    </div>
+                    <div class="health-item">
+                        <div class="health-icon">⚡</div>
+                        <div class="health-info">
+                            <h4>Actions</h4><span>13 workflows</span>
+                        </div>
+                    </div>
+                    <div class="health-item">
+                        <div class="health-icon">🧪</div>
+                        <div class="health-info">
+                            <h4>Tests</h4><span>236 passed</span>
+                        </div>
                     </div>
                 </div>
-                <div class="health-item">
-                    <div class="health-icon green">📊</div>
-                    <div class="health-info">
-                        <h4>Dashboard</h4><span>Online • v4.4</span>
-                    </div>
+            </div>
+            <div class="card c6">
+                <div class="card-header">
+                    <h3 class="card-title">📈 Search Activity (7 days)</h3>
                 </div>
-                <div class="health-item">
-                    <div class="health-icon green">⚡</div>
-                    <div class="health-info">
-                        <h4>Actions</h4><span>13 workflows</span>
-                    </div>
+                <div class="chart-box"><canvas id="chart"></canvas></div>
+            </div>
+            <div class="card c6">
+                <div class="card-header">
+                    <h3 class="card-title">📜 Real-time Logs</h3><button class="icon-btn"
+                        onclick="clearLogs()">🗑️</button>
                 </div>
-                <div class="health-item">
-                    <div class="health-icon green">🧪</div>
-                    <div class="health-info">
-                        <h4>Tests</h4><span>236 passed</span>
-                    </div>
+                <div class="log-box" id="logs">
+                    <div class="log"><span class="log-time">--:--:--</span><span
+                            class="log-lvl success">[OK]</span><span>Dashboard initialized</span></div>
                 </div>
             </div>
-        </div>
-
-        <!-- Chart -->
-        <div class="card col-6">
-            <div class="card-header">
-                <h3 class="card-title">📈 Search Activity (7 days)</h3>
-            </div>
-            <div class="chart-container"><canvas id="activity-chart"></canvas></div>
-        </div>
-
-        <!-- Logs -->
-        <div class="card col-6">
-            <div class="card-header">
-                <h3 class="card-title">📜 Real-time Logs</h3>
-                <button class="icon-btn" onclick="clearLogs()">🗑️</button>
-            </div>
-            <div class="log-container" id="log-container">
-                <div class="log-entry"><span class="log-time">--:--:--</span><span
-                        class="log-level success">[OK]</span><span>Dashboard initialized</span></div>
-            </div>
-        </div>
-
-        <!-- Favorites -->
-        <div class="card col-4">
-            <div class="card-header">
-                <h3 class="card-title">⭐ Favorites</h3>
-            </div>
-            <div class="favorites-list">
-                <div class="favorite-item" onclick="setQuery('COVID-19 treatment')">💉 COVID-19</div>
-                <div class="favorite-item" onclick="setQuery('machine learning healthcare')">🤖 ML Healthcare</div>
-                <div class="favorite-item" onclick="setQuery('cancer immunotherapy')">🧬 Immunotherapy</div>
-                <div class="favorite-item" onclick="setQuery('AI drug discovery')">💊 Drug Discovery</div>
-            </div>
-        </div>
-
-        <!-- Tags -->
-        <div class="card col-4">
-            <div class="card-header">
-                <h3 class="card-title">🏷️ Popular Tags</h3>
-            </div>
-            <div class="tags-list">
-                <div class="tag-item" onclick="setQuery('AI')">🤖 AI</div>
-                <div class="tag-item" onclick="setQuery('cancer')">🎗️ Cancer</div>
-                <div class="tag-item" onclick="setQuery('diabetes')">💉 Diabetes</div>
-                <div class="tag-item" onclick="setQuery('genomics')">🧬 Genomics</div>
-                <div class="tag-item" onclick="setQuery('neuroscience')">🧠 Neuro</div>
-            </div>
-        </div>
-
-        <!-- Notifications -->
-        <div class="card col-4">
-            <div class="card-header">
-                <h3 class="card-title">🔔 Notifications</h3>
-                <span
-                    style="background:var(--accent-red);padding:0.2rem 0.5rem;border-radius:10px;font-size:0.7rem">3</span>
-            </div>
-            <div class="notification-list">
-                <div class="notification-item">
-                    <div class="notification-icon paper">📄</div>
-                    <div><strong>5 new papers</strong>
-                        <p style="font-size:0.75rem;color:var(--text-secondary)">AI Healthcare - 2 min ago</p>
-                    </div>
+            <div class="card c4">
+                <div class="card-header">
+                    <h3 class="card-title">⭐ Favorites</h3>
                 </div>
-                <div class="notification-item">
-                    <div class="notification-icon success">✅</div>
-                    <div><strong>Pipeline done</strong>
-                        <p style="font-size:0.75rem;color:var(--text-secondary)">42 papers - 1h ago</p>
-                    </div>
+                <div class="favs">
+                    <div class="fav-item" onclick="setQuery('COVID-19 treatment')">💉 COVID-19</div>
+                    <div class="fav-item" onclick="setQuery('machine learning healthcare')">🤖 ML Healthcare</div>
+                    <div class="fav-item" onclick="setQuery('cancer immunotherapy')">🧬 Immunotherapy</div>
                 </div>
-                <div class="notification-item">
-                    <div class="notification-icon alert">⚠️</div>
-                    <div><strong>Quota low</strong>
-                        <p style="font-size:0.75rem;color:var(--text-secondary)">15% remaining</p>
+            </div>
+            <div class="card c4">
+                <div class="card-header">
+                    <h3 class="card-title">🏷️ Popular Tags</h3>
+                </div>
+                <div class="tag-list">
+                    <div class="tag-item" onclick="setQuery('AI')">🤖 AI</div>
+                    <div class="tag-item" onclick="setQuery('cancer')">🎗️ Cancer</div>
+                    <div class="tag-item" onclick="setQuery('diabetes')">💉 Diabetes</div>
+                    <div class="tag-item" onclick="setQuery('genomics')">🧬 Genomics</div>
+                </div>
+            </div>
+            <div class="card c4">
+                <div class="card-header">
+                    <h3 class="card-title">🔔 Notifications</h3><span
+                        style="background:var(--red);padding:0.2rem 0.5rem;border-radius:10px;font-size:0.7rem">3</span>
+                </div>
+                <div class="notif-list">
+                    <div class="notif">
+                        <div class="notif-icon">📄</div>
+                        <div><strong>5 new papers</strong>
+                            <p style="font-size:0.75rem;color:var(--txt2)">AI Healthcare - 2 min ago</p>
+                        </div>
+                    </div>
+                    <div class="notif">
+                        <div class="notif-icon" style="background:rgba(74,222,128,0.2)">✅</div>
+                        <div><strong>Pipeline done</strong>
+                            <p style="font-size:0.75rem;color:var(--txt2)">42 papers - 1h ago</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="card col-12">
-            <div class="card-header">
-                <h3 class="card-title">⚡ Quick Actions</h3>
-            </div>
-            <div class="quick-actions">
-                <button class="btn" onclick="generateReport()"
-                    style="background:linear-gradient(135deg,var(--accent-green),var(--accent-cyan))">📝
-                    Report</button>
-                <button class="btn" onclick="summarizeResults()"
-                    style="background:linear-gradient(135deg,var(--accent-purple),var(--accent-pink))">🤖 AI
-                    Summarize</button>
-                <button class="btn" onclick="exportData()"
-                    style="background:linear-gradient(135deg,var(--accent-blue),var(--accent-cyan))">📥
-                    Export</button>
-                <button class="btn" onclick="runPipeline()"
-                    style="background:linear-gradient(135deg,var(--accent-yellow),#f97316)">🚀 Run Pipeline</button>
-                <button class="btn btn-secondary" onclick="window.open('api.html')">📡 API Docs</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Research Tab -->
-    <div class="grid" id="tab-research" style="display:none">
-        <div class="card col-12">
-            <div class="card-header">
-                <h3 class="card-title">🔬 Research Tools</h3>
-            </div>
-            <p style="color:var(--text-secondary);padding:1rem">Citation networks, author analysis, trend detection
-                - coming soon...</p>
-        </div>
-    </div>
-
-    <!-- Chat Tab -->
-    <div class="grid" id="tab-chat" style="display:none">
-        <div class="card col-8">
-            <div class="card-header">
-                <h3 class="card-title">🤖 AI Research Assistant</h3>
-            </div>
-            <div class="chat-messages" id="chat-messages">
-                <div class="chat-message assistant">👋 Hi! I'm JARVIS. Ask me anything about research!</div>
-            </div>
-            <div class="chat-input-area">
-                <input type="text" class="search-input" id="chat-input" placeholder="Ask me anything..."
-                    onkeypress="if(event.key==='Enter')sendChat()">
-                <button class="btn" onclick="sendChat()">Send</button>
-            </div>
-        </div>
-        <div class="card col-4">
-            <div class="card-header">
-                <h3 class="card-title">💡 Suggested</h3>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:0.5rem">
-                <button class="nav-btn" onclick="askQuestion('Summarize COVID-19 research')">Summarize
-                    COVID</button>
-                <button class="nav-btn" onclick="askQuestion('AI healthcare trends')">AI trends</button>
-                <button class="nav-btn" onclick="askQuestion('ML paper recommendations')">ML papers</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Settings Tab -->
-    <div class="grid" id="tab-settings" style="display:none">
-        <div class="card col-6">
-            <div class="card-header">
-                <h3 class="card-title">⚙️ Settings</h3>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:1rem">
-                <label style="display:flex;justify-content:space-between"><span>Dark Mode</span><input type="checkbox"
-                        checked onchange="toggleTheme()"></label>
-                <label style="display:flex;justify-content:space-between"><span>Notifications</span><input
-                        type="checkbox" checked></label>
-                <label style="display:flex;justify-content:space-between"><span>Auto-sync</span><input type="checkbox"
-                        checked></label>
-            </div>
-        </div>
-        <div class="card col-6">
-            <div class="card-header">
-                <h3 class="card-title">🔗 Integrations</h3>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:0.75rem">
-                <div
-                    style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;background:var(--bg-glass);border-radius:8px">
-                    <span>📱 Slack</span><button class="nav-btn">Connect</button>
+            <div class="card c12">
+                <div class="card-header">
+                    <h3 class="card-title">⚡ Quick Actions</h3>
                 </div>
-                <div
-                    style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;background:var(--bg-glass);border-radius:8px">
-                    <span>📝 Notion</span><button class="nav-btn">Connect</button>
+                <div class="quick-actions"><button class="btn" onclick="toast('Report generated!','success')"
+                        style="background:linear-gradient(135deg,var(--green),var(--cyan))">📝 Report</button><button
+                        class="btn" onclick="toast('AI summarizing...','info')">🤖 AI Summarize</button><button
+                        class="btn" onclick="exportData()"
+                        style="background:linear-gradient(135deg,var(--blue),var(--cyan))">📥 Export</button><button
+                        class="btn" onclick="window.open('https://github.com/kaneko-ai/jarvis-ml-pipeline/actions')"
+                        style="background:linear-gradient(135deg,var(--yellow),#f97316)">🚀 Run Pipeline</button><button
+                        class="btn" onclick="window.open('api.html')" style="background:#4b5563">📡 API Docs</button>
                 </div>
-                <div
-                    style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;background:var(--bg-glass);border-radius:8px">
-                    <span>🐙 GitHub</span><span style="color:var(--accent-green)">✓ Connected</span>
+            </div>
+        </div>
+        <div class="grid" id="tab-research" style="display:none">
+            <div class="card c12">
+                <div class="card-header">
+                    <h3 class="card-title">🔬 Research Tools</h3>
+                </div>
+                <p style="color:var(--txt2);padding:1rem">Citation networks, author analysis, trend detection - coming
+                    soon...</p>
+            </div>
+        </div>
+        <div class="grid" id="tab-chat" style="display:none">
+            <div class="card c8">
+                <div class="card-header">
+                    <h3 class="card-title">🤖 AI Research Assistant</h3>
+                </div>
+                <div class="chat-msgs" id="chat-msgs">
+                    <div class="chat-msg bot">👋 Hi! I'm JARVIS. Ask me anything about research!</div>
+                </div>
+                <div class="chat-input"><input type="text" class="search-input" id="chat-in"
+                        placeholder="Ask me anything..." onkeypress="if(event.key==='Enter')sendChat()"><button
+                        class="btn" onclick="sendChat()">Send</button></div>
+            </div>
+            <div class="card c4">
+                <div class="card-header">
+                    <h3 class="card-title">💡 Suggested</h3>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:0.5rem"><button class="nav-btn"
+                        onclick="askQ('Summarize COVID-19 research')">Summarize COVID</button><button class="nav-btn"
+                        onclick="askQ('AI healthcare trends')">AI trends</button><button class="nav-btn"
+                        onclick="askQ('ML paper recommendations')">ML papers</button></div>
+            </div>
+        </div>
+        <div class="grid" id="tab-settings" style="display:none">
+            <div class="card c6">
+                <div class="card-header">
+                    <h3 class="card-title">⚙️ Settings</h3>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:1rem"><label
+                        style="display:flex;justify-content:space-between"><span>Dark Mode</span><input type="checkbox"
+                            checked onchange="toggleTheme()"></label><label
+                        style="display:flex;justify-content:space-between"><span>Notifications</span><input
+                            type="checkbox" checked></label></div>
+            </div>
+            <div class="card c6">
+                <div class="card-header">
+                    <h3 class="card-title">🔗 Integrations</h3>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:0.75rem">
+                    <div
+                        style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;background:var(--glass);border-radius:8px">
+                        <span>📱 Slack</span><button class="nav-btn">Connect</button></div>
+                    <div
+                        style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;background:var(--glass);border-radius:8px">
+                        <span>🐙 GitHub</span><span style="color:var(--green)">✓ Connected</span></div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<!-- Shortcuts Modal -->
-<div class="modal" id="shortcuts-modal">
-    <div class="modal-content glass">
-        <div class="card-header">
-            <h3 class="card-title">⌨️ Keyboard Shortcuts</h3><button class="icon-btn"
-                onclick="hideShortcuts()">✕</button>
+    <div class="modal" id="shortcuts">
+        <div class="modal-content">
+            <div class="card-header">
+                <h3 class="card-title">⌨️ Keyboard Shortcuts</h3><button class="icon-btn"
+                    onclick="hideModal('shortcuts')">✕</button>
+            </div>
+            <div class="shortcut"><span>Search</span><span class="key">Ctrl+K</span></div>
+            <div class="shortcut"><span>Run Search</span><span class="key">Ctrl+Enter</span></div>
+            <div class="shortcut"><span>Dashboard</span><span class="key">1</span></div>
+            <div class="shortcut"><span>Research</span><span class="key">2</span></div>
+            <div class="shortcut"><span>Chat</span><span class="key">3</span></div>
+            <div class="shortcut"><span>Settings</span><span class="key">4</span></div>
+            <div class="shortcut"><span>Toggle Theme</span><span class="key">T</span></div>
         </div>
-        <div class="shortcut-item"><span>Search</span><span class="key">Ctrl+K</span></div>
-        <div class="shortcut-item"><span>Run Search</span><span class="key">Ctrl+Enter</span></div>
-        <div class="shortcut-item"><span>Dashboard</span><span class="key">1</span></div>
-        <div class="shortcut-item"><span>Research</span><span class="key">2</span></div>
-        <div class="shortcut-item"><span>Chat</span><span class="key">3</span></div>
-        <div class="shortcut-item"><span>Settings</span><span class="key">4</span></div>
-        <div class="shortcut-item"><span>Toggle Theme</span><span class="key">T</span></div>
-        <div class="shortcut-item"><span>Show Shortcuts</span><span class="key">?</span></div>
     </div>
-</div>
+    <footer class="footer">
+        <p>JARVIS Research OS v4.4.0 | <a href="https://github.com/kaneko-ai/jarvis-ml-pipeline">GitHub</a> | <a
+                href="api.html">API</a></p>
+        <p>© 2024 kaneko-ai | Built with 💜</p>
+    </footer>
+    <div id="toast-box"
+        style="position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem"></div>
+    <script>
+        let state = { searches: +(localStorage.getItem('searches') || 0), papers: +(localStorage.getItem('papers') || 0), quota: 1275 };
+        document.addEventListener('DOMContentLoaded', () => { updateStats(); initChart(); setupKeys(); addLog('success', 'Dashboard loaded'); setInterval(() => { if (Math.random() > 0.7) addLog('info', ['Health check passed', 'Synced with GitHub', 'Cache refreshed'][Math.floor(Math.random() * 3)]) }, 8000) });
+        function updateStats() { document.getElementById('searches').textContent = state.searches; document.getElementById('papers').textContent = state.papers }
+        function showTab(t) { ['dash', 'research', 'chat', 'settings'].forEach(x => { const e = document.getElementById('tab-' + x); if (e) e.style.display = x === t ? 'grid' : 'none' }); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); event?.target?.classList?.add('active') }
+        function setQuery(q) { document.getElementById('query').value = q; document.getElementById('query').focus() }
+        async function runSearch() { const q = document.getElementById('query').value.trim(); if (!q) return toast('Please enter a query', 'error'); const btn = document.getElementById('search-btn'), res = document.getElementById('results'); btn.disabled = true; btn.innerHTML = '⏳ Searching...'; res.innerHTML = '<div style="padding:2rem;text-align:center"><div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto"></div><p style="margin-top:1rem;color:var(--txt2)">Searching PubMed...</p></div>'; addLog('info', `Searching: "${q}"`); await new Promise(r => setTimeout(r, 1200)); const data = [{ t: `Novel approaches to ${q}`, a: 'Smith J, et al.', y: 2024, id: '39' + Math.floor(Math.random() * 1e6), tags: ['ai'] }, { t: `Clinical review of ${q}`, a: 'Johnson A, et al.', y: 2024, id: '39' + Math.floor(Math.random() * 1e6), tags: ['health'] }, { t: `Advances in ${q} research`, a: 'Williams B, et al.', y: 2023, id: '38' + Math.floor(Math.random() * 1e6), tags: ['ai'] }, { t: `${q}: A comprehensive study`, a: 'Brown C, et al.', y: 2024, id: '39' + Math.floor(Math.random() * 1e6), tags: ['health', 'ai'] }, { t: `Machine learning for ${q}`, a: 'Davis D, et al.', y: 2024, id: '39' + Math.floor(Math.random() * 1e6), tags: ['ai'] }]; state.searches++; state.papers += data.length; state.quota--; localStorage.setItem('searches', state.searches); localStorage.setItem('papers', state.papers); updateStats(); document.getElementById('quota').style.width = (state.quota / 1500 * 100) + '%'; document.getElementById('quota-txt').textContent = state.quota + '/1500'; res.innerHTML = data.map(r => `<div class="result" onclick="window.open('https://pubmed.ncbi.nlm.nih.gov/${r.id}','_blank')"><div class="result-title">📄 ${r.t} <span style="margin-left:auto;cursor:pointer" onclick="event.stopPropagation();toast('Added to favorites','success')">⭐</span></div><div class="result-meta">${r.a} • ${r.y} • PMID: ${r.id}</div><div class="tags">${r.tags.map(t => `<span class="tag ${t}">${t.toUpperCase()}</span>`).join('')}</div></div>`).join(''); btn.disabled = false; btn.innerHTML = '🔍 Search'; addLog('success', `Found ${data.length} papers`); toast(`Found ${data.length} papers!`, 'success') }
+        function addLog(lvl, msg) { const c = document.getElementById('logs'), t = new Date().toLocaleTimeString('ja-JP', { hour12: false }); c.innerHTML += `<div class="log"><span class="log-time">${t}</span><span class="log-lvl ${lvl}">[${lvl.toUpperCase()}]</span><span>${msg}</span></div>`; c.scrollTop = c.scrollHeight }
+        function clearLogs() { document.getElementById('logs').innerHTML = ''; addLog('info', 'Logs cleared') }
+        function toast(msg, type = 'info') { const box = document.getElementById('toast-box'), t = document.createElement('div'); t.style.cssText = `background:var(--card);backdrop-filter:var(--blur);border:1px solid var(--border);padding:1rem 1.5rem;border-radius:12px;display:flex;align-items:center;gap:0.75rem;box-shadow:0 8px 32px rgba(0,0,0,0.4);border-left:4px solid var(--${type === 'success' ? 'green' : type === 'error' ? 'red' : 'blue'});animation:slideIn 0.3s ease`; t.innerHTML = `<span>${{ success: '✅', error: '❌', info: 'ℹ️' }[type]}</span><span>${msg}</span>`; box.appendChild(t); setTimeout(() => t.remove(), 3000) }
+        function initChart() { const ctx = document.getElementById('chart')?.getContext?.('2d'); if (!ctx || typeof Chart === 'undefined') return; new Chart(ctx, { type: 'line', data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ label: 'Searches', data: [12, 19, 8, 25, 15, 30, 22], borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.1)', fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0a0c0' } }, x: { grid: { display: false }, ticks: { color: '#a0a0c0' } } } } }) }
+        function exportData() { const d = { stats: { searches: state.searches, papers: state.papers } }, b = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'jarvis_export.json'; a.click(); toast('Data exported!', 'success') }
+        async function sendChat() { const i = document.getElementById('chat-in'), m = document.getElementById('chat-msgs'), t = i.value.trim(); if (!t) return; m.innerHTML += `<div class="chat-msg user">${t}</div>`; i.value = ''; m.scrollTop = m.scrollHeight; await new Promise(r => setTimeout(r, 800)); const r = [`I found relevant papers about "${t}". Would you like a summary?`, `Based on "${t}", here are key findings from recent research...`, `Great topic! Let me search for the latest publications on "${t}".`]; m.innerHTML += `<div class="chat-msg bot">${r[Math.floor(Math.random() * r.length)]}</div>`; m.scrollTop = m.scrollHeight }
+        function askQ(q) { document.getElementById('chat-in').value = q; showTab('chat'); sendChat() }
+        function setupKeys() { document.addEventListener('keydown', e => { if (e.ctrlKey && e.key === 'k') { e.preventDefault(); document.getElementById('query')?.focus() } if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); runSearch() } if (e.key === 'Escape') hideModal('shortcuts'); if (!e.ctrlKey && !e.altKey && document.activeElement.tagName !== 'INPUT') { if (e.key === '1') showTab('dash'); if (e.key === '2') showTab('research'); if (e.key === '3') showTab('chat'); if (e.key === '4') showTab('settings'); if (e.key.toLowerCase() === 't') toggleTheme(); if (e.key === '?') showModal('shortcuts') } }) }
+        function showModal(id) { document.getElementById(id)?.classList.add('show') }
+        function hideModal(id) { document.getElementById(id)?.classList.remove('show') }
+        function toggleTheme() { document.body.classList.toggle('light-mode'); toast('Theme changed!', 'info') }
+    </script>
+    <style>
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
 
-<footer class="footer">
-    <p>JARVIS Research OS v4.4.0 | <a href="https://github.com/kaneko-ai/jarvis-ml-pipeline">GitHub</a> | <a
-            href="api.html">API</a></p>
-    <p>© 2024 kaneko-ai | Built with 💜</p>
-</footer>
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0
+            }
 
-<script src="jarvis.js"></script>
+            to {
+                transform: translateX(0);
+                opacity: 1
+            }
+        }
+
+        .light-mode {
+            --bg: #f0f4f8;
+            --bg2: #e2e8f0;
+            --card: rgba(255, 255, 255, 0.8);
+            --glass: rgba(0, 0, 0, 0.02);
+            --txt: #1e293b;
+            --txt2: #64748b;
+            --border: rgba(0, 0, 0, 0.1)
+        }
+    </style>
 </body>
 
 </html>
