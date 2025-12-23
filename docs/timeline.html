@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS Timeline</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a1a;
+            --card: rgba(26, 26, 62, 0.8);
+            --glass: rgba(255, 255, 255, 0.05);
+            --txt: #fff;
+            --txt2: #a0a0c0;
+            --pink: #f472b6;
+            --blue: #60a5fa;
+            --green: #4ade80;
+            --purple: #a78bfa;
+            --border: rgba(255, 255, 255, 0.1)
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--txt);
+            min-height: 100vh;
+            padding: 2rem
+        }
+
+        .bg {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 20% 20%, rgba(167, 139, 250, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(244, 114, 182, 0.15) 0%, transparent 50%);
+            z-index: -1
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, var(--purple), var(--pink), var(--blue));
+            border-radius: 2px
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 2rem
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 0.5rem;
+            width: 16px;
+            height: 16px;
+            background: var(--purple);
+            border-radius: 50%;
+            border: 3px solid var(--bg);
+            z-index: 1
+        }
+
+        .timeline-item.green::before {
+            background: var(--green)
+        }
+
+        .timeline-item.pink::before {
+            background: var(--pink)
+        }
+
+        .timeline-item.blue::before {
+            background: var(--blue)
+        }
+
+        .timeline-date {
+            font-size: 0.8rem;
+            color: var(--purple);
+            font-weight: 600;
+            margin-bottom: 0.5rem
+        }
+
+        .timeline-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            transition: all 0.3s
+        }
+
+        .timeline-card:hover {
+            border-color: var(--purple);
+            transform: translateX(8px)
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem
+        }
+
+        .timeline-desc {
+            font-size: 0.85rem;
+            color: var(--txt2);
+            line-height: 1.6
+        }
+
+        .timeline-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 15px;
+            background: var(--glass);
+            border: 1px solid var(--border)
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: var(--txt2);
+            font-size: 0.85rem
+        }
+
+        .footer a {
+            color: var(--blue);
+            text-decoration: none
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg"></div>
+    <h1>📅 Research Timeline</h1>
+    <div class="container">
+        <div class="timeline">
+            <div class="timeline-item green">
+                <div class="timeline-date">December 23, 2024</div>
+                <div class="timeline-card">
+                    <div class="timeline-title">✅ Completed: COVID-19 ML Analysis</div>
+                    <div class="timeline-desc">Finished comprehensive analysis of machine learning applications in
+                        COVID-19 treatment prediction. Identified 5 key papers for deep review.</div>
+                    <div class="timeline-tags"><span class="tag">AI</span><span class="tag">COVID-19</span><span
+                            class="tag">Completed</span></div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-date">December 22, 2024</div>
+                <div class="timeline-card">
+                    <div class="timeline-title">📖 Reading: Transformer Protein Models</div>
+                    <div class="timeline-desc">Started reading the AlphaFold3 paper and related work on transformer
+                        architectures for protein structure prediction.</div>
+                    <div class="timeline-tags"><span class="tag">AI</span><span class="tag">Protein</span></div>
+                </div>
+            </div>
+            <div class="timeline-item pink">
+                <div class="timeline-date">December 21, 2024</div>
+                <div class="timeline-card">
+                    <div class="timeline-title">🔍 Search: Drug Discovery ML</div>
+                    <div class="timeline-desc">Conducted extensive literature search on machine learning for drug
+                        discovery. Found 42 relevant papers across PubMed and arXiv.</div>
+                    <div class="timeline-tags"><span class="tag">Search</span><span class="tag">Drug Discovery</span>
+                    </div>
+                </div>
+            </div>
+            <div class="timeline-item blue">
+                <div class="timeline-date">December 20, 2024</div>
+                <div class="timeline-card">
+                    <div class="timeline-title">📊 Analysis: Citation Network</div>
+                    <div class="timeline-desc">Generated citation network visualization for immunotherapy papers.
+                        Identified 3 highly influential hub papers.</div>
+                    <div class="timeline-tags"><span class="tag">Analysis</span><span class="tag">Immunotherapy</span>
+                    </div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-date">December 19, 2024</div>
+                <div class="timeline-card">
+                    <div class="timeline-title">📥 Added: 15 Papers to Library</div>
+                    <div class="timeline-desc">Imported papers from latest Nature and Science issues. Tagged and
+                        organized into research categories.</div>
+                    <div class="timeline-tags"><span class="tag">Import</span><span class="tag">Organization</span>
+                    </div>
+                </div>
+            </div>
+            <div class="timeline-item green">
+                <div class="timeline-date">December 18, 2024</div>
+                <div class="timeline-card">
+                    <div class="timeline-title">✅ Milestone: 100 Papers Reviewed</div>
+                    <div class="timeline-desc">Reached milestone of 100 papers reviewed since starting the project.
+                        Average reading time improved by 20%.</div>
+                    <div class="timeline-tags"><span class="tag">Milestone</span></div>
+                </div>
+            </div>
+            <div class="timeline-item pink">
+                <div class="timeline-date">December 17, 2024</div>
+                <div class="timeline-card">
+                    <div class="timeline-title">🤖 AI Summary: Cancer Genomics</div>
+                    <div class="timeline-desc">Used AI to generate summaries for 8 cancer genomics papers. Saved
+                        approximately 4 hours of reading time.</div>
+                    <div class="timeline-tags"><span class="tag">AI</span><span class="tag">Summary</span><span
+                            class="tag">Genomics</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <p><a href="index.html">← Dashboard</a> | <a href="kanban.html">Kanban Board</a> | <a
+                href="research.html">Research Tools</a></p>
+    </div>
+</body>
+
+</html>
