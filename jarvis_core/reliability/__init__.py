@@ -29,6 +29,16 @@ from .rate_limiter import (
     RateLimitError,
     rate_limit,
 )
+from .disaster_recovery import (
+    DisasterRecoveryManager,
+    BackupConfig,
+    BackupMetadata,
+    RestoreResult,
+    BackupType,
+    RecoveryPointObjective,
+    RecoveryTimeObjective,
+    get_dr_manager,
+)
 
 __all__ = [
     "CircuitBreaker",
@@ -53,5 +63,15 @@ __all__ = [
     "TokenBucket",
     "RateLimitError",
     "rate_limit",
+    # Disaster Recovery
+    "DisasterRecoveryManager",
+    "BackupConfig",
+    "BackupMetadata",
+    "RestoreResult",
+    "BackupType",
+    "RecoveryPointObjective",
+    "RecoveryTimeObjective",
+    "get_dr_manager",
 ]
+
 
