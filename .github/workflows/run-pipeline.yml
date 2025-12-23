@@ -16,7 +16,7 @@ on:
       notify:
         description: 'Create GitHub Issue with results'
         required: false
-        default: 'true'
+        default: true
         type: boolean
 
 permissions:
