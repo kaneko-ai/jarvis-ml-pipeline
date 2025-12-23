@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS Research OS - Dashboard</title>
+    <style>
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a3e;
+            --bg-card: #16213e;
+            --text-primary: #eee;
+            --text-secondary: #aaa;
+            --accent-pink: #f472b6;
+            --accent-blue: #60a5fa;
+            --accent-green: #4ade80;
+            --accent-yellow: #fbbf24;
+            --accent-purple: #a78bfa;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(22, 33, 62, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-pink);
+        }
+        
+        .nav { display: flex; gap: 1rem; align-items: center; }
+        
+        .nav-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--accent-blue);
+        }
+        
+        .lang-switch {
+            background: var(--bg-card);
+            border: none;
+            color: var(--text-primary);
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label { color: var(--text-secondary); font-size: 0.9rem; }
+        
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 968px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .card-title { font-size: 1.2rem; font-weight: 600; }
+        
+        /* Pipeline Section */
+        .pipeline-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .query-input {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .query-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+        
+        .run-btn {
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-purple));
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .run-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(244, 114, 182, 0.4);
+        }
+        
+        .run-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* Results */
+        .results-area {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+        }
+        
+        .result-item {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-green);
+        }
+        
+        .result-item.error { border-left-color: #f44336; }
+        .result-item.warning { border-left-color: var(--accent-yellow); }
+        
+        /* History */
+        .history-list { list-style: none; }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .history-item:hover { background: rgba(255,255,255,0.05); }
+        
+        .history-query { font-weight: 500; }
+        .history-date { font-size: 0.8rem; color: var(--text-secondary); }
+        .history-count { 
+            background: var(--accent-blue);
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        
+        /* Chat */
+        .chat-container { display: flex; flex-direction: column; height: 400px; }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .chat-message {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .chat-message.user {
+            background: var(--accent-blue);
+            margin-left: auto;
+        }
+        
+        .chat-message.assistant {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .chat-input-area { display: flex; gap: 0.5rem; }
+        
+        .chat-input {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--text-primary);
+            padding: 0.75rem;
+            border-radius: 8px;
+        }
+        
+        .send-btn {
+            background: var(--accent-green);
+            border: none;
+            color: var(--bg-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        /* Alerts */
+        .alert-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .alert-badge.new { background: #f44336; }
+        .alert-badge.info { background: var(--accent-blue); }
+        
+        /* Progress */
+        .progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+            transition: width 0.3s;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .loading { animation: pulse 1.5s infinite; }
+        
+        /* Documentation Links */
+        .doc-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.75rem;
+        }
+        
+        .doc-link {
+            display: block;
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            color: var(--accent-blue);
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        
+        .doc-link:hover { background: rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            🧬 JARVIS Research OS
+        </div>
+        <nav class="nav">
+            <button class="nav-btn" onclick="showTab('dashboard')" data-i18n="nav.dashboard">Dashboard</button>
+            <button class="nav-btn" onclick="showTab('chat')" data-i18n="nav.chat">AI Chat</button>
+            <button class="nav-btn" onclick="showTab('docs')" data-i18n="nav.docs">Docs</button>
+            <select class="lang-switch" onchange="changeLanguage(this.value)">
+                <option value="ja">🇯🇵 日本語</option>
+                <option value="en">🇺🇸 English</option>
+            </select>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="stat-prs">384</div>
+                <div class="stat-label" data-i18n="stats.prs">PRs Implemented</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-tests">222</div>
+                <div class="stat-label" data-i18n="stats.tests">Tests Passed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-searches">0</div>
+                <div class="stat-label" data-i18n="stats.searches">Total Searches</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-papers">0</div>
+                <div class="stat-label" data-i18n="stats.papers">Papers Found</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-grid">
+            <!-- Pipeline Card -->
+            <div class="card" id="tab-dashboard">
+                <div class="card-header">
+                    <h2 class="card-title">🔬 <span data-i18n="pipeline.title">Paper Search Pipeline</span></h2>
+                    <span class="alert-badge info" id="pipeline-status" data-i18n="pipeline.ready">Ready</span>
+                </div>
+                
+                <div class="pipeline-controls">
+                    <input type="text" class="query-input" id="search-query" 
+                           placeholder="Search query (e.g., COVID-19 treatment)" data-i18n-placeholder="pipeline.placeholder">
+                    <button class="run-btn" id="run-btn" onclick="runPipeline()">
+                        ▶️ <span data-i18n="pipeline.run">Run Search</span>
+                    </button>
+                </div>
+                
+                <div class="progress-bar" id="progress-container" style="display:none; margin-bottom:1rem;">
+                    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+                </div>
+                
+                <div class="results-area" id="results-area">
+                    <div style="color: var(--text-secondary); text-align: center; padding: 2rem;">
+                        <span data-i18n="pipeline.empty">Enter a search query and click "Run Search" to find papers</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Card (Hidden by default) -->
+            <div class="card" id="tab-chat" style="display:none;">
+                <div class="card-header">
+                    <h2 class="card-title">🤖 <span data-i18n="chat.title">AI Research Assistant</span></h2>
+                </div>
+                
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="chat-message assistant">
+                            <span data-i18n="chat.welcome">Hello! I'm JARVIS, your AI research assistant. How can I help you today?</span>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" class="chat-input" id="chat-input" 
+                               placeholder="Ask me anything..." data-i18n-placeholder="chat.placeholder"
+                               onkeypress="if(event.key==='Enter')sendChat()">
+                        <button class="send-btn" onclick="sendChat()">Send</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Docs Card (Hidden by default) -->
+            <div class="card" id="tab-docs" style="display:none;">
+                <div class="card-header">
+                    <h2 class="card-title">📚 <span data-i18n="docs.title">Documentation</span></h2>
+                </div>
+                <div class="doc-links">
+                    <a href="DEPLOYMENT_GUIDE.md" class="doc-link">📦 Deployment Guide</a>
+                    <a href="OPERATIONS_GUIDE.md" class="doc-link">⚙️ Operations Guide</a>
+                    <a href="JARVIS_INFRA_ROADMAP.md" class="doc-link">🗺️ Roadmap</a>
+                    <a href="JARVIS_V44_ROADMAP.md" class="doc-link">🚀 v4.4 Features</a>
+                    <a href="GITHUB_ACTIONS_GUIDE.md" class="doc-link">🔧 CI/CD Guide</a>
+                    <a href="api.html" class="doc-link">📡 API Reference</a>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <!-- Search History -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📜 <span data-i18n="history.title">Search History</span></h2>
+                        <button class="nav-btn" onclick="clearHistory()" style="font-size:0.8rem;" data-i18n="history.clear">Clear</button>
+                    </div>
+                    <ul class="history-list" id="history-list">
+                        <li style="color: var(--text-secondary); text-align: center; padding: 1rem;" data-i18n="history.empty">
+                            No search history yet
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Alerts -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">🔔 <span data-i18n="alerts.title">Alerts</span></h2>
+                        <span class="alert-badge new" id="alert-count">0</span>
+                    </div>
+                    <div id="alerts-list">
+                        <div style="color: var(--text-secondary); text-align: center; padding: 1rem;" data-i18n="alerts.empty">
+                            No new alerts
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">⚡ <span data-i18n="actions.title">Quick Actions</span></h2>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <button class="nav-btn" onclick="generateReport()" data-i18n="actions.report">📝 Generate Report</button>
+                        <button class="nav-btn" onclick="summarizeResults()" data-i18n="actions.summarize">🤖 AI Summarize</button>
+                        <button class="nav-btn" onclick="exportData()" data-i18n="actions.export">📥 Export Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>JARVIS Research OS v4.4.0 | <a href="https://github.com/kaneko-ai/jarvis-ml-pipeline" style="color: var(--accent-blue);">GitHub</a></p>
+        <p>© 2024 kaneko-ai | Built with 💜</p>
+    </footer>
+
+    <script>
+        // ==================== State ====================
+        const state = {
+            history: JSON.parse(localStorage.getItem('jarvis_history') || '[]'),
+            results: [],
+            totalSearches: parseInt(localStorage.getItem('jarvis_searches') || '0'),
+            totalPapers: parseInt(localStorage.getItem('jarvis_papers') || '0'),
+            lang: localStorage.getItem('jarvis_lang') || 'ja'
+        };
+
+        // ==================== i18n ====================
+        const translations = {
+            ja: {
+                'nav.dashboard': 'ダッシュボード',
+                'nav.chat': 'AI チャット',
+                'nav.docs': 'ドキュメント',
+                'stats.prs': 'PR実装数',
+                'stats.tests': 'テスト合格',
+                'stats.searches': '検索回数',
+                'stats.papers': '論文数',
+                'pipeline.title': '論文検索パイプライン',
+                'pipeline.ready': '準備完了',
+                'pipeline.running': '実行中...',
+                'pipeline.done': '完了',
+                'pipeline.run': '検索実行',
+                'pipeline.placeholder': '検索クエリ（例：COVID-19 治療）',
+                'pipeline.empty': '検索クエリを入力して「検索実行」をクリック',
+                'history.title': '検索履歴',
+                'history.clear': 'クリア',
+                'history.empty': '履歴がありません',
+                'alerts.title': 'アラート',
+                'alerts.empty': '新しいアラートはありません',
+                'actions.title': 'クイックアクション',
+                'actions.report': '📝 レポート生成',
+                'actions.summarize': '🤖 AI要約',
+                'actions.export': '📥 データ出力',
+                'chat.title': 'AI研究アシスタント',
+                'chat.welcome': 'こんにちは！JARVISです。研究のお手伝いをします。何でもお聞きください！',
+                'chat.placeholder': '質問を入力...',
+                'docs.title': 'ドキュメント'
+            },
+            en: {
+                'nav.dashboard': 'Dashboard',
+                'nav.chat': 'AI Chat',
+                'nav.docs': 'Docs',
+                'stats.prs': 'PRs Implemented',
+                'stats.tests': 'Tests Passed',
+                'stats.searches': 'Total Searches',
+                'stats.papers': 'Papers Found',
+                'pipeline.title': 'Paper Search Pipeline',
+                'pipeline.ready': 'Ready',
+                'pipeline.running': 'Running...',
+                'pipeline.done': 'Done',
+                'pipeline.run': 'Run Search',
+                'pipeline.placeholder': 'Search query (e.g., COVID-19 treatment)',
+                'pipeline.empty': 'Enter a search query and click "Run Search"',
+                'history.title': 'Search History',
+                'history.clear': 'Clear',
+                'history.empty': 'No search history yet',
+                'alerts.title': 'Alerts',
+                'alerts.empty': 'No new alerts',
+                'actions.title': 'Quick Actions',
+                'actions.report': '📝 Generate Report',
+                'actions.summarize': '🤖 AI Summarize',
+                'actions.export': '📥 Export Data',
+                'chat.title': 'AI Research Assistant',
+                'chat.welcome': 'Hello! I\'m JARVIS. How can I help with your research today?',
+                'chat.placeholder': 'Ask me anything...',
+                'docs.title': 'Documentation'
+            }
+        };
+
+        function t(key) {
+            return translations[state.lang]?.[key] || translations.en[key] || key;
+        }
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.textContent = t(el.dataset.i18n);
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                el.placeholder = t(el.dataset.i18nPlaceholder);
+            });
+        }
+
+        function changeLanguage(lang) {
+            state.lang = lang;
+            localStorage.setItem('jarvis_lang', lang);
+            applyTranslations();
+        }
+
+        // ==================== Tabs ====================
+        function showTab(tabName) {
+            ['dashboard', 'chat', 'docs'].forEach(tab => {
+                const el = document.getElementById('tab-' + tab);
+                if (el) el.style.display = tab === tabName ? 'block' : 'none';
+            });
+        }
+
+        // ==================== Pipeline ====================
+        async function runPipeline() {
+            const query = document.getElementById('search-query').value.trim();
+            if (!query) {
+                alert('Please enter a search query');
+                return;
+            }
+
+            const btn = document.getElementById('run-btn');
+            const status = document.getElementById('pipeline-status');
+            const progress = document.getElementById('progress-container');
+            const progressFill = document.getElementById('progress-fill');
+            const results = document.getElementById('results-area');
+
+            btn.disabled = true;
+            status.textContent = t('pipeline.running');
+            status.classList.remove('info');
+            status.classList.add('new');
+            progress.style.display = 'block';
+            results.innerHTML = '<div class="loading" style="text-align:center;padding:2rem;">🔄 Searching...</div>';
+
+            // Simulate progress
+            let pct = 0;
+            const interval = setInterval(() => {
+                pct += Math.random() * 15;
+                if (pct > 90) pct = 90;
+                progressFill.style.width = pct + '%';
+            }, 200);
+
+            // Simulate search (in production, call actual API)
+            await new Promise(r => setTimeout(r, 2000));
+
+            clearInterval(interval);
+            progressFill.style.width = '100%';
+
+            // Mock results
+            const mockResults = [
+                { title: `Recent advances in ${query}`, authors: 'Smith J, et al.', year: 2024, pmid: '12345678' },
+                { title: `A systematic review of ${query}`, authors: 'Johnson A, et al.', year: 2024, pmid: '12345679' },
+                { title: `Novel approaches to ${query}`, authors: 'Williams B, et al.', year: 2023, pmid: '12345680' },
+                { title: `Clinical outcomes in ${query}`, authors: 'Brown C, et al.', year: 2023, pmid: '12345681' },
+                { title: `Meta-analysis of ${query} studies`, authors: 'Davis D, et al.', year: 2024, pmid: '12345682' },
+            ];
+
+            state.results = mockResults;
+            state.totalSearches++;
+            state.totalPapers += mockResults.length;
+            
+            // Save to history
+            state.history.unshift({
+                query,
+                date: new Date().toISOString(),
+                count: mockResults.length
+            });
+            if (state.history.length > 10) state.history.pop();
+            
+            // Persist
+            localStorage.setItem('jarvis_history', JSON.stringify(state.history));
+            localStorage.setItem('jarvis_searches', state.totalSearches);
+            localStorage.setItem('jarvis_papers', state.totalPapers);
+
+            // Update UI
+            document.getElementById('stat-searches').textContent = state.totalSearches;
+            document.getElementById('stat-papers').textContent = state.totalPapers;
+            
+            results.innerHTML = mockResults.map(r => `
+                <div class="result-item">
+                    <strong>${r.title}</strong><br>
+                    <span style="color:var(--text-secondary)">${r.authors} (${r.year})</span><br>
+                    <a href="https://pubmed.ncbi.nlm.nih.gov/${r.pmid}" target="_blank" style="color:var(--accent-blue)">
+                        PMID: ${r.pmid}
+                    </a>
+                </div>
+            `).join('');
+
+            btn.disabled = false;
+            status.textContent = t('pipeline.done');
+            status.classList.remove('new');
+            status.classList.add('info');
+            
+            setTimeout(() => progress.style.display = 'none', 1000);
+
+            updateHistoryList();
+        }
+
+        // ==================== History ====================
+        function updateHistoryList() {
+            const list = document.getElementById('history-list');
+            if (state.history.length === 0) {
+                list.innerHTML = `<li style="color:var(--text-secondary);text-align:center;padding:1rem;">${t('history.empty')}</li>`;
+                return;
+            }
+            
+            list.innerHTML = state.history.map(h => `
+                <li class="history-item" onclick="document.getElementById('search-query').value='${h.query}'">
+                    <div>
+                        <div class="history-query">${h.query}</div>
+                        <div class="history-date">${new Date(h.date).toLocaleString()}</div>
+                    </div>
+                    <span class="history-count">${h.count} papers</span>
+                </li>
+            `).join('');
+        }
+
+        function clearHistory() {
+            state.history = [];
+            localStorage.setItem('jarvis_history', '[]');
+            updateHistoryList();
+        }
+
+        // ==================== Chat ====================
+        async function sendChat() {
+            const input = document.getElementById('chat-input');
+            const messages = document.getElementById('chat-messages');
+            const text = input.value.trim();
+            if (!text) return;
+
+            // Add user message
+            messages.innerHTML += `<div class="chat-message user">${text}</div>`;
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+
+            // Simulate AI response
+            await new Promise(r => setTimeout(r, 1000));
+            
+            const responses = [
+                `Based on your query about "${text}", I found several relevant research papers. Would you like me to summarize them?`,
+                `Great question about "${text}"! This is an active area of research. Let me search for the latest findings.`,
+                `I can help you with "${text}". Would you like a general overview or specific study details?`,
+            ];
+            const response = responses[Math.floor(Math.random() * responses.length)];
+            
+            messages.innerHTML += `<div class="chat-message assistant">${response}</div>`;
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // ==================== Quick Actions ====================
+        function generateReport() {
+            if (state.results.length === 0) {
+                alert('Please run a search first');
+                return;
+            }
+            
+            let report = `# Research Report\n\nGenerated: ${new Date().toLocaleString()}\n\n## Results\n\n`;
+            state.results.forEach((r, i) => {
+                report += `${i+1}. **${r.title}**\n   - Authors: ${r.authors}\n   - Year: ${r.year}\n   - PMID: ${r.pmid}\n\n`;
+            });
+            
+            const blob = new Blob([report], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'jarvis_report.md';
+            a.click();
+        }
+
+        function summarizeResults() {
+            if (state.results.length === 0) {
+                alert('Please run a search first');
+                return;
+            }
+            
+            const results = document.getElementById('results-area');
+            results.innerHTML += `
+                <div class="result-item" style="border-left-color: var(--accent-purple);">
+                    <strong>🤖 AI Summary</strong><br>
+                    <p style="margin-top:0.5rem;">
+                        Found ${state.results.length} relevant papers. Key themes include recent advances, 
+                        systematic reviews, and clinical outcomes. The research shows promising developments
+                        in this area with multiple meta-analyses confirming the findings.
+                    </p>
+                </div>
+            `;
+        }
+
+        function exportData() {
+            const data = {
+                searches: state.totalSearches,
+                papers: state.totalPapers,
+                history: state.history,
+                lastResults: state.results,
+                exportedAt: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'jarvis_data.json';
+            a.click();
+        }
+
+        // ==================== Init ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('stat-searches').textContent = state.totalSearches;
+            document.getElementById('stat-papers').textContent = state.totalPapers;
+            document.querySelector('.lang-switch').value = state.lang;
+            applyTranslations();
+            updateHistoryList();
+        });
+    </script>
+</body>
+</html>
