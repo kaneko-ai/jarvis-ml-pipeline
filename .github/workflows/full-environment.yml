@@ -110,6 +110,7 @@ jobs:
           context: .
           push: false
           tags: jarvis:test
+          load: true  # イメージをローカルに読み込む
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
