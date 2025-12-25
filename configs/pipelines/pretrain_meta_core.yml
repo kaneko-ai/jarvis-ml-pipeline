@@ -1,0 +1,29 @@
+pipeline: pretrain_meta_core
+version: 1
+description: メタ分析コアパイプライン（一次研究抽出能力の学習データ生成）
+
+stages:
+  # Phase 1: シードとプライマリ検索
+  - id: retrieval.seed_topic_or_query
+  - id: retrieval.search_pubmed_primary
+  - id: screening.primary_study_filter
+  
+  # Phase 2: 抽出
+  - id: extraction.pico
+  - id: extraction.outcomes
+  - id: extraction.effect_size_fields
+  - id: extraction.bias_risk_rob
+  
+  # Phase 3: 評価と保存
+  - id: evaluation.extraction_accuracy_proxy
+  - id: ops.store_training_record_meta
+
+policies:
+  seed: 42
+  provenance_required: true
+  timeouts:
+    stage_default_sec: 300
+
+quality_gates:
+  min_pico_completeness: 0.8
+  min_extraction_rate: 0.6

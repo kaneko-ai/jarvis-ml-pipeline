@@ -1,0 +1,27 @@
+{
+  "run_id": "30157aec-8aa",
+  "goal": "CD73 tumor microenvironment",
+  "domain": "oncology",
+  "timestamp": "2025-12-25T15:21:45.721635",
+  "papers": [
+    {
+      "doc_id": "pmid:36991446",
+      "title": "Test Paper 1"
+    },
+    {
+      "doc_id": "pmid:36451063",
+      "title": "Test Paper 2"
+    },
+    {
+      "doc_id": "pmid:35982657",
+      "title": "Test Paper 3"
+    }
+  ],
+  "claims_count": 12,
+  "scores": {},
+  "summaries": {
+    "pmid:36991446": "This study demonstrates that CD73 plays a key role in tumor microenvironment. We show that inhibition of CD73 enhances antitumor immunity.",
+    "pmid:36451063": "This study demonstrates that CD73 plays a key role in tumor microenvironment. We show that inhibition of CD73 enhances antitumor immunity.",
+    "pmid:35982657": "This study demonstrates that CD73 plays a key role in tumor microenvironment. We show that inhibition of CD73 enhances antitumor immunity."
+  }
+}

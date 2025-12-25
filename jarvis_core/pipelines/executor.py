@@ -2,6 +2,7 @@
 JARVIS Pipelines - 統一パイプライン定義
 
 YAML定義によるパイプライン実行エンジン。
+StageRegistry一本化 - 手動stage_handlers廃止。
 """
 
 from __future__ import annotations
@@ -9,7 +10,7 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 try:
     import yaml
@@ -21,6 +22,9 @@ from jarvis_core.contracts.types import (
     Artifacts, ResultBundle, RuntimeConfig, TaskContext, Metrics
 )
 from jarvis_core.supervisor.lyra import get_lyra, LyraSupervisor
+from jarvis_core.pipelines.stage_registry import (
+    get_stage_registry, StageNotImplementedError
+)
 
 
 @dataclass
@@ -34,6 +38,21 @@ class StageResult:
     provenance_rate: float = 0.0
 
 
+def _parse_stages(raw_stages: List) -> List[str]:
+    """
+    ステージリストをパース。
+    
+    辞書形式（id付き）と文字列形式の両方をサポート。
+    """
+    stages = []
+    for s in raw_stages:
+        if isinstance(s, dict):
+            stages.append(s["id"])
+        else:
+            stages.append(s)
+    return stages
+
+
 @dataclass
 class PipelineConfig:
     """
@@ -42,29 +61,49 @@ class PipelineConfig:
     name: str
     stages: List[str]
     policies: Dict[str, Any] = field(default_factory=dict)
+    version: int = 1
     
     @classmethod
     def from_yaml(cls, path: Path) -> "PipelineConfig":
-        """YAMLから読み込み."""
+        """
+        YAMLから読み込み.
+        
+        正式スキーマ:
+        pipeline: fullstack
+        version: 1
+        stages:
+          - id: retrieval.query_expand
+          - id: retrieval.search_bm25
+        policies:
+          provenance_required: true
+        """
         if not HAS_YAML:
             raise ImportError("pyyaml is required for pipeline YAML loading")
         
         with open(path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
         
+        raw_stages = data.get("stages", [])
+        stages = _parse_stages(raw_stages)
+        
         return cls(
-            name=data.get("pipeline", "default"),
-            stages=data.get("stages", []),
-            policies=data.get("policies", {})
+            name=data.get("pipeline", data.get("name", "default")),
+            stages=stages,
+            policies=data.get("policies", {}),
+            version=data.get("version", 1)
         )
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "PipelineConfig":
         """辞書から作成."""
+        raw_stages = data.get("stages", [])
+        stages = _parse_stages(raw_stages)
+        
         return cls(
             name=data.get("pipeline", "default"),
-            stages=data.get("stages", []),
-            policies=data.get("policies", {})
+            stages=stages,
+            policies=data.get("policies", {}),
+            version=data.get("version", 1)
         )
 
 
@@ -72,6 +111,8 @@ class PipelineExecutor:
     """
     パイプライン実行エンジン.
     
+    - StageRegistryから全ハンドラを取得
+    - 手動stage_handlersは廃止
     - YAMLで定義されたステージを順次実行
     - Lyra Supervisorによる監査
     - 根拠付け率の検証
@@ -81,19 +122,14 @@ class PipelineExecutor:
                  lyra: Optional[LyraSupervisor] = None):
         self.config = config
         self.lyra = lyra or get_lyra()
-        self.stage_handlers: Dict[str, Callable] = {}
         self.results: List[StageResult] = []
+        self._registry = get_stage_registry()
         
         # デフォルトポリシー
         self.provenance_required = config.policies.get("provenance_required", True)
         self.refuse_if_no_evidence = config.policies.get("refuse_if_no_evidence", True)
         self.cache_policy = config.policies.get("cache", "aggressive")
         self.default_timeout = config.policies.get("timeouts", {}).get("stage_default_sec", 120)
-    
-    def register_handler(self, stage_name: str, 
-                         handler: Callable[[TaskContext, Artifacts], Dict[str, Any]]) -> None:
-        """ステージハンドラを登録."""
-        self.stage_handlers[stage_name] = handler
     
     def run(self, context: TaskContext, 
             artifacts: Artifacts) -> ResultBundle:
@@ -106,12 +142,19 @@ class PipelineExecutor:
         
         Returns:
             ResultBundle with all outputs and provenance
+        
+        Raises:
+            StageNotImplementedError: 未登録ステージがあれば即失敗
         """
         start_time = time.time()
         self.results = []
         
         result = ResultBundle()
         result.add_log(f"Pipeline {self.config.name} started")
+        
+        # StageRegistry事前検証 - 未登録は即失敗
+        self._registry.validate_pipeline(self.config.stages)
+        result.add_log(f"All {len(self.config.stages)} stages validated in registry")
         
         # Lyra supervision: validate the pipeline config
         lyra_task = self.lyra.supervise(
@@ -121,7 +164,7 @@ class PipelineExecutor:
         )
         result.add_log(f"Lyra supervision: {lyra_task.task_id}")
         
-        # Execute each stage
+        # Execute each stage via StageRegistry
         for stage_name in self.config.stages:
             stage_result = self._execute_stage(stage_name, context, artifacts)
             self.results.append(stage_result)
@@ -161,21 +204,28 @@ class PipelineExecutor:
     def _execute_stage(self, stage_name: str, 
                        context: TaskContext, 
                        artifacts: Artifacts) -> StageResult:
-        """個別ステージを実行."""
+        """
+        個別ステージを実行.
+        
+        StageRegistryから取得したハンドラを実行。
+        """
         start = time.time()
         
-        handler = self.stage_handlers.get(stage_name)
-        if not handler:
-            return StageResult(
-                stage_name=stage_name,
-                success=False,
-                duration_ms=0,
-                error=f"No handler registered for stage: {stage_name}"
-            )
+        # StageRegistryから取得（事前検証済みなので必ず存在）
+        handler = self._registry.get(stage_name)
         
         try:
-            outputs = handler(context, artifacts)
+            # ハンドラ呼び出し - Artifactsを返すかDictを返すか両対応
+            result = handler(context, artifacts)
             duration = (time.time() - start) * 1000
+            
+            # 戻り値がArtifactsならoutputsは空辞書
+            if isinstance(result, Artifacts):
+                outputs = {}
+            elif isinstance(result, dict):
+                outputs = result
+            else:
+                outputs = {}
             
             return StageResult(
                 stage_name=stage_name,
@@ -214,8 +264,10 @@ class PipelineExecutor:
 
 
 # Default pipeline configuration
+# YAMLから生成可能だが、フォールバックとしてハードコード版も保持
 DEFAULT_PIPELINE = PipelineConfig.from_dict({
     "pipeline": "fullstack",
+    "version": 1,
     "stages": [
         "retrieval.query_expand",
         "retrieval.query_decompose",
@@ -248,3 +300,9 @@ DEFAULT_PIPELINE = PipelineConfig.from_dict({
 def get_pipeline_executor(config: Optional[PipelineConfig] = None) -> PipelineExecutor:
     """パイプライン実行器を取得."""
     return PipelineExecutor(config or DEFAULT_PIPELINE)
+
+
+def load_pipeline_from_yaml(path: Path) -> PipelineExecutor:
+    """YAMLからパイプライン実行器を生成."""
+    config = PipelineConfig.from_yaml(path)
+    return PipelineExecutor(config)
