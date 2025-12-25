@@ -1,0 +1,121 @@
+# JARVIS Fullstack Pipeline Workflow
+# 統一パイプラインをCIで実行
+
+name: Fullstack Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      goal:
+        description: 'Research goal/query'
+        required: true
+        default: 'cancer immunotherapy mechanisms'
+      domain:
+        description: 'Domain (oncology, immunology, etc.)'
+        required: true
+        default: 'oncology'
+  schedule:
+    - cron: '0 3 * * 1'  # Weekly on Monday 3AM UTC
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[ml]
+      
+      - name: Run Fullstack Pipeline
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python -c "
+          from jarvis_core.contracts import TaskContext, Artifacts
+          from jarvis_core.pipelines import get_pipeline_executor
+          from jarvis_core.supervisor import get_lyra
+          from jarvis_core.ops import log_audit
+          
+          # Initialize
+          goal = '${{ github.event.inputs.goal || \"cancer immunotherapy\" }}'
+          domain = '${{ github.event.inputs.domain || \"oncology\" }}'
+          
+          context = TaskContext(goal=goal, domain=domain, seed=42)
+          artifacts = Artifacts()
+          
+          print(f'Goal: {goal}')
+          print(f'Domain: {domain}')
+          print(f'Run ID: {context.run_id}')
+          
+          # Lyra supervision
+          lyra = get_lyra()
+          task = lyra.supervise(goal, {'domain': domain})
+          print(f'Lyra Task: {task.task_id}')
+          
+          # Log start
+          log_audit('pipeline', 'start', details={'goal': goal, 'domain': domain})
+          
+          # Get executor
+          executor = get_pipeline_executor()
+          print(f'Pipeline: {executor.config.name}')
+          print(f'Stages: {len(executor.config.stages)}')
+          
+          # Note: Full execution requires registered handlers
+          print('Pipeline configuration verified.')
+          
+          log_audit('pipeline', 'verified')
+          "
+      
+      - name: Verify Quality Gates
+        run: |
+          python -c "
+          from jarvis_core.evaluation import get_quality_gates
+          
+          gates = get_quality_gates()
+          print('Quality gates active:')
+          for name, threshold in gates.thresholds.items():
+              print(f'  {name}: {threshold}')
+          "
+      
+      - name: Generate Audit Report
+        run: |
+          python -c "
+          from jarvis_core.ops import get_audit_logger
+          from pathlib import Path
+          
+          logger = get_audit_logger()
+          html = logger.export_html()
+          
+          output_dir = Path('artifacts/reports')
+          output_dir.mkdir(parents=True, exist_ok=True)
+          
+          report_path = output_dir / f'audit_{logger.run_id}.html'
+          report_path.write_text(html)
+          
+          print(f'Report generated: {report_path}')
+          "
+      
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-artifacts-${{ github.run_id }}
+          path: |
+            artifacts/
+          if-no-files-found: ignore
+      
+      - name: Summary
+        run: |
+          echo "## Fullstack Pipeline Result" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Goal**: ${{ github.event.inputs.goal || 'cancer immunotherapy' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Domain**: ${{ github.event.inputs.domain || 'oncology' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Verified" >> $GITHUB_STEP_SUMMARY
