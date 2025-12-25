@@ -1,0 +1,225 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://jarvis-research-os/schemas/artifacts_v1.json",
+    "title": "JARVIS Artifacts Schema v1",
+    "description": "Artifacts必須フィールド定義。export_bundle.jsonの正式スキーマ。",
+    "type": "object",
+    "required": [
+        "run_meta",
+        "claims",
+        "evidence_links"
+    ],
+    "properties": {
+        "run_meta": {
+            "type": "object",
+            "required": [
+                "run_id",
+                "pipeline",
+                "timestamp"
+            ],
+            "properties": {
+                "run_id": {
+                    "type": "string"
+                },
+                "pipeline": {
+                    "type": "string"
+                },
+                "goal": {
+                    "type": "string"
+                },
+                "domain": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "papers_count": {
+                    "type": "integer"
+                },
+                "claims_count": {
+                    "type": "integer"
+                },
+                "provenance_rate": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                }
+            }
+        },
+        "papers": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "doc_id"
+                ],
+                "properties": {
+                    "doc_id": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "pmid": {
+                        "type": "string"
+                    },
+                    "pmcid": {
+                        "type": "string"
+                    },
+                    "doi": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "claims": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "claim_id",
+                    "claim_text",
+                    "claim_type"
+                ],
+                "properties": {
+                    "claim_id": {
+                        "type": "string"
+                    },
+                    "claim_text": {
+                        "type": "string"
+                    },
+                    "claim_type": {
+                        "type": "string",
+                        "enum": [
+                            "fact",
+                            "hypothesis",
+                            "background",
+                            "methodology",
+                            "limitation",
+                            "log"
+                        ]
+                    },
+                    "evidence_count": {
+                        "type": "integer"
+                    },
+                    "is_main_conclusion": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        },
+        "evidence_links": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "claim_id",
+                    "doc_id",
+                    "chunk_id",
+                    "start",
+                    "end"
+                ],
+                "properties": {
+                    "claim_id": {
+                        "type": "string"
+                    },
+                    "doc_id": {
+                        "type": "string"
+                    },
+                    "section": {
+                        "type": "string"
+                    },
+                    "chunk_id": {
+                        "type": "string"
+                    },
+                    "start": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "end": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "confidence": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                    },
+                    "source_hash": {
+                        "type": "string"
+                    },
+                    "text": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "scores": {
+            "type": "object",
+            "properties": {
+                "consistency": {
+                    "type": "number"
+                },
+                "coverage": {
+                    "type": "number"
+                },
+                "novelty": {
+                    "type": "number"
+                },
+                "relevance": {
+                    "type": "number"
+                }
+            }
+        },
+        "summaries": {
+            "type": "object",
+            "properties": {
+                "executive_summary": {
+                    "type": "string"
+                },
+                "methodology_summary": {
+                    "type": "string"
+                },
+                "limitations_summary": {
+                    "type": "string"
+                }
+            }
+        },
+        "quality_report": {
+            "type": "object",
+            "required": [
+                "passed"
+            ],
+            "properties": {
+                "passed": {
+                    "type": "boolean"
+                },
+                "checks": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "passed": {
+                                "type": "boolean"
+                            },
+                            "actual": {
+                                "type": "number"
+                            },
+                            "threshold": {
+                                "type": "number"
+                            },
+                            "message": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "additionalProperties": true
+}
