@@ -1,0 +1,160 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://jarvis-research-os/schemas/audit_v1.json",
+    "title": "JARVIS Audit Log Schema v1",
+    "description": "監査ログの正式スキーマ。provenanceはdoc_id/chunk_id/start/end/source_hash必須。",
+    "type": "object",
+    "required": [
+        "run_id",
+        "entries"
+    ],
+    "properties": {
+        "run_id": {
+            "type": "string",
+            "description": "実行ID"
+        },
+        "pipeline": {
+            "type": "string",
+            "description": "パイプライン名"
+        },
+        "started_at": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "completed_at": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "status": {
+            "type": "string",
+            "enum": [
+                "running",
+                "completed",
+                "failed",
+                "degraded"
+            ]
+        },
+        "entries": {
+            "type": "array",
+            "description": "監査エントリリスト",
+            "items": {
+                "type": "object",
+                "required": [
+                    "timestamp",
+                    "stage_id",
+                    "event"
+                ],
+                "properties": {
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "stage_id": {
+                        "type": "string"
+                    },
+                    "event": {
+                        "type": "string",
+                        "enum": [
+                            "started",
+                            "completed",
+                            "failed",
+                            "skipped",
+                            "degraded"
+                        ]
+                    },
+                    "duration_ms": {
+                        "type": "integer"
+                    },
+                    "details": {
+                        "type": "object"
+                    },
+                    "provenance": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/provenance_entry"
+                        }
+                    },
+                    "error": {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string"
+                            },
+                            "message": {
+                                "type": "string"
+                            },
+                            "traceback": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "summary": {
+            "type": "object",
+            "properties": {
+                "total_stages": {
+                    "type": "integer"
+                },
+                "completed_stages": {
+                    "type": "integer"
+                },
+                "failed_stages": {
+                    "type": "integer"
+                },
+                "total_duration_ms": {
+                    "type": "integer"
+                },
+                "provenance_count": {
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "definitions": {
+        "provenance_entry": {
+            "type": "object",
+            "required": [
+                "doc_id",
+                "chunk_id",
+                "start",
+                "end"
+            ],
+            "properties": {
+                "doc_id": {
+                    "type": "string",
+                    "description": "文書ID"
+                },
+                "section": {
+                    "type": "string",
+                    "description": "セクション名"
+                },
+                "chunk_id": {
+                    "type": "string",
+                    "description": "チャンクID"
+                },
+                "start": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "開始位置"
+                },
+                "end": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "終了位置"
+                },
+                "source_hash": {
+                    "type": "string",
+                    "description": "ソーステキストのハッシュ（整合性検証用）"
+                },
+                "text_preview": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "テキストプレビュー（最大200文字）"
+                }
+            }
+        }
+    },
+    "additionalProperties": false
+}

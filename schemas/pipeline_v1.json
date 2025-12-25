@@ -1,0 +1,108 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://jarvis-research-os/schemas/pipeline_v1.json",
+    "title": "JARVIS Pipeline Configuration Schema v1",
+    "description": "パイプライン設定の正式スキーマ。stages は辞書リスト形式のみ許可。",
+    "type": "object",
+    "required": [
+        "pipeline",
+        "stages"
+    ],
+    "properties": {
+        "pipeline": {
+            "type": "string",
+            "description": "パイプライン名（一意識別子）"
+        },
+        "version": {
+            "type": [
+                "integer",
+                "string"
+            ],
+            "description": "パイプラインバージョン"
+        },
+        "description": {
+            "type": "string",
+            "description": "パイプラインの説明"
+        },
+        "stages": {
+            "type": "array",
+            "description": "ステージリスト（辞書形式必須）",
+            "items": {
+                "type": "object",
+                "required": [
+                    "id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "ステージID（StageRegistry登録名）",
+                        "pattern": "^[a-z_]+\\.[a-z_]+$"
+                    },
+                    "config": {
+                        "type": "object",
+                        "description": "ステージ固有設定"
+                    },
+                    "timeout_sec": {
+                        "type": "integer",
+                        "description": "ステージタイムアウト（秒）"
+                    },
+                    "required": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "必須ステージかどうか"
+                    }
+                }
+            },
+            "minItems": 1
+        },
+        "policies": {
+            "type": "object",
+            "description": "パイプライン全体のポリシー",
+            "properties": {
+                "seed": {
+                    "type": "integer"
+                },
+                "provenance_required": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "fail_closed": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "timeouts": {
+                    "type": "object",
+                    "properties": {
+                        "stage_default_sec": {
+                            "type": "integer"
+                        },
+                        "pipeline_max_sec": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        },
+        "quality_gates": {
+            "type": "object",
+            "description": "品質ゲート設定",
+            "properties": {
+                "provenance_rate": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "fact_provenance_rate": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "hypothesis_in_conclusion_allowed": {
+                    "type": "boolean",
+                    "default": false
+                }
+            }
+        }
+    },
+    "additionalProperties": false
+}
