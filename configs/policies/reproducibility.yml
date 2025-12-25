@@ -1,0 +1,118 @@
+# JARVIS Reproducibility Policy v1
+# M2: 再現性完備のためのポリシー定義
+
+# ================================================
+# Run Determinism（実行決定性）
+# ================================================
+determinism:
+  # 乱数シード（全randomモジュール・numpy等に適用）
+  seed: 42
+  
+  # LLMパラメータ（temperature=0で決定的）
+  llm:
+    temperature: 0.0
+    top_p: 1.0
+    max_tokens: 4096
+    model_version_pinned: true  # モデルバージョン固定必須
+  
+  # リランカー閾値
+  reranker:
+    threshold: 0.5
+    top_k: 20
+
+# ================================================
+# Snapshot Strategy（スナップショット戦略）
+# ================================================
+snapshot:
+  enabled: true
+  
+  # 保存対象
+  save:
+    query_package: true       # 検索クエリ（query/filters/date/source）
+    search_results: true      # 検索結果（pmidリスト＋順位＋スコア）
+    retrieved_content: true   # 取得本文（抽出対象chunkは必須保存）
+    chunk_mapping: true       # chunk_id と span対応
+    model_io_hash: true       # prompt_hash/model_id/params
+  
+  # 保存先
+  storage:
+    base_path: "artifacts/{run_id}/snapshot"
+    format: "json"
+    compress: true  # gzip圧縮
+  
+  # 再実行時の挙動
+  replay:
+    prefer_snapshot: true     # スナップショット優先
+    fallback_to_live: false   # ライブ取得へのフォールバック（デフォルト禁止）
+
+# ================================================
+# Fail Policy（失敗時の挙動）
+# ================================================
+fail_policy:
+  # デフォルトはFail-Closed
+  default: "closed"
+  
+  # Fail-Closed: 取得失敗→即中断（成功扱い禁止）
+  closed:
+    on_api_error: "abort"
+    on_timeout: "abort"
+    on_parse_error: "abort"
+    success_on_failure: false
+  
+  # Fail-Open: 代替許容（ただしdegradedフラグ必須）
+  open:
+    on_api_error: "continue_degraded"
+    on_timeout: "continue_degraded"
+    on_parse_error: "skip_item"
+    degraded_flag_required: true
+    max_degraded_ratio: 0.2   # 20%以上degradedでパイプライン失敗
+
+# ================================================
+# Cache Strategy（キャッシュ戦略）
+# ================================================
+cache:
+  enabled: true
+  
+  # キャッシュキー構成
+  key_components:
+    - query_hash
+    - filters_hash
+    - date_range
+    - model_id
+    - seed
+  
+  # TTL（秒）: PubMedデータは頻繁に更新されるため短め
+  ttl_seconds: 86400  # 24時間
+  
+  # キャッシュ無効化
+  invalidate_on:
+    - model_version_change
+    - policy_version_change
+
+# ================================================
+# Reproducibility Metrics（再現性評価）
+# ================================================
+metrics:
+  # 許容差の定義
+  tolerance:
+    # Top10一致率（同一クエリで同じ上位10件が返る率）
+    top10_match: 0.9
+    
+    # TopK Jaccard（上位K件の集合類似度）
+    topk_jaccard:
+      k: 20
+      threshold: 0.8
+    
+    # スコア差異（同一文書のスコア差）
+    score_diff_max: 0.05
+  
+  # 評価サイクル
+  evaluation:
+    run_weekly: true
+    sample_size: 50
+
+# ================================================
+# Version Info
+# ================================================
+version: "1.0"
+schema: "reproducibility_v1"
