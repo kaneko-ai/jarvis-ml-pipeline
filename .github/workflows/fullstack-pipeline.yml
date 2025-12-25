@@ -38,16 +38,19 @@ jobs:
       - name: Run Fullstack Pipeline
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PIPELINE_GOAL: ${{ github.event.inputs.goal || 'cancer immunotherapy' }}
+          PIPELINE_DOMAIN: ${{ github.event.inputs.domain || 'oncology' }}
         run: |
-          python -c "
+          python << 'EOF'
+          import os
           from jarvis_core.contracts import TaskContext, Artifacts
           from jarvis_core.pipelines import get_pipeline_executor
           from jarvis_core.supervisor import get_lyra
           from jarvis_core.ops import log_audit
           
-          # Initialize
-          goal = '${{ github.event.inputs.goal || \"cancer immunotherapy\" }}'
-          domain = '${{ github.event.inputs.domain || \"oncology\" }}'
+          # Initialize from environment
+          goal = os.environ.get('PIPELINE_GOAL', 'cancer immunotherapy')
+          domain = os.environ.get('PIPELINE_DOMAIN', 'oncology')
           
           context = TaskContext(goal=goal, domain=domain, seed=42)
           artifacts = Artifacts()
@@ -73,22 +76,22 @@ jobs:
           print('Pipeline configuration verified.')
           
           log_audit('pipeline', 'verified')
-          "
+          EOF
       
       - name: Verify Quality Gates
         run: |
-          python -c "
+          python << 'EOF'
           from jarvis_core.evaluation import get_quality_gates
           
           gates = get_quality_gates()
           print('Quality gates active:')
           for name, threshold in gates.thresholds.items():
               print(f'  {name}: {threshold}')
-          "
+          EOF
       
       - name: Generate Audit Report
         run: |
-          python -c "
+          python << 'EOF'
           from jarvis_core.ops import get_audit_logger
           from pathlib import Path
           
@@ -102,7 +105,7 @@ jobs:
           report_path.write_text(html)
           
           print(f'Report generated: {report_path}')
-          "
+          EOF
       
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
