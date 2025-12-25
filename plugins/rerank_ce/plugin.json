@@ -1,11 +1,13 @@
 {
-    "name": "rerank_ce",
+    "id": "rerank_ce",
     "version": "1.0.0",
-    "type": "rerank",
+    "type": "retrieval",
     "entrypoint": "plugin.py:RerankPlugin",
-    "description": "CrossEncoder-based reranking plugin",
-    "requires": [],
+    "dependencies": [
+        "sentence-transformers>=2.2"
+    ],
     "hardware": {
-        "gpu_optional": true
+        "gpu_optional": true,
+        "min_vram_gb": 0
     }
 }

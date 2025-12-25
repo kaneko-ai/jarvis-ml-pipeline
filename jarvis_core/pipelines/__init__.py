@@ -6,6 +6,13 @@ from .executor import (
     DEFAULT_PIPELINE,
     get_pipeline_executor,
 )
+from .stage_registry import (
+    StageRegistry,
+    StageNotImplementedError,
+    get_stage_registry,
+    register_stage,
+    validate_all_stages,
+)
 
 __all__ = [
     "StageResult",
@@ -13,4 +20,10 @@ __all__ = [
     "PipelineExecutor",
     "DEFAULT_PIPELINE",
     "get_pipeline_executor",
+    "StageRegistry",
+    "StageNotImplementedError",
+    "get_stage_registry",
+    "register_stage",
+    "validate_all_stages",
 ]
+

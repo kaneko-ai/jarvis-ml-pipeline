@@ -1,0 +1,168 @@
+# JARVIS Research OS
+# MASTER_SPEC.md v1.0
+
+> **強制文書**: 本仕様書は全実装の最上位規約
+
+---
+
+## 0. 基本原則（非交渉）
+
+### 三位一体
+
+| 要素 | 説明 |
+|------|------|
+| 静的仕様 | YAML定義が唯一の真実 |
+| 動的監督 | Lyra Supervisorが品質保証 |
+| 自動評価 | CI/Quality Gatesが強制 |
+
+### 必須条件
+
+すべての出力は:
+- **再現可能** (seed固定、モデルバージョン固定)
+- **根拠追跡可能** (evidence_links必須)
+- **評価可能** (スコア・監査ログ)
+
+> 「動くが説明できない」「賢そうだが再現しない」→ **不合格**
+
+---
+
+## 1. レイヤ構造（固定）
+
+```
+Layer 0: Human Authority
+  └ 金子優（最終判断・価値定義）
+
+Layer 1: Supervisor Layer
+  └ Lyra（思考・指示・品質・乖離監査）
+
+Layer 2: Orchestration Core
+  └ JARVIS Core（契約・実行・ログ・評価）
+
+Layer 3: Worker AIs
+  ├ antigravity（設計・実装）
+  ├ codex（コード生成）
+  ├ LLM群（抽出・要約・評価）
+  └ 外部API（PubMed, UniProt, etc）
+```
+
+---
+
+## 2. Research Lifecycle
+
+```mermaid
+graph LR
+    A[文献探索] --> B[スクリーニング]
+    B --> C[抽出]
+    C --> D[要約]
+    D --> E[比較]
+    E --> F[評価]
+    F --> G[知識化]
+    G --> H[仮説生成]
+    H --> I[実験設計]
+    I --> J[再評価]
+    J --> A
+```
+
+全工程を**1 pipeline**として閉じること。
+
+---
+
+## 3. Stage Registry（必須）
+
+### 仕様
+- YAML記載の**全stage**が実行可能であること
+- 未登録stage = **CI失敗**
+
+### デコレータ方式
+
+```python
+@register_stage("retrieval.query_expand")
+def stage_query_expand(context, artifacts):
+    ...  # 最小実装（provenance必須）
+```
+
+---
+
+## 4. Plugin仕様（統一）
+
+### plugin.json 正式仕様
+
+```json
+{
+  "id": "retrieval_st",
+  "version": "1.0.0",
+  "type": "retrieval|extract|summarize|score|graph|design|ops|ui",
+  "entrypoint": "plugin.py:PluginClass",
+  "dependencies": [],
+  "hardware": {"gpu_optional": true}
+}
+```
+
+> 別キーは禁止
+
+---
+
+## 5. Quality Gates（強制）
+
+| Gate | 閾値 | 条件 |
+|------|------|------|
+| 根拠付け率 | ≥95% | 全claimにevidenceあり |
+| 根拠なし事実 | =0 | factにevidenceなし禁止 |
+| パイプライン完走 | =100% | 途中失敗禁止 |
+| 再現性 Top10 | ≥90% | 同一入力→同一順序 |
+
+---
+
+## 6. CI分離
+
+### CPU CI
+- Stage Registry検証
+- plugin.json検証
+- Contract test
+- Golden test
+
+### ML CI
+- Rerank/Embedding実行
+- 再現性テスト
+- 根拠率テスト
+
+---
+
+## 7. 禁止事項（絶対）
+
+```yaml
+# 禁止
+|| true
+continue-on-error: true
+pass
+NotImplementedError
+空return
+try/except握り潰し
+```
+
+---
+
+## 8. Lyra権限
+
+| 権限 | 説明 |
+|------|------|
+| 実装拒否権 | 品質不足の実装を拒否 |
+| 再指示生成権 | 修正指示を生成 |
+| CI失敗時介入 | 自動で診断・修正提案 |
+
+---
+
+## 9. 受け入れ基準（DoD）
+
+全て満たされた時のみ「達成」:
+
+- [ ] 全stage がregistry登録済み
+- [ ] plugin.json 単一仕様
+- [ ] 全stage がprovenance更新
+- [ ] CI 失敗がブロック
+- [ ] Golden/再現性/根拠率テスト green
+- [ ] CI failure → Lyra修正指示
+
+---
+
+*JARVIS Research OS - MASTER_SPEC v1.0*

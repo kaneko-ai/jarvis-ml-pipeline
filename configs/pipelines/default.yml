@@ -1,126 +1,181 @@
-# JARVIS Research OS - Fullstack Pipeline Configuration
-# Version: 1.0.0
-# Description: 文献探索〜要約〜評価〜設計提案の統一パイプライン
+# JARVIS Research OS - Full-Stack Pipeline Configuration
+# MASTER_SPEC.md準拠 - 全ステージ必須
 
-pipeline: fullstack
+name: jarvis_fullstack_v1
+version: 1.0.0
+description: JARVIS Research OS 完全パイプライン
 
+# 全ステージはregistryに登録済みであること
 stages:
-  # ============================================
-  # RETRIEVAL (探索)
-  # ============================================
-  - retrieval.query_expand         # MeSH/同義語展開
-  - retrieval.query_decompose      # クエリ分解
-  - retrieval.search_bm25          # BM25検索
-  - retrieval.embed_sectionwise    # セクション別埋め込み
-  - retrieval.rerank_crossencoder  # CrossEncoderリランク
-  - retrieval.dedup                # 重複除去
-  - retrieval.cluster_map          # クラスタマップ
-  
-  # ============================================
-  # SCREENING (採否)
-  # ============================================
-  - screening.pico_extract         # PICO/PECO抽出
-  - screening.domain_routing       # ドメインルーティング
-  - screening.study_type_classify  # in vitro/vivo/clinical判定
-  - screening.oa_check             # OA判定
-  - screening.filter_rules         # 除外ルール適用
-  
-  # ============================================
-  # EXTRACTION (抽出)
-  # ============================================
-  - extraction.claims              # Claim抽出
-  - extraction.evidence_link       # Evidence紐付け (最重要)
-  - extraction.numeric             # 数値抽出 (n, p, CI, 効果量)
-  - extraction.methods             # Methods抽出
-  - extraction.stats               # 統計手法抽出
-  - extraction.limitations         # Limitations抽出
-  - extraction.figures             # Figure要点抽出
-  - extraction.citations           # Citation context抽出
-  
-  # ============================================
-  # SUMMARIZATION (要約)
-  # ============================================
-  - summarization.multigrain       # 多粒度要約 (300/1000/章別)
-  - summarization.beginner         # 初学者向け言い換え
-  - summarization.compare          # 比較要約 (一致/相違)
-  - summarization.reproducibility  # 再現性要約
-  - summarization.refutable        # 反証可能性要約
-  
-  # ============================================
-  # SCORING (評価)
-  # ============================================
-  - scoring.importance             # 重要度スコア
-  - scoring.confidence             # Claim信頼度
-  - scoring.bias_risk              # バイアスリスク
-  - scoring.evidence_tier          # エビデンス階層
-  - scoring.clinical_relevance     # 臨床関連性
-  - scoring.personal_fit           # 目的適合度
-  - scoring.learning_roi           # Learning ROI
-  
-  # ============================================
-  # KNOWLEDGE GRAPH (知識化)
-  # ============================================
-  - knowledge_graph.entity_normalize  # Entity正規化
-  - knowledge_graph.build_and_index   # KG構築
-  - knowledge_graph.controversy_map   # 論争マップ
-  - knowledge_graph.timeline          # 知見更新史
-  - knowledge_graph.graphrag_index    # GraphRAGインデックス
-  
-  # ============================================
-  # EXPERIMENT DESIGN (設計)
-  # ============================================
-  - design.gap_analysis            # Gap分析
-  - design.next_experiments        # 次実験提案
-  - design.protocol_draft          # プロトコルドラフト
-  - design.stats_design            # 統計設計支援
-  - design.risk_diagnosis          # リスク診断
-  
-  # ============================================
-  # SUPERVISION (Lyra監査)
-  # ============================================
-  - supervision.lyra.audit         # 思考品質監査
-  - supervision.lyra.prompt_refine # プロンプト改善
-  - supervision.lyra.reissue_tasks # タスク再発行
-  
-  # ============================================
-  # OPS (運用)
-  # ============================================
-  - ops.audit_log_emit             # 監査ログ出力
-  - ops.cache_optimize             # キャッシュ最適化
-  - ops.failure_diagnosis          # 失敗分類
-  
-  # ============================================
-  # UI (表示)
-  # ============================================
-  - ui.render_bundle               # 結果レンダリング
+  # Phase 1: Retrieval
+  - id: retrieval.query_expand
+    description: MeSH/同義語展開
+    
+  - id: retrieval.query_decompose
+    description: クエリ分解
+    
+  - id: retrieval.search_bm25
+    description: BM25キーワード検索
+    
+  - id: retrieval.embed_sectionwise
+    description: セクション別埋め込み
+    
+  - id: retrieval.rerank_crossencoder
+    description: CrossEncoderリランク
+    
+  - id: retrieval.dedup
+    description: 重複除去
+    
+  - id: retrieval.cluster_map
+    description: クラスタマップ
 
-policies:
-  # 根拠付け必須
-  provenance_required: true
-  
-  # 根拠なしの場合は拒否
-  refuse_if_no_evidence: true
-  
-  # キャッシュポリシー
-  cache: aggressive
-  
-  # タイムアウト設定
-  timeouts:
-    stage_default_sec: 120
-    extraction_sec: 300
-    embedding_sec: 600
-    rerank_sec: 180
-  
-  # 品質ゲート
-  quality_gates:
-    provenance_rate_min: 0.95
-    facts_without_evidence_max: 0
-    reproducibility_top10_match: 0.90
-  
-  # シード固定（再現性）
+  # Phase 2: Screening
+  - id: screening.pico_extract
+    description: PICO/PECO抽出
+    
+  - id: screening.domain_routing
+    description: ドメインルーティング
+    
+  - id: screening.study_type_classify
+    description: in vitro/vivo/clinical判定
+    
+  - id: screening.oa_check
+    description: OA判定
+    
+  - id: screening.filter_rules
+    description: 除外ルール適用
+
+  # Phase 3: Extraction (最重要)
+  - id: extraction.claims
+    description: Claim抽出
+    
+  - id: extraction.evidence_link
+    description: Evidence紐付け（span必須）
+    
+  - id: extraction.numeric
+    description: 数値（n, p, CI, 効果量）
+    
+  - id: extraction.methods
+    description: Methods抽出
+    
+  - id: extraction.stats
+    description: Stats抽出
+    
+  - id: extraction.limitations
+    description: Limitations抽出
+    
+  - id: extraction.figures
+    description: Figure要点抽出
+    
+  - id: extraction.citations
+    description: Citation context抽出
+
+  # Phase 4: Summarization
+  - id: summarization.multigrain
+    description: 多粒度要約（300/1000字）
+    
+  - id: summarization.beginner
+    description: 初学者向け言い換え
+    
+  - id: summarization.compare
+    description: 比較要約
+    
+  - id: summarization.reproducibility
+    description: 再現性要約
+    
+  - id: summarization.refutable
+    description: 反証可能性要約
+
+  # Phase 5: Scoring
+  - id: scoring.importance
+    description: 重要度
+    
+  - id: scoring.confidence
+    description: Claim信頼度
+    
+  - id: scoring.bias_risk
+    description: バイアスリスク
+    
+  - id: scoring.evidence_tier
+    description: エビデンス階層
+    
+  - id: scoring.clinical_relevance
+    description: 臨床関連性
+    
+  - id: scoring.personal_fit
+    description: 目的適合度
+    
+  - id: scoring.learning_roi
+    description: 学習ROI
+
+  # Phase 6: Knowledge Graph
+  - id: knowledge_graph.entity_normalize
+    description: Entity正規化
+    
+  - id: knowledge_graph.build_and_index
+    description: KG構築・インデックス
+    
+  - id: knowledge_graph.controversy_map
+    description: 論争マップ
+    
+  - id: knowledge_graph.timeline
+    description: 知見更新史
+    
+  - id: knowledge_graph.graphrag_index
+    description: GraphRAGインデックス
+
+  # Phase 7: Design
+  - id: design.gap_analysis
+    description: Gap分析
+    
+  - id: design.next_experiments
+    description: 次実験提案
+    
+  - id: design.protocol_draft
+    description: プロトコルドラフト
+    
+  - id: design.stats_design
+    description: 統計設計支援
+    
+  - id: design.risk_diagnosis
+    description: リスク診断
+
+  # Phase 8: Output
+  - id: output.render_dashboard
+    description: ダッシュボード出力
+    
+  - id: output.evidence_highlight
+    description: 根拠ハイライト
+    
+  - id: output.score_bar
+    description: スコアバー生成
+    
+  - id: output.comparison_view
+    description: 比較ビュー出力
+    
+  - id: output.design_view
+    description: 実験設計ビュー出力
+    
+  - id: output.export_bundle
+    description: 結果バンドル出力
+
+  # Phase 9: Quality Gate (必須)
+  - id: quality_gate.provenance_check
+    description: 根拠率チェック（≥95%）
+    
+  - id: quality_gate.final_audit
+    description: 最終監査
+
+# 品質ゲート設定
+quality_gates:
+  provenance_rate: 0.95
+  facts_without_evidence: 0
+  pipeline_completion: 1.0
+  reproducibility: 0.90
+
+# 再現性設定
+reproducibility:
   seed: 42
-  
-  # デバイス設定
-  device:
-    default: auto
-    fallback: cpu
+  model_versions:
+    sentence_transformer: "paraphrase-multilingual-MiniLM-L12-v2"
+    cross_encoder: "cross-encoder/ms-marco-MiniLM-L-6-v2"
