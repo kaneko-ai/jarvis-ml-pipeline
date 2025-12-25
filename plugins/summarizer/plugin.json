@@ -1,11 +1,11 @@
 {
-    "name": "summarizer",
+    "id": "summarizer",
     "version": "1.0.0",
     "type": "summarize",
     "entrypoint": "plugin.py:SummarizerPlugin",
-    "description": "Multi-grain summarization, comparison, simplification",
-    "requires": [],
+    "dependencies": [],
     "hardware": {
-        "gpu_optional": true
+        "gpu_optional": true,
+        "min_vram_gb": 0
     }
 }

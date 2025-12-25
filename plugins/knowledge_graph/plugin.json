@@ -1,11 +1,11 @@
 {
-    "name": "knowledge_graph",
+    "id": "knowledge_graph",
     "version": "1.0.0",
     "type": "graph",
     "entrypoint": "plugin.py:KnowledgeGraphPlugin",
-    "description": "Entity extraction, relation extraction, KG building, GraphRAG",
-    "requires": [],
+    "dependencies": [],
     "hardware": {
-        "gpu_optional": false
+        "gpu_optional": false,
+        "min_vram_gb": 0
     }
 }

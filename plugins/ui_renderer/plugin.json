@@ -1,11 +1,11 @@
 {
-    "name": "ui_renderer",
+    "id": "ui_renderer",
     "version": "1.0.0",
     "type": "ui",
     "entrypoint": "plugin.py:UIPlugin",
-    "description": "Dashboard widget rendering, charts, tables, graphs",
-    "requires": [],
+    "dependencies": [],
     "hardware": {
-        "gpu_optional": false
+        "gpu_optional": false,
+        "min_vram_gb": 0
     }
 }

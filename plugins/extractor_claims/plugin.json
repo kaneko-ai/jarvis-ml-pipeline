@@ -1,11 +1,11 @@
 {
-    "name": "extractor_claims",
+    "id": "extractor_claims",
     "version": "1.0.0",
     "type": "extract",
     "entrypoint": "plugin.py:ExtractionPlugin",
-    "description": "Claim, Evidence, Numeric, Methods, Limitation extraction",
-    "requires": [],
+    "dependencies": [],
     "hardware": {
-        "gpu_optional": false
+        "gpu_optional": false,
+        "min_vram_gb": 0
     }
 }

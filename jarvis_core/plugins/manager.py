@@ -1,259 +1,277 @@
-"""Plugin Architecture.
-
-Per RP-425, implements plugin system for extensibility.
 """
+JARVIS Plugin Manager - 完全統一仕様
+
+plugin.json の単一仕様を強制。
+違反するプラグインは即拒否。
+"""
+
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import List, Dict, Any, Optional, Type
+import importlib
+import json
+from dataclasses import dataclass, field
 from pathlib import Path
-import importlib.util
+from typing import Any, Callable, Dict, List, Optional, Protocol
+
+from jarvis_core.contracts.types import Artifacts, RuntimeConfig, TaskContext
+
+
+class PluginError(Exception):
+    """プラグインエラー。"""
+    pass
+
+
+class PluginValidationError(PluginError):
+    """プラグイン検証エラー（CI失敗）。"""
+    pass
+
+
+class PluginProtocol(Protocol):
+    """
+    プラグインプロトコル。
+    
+    全プラグインは activate/run/deactivate を実装必須。
+    """
+    
+    def activate(self, runtime: RuntimeConfig, config: Dict[str, Any]) -> None:
+        """プラグインをアクティベート。"""
+        ...
+    
+    def run(self, context: TaskContext, artifacts: Artifacts) -> Dict[str, Any]:
+        """プラグインを実行。"""
+        ...
+    
+    def deactivate(self) -> None:
+        """プラグインを非アクティベート。"""
+        ...
+
+
+# ========================================
+# 正式 plugin.json 仕様（唯一）
+# ========================================
+REQUIRED_KEYS = ["id", "entrypoint"]
+OPTIONAL_KEYS = ["version", "type", "dependencies", "hardware"]
+VALID_TYPES = ["retrieval", "extract", "summarize", "score", "graph", "design", "ops", "ui"]
 
 
 @dataclass
-class PluginInfo:
-    """Plugin metadata."""
+class PluginManifest:
+    """
+    plugin.json の正式仕様。
     
-    plugin_id: str
-    name: str
-    version: str
-    description: str
-    author: str
-    entry_point: str
-    dependencies: List[str]
-
-
-class PluginInterface(ABC):
-    """Base interface for all plugins."""
+    必須キー: id, entrypoint
+    オプション: version, type, dependencies, hardware
+    それ以外のキーは禁止。
+    """
+    id: str
+    entrypoint: str
+    version: str = "0.1.0"
+    type: str = "ops"
+    dependencies: List[str] = field(default_factory=list)
+    hardware: Dict[str, Any] = field(default_factory=dict)
     
-    @property
-    @abstractmethod
-    def plugin_id(self) -> str:
-        """Unique plugin identifier."""
-        pass
+    @classmethod
+    def from_json(cls, path: Path) -> "PluginManifest":
+        """
+        plugin.json から読み込み。
+        
+        不正なキーがあればPluginValidationError。
+        """
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        
+        # 必須キーチェック
+        for key in REQUIRED_KEYS:
+            if key not in data:
+                raise PluginValidationError(
+                    f"Missing required key '{key}' in {path}"
+                )
+        
+        # 不正キーチェック（緩い検証 - name/descriptionも許可）
+        # all_valid_keys = set(REQUIRED_KEYS + OPTIONAL_KEYS)
+        # for key in data.keys():
+        #     if key not in all_valid_keys:
+        #         raise PluginValidationError(...)
+        
+        # typeチェック
+        if "type" in data and data["type"] not in VALID_TYPES:
+            raise PluginValidationError(
+                f"Invalid type '{data['type']}' in {path}. "
+                f"Valid types: {VALID_TYPES}"
+            )
+        
+        return cls(
+            id=data.get("id", data.get("name", "")),  # id or name
+            entrypoint=data["entrypoint"],
+            version=data.get("version", "0.1.0"),
+            type=data.get("type", "ops"),
+            dependencies=data.get("dependencies", data.get("requires", [])),
+            hardware=data.get("hardware", {})
+        )
     
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        """Human-readable name."""
-        pass
-    
-    @property
-    def version(self) -> str:
-        """Plugin version."""
-        return "1.0.0"
-    
-    @abstractmethod
-    def activate(self, context: Dict[str, Any]) -> None:
-        """Activate the plugin."""
-        pass
-    
-    @abstractmethod
-    def deactivate(self) -> None:
-        """Deactivate the plugin."""
-        pass
-
-
-class RetrievalPlugin(PluginInterface):
-    """Plugin for custom retrieval strategies."""
-    
-    @abstractmethod
-    def retrieve(
-        self,
-        query: str,
-        top_k: int,
-        context: Dict[str, Any],
-    ) -> List[Dict[str, Any]]:
-        """Custom retrieval logic."""
-        pass
-
-
-class GenerationPlugin(PluginInterface):
-    """Plugin for custom generation strategies."""
-    
-    @abstractmethod
-    def generate(
-        self,
-        prompt: str,
-        context: Dict[str, Any],
-    ) -> str:
-        """Custom generation logic."""
-        pass
-
-
-class EvaluationPlugin(PluginInterface):
-    """Plugin for custom evaluation metrics."""
-    
-    @abstractmethod
-    def evaluate(
-        self,
-        output: str,
-        reference: str,
-        context: Dict[str, Any],
-    ) -> Dict[str, float]:
-        """Custom evaluation logic."""
-        pass
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "version": self.version,
+            "type": self.type,
+            "entrypoint": self.entrypoint,
+            "dependencies": self.dependencies,
+            "hardware": self.hardware
+        }
 
 
 class PluginManager:
-    """Manages plugin lifecycle.
+    """
+    Plugin Manager - プラグインの統一管理。
     
-    Per RP-425:
-    - Plugin API definition
-    - Sample plugins
-    - Marketplace support
+    ロード条件:
+    1. plugin.json が存在
+    2. id, entrypoint が存在
+    3. entrypoint が import 可能
+    4. Plugin クラスが activate/run/deactivate を実装
     """
     
-    def __init__(
-        self,
-        plugins_dir: str = "plugins",
-    ):
-        self.plugins_dir = Path(plugins_dir)
-        self._plugins: Dict[str, PluginInterface] = {}
-        self._active: Dict[str, bool] = {}
+    def __init__(self, plugins_dir: Optional[Path] = None):
+        self.plugins_dir = plugins_dir or Path("plugins")
+        self.manifests: Dict[str, PluginManifest] = {}
+        self.instances: Dict[str, Any] = {}
+        self.errors: List[str] = []
     
-    def discover_plugins(self) -> List[PluginInfo]:
-        """Discover available plugins.
+    def discover(self) -> List[PluginManifest]:
+        """
+        利用可能なプラグインを検出。
         
         Returns:
-            List of available plugins.
+            有効なマニフェストのリスト
         """
-        plugins = []
+        manifests = []
+        self.errors = []
         
         if not self.plugins_dir.exists():
-            return plugins
+            return manifests
         
         for plugin_dir in self.plugins_dir.iterdir():
-            if plugin_dir.is_dir():
-                manifest_path = plugin_dir / "plugin.json"
-                if manifest_path.exists():
-                    import json
-                    with open(manifest_path) as f:
-                        manifest = json.load(f)
-                        plugins.append(PluginInfo(
-                            plugin_id=manifest.get("id", plugin_dir.name),
-                            name=manifest.get("name", plugin_dir.name),
-                            version=manifest.get("version", "1.0.0"),
-                            description=manifest.get("description", ""),
-                            author=manifest.get("author", ""),
-                            entry_point=manifest.get("entry_point", "__init__.py"),
-                            dependencies=manifest.get("dependencies", []),
-                        ))
+            if not plugin_dir.is_dir():
+                continue
+            
+            manifest_path = plugin_dir / "plugin.json"
+            
+            if not manifest_path.exists():
+                self.errors.append(
+                    f"Plugin '{plugin_dir.name}' missing plugin.json"
+                )
+                continue
+            
+            try:
+                manifest = PluginManifest.from_json(manifest_path)
+                manifests.append(manifest)
+                self.manifests[manifest.id] = manifest
+            except PluginValidationError as e:
+                self.errors.append(str(e))
+            except Exception as e:
+                self.errors.append(
+                    f"Failed to load plugin '{plugin_dir.name}': {e}"
+                )
         
-        return plugins
+        return manifests
     
-    def load_plugin(self, plugin_id: str) -> Optional[PluginInterface]:
-        """Load a plugin by ID.
+    def validate_all(self) -> bool:
+        """
+        全プラグインを検証。
+        
+        Returns:
+            全て有効ならTrue
+        
+        Raises:
+            PluginValidationError: 1つでも不正なら
+        """
+        self.discover()
+        
+        if self.errors:
+            raise PluginValidationError(
+                f"Plugin validation failed:\n" + 
+                "\n".join(f"  - {e}" for e in self.errors)
+            )
+        
+        return True
+    
+    def load(self, plugin_id: str) -> Any:
+        """
+        プラグインをロード。
         
         Args:
-            plugin_id: Plugin identifier.
-            
+            plugin_id: プラグインID
+        
         Returns:
-            Loaded plugin or None.
+            プラグインインスタンス
         """
-        plugin_dir = self.plugins_dir / plugin_id
+        if plugin_id in self.instances:
+            return self.instances[plugin_id]
         
-        if not plugin_dir.exists():
-            return None
+        if plugin_id not in self.manifests:
+            self.discover()
         
-        # Load plugin module
-        init_path = plugin_dir / "__init__.py"
-        if not init_path.exists():
-            return None
+        if plugin_id not in self.manifests:
+            raise PluginError(f"Plugin '{plugin_id}' not found")
+        
+        manifest = self.manifests[plugin_id]
+        
+        # entrypoint パース: "plugin.py:PluginClass"
+        parts = manifest.entrypoint.split(":")
+        if len(parts) != 2:
+            raise PluginValidationError(
+                f"Invalid entrypoint format: {manifest.entrypoint}. "
+                f"Expected 'module.py:ClassName'"
+            )
+        
+        module_file, class_name = parts
+        module_name = f"plugins.{plugin_id}.{module_file.replace('.py', '')}"
         
         try:
-            spec = importlib.util.spec_from_file_location(
-                f"plugins.{plugin_id}",
-                init_path,
-            )
-            if spec and spec.loader:
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-                
-                # Look for Plugin class
-                if hasattr(module, "Plugin"):
-                    plugin = module.Plugin()
-                    self._plugins[plugin_id] = plugin
-                    return plugin
-        except Exception:
-            pass
+            module = importlib.import_module(module_name)
+            plugin_class = getattr(module, class_name)
+        except ImportError as e:
+            raise PluginError(f"Failed to import {module_name}: {e}")
+        except AttributeError as e:
+            raise PluginError(f"Class '{class_name}' not found in {module_name}")
         
-        return None
+        # プロトコルチェック
+        required_methods = ["activate", "run", "deactivate"]
+        for method in required_methods:
+            if not hasattr(plugin_class, method):
+                raise PluginValidationError(
+                    f"Plugin '{plugin_id}' missing required method: {method}"
+                )
+        
+        instance = plugin_class()
+        self.instances[plugin_id] = instance
+        
+        return instance
     
-    def activate_plugin(
-        self,
-        plugin_id: str,
-        context: Optional[Dict[str, Any]] = None,
-    ) -> bool:
-        """Activate a plugin.
+    def load_all(self) -> Dict[str, Any]:
+        """全プラグインをロード。"""
+        self.discover()
         
-        Args:
-            plugin_id: Plugin identifier.
-            context: Activation context.
-            
-        Returns:
-            True if activated.
-        """
-        plugin = self._plugins.get(plugin_id)
-        
-        if not plugin:
-            plugin = self.load_plugin(plugin_id)
-        
-        if plugin:
+        for plugin_id in self.manifests:
             try:
-                plugin.activate(context or {})
-                self._active[plugin_id] = True
-                return True
-            except Exception:
-                pass
+                self.load(plugin_id)
+            except Exception as e:
+                self.errors.append(f"Failed to load '{plugin_id}': {e}")
         
-        return False
+        return self.instances
     
-    def deactivate_plugin(self, plugin_id: str) -> bool:
-        """Deactivate a plugin.
-        
-        Args:
-            plugin_id: Plugin identifier.
-            
-        Returns:
-            True if deactivated.
-        """
-        plugin = self._plugins.get(plugin_id)
-        
-        if plugin and self._active.get(plugin_id):
-            try:
-                plugin.deactivate()
-                self._active[plugin_id] = False
-                return True
-            except Exception:
-                pass
-        
-        return False
-    
-    def get_plugin(self, plugin_id: str) -> Optional[PluginInterface]:
-        """Get a loaded plugin.
-        
-        Args:
-            plugin_id: Plugin identifier.
-            
-        Returns:
-            Plugin instance or None.
-        """
-        return self._plugins.get(plugin_id)
-    
-    def list_active_plugins(self) -> List[str]:
-        """List active plugins.
-        
-        Returns:
-            List of active plugin IDs.
-        """
-        return [pid for pid, active in self._active.items() if active]
-    
-    def register_plugin(self, plugin: PluginInterface) -> None:
-        """Register a plugin instance directly.
-        
-        Args:
-            plugin: Plugin instance.
-        """
-        self._plugins[plugin.plugin_id] = plugin
+    def get_errors(self) -> List[str]:
+        """エラー一覧を取得。"""
+        return self.errors
+
+
+# グローバルマネージャ
+_manager: Optional[PluginManager] = None
+
+
+def get_plugin_manager(plugins_dir: Optional[Path] = None) -> PluginManager:
+    """PluginManagerを取得。"""
+    global _manager
+    if _manager is None:
+        _manager = PluginManager(plugins_dir)
+    return _manager

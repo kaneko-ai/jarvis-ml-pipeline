@@ -1,0 +1,23 @@
+{
+    "papers_processed": 1,
+    "claims_extracted": [
+        "We demonstrate that PD-1 blockade significantly enhances T-cell activation."
+    ],
+    "numerics": [
+        {
+            "type": "sample_size",
+            "value": "100"
+        },
+        {
+            "type": "p_value",
+            "value": "0.001"
+        }
+    ],
+    "methods": [
+        "Western blot",
+        "flow cytometry"
+    ],
+    "limitations": [
+        "small sample size"
+    ]
+}

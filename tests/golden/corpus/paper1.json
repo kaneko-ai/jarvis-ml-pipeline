@@ -1,0 +1,15 @@
+{
+    "title": "Cancer immunotherapy mechanisms",
+    "abstract": "We demonstrate that PD-1 blockade significantly enhances T-cell activation. The results show that pembrolizumab (n=100) improved overall survival (p<0.001) compared to placebo. In vitro experiments confirmed the mechanism via Western blot analysis. However, small sample size is a limitation of this study.",
+    "year": 2023,
+    "journal": "Nature Medicine",
+    "authors": [
+        "Test Author"
+    ],
+    "sections": {
+        "Abstract": "We demonstrate that PD-1 blockade significantly enhances T-cell activation.",
+        "Methods": "Western blot and flow cytometry were used. Randomized controlled trial with n=100.",
+        "Results": "Pembrolizumab improved OS (HR=0.65, 95% CI 0.5-0.8, p<0.001).",
+        "Discussion": "These findings suggest PD-1 is a valid target. Limitation: small sample size."
+    }
+}

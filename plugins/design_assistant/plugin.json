@@ -1,11 +1,11 @@
 {
-    "name": "design_assistant",
+    "id": "design_assistant",
     "version": "1.0.0",
     "type": "design",
     "entrypoint": "plugin.py:DesignPlugin",
-    "description": "Gap analysis, experiment design, protocol generation, statistical design",
-    "requires": [],
+    "dependencies": [],
     "hardware": {
-        "gpu_optional": false
+        "gpu_optional": false,
+        "min_vram_gb": 0
     }
 }
