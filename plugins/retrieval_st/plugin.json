@@ -1,0 +1,13 @@
+{
+    "name": "retrieval_st",
+    "version": "1.0.0",
+    "type": "retrieval",
+    "entrypoint": "plugin.py:RetrievalPlugin",
+    "description": "Retrieval plugin with SentenceTransformer embeddings, BM25, query expansion",
+    "requires": [],
+    "hardware": {
+        "gpu_optional": true,
+        "min_vram_gb": 0
+    },
+    "config_schema": null
+}

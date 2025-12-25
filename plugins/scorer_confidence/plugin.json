@@ -1,0 +1,11 @@
+{
+    "name": "scorer_confidence",
+    "version": "1.0.0",
+    "type": "score",
+    "entrypoint": "plugin.py:ScoringPlugin",
+    "description": "Importance, Confidence, Bias, Evidence Tier, ROI scoring",
+    "requires": [],
+    "hardware": {
+        "gpu_optional": false
+    }
+}
