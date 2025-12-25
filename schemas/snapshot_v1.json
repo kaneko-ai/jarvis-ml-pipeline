@@ -1,0 +1,252 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://jarvis-research-os/schemas/snapshot_v1.json",
+    "title": "JARVIS Snapshot Schema v1",
+    "description": "再現性のためのスナップショットスキーマ。再実行時に同等の結果を保証。",
+    "type": "object",
+    "required": [
+        "run_id",
+        "created_at",
+        "query_package"
+    ],
+    "properties": {
+        "run_id": {
+            "type": "string",
+            "description": "実行ID"
+        },
+        "created_at": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "snapshot_version": {
+            "type": "string",
+            "default": "1"
+        },
+        "query_package": {
+            "type": "object",
+            "required": [
+                "query",
+                "source"
+            ],
+            "properties": {
+                "query": {
+                    "type": "string"
+                },
+                "query_hash": {
+                    "type": "string"
+                },
+                "filters": {
+                    "type": "object",
+                    "properties": {
+                        "date_from": {
+                            "type": "string"
+                        },
+                        "date_to": {
+                            "type": "string"
+                        },
+                        "publication_types": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "languages": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "source": {
+                    "type": "string",
+                    "enum": [
+                        "pubmed",
+                        "pmc",
+                        "semantic_scholar",
+                        "mock"
+                    ]
+                },
+                "max_results": {
+                    "type": "integer"
+                }
+            }
+        },
+        "search_results": {
+            "type": "object",
+            "properties": {
+                "total_count": {
+                    "type": "integer"
+                },
+                "returned_count": {
+                    "type": "integer"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "doc_id",
+                            "rank"
+                        ],
+                        "properties": {
+                            "doc_id": {
+                                "type": "string"
+                            },
+                            "pmid": {
+                                "type": "string"
+                            },
+                            "pmcid": {
+                                "type": "string"
+                            },
+                            "rank": {
+                                "type": "integer"
+                            },
+                            "score": {
+                                "type": "number"
+                            },
+                            "title": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "retrieved_content": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "doc_id",
+                    "content_hash"
+                ],
+                "properties": {
+                    "doc_id": {
+                        "type": "string"
+                    },
+                    "content_hash": {
+                        "type": "string",
+                        "description": "フルコンテンツのSHA256ハッシュ"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "abstract": {
+                        "type": "string"
+                    },
+                    "sections": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "retrieval_status": {
+                        "type": "string",
+                        "enum": [
+                            "full",
+                            "abstract_only",
+                            "failed",
+                            "cached"
+                        ]
+                    }
+                }
+            }
+        },
+        "chunk_mapping": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "doc_id",
+                    "chunk_id",
+                    "start",
+                    "end"
+                ],
+                "properties": {
+                    "doc_id": {
+                        "type": "string"
+                    },
+                    "chunk_id": {
+                        "type": "string"
+                    },
+                    "section": {
+                        "type": "string"
+                    },
+                    "start": {
+                        "type": "integer"
+                    },
+                    "end": {
+                        "type": "integer"
+                    },
+                    "text_hash": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "model_io": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "stage_id",
+                    "model_id"
+                ],
+                "properties": {
+                    "stage_id": {
+                        "type": "string"
+                    },
+                    "model_id": {
+                        "type": "string"
+                    },
+                    "model_version": {
+                        "type": "string"
+                    },
+                    "prompt_hash": {
+                        "type": "string"
+                    },
+                    "params": {
+                        "type": "object",
+                        "properties": {
+                            "temperature": {
+                                "type": "number"
+                            },
+                            "top_p": {
+                                "type": "number"
+                            },
+                            "seed": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "output_hash": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "degraded": {
+            "type": "object",
+            "properties": {
+                "is_degraded": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "reasons": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "degraded_docs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "additionalProperties": true
+}
