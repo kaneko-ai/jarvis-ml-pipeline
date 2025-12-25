@@ -1,0 +1,34 @@
+pipeline: pretrain_citation_reconstruction
+version: 1
+description: 引用再構成パイプライン（citation-conditioned reasoning評価データ生成）
+
+stages:
+  # Phase 1: 論文A取得と参照抽出
+  - id: retrieval.get_paper_A
+  - id: extraction.references_from_A
+  - id: retrieval.fetch_R_set
+  
+  # Phase 2: リーク検出とダイジェスト
+  - id: screening.leakage_filter
+  - id: summarization.R_set_digest
+  
+  # Phase 3: 再構成生成（A本文を見ずに）
+  - id: generation.reconstruct_background_discussion
+  
+  # Phase 4: 評価
+  - id: extraction.gold_from_A
+  - id: evaluation.match_score
+  
+  # Phase 5: ゲートと保存
+  - id: quality_gate.no_leakage
+  - id: ops.store_training_record
+
+policies:
+  seed: 42
+  provenance_required: true
+  timeouts:
+    stage_default_sec: 300
+
+quality_gates:
+  leakage_threshold: 0.3
+  min_match_score: 0.5

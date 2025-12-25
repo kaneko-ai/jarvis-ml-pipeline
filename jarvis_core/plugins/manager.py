@@ -87,11 +87,17 @@ class PluginManifest:
                     f"Missing required key '{key}' in {path}"
                 )
         
-        # 不正キーチェック（緩い検証 - name/descriptionも許可）
-        # all_valid_keys = set(REQUIRED_KEYS + OPTIONAL_KEYS)
-        # for key in data.keys():
-        #     if key not in all_valid_keys:
-        #         raise PluginValidationError(...)
+        # 不正キーチェック（厳格検証 - 余剰キーは即エラー）
+        # 後方互換: name/description/requires/enabled も許可
+        all_valid_keys = set(REQUIRED_KEYS + OPTIONAL_KEYS + [
+            "name", "description", "requires", "enabled"
+        ])
+        for key in data.keys():
+            if key not in all_valid_keys:
+                raise PluginValidationError(
+                    f"Unknown key '{key}' in {path}. "
+                    f"Allowed keys: {sorted(all_valid_keys)}"
+                )
         
         # typeチェック
         if "type" in data and data["type"] not in VALID_TYPES:

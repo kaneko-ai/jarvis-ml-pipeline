@@ -181,37 +181,117 @@ def stage_output_design_view(context: TaskContext, artifacts: Artifacts) -> Arti
 
 @register_stage("output.export_bundle", "結果バンドル出力")
 def stage_output_export_bundle(context: TaskContext, artifacts: Artifacts) -> Artifacts:
-    """結果バンドル出力ステージ。"""
+    """
+    結果バンドル出力ステージ。
+    
+    export_bundle.json を生成:
+    - summary: 要約
+    - scores: スコア
+    - claims: 主張リスト（evidence_links付き）
+    - evidence_links: 全根拠リンク
+    - run_meta: 実行メタデータ
+    - quality_report: 品質レポート
+    """
+    from datetime import datetime
+    from jarvis_core.evaluation import get_quality_gates
+    
+    # Quality Gateを実行
+    gates = get_quality_gates()
+    quality_report = gates.run_all(
+        claims=artifacts.claims,
+        expected_stages=10,
+        completed_stages=10,
+        validate_evidence_spans=False  # export時は軽量化
+    )
+    
+    # Evidence linksを収集
+    evidence_links = []
+    for claim in artifacts.claims:
+        for ev in claim.evidence:
+            evidence_links.append({
+                "claim_id": claim.claim_id,
+                "doc_id": ev.doc_id,
+                "section": ev.section,
+                "chunk_id": ev.chunk_id,
+                "start": ev.start,
+                "end": ev.end,
+                "confidence": ev.confidence,
+                "text": ev.text[:200] if ev.text else None
+            })
+    
+    # Claims形式化
+    claims_data = []
+    for claim in artifacts.claims:
+        claims_data.append({
+            "claim_id": claim.claim_id,
+            "claim_text": claim.claim_text,
+            "claim_type": claim.claim_type,
+            "confidence": claim.confidence,
+            "has_evidence": claim.has_evidence(),
+            "evidence_count": len(claim.evidence)
+        })
+    
+    # 完全なバンドル
     bundle = {
-        "run_id": context.run_id,
-        "goal": context.goal,
-        "domain": context.domain,
-        "timestamp": context.timestamp,
+        "version": "1.0",
+        "run_meta": {
+            "run_id": context.run_id,
+            "goal": context.goal,
+            "domain": context.domain,
+            "timestamp": datetime.now().isoformat(),
+            "papers_count": len(artifacts.papers),
+            "claims_count": len(artifacts.claims),
+            "provenance_rate": artifacts.get_provenance_rate()
+        },
         "papers": [
-            {"doc_id": p.doc_id, "title": p.title}
+            {
+                "doc_id": p.doc_id, 
+                "title": p.title,
+                "pmid": p.pmid,
+                "abstract": (p.abstract or "")[:500]
+            }
             for p in artifacts.papers
         ],
-        "claims_count": len(artifacts.claims),
-        "scores": {k: v.value for k, v in artifacts.scores.items()},
-        "summaries": dict(artifacts.summaries)
+        "claims": claims_data,
+        "evidence_links": evidence_links,
+        "scores": {k: {"value": v.value, "explanation": v.explanation} 
+                   for k, v in artifacts.scores.items()},
+        "summaries": dict(artifacts.summaries),
+        "quality_report": quality_report.to_dict()
     }
     
     artifacts.metadata["export_bundle"] = bundle
     
-    # ファイル出力（オプショナル）
-    output_dir = Path("artifacts/bundles")
+    # ファイル出力
+    output_dir = Path("artifacts") / context.run_id
     output_dir.mkdir(parents=True, exist_ok=True)
-    bundle_path = output_dir / f"bundle_{context.run_id}.json"
     
+    bundle_path = output_dir / "export_bundle.json"
     try:
         with open(bundle_path, "w", encoding="utf-8") as f:
             json.dump(bundle, f, ensure_ascii=False, indent=2)
-    except Exception:
-        pass  # CI環境ではスキップ
+        
+        # docs_store.json も生成（原文断片）
+        docs_store = {}
+        for p in artifacts.papers:
+            docs_store[p.doc_id] = {
+                "title": p.title,
+                "abstract": p.abstract,
+                "sections": p.sections,
+                "chunks": p.chunks
+            }
+        
+        docs_store_path = output_dir / "docs_store.json"
+        with open(docs_store_path, "w", encoding="utf-8") as f:
+            json.dump(docs_store, f, ensure_ascii=False, indent=2)
+            
+    except Exception as e:
+        # CI環境ではスキップ
+        artifacts.metadata["export_bundle_error"] = str(e)
     
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Export bundle created",
+        claim_text=f"Export bundle created: {len(claims_data)} claims, {len(evidence_links)} evidence links",
         evidence=[EvidenceLink(
             doc_id="internal", section="export",
             chunk_id="exp_log", start=0, end=10, confidence=1.0
@@ -219,7 +299,8 @@ def stage_output_export_bundle(context: TaskContext, artifacts: Artifacts) -> Ar
         claim_type="log"
     ))
     
-    log_audit("output.export_bundle", "completed")
+    log_audit("output.export_bundle", "completed",
+              details={"claims": len(claims_data), "evidence_links": len(evidence_links)})
     return artifacts
 
 

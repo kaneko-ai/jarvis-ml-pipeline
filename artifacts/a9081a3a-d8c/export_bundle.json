@@ -1,0 +1,298 @@
+{
+  "version": "1.0",
+  "run_meta": {
+    "run_id": "a9081a3a-d8c",
+    "goal": "CD73 tumor microenvironment",
+    "domain": "oncology",
+    "timestamp": "2025-12-26T00:28:55.197377",
+    "papers_count": 3,
+    "claims_count": 12,
+    "provenance_rate": 1.0
+  },
+  "papers": [
+    {
+      "doc_id": "pmid:36991446",
+      "title": "Test Paper 1",
+      "pmid": "36991446",
+      "abstract": "This study demonstrates that CD73 plays a key role in tumor microenvironment. We show that inhibition of CD73 enhances antitumor immunity."
+    },
+    {
+      "doc_id": "pmid:36451063",
+      "title": "Test Paper 2",
+      "pmid": "36451063",
+      "abstract": "This study demonstrates that CD73 plays a key role in tumor microenvironment. We show that inhibition of CD73 enhances antitumor immunity."
+    },
+    {
+      "doc_id": "pmid:35982657",
+      "title": "Test Paper 3",
+      "pmid": "35982657",
+      "abstract": "This study demonstrates that CD73 plays a key role in tumor microenvironment. We show that inhibition of CD73 enhances antitumor immunity."
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "c-06291999",
+      "claim_text": "Query expanded: CD73 tumor microenvironment -> 1 variants",
+      "claim_type": "log",
+      "confidence": 0.0,
+      "has_evidence": true,
+      "evidence_count": 1
+    },
+    {
+      "claim_id": "c-341382af",
+      "claim_text": "BM25 search executed",
+      "claim_type": "log",
+      "confidence": 0.0,
+      "has_evidence": true,
+      "evidence_count": 1
+    },
+    {
+      "claim_id": "c-d5be9741",
+      "claim_text": "Embedded 3 papers",
+      "claim_type": "log",
+      "confidence": 0.0,
+      "has_evidence": true,
+      "evidence_count": 1
+    },
+    {
+      "claim_id": "c-45c24c8c",
+      "claim_text": "PICO extracted for 3 papers",
+      "claim_type": "log",
+      "confidence": 0.0,
+      "has_evidence": true,
+      "evidence_count": 1
+    },
+    {
+      "claim_id": "c-94225977",
+      "claim_text": "OA status checked",
+      "claim_type": "log",
+      "confidence": 0.0,
+      "has_evidence": true,
+      "evidence_count": 1
+    },
+    {
+      "claim_id": "c-45438a1b",
+      "claim_text": "Filtered 0 papers by rules",
+      "claim_type": "log",
+      "confidence": 0.0,
+      "has_evidence": true,
+      "evidence_count": 1
+    },
+    {
+      "claim_id": "c-cca40112",
+      "claim_text": "inhibition of CD73 enhances antitumor immunity.",
+      "claim_type": "fact",
+      "confidence": 0.0,
+      "has_evidence": true,
+      "evidence_count": 1
+    },
+    {
+      "claim_id": "c-aec79f6c",
+      "claim_text": "inhibition of CD73 enhances antitumor immunity.",
+      "claim_type": "fact",
+      "confidence": 0.0,
+      "has_evidence": true,
+      "evidence_count": 1
+    },
+    {
+      "claim_id": "c-6bbb3dda",
+      "claim_text": "inhibition of CD73 enhances antitumor immunity.",
+      "claim_type": "fact",
+      "confidence": 0.0,
+      "has_evidence": true,
+      "evidence_count": 1
+    },
+    {
+      "claim_id": "c-e63a72fd",
+      "claim_text": "Evidence linking completed",
+      "claim_type": "log",
+      "confidence": 0.0,
+      "has_evidence": true,
+      "evidence_count": 1
+    },
+    {
+      "claim_id": "c-2bf6dd64",
+      "claim_text": "Extracted 0 numeric values",
+      "claim_type": "log",
+      "confidence": 0.0,
+      "has_evidence": true,
+      "evidence_count": 1
+    },
+    {
+      "claim_id": "c-a1302ff4",
+      "claim_text": "Generated summaries for 3 papers",
+      "claim_type": "log",
+      "confidence": 0.0,
+      "has_evidence": true,
+      "evidence_count": 1
+    }
+  ],
+  "evidence_links": [
+    {
+      "claim_id": "c-06291999",
+      "doc_id": "internal",
+      "section": "query_expand",
+      "chunk_id": "expansion_log",
+      "start": 0,
+      "end": 27,
+      "confidence": 1.0,
+      "text": null
+    },
+    {
+      "claim_id": "c-341382af",
+      "doc_id": "internal",
+      "section": "search_bm25",
+      "chunk_id": "search_log",
+      "start": 0,
+      "end": 10,
+      "confidence": 1.0,
+      "text": null
+    },
+    {
+      "claim_id": "c-d5be9741",
+      "doc_id": "internal",
+      "section": "embed",
+      "chunk_id": "embed_log",
+      "start": 0,
+      "end": 10,
+      "confidence": 1.0,
+      "text": null
+    },
+    {
+      "claim_id": "c-45c24c8c",
+      "doc_id": "internal",
+      "section": "pico",
+      "chunk_id": "pico_log",
+      "start": 0,
+      "end": 10,
+      "confidence": 1.0,
+      "text": null
+    },
+    {
+      "claim_id": "c-94225977",
+      "doc_id": "internal",
+      "section": "oa_check",
+      "chunk_id": "oa_log",
+      "start": 0,
+      "end": 10,
+      "confidence": 1.0,
+      "text": null
+    },
+    {
+      "claim_id": "c-45438a1b",
+      "doc_id": "internal",
+      "section": "filter",
+      "chunk_id": "filter_log",
+      "start": 0,
+      "end": 10,
+      "confidence": 1.0,
+      "text": null
+    },
+    {
+      "claim_id": "c-cca40112",
+      "doc_id": "pmid:36991446",
+      "section": "abstract",
+      "chunk_id": "pmid:36991446_abstract",
+      "start": 91,
+      "end": 138,
+      "confidence": 0.85,
+      "text": "inhibition of CD73 enhances antitumor immunity."
+    },
+    {
+      "claim_id": "c-aec79f6c",
+      "doc_id": "pmid:36451063",
+      "section": "abstract",
+      "chunk_id": "pmid:36451063_abstract",
+      "start": 91,
+      "end": 138,
+      "confidence": 0.85,
+      "text": "inhibition of CD73 enhances antitumor immunity."
+    },
+    {
+      "claim_id": "c-6bbb3dda",
+      "doc_id": "pmid:35982657",
+      "section": "abstract",
+      "chunk_id": "pmid:35982657_abstract",
+      "start": 91,
+      "end": 138,
+      "confidence": 0.85,
+      "text": "inhibition of CD73 enhances antitumor immunity."
+    },
+    {
+      "claim_id": "c-e63a72fd",
+      "doc_id": "internal",
+      "section": "evidence_link",
+      "chunk_id": "link_log",
+      "start": 0,
+      "end": 10,
+      "confidence": 1.0,
+      "text": null
+    },
+    {
+      "claim_id": "c-2bf6dd64",
+      "doc_id": "internal",
+      "section": "numeric",
+      "chunk_id": "numeric_log",
+      "start": 0,
+      "end": 10,
+      "confidence": 1.0,
+      "text": null
+    },
+    {
+      "claim_id": "c-a1302ff4",
+      "doc_id": "internal",
+      "section": "summarization",
+      "chunk_id": "sum_log",
+      "start": 0,
+      "end": 10,
+      "confidence": 1.0,
+      "text": null
+    }
+  ],
+  "scores": {},
+  "summaries": {
+    "pmid:36991446": "This study demonstrates that CD73 plays a key role in tumor microenvironment. We show that inhibition of CD73 enhances antitumor immunity.",
+    "pmid:36451063": "This study demonstrates that CD73 plays a key role in tumor microenvironment. We show that inhibition of CD73 enhances antitumor immunity.",
+    "pmid:35982657": "This study demonstrates that CD73 plays a key role in tumor microenvironment. We show that inhibition of CD73 enhances antitumor immunity."
+  },
+  "quality_report": {
+    "passed": true,
+    "gates": [
+      {
+        "name": "fact_provenance_rate",
+        "passed": true,
+        "threshold": 0.95,
+        "actual": 1.0,
+        "message": "事実根拠率: 100.0% (3/3)"
+      },
+      {
+        "name": "facts_without_evidence",
+        "passed": true,
+        "threshold": 0,
+        "actual": 0.0,
+        "message": "根拠なし事実: 0件"
+      },
+      {
+        "name": "hypothesis_in_conclusion",
+        "passed": true,
+        "threshold": 0,
+        "actual": 0,
+        "message": "主要結論未指定（スキップ）"
+      },
+      {
+        "name": "pipeline_completion",
+        "passed": true,
+        "threshold": 1.0,
+        "actual": 1.0,
+        "message": "完走率: 100.0% (10/10)"
+      }
+    ],
+    "recommendations": [],
+    "metrics": {
+      "fact_count": 3,
+      "hypothesis_count": 0,
+      "fact_provenance_rate": 1.0,
+      "hypothesis_provenance_rate": 0.0
+    }
+  }
+}

@@ -1,0 +1,39 @@
+pipeline: e2e_oa10
+version: 1
+description: E2E検証パイプライン（OA論文10本固定）
+
+stages:
+  # Phase 1: Retrieval（簡略化）
+  - id: retrieval.query_expand
+  - id: retrieval.search_bm25
+  - id: retrieval.embed_sectionwise
+  
+  # Phase 2: Screening（必須のみ）
+  - id: screening.pico_extract
+  - id: screening.oa_check
+  - id: screening.filter_rules
+  
+  # Phase 3: Extraction（コア）
+  - id: extraction.claims
+  - id: extraction.evidence_link
+  - id: extraction.numeric
+  
+  # Phase 4: Summarization
+  - id: summarization.multigrain
+
+  # Phase 5: Output
+  - id: output.export_bundle
+  
+  # Phase 6: Quality Gate
+  - id: quality_gate.provenance_check
+
+policies:
+  seed: 42
+  provenance_required: true
+  refuse_if_no_evidence: true
+  timeouts:
+    stage_default_sec: 300
+
+quality_gates:
+  provenance_rate: 0.95
+  facts_without_evidence: 0

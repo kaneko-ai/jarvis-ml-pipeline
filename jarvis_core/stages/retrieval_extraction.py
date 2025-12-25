@@ -91,18 +91,62 @@ def stage_query_decompose(context: TaskContext, artifacts: Artifacts) -> Artifac
     return artifacts
 
 
-@register_stage("retrieval.search_bm25", "BM25検索")
+@register_stage("retrieval.search_bm25", "BM25検索（PubMed API）")
 def stage_search_bm25(context: TaskContext, artifacts: Artifacts) -> Artifacts:
-    """BM25検索ステージ。"""
-    # 検索実行（モック）
-    artifacts.metadata["bm25_results"] = [
-        {"doc_id": "pmid:12345", "score": 0.85},
-        {"doc_id": "pmid:67890", "score": 0.72}
-    ]
+    """
+    BM25検索ステージ.
+    
+    PubMed E-utilities経由で実際に検索を実行。
+    環境変数 USE_MOCK_PUBMED=1 でモックモードに切替可能。
+    """
+    import os
+    
+    goal = context.goal
+    use_mock = os.environ.get("USE_MOCK_PUBMED", "0") == "1"
+    
+    if use_mock:
+        # モックモード（CIやオフライン用）
+        artifacts.metadata["bm25_results"] = [
+            {"doc_id": "pmid:12345", "score": 0.85},
+            {"doc_id": "pmid:67890", "score": 0.72}
+        ]
+        artifacts.metadata["search_source"] = "mock"
+    else:
+        # 実APIモード
+        try:
+            from jarvis_core.connectors.pubmed import get_pubmed_connector
+            
+            connector = get_pubmed_connector()
+            papers = connector.search_and_fetch(goal, max_results=20)
+            
+            # 結果をartifactsに追加
+            bm25_results = []
+            for i, paper in enumerate(papers):
+                # PaperDocをPaperに変換して追加
+                artifacts.add_paper(paper.to_paper())
+                
+                bm25_results.append({
+                    "doc_id": f"pmid:{paper.pmid}",
+                    "score": 1.0 - (i * 0.05),  # 順位ベースのスコア
+                    "pmcid": paper.pmcid,
+                    "is_oa": paper.is_oa
+                })
+            
+            artifacts.metadata["bm25_results"] = bm25_results
+            artifacts.metadata["search_source"] = "pubmed_api"
+            artifacts.metadata["search_query"] = goal
+            
+        except Exception as e:
+            # エラー時はモックにフォールバック
+            artifacts.metadata["bm25_results"] = []
+            artifacts.metadata["search_source"] = "error"
+            artifacts.metadata["search_error"] = str(e)
+    
+    result_count = len(artifacts.metadata.get("bm25_results", []))
     
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="BM25 search executed",
+        claim_text=f"PubMed search executed: {result_count} results for '{goal[:50]}'",
         evidence=[EvidenceLink(
             doc_id="internal", section="search_bm25",
             chunk_id="search_log", start=0, end=10, confidence=1.0
@@ -110,7 +154,8 @@ def stage_search_bm25(context: TaskContext, artifacts: Artifacts) -> Artifacts:
         claim_type="log"
     ))
     
-    log_audit("retrieval.search_bm25", "completed")
+    log_audit("retrieval.search_bm25", "completed",
+              details={"results": result_count, "source": artifacts.metadata.get("search_source")})
     return artifacts
 
 

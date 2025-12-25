@@ -1,0 +1,164 @@
+# JARVIS CI - Grep Checks & Code Quality
+# 禁止パターン検出とコード品質チェック
+
+name: Code Quality Checks
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  grep-checks:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check for prohibited patterns
+        run: |
+          echo "Checking for prohibited patterns..."
+          ERRORS=0
+          
+          # FAKE/MOCK data markers in core code
+          if grep -rn "FAKE_DATA\|MOCK_RESULT\|TODO_REPLACE" jarvis_core/ 2>/dev/null; then
+            echo "❌ Found fake/mock markers in jarvis_core/"
+            ERRORS=$((ERRORS+1))
+          fi
+          
+          # Empty stage implementations
+          if grep -rn "pass  # TODO" jarvis_core/stages/ 2>/dev/null; then
+            echo "❌ Found empty TODO implementations in stages"
+            ERRORS=$((ERRORS+1))
+          fi
+          
+          # Suppressed errors
+          if grep -rn "except.*pass\$" jarvis_core/ 2>/dev/null; then
+            echo "⚠️ Warning: Found exception suppression (except...pass)"
+          fi
+          
+          if [ $ERRORS -gt 0 ]; then
+            echo "❌ $ERRORS prohibited pattern(s) found"
+            exit 1
+          fi
+          
+          echo "✅ No prohibited patterns found"
+      
+      - name: Check minimum stage count
+        run: |
+          python3 << 'EOF'
+          import jarvis_core.stages
+          from jarvis_core.pipelines import get_stage_registry
+          
+          registry = get_stage_registry()
+          count = len(registry.list_stages())
+          
+          print(f"Registered stages: {count}")
+          
+          if count < 50:
+              raise RuntimeError(f"Expected at least 50 stages, got {count}")
+          
+          print("✅ Stage count OK")
+          EOF
+
+  plugin-strict-schema:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install -e .
+      
+      - name: Validate plugin.json strict schema
+        run: |
+          python3 << 'EOF'
+          from pathlib import Path
+          from jarvis_core.plugins import get_plugin_manager
+          from jarvis_core.plugins.manager import PluginManifest, PluginValidationError
+          
+          plugins_dir = Path("plugins")
+          errors = []
+          
+          for plugin_dir in plugins_dir.iterdir():
+              if not plugin_dir.is_dir():
+                  continue
+              
+              manifest_path = plugin_dir / "plugin.json"
+              
+              if not manifest_path.exists():
+                  errors.append(f"{plugin_dir.name}: missing plugin.json")
+                  continue
+              
+              try:
+                  # Strict validation (raises on unknown keys)
+                  manifest = PluginManifest.from_json(manifest_path)
+                  print(f"✓ {plugin_dir.name}: {manifest.id} v{manifest.version}")
+              except PluginValidationError as e:
+                  errors.append(f"{plugin_dir.name}: {e}")
+              except Exception as e:
+                  errors.append(f"{plugin_dir.name}: {e}")
+          
+          if errors:
+              print("\n❌ Plugin validation failed:")
+              for e in errors:
+                  print(f"  - {e}")
+              raise RuntimeError("Strict plugin.json validation failed")
+          
+          print("\n✅ All plugins pass strict schema validation!")
+          EOF
+
+  pretrain-pipelines:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install -e .[dev]
+      
+      - name: Validate pretrain pipelines
+        run: |
+          python3 << 'EOF'
+          import yaml
+          from pathlib import Path
+          
+          import jarvis_core.stages
+          from jarvis_core.pipelines import get_stage_registry
+          from jarvis_core.pipelines.executor import PipelineConfig
+          
+          registry = get_stage_registry()
+          pipelines = [
+              "pretrain_citation_reconstruction.yml",
+              "pretrain_meta_core.yml"
+          ]
+          
+          for pipeline_file in pipelines:
+              path = Path("configs/pipelines") / pipeline_file
+              if not path.exists():
+                  raise RuntimeError(f"Pipeline file not found: {path}")
+              
+              config = PipelineConfig.from_yaml(path)
+              print(f"\n{config.name}: {len(config.stages)} stages")
+              
+              # Validate all stages are registered
+              registry.validate_pipeline(config.stages)
+              print(f"  ✅ All stages registered")
+          
+          print("\n✅ All pretrain pipelines valid!")
+          EOF
+      
+      - name: Run pretrain tests
+        run: |
+          python -m pytest tests/test_pretrain_*.py -v --tb=short
