@@ -86,7 +86,10 @@ jobs:
                   manifest = plugin_dir / 'plugin.json'
                   if manifest.exists():
                       data = json.loads(manifest.read_text())
-                      print(f'✓ {data[\"name\"]} v{data[\"version\"]} ({data[\"type\"]})')
+                      plugin_id = data.get('id', data.get('name', plugin_dir.name))
+                      version = data.get('version', '?')
+                      ptype = data.get('type', 'unknown')
+                      print(f'✓ {plugin_id} v{version} ({ptype})')
                   else:
                       print(f'✗ {plugin_dir.name} missing plugin.json')
           "
