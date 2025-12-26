@@ -1,0 +1,290 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://jarvis-research-os/schemas/meta_extract_v1.json",
+    "title": "JARVIS Meta-analysis Extraction Schema v1",
+    "description": "メタ分析用データ抽出の型安全スキーマ。PICO/効果量/アウトカムを規定。",
+    "type": "object",
+    "required": [
+        "study_id",
+        "pico"
+    ],
+    "properties": {
+        "study_id": {
+            "type": "string",
+            "description": "研究ID（pmidまたは内部ID）"
+        },
+        "study_type": {
+            "type": "string",
+            "enum": [
+                "RCT",
+                "cohort",
+                "case_control",
+                "cross_sectional",
+                "case_series",
+                "other"
+            ],
+            "description": "研究デザイン"
+        },
+        "pico": {
+            "type": "object",
+            "required": [
+                "population",
+                "intervention",
+                "outcome"
+            ],
+            "properties": {
+                "population": {
+                    "type": "object",
+                    "required": [
+                        "description"
+                    ],
+                    "properties": {
+                        "description": {
+                            "type": "string"
+                        },
+                        "age_range": {
+                            "type": "string"
+                        },
+                        "sex": {
+                            "type": "string",
+                            "enum": [
+                                "male",
+                                "female",
+                                "both",
+                                "not_specified"
+                            ]
+                        },
+                        "condition": {
+                            "type": "string"
+                        },
+                        "sample_size": {
+                            "type": "integer"
+                        },
+                        "provenance": {
+                            "$ref": "#/definitions/span_reference"
+                        }
+                    }
+                },
+                "intervention": {
+                    "type": "object",
+                    "required": [
+                        "description"
+                    ],
+                    "properties": {
+                        "description": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": [
+                                "drug",
+                                "procedure",
+                                "behavioral",
+                                "device",
+                                "other"
+                            ]
+                        },
+                        "dose": {
+                            "type": "string"
+                        },
+                        "duration": {
+                            "type": "string"
+                        },
+                        "provenance": {
+                            "$ref": "#/definitions/span_reference"
+                        }
+                    }
+                },
+                "comparator": {
+                    "type": "object",
+                    "properties": {
+                        "description": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": [
+                                "placebo",
+                                "active_control",
+                                "standard_care",
+                                "no_treatment",
+                                "other"
+                            ]
+                        },
+                        "provenance": {
+                            "$ref": "#/definitions/span_reference"
+                        }
+                    }
+                },
+                "outcome": {
+                    "type": "object",
+                    "required": [
+                        "description",
+                        "type"
+                    ],
+                    "properties": {
+                        "description": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": [
+                                "continuous",
+                                "binary",
+                                "time_to_event",
+                                "count",
+                                "ordinal"
+                            ]
+                        },
+                        "measurement": {
+                            "type": "string"
+                        },
+                        "timepoint": {
+                            "type": "string"
+                        },
+                        "provenance": {
+                            "$ref": "#/definitions/span_reference"
+                        }
+                    }
+                }
+            }
+        },
+        "effect_estimate": {
+            "type": "object",
+            "required": [
+                "measure",
+                "value"
+            ],
+            "properties": {
+                "measure": {
+                    "type": "string",
+                    "enum": [
+                        "OR",
+                        "RR",
+                        "HR",
+                        "RD",
+                        "MD",
+                        "SMD",
+                        "WMD",
+                        "other"
+                    ],
+                    "description": "効果量タイプ"
+                },
+                "value": {
+                    "type": "number"
+                },
+                "ci_lower": {
+                    "type": "number"
+                },
+                "ci_upper": {
+                    "type": "number"
+                },
+                "ci_level": {
+                    "type": "number",
+                    "default": 0.95
+                },
+                "p_value": {
+                    "type": "number"
+                },
+                "se": {
+                    "type": "number",
+                    "description": "標準誤差"
+                },
+                "direction": {
+                    "type": "string",
+                    "enum": [
+                        "beneficial",
+                        "harmful",
+                        "neutral",
+                        "unknown"
+                    ],
+                    "description": "効果方向"
+                },
+                "provenance": {
+                    "$ref": "#/definitions/span_reference"
+                }
+            }
+        },
+        "sample_data": {
+            "type": "object",
+            "description": "二値/連続アウトカムの生データ",
+            "properties": {
+                "n_treatment": {
+                    "type": "integer"
+                },
+                "n_control": {
+                    "type": "integer"
+                },
+                "events_treatment": {
+                    "type": "integer"
+                },
+                "events_control": {
+                    "type": "integer"
+                },
+                "mean_treatment": {
+                    "type": "number"
+                },
+                "mean_control": {
+                    "type": "number"
+                },
+                "sd_treatment": {
+                    "type": "number"
+                },
+                "sd_control": {
+                    "type": "number"
+                }
+            }
+        },
+        "quality_flags": {
+            "type": "object",
+            "properties": {
+                "pico_complete": {
+                    "type": "boolean"
+                },
+                "effect_extracted": {
+                    "type": "boolean"
+                },
+                "direction_consistent": {
+                    "type": "boolean"
+                },
+                "missing_fields": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "span_reference": {
+            "type": "object",
+            "required": [
+                "doc_id",
+                "start",
+                "end"
+            ],
+            "properties": {
+                "doc_id": {
+                    "type": "string"
+                },
+                "section": {
+                    "type": "string"
+                },
+                "chunk_id": {
+                    "type": "string"
+                },
+                "start": {
+                    "type": "integer"
+                },
+                "end": {
+                    "type": "integer"
+                },
+                "text_preview": {
+                    "type": "string",
+                    "maxLength": 200
+                }
+            }
+        }
+    }
+}
