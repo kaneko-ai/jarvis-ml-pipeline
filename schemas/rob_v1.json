@@ -1,0 +1,162 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://jarvis-research-os/schemas/rob_v1.json",
+    "title": "JARVIS Risk of Bias Schema v1",
+    "description": "バイアスリスク評価スキーマ。RoB2/ROBINS-I準拠。根拠spanは必須。",
+    "type": "object",
+    "required": [
+        "study_id",
+        "tool",
+        "domains",
+        "overall"
+    ],
+    "properties": {
+        "study_id": {
+            "type": "string"
+        },
+        "tool": {
+            "type": "string",
+            "enum": [
+                "RoB2",
+                "ROBINS-I",
+                "ROBINS-E",
+                "NOS",
+                "JBI",
+                "custom"
+            ],
+            "description": "使用したバイアス評価ツール"
+        },
+        "study_type": {
+            "type": "string",
+            "enum": [
+                "RCT",
+                "non_randomized"
+            ]
+        },
+        "domains": {
+            "type": "array",
+            "description": "ドメイン別評価",
+            "items": {
+                "type": "object",
+                "required": [
+                    "domain_id",
+                    "domain_name",
+                    "judgement",
+                    "provenance"
+                ],
+                "properties": {
+                    "domain_id": {
+                        "type": "string",
+                        "description": "ドメインID（D1, D2等）"
+                    },
+                    "domain_name": {
+                        "type": "string",
+                        "description": "ドメイン名"
+                    },
+                    "judgement": {
+                        "type": "string",
+                        "enum": [
+                            "low",
+                            "some_concerns",
+                            "high",
+                            "no_information"
+                        ],
+                        "description": "判定"
+                    },
+                    "reasoning": {
+                        "type": "string",
+                        "description": "判定理由"
+                    },
+                    "provenance": {
+                        "type": "array",
+                        "description": "根拠span（必須）",
+                        "items": {
+                            "$ref": "#/definitions/span_reference"
+                        },
+                        "minItems": 1
+                    },
+                    "signaling_questions": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "question": {
+                                    "type": "string"
+                                },
+                                "answer": {
+                                    "type": "string",
+                                    "enum": [
+                                        "yes",
+                                        "probably_yes",
+                                        "probably_no",
+                                        "no",
+                                        "no_information",
+                                        "not_applicable"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "overall": {
+            "type": "object",
+            "required": [
+                "judgement"
+            ],
+            "properties": {
+                "judgement": {
+                    "type": "string",
+                    "enum": [
+                        "low",
+                        "some_concerns",
+                        "high"
+                    ]
+                },
+                "reasoning": {
+                    "type": "string"
+                }
+            }
+        },
+        "assessor": {
+            "type": "string",
+            "description": "評価者（human/AI-model-id）"
+        },
+        "assessed_at": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "definitions": {
+        "span_reference": {
+            "type": "object",
+            "required": [
+                "doc_id",
+                "start",
+                "end"
+            ],
+            "properties": {
+                "doc_id": {
+                    "type": "string"
+                },
+                "section": {
+                    "type": "string"
+                },
+                "chunk_id": {
+                    "type": "string"
+                },
+                "start": {
+                    "type": "integer"
+                },
+                "end": {
+                    "type": "integer"
+                },
+                "text_preview": {
+                    "type": "string",
+                    "maxLength": 200
+                }
+            }
+        }
+    }
+}
