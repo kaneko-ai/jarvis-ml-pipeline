@@ -1,0 +1,154 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://jarvis-research-os/schemas/controversy_v1.json",
+    "title": "JARVIS Controversy Map Schema v1",
+    "description": "論争マップスキーマ。賛成/反対/未決を根拠付きで保持。",
+    "type": "object",
+    "required": [
+        "run_id",
+        "entries"
+    ],
+    "properties": {
+        "run_id": {
+            "type": "string"
+        },
+        "generated_at": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "entries": {
+            "type": "array",
+            "description": "論争エントリリスト",
+            "items": {
+                "type": "object",
+                "required": [
+                    "topic",
+                    "controversy_level"
+                ],
+                "properties": {
+                    "topic": {
+                        "type": "string",
+                        "description": "論争トピック"
+                    },
+                    "claim_text": {
+                        "type": "string",
+                        "description": "関連する主張"
+                    },
+                    "supporting_arguments": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "text"
+                            ],
+                            "properties": {
+                                "text": {
+                                    "type": "string"
+                                },
+                                "confidence": {
+                                    "type": "number"
+                                },
+                                "source_doc_id": {
+                                    "type": "string"
+                                },
+                                "provenance": {
+                                    "$ref": "#/definitions/span_reference"
+                                }
+                            }
+                        }
+                    },
+                    "opposing_arguments": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "text"
+                            ],
+                            "properties": {
+                                "text": {
+                                    "type": "string"
+                                },
+                                "confidence": {
+                                    "type": "number"
+                                },
+                                "source_doc_id": {
+                                    "type": "string"
+                                },
+                                "provenance": {
+                                    "$ref": "#/definitions/span_reference"
+                                }
+                            }
+                        }
+                    },
+                    "undecided_points": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "current_consensus": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "現在のコンセンサス（あれば）"
+                    },
+                    "controversy_level": {
+                        "type": "string",
+                        "enum": [
+                            "none",
+                            "low",
+                            "moderate",
+                            "high",
+                            "unresolved"
+                        ]
+                    },
+                    "provenance": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/span_reference"
+                        }
+                    }
+                }
+            }
+        },
+        "has_high_controversy": {
+            "type": "boolean",
+            "description": "高い論争があるか"
+        },
+        "summary": {
+            "type": "string"
+        }
+    },
+    "definitions": {
+        "span_reference": {
+            "type": "object",
+            "required": [
+                "doc_id",
+                "start",
+                "end"
+            ],
+            "properties": {
+                "doc_id": {
+                    "type": "string"
+                },
+                "section": {
+                    "type": "string"
+                },
+                "chunk_id": {
+                    "type": "string"
+                },
+                "start": {
+                    "type": "integer"
+                },
+                "end": {
+                    "type": "integer"
+                },
+                "text_preview": {
+                    "type": "string",
+                    "maxLength": 200
+                }
+            }
+        }
+    }
+}
