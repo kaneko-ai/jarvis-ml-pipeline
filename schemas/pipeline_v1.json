@@ -5,7 +5,6 @@
     "description": "パイプライン設定の正式スキーマ。stages は辞書リスト形式のみ許可。",
     "type": "object",
     "required": [
-        "pipeline",
         "stages"
     ],
     "properties": {
@@ -36,7 +35,7 @@
                     "id": {
                         "type": "string",
                         "description": "ステージID（StageRegistry登録名）",
-                        "pattern": "^[a-z_]+\\.[a-z_]+$"
+                        "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*\\.[a-zA-Z_][a-zA-Z0-9_]*$"
                     },
                     "config": {
                         "type": "object",
@@ -104,5 +103,5 @@
             }
         }
     },
-    "additionalProperties": false
+    "additionalProperties": true
 }
