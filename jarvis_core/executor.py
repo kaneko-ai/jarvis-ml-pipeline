@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Callable, List, Any
+from typing import TYPE_CHECKING, Callable, List, Any, Optional
 
+from .budget import BudgetSpec, BudgetTracker, BudgetPolicy
 from .evidence import EvidenceStore
 from .planner import Planner
 from .retry import RetryPolicy
@@ -35,15 +36,22 @@ class ExecutionEngine:
         retry_policy: RetryPolicy | None = None,
         validator: Callable[[object], EvaluationResult] | None = None,
         evidence_store: EvidenceStore | None = None,
+        budget_spec: BudgetSpec | None = None,
     ) -> None:
         self.planner = planner
         self.router = router
         self.retry_policy = retry_policy or RetryPolicy(max_attempts=1)
         self.validator = validator
         self.evidence_store = evidence_store or EvidenceStore()
+        self.budget_spec = budget_spec or BudgetSpec()
+        self.budget_policy = BudgetPolicy()
+        self._current_tracker: Optional[BudgetTracker] = None
 
     def run(self, root_task: Task) -> List[Task]:
         """Plan and execute a root task, returning executed subtasks."""
+        # Budget tracker initialization
+        self._current_tracker = BudgetTracker()
+        self._current_tracker.log("run_start", task_id=root_task.task_id)
 
         subtasks = self.planner.plan(root_task)
         executed: List[Task] = []
@@ -258,11 +266,19 @@ class ExecutionEngine:
             return ""
 
         last_task = executed[-1]
+        answer = ""
         for event in reversed(last_task.history):
             if event.get("event") == "complete" and event.get("result"):
-                return str(event["result"])
+                answer = str(event["result"])
+                break
 
-        return ""
+        # Budget: append budget summary if degraded
+        if self._current_tracker and self._current_tracker.degraded:
+            budget_info = self._current_tracker.to_summary(self.budget_spec)
+            answer += f"\n\n---\n**Budget**: {budget_info['tool_calls']} tool calls, " \
+                      f"degraded due to: {', '.join(budget_info['degrade_reasons'] or [])}"
+
+        return answer
 
     def _execute_with_retry(
         self,
@@ -275,6 +291,10 @@ class ExecutionEngine:
         last_evaluation: EvaluationResult | None = None
 
         while True:
+            # Budget: record tool call
+            if self._current_tracker:
+                self._current_tracker.record_tool_call()
+
             last_result = self.router.run(subtask)
 
             if not self.validator:
@@ -282,17 +302,38 @@ class ExecutionEngine:
 
             last_evaluation = self.validator(last_result)
             decision = self.retry_policy.decide(last_evaluation, attempt=attempt)
+
+            # Budget: check if retry is allowed
+            budget_allows_retry = True
+            if self._current_tracker:
+                budget_decision = self.budget_policy.decide(
+                    self.budget_spec, self._current_tracker
+                )
+                budget_allows_retry = budget_decision.allow_retry
+                if not budget_allows_retry:
+                    self._current_tracker.record_degrade("budget_retry_blocked")
+                    logger.info(
+                        "Budget blocked retry for task %s: %s",
+                        subtask.id,
+                        budget_decision.degrade_reason,
+                    )
+
             logger.info(
-                "Evaluation for task %s attempt=%d ok=%s should_retry=%s reason=%s",
+                "Evaluation for task %s attempt=%d ok=%s should_retry=%s reason=%s budget_allows=%s",
                 subtask.id,
                 attempt,
                 last_evaluation.ok,
                 decision.should_retry,
                 decision.reason,
+                budget_allows_retry,
             )
 
-            if not decision.should_retry:
+            if not decision.should_retry or not budget_allows_retry:
                 return last_result, last_evaluation, attempt
+
+            # Budget: record retry
+            if self._current_tracker:
+                self._current_tracker.record_retry()
 
             attempt += 1
 
