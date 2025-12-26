@@ -26,3 +26,17 @@ logging:
   save_dir: "logs"             # ログを保存するフォルダ名
   save_candidates: true        # 候補案も保存するか
   save_thoughts: true          # THOUGHT も保存するか
+
+budget:
+  mode: standard               # fast | standard | high
+  max_tool_calls: 30           # 最大ツール呼び出し回数
+  max_retries: 2               # 最大リトライ回数
+  max_search_results: 10       # 最大検索結果数
+  max_summary_depth: 3         # 要約の最大深度
+  hard_timeout_sec: null       # ハードタイムアウト（秒）
+  allow_fallback: true         # フォールバック許可
+
+ranking:
+  enabled: true
+  backend: heuristics          # heuristics | lgbm (later)
+  log_path: logs/ranking.jsonl
