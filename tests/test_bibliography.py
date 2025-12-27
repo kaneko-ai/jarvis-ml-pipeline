@@ -17,7 +17,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from jarvis_core.reference import Reference
-from jarvis_core.bibtex import export_bibtex, format_bibtex_entry, _escape_bibtex
+from jarvis_core.bibtex_utils import export_bibtex, format_bibtex_entry, _escape_bibtex
 from jarvis_core.ris import export_ris, format_ris_entry
 
 

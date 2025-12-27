@@ -68,12 +68,12 @@ class TestConfig:
     """V4-P02 tests."""
 
     def test_load_default(self):
-        from jarvis_core.config import get_default_config
+        from jarvis_core.config_utils import get_default_config
         config = get_default_config()
         assert config.output_dir == "output"
 
     def test_load_config(self):
-        from jarvis_core.config import load_config
+        from jarvis_core.config_utils import load_config
         config = load_config()
         assert config is not None
 

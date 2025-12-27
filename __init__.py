@@ -16,7 +16,7 @@ __all__ = [
 
 
 def run_jarvis(task: str) -> str:
-    from jarvis_core.llm import LLMClient
+    from jarvis_core.llm_utils import LLMClient
     from jarvis_core.router import Router
 
     llm = LLMClient(model="gemini-2.0-flash")
@@ -27,7 +27,7 @@ def run_jarvis(task: str) -> str:
 
 def __getattr__(name: str):
     if name == "LLMClient":
-        from jarvis_core.llm import LLMClient
+        from jarvis_core.llm_utils import LLMClient
 
         return LLMClient
     if name == "Router":
