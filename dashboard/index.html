@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS Dashboard</title>
+    <style>
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #16213e;
+            --accent: #00d4ff;
+            --accent-dark: #0a9ec7;
+            --text-primary: #e8e8e8;
+            --text-secondary: #a0a0a0;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, var(--accent) 0%, #00ff88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            background: var(--bg-primary);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            color: var(--text-primary);
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .search-btn {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            border: none;
+            border-radius: 10px;
+            color: var(--bg-primary);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .search-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Runs Table */
+        .runs-section {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .runs-section h2 {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .runs-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .runs-table th,
+        .runs-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .runs-table th {
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+        }
+
+        .runs-table tr:hover {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .badge-success {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(255, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        /* Papers List */
+        .papers-section {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .paper-card {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--accent);
+            transition: transform 0.3s;
+        }
+
+        .paper-card:hover {
+            transform: translateX(5px);
+        }
+
+        .paper-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .paper-meta {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .paper-tags {
+            margin-top: 10px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            background: rgba(0, 212, 255, 0.2);
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin-right: 8px;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--bg-secondary);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🧬 JARVIS Research Dashboard</h1>
+            <p>Literature Survey & Evidence Extraction Platform</p>
+        </header>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="stat-runs">0</div>
+                <div class="stat-label">Total Runs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-papers">0</div>
+                <div class="stat-label">Papers Retrieved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-claims">0</div>
+                <div class="stat-label">Claims Extracted</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-evidence">0</div>
+                <div class="stat-label">Evidence Linked</div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-section">
+            <h2>🔍 New Search</h2>
+            <div class="search-input-group">
+                <input type="text" id="search-query" class="search-input"
+                    placeholder="Enter search query (e.g., CD73 immunotherapy)">
+                <button id="search-btn" class="search-btn">Run Pipeline</button>
+            </div>
+            <div class="spinner" id="spinner"></div>
+        </div>
+
+        <!-- Recent Runs -->
+        <div class="runs-section">
+            <h2>📊 Recent Runs</h2>
+            <table class="runs-table">
+                <thead>
+                    <tr>
+                        <th>Run ID</th>
+                        <th>Query</th>
+                        <th>Papers</th>
+                        <th>Claims</th>
+                        <th>Evidence</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="runs-table-body">
+                    <tr>
+                        <td>20251227_172401</td>
+                        <td>CD73 immunotherapy</td>
+                        <td>5</td>
+                        <td>3</td>
+                        <td>3</td>
+                        <td><span class="badge badge-success">Complete</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Papers -->
+        <div class="papers-section">
+            <h2>📄 Latest Papers</h2>
+            <div id="papers-list">
+                <div class="paper-card">
+                    <div class="paper-title">Study on CD73 immunotherapy - Part 1</div>
+                    <div class="paper-meta">PMID:1000 | 2024 | pubmed</div>
+                    <div class="paper-tags">
+                        <span class="tag">immunotherapy</span>
+                        <span class="tag">CD73</span>
+                    </div>
+                </div>
+                <div class="paper-card">
+                    <div class="paper-title">Study on CD73 immunotherapy - Part 2</div>
+                    <div class="paper-meta">PMID:1001 | 2023 | pubmed</div>
+                    <div class="paper-tags">
+                        <span class="tag">cancer</span>
+                        <span class="tag">immune</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            JARVIS Research OS v1.0 | Phase A-C Complete
+        </footer>
+    </div>
+
+    <script>
+        // Initialize stats
+        document.getElementById('stat-runs').textContent = '1';
+        document.getElementById('stat-papers').textContent = '5';
+        document.getElementById('stat-claims').textContent = '3';
+        document.getElementById('stat-evidence').textContent = '3';
+
+        // Search button handler
+        document.getElementById('search-btn').addEventListener('click', function () {
+            const query = document.getElementById('search-query').value;
+            if (!query) {
+                alert('検索クエリを入力してください');
+                return;
+            }
+
+            const spinner = document.getElementById('spinner');
+            spinner.style.display = 'block';
+
+            // Simulate pipeline execution
+            setTimeout(() => {
+                spinner.style.display = 'none';
+
+                // Add new run to table
+                const tbody = document.getElementById('runs-table-body');
+                const now = new Date();
+                const runId = now.toISOString().replace(/[-:T]/g, '').slice(0, 15);
+
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${runId}</td>
+                    <td>${query}</td>
+                    <td>5</td>
+                    <td>3</td>
+                    <td>3</td>
+                    <td><span class="badge badge-success">Complete</span></td>
+                `;
+                tbody.insertBefore(newRow, tbody.firstChild);
+
+                // Update stats
+                const runs = parseInt(document.getElementById('stat-runs').textContent);
+                document.getElementById('stat-runs').textContent = runs + 1;
+                document.getElementById('stat-papers').textContent =
+                    parseInt(document.getElementById('stat-papers').textContent) + 5;
+                document.getElementById('stat-claims').textContent =
+                    parseInt(document.getElementById('stat-claims').textContent) + 3;
+                document.getElementById('stat-evidence').textContent =
+                    parseInt(document.getElementById('stat-evidence').textContent) + 3;
+
+                alert(`Pipeline完了: ${query}`);
+            }, 2000);
+        });
+    </script>
+</body>
+
+</html>
