@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS Runs Dashboard</title>
+    <style>
+        :root {
+            --bg: #0a0a1a;
+            --card: #12122a;
+            --accent: #00d4ff;
+            --success: #00ff88;
+            --warn: #ffaa00;
+            --text: #e0e0e0;
+            --muted: #666;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2em;
+            background: linear-gradient(135deg, var(--accent), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .runs-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .run-card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .run-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .run-id {
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .run-date {
+            color: var(--muted);
+            font-size: 0.9em;
+        }
+
+        .run-query {
+            margin-bottom: 10px;
+        }
+
+        .run-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+        }
+
+        .stat {
+            color: var(--muted);
+        }
+
+        .stat-value {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .bundle-files {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .file-badge {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            color: var(--accent);
+        }
+
+        .file-missing {
+            background: rgba(255, 170, 0, 0.1);
+            color: var(--warn);
+        }
+
+        .refresh-btn {
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .refresh-btn:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📊 JARVIS Runs Dashboard</h1>
+        <button class="refresh-btn" onclick="loadRuns()">🔄 Refresh</button>
+
+        <div class="runs-grid" id="runs-container">
+            <!-- Runs will be loaded here -->
+            <div class="run-card">
+                <div class="run-header">
+                    <span class="run-id">20251227_172401</span>
+                    <span class="run-date">2024-12-27 17:24:01</span>
+                </div>
+                <div class="run-query">CD73 immunotherapy</div>
+                <div class="run-stats">
+                    <span class="stat">Papers: <span class="stat-value">5</span></span>
+                    <span class="stat">Claims: <span class="stat-value">3</span></span>
+                    <span class="stat">Evidence: <span class="stat-value">3</span></span>
+                </div>
+                <div class="bundle-files">
+                    <span class="file-badge">input.json</span>
+                    <span class="file-badge">papers.jsonl</span>
+                    <span class="file-badge">claims.jsonl</span>
+                    <span class="file-badge">evidence.jsonl</span>
+                    <span class="file-badge">scores.json</span>
+                    <span class="file-badge">report.md</span>
+                    <span class="file-badge">warnings.jsonl</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const REQUIRED_FILES = [
+            'input.json', 'papers.jsonl', 'claims.jsonl',
+            'evidence.jsonl', 'scores.json', 'report.md', 'warnings.jsonl'
+        ];
+
+        function loadRuns() {
+            // In production: fetch from API
+            console.log('Loading runs...');
+        }
+
+        function renderRun(run) {
+            const files = run.files || [];
+            const fileBadges = REQUIRED_FILES.map(f => {
+                const exists = files.includes(f);
+                return `<span class="file-badge ${exists ? '' : 'file-missing'}">${f}</span>`;
+            }).join('');
+
+            return `
+                <div class="run-card">
+                    <div class="run-header">
+                        <span class="run-id">${run.run_id}</span>
+                        <span class="run-date">${run.date}</span>
+                    </div>
+                    <div class="run-query">${run.query}</div>
+                    <div class="run-stats">
+                        <span class="stat">Papers: <span class="stat-value">${run.papers}</span></span>
+                        <span class="stat">Claims: <span class="stat-value">${run.claims}</span></span>
+                        <span class="stat">Evidence: <span class="stat-value">${run.evidence}</span></span>
+                    </div>
+                    <div class="bundle-files">${fileBadges}</div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>

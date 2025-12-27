@@ -9,6 +9,7 @@ on:
 env:
   PYTHONUNBUFFERED: "1"
   NO_NETWORK: "1"
+  LEGACY_MUST_PASS: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'true' || 'false' }}
 
 jobs:
   core-tests:
@@ -28,28 +29,20 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.lock
+          pip install -e .
           pip install pytest
+
+      - name: Verify install
+        run: |
+          python -c "import jarvis_core; import jarvis_tools; print('INSTALL_OK')"
 
       - name: Run core tests
         run: python -m pytest -m core -v --tb=short
 
-      - name: Check test collection
-        continue-on-error: true
-        run: |
-          if [ -f scripts/check_core_collection.py ]; then
-            python scripts/check_core_collection.py
-          else
-            echo "check_core_collection.py not found, skipping"
-          fi
-
-      - name: Import checks
-        run: |
-          python -c "import jarvis_core; print('jarvis_core import OK')"
-
   legacy-tests:
     runs-on: ubuntu-latest
-    name: Legacy Tests (Non-blocking)
-    continue-on-error: true
+    name: Legacy Tests (Tracked)
+    continue-on-error: ${{ env.LEGACY_MUST_PASS != 'true' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -64,13 +57,29 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.lock
+          pip install -e .
           pip install pytest
 
       - name: Run legacy tests
-        continue-on-error: true
-        run: python -m pytest -m legacy -v --tb=short || true
+        id: legacy
+        run: |
+          python -m pytest -m legacy -v --tb=short --junitxml=legacy-results.xml || echo "LEGACY_FAILED=true" >> $GITHUB_ENV
 
-      - name: Summary
+      - name: Upload legacy results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: legacy-test-results
+          path: legacy-results.xml
+          retention-days: 30
+
+      - name: Legacy status
         if: always()
         run: |
-          echo "Legacy tests completed. Failures are tracked in docs/TECH_DEBT.md"
+          if [ "$LEGACY_FAILED" = "true" ]; then
+            echo "::warning::Legacy tests failed. See artifact for details."
+            if [ "$LEGACY_MUST_PASS" = "true" ]; then
+              echo "::error::LEGACY_MUST_PASS=true, failing workflow"
+              exit 1
+            fi
+          fi

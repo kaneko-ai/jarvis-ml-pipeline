@@ -1,0 +1,22 @@
+{
+    "goal": "Rare disease treatment options",
+    "query": "orphan drug rare disease clinical trial",
+    "constraints": {
+        "oa_only": true,
+        "max_papers": 10,
+        "date_from": "2018-01-01",
+        "date_to": "2024-12-31",
+        "inference_budget": "low",
+        "top_k_expensive": 1,
+        "fulltext_policy": "never"
+    },
+    "reproducibility": {
+        "seed": 42,
+        "model": "local",
+        "pipeline_version": "e2e_oa10-v1"
+    },
+    "expected": {
+        "min_papers": 3,
+        "note": "OA不足ケース - 取得失敗を含む"
+    }
+}

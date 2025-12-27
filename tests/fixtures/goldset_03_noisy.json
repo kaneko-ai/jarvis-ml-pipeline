@@ -1,0 +1,21 @@
+{
+    "goal": "Cancer treatment mechanisms",
+    "query": "cancer therapy mechanism",
+    "constraints": {
+        "oa_only": false,
+        "max_papers": 20,
+        "date_from": "2015-01-01",
+        "date_to": "2024-12-31",
+        "inference_budget": "high",
+        "top_k_expensive": 5,
+        "fulltext_policy": "always"
+    },
+    "reproducibility": {
+        "seed": 42,
+        "model": "local",
+        "pipeline_version": "e2e_oa10-v1"
+    },
+    "expected": {
+        "note": "ノイズ多いケース - 広いクエリで選別が重要"
+    }
+}
