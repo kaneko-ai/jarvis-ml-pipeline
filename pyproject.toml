@@ -29,12 +29,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = [
-    "pytest>=7.0",
-    "pytest-cov",
-    "black",
-    "ruff",
-]
 pdf = [
     "pymupdf>=1.22.0",
     "pypdf2>=3.0",
@@ -45,6 +39,14 @@ llm = [
 web = [
     "fastapi>=0.100.0",
     "uvicorn>=0.22.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "black",
+    "ruff",
 ]
 
 [project.scripts]
