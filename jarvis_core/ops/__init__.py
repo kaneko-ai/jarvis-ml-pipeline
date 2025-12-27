@@ -7,6 +7,15 @@ from .audit import (
     get_audit_logger,
     log_audit,
 )
+from .security_ops import (
+    OperationLimits,
+    PIIDetector,
+    RetentionPolicy,
+    AuditLogRotator,
+    FeatureDoD,
+    SkillSpec,
+    generate_skill_template,
+)
 
 __all__ = [
     "AuditEntry",
@@ -15,4 +24,12 @@ __all__ = [
     "CacheOptimizer",
     "get_audit_logger",
     "log_audit",
+    "OperationLimits",
+    "PIIDetector",
+    "RetentionPolicy",
+    "AuditLogRotator",
+    "FeatureDoD",
+    "SkillSpec",
+    "generate_skill_template",
 ]
+
