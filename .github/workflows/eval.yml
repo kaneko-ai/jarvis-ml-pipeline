@@ -25,11 +25,11 @@ jobs:
 
       - name: Run Offline E2E (Regression)
         run: |
-          uv run pytest tests/e2e/test_e2e_offline.py -v
+          uv run python -m pytest tests/e2e/test_e2e_offline.py -v
 
       - name: Run Trick Sets Tests (Phase 2)
         run: |
-          uv run pytest tests/test_trick_sets.py -v
+          uv run python -m pytest tests/test_trick_sets.py -v
 
       - name: Verify Phase 2 Schemas
         run: |
