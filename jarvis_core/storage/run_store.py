@@ -1,21 +1,34 @@
-"""Run Store - unified storage for run artifacts."""
+"""Run Store - unified storage for run artifacts.
+
+Per MASTER_SPEC v1.1:
+- 成果物契約: run_config.json, result.json, eval_summary.json, events.jsonl 必須
+- パス決定権はRunStoreのみが持つ
+"""
 from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 
 class RunStore:
     """Manages all artifacts for a single run.
 
-    Directory structure:
+    Directory structure (per MASTER_SPEC):
         logs/runs/{run_id}/
-            ├── events.jsonl
-            ├── run_config.json
-            ├── result.json
-            └── eval_summary.json
+            ├── run_config.json   # 実行設定
+            ├── result.json       # 実行結果
+            ├── eval_summary.json # 評価結果
+            └── events.jsonl      # 監査ログ
     """
+
+    # 必須成果物（per MASTER_SPEC v1.1）
+    REQUIRED_ARTIFACTS = [
+        "run_config.json",
+        "result.json",
+        "eval_summary.json",
+        "events.jsonl",
+    ]
 
     def __init__(self, run_id: str, base_dir: str = "logs/runs"):
         self.run_id = run_id
@@ -75,8 +88,22 @@ class RunStore:
                 return json.load(f)
         return None
 
+    def validate_contract(self) -> List[str]:
+        """成果物契約の違反をチェック (per MASTER_SPEC v1.1).
+
+        Returns:
+            欠損ファイル名のリスト。空なら契約遵守。
+        """
+        missing = []
+        for artifact in self.REQUIRED_ARTIFACTS:
+            artifact_path = self.run_dir / artifact
+            if not artifact_path.exists():
+                missing.append(artifact)
+        return missing
+
     def get_summary(self) -> dict:
         """Get a summary of the run."""
+        missing = self.validate_contract()
         return {
             "run_id": self.run_id,
             "run_dir": str(self.run_dir),
@@ -84,6 +111,8 @@ class RunStore:
             "has_config": self.config_file.exists(),
             "has_result": self.result_file.exists(),
             "has_eval": self.eval_file.exists(),
+            "contract_valid": len(missing) == 0,
+            "missing_artifacts": missing,
         }
 
     @classmethod
@@ -101,3 +130,4 @@ class RunStore:
         if runs:
             return cls(runs[0], base_dir)
         return None
+
