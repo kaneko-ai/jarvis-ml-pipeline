@@ -5,17 +5,15 @@ Output: evidence.jsonl (Phase 2 Evidence Unit Schema)
 """
 from typing import Any, Dict, List
 import uuid
+import logging
 
-from jarvis_core.pipelines.stage_registry import register_stage
-from jarvis_core.task import TaskContext, Artifacts
+logger = logging.getLogger(__name__)
 
 
-@register_stage("extraction.evidence_link")
-def find_evidence(context: TaskContext, artifacts: Artifacts) -> Dict[str, Any]:
+def find_evidence(claims: List[Dict], papers: List[Dict], **kwargs) -> Dict[str, Any]:
     """Find evidence for claims."""
     evidence_list = []
-    claims = artifacts.get("claims", [])
-    papers = {p["paper_id"]: p for p in artifacts.get("papers", [])}
+    # Claims and papers provided as arguments: p for p in artifacts.get("papers", [])}
     
     # Mock lookup
     for claim in claims:
@@ -46,13 +44,11 @@ def find_evidence(context: TaskContext, artifacts: Artifacts) -> Dict[str, Any]:
         }
         evidence_list.append(ev)
             
-    # Update artifacts
-    artifacts["evidence"] = evidence_list
-    
-    # Provenance update
-    context.provenance.add("evidence.jsonl", "extraction.evidence_link")
+    logger.info(f"Found {len(evidence_list)} evidence for {len(claims)} claims")
     
     return {
+        "evidence": evidence_list,
         "count": len(evidence_list),
+        "stage": "extraction.evidence_link",
         "coverage": len(evidence_list) / len(claims) if claims else 0
     }

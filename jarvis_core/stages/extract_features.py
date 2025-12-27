@@ -7,8 +7,9 @@ Output: features.jsonl (one per paper)
 """
 from typing import Any, Dict, List
 import uuid
-from jarvis_core.pipelines.stage_registry import register_stage
-from jarvis_core.task import TaskContext, Artifacts
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def extract_immuno_onco_features(paper: Dict) -> Dict[str, Any]:
@@ -80,24 +81,20 @@ def extract_immuno_onco_features(paper: Dict) -> Dict[str, Any]:
     return features
 
 
-@register_stage("extraction.rubric_features")
-def extract_features(context: TaskContext, artifacts: Artifacts) -> Dict[str, Any]:
+def extract_features(papers: List[Dict], **kwargs) -> Dict[str, Any]:
     """Extract rubric-based features from papers."""
     
-    papers = artifacts.get("papers", [])
     features_list = []
     
     for paper in papers:
         features = extract_immuno_onco_features(paper)
         features_list.append(features)
     
-    # Store in artifacts
-    artifacts["features"] = features_list
-    
-    # Provenance
-    context.provenance.add("features.jsonl", "extraction.rubric_features")
+    logger.info(f"Extracted features for {len(features_list)} papers using immuno_onco_v1 rubric")
     
     return {
+        "features": features_list,
         "count": len(features_list),
-        "rubric": "immuno_onco_v1"
+        "rubric": "immuno_onco_v1",
+        "stage": "extraction.rubric_features"
     }

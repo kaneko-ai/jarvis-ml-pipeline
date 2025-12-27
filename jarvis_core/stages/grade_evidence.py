@@ -6,8 +6,9 @@ Detects unsupported claims and assigns evidence strength grades.
 Output: Updates evidence.jsonl with strength ratings
 """
 from typing import Any, Dict, List
-from jarvis_core.pipelines.stage_registry import register_stage
-from jarvis_core.task import TaskContext, Artifacts
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def calculate_evidence_strength(evidence: Dict, claim: Dict) -> str:
@@ -39,12 +40,8 @@ def calculate_evidence_strength(evidence: Dict, claim: Dict) -> str:
         return "None"
 
 
-@register_stage("quality_gate.evidence_grading")
-def grade_evidence(context: TaskContext, artifacts: Artifacts) -> Dict[str, Any]:
+def grade_evidence(claims: List[Dict], evidence_list: List[Dict], **kwargs) -> Dict[str, Any]:
     """Grade all evidence and calculate support rates."""
-    
-    claims = artifacts.get("claims", [])
-    evidence_list = artifacts.get("evidence", [])
     
     # Build evidence map: claim_id -> [evidence]
     evidence_by_claim = {}
@@ -81,29 +78,18 @@ def grade_evidence(context: TaskContext, artifacts: Artifacts) -> Dict[str, Any]
         if not has_strong and medium_count < 2:
             weakly_supported.append(claim)
     
-    # Update artifacts with graded evidence
-    artifacts["evidence"] = evidence_list
-    
     # Calculate metrics
     total_claims = len(claims)
     supported_claims = total_claims - len(unsupported_claims)
     support_rate = supported_claims / total_claims if total_claims > 0 else 0.0
     
-    # Store grading summary in artifacts for downstream use
-    artifacts["evidence_grading_summary"] = {
-        "total_claims": total_claims,
-        "supported_claims": supported_claims,
-        "unsupported_claims": len(unsupported_claims),
-        "weakly_supported": len(weakly_supported),
-        "support_rate": support_rate
-    }
-    
-    # Provenance
-    context.provenance.add("evidence.jsonl", "quality_gate.evidence_grading")
+    logger.info(f"Evidence grading: {supported_claims}/{total_claims} claims supported (rate={support_rate:.2f})")
     
     return {
+        "evidence": evidence_list,
         "support_rate": support_rate,
         "unsupported_count": len(unsupported_claims),
         "weakly_supported_count": len(weakly_supported),
-        "gate_pass": len(unsupported_claims) == 0 and support_rate >= 0.90
+        "gate_pass": len(unsupported_claims) == 0 and support_rate >= 0.90,
+        "stage": "quality_gate.evidence_grading"
     }
