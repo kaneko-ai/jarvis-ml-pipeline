@@ -1,0 +1,48 @@
+{
+    "description": "スモーク評価セット（Quality Gate検証用）",
+    "version": 1,
+    "eval_type": "smoke",
+    "questions": [
+        {
+            "id": "Q001",
+            "query": "CD73 inhibitors in cancer immunotherapy",
+            "expected_topics": [
+                "CD73",
+                "adenosine",
+                "immunotherapy",
+                "tumor microenvironment"
+            ],
+            "min_citations": 3,
+            "min_evidence_rate": 0.80
+        },
+        {
+            "id": "Q002",
+            "query": "A2A receptor antagonists for solid tumors",
+            "expected_topics": [
+                "A2A receptor",
+                "adenosine",
+                "solid tumors"
+            ],
+            "min_citations": 2,
+            "min_evidence_rate": 0.75
+        },
+        {
+            "id": "Q003",
+            "query": "CD39 CD73 pathway mechanisms",
+            "expected_topics": [
+                "CD39",
+                "CD73",
+                "ATP",
+                "AMP",
+                "adenosine"
+            ],
+            "min_citations": 3,
+            "min_evidence_rate": 0.85
+        }
+    ],
+    "quality_thresholds": {
+        "provenance_rate": 0.90,
+        "citation_precision": 0.85,
+        "facts_without_evidence": 0
+    }
+}

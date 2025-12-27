@@ -1,4 +1,81 @@
-# Evaluation Guide
+# Evaluation Guide (v1.2)
+
+> Authority: DEC-006, MASTER_SPEC v1.2
+
+## 概要
+
+JARVISの評価モデルは **Quality Gate（実測）** と **Regression（回帰）** に基づく。
+「何となく動く」ではなく、「数値で証明された」状態のみ合格とする。
+
+---
+
+## 1. Quality Gate（一発必中）
+
+すべてのRun（実行）は、生成時に以下のQuality Gateを通過しなければならない。
+ゲートは `jarvis_core/pipelines/executor.py` および `QualityGateVerifier` によって強制される。
+
+| 指標 | 閾値 | 説明 | 失敗時の挙動 |
+|------|------|------|-------------|
+| **Provenance Rate** | ≥ 0.95 | 文単位の根拠紐付け率 | `FAIL` (QualityGateFailure) |
+| **Facts w/o Evidence** | = 0 | 根拠のない事実提示 | `FAIL` (HallucinationRisk) |
+| **Pipeline Completion** | 100% | 全ステージ完走 | `FAIL` (SystemError) |
+| **Artifact Contract** | 10 files | 必須成果物の生成 | `FAIL` (ContractViolation) |
+
+### 確認方法
+
+```bash
+# 実行後に show-run で確認
+python jarvis_cli.py show-run --run-id <RUN_ID>
+
+# Eval結果のみ確認
+type logs/runs/<RUN_ID>/eval_summary.json
+```
+
+---
+
+## 2. Regression Testing（回帰テスト）
+
+新機能追加やリファクタリング時に、性能劣化がないことを確認するための手順。
+
+### 対象セット
+
+| セット名 | Path | 用途 |
+|----------|------|------|
+| **Smoke Set** | `evals/smoke_eval_set.json` | 基本動作・契約遵守の確認 (3問) |
+| **Offline E2E** | `tests/e2e/fixtures/offline_corpus.json` | ネットワークなしでの動作保証 |
+| **CD73 Gold** | `evals/golden_sets/cd73_set_v1.jsonl` | (Phase 2) 順位付け精度の検証 |
+
+### 実行手順
+
+#### A. スモークテスト（Quality Gate確認）
+
+```bash
+# 1. 実行
+python jarvis_cli.py run --goal "CD73 immunotherapy" --pipeline configs/pipelines/e2e_oa10.yml
+
+# 2. ゲート確認
+python jarvis_cli.py show-run
+# => "Gate Passed: True" を確認
+```
+
+#### B. オフライン回帰
+
+```bash
+# ネットワーク遮断状態での保証
+python -m pytest tests/e2e/test_e2e_offline.py
+```
+
+---
+
+## 3. Phase 2: Intelligence Evaluation
+
+Phase 2（賢さ強化）では、以下の指標が追加される。
+
+- **Citation Precision**: 引用された根拠が本当にその文を支持しているか
+- **Ranking NDCG**: 人間（Golden Ranking）との順位一致度
+- **Contradiction Detection**: 矛盾する主張を見抜けたか
+
+これらは `jarvis_cli.py eval` コマンド（将来実装）で一括計測する。
 
 ## 概要
 

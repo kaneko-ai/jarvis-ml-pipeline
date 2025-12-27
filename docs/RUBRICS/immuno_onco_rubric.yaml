@@ -1,0 +1,86 @@
+# Immuno-Oncology Rubric v1
+
+rubric:
+  name: immuno_onco_v1
+  version: 1
+  description: 免疫・がん領域の論文評価軸
+  
+  dimensions:
+    # 1. モデル階層（臨床距離）
+    model_tier:
+      levels:
+        - cell_line      # 細胞株（in vitro）
+        - organoid       # オルガノイド
+        - mouse          # マウス（in vivo）
+        - patient        # 患者サンプル（ex vivo / observational）
+        - clinical_trial # 臨床試験（介入）
+        - rct            # ランダム化比較試験
+      weight: 0.25
+      description: 臨床応用への距離
+    
+    # 2. エビデンスタイプ
+    evidence_type:
+      levels:
+        - correlation    # 相関データのみ
+        - flow_cyto      # フローサイトメトリー
+        - seq_data       # シーケンスデータ（RNA-seq, scRNA-seq等）
+        - functional     # 機能アッセイ（killing, proliferation）
+        - imaging        # イメージング（IHC, IF, PET等）
+        - clinical       # 臨床エンドポイント（OS, PFS等）
+      weight: 0.20
+      description: データの種類と信頼性
+    
+    # 3. 因果の強さ
+    causal_strength:
+      levels:
+        - association    # 関連のみ
+        - intervention   # 介入実験（KO, 阻害剤等）
+        - causal         # 因果が明確（メカニズム + 介入 + 再現）
+      weight: 0.25
+      description: 因果関係の明確さ
+    
+    # 4. 再現性シグナル
+    reproducibility:
+      levels:
+        - single         # 単一実験
+        - replicated     # 同一ラボ内で再現
+        - multi_cohort   # 複数コホート / 独立検証
+      weight: 0.15
+      description: 再現性の証拠
+    
+    # 5. TME関連性（免疫・がん特有）
+    tme_relevance:
+      levels:
+        - none           # TME文脈なし
+        - limited        # 限定的（単一細胞種）
+        - high           # TME全体（複数細胞種、相互作用）
+      weight: 0.15
+      description: 腫瘍微小環境との関連性
+
+  # スコアリング規約
+  scoring:
+    # 各dimensionで最高レベル = 1.0, 最低 = 0.0
+    # 加重平均で総合スコア算出
+    aggregation: weighted_average
+    
+  # 使用例
+  examples:
+    - paper_id: "PMID:36991446"
+      title: "CD73 in tumor immunology"
+      scores:
+        model_tier: patient       # 0.67 (6段階中4番目)
+        evidence_type: clinical   # 1.0 (最高)
+        causal_strength: causal   # 1.0
+        reproducibility: multi_cohort  # 1.0
+        tme_relevance: high       # 1.0
+      total_score: 0.93
+      
+    - paper_id: "PMID:example_low"
+      title: "CD73 expression in cell lines"
+      scores:
+        model_tier: cell_line     # 0.0
+        evidence_type: correlation # 0.0
+        causal_strength: association # 0.0
+        reproducibility: single   # 0.0
+        tme_relevance: none       # 0.0
+      total_score: 0.0

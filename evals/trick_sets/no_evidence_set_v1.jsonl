@@ -1,0 +1,3 @@
+{"id": "no_evidence_001", "query": "CD73 inhibitors in pancreatic cancer", "available_data": "Only abstract mentions pancreatic cancer, no full text", "expected_behavior": "insufficient_evidence", "notes": "Abstractだけで断言してはならない"}
+{"id": "no_evidence_002", "query": "Long-term safety of CD73 inhibitors", "available_data": "Only 12-week safety data available", "expected_behavior": "acknowledge_limitation", "notes": "短期データを長期安全性として主張してはならない"}
+{"id": "no_evidence_003", "query": "CD73 in pediatric cancers", "available_data": "No papers found for pediatric population", "expected_behavior": "state_unknown", "notes": "データがない場合は「不明」と明記すべき"}

@@ -9,10 +9,21 @@ from . import output_quality
 from . import pretrain_citation
 from . import pretrain_meta
 
+# Phase 2: Intelligence Stages
+from . import extract_claims
+from . import find_evidence
+from . import grade_evidence
+from . import extract_features
+
 __all__ = [
     "retrieval_extraction",
     "summarization_scoring", 
     "output_quality",
     "pretrain_citation",
     "pretrain_meta",
+    # Phase 2
+    "extract_claims",
+    "find_evidence",
+    "grade_evidence",
+    "extract_features",
 ]

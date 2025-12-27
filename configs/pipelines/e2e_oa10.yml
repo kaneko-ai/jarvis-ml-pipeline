@@ -1,6 +1,6 @@
 pipeline: e2e_oa10
-version: 1
-description: E2E検証パイプライン（OA論文10本固定）
+version: 2
+description: E2E検証パイプライン（Phase 2対応 - Intelligence Enabled）
 
 stages:
   # Phase 1: Retrieval（簡略化）
@@ -13,19 +13,21 @@ stages:
   - id: screening.oa_check
   - id: screening.filter_rules
   
-  # Phase 3: Extraction（コア）
-  - id: extraction.claims
-  - id: extraction.evidence_link
+  # Phase 3: Extraction（コア + Phase 2拡張）
+  - id: extraction.claims          # Phase 2: Claim Unit抽出
+  - id: extraction.evidence_link   # Phase 2: Evidence Unit探索
   - id: extraction.numeric
+  - id: extraction.rubric_features # Phase 2: Domain特徴量抽出
   
   # Phase 4: Summarization
   - id: summarization.multigrain
 
-  # Phase 5: Output
-  - id: output.export_bundle
-  
-  # Phase 6: Quality Gate
+  # Phase 5: Quality & Grading（Phase 2拡張）
+  - id: quality_gate.evidence_grading  # Phase 2: Evidence強度評価
   - id: quality_gate.provenance_check
+
+  # Phase 6: Output
+  - id: output.export_bundle
 
 policies:
   seed: 42
@@ -33,7 +35,18 @@ policies:
   refuse_if_no_evidence: true
   timeouts:
     stage_default_sec: 300
+  
+  # Phase 2: Inference Budget
+  budget:
+    tokens_per_run: 100000
+    tokens_per_stage: 10000
 
 quality_gates:
+  # Phase 1基準
   provenance_rate: 0.95
   facts_without_evidence: 0
+  
+  # Phase 2基準
+  support_rate: 0.90              # 根拠支持率
+  unsupported_claims_max: 0       # 根拠なしClaimは許容しない
+  weakly_supported_rate_max: 0.10 # 弱根拠Claimは10%以下

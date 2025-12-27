@@ -1,0 +1,66 @@
+# Inference Policy (Phase 2 Step 5)
+# 推論コストと不確実性の制御ポリシー
+
+policy:
+  name: inference_budget_v1
+  version: 1
+  description: 推論コスト・レイテンシ・品質のトレードオフを制御
+
+  # トークン予算
+  budget:
+    tokens_per_run: 100000  # 1 run あたりの最大トークン数
+    tokens_per_stage: 10000  # 1 stage あたりの最大トークン数
+    
+  # レイテンシ上限
+  timeouts:
+    run_total_sec: 600       # 全体10分
+    stage_default_sec: 120   # デフォルト2分/stage
+    
+  # リトライ制限
+  max_retries: 3
+  
+  # エスカレーション規則（品質が低い時に追加推論）
+  escalation_rules:
+    # 根拠率が閾値未満 → 追加のEvidence探索
+    - trigger:
+        metric: provenance_rate
+        condition: "<"
+        threshold: 0.90
+      action:
+        type: evidence_search_expand
+        params:
+          max_additional_papers: 5
+          
+    # 矛盾フラグが多い → 反証探索
+    - trigger:
+        metric: contradiction_flag_count
+        condition: ">"
+        threshold: 2
+      action:
+        type: refutation_search
+        params:
+          search_contradictory_claims: true
+          
+    # 上位論文が僅差 → Tie-breaker特徴量抽出
+    - trigger:
+        metric: top_k_tie_margin
+        condition: "<"
+        threshold: 0.1
+      action:
+        type: feature_extraction_expand
+        params:
+          additional_features: ["citation_count", "journal_if", "recency"]
+          
+  # コスト超過時の挙動
+  on_budget_exceeded:
+    behavior: fail  # "fail" | "degrade" | "warn"
+    message: "Token budget exceeded. Increase budget or reduce scope."
+    
+  # 不確実性の表示
+  uncertainty:
+    # 低信頼度の主張にタグ付け
+    low_confidence_threshold: 0.7
+    label_uncertain_claims: true
+    
+    # レポートに不確実性セクションを追加
+    report_uncertainty_section: true

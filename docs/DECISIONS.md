@@ -85,3 +85,24 @@
 - **Migration Plan**: 新規runのみ適用
 - **Links**: MASTER_SPEC v1.1, Phase Loop 1
 
+### DEC-006: 成果物契約の統一（10ファイル）
+- **Date**: 2024-12-27
+- **Context**: 
+  - MASTER_SPEC v1.1 では4ファイル必須（run_config.json, result.json, eval_summary.json, events.jsonl）
+  - BUNDLE_CONTRACT.md では10ファイル必須（上記4つ + input.json, papers.jsonl, claims.jsonl, evidence.jsonl, scores.json, warnings.jsonl, report.md）
+  - DEC-003では8ファイル、DEC-004では4ファイルと複数の契約が並存
+  - この矛盾がプロジェクト進捗を65%で停滞させている根本原因
+- **Decision**: 
+  - **BUNDLE_CONTRACT.md の10ファイル契約を唯一の成果物契約とする**
+  - 4ファイル契約（DEC-004）は廃止
+  - 8ファイル契約（DEC-003）は10ファイルに統合
+  - MASTER_SPEC.md を v1.2 に更新し、10ファイル契約を記載
+- **Consequences**: 
+  - run完了時に10ファイルが揃わなければFAIL
+  - 失敗時でも result.json, eval_summary.json, warnings.jsonl, report.md は必ず生成
+  - show-run がfail理由と欠損ファイルを表示
+- **Migration Plan**: 
+  - 即時適用（後方互換は維持しない）
+  - 既存runは非互換として扱う
+- **Links**: BUNDLE_CONTRACT.md, MASTER_SPEC v1.2
+

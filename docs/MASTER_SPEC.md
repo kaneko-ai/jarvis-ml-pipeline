@@ -1,7 +1,7 @@
 > Authority: SPEC (Level 1, Binding)
 
 # JARVIS Research OS
-# MASTER_SPEC.md v1.1
+# MASTER_SPEC.md v1.2
 
 > **強制文書**: 本仕様書は全実装の最上位規約
 
@@ -18,18 +18,28 @@
 
 > **警告**: jarvis_cli.py 以外からの実行は禁止
 
-### 成果物契約（必須）
+### 成果物契約（必須10ファイル）
+
+> DEC-006により唯一の成果物契約として確定
 
 すべてのrunは `logs/runs/{run_id}/` に以下のファイルを**必ず**生成する:
 
 | ファイル | 用途 | 必須キー |
 |----------|------|----------|
-| `run_config.json` | 実行設定 | run_id, seed, model |
+| `input.json` | 実行条件 | goal, query, constraints |
+| `run_config.json` | 実行設定 | run_id, pipeline, timestamp |
+| `papers.jsonl` | 論文メタ | paper_id, title, year |
+| `claims.jsonl` | 主張 | claim_id, paper_id, claim_text |
+| `evidence.jsonl` | 根拠 | claim_id, paper_id, evidence_text, locator |
+| `scores.json` | スコア | features, rankings |
 | `result.json` | 実行結果 | run_id, status, answer, citations |
 | `eval_summary.json` | 評価結果 | gate_passed, fail_reasons, metrics |
-| `events.jsonl` | 監査ログ | event, timestamp |
+| `warnings.jsonl` | 警告 | code, message, severity |
+| `report.md` | 人間向けレポート | - |
 
-> **Contract**: 成功/失敗に関わらず4ファイル必須。欠損はシステムエラー。
+> **Contract**: 成功/失敗に関わらず10ファイル必須。欠損はシステムエラー。
+> 失敗時でも result.json, eval_summary.json, warnings.jsonl, report.md は必ず生成。
+
 
 ### 成功条件（強制）
 
