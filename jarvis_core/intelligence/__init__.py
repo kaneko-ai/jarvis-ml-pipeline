@@ -51,6 +51,12 @@ from .mandatory_search import (
     Phase2Decision,
     MandatorySearchJudge,
 )
+from .research_partner import (
+    StrategicAssessment,
+    KeyQuestions,
+    ResearchPartnerOutput,
+    ResearchPartner,
+)
 
 __all__ = [
     # Phase 1
@@ -85,4 +91,9 @@ __all__ = [
     "MandatorySearchResult",
     "Phase2Decision",
     "MandatorySearchJudge",
+    # Research Partner (Phase 4-7)
+    "StrategicAssessment",
+    "KeyQuestions",
+    "ResearchPartnerOutput",
+    "ResearchPartner",
 ]
