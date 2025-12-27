@@ -32,7 +32,7 @@
 - [x] 9. CLI一本化（README更新）
 - [x] 10. main.py格下げ
 - [x] 11. CLI実行例確認
-- [x] 12. .env.example必須化
+- [x] 12. .env.example追加
 - [x] 13. codex_progress.md更新
 - [x] 14. run_id生成規約固定
 - [x] 15. logs/runs保証
@@ -47,11 +47,11 @@
 ## 21-40: Verify強制 ✅
 
 - [x] 21. Verifyチェック項目定義
-- [x] 22. citation必須
-- [x] 23. locator必須
+- [x] 22. citation要件
+- [x] 23. locator要件
 - [x] 24. 断定検出
 - [x] 25. eval_summary出力
-- [x] 26. gate_passed必要条件
+- [x] 26. gate_passed要件
 - [x] 27. fail_reasonsコード化
 - [x] 28. RUN_ERROR events
 - [x] 29. Verify証跡
@@ -72,18 +72,18 @@
 ## 41-60: 文献パイプライン工具化 ✅
 
 - [x] 41. paperタスクtyping
-- [x] 42. index必須方針
+- [x] 42. index要件方針
 - [x] 43. index無し挙動統一
 - [x] 44. build-indexスキーマ
-- [x] 45. indexメタ必須化
+- [x] 45. indexメタ追加
 - [x] 46. indexes_used記録
 - [x] 47. papers_used記録
 - [x] 48. FetchPolicy一致
 - [x] 49. 再試行方針
-- [x] 50. 外部取得なし禁止
+- [x] 50. 外部取得なし制限
 - [x] 51. パイプ固定
-- [x] 52. 識別子必須
-- [x] 53. 引用根拠必須
+- [x] 52. 識別子追加
+- [x] 53. 引用根拠追加
 - [x] 54. extractエラー反映
 - [x] 55. evidence薄fail
 - [x] 56. 参照文献表示
@@ -114,7 +114,7 @@
 - [x] 76. 指標出力
 - [x] 77. 閾値明示
 - [x] 78. 閾値記録
-- [x] 79. 閾値未達禁止
+- [x] 79. 閾値未達制限
 - [x] 80. PRブロック
 
 ---
