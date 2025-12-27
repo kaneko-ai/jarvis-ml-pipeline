@@ -1,0 +1,38 @@
+# E2E Offline Pipeline
+# オフライン（ネットワーク不要）でE2E検証を行うパイプライン
+# Per DEC-006: 10ファイル契約に準拠
+
+pipeline: e2e_offline
+version: 1
+description: オフラインE2E検証パイプライン（固定コーパス使用）
+
+stages:
+  # Phase 1: Retrieval（オフライン）
+  - id: retrieval.offline_load
+    config:
+      corpus_path: tests/e2e/fixtures/offline_corpus.json
+  
+  # Phase 2: Extraction（コア）
+  - id: extraction.claims
+  - id: extraction.evidence_link
+  
+  # Phase 3: Summarization
+  - id: summarization.multigrain
+
+  # Phase 4: Output
+  - id: output.export_bundle
+  
+  # Phase 5: Quality Gate
+  - id: quality_gate.provenance_check
+
+policies:
+  seed: 42
+  offline: true
+  provenance_required: true
+  refuse_if_no_evidence: true
+  timeouts:
+    stage_default_sec: 120
+
+quality_gates:
+  provenance_rate: 0.90
+  facts_without_evidence: 0

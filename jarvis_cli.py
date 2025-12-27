@@ -15,7 +15,7 @@ from pathlib import Path
 
 
 def cmd_run(args):
-    """Execute a task."""
+    """Execute a task via unified pipeline (per DEC-006)."""
     from jarvis_core.app import run_task
 
     # Build task dict
@@ -31,11 +31,17 @@ def cmd_run(args):
         print("Error: Provide either --task-file or --goal", file=sys.stderr)
         sys.exit(1)
 
-    # Build config dict
+    # Build config dict with pipeline info
     config_dict = None
     if args.config:
         with open(args.config, "r", encoding="utf-8") as f:
             config_dict = json.load(f)
+    else:
+        config_dict = {}
+
+    # Add pipeline path if specified
+    if args.pipeline:
+        config_dict["pipeline"] = args.pipeline
 
     result = run_task(task_dict, config_dict)
 
@@ -94,8 +100,40 @@ def cmd_build_index(args):
             print(f"Errors: {len(result['errors'])}")
 
 
+def cmd_train_ranker(args):
+    """Train LightGBM ranker on golden dataset (Phase 2)."""
+    from pathlib import Path
+    from jarvis_core.ranking.lgbm_ranker import LGBMRanker
+
+    dataset_path = Path(args.dataset)
+    if not dataset_path.exists():
+        print(f"Error: Dataset not found: {dataset_path}", file=sys.stderr)
+        sys.exit(1)
+
+    output_path = Path(args.output) if args.output else None
+
+    ranker = LGBMRanker()
+    try:
+        result = ranker.train(dataset_path, output_path)
+
+        if args.json:
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        else:
+            print(f"✅ Ranker trained on {result['num_papers']} papers")
+            print(f"Features: {', '.join(result['feature_names'])}")
+            if result['model_saved']:
+                print(f"Model saved to: {result['model_saved']}")
+    except ImportError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        print("Install LightGBM: pip install lightgbm", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error training ranker: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
 def cmd_show_run(args):
-    """Show run summary."""
+    """Show run summary with fail reasons and missing artifacts (per DEC-006)."""
     from jarvis_core.storage import RunStore
 
     if args.run_id:
@@ -122,18 +160,56 @@ def cmd_show_run(args):
     else:
         print(f"Run ID: {summary['run_id']}")
         print(f"Log Dir: {summary['run_dir']}")
-        print(f"Has Events: {summary['has_events']}")
-        print(f"Has Result: {summary['has_result']}")
-        print(f"Has Eval: {summary['has_eval']}")
+        print(f"Contract Valid: {summary['contract_valid']}")
 
+        # Show artifact status (10-file contract per DEC-006)
+        print("\n=== Artifacts (10-file contract) ===")
+        artifact_status = [
+            ("input.json", summary.get("has_input", False)),
+            ("run_config.json", summary.get("has_config", False)),
+            ("papers.jsonl", summary.get("has_papers", False)),
+            ("claims.jsonl", summary.get("has_claims", False)),
+            ("evidence.jsonl", summary.get("has_evidence", False)),
+            ("scores.json", summary.get("has_scores", False)),
+            ("result.json", summary.get("has_result", False)),
+            ("eval_summary.json", summary.get("has_eval", False)),
+            ("warnings.jsonl", summary.get("has_warnings", False)),
+            ("report.md", summary.get("has_report", False)),
+        ]
+        for name, exists in artifact_status:
+            status = "✓" if exists else "✗"
+            print(f"  {status} {name}")
+
+        # Show missing artifacts
+        if summary.get("missing_artifacts"):
+            print("\n=== Missing Artifacts ===")
+            for missing in summary["missing_artifacts"]:
+                print(f"  - {missing}")
+
+        # Show config
         if config:
-            print(f"\nConfig: seed={config.get('seed')}, model={config.get('model')}")
+            print(f"\nConfig: pipeline={config.get('pipeline', 'N/A')}, seed={config.get('seed')}")
 
+        # Show result status
         if result:
-            print(f"\nResult Status: {result.get('status')}")
+            print(f"\n=== Result ===")
+            print(f"Status: {result.get('status')}")
+            if result.get("warnings"):
+                print(f"Warnings: {len(result.get('warnings', []))} items")
 
+        # Show eval and fail reasons
         if eval_summary:
-            print(f"\nEval: {eval_summary.get('pass_fail', 'N/A')}")
+            print(f"\n=== Evaluation ===")
+            print(f"Gate Passed: {eval_summary.get('gate_passed', 'N/A')}")
+
+            fail_reasons = eval_summary.get("fail_reasons", [])
+            if fail_reasons:
+                print("\n=== Fail Reasons ===")
+                for reason in fail_reasons:
+                    if isinstance(reason, dict):
+                        print(f"  - [{reason.get('code', 'UNKNOWN')}] {reason.get('msg', '')}")
+                    else:
+                        print(f"  - {reason}")
 
 
 def main():
@@ -154,6 +230,12 @@ def main():
         choices=["paper_survey", "thesis", "job_hunting", "generic"],
     )
     run_parser.add_argument("--config", type=str, help="Path to run config JSON")
+    run_parser.add_argument(
+        "--pipeline",
+        type=str,
+        default="configs/pipelines/e2e_oa10.yml",
+        help="Path to pipeline YAML (default: e2e_oa10.yml)",
+    )
     run_parser.add_argument("--out", type=str, default="logs/runs", help="Output directory")
     run_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
@@ -171,6 +253,12 @@ def main():
     show_parser.add_argument("--run-id", type=str, help="Run ID (default: latest)")
     show_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
+    # === train-ranker command (Phase 2) ===
+    ranker_parser = subparsers.add_parser("train-ranker", help="Train LightGBM ranker (Phase 2)")
+    ranker_parser.add_argument("--dataset", type=str, required=True, help="Path to golden set JSONL")
+    ranker_parser.add_argument("--output", type=str, help="Path to save model (optional)")
+    ranker_parser.add_argument("--json", action="store_true", help="Output as JSON")
+
     args = parser.parse_args()
 
     # Legacy mode: if no subcommand but --goal provided
@@ -187,6 +275,8 @@ def main():
         cmd_build_index(args)
     elif args.command == "show-run":
         cmd_show_run(args)
+    elif args.command == "train-ranker":
+        cmd_train_ranker(args)
 
 
 if __name__ == "__main__":

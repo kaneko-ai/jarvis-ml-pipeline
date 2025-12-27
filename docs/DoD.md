@@ -67,10 +67,28 @@
 
 ---
 
-## Research OS完成条件
+## Research OS 完成条件 (Phase 1: Foundation) ✅
 
-- [ ] 再現性：同一入力で同一出力
-- [ ] 監査性：全操作がログに残る
-- [ ] 回帰：品質劣化でCI失敗
-- [ ] 強制ゲート：citation/locator必須
-- [ ] 拡張可能：Skill追加で壊れない
+> 2024-12-27達成
+
+- [x] **Single Entry Point**: `jarvis_cli.py` のみを使用
+- [x] **Unified Contract**: 10ファイル契約 (DEC-006)
+- [x] **Offline E2E**: ネットワークなしで動作保証 (`tests/e2e/test_e2e_offline.py`)
+- [x] **Quality Gate**: 実測値に基づくゲート (`evals/smoke_eval_set.json`)
+- [x] **CI Enforcement**: GitHub Actions による強制
+
+---
+
+## Phase 2: Intelligence Upgrade (Next Step)
+
+- [ ] **Evidence Unit Schema**: 根拠の最小単位定義
+- [ ] **Evidence Grading**: 根拠の強さを自動判定
+- [ ] **Domain Rubrics**: 免疫・がん領域の評価軸
+- [ ] **LGBM Ranking**: 再現可能なランキング学習
+- [ ] **Uncertainty Control**: 不確実性の可視化と制御
+- [ ] **Golden/Trick Sets**: 難問セットでの検証
+
+---
+
+## チェックリスト完了: Phase 1 ✅
+

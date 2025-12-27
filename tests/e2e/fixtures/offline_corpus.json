@@ -1,0 +1,116 @@
+{
+    "description": "E2Eオフライン検証用固定コーパス（ネットワーク不要）",
+    "version": 1,
+    "papers": [
+        {
+            "paper_id": "PMID:36991446",
+            "pmid": "36991446",
+            "title": "CD73 in tumor immunology and immunotherapy",
+            "authors": [
+                "Zhang Y",
+                "Wang X"
+            ],
+            "year": 2023,
+            "journal": "Cancer Immunol Immunother",
+            "abstract": "CD73 is an ecto-5'-nucleotidase that converts AMP to adenosine in the tumor microenvironment. High expression of CD73 on tumor cells and immunosuppressive cells contributes to immune evasion. CD73 inhibition enhances anti-tumor immunity by reducing adenosine levels and restoring T cell function. This review discusses CD73 as a therapeutic target for cancer immunotherapy.",
+            "sections": [
+                {
+                    "id": "s1",
+                    "title": "Introduction",
+                    "text": "The tumor microenvironment (TME) is characterized by immunosuppressive features. CD73 (NT5E) is a key enzyme that generates extracellular adenosine from AMP."
+                },
+                {
+                    "id": "s2",
+                    "title": "CD73 Expression",
+                    "text": "CD73 is expressed on various cell types including tumor cells, regulatory T cells, and myeloid-derived suppressor cells. High CD73 expression correlates with poor prognosis in multiple cancer types."
+                },
+                {
+                    "id": "s3",
+                    "title": "Therapeutic Strategies",
+                    "text": "Monoclonal antibodies targeting CD73 (e.g., oleclumab) have shown promising results in clinical trials. Combination with PD-1/PD-L1 inhibitors may enhance efficacy."
+                }
+            ]
+        },
+        {
+            "paper_id": "PMID:36451063",
+            "pmid": "36451063",
+            "title": "Adenosine pathway in cancer immunity",
+            "authors": [
+                "Chen L",
+                "Huang M"
+            ],
+            "year": 2022,
+            "journal": "Nat Rev Cancer",
+            "abstract": "The adenosine pathway, involving CD39 and CD73, plays a critical role in establishing an immunosuppressive tumor microenvironment. Therapeutic targeting of this pathway represents a promising strategy for cancer immunotherapy.",
+            "sections": [
+                {
+                    "id": "s1",
+                    "title": "Overview",
+                    "text": "Adenosine is a potent immunosuppressive molecule. Its accumulation in tumors inhibits effector T cells and natural killer cells via A2A and A2B receptors."
+                },
+                {
+                    "id": "s2",
+                    "title": "Mechanisms",
+                    "text": "CD39 converts ATP to AMP, while CD73 converts AMP to adenosine. This two-step enzymatic process is enhanced in hypoxic tumor regions."
+                }
+            ]
+        },
+        {
+            "paper_id": "PMID:35982657",
+            "pmid": "35982657",
+            "title": "CD73 inhibition for solid tumors",
+            "authors": [
+                "Park J",
+                "Kim S"
+            ],
+            "year": 2022,
+            "journal": "J Clin Oncol",
+            "abstract": "CD73 inhibition represents a novel approach for treating solid tumors. Clinical trials have demonstrated safety and preliminary efficacy of CD73-targeting antibodies in combination with checkpoint inhibitors.",
+            "sections": [
+                {
+                    "id": "s1",
+                    "title": "Clinical Results",
+                    "text": "Phase I/II trials of oleclumab combined with durvalumab showed objective responses in non-small cell lung cancer patients who had progressed on prior therapy."
+                }
+            ]
+        },
+        {
+            "paper_id": "PMID:35546572",
+            "pmid": "35546572",
+            "title": "T cell exhaustion and adenosine signaling",
+            "authors": [
+                "Liu W",
+                "Zhang H"
+            ],
+            "year": 2022,
+            "journal": "Immunity",
+            "abstract": "T cell exhaustion in tumors is partially mediated by adenosine signaling. Blocking the CD73-adenosine axis can restore T cell effector functions and enhance anti-tumor responses.",
+            "sections": [
+                {
+                    "id": "s1",
+                    "title": "T Cell Dysfunction",
+                    "text": "Exhausted T cells exhibit reduced cytokine production, impaired proliferation, and increased expression of inhibitory receptors. Adenosine receptor signaling exacerbates these features."
+                }
+            ]
+        },
+        {
+            "paper_id": "PMID:35141044",
+            "pmid": "35141044",
+            "title": "Biomarkers for CD73-targeted therapy",
+            "authors": [
+                "Smith A",
+                "Johnson B"
+            ],
+            "year": 2022,
+            "journal": "Biomark Res",
+            "abstract": "Identifying predictive biomarkers for CD73-targeted therapy is essential for patient selection. CD73 expression, adenosine levels, and TME composition may serve as potential biomarkers.",
+            "sections": [
+                {
+                    "id": "s1",
+                    "title": "Biomarker Candidates",
+                    "text": "Tumor CD73 expression by immunohistochemistry has been correlated with response to CD73 inhibitors in early clinical trials."
+                }
+            ]
+        }
+    ]
+}

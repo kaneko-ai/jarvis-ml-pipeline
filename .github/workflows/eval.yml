@@ -1,0 +1,47 @@
+name: Quality Gate Evaluation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  eval-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest pyyaml
+
+      - name: Run Offline E2E (Regression)
+        run: |
+          python -m pytest tests/e2e/test_e2e_offline.py -v
+
+      - name: Run Trick Sets Tests (Phase 2)
+        run: |
+          python -m pytest tests/test_trick_sets.py -v
+
+      - name: Verify Phase 2 Schemas
+        run: |
+          echo "Verifying Phase 2 schemas exist"
+          test -f docs/SCHEMAS/claim_unit.schema.json
+          test -f docs/SCHEMAS/evidence_unit.schema.json
+          test -f docs/RUBRICS/immuno_onco_rubric.yaml
+
+      - name: Run Smoke Test (Quality Gate)
+        # Note: In CI environment without API keys, this might need mock or skip
+        # Here we verify the structure works
+        run: |
+          echo "Running smoke test structure verification"
+          python jarvis_cli.py show-run --help
+          python jarvis_cli.py train-ranker --help

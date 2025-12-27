@@ -50,4 +50,22 @@
 
 ---
 
-*Last updated: 2024-12-21*
+## Phase 1 残存負債 (2024-12-27)
+
+### 構造的二重性 (Structural Duplication)
+以下の旧実装は **Deprecated (非推奨)** であり、将来的に削除される。
+
+| 対象 | 代替（Golden Path） | 扱い |
+|------|--------------------|------|
+| `main.py` | `jarvis_cli.py` run | デモ専用として残存（本番禁止） |
+| `run_pipeline.py` | `jarvis_cli.py` run | **使用禁止**（CI/CDからも削除済み） |
+| `jarvis_core.app` (旧) | `jarvis_core.pipelines.executor` | 互換性維持のため残存するが非推奨 |
+| `artifacts/` ディレクトリ | `logs/runs/{run_id}/` | **廃止**（10ファイル契約に違反） |
+
+### 今後の方針
+- 新規コードはすべて `jarvis_cli.py` および `pipelines` モジュールを使用する。
+- 旧実装への依存は `docs/TECH_DEBT.md` に記載し、段階的に解消する。
+
+---
+
+*Last updated: 2024-12-27*
