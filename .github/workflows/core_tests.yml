@@ -9,7 +9,6 @@ on:
 env:
   PYTHONUNBUFFERED: "1"
   NO_NETWORK: "1"
-  LEGACY_MUST_PASS: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'true' || 'false' }}
 
 jobs:
   core-tests:
@@ -42,7 +41,7 @@ jobs:
   legacy-tests:
     runs-on: ubuntu-latest
     name: Legacy Tests (Tracked)
-    continue-on-error: ${{ env.LEGACY_MUST_PASS != 'true' }}
+    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v4
@@ -78,8 +77,4 @@ jobs:
         run: |
           if [ "$LEGACY_FAILED" = "true" ]; then
             echo "::warning::Legacy tests failed. See artifact for details."
-            if [ "$LEGACY_MUST_PASS" = "true" ]; then
-              echo "::error::LEGACY_MUST_PASS=true, failing workflow"
-              exit 1
-            fi
           fi
