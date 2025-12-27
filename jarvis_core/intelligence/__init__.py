@@ -41,6 +41,16 @@ from .action_planner import (
     ActionItem,
     ActionPlanner,
 )
+from .goldset_index import (
+    GoldsetEntry,
+    GoldsetIndex,
+)
+from .mandatory_search import (
+    SimilarJudgment,
+    MandatorySearchResult,
+    Phase2Decision,
+    MandatorySearchJudge,
+)
 
 __all__ = [
     # Phase 1
@@ -68,4 +78,11 @@ __all__ = [
     "ActionType",
     "ActionItem",
     "ActionPlanner",
+    # Phase 2 (強化)
+    "GoldsetEntry",
+    "GoldsetIndex",
+    "SimilarJudgment",
+    "MandatorySearchResult",
+    "Phase2Decision",
+    "MandatorySearchJudge",
 ]
