@@ -1,0 +1,24 @@
+task: regression
+dataset:
+  train_path: data/tabular/housing/housing_train.csv
+  test_path: data/tabular/housing/housing_test.csv
+  label_col: y
+  submission_col: y
+  label_offset: 0
+
+split:
+  seed: 0
+  train: 0.6
+  val: 0.2
+  test: 0.2
+
+model:
+  type: ridge
+  alpha: 1.0
+
+preprocess:
+  standardize: true
+
+output:
+  runs_dir: runs
+  save_model: true
