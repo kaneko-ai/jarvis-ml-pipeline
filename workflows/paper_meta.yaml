@@ -1,0 +1,50 @@
+workflow_id: paper_meta_analysis
+mode: step
+objective: PubMedからOA10本→要約→根拠行→採点
+
+steps:
+  - step_id: search
+    action: tool
+    tool: pubmed_search
+    config:
+      query: "meta-analysis cancer treatment"
+      max_results: 10
+    timeout_sec: 60
+
+  - step_id: screen
+    action: tool
+    tool: oa_filter
+    depends_on: [search]
+
+  - step_id: extract
+    action: tool
+    tool: claim_extractor
+    depends_on: [screen]
+
+  - step_id: summarize
+    action: tool
+    tool: summarizer
+    depends_on: [extract]
+
+  - step_id: evaluate
+    action: evaluator
+    requires_approval: false
+    depends_on: [summarize]
+
+fitness:
+  correctness: 0.4
+  regression: 0.2
+  reproducibility: 0.2
+  cost: 0.1
+  latency: 0.1
+
+budgets:
+  max_tokens: 100000
+  max_cost: 10.0
+  max_iters: 10
+  n_samples: 3
+
+artifacts:
+  output_dir: artifacts/paper_meta
+
+goldset: data/gold/paper_meta.jsonl
