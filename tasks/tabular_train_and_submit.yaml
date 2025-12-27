@@ -1,0 +1,20 @@
+# Jarvis Tabular Pipeline Task
+
+タスクID: tabular_train_and_submit
+タイトル: Tabular train and make submission
+
+## 入力
+- config_path: configs/tabular/wine.yaml
+
+## 出力
+- submission_path: runs/{{run_id}}/submission.csv
+
+## チェック項目
+- submission_format: 提出形式検証
+- feature_alignment: 列整合検証
+- schema_saved: スキーマ保存確認
+
+## 実行コマンド
+```bash
+python -m cli.tabular_run --config {{config_path}}
+```

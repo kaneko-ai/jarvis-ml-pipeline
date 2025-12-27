@@ -1,0 +1,24 @@
+task: classification
+dataset:
+  train_path: data/tabular/wine/dl_wine_class_train.csv
+  test_path: data/tabular/wine/dl_wine_class_test.csv
+  label_col: Class
+  submission_col: class
+  label_offset: 1  # 1,2,3 -> 0,1,2
+
+split:
+  seed: 0
+  train: 0.6
+  val: 0.2
+  test: 0.2
+
+model:
+  type: logistic_regression
+  max_iter: 2000
+
+preprocess:
+  standardize: true
+
+output:
+  runs_dir: runs
+  save_model: true
