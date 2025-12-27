@@ -24,6 +24,8 @@ classifiers = [
 dependencies = [
     "requests>=2.28.0",
     "pyyaml>=6.0",
+    "lightgbm>=4.0.0",  # Phase 2: Learning-to-Rank
+    "numpy>=1.24.0",     # Phase 2: Numerical operations
 ]
 
 [project.optional-dependencies]
