@@ -269,6 +269,14 @@ class PluginManager:
     def get_errors(self) -> List[str]:
         """エラー一覧を取得。"""
         return self.errors
+    
+    def list_active_plugins(self) -> List[str]:
+        """アクティブなプラグイン一覧を取得。
+        
+        Returns:
+            ロード済みプラグインのIDリスト
+        """
+        return list(self.instances.keys())
 
 
 # グローバルマネージャ
