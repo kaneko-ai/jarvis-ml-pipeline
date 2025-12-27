@@ -131,7 +131,7 @@ def main():
         # BibTeX output
         if args.bibtex:
             from jarvis_core.reference import extract_references
-            from jarvis_core.bibtex import export_bibtex
+            from jarvis_core.bibtex_utils import export_bibtex
 
             refs = extract_references(result.citations)
             print(export_bibtex(refs))

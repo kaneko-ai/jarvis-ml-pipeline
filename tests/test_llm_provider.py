@@ -34,7 +34,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from jarvis_core.llm import LLMClient, Message  # noqa: E402
+from jarvis_core.llm_utils import LLMClient, Message  # noqa: E402
 
 
 class TestOllamaProvider:

@@ -31,7 +31,7 @@ jobs:
           pip install pytest
 
       - name: Run core tests
-        run: python -m pytest -m core -v --tb=short || true
+        run: python -m pytest -m core -v --tb=short
 
       - name: Check test collection
         continue-on-error: true
@@ -43,7 +43,6 @@ jobs:
           fi
 
       - name: Import checks
-        continue-on-error: true
         run: |
           python -c "import jarvis_core; print('jarvis_core import OK')"
 

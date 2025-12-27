@@ -29,7 +29,7 @@ from jarvis_core.timeline import build_timeline, summarize_evolution
 from jarvis_core.journal_targeting import suggest_journals
 from jarvis_core.rehearsal import generate_rehearsal
 from jarvis_core.education import translate_for_level
-from jarvis_core.memory import search_memory, find_related, get_memory_stats
+from jarvis_core.memory_utils import search_memory, find_related, get_memory_stats
 
 
 def _create_test_vectors():
