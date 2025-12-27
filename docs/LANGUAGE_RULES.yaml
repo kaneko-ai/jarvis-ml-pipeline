@@ -1,0 +1,48 @@
+"""Language Linting Rules (Phase 2-ΩΩ).
+
+Enforces language constraints to prevent causal overgeneralization,
+assertive claims without evidence, and other prohibited expressions.
+"""
+forbidden:
+  - "causes"
+  - "leads to"
+  - "guarantees"
+  - "proves"
+  - "demonstrates that"
+  - "confirms that"
+  - "establishes that"
+  - "clearly shows"
+
+conditional_required:
+  - "associated with"
+  - "correlated with"
+  - "suggests"
+  - "indicates"
+  - "may"
+  - "could"
+  - "potentially"
+
+allowed_hedging:
+  - "possible"
+  - "likely"
+  - "probable"
+  - "potentially"
+  - "might"
+  - "appears to"
+  - "seems to"
+
+# Japanese equivalents
+forbidden_ja:
+  - "原因となる"
+  - "引き起こす"
+  - "証明する"
+  - "確実に"
+  - "明らかに"
+
+conditional_required_ja:
+  - "関連する"
+  - "相関する"
+  - "示唆する"
+  - "可能性"
+  - "と考えられる"
+  - "かもしれない"
