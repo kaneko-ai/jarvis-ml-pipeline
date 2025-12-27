@@ -58,3 +58,30 @@
 - **Consequences**: 欠けたらrun FAIL
 - **Migration Plan**: 既存runは非互換（新規のみ適用）
 - **Links**: Step 14-20
+
+### DEC-004: 成果物契約（4ファイル必須）
+- **Date**: 2024-12-27
+- **Context**: Phase Loop 1実装において、成果物契約を簡素化・明確化する必要があった。
+- **Decision**: 
+  - 必須成果物を4ファイルに統一
+  - run_config.json, result.json, eval_summary.json, events.jsonl
+  - 成功/失敗に関わらず必ず生成
+- **Consequences**: 
+  - RunStoreが唯一のパス決定責務を持つ
+  - 欠損があればContractViolationError
+- **Migration Plan**: 既存の8ファイル契約と並行運用、段階的に統合
+- **Links**: MASTER_SPEC v1.1, Phase Loop 1
+
+### DEC-005: success条件（gate_passed必須）
+- **Date**: 2024-12-27
+- **Context**: 品質ゲートを通過せずにsuccessになるケースがあり、信頼性が損なわれていた。
+- **Decision**: 
+  - status == "success" ⇔ gate_passed == true
+  - Verify未実行のrunはsuccessにならない
+  - gate_passed == false → status は "failed" または "needs_retry"
+- **Consequences**: 
+  - citation無しでsuccessが構造的に不可能
+  - QualityGateVerifierが必ず実行される
+- **Migration Plan**: 新規runのみ適用
+- **Links**: MASTER_SPEC v1.1, Phase Loop 1
+

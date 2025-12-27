@@ -1,11 +1,48 @@
+> Authority: SPEC (Level 1, Binding)
+
 # JARVIS Research OS
-# MASTER_SPEC.md v1.0
+# MASTER_SPEC.md v1.1
 
 > **強制文書**: 本仕様書は全実装の最上位規約
 
 ---
 
 ## 0. 基本原則（非交渉）
+
+### 実行入口（唯一）
+
+| 入口 | ファイル | 用途 |
+|------|----------|------|
+| **CLI（唯一）** | `jarvis_cli.py` | すべての実行はここから |
+| デモ | `main.py` | 開発デモ専用（本番禁止） |
+
+> **警告**: jarvis_cli.py 以外からの実行は禁止
+
+### 成果物契約（必須）
+
+すべてのrunは `logs/runs/{run_id}/` に以下のファイルを**必ず**生成する:
+
+| ファイル | 用途 | 必須キー |
+|----------|------|----------|
+| `run_config.json` | 実行設定 | run_id, seed, model |
+| `result.json` | 実行結果 | run_id, status, answer, citations |
+| `eval_summary.json` | 評価結果 | gate_passed, fail_reasons, metrics |
+| `events.jsonl` | 監査ログ | event, timestamp |
+
+> **Contract**: 成功/失敗に関わらず4ファイル必須。欠損はシステムエラー。
+
+### 成功条件（強制）
+
+```
+status == "success" ⇔ gate_passed == true
+```
+
+| 条件 | 説明 |
+|------|------|
+| `gate_passed == true` | Verifyを通過 |
+| `gate_passed == false` | status は "failed" または "needs_retry" |
+
+> **警告**: Verify未実行のrunは success にならない
 
 ### 三位一体
 
