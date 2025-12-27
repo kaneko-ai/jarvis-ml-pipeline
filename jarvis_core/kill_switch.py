@@ -283,3 +283,136 @@ class KillSwitch:
             if cond.id == condition_id:
                 return cond
         return None
+
+
+# =============================================================================
+# Legacy API: recommend_kill_switch (Ψ-7)
+# Per Ψ-7, this recommends when to stop research based on vector analysis.
+# =============================================================================
+
+def recommend_kill_switch(
+    theme: str,
+    vectors: List[Any],
+    months_invested: int = 12,
+) -> Dict[str, Any]:
+    """研究継続・中止の推奨を判定（Ψ-7）.
+    
+    Args:
+        theme: 研究テーマ
+        vectors: PaperVectorのリスト
+        months_invested: 投資した月数
+    
+    Returns:
+        推奨結果（recommendation: continue/pivot/stop）
+    """
+    if not vectors:
+        return {
+            "theme": theme,
+            "recommendation": "stop",
+            "stop_score": 1.0,
+            "evidence": ["中止根拠なし"],
+            "months_invested": months_invested,
+            "estimated": True,
+        }
+    
+    # 簡易スコア計算（ベクトルの特性から判定）
+    novelty_sum = 0.0
+    impact_sum = 0.0
+    
+    for v in vectors:
+        if hasattr(v, "temporal") and hasattr(v.temporal, "novelty"):
+            novelty_sum += v.temporal.novelty
+        if hasattr(v, "impact") and hasattr(v.impact, "future_potential"):
+            impact_sum += v.impact.future_potential
+    
+    avg_novelty = novelty_sum / len(vectors) if vectors else 0.0
+    avg_impact = impact_sum / len(vectors) if vectors else 0.0
+    
+    # 継続スコア = 新規性 × 将来性
+    continue_score = (avg_novelty + avg_impact) / 2
+    stop_score = 1 - continue_score
+    
+    # 判定
+    if continue_score >= 0.6:
+        recommendation = "continue"
+        evidence = [
+            f"高い新規性 ({avg_novelty:.2f})",
+            f"高い将来性 ({avg_impact:.2f})",
+        ]
+    elif continue_score >= 0.3:
+        recommendation = "pivot"
+        evidence = [
+            f"中程度の新規性 ({avg_novelty:.2f})",
+            "方向修正を検討",
+        ]
+    else:
+        recommendation = "stop"
+        evidence = [
+            f"低い新規性 ({avg_novelty:.2f})",
+            f"低い将来性 ({avg_impact:.2f})",
+        ]
+    
+    return {
+        "theme": theme,
+        "recommendation": recommendation,
+        "stop_score": stop_score,
+        "continue_score": continue_score,
+        "evidence": evidence,
+        "months_invested": months_invested,
+        "estimated": True,
+    }
+
+
+def assess_field_evolution(
+    vectors: List[Any],
+    field_name: str = "unknown",
+) -> Dict[str, Any]:
+    """分野の進化度を評価（Ψ-7補助）.
+    
+    Args:
+        vectors: PaperVectorのリスト
+        field_name: 分野名
+    
+    Returns:
+        評価結果
+    """
+    if not vectors:
+        return {
+            "field": field_name,
+            "evolution_index": 0.0,
+            "trend": "stagnant",
+            "estimated": True,
+        }
+    
+    # 年代分布から進化度を推定
+    years = []
+    for v in vectors:
+        if hasattr(v, "metadata") and hasattr(v.metadata, "year"):
+            years.append(v.metadata.year)
+    
+    if not years:
+        return {
+            "field": field_name,
+            "evolution_index": 0.5,
+            "trend": "unknown",
+            "estimated": True,
+        }
+    
+    # 最近の論文が多いほど進化中
+    recent_count = sum(1 for y in years if y >= 2020)
+    evolution_index = recent_count / len(years)
+    
+    if evolution_index >= 0.7:
+        trend = "rapidly_evolving"
+    elif evolution_index >= 0.4:
+        trend = "evolving"
+    else:
+        trend = "mature"
+    
+    return {
+        "field": field_name,
+        "evolution_index": evolution_index,
+        "trend": trend,
+        "estimated": True,
+    }
+
