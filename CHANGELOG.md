@@ -2,6 +2,31 @@
 
 All notable changes to JARVIS will be documented in this file.
 
+## [Unreleased] - Phase 2-ΩΩ (2025-12-28)
+
+### Added
+- **Evidence ID enforcement**: All conclusions must reference evidence IDs
+- **Uncertainty labels**: Automatic determination (確定/高信頼/要注意/推測)
+- **Cost tracking**: `cost_report.json` with tokens/time/API calls per stage
+- **Subscores display**: All ranked papers show subscore breakdown
+- **Ranking explanation**: Automatic strength/weakness analysis
+- **Trick sets CI**: no_evidence/overclaim/contradiction evaluation gates
+- **Evidence locator verification**: Quote span matching (threshold 0.8)
+- **Language lint**: Forbidden causal terms, hedging requirements
+- **uv + lock**: Docker-free reproducibility with `uv.lock` (62 packages)
+- **RUNBOOK.md**: Operational procedures and troubleshooting guide
+
+### Changed
+- CI migrated from `pip install` to `uv sync --frozen` for reproducibility
+- Report generation now requires evidence IDs (no bypass allowed)
+- Quality gates enforce 90% support rate minimum
+
+### Fixed
+- Phase 2 stage imports (removed TaskContext/Artifacts dependencies)
+- pytest marker warnings (added `e2e` marker to pytest.ini)
+
+---
+
 ## [v5.0.0] - 2024-12-23
 
 ### 🚀 Major Release: 300 Features Implementation
