@@ -1,0 +1,18 @@
+{
+    "goal": "CD73 immunotherapy literature survey",
+    "query": "CD73 adenosine immunotherapy cancer",
+    "constraints": {
+        "oa_only": true,
+        "max_papers": 10,
+        "date_from": "2020-01-01",
+        "date_to": "2024-12-31",
+        "inference_budget": "medium",
+        "top_k_expensive": 3,
+        "fulltext_policy": "if_needed"
+    },
+    "reproducibility": {
+        "seed": 42,
+        "model": "local",
+        "pipeline_version": "e2e_oa10-v1"
+    }
+}
