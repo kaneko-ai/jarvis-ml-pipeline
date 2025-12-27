@@ -294,7 +294,9 @@ class AdaptiveChunker:
         # Link chunks that reference figures/tables
         for chunk in chunks:
             for key, caption_id in caption_ids.items():
-                ref_pattern = rf"(?i){key.replace('_', r'\s+')}"
+                # Build pattern without f-string backslash issue
+                pattern_key = key.replace('_', r'\s+')
+                ref_pattern = f"(?i){pattern_key}"
                 if re.search(ref_pattern, chunk.text) and chunk.chunk_id != caption_id:
                     if caption_id not in chunk.related_chunks:
                         chunk.related_chunks.append(caption_id)
