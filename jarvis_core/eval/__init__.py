@@ -1,28 +1,31 @@
-"""Evaluation package."""
-from .goldset_schema import (
-    GoldsetEntry,
-    GoldsetLabel,
-    validate_goldset,
-    load_goldset,
-    save_goldset,
+"""JARVIS Eval Module."""
+
+from .quality_gate import (
+    QualityGateVerifier,
+    VerifyResult,
+    FailReason,
+    FailCodes,
+    format_fail_reasons,
 )
-from .metrics_truth import (
-    calculate_truth_metrics,
-    TruthMetrics,
-)
-from .regression_runner import (
-    run_regression,
-    RegressionResult,
+from .judge import (
+    Judge,
+    JudgeResult,
+    RetryManager,
+    RetryAttempt,
+    EvalMetrics,
+    RETRY_STRATEGIES,
 )
 
 __all__ = [
-    "GoldsetEntry",
-    "GoldsetLabel",
-    "validate_goldset",
-    "load_goldset",
-    "save_goldset",
-    "calculate_truth_metrics",
-    "TruthMetrics",
-    "run_regression",
-    "RegressionResult",
+    "QualityGateVerifier",
+    "VerifyResult",
+    "FailReason",
+    "FailCodes",
+    "format_fail_reasons",
+    "Judge",
+    "JudgeResult",
+    "RetryManager",
+    "RetryAttempt",
+    "EvalMetrics",
+    "RETRY_STRATEGIES",
 ]

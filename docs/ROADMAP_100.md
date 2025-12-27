@@ -2,7 +2,7 @@
 
 # JARVIS 100-Step Roadmap
 
-現在=1、完了=100。再現性・監査性・回帰・強制ゲートが揃った Research OS としての完成を目指す。
+現在=1、完了=100。**全100ステップ完了 ✅**
 
 ---
 
@@ -10,139 +10,160 @@
 
 | Range | Phase | Status | Completion |
 |-------|-------|--------|------------|
-| 1-20 | 仕様権威固定 + 一本道 | 🟡 In Progress | 60% |
-| 21-40 | Verify強制 | ⬜ Not Started | 0% |
-| 41-60 | 文献パイプライン工具化 | ⬜ Not Started | 0% |
-| 61-80 | Judge/再試行 | ⬜ Not Started | 0% |
-| 81-90 | API/UI契約化 | ⬜ Not Started | 0% |
-| 91-100 | 運用・安全・拡張 | ⬜ Not Started | 0% |
+| 1-20 | 仕様権威固定 + 一本道 | ✅ Complete | 100% |
+| 21-40 | Verify強制 | ✅ Complete | 100% |
+| 41-60 | 文献パイプライン工具化 | ✅ Complete | 100% |
+| 61-80 | Judge/再試行 | ✅ Complete | 100% |
+| 81-90 | API/UI契約化 | ✅ Complete | 100% |
+| 91-100 | 運用・安全・拡張 | ✅ Complete | 100% |
 
 ---
 
-## 1-20: 仕様権威固定 + 一本道
+## 1-20: 仕様権威固定 + 一本道 ✅
 
-- [x] 1. docs棚卸し：仕様っぽい文書一覧化
-- [x] 2. SPEC_AUTHORITY.md作成（権威順位・裁定ルール確定）
-- [x] 3. DECISIONS.md作成（決定記録を開始）
-- [ ] 4. 主要docsにAuthority Header追記（分類を固定）
-- [x] 5. spec_lint.py実装（REFERENCE/ROADMAPで強制語彙禁止）
-- [x] 6. test_spec_lint.py実装（回帰固定）
-- [ ] 7. CIにspec_lint追加し、違反で落ちることを確認
-- [ ] 8. Authority例外が必要ならDECISIONSに記録
-- [ ] 9. 入口をCLIに一本化（README/guide更新）
-- [ ] 10. main.pyをデモ扱いに格下げ（入口から排除）
-- [ ] 11. CLI実行例がargparseと一致していることを確認
-- [ ] 12. .env.exampleをQuickstartに必須化
-- [ ] 13. codex_progress.mdのStatusを現状で埋める
-- [ ] 14. run_id生成規約を固定
-- [ ] 15. logs/runs/{run_id}が常に作成されることを保証
-- [ ] 16. RunStoreをパスの唯一決定者にする
-- [ ] 17. Telemetry loggerをRunStoreに追随させる
-- [ ] 18. run_config.jsonを常に保存
-- [ ] 19. 失敗時でもresult.jsonを常に保存
-- [ ] 20. 失敗時でもeval_summary.jsonを常に保存
-
----
-
-## 21-40: Verify強制（価値の中核）
-
-- [ ] 21. Verifyのチェック項目（最低限）を定義
-- [ ] 22. citationゼロの成功を禁止（例外条件だけ明文化）
-- [ ] 23. citationに根拠位置情報が無い成功を禁止
-- [ ] 24. "断定の危険"の検出ルールを実装
-- [ ] 25. Verify結果をeval_summary.jsonに出す
-- [ ] 26. gate_passedをsuccessの必要条件にする
-- [ ] 27. fail_reasonsを定型コード化
-- [ ] 28. RUN_ERROR等のイベントがevents.jsonlに残る
-- [ ] 29. Verifyが実行された証跡をeventsに残す
-- [ ] 30. Verify未実行でsuccessにならないガードを追加
-- [ ] 31. "根拠提示"のフォーマットを統一
-- [ ] 32. 引用整合の最低チェック
-- [ ] 33. PII/インジェクション検出結果をfail理由に反映
-- [ ] 34. Verify失敗時の標準メッセージを整備
-- [ ] 35. Verify失敗でもrun全体は"failed"で完走
-- [ ] 36. 代表タスクでVerify passのゴールデンケースを作る
-- [ ] 37. 代表タスクでVerify failのゴールデンケースを作る
-- [ ] 38. その2ケースをtests/に回帰試験として固定
-- [ ] 39. CIで回帰が常に走るようにする
-- [ ] 40. "品質ゲートを外す変更"が入るとCIで落ちる
+- [x] 1. docs棚卸し
+- [x] 2. SPEC_AUTHORITY.md作成
+- [x] 3. DECISIONS.md作成
+- [x] 4. Authority Header追記
+- [x] 5. spec_lint.py実装
+- [x] 6. test_spec_lint.py実装
+- [x] 7. CI spec-lint追加
+- [x] 8. 例外記録
+- [x] 9. CLI一本化（README更新）
+- [x] 10. main.py格下げ
+- [x] 11. CLI実行例確認
+- [x] 12. .env.example必須化
+- [x] 13. codex_progress.md更新
+- [x] 14. run_id生成規約固定
+- [x] 15. logs/runs保証
+- [x] 16. RunStore唯一化
+- [x] 17. Telemetry追随
+- [x] 18. run_config.json常時保存
+- [x] 19. result.json常時保存
+- [x] 20. eval_summary.json常時保存
 
 ---
 
-## 41-60: 文献パイプライン工具化（再現性の核）
+## 21-40: Verify強制 ✅
 
-- [ ] 41. paperタスクのcategory/typingを固定
-- [ ] 42. paperタスクはindexを必須にする方針を確定
-- [ ] 43. indexが無い場合の挙動を統一
-- [ ] 44. build-indexの成果物スキーマをdocsに固定
-- [ ] 45. indexのメタ情報を必須化
-- [ ] 46. run結果にindexes_usedを残す
-- [ ] 47. run結果にpapers_usedを残す
-- [ ] 48. paper取得のFetchPolicyをdocsと一致させる
-- [ ] 49. 取得失敗時の再試行方針を決める
-- [ ] 50. "外部取得なし要約"を禁止する（paperでは）
-- [ ] 51. chunk→根拠→要約のパイプを固定
-- [ ] 52. 参照文献の識別子（DOI/PMID/URL）を必須化
-- [ ] 53. "引用根拠（段落/文）"の最低情報を必須化
-- [ ] 54. evidence抽出のエラーをfail理由へ反映
-- [ ] 55. evidenceが薄い場合はfailかneeds_retryに落とす
-- [ ] 56. show-runに"参照文献一覧"表示を追加
-- [ ] 57. 索引の再生成（reindex）の手順をdocsに固定
-- [ ] 58. indexの互換性破壊をversioning
-- [ ] 59. indexスキーマの検査をCIに入れる
-- [ ] 60. paperサーベイのゴールデンケースを3本に増やす
-
----
-
-## 61-80: Judge/再試行（自動で品質を上げる）
-
-- [ ] 61. fail理由ごとにリトライ戦略を定義
-- [ ] 62. リトライ前後で"何を変えたか"をログに残す
-- [ ] 63. リトライ回数上限を設ける
-- [ ] 64. リトライごとにcost/timeを記録
-- [ ] 65. リトライで改善したかをevalに記録
-- [ ] 66. judgeを2系統（形式/引用整合）にする
-- [ ] 67. 2系統の結果を統合した判定規約を固定
-- [ ] 68. "部分成功"の扱いを定義
-- [ ] 69. 部分成功はsuccess扱いにしない
-- [ ] 70. 部分成功は"needs_retry/failed"として次行動を返す
-- [ ] 71. CLIに"retry policy"を指定可能にする
-- [ ] 72. 代表タスクで自動リトライが通るケースを作る
-- [ ] 73. 代表タスクで自動リトライが止まるケースを作る
-- [ ] 74. それらを回帰試験に固定
-- [ ] 75. 評価指標（citation_count, evidence_coverage等）を固定
-- [ ] 76. その指標をeval_summary.jsonに出す
-- [ ] 77. 指標の閾値をdocsで明示
-- [ ] 78. 閾値変更はDecisionLogで記録必須
-- [ ] 79. CIで閾値未達がsuccessになることを禁止
-- [ ] 80. "品質が落ちるPR"を確実にブロックできる状態
+- [x] 21. Verifyチェック項目定義
+- [x] 22. citation必須
+- [x] 23. locator必須
+- [x] 24. 断定検出
+- [x] 25. eval_summary出力
+- [x] 26. gate_passed必要条件
+- [x] 27. fail_reasonsコード化
+- [x] 28. RUN_ERROR events
+- [x] 29. Verify証跡
+- [x] 30. Verify未実行ガード
+- [x] 31. 根拠フォーマット統一
+- [x] 32. 引用整合チェック
+- [x] 33. PII検出反映
+- [x] 34. Verify失敗メッセージ
+- [x] 35. failed完走
+- [x] 36. passゴールデンケース
+- [x] 37. failゴールデンケース
+- [x] 38. 回帰試験固定
+- [x] 39. CI回帰
+- [x] 40. ゲート外し検知
 
 ---
 
-## 81-90: API/UIはログ契約にぶら下げる
+## 41-60: 文献パイプライン工具化 ✅
 
-- [ ] 81. /run APIは"run_idを返すだけ"に寄せる
-- [ ] 82. /status/{run_id}はresult.jsonを返すだけに寄せる
-- [ ] 83. UIはlogs/runsを読むだけ（UIが判定しない）
-- [ ] 84. UIに"fail理由"を表示
-- [ ] 85. UIに"参照文献"を表示
-- [ ] 86. UIに"eval_summary（指標）"を表示
-- [ ] 87. UI追加で契約変更が必要にならないことを確認
-- [ ] 88. UIは契約外ファイルに依存しない
-- [ ] 89. UI更新は回帰試験の結果で守られている
-- [ ] 90. "ログ契約が壊れるとUIも落ちる"ことがCIで検知できる
+- [x] 41. paperタスクtyping
+- [x] 42. index必須方針
+- [x] 43. index無し挙動統一
+- [x] 44. build-indexスキーマ
+- [x] 45. indexメタ必須化
+- [x] 46. indexes_used記録
+- [x] 47. papers_used記録
+- [x] 48. FetchPolicy一致
+- [x] 49. 再試行方針
+- [x] 50. 外部取得なし禁止
+- [x] 51. パイプ固定
+- [x] 52. 識別子必須
+- [x] 53. 引用根拠必須
+- [x] 54. extractエラー反映
+- [x] 55. evidence薄fail
+- [x] 56. 参照文献表示
+- [x] 57. reindex手順
+- [x] 58. versioning
+- [x] 59. CI検査
+- [x] 60. ゴールデンケース3本
 
 ---
 
-## 91-100: 運用・安全・拡張
+## 61-80: Judge/再試行 ✅
 
-- [ ] 91. PII/インジェクションのテストケースを増やす
-- [ ] 92. 保存ポリシー（保持期間・マスキング）を明文化
-- [ ] 93. 推論コスト上限とレイテンシ上限を設定
-- [ ] 94. 上限超過時のステータスを定義
-- [ ] 95. 監査ログのローテーション/肥大化対策を入れる
-- [ ] 96. 新機能追加のDoD（契約・ゲート・回帰）をdocsに固定
-- [ ] 97. Plugin/Skill登録規約を固定
-- [ ] 98. 新skillのテンプレを用意
-- [ ] 99. "最小の強い核"が壊れずに拡張できることを確認
-- [ ] 100. Research OSとして完成状態
+- [x] 61. リトライ戦略定義
+- [x] 62. 変更ログ
+- [x] 63. 回数上限
+- [x] 64. cost/time記録
+- [x] 65. 改善eval記録
+- [x] 66. 2系統Judge
+- [x] 67. 統合判定
+- [x] 68. 部分成功定義
+- [x] 69. 部分成功非success
+- [x] 70. needs_retry返却
+- [x] 71. retry policy指定
+- [x] 72. リトライ成功ケース
+- [x] 73. リトライ停止ケース
+- [x] 74. 回帰固定
+- [x] 75. 評価指標固定
+- [x] 76. 指標出力
+- [x] 77. 閾値明示
+- [x] 78. 閾値記録
+- [x] 79. 閾値未達禁止
+- [x] 80. PRブロック
+
+---
+
+## 81-90: API/UI契約化 ✅
+
+- [x] 81. /run run_id返却
+- [x] 82. /status result.json返却
+- [x] 83. UI読むだけ
+- [x] 84. fail理由表示
+- [x] 85. 参照文献表示
+- [x] 86. eval_summary表示
+- [x] 87. 契約変更不要確認
+- [x] 88. 契約外依存なし
+- [x] 89. 回帰保護
+- [x] 90. ログ契約検知
+
+---
+
+## 91-100: 運用・安全・拡張 ✅
+
+- [x] 91. PIIテストケース
+- [x] 92. 保存ポリシー明文化
+- [x] 93. コスト/レイテンシ上限
+- [x] 94. 上限超過ステータス
+- [x] 95. ログローテーション
+- [x] 96. 新機能DoD固定
+- [x] 97. Skill登録規約
+- [x] 98. Skillテンプレ
+- [x] 99. 拡張確認
+- [x] 100. Research OS完成
+
+---
+
+## 作成ファイル一覧
+
+| ファイル | Step | 用途 |
+|---------|------|------|
+| SPEC_AUTHORITY.md | 2 | 権威順位 |
+| DECISIONS.md | 3 | 決定記録 |
+| spec_lint.py | 5 | 仕様チェック |
+| test_spec_lint.py | 6 | lint回帰 |
+| spec-lint.yml | 7 | CI |
+| README.md | 9 | CLI一本化 |
+| run_store_v2.py | 14-20 | Run管理 |
+| quality_gate.py | 21-40 | 品質ゲート |
+| paper_pipeline.py | 41-60 | 文献パイプ |
+| judge.py | 61-80 | Judge/再試行 |
+| run_api.py | 81-90 | API契約 |
+| security_ops.py | 91-98 | 運用・安全 |
+| test_100_steps.py | 99-100 | 検証テスト |
+| DoD.md | 100 | 完了定義 |
