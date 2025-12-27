@@ -1,0 +1,57 @@
+"""PDF Extraction Configuration (Phase 2-ΩΩ P2).
+
+Defines extraction settings and fallback strategies for PDF text extraction.
+"""
+# PDF extraction library
+extractor:
+  library: pymupdf  # pymupdf | pypdf2
+  version: "1.22.0"
+  
+# Extraction settings
+extraction:
+  # Layout handling
+  layout_mode: preserve  # preserve | flatten
+  
+  # Paragraph detection
+  paragraph_split:
+    method: blank_lines  # blank_lines | indent | heuristic
+    min_line_gap: 1.5
+  
+  # Sentence detection
+  sentence_split:
+    use_nltk: false  # Use simple punctuation-based splitting
+    
+  # Encoding
+  encoding: utf-8
+  
+# Fallback strategies
+fallback:
+  # Level 1: Layout issues (2-column, figures)
+  - trigger: layout_complex
+    action: flatten_layout
+    
+  # Level 2: Extraction failure
+  - trigger: extraction_failed
+    action: use_abstract_only
+    
+  # Level 3: Encoding issues
+  - trigger: encoding_error
+    action: try_latin1
+    
+# Rescue mode (limited summary)
+rescue_mode:
+  enabled: true
+  
+  # Limits for rescue mode
+  max_claims_per_paper: 2  # Reduced from 5
+  evidence_role: Indirect   # Downgrade to Indirect
+  support_level_max: Weak   # Cap at Weak
+  
+  # Report annotation
+  annotate_in_report: true
+  annotation_text: "本論文は本文抽出が困難なため、結論的主張は行っていない"
+  
+# Extraction stats tracking
+stats:
+  track_success_rate: true
+  fail_threshold: 0.2  # If >20% fail, trigger alert
