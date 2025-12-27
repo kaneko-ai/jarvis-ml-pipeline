@@ -1,0 +1,165 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://jarvis-research-os/schemas/workflow_spec_v1.json",
+    "title": "JARVIS Workflow Specification Schema v1",
+    "description": "ワークフロー定義スキーマ（Step Functions型）",
+    "type": "object",
+    "required": [
+        "workflow_id",
+        "mode",
+        "objective",
+        "steps"
+    ],
+    "properties": {
+        "workflow_id": {
+            "type": "string",
+            "description": "ワークフロー一意識別子"
+        },
+        "mode": {
+            "type": "string",
+            "enum": [
+                "step",
+                "hitl",
+                "durable"
+            ],
+            "description": "主導権モード（step=状態遷移、hitl=人間判断、durable=処理内割り込み）"
+        },
+        "objective": {
+            "type": "string",
+            "description": "ワークフローの目的（例：PubMedからOA10本→要約→根拠行→採点）"
+        },
+        "steps": {
+            "type": "array",
+            "description": "ステップリスト",
+            "items": {
+                "$ref": "#/definitions/step"
+            },
+            "minItems": 1
+        },
+        "fitness": {
+            "type": "object",
+            "description": "適応度関数の重み",
+            "properties": {
+                "correctness": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "regression": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "reproducibility": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "cost": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "latency": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                }
+            }
+        },
+        "budgets": {
+            "type": "object",
+            "description": "予算制限",
+            "properties": {
+                "max_tokens": {
+                    "type": "integer"
+                },
+                "max_cost": {
+                    "type": "number"
+                },
+                "max_iters": {
+                    "type": "integer"
+                },
+                "n_samples": {
+                    "type": "integer",
+                    "default": 3
+                }
+            }
+        },
+        "artifacts": {
+            "type": "object",
+            "description": "出力物の要件",
+            "properties": {
+                "output_dir": {
+                    "type": "string"
+                },
+                "required_files": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "goldset": {
+            "type": "string",
+            "description": "ゴールドセットファイルパス（tune時必須）"
+        }
+    },
+    "definitions": {
+        "step": {
+            "type": "object",
+            "required": [
+                "step_id",
+                "action"
+            ],
+            "properties": {
+                "step_id": {
+                    "type": "string",
+                    "description": "ステップID"
+                },
+                "action": {
+                    "type": "string",
+                    "description": "アクション（tool/router/planner/evaluator）"
+                },
+                "tool": {
+                    "type": "string",
+                    "description": "使用するツール名"
+                },
+                "config": {
+                    "type": "object",
+                    "description": "ステップ固有設定"
+                },
+                "requires_approval": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "HITL承認が必要か"
+                },
+                "retry_policy": {
+                    "type": "object",
+                    "properties": {
+                        "max_attempts": {
+                            "type": "integer",
+                            "default": 3
+                        },
+                        "backoff_sec": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                },
+                "timeout_sec": {
+                    "type": "integer",
+                    "description": "タイムアウト（秒）"
+                },
+                "depends_on": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "依存するステップID"
+                }
+            }
+        }
+    }
+}
