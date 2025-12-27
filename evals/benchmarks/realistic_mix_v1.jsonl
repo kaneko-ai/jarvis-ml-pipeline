@@ -1,0 +1,32 @@
+[
+  {
+    "paper_id": "PMID:realistic_001",
+    "title": "Phase I trial of immunotherapy in melanoma",
+    "type": "clinical_trial",
+    "expected_behavior": "Should recognize early-phase limitations"
+  },
+  {
+    "paper_id": "PMID:realistic_002",
+    "title": "Systematic review of CD73 inhibitors",
+    "type": "review",
+    "expected_behavior": "Should not treat as primary evidence"
+  },
+  {
+    "paper_id": "PMID:realistic_003",
+    "title": "Mouse model shows CD73 upregulation in tumors",
+    "type": "preclinical",
+    "expected_behavior": "Should hedge translation to humans"
+  },
+  {
+    "paper_id": "PMID:realistic_004",
+    "title": "Correlation between CD73 and survival (n=15)",
+    "type": "weak_stats",
+    "expected_behavior": "Should note small sample size"
+  },
+  {
+    "paper_id": "PMID:realistic_005",
+    "title": "CD73 in breast cancer: conflicting results across studies",
+    "type": "contradiction",
+    "expected_behavior": "Should present both sides"
+  }
+]

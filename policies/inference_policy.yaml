@@ -56,6 +56,18 @@ policy:
     behavior: fail  # "fail" | "degrade" | "warn"
     message: "Token budget exceeded. Increase budget or reduce scope."
     
+  # 縮退（Degradation）方針 (Phase 2-ΩΩ)
+  degradation:
+    # 予算超過時の縮退動作
+    on_budget_exceeded_degrade: degrade  # "degrade" | "fail"
+    
+    # 縮退アクション
+    degrade_actions:
+      reduce_top_k_papers: 5           # 論文数を10→5に削減
+      disable_counter_evidence: true   # 反証探索を無効化
+      reduce_evidence_per_claim: 3     # Claim当たりEvidence数を5→3に
+      disable_ranking_explanation: false  # 順位説明は維持
+    
   # 不確実性の表示
   uncertainty:
     # 低信頼度の主張にタグ付け
