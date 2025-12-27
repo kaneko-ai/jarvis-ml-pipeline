@@ -613,12 +613,6 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-dev = [
-    { name = "black" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "ruff" },
-]
 llm = [
     { name = "google-generativeai" },
 ]
@@ -631,23 +625,35 @@ web = [
     { name = "uvicorn" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "black" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "ruff" },
+]
+
 [package.metadata]
 requires-dist = [
-    { name = "black", marker = "extra == 'dev'" },
     { name = "fastapi", marker = "extra == 'web'", specifier = ">=0.100.0" },
     { name = "google-generativeai", marker = "extra == 'llm'", specifier = ">=0.3.0" },
     { name = "lightgbm", specifier = ">=4.0.0" },
     { name = "numpy", specifier = ">=1.24.0" },
     { name = "pymupdf", marker = "extra == 'pdf'", specifier = ">=1.22.0" },
     { name = "pypdf2", marker = "extra == 'pdf'", specifier = ">=3.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0" },
-    { name = "pytest-cov", marker = "extra == 'dev'" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "requests", specifier = ">=2.28.0" },
-    { name = "ruff", marker = "extra == 'dev'" },
     { name = "uvicorn", marker = "extra == 'web'", specifier = ">=0.22.0" },
 ]
-provides-extras = ["dev", "pdf", "llm", "web"]
+provides-extras = ["pdf", "llm", "web"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "black" },
+    { name = "pytest", specifier = ">=7.0" },
+    { name = "pytest-cov" },
+    { name = "ruff" },
+]
 
 [[package]]
 name = "lightgbm"
