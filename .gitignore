@@ -13,6 +13,7 @@ Thumbs.db
 
 # Generated artifacts (Jarvis outputs)
 data/
-# run artifacts (generated)
+# run artifacts (generated) - but allow public/runs/ for GitHub Pages
 runs/
+!public/runs/
 outputs/

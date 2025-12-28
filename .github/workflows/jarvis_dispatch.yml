@@ -1,0 +1,88 @@
+name: JARVIS Dispatch
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        type: choice
+        options:
+          - pipeline
+          - rebuild_index
+          - export_report
+        default: 'pipeline'
+      query:
+        description: 'Search query (for pipeline)'
+        required: false
+        type: string
+      max_results:
+        description: 'Max papers to fetch'
+        required: false
+        type: number
+        default: 10
+      date_from:
+        description: 'Date from (YYYY/MM/DD)'
+        required: false
+        type: string
+      date_to:
+        description: 'Date to (YYYY/MM/DD)'
+        required: false
+        type: string
+      run_id:
+        description: 'Run ID (auto-generated if not provided)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      
+      - name: Install dependencies
+        run: |
+          uv pip install --system -r requirements.lock
+          uv pip install --system -e .
+      
+      - name: Run CI pipeline
+        env:
+          NCBI_API_KEY: ${{ secrets.NCBI_API_KEY }}
+        run: |
+          if [ "${{ github.event.inputs.action }}" = "pipeline" ]; then
+            python scripts/ci_run.py \
+              --action pipeline \
+              --query "${{ github.event.inputs.query }}" \
+              --max-results ${{ github.event.inputs.max_results }} \
+              ${{ github.event.inputs.date_from && format('--date-from {0}', github.event.inputs.date_from) || '' }} \
+              ${{ github.event.inputs.date_to && format('--date-to {0}', github.event.inputs.date_to) || '' }} \
+              ${{ github.event.inputs.run_id && format('--run-id {0}', github.event.inputs.run_id) || '' }}
+          elif [ "${{ github.event.inputs.action }}" = "rebuild_index" ]; then
+            python scripts/ci_run.py --action rebuild_index --query "dummy"
+          elif [ "${{ github.event.inputs.action }}" = "export_report" ]; then
+            python scripts/ci_run.py --action export_report --query "dummy"
+          fi
+      
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
