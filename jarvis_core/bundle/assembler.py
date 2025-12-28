@@ -480,6 +480,10 @@ def export_evidence_bundle(result, store, output_dir: str) -> None:
         store: EvidenceStore インスタンス
         output_dir: 出力ディレクトリパス
     """
+    from ..integrations.notebooklm import export_notebooklm
+    from ..integrations.obsidian import export_obsidian
+    from ..integrations.notion import export_notion
+    
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
     
@@ -537,3 +541,20 @@ def export_evidence_bundle(result, store, output_dir: str) -> None:
     citations_path = output_path / "citations.md"
     with open(citations_path, "w", encoding="utf-8") as f:
         f.write("\n".join(citations_lines))
+    
+    # 4. notebooklm.md を作成
+    references = []  # 空のreferencesリストを使用
+    notebooklm_content = export_notebooklm(result, references, store)
+    notebooklm_path = output_path / "notebooklm.md"
+    with open(notebooklm_path, "w", encoding="utf-8") as f:
+        f.write(notebooklm_content)
+    
+    # 5. obsidian/ ディレクトリを作成
+    obsidian_dir = output_path / "obsidian"
+    export_obsidian(result, references, str(obsidian_dir))
+    
+    # 6. notion.json を作成
+    notion_content = export_notion(result, references)
+    notion_path = output_path / "notion.json"
+    with open(notion_path, "w", encoding="utf-8") as f:
+        f.write(notion_content)
