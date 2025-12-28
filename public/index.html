@@ -619,7 +619,7 @@
             <div class="section">
                 <div class="section-header">
                     <h2>📋 全実行履歴</h2>
-                    <button class="btn btn-secondary" onclick="loadRuns()">更新</button>
+                    <button class="btn btn-secondary" onclick="loadRuns(this)">更新</button>
                 </div>
                 <div id="runs-table-container"></div>
             </div>
@@ -690,18 +690,43 @@
         }
 
         // === Load Runs ===
-        async function loadRuns() {
+        async function loadRuns(btn = null) {
+            const originalText = btn ? btn.innerText : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = '更新中...';
+            }
+
             try {
-                // runs/index.jsonから直接読み込み（GitHub Pages静的ファイル）
-                const res = await fetch('runs/index.json');
-                if (!res.ok) throw new Error('Failed to load runs/index.json');
+                // cache: 'no-store' to ensure we get the latest data
+                const res = await fetch('runs/index.json', { cache: 'no-store' });
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        // Not found is normal for fresh deployment
+                        runs = [];
+                        document.getElementById('recent-runs-container').innerHTML = '<p style="color: var(--text-secondary);">実行履歴がまだありません (GitHub Pagesの反映待ちの可能性があります)</p>';
+                        document.getElementById('runs-table-container').innerHTML = '<p style="color: var(--text-secondary);">実行履歴がまだありません</p>';
+                        updateKPIs();
+                        if (btn) showToast('履歴はまだありません', 'info');
+                        return;
+                    }
+                    throw new Error(`Failed to load runs/index.json: ${res.status}`);
+                }
+
                 runs = await res.json();
                 renderRecentRuns();
                 renderRunsTable();
                 updateKPIs();
+                if (btn) showToast('履歴を更新しました', 'success');
             } catch (e) {
                 console.error('Failed to load runs:', e);
-                document.getElementById('recent-runs-container').innerHTML = '<p style="color: var(--text-secondary);">データ読み込みエラー</p>';
+                document.getElementById('recent-runs-container').innerHTML = `<p style="color: var(--danger);">データ読み込みエラー: ${e.message}</p>`;
+                if (btn) showToast('更新に失敗しました: ' + e.message, 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
             }
         }
 
