@@ -1,35 +1,32 @@
-"""JARVIS Ops Module"""
-from .audit import (
-    AuditEntry,
-    AuditLogger,
-    FailureDiagnoser,
-    CacheOptimizer,
-    get_audit_logger,
-    log_audit,
+"""Ops package - Operational components."""
+from .resilience import (
+    ResourceMonitor,
+    GracefulShutdown,
+    AutoRecovery,
+    ResourceMetrics,
+    init_resilience,
+    get_resource_metrics,
 )
-from .security_ops import (
-    OperationLimits,
-    PIIDetector,
-    RetentionPolicy,
-    AuditLogRotator,
-    FeatureDoD,
-    SkillSpec,
-    generate_skill_template,
+from .drift_detector import (
+    SpecFreezer,
+    DriftDetector,
+    SpecSnapshot,
+    DriftAlert,
+    freeze_spec,
+    detect_drift,
 )
 
 __all__ = [
-    "AuditEntry",
-    "AuditLogger",
-    "FailureDiagnoser",
-    "CacheOptimizer",
-    "get_audit_logger",
-    "log_audit",
-    "OperationLimits",
-    "PIIDetector",
-    "RetentionPolicy",
-    "AuditLogRotator",
-    "FeatureDoD",
-    "SkillSpec",
-    "generate_skill_template",
+    "ResourceMonitor",
+    "GracefulShutdown",
+    "AutoRecovery",
+    "ResourceMetrics",
+    "init_resilience",
+    "get_resource_metrics",
+    "SpecFreezer",
+    "DriftDetector",
+    "SpecSnapshot",
+    "DriftAlert",
+    "freeze_spec",
+    "detect_drift",
 ]
-

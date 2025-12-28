@@ -3,12 +3,6 @@ pyyaml>=6.0
 lightgbm>=4.0.0
 numpy>=1.24.0
 
-[dev]
-pytest>=7.0
-pytest-cov
-black
-ruff
-
 [llm]
 google-generativeai>=0.3.0
 

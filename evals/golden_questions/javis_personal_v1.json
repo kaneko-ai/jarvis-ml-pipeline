@@ -1,0 +1,489 @@
+{
+    "description": "JAVIS Personal Golden Questions v1 (Immuno-oncology + Antibody + Methods) - Frozen for verify_100",
+    "version": "1.0.0",
+    "language": "ja",
+    "default_run_config": {
+        "domain_profile": "immuno_onco_preclinical",
+        "sources": [
+            "pubmed",
+            "pmc_oa",
+            "local_upload"
+        ],
+        "oa_preferred": true,
+        "max_papers": 25,
+        "year_range": {
+            "from": 2015,
+            "to": 2025
+        },
+        "retrieval_mode": "hybrid",
+        "hybrid_alpha": 0.55,
+        "seed": 1,
+        "refuse_if_no_evidence": true
+    },
+    "quality_thresholds": {
+        "contract_valid": true,
+        "provenance_rate": 0.95,
+        "citation_precision": 0.90,
+        "facts_without_evidence": 0,
+        "locator_missing": 0,
+        "format_compliance": 1.0,
+        "min_total_citations": 6,
+        "min_selected_papers": 8
+    },
+    "required_artifacts": [
+        "input.json",
+        "run_config.json",
+        "papers.jsonl",
+        "claims.jsonl",
+        "evidence.jsonl",
+        "scores.json",
+        "result.json",
+        "eval_summary.json",
+        "warnings.jsonl",
+        "report.md"
+    ],
+    "required_outputs": [
+        "summary_300ja.txt",
+        "summary_detailed_ja.md",
+        "notebooklm_script_ja.txt"
+    ],
+    "questions": [
+        {
+            "id": "G01",
+            "category": "CD73/Adenosine",
+            "query": "CD73阻害が腫瘍免疫を増強する主要メカニズムを3点に要約し、それぞれに根拠（locator付き）を付せ。",
+            "min_citations": 6,
+            "min_evidence_rate": 0.95,
+            "must_include_terms": [
+                "CD73",
+                "adenosine",
+                "T cell"
+            ],
+            "expected_sections": [
+                "背景",
+                "新規性",
+                "主要メカニズム",
+                "限界",
+                "次の問い"
+            ]
+        },
+        {
+            "id": "G02",
+            "category": "CD73/Adenosine",
+            "query": "CD73/アデノシン軸がT細胞・NK細胞・樹状細胞に与える影響の違いを比較し、文章で対応関係を説明せよ（根拠必須）。",
+            "min_citations": 8,
+            "min_evidence_rate": 0.95,
+            "must_include_terms": [
+                "CD73",
+                "A2A",
+                "NK",
+                "dendritic cell"
+            ],
+            "expected_sections": [
+                "比較軸",
+                "T細胞",
+                "NK細胞",
+                "樹状細胞",
+                "未解決点"
+            ]
+        },
+        {
+            "id": "G03",
+            "category": "CD73/Adenosine",
+            "query": "CD73阻害と免疫チェックポイント阻害（PD-1/PD-L1等）の併用における相乗の論理を因果の鎖として説明し、推測は推測と明記せよ。",
+            "min_citations": 8,
+            "min_evidence_rate": 0.95,
+            "must_include_terms": [
+                "CD73",
+                "PD-1",
+                "synergy"
+            ],
+            "expected_sections": [
+                "因果の鎖",
+                "事実",
+                "解釈/示唆",
+                "限界"
+            ]
+        },
+        {
+            "id": "G04",
+            "category": "TME/Metabolism",
+            "query": "腫瘍微小環境（TME）の代謝ストレス（低酸素・乳酸・栄養枯渇）が免疫抑制に繋がる経路を代表例3つで説明し根拠を付せ。",
+            "min_citations": 8,
+            "min_evidence_rate": 0.95,
+            "must_include_terms": [
+                "hypoxia",
+                "lactate",
+                "nutrient"
+            ],
+            "expected_sections": [
+                "代表例1",
+                "代表例2",
+                "代表例3",
+                "臨床的含意"
+            ]
+        },
+        {
+            "id": "G05",
+            "category": "Checkpoint Biology",
+            "query": "PD-1シグナルがT細胞機能に与える影響を『シグナル伝達』『代謝』『エフェクター機能』の3層で整理し、層ごとに根拠を示せ。",
+            "min_citations": 8,
+            "min_evidence_rate": 0.95,
+            "must_include_terms": [
+                "PD-1",
+                "T cell",
+                "metabolism"
+            ],
+            "expected_sections": [
+                "シグナル伝達",
+                "代謝",
+                "エフェクター機能"
+            ]
+        },
+        {
+            "id": "G06",
+            "category": "Checkpoint Biology",
+            "query": "CTLA-4とPD-1の作用点の違いを免疫応答の時間軸（プライミング/エフェクター）で説明し、断言できない点は不明と書け。",
+            "min_citations": 6,
+            "min_evidence_rate": 0.95,
+            "must_include_terms": [
+                "CTLA-4",
+                "PD-1",
+                "priming"
+            ],
+            "expected_sections": [
+                "時間軸",
+                "CTLA-4",
+                "PD-1",
+                "不明点"
+            ]
+        },
+        {
+            "id": "G07",
+            "category": "Antibody/Engineering",
+            "query": "抗体医薬の作用機序（中和・ADCC・CDC・ADCPなど）を実験的にどう検証するか（代表アッセイと注意点）まで含めて述べよ。",
+            "min_citations": 6,
+            "min_evidence_rate": 0.95,
+            "must_include_terms": [
+                "ADCC",
+                "CDC",
+                "assay"
+            ],
+            "expected_sections": [
+                "作用機序",
+                "検証アッセイ",
+                "注意点"
+            ]
+        },
+        {
+            "id": "G08",
+            "category": "Antibody/Discovery",
+            "query": "抗体取得（免疫〜スクリーニング〜クローン選抜）における典型的ボトルネックを3つ挙げ、各ボトルネックの対策を根拠付きで説明せよ。",
+            "min_citations": 6,
+            "min_evidence_rate": 0.95,
+            "expected_sections": [
+                "ボトルネック1",
+                "ボトルネック2",
+                "ボトルネック3"
+            ]
+        },
+        {
+            "id": "G09",
+            "category": "Assay/Flow Cytometry",
+            "query": "FCMで『濃度依存的にシグナルが増加した』と言うための必要条件（ゲーティング/陰性対照/飽和/非特異結合）を具体化し、禁則も示せ。",
+            "min_citations": 3,
+            "min_evidence_rate": 0.90,
+            "expected_sections": [
+                "必要条件",
+                "対照設計",
+                "禁則"
+            ]
+        },
+        {
+            "id": "G10",
+            "category": "Reproducibility",
+            "query": "論文を『再現性が高い』と判定するための観点を5つ提示し、各観点が不十分な場合に何が起きるかを説明せよ。",
+            "min_citations": 3,
+            "min_evidence_rate": 0.90,
+            "expected_sections": [
+                "観点1",
+                "観点2",
+                "観点3",
+                "観点4",
+                "観点5"
+            ]
+        },
+        {
+            "id": "G11",
+            "category": "Single-cell",
+            "query": "scRNA-seqでTMEの免疫細胞状態を解釈する際の落とし穴（バッチ効果・二重細胞・参照依存など）を列挙し、回避策を述べよ。",
+            "min_citations": 4,
+            "min_evidence_rate": 0.90,
+            "must_include_terms": [
+                "scRNA-seq",
+                "batch",
+                "doublet"
+            ],
+            "expected_sections": [
+                "落とし穴",
+                "回避策"
+            ]
+        },
+        {
+            "id": "G12",
+            "category": "Spatial Omics",
+            "query": "空間トランスクリプトミクス（spatial）で『細胞間相互作用』を主張する際の必要証拠を、過剰主張を避ける形で整理せよ。",
+            "min_citations": 4,
+            "min_evidence_rate": 0.90,
+            "must_include_terms": [
+                "spatial",
+                "cell-cell interaction"
+            ],
+            "expected_sections": [
+                "必要証拠",
+                "過剰主張の例",
+                "安全な言い方"
+            ]
+        },
+        {
+            "id": "G13",
+            "category": "Cytokines/Inflammation",
+            "query": "IFN-γシグナルが抗腫瘍免疫に与える正負の影響を両面提示し、片側だけを断言しない形でまとめよ。",
+            "min_citations": 6,
+            "min_evidence_rate": 0.95,
+            "must_include_terms": [
+                "IFN-γ",
+                "immune",
+                "tumor"
+            ],
+            "expected_sections": [
+                "正の影響",
+                "負の影響",
+                "条件依存性"
+            ]
+        },
+        {
+            "id": "G14",
+            "category": "Myeloid Cells",
+            "query": "腫瘍随伴マクロファージ（TAM）とMDSCの免疫抑制機構を比較し、『介入標的としての違い』まで言語化せよ（根拠必須）。",
+            "min_citations": 8,
+            "min_evidence_rate": 0.95,
+            "must_include_terms": [
+                "TAM",
+                "MDSC"
+            ],
+            "expected_sections": [
+                "比較",
+                "介入標的",
+                "限界"
+            ]
+        },
+        {
+            "id": "G15",
+            "category": "Vaccines/Priming",
+            "query": "がんワクチンが効きにくい理由を免疫学的に3点挙げ、各点に対する合理的な改善策を根拠付きで述べよ。",
+            "min_citations": 6,
+            "min_evidence_rate": 0.95,
+            "expected_sections": [
+                "理由1",
+                "理由2",
+                "理由3",
+                "改善策"
+            ]
+        },
+        {
+            "id": "G16",
+            "category": "CAR-T/Cell Therapy",
+            "query": "固形腫瘍におけるCAR-Tの主要障壁を『浸潤』『抗原』『免疫抑制』の3軸で整理し、各軸の打ち手を述べよ。",
+            "min_citations": 6,
+            "min_evidence_rate": 0.95,
+            "must_include_terms": [
+                "CAR-T",
+                "solid tumor"
+            ],
+            "expected_sections": [
+                "浸潤",
+                "抗原",
+                "免疫抑制",
+                "打ち手"
+            ]
+        },
+        {
+            "id": "G17",
+            "category": "Biomarkers",
+            "query": "免疫療法の反応予測バイオマーカー（TMB・PD-L1・IFN signatureなど）の限界を述べ、単一指標依存の危険を説明せよ。",
+            "min_citations": 6,
+            "min_evidence_rate": 0.95,
+            "expected_sections": [
+                "代表指標",
+                "限界",
+                "複合モデルの方向性"
+            ]
+        },
+        {
+            "id": "G18",
+            "category": "Clinical Translation",
+            "query": "前臨床で有望でも臨床で失敗する典型要因を4つ挙げ、『設計段階での回避策』に落とし込め。",
+            "min_citations": 4,
+            "min_evidence_rate": 0.90,
+            "expected_sections": [
+                "要因1",
+                "要因2",
+                "要因3",
+                "要因4",
+                "回避策"
+            ]
+        },
+        {
+            "id": "G19",
+            "category": "Safety/Toxicity",
+            "query": "免疫賦活治療に伴う毒性（サイトカイン放出・自己免疫など）を機序→検出→管理の順に整理し根拠を付せ。",
+            "min_citations": 4,
+            "min_evidence_rate": 0.90,
+            "expected_sections": [
+                "機序",
+                "検出",
+                "管理"
+            ]
+        },
+        {
+            "id": "G20",
+            "category": "Statistics/Study Design",
+            "query": "免疫学・腫瘍領域の動物実験で統計的に誤りやすい設計（n数・ランダム化・盲検・反復）を列挙し、最低限の対策を述べよ。",
+            "min_citations": 2,
+            "min_evidence_rate": 0.85,
+            "expected_sections": [
+                "誤りやすい点",
+                "最低限の対策"
+            ]
+        },
+        {
+            "id": "G21",
+            "category": "Mechanism Quality",
+            "query": "『相関』と『因果』の混同を避けるため、免疫学論文の主張を因果に近づける追加実験例を3つ挙げよ。",
+            "min_citations": 2,
+            "min_evidence_rate": 0.85,
+            "expected_sections": [
+                "追加実験1",
+                "追加実験2",
+                "追加実験3"
+            ]
+        },
+        {
+            "id": "G22",
+            "category": "Literature Synthesis",
+            "query": "相反する結果を報告する論文が複数ある場合、差異を説明する要因（系・条件・解析）を系統立てて仮説として整理せよ（推測は推測と明記）。",
+            "min_citations": 4,
+            "min_evidence_rate": 0.90,
+            "expected_sections": [
+                "差異要因",
+                "仮説",
+                "検証案"
+            ]
+        },
+        {
+            "id": "G23",
+            "category": "CDH13/T-cadherin",
+            "query": "T-cadherin（CDH13）の分子特性（GPIアンカー・接着/シグナル・局在）を要点化し、研究用抗体が難しい理由を論理的に述べよ。",
+            "min_citations": 4,
+            "min_evidence_rate": 0.90,
+            "must_include_terms": [
+                "CDH13",
+                "T-cadherin",
+                "GPI"
+            ],
+            "expected_sections": [
+                "分子特性",
+                "難しさの理由",
+                "実験上の含意"
+            ]
+        },
+        {
+            "id": "G24",
+            "category": "CDH13/Assay",
+            "query": "GPIアンカー型分子を細胞表面で評価する際の注意点（酵素処理・脂質ラフト・非特異結合）を実験計画として書け。",
+            "min_citations": 2,
+            "min_evidence_rate": 0.85,
+            "expected_sections": [
+                "注意点",
+                "計画案",
+                "対照"
+            ]
+        },
+        {
+            "id": "G25",
+            "category": "Methods/SPR-ITC",
+            "query": "SPRとITCの得意不得意を比較し、抗体-抗原結合評価でどちらを選ぶべきかを条件分岐で述べよ（断言禁止、条件依存で書く）。",
+            "min_citations": 2,
+            "min_evidence_rate": 0.85,
+            "expected_sections": [
+                "SPR",
+                "ITC",
+                "条件分岐"
+            ]
+        },
+        {
+            "id": "G26",
+            "category": "Bioinformatics/Ranking",
+            "query": "論文の『重要度』を引用数だけで決める危険性を説明し、代替の評価軸（方法の新規性・再現性・臨床関連など）を提案せよ。",
+            "min_citations": 2,
+            "min_evidence_rate": 0.85,
+            "expected_sections": [
+                "危険性",
+                "代替軸",
+                "運用案"
+            ]
+        },
+        {
+            "id": "G27",
+            "category": "Prompt Robustness",
+            "query": "このシステムが根拠不足のときに『不明』と返すべき理由を、研究倫理・再現性・意思決定の観点で説明せよ（根拠必須）。",
+            "min_citations": 2,
+            "min_evidence_rate": 0.85,
+            "expected_sections": [
+                "研究倫理",
+                "再現性",
+                "意思決定"
+            ]
+        },
+        {
+            "id": "G28",
+            "category": "Comparative Review",
+            "query": "CD73軸とIDO軸のように代謝性免疫抑制経路を2つ選び、共通点と相違点、併用の論理を整理せよ（根拠必須）。",
+            "min_citations": 6,
+            "min_evidence_rate": 0.95,
+            "expected_sections": [
+                "経路A",
+                "経路B",
+                "共通点",
+                "相違点",
+                "併用の論理"
+            ]
+        },
+        {
+            "id": "G29",
+            "category": "Failure Analysis",
+            "query": "このrunでwarningsが多い場合に次に取るべき具体アクションを優先順位付きで提示せよ（抽出改善・クエリ改善・ソース変更など）。",
+            "min_citations": 0,
+            "min_evidence_rate": 0.80,
+            "expected_sections": [
+                "状況整理",
+                "優先順位",
+                "具体アクション"
+            ]
+        },
+        {
+            "id": "G30",
+            "category": "End-to-end Summary",
+            "query": "指定テーマについて(1)300字要約 (2)詳細解説 (3)NotebookLM台本を同一run内で生成し、3つの出力が矛盾しないことを保証せよ（矛盾があるなら不明点として明示）。",
+            "min_citations": 8,
+            "min_evidence_rate": 0.95,
+            "expected_sections": [
+                "300字要約",
+                "詳細解説",
+                "台本",
+                "矛盾チェック/不明点"
+            ]
+        }
+    ]
+}

@@ -1,13 +1,4 @@
-"""JARVIS Ranking Module."""
+"""Ranking package."""
+from .ranker import Ranker, RankingWeights, RankedItem, RankingResult, rank_papers
 
-from .base import RankingItem, Ranker
-from .heuristics import HeuristicRanker
-from .logger import log_ranking, RankingLogger
-
-__all__ = [
-    "RankingItem",
-    "Ranker",
-    "HeuristicRanker",
-    "log_ranking",
-    "RankingLogger",
-]
+__all__ = ["Ranker", "RankingWeights", "RankedItem", "RankingResult", "rank_papers"]
