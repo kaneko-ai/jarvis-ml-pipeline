@@ -116,6 +116,8 @@ jarvis_core/bibtex/fetcher.py
 jarvis_core/budget/__init__.py
 jarvis_core/budget/budget.py
 jarvis_core/budget/policy.py
+jarvis_core/bundle/__init__.py
+jarvis_core/bundle/assembler.py
 jarvis_core/cache/__init__.py
 jarvis_core/cache/key_contract.py
 jarvis_core/cache/multi_level.py
@@ -154,9 +156,13 @@ jarvis_core/eval/judge_v2.py
 jarvis_core/eval/live_runner.py
 jarvis_core/eval/metrics_truth.py
 jarvis_core/eval/noise_injection.py
+jarvis_core/eval/quality_enhancer.py
 jarvis_core/eval/quality_gate.py
+jarvis_core/eval/regression.py
 jarvis_core/eval/regression_runner.py
 jarvis_core/eval/score_paper.py
+jarvis_core/eval/text_quality.py
+jarvis_core/eval/validator.py
 jarvis_core/evals/ranking_eval.py
 jarvis_core/evals/trick_eval.py
 jarvis_core/evaluation/__init__.py
@@ -184,6 +190,10 @@ jarvis_core/index/incremental_state.py
 jarvis_core/index/pipeline.py
 jarvis_core/infra/iac.py
 jarvis_core/infrastructure/ecosystem.py
+jarvis_core/ingestion/__init__.py
+jarvis_core/ingestion/normalizer.py
+jarvis_core/ingestion/pipeline.py
+jarvis_core/ingestion/robust_extractor.py
 jarvis_core/integrations/__init__.py
 jarvis_core/integrations/additional.py
 jarvis_core/integrations/external.py
@@ -211,6 +221,8 @@ jarvis_core/intelligence/patterns.py
 jarvis_core/intelligence/question_generator.py
 jarvis_core/intelligence/research_partner.py
 jarvis_core/intelligence/similarity.py
+jarvis_core/iter/__init__.py
+jarvis_core/iter/phase8_features.py
 jarvis_core/knowledge/__init__.py
 jarvis_core/knowledge/store.py
 jarvis_core/kpi/__init__.py
@@ -248,6 +260,7 @@ jarvis_core/ops/hitl.py
 jarvis_core/ops/integration.py
 jarvis_core/ops/metrics.py
 jarvis_core/ops/rate_limiter.py
+jarvis_core/ops/resilience.py
 jarvis_core/ops/security.py
 jarvis_core/ops/security_ops.py
 jarvis_core/ops/snapshot.py
@@ -268,6 +281,8 @@ jarvis_core/pipelines/run_mvp.py
 jarvis_core/pipelines/stage_registry.py
 jarvis_core/plugins/__init__.py
 jarvis_core/plugins/manager.py
+jarvis_core/policies/__init__.py
+jarvis_core/policies/stop_policy.py
 jarvis_core/prompts/__init__.py
 jarvis_core/prompts/registry.py
 jarvis_core/protein/__init__.py
@@ -285,9 +300,11 @@ jarvis_core/providers/local_embed.py
 jarvis_core/providers/local_llm.py
 jarvis_core/ranking/__init__.py
 jarvis_core/ranking/base.py
+jarvis_core/ranking/explainer.py
 jarvis_core/ranking/heuristics.py
 jarvis_core/ranking/lgbm_ranker.py
 jarvis_core/ranking/logger.py
+jarvis_core/ranking/ranker.py
 jarvis_core/reliability/__init__.py
 jarvis_core/reliability/chaos.py
 jarvis_core/reliability/circuit_breaker.py
@@ -298,6 +315,9 @@ jarvis_core/reliability/retry.py
 jarvis_core/renderers/__init__.py
 jarvis_core/renderers/claimset_renderer.py
 jarvis_core/renderers/report_renderer.py
+jarvis_core/repair/__init__.py
+jarvis_core/repair/learner.py
+jarvis_core/repair/planner.py
 jarvis_core/replay/__init__.py
 jarvis_core/replay/claimset_diff.py
 jarvis_core/replay/reproduce.py
@@ -359,6 +379,10 @@ jarvis_core/scientist/__init__.py
 jarvis_core/scientist/coscientist.py
 jarvis_core/scoring/__init__.py
 jarvis_core/scoring/registry.py
+jarvis_core/search/__init__.py
+jarvis_core/search/adapter.py
+jarvis_core/search/engine.py
+jarvis_core/search/hybrid.py
 jarvis_core/security/__init__.py
 jarvis_core/security/injection_defense.py
 jarvis_core/security/pii_scan.py
@@ -387,6 +411,8 @@ jarvis_core/storage/run_store_v2.py
 jarvis_core/storage/safe_paths.py
 jarvis_core/store/__init__.py
 jarvis_core/store/content_addressed.py
+jarvis_core/summarize/__init__.py
+jarvis_core/summarize/summarizers.py
 jarvis_core/supervisor/__init__.py
 jarvis_core/supervisor/lyra.py
 jarvis_core/telemetry/__init__.py
@@ -437,6 +463,11 @@ jarvis_tools/embeddings/cpu_embedder.py
 jarvis_tools/http/__init__.py
 jarvis_tools/http/rate_limit.py
 jarvis_tools/http/recorded.py
+jarvis_tools/ie/__init__.py
+jarvis_tools/ie/claim_extractor.py
+jarvis_tools/ie/claim_graph.py
+jarvis_tools/ie/evidence_extractor.py
+jarvis_tools/ie/sentence_indexer.py
 jarvis_tools/kg/__init__.py
 jarvis_tools/kg/extract.py
 jarvis_tools/kg/normalize.py
@@ -450,6 +481,7 @@ jarvis_tools/papers/__init__.py
 jarvis_tools/papers/bibliography.py
 jarvis_tools/papers/bm25.py
 jarvis_tools/papers/chunking.py
+jarvis_tools/papers/collector.py
 jarvis_tools/papers/dedupe.py
 jarvis_tools/papers/fetch_adapters.py
 jarvis_tools/papers/fetch_policy.py
@@ -463,7 +495,9 @@ jarvis_tools/papers/pdf_robust.py
 jarvis_tools/papers/pmc_oa.py
 jarvis_tools/papers/publisher_fetch.py
 jarvis_tools/papers/pubmed.py
+jarvis_tools/papers/query_builder.py
 jarvis_tools/papers/sectionizer.py
+jarvis_tools/papers/selector.py
 jarvis_tools/papers/sentence_splitter.py
 tests/test_100_steps.py
 tests/test_additional_integrations.py
