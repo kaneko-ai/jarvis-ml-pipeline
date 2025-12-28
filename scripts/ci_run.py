@@ -5,8 +5,8 @@
 2. ベース設定（config.yaml）を読み込む
 3. query, max_resultsなどを上書き
 4. pathsをpublic/runs/<run_id>/に差し替えた一時configを生成
-5. run_pipeline.pyを実行
-6. summary.jsonを生成
+5. run_pipeline.pyを実行（emit_progressでステータス更新）
+6. summary.json / stats.json / warnings.jsonl を生成
 7. build_runs_index.pyを呼び出してindex.json更新
 """
 import argparse
@@ -15,11 +15,53 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
+import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
 
+
+# === Progress Emitter (Cloudflare Worker KV) ===
+
+def emit_progress(percent: int, stage: str, message: str = "", counters: dict = None):
+    """進捗をCloudflare Worker KVに送信（Actions環境でのみ動作）"""
+    url = os.environ.get("CF_STATUS_URL")
+    token = os.environ.get("CF_STATUS_TOKEN")
+    run_id = os.environ.get("RUN_ID")
+    
+    if not url or not token or not run_id:
+        print(f"[emit_progress] {percent}% [{stage}] {message}")
+        return  # ローカル実行では無視
+    
+    payload = {
+        "run_id": str(run_id),
+        "percent": int(percent),
+        "stage": stage,
+        "message": message,
+        "counters": counters or {},
+    }
+    
+    try:
+        subprocess.run(
+            ["curl", "-sS", "-X", "POST", f"{url}/status/update",
+             "-H", "Content-Type: application/json",
+             "-H", f"X-STATUS-TOKEN: {token}",
+             "-d", json.dumps(payload)],
+            check=False,
+            capture_output=True,
+            timeout=10,
+        )
+    except Exception as e:
+        print(f"[emit_progress] WARNING: failed to emit progress: {e}")
+
+
+def now_iso():
+    return datetime.now(timezone.utc).isoformat()
+
+
+# === Helper Functions ===
 
 def generate_run_id():
     """run_idを生成（YYYYMMDD_HHMMSS_rand）"""
@@ -33,15 +75,9 @@ def create_temp_config(base_config, run_id, query, max_results=10, date_from=Non
     """一時的な設定ファイルを作成"""
     config = base_config.copy()
     
-    # pathsをpublic/runs/<run_id>/に差し替え
     run_dir = Path("public") / "runs" / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
     
-    # TODO: run_pipeline.py は現状 config.yaml の paths を使っているので
-    # ここでは最小限の対応として、一時configを作成
-    # 本来は run_pipeline.py 側を拡張して paths を動的に渡せるようにする必要がある
-    
-    # 現状の run_pipeline.py の構造に合わせて、search セクションを上書き
     if "search" not in config:
         config["search"] = {}
     
@@ -52,7 +88,6 @@ def create_temp_config(base_config, run_id, query, max_results=10, date_from=Non
     if date_to:
         config["search"]["date_to"] = date_to
     
-    # paths を上書き
     if "paths" not in config:
         config["paths"] = {}
     
@@ -78,16 +113,91 @@ def run_pipeline(config_path):
         return {"success": False, "output": e.stdout, "error": e.stderr}
 
 
-def generate_summary(run_id, query, status, run_dir, started_at, finished_at):
+def write_json(path: Path, obj: dict):
+    """JSONファイルを書き出し"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(obj, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def append_jsonl(path: Path, obj: dict):
+    """JSONL形式で追記"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(obj, ensure_ascii=False) + "\n")
+
+
+# === Stats & Summary Generation ===
+
+def generate_stats(run_id, query, status, run_dir, started_at, finished_at, error_msg=""):
+    """stats.jsonを生成（詳細な数値情報）"""
+    run_path = Path(run_dir)
+    meta_path = run_path / "raw" / "pubmed_metadata.json"
+    chunks_path = run_path / "processed" / "chunks.jsonl"
+    index_path = run_path / "index.joblib"
+    
+    # 各種カウント
+    pmids = 0
+    meta_count = 0
+    pmcids = 0
+    pdf_downloaded = 0
+    chunks_count = 0
+    index_exists = index_path.exists()
+    
+    if meta_path.exists():
+        try:
+            with open(meta_path, "r", encoding="utf-8") as f:
+                meta = json.load(f)
+                records = meta.get("records", [])
+                meta_count = len(records)
+                pmids = meta_count
+                pmcids = sum(1 for r in records if r.get("pmcid"))
+        except Exception:
+            pass
+    
+    # PDFカウント
+    pmc_dir = run_path / "raw" / "pmc"
+    if pmc_dir.exists():
+        pdf_downloaded = len(list(pmc_dir.glob("*.pdf")))
+    
+    # チャンクカウント
+    if chunks_path.exists():
+        chunks_count = sum(1 for _ in chunks_path.open("r", encoding="utf-8"))
+    
+    stats = {
+        "run_id": run_id,
+        "query": query,
+        "status": status,
+        "started_at": started_at,
+        "finished_at": finished_at,
+        "updated_at": now_iso(),
+        "index_version": run_id,
+        # 詳細カウント
+        "pmids": pmids,
+        "meta": meta_count,
+        "pmcids": pmcids,
+        "pdf_ok": pdf_downloaded,
+        "pdf_fail": max(0, pmcids - pdf_downloaded),
+        "chunks": chunks_count,
+        "index_ok": 1 if index_exists else 0,
+        # エラー情報
+        "failed": status == "failed",
+        "error": error_msg,
+    }
+    
+    stats_path = run_path / "stats.json"
+    write_json(stats_path, stats)
+    print(f"[ci_run] Generated stats.json: {stats_path}")
+    return stats
+
+
+def generate_summary(run_id, query, status, run_dir, started_at, finished_at, stats=None):
     """summary.jsonを生成（ダッシュボード互換形式）"""
     run_path = Path(run_dir)
-    
-    # 成果物の存在確認
     meta_path = run_path / "raw" / "pubmed_metadata.json"
     report_path = run_path / "report.md"
     
-    papers = 0
-    if meta_path.exists():
+    papers = stats.get("meta", 0) if stats else 0
+    if not papers and meta_path.exists():
         try:
             with open(meta_path, "r", encoding="utf-8") as f:
                 meta = json.load(f)
@@ -95,54 +205,47 @@ def generate_summary(run_id, query, status, run_dir, started_at, finished_at):
         except Exception:
             pass
     
-    # ダッシュボードが期待するフィールド形式
-    # contract_valid: 10ファイル契約が満たされているか
-    # gate_passed: 品質ゲートを通過したか
-    # metrics: 数値メトリクス
-    
-    # 簡易的な判定: 論文が1件以上あればgate_passed
     gate_passed = papers > 0 and status == "complete"
-    
-    # 10ファイル契約チェック（簡易版）
     required_files = ["report.md"]
     existing = [f for f in required_files if (run_path / f).exists()]
     contract_valid = len(existing) == len(required_files) and papers > 0
-    
-    # evidence_coverage: 現状は論文数ベースで簡易計算
     evidence_coverage = 1.0 if papers > 0 else 0.0
     
     summary = {
         "run_id": run_id,
         "query": query,
         "status": status,
-        "timestamp": finished_at,  # ダッシュボード用
+        "timestamp": finished_at,
         "papers": papers,
         "claims": 0,
         "evidence": 0,
-        # ダッシュボード互換フィールド
         "gate_passed": gate_passed,
         "contract_valid": contract_valid,
         "metrics": {
             "evidence_coverage": evidence_coverage,
             "paper_count": papers,
             "claim_count": 0,
+            "pmcids": stats.get("pmcids", 0) if stats else 0,
+            "pdf_ok": stats.get("pdf_ok", 0) if stats else 0,
+            "chunks": stats.get("chunks", 0) if stats else 0,
         },
-        # 従来フィールド
+        "index_version": run_id,
         "started_at": started_at,
         "finished_at": finished_at,
         "artifacts": {
             "report_md": f"runs/{run_id}/report.md" if report_path.exists() else None,
             "meta_json": f"runs/{run_id}/raw/pubmed_metadata.json" if meta_path.exists() else None,
+            "stats_json": f"runs/{run_id}/stats.json",
         }
     }
     
     summary_path = run_path / "summary.json"
-    with open(summary_path, "w", encoding="utf-8") as f:
-        json.dump(summary, f, indent=2, ensure_ascii=False)
-    
+    write_json(summary_path, summary)
     print(f"[ci_run] Generated summary.json: {summary_path}")
     return summary
 
+
+# === Main Entry Point ===
 
 def main():
     parser = argparse.ArgumentParser(description="CI Run - run_idごとに独立実行")
@@ -154,82 +257,100 @@ def main():
     parser.add_argument("--action", default="pipeline", help="アクション（pipeline | rebuild_index | export_report）")
     args = parser.parse_args()
     
-    # run_id生成
-    run_id = args.run_id or generate_run_id()
+    # run_id: 環境変数RUN_ID > 引数 > 自動生成
+    run_id = os.environ.get("RUN_ID") or args.run_id or generate_run_id()
     print(f"[ci_run] run_id: {run_id}")
     
-    started_at = datetime.now(timezone.utc).isoformat()
+    started_at = now_iso()
+    run_dir = Path("public") / "runs" / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+    
+    warnings_path = run_dir / "warnings.jsonl"
+    status = "running"
+    error_msg = ""
     
     # ベース設定読み込み
     base_config_path = Path("config.yaml")
     if not base_config_path.exists():
         print(f"[ci_run] ERROR: config.yaml not found", file=sys.stderr)
+        append_jsonl(warnings_path, {"type": "config_error", "message": "config.yaml not found", "at": now_iso()})
         sys.exit(1)
     
     with open(base_config_path, "r", encoding="utf-8") as f:
         base_config = yaml.safe_load(f)
     
-    # アクション分岐
-    if args.action == "pipeline":
-        # 一時config作成
-        temp_config = create_temp_config(
-            base_config,
-            run_id,
-            args.query,
-            args.max_results,
-            args.date_from,
-            args.date_to,
-        )
+    try:
+        if args.action == "pipeline":
+            emit_progress(25, "config", "Creating pipeline configuration", {"query": args.query})
+            
+            temp_config = create_temp_config(
+                base_config, run_id, args.query, args.max_results, args.date_from, args.date_to,
+            )
+            
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False, encoding="utf-8") as f:
+                yaml.dump(temp_config, f)
+                temp_config_path = f.name
+            
+            try:
+                emit_progress(30, "pipeline", "Running paper collection pipeline")
+                print(f"[ci_run] Running pipeline with config: {temp_config_path}")
+                result = run_pipeline(temp_config_path)
+                
+                if result["success"]:
+                    print("[ci_run] Pipeline completed successfully")
+                    status = "complete"
+                    emit_progress(85, "artifacts", "Generating artifacts")
+                else:
+                    print(f"[ci_run] Pipeline failed: {result['error']}", file=sys.stderr)
+                    status = "failed"
+                    error_msg = result["error"][:500] if result["error"] else "Unknown error"
+                    append_jsonl(warnings_path, {"type": "pipeline_error", "message": error_msg, "at": now_iso()})
+                
+                if result["output"]:
+                    print(result["output"])
+                if result["error"]:
+                    print(result["error"], file=sys.stderr)
+                    
+            finally:
+                Path(temp_config_path).unlink(missing_ok=True)
         
-        # 一時ファイルに保存
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False, encoding="utf-8") as f:
-            yaml.dump(temp_config, f)
-            temp_config_path = f.name
+        elif args.action == "rebuild_index":
+            emit_progress(50, "rebuild", "Rebuilding index")
+            print(f"[ci_run] Action 'rebuild_index' not implemented yet")
+            status = "complete"
         
+        elif args.action == "export_report":
+            emit_progress(50, "export", "Exporting report")
+            print(f"[ci_run] Action 'export_report' not implemented yet")
+            status = "complete"
+        
+        else:
+            print(f"[ci_run] ERROR: Unknown action: {args.action}", file=sys.stderr)
+            append_jsonl(warnings_path, {"type": "unknown_action", "message": args.action, "at": now_iso()})
+            sys.exit(1)
+    
+    except Exception as e:
+        status = "failed"
+        error_msg = str(e)
+        append_jsonl(warnings_path, {"type": "exception", "message": repr(e), "traceback": traceback.format_exc(), "at": now_iso()})
+        emit_progress(100, "failed", f"Pipeline failed: {error_msg}")
+        raise
+    
+    finally:
+        # 必ず成果物を生成（partially failed でも UI が読める状態にする）
+        finished_at = now_iso()
+        
+        stats = generate_stats(run_id, args.query, status, run_dir, started_at, finished_at, error_msg)
+        generate_summary(run_id, args.query, status, run_dir, started_at, finished_at, stats)
+        
+        # runs/index.json更新
+        print("[ci_run] Building runs index...")
         try:
-            print(f"[ci_run] Running pipeline with config: {temp_config_path}")
-            result = run_pipeline(temp_config_path)
-            
-            if result["success"]:
-                print("[ci_run] Pipeline completed successfully")
-                status = "complete"
-            else:
-                print(f"[ci_run] Pipeline failed: {result['error']}", file=sys.stderr)
-                status = "failed"
-            
-            # stdout/stderrを表示
-            if result["output"]:
-                print(result["output"])
-            if result["error"]:
-                print(result["error"], file=sys.stderr)
-        finally:
-            # 一時ファイル削除
-            Path(temp_config_path).unlink(missing_ok=True)
-    
-    elif args.action == "rebuild_index":
-        # TODO: インデックス再構築の実装
-        print(f"[ci_run] Action 'rebuild_index' not implemented yet")
-        status = "complete"
-    
-    elif args.action == "export_report":
-        # TODO: レポート再生成の実装
-        print(f"[ci_run] Action 'export_report' not implemented yet")
-        status = "complete"
-    
-    else:
-        print(f"[ci_run] ERROR: Unknown action: {args.action}", file=sys.stderr)
-        sys.exit(1)
-    
-    # summary.json生成
-    finished_at = datetime.now(timezone.utc).isoformat()
-    run_dir = Path("public") / "runs" / run_id
-    generate_summary(run_id, args.query, status, run_dir, started_at, finished_at)
-    
-    # runs/index.json更新
-    print("[ci_run] Building runs index...")
-    subprocess.run([sys.executable, "scripts/build_runs_index.py"], check=True)
-    
-    print(f"[ci_run] Done! run_id={run_id}")
+            subprocess.run([sys.executable, "scripts/build_runs_index.py"], check=True)
+        except Exception as e:
+            print(f"[ci_run] WARNING: Failed to build index: {e}", file=sys.stderr)
+        
+        print(f"[ci_run] Done! run_id={run_id}, status={status}")
 
 
 if __name__ == "__main__":

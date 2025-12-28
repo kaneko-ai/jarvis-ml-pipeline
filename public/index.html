@@ -558,6 +558,23 @@
                     data-callback="onTurnstileSuccess"></div>
                 <button class="btn btn-primary" id="run-query-btn" onclick="runQuery()" disabled>🚀 パイプライン実行</button>
                 <div id="query-status" style="margin-top: 15px;"></div>
+                <!-- Progress Bar -->
+                <div id="progress-container" style="display: none; margin-top: 20px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <span id="progress-stage" style="color: var(--accent); font-weight: bold;">待機中</span>
+                        <span id="progress-percent" style="color: var(--text-secondary);">0%</span>
+                    </div>
+                    <div style="background: var(--bg-secondary); border-radius: 8px; height: 12px; overflow: hidden;">
+                        <div id="progress-bar"
+                            style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent), var(--success)); transition: width 0.3s;">
+                        </div>
+                    </div>
+                    <div id="progress-message" style="margin-top: 8px; color: var(--text-secondary); font-size: 0.9em;">
+                    </div>
+                    <div id="progress-counters"
+                        style="margin-top: 8px; font-family: monospace; font-size: 0.85em; color: var(--text-secondary);">
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -804,6 +821,56 @@
         }
 
         // === Run Query ===
+        let activeRunId = null;
+        let statusPollInterval = null;
+
+        function generateClientRunId() {
+            const now = new Date();
+            const timestamp = now.toISOString().slice(0, 19).replace(/[-:T]/g, '').slice(0, 14);
+            const rand = Math.random().toString(36).substring(2, 10);
+            return `${timestamp}_${rand}`;
+        }
+
+        async function pollRunStatus() {
+            if (!activeRunId) return;
+
+            try {
+                const res = await fetch(`${WORKER_URL}/status?run_id=${encodeURIComponent(activeRunId)}`);
+                const data = await res.json();
+
+                if (data.ok && data.status) {
+                    const st = data.status;
+                    document.getElementById('progress-bar').style.width = `${st.percent}%`;
+                    document.getElementById('progress-percent').textContent = `${st.percent}%`;
+                    document.getElementById('progress-stage').textContent = st.stage || 'processing';
+                    document.getElementById('progress-message').textContent = st.message || '';
+
+                    if (st.counters && Object.keys(st.counters).length > 0) {
+                        document.getElementById('progress-counters').textContent = JSON.stringify(st.counters, null, 2);
+                    }
+
+                    if (st.percent >= 100 || st.stage === 'done' || st.stage === 'failed') {
+                        clearInterval(statusPollInterval);
+                        statusPollInterval = null;
+                        activeRunId = null;
+
+                        if (st.stage === 'done') {
+                            showToast('パイプライン完了！', 'success');
+                            document.getElementById('progress-stage').textContent = '✅ 完了';
+                        } else if (st.stage === 'failed') {
+                            showToast('パイプライン失敗', 'danger');
+                            document.getElementById('progress-stage').textContent = '❌ 失敗';
+                        }
+
+                        // Refresh runs list
+                        setTimeout(() => loadRuns(), 3000);
+                    }
+                }
+            } catch (e) {
+                console.error('Status polling error:', e);
+            }
+        }
+
         async function runQuery() {
             const query = document.getElementById('query-input').value;
             if (!query) { showToast('クエリを入力してください', 'warning'); return; }
@@ -811,12 +878,16 @@
 
             const btn = document.getElementById('run-query-btn');
             const status = document.getElementById('query-status');
+            const progressContainer = document.getElementById('progress-container');
 
             btn.disabled = true;
             status.innerHTML = '<div class="spinner"></div><p>実行キューに追加中...</p>';
 
+            // Generate client_run_id for tracking
+            const clientRunId = generateClientRunId();
+            activeRunId = clientRunId;
+
             try {
-                // Cloudflare Workerに送信
                 const res = await fetch(WORKER_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -825,6 +896,7 @@
                         action: 'pipeline',
                         query,
                         max_results: parseInt(document.getElementById('max-papers').value),
+                        client_run_id: clientRunId, // Pass client_run_id to worker
                     })
                 });
 
@@ -832,32 +904,40 @@
                     let errorMessage = `Worker error: ${res.status}`;
                     try {
                         const errorData = await res.json();
-                        if (errorData.error) {
-                            errorMessage = errorData.error;
-                        }
-                    } catch (e) {
-                        // JSON parse failed, stick with status code
-                    }
+                        if (errorData.error) errorMessage = errorData.error;
+                    } catch (e) { }
                     throw new Error(errorMessage);
                 }
 
                 const result = await res.json();
-                status.innerHTML = `<p style="color: var(--success);">✅ キュー追加成功: run_id=${result.run_id}</p><p style="color: var(--text-secondary); font-size: 0.9em;">実行完了まで数分かかります。ページを更新して結果を確認してください。</p>`;
+                const returnedRunId = result.run_id || clientRunId;
+                activeRunId = returnedRunId;
+
+                status.innerHTML = `<p style="color: var(--success);">✅ キュー追加成功: run_id=${returnedRunId}</p>`;
                 showToast('GitHub Actionsが開始されました', 'success');
 
-                // Turnstileをリセット
+                // Show progress bar and start polling
+                progressContainer.style.display = 'block';
+                document.getElementById('progress-bar').style.width = '0%';
+                document.getElementById('progress-percent').textContent = '0%';
+                document.getElementById('progress-stage').textContent = 'queued';
+                document.getElementById('progress-message').textContent = 'Waiting for GitHub Actions to start...';
+                document.getElementById('progress-counters').textContent = '';
+
+                // Start polling status
+                if (statusPollInterval) clearInterval(statusPollInterval);
+                statusPollInterval = setInterval(pollRunStatus, 2000); // Poll every 2 seconds
+
+                // Reset Turnstile
                 turnstileToken = null;
                 btn.disabled = true;
-                if (window.turnstile) {
-                    window.turnstile.reset();
-                }
+                if (window.turnstile) window.turnstile.reset();
 
-                // 30秒後に自動更新（最大10回、5分間）
-                pollRunsUpdate(10, 30000);
             } catch (e) {
                 status.innerHTML = `<p style="color: var(--danger);">❌ エラー: ${e.message}</p>`;
                 showToast('実行エラー', 'danger');
                 btn.disabled = false;
+                activeRunId = null;
             }
         }
 

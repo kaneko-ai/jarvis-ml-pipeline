@@ -1,0 +1,116 @@
+name: JARVIS Cron Collection
+
+on:
+  schedule:
+    # Run every 6 hours at minute 15
+    - cron: "15 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: 'Topic to collect (CD73, CDH13, or all)'
+        required: false
+        type: choice
+        options:
+          - all
+          - CD73
+          - CDH13
+        default: 'all'
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - topic: CD73
+            query: '("CD73"[Title/Abstract] OR "NT5E"[Title/Abstract]) AND free full text[filter]'
+          - topic: CDH13
+            query: '("CDH13"[Title/Abstract] OR "T-cadherin"[Title/Abstract]) AND free full text[filter]'
+    
+    env:
+      RUN_ID: ${{ github.run_id }}_${{ matrix.topic }}
+      CF_STATUS_URL: ${{ secrets.CF_STATUS_URL }}
+      CF_STATUS_TOKEN: ${{ secrets.CF_STATUS_TOKEN }}
+      QUERY: ${{ matrix.query }}
+      MAX_PMIDS: "50"
+      PDF_LIMIT: "20"
+    
+    steps:
+      - name: Skip if topic not matched (manual dispatch)
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.topic != 'all' && github.event.inputs.topic != matrix.topic }}
+        run: |
+          echo "Skipping ${{ matrix.topic }} (requested: ${{ github.event.inputs.topic }})"
+          exit 0
+
+      - name: Update status (start)
+        if: ${{ env.CF_STATUS_URL != '' }}
+        run: |
+          curl -sS -X POST "${CF_STATUS_URL}/status/update" \
+            -H "Content-Type: application/json" \
+            -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
+            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":1,\"stage\":\"start\",\"message\":\"Cron collection started for ${{ matrix.topic }}\"}"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+      
+      - name: Install dependencies
+        run: |
+          uv pip install --system -r requirements.lock
+          uv pip install --system -e .
+      
+      - name: Update status (pipeline)
+        if: ${{ env.CF_STATUS_URL != '' }}
+        run: |
+          curl -sS -X POST "${CF_STATUS_URL}/status/update" \
+            -H "Content-Type: application/json" \
+            -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
+            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":20,\"stage\":\"pipeline\",\"message\":\"Running collection pipeline\"}"
+
+      - name: Run collection pipeline
+        env:
+          NCBI_API_KEY: ${{ secrets.NCBI_API_KEY }}
+        run: |
+          python scripts/ci_run.py \
+            --action pipeline \
+            --query "${{ matrix.query }}" \
+            --max-results ${MAX_PMIDS} \
+            --run-id "${RUN_ID}"
+      
+      - name: Update status (deploy)
+        if: ${{ env.CF_STATUS_URL != '' }}
+        run: |
+          curl -sS -X POST "${CF_STATUS_URL}/status/update" \
+            -H "Content-Type: application/json" \
+            -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
+            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":90,\"stage\":\"deploy\",\"message\":\"Deploying results\"}"
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+      
+      - name: Update status (complete)
+        if: ${{ env.CF_STATUS_URL != '' }}
+        run: |
+          curl -sS -X POST "${CF_STATUS_URL}/status/update" \
+            -H "Content-Type: application/json" \
+            -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
+            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":100,\"stage\":\"done\",\"message\":\"Collection completed for ${{ matrix.topic }}\"}"
