@@ -446,3 +446,94 @@ class BundleAssembler:
         filepath = self.run_dir / filename
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(content)
+
+
+def _safe_filename(name: str, max_len: int = 50) -> str:
+    """
+    ファイル名を安全な形式に変換.
+    
+    Args:
+        name: 元のファイル名
+        max_len: 最大長
+        
+    Returns:
+        安全なファイル名
+    """
+    # 危険な文字を置換
+    safe = str(name)
+    for char in '<>:"/\\|?*':
+        safe = safe.replace(char, "_")
+    
+    # 長さ制限
+    if len(safe) > max_len:
+        safe = safe[:max_len]
+    
+    return safe
+
+
+def export_evidence_bundle(result, store, output_dir: str) -> None:
+    """
+    Evidence Bundle をエクスポート.
+    
+    Args:
+        result: EvidenceQAResult インスタンス
+        store: EvidenceStore インスタンス
+        output_dir: 出力ディレクトリパス
+    """
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    # 1. bundle.json を作成
+    bundle_data = result.to_dict()
+    bundle_path = output_path / "bundle.json"
+    with open(bundle_path, "w", encoding="utf-8") as f:
+        json.dump(bundle_data, f, indent=2, ensure_ascii=False)
+    
+    # 2. evidence/*.txt ファイルを作成
+    evidence_dir = output_path / "evidence"
+    evidence_dir.mkdir(parents=True, exist_ok=True)
+    
+    for citation in result.citations:
+        chunk_id = citation.chunk_id
+        # EvidenceStoreから実際のテキストを取得
+        chunk = store.get_chunk(chunk_id)
+        if chunk:
+            # ファイル名を安全に生成
+            filename = _safe_filename(f"{chunk_id}.txt")
+            evidence_file = evidence_dir / filename
+            
+            # チャンクテキストを保存
+            with open(evidence_file, "w", encoding="utf-8") as f:
+                f.write(chunk.text)
+    
+    # 3. citations.md を作成
+    citations_lines = [
+        f"# Citations for Query: {result.query}",
+        "",
+        "## Answer",
+        "",
+        result.answer,
+        "",
+        "## Evidence",
+        "",
+    ]
+    
+    for i, citation in enumerate(result.citations, 1):
+        chunk = store.get_chunk(citation.chunk_id)
+        citations_lines.extend([
+            f"### [{i}] {citation.source} - {citation.locator}",
+            "",
+            f"> {citation.quote}",
+            "",
+        ])
+        if chunk:
+            citations_lines.extend([
+                "**Full Text:**",
+                "",
+                chunk.text,
+                "",
+            ])
+    
+    citations_path = output_path / "citations.md"
+    with open(citations_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(citations_lines))
