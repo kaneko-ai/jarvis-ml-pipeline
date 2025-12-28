@@ -463,10 +463,12 @@
         <!-- Navigation -->
         <div class="nav-tabs">
             <div class="nav-tab active" onclick="showTab('overview')">📊 概要</div>
-            <div class="nav-tab" onclick="showTab('new-query')">🔍 新規クエリ</div>
-            <div class="nav-tab" onclick="showTab('search')">📑 検索</div>
+            <div class="nav-tab" onclick="showTab('new-query')">🔍 新規クエリ (分析実行)</div>
+            <div class="nav-tab" onclick="showTab('search')">📑 検索 (BM25)</div>
+            <!-- Serverlessモードでは一時的に非表示
             <div class="nav-tab" onclick="showTab('collect')">📥 収集</div>
             <div class="nav-tab" onclick="showTab('upload')">📁 アップロード</div>
+            -->
             <div class="nav-tab" onclick="showTab('runs')">📋 実行履歴</div>
         </div>
 
