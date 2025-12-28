@@ -21,6 +21,7 @@ try:
     from fastapi import FastAPI, HTTPException, Depends, Header, UploadFile, File
     from fastapi.responses import JSONResponse, FileResponse
     from fastapi.staticfiles import StaticFiles
+    from fastapi.middleware.cors import CORSMiddleware
     from pydantic import BaseModel
 
     FASTAPI_AVAILABLE = True
@@ -44,6 +45,15 @@ if FASTAPI_AVAILABLE:
         title="JARVIS Research OS",
         description="API for paper survey and knowledge synthesis",
         version="4.3.0",
+    )
+    
+    # Add CORS middleware to allow cross-origin requests (for GitHub Pages dashboard)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],  # Allow all origins for local development
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 else:
     app = None

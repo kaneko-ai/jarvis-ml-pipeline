@@ -1,173 +1,208 @@
 /**
- * Cloudflare Worker - GitHub Actions Dispatcher
+ * Cloudflare Worker - GitHub Actions Dispatcher + Status API
  * 
- * このWorkerは以下を行います:
- * 1. CORS検証（ALLOWED_ORIGINチェック）
- * 2. Turnstile token検証（siteverify）
- * 3. run_id生成（YYYYMMDD_HHMMSS_rand）
- * 4. GitHub API workflow_dispatch実行
- * 5. {run_id, status:"queued"} 返却
+ * Endpoints:
+ * - POST /           : Trigger GitHub Actions (dispatch)
+ * - GET /status      : Get run status (for UI polling)
+ * - POST /status/update : Update run status (from GitHub Actions)
  * 
- * 必要なSecrets（Cloudflare Dashboard → Workers → Settings → Variables）:
- * - GITHUB_TOKEN: workflow実行権限を持つPAT
- * - GITHUB_OWNER: kaneko-ai
- * - GITHUB_REPO: jarvis-ml-pipeline
- * - GITHUB_WORKFLOW_FILE: jarvis_dispatch.yml
- * - TURNSTILE_SECRET_KEY: Turnstile検証用
- * - ALLOWED_ORIGIN: https://kaneko-ai.github.io
+ * Required Secrets:
+ * - GITHUB_TOKEN     : GitHub PAT for workflow_dispatch
+ * - TURNSTILE_SECRET_KEY : Turnstile verification
+ * - STATUS_TOKEN     : Token for status/update authentication
+ * 
+ * Required KV Binding:
+ * - STATUS_KV        : KV namespace for status storage
  */
 
 export default {
     async fetch(request, env) {
-        // CORS preflight
+        const url = new URL(request.url);
+
+        // === Configuration ===
+        const CONFIG = {
+            ALLOWED_ORIGIN: '*',
+            GITHUB_OWNER: env.GITHUB_OWNER || 'kaneko-ai',
+            GITHUB_REPO: env.GITHUB_REPO || 'jarvis-ml-pipeline',
+            GITHUB_WORKFLOW_FILE: env.GITHUB_WORKFLOW_FILE || 'jarvis_dispatch.yml',
+            STATUS_TTL: parseInt(env.STATUS_TTL_SEC || '86400', 10), // 24h default
+        };
+
+        // === CORS Headers ===
+        const corsHeaders = {
+            'Access-Control-Allow-Origin': CONFIG.ALLOWED_ORIGIN,
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Turnstile-Token, X-STATUS-TOKEN',
+        };
+
+        // Handle CORS preflight
         if (request.method === 'OPTIONS') {
-            return handleCORS(env);
+            return new Response(null, { status: 204, headers: corsHeaders });
         }
 
-        // POSTのみ許可
-        if (request.method !== 'POST') {
-            return new Response('Method Not Allowed', { status: 405 });
+        // === GET /status?run_id=... ===
+        if (url.pathname === '/status' && request.method === 'GET') {
+            const runId = url.searchParams.get('run_id');
+            if (!runId) {
+                return json({ ok: false, error: 'run_id required' }, 400, corsHeaders);
+            }
+
+            // Check if KV is available
+            if (!env.STATUS_KV) {
+                return json({ ok: true, run_id: runId, status: null, note: 'KV not configured' }, 200, corsHeaders);
+            }
+
+            const raw = await env.STATUS_KV.get(`run:${runId}`);
+            if (!raw) {
+                return json({ ok: true, run_id: runId, status: null }, 200, corsHeaders);
+            }
+
+            return json({ ok: true, run_id: runId, status: JSON.parse(raw) }, 200, corsHeaders);
         }
 
-        // CORS検証
-        const origin = request.headers.get('Origin');
-        if (!origin || origin !== env.ALLOWED_ORIGIN) {
-            return new Response('Forbidden - Invalid Origin', { status: 403 });
-        }
+        // === POST /status/update ===
+        if (url.pathname === '/status/update' && request.method === 'POST') {
+            const token = request.headers.get('X-STATUS-TOKEN');
+            if (!token || token !== env.STATUS_TOKEN) {
+                return json({ ok: false, error: 'unauthorized' }, 401, corsHeaders);
+            }
 
-        try {
-            // リクエストボディ解析
             const body = await request.json();
-            const { turnstile_token, action, query, max_results, date_from, date_to } = body;
-
-            // Turnstile検証
-            const turnstileValid = await verifyTurnstile(turnstile_token, env);
-            if (!turnstileValid) {
-                return new Response(JSON.stringify({ error: 'Turnstile validation failed' }), {
-                    status: 403,
-                    headers: { 'Content-Type': 'application/json' },
-                });
+            const runId = body.run_id;
+            if (!runId) {
+                return json({ ok: false, error: 'run_id required' }, 400, corsHeaders);
             }
 
-            // run_id生成
-            const run_id = generateRunId();
-
-            // GitHub Actionsをトリガー
-            const dispatchResult = await triggerGitHubAction(
-                {
-                    action: action || 'pipeline',
-                    query: query || '',
-                    max_results: max_results || 10,
-                    date_from: date_from || '',
-                    date_to: date_to || '',
-                    run_id,
-                },
-                env
-            );
-
-            if (!dispatchResult.success) {
-                return new Response(JSON.stringify({ error: dispatchResult.error }), {
-                    status: 500,
-                    headers: getCORSHeaders(env),
-                });
+            // Optional: UUID format validation
+            if (!/^[0-9a-zA-Z_-]{8,64}$/.test(runId)) {
+                return json({ ok: false, error: 'invalid run_id format' }, 400, corsHeaders);
             }
 
-            // 成功レスポンス
-            return new Response(
-                JSON.stringify({
-                    run_id,
+            const status = {
+                run_id: runId,
+                percent: body.percent ?? 0,
+                stage: body.stage ?? 'unknown',
+                message: body.message ?? '',
+                counters: body.counters ?? {},
+                updated_at: new Date().toISOString(),
+            };
+
+            // Store in KV if available
+            if (env.STATUS_KV) {
+                await env.STATUS_KV.put(`run:${runId}`, JSON.stringify(status), { expirationTtl: CONFIG.STATUS_TTL });
+            }
+
+            return json({ ok: true }, 200, corsHeaders);
+        }
+
+        // === POST / (dispatch - existing functionality) ===
+        if (request.method === 'POST' && (url.pathname === '/' || url.pathname === '/dispatch')) {
+            try {
+                const body = await request.json();
+                const { turnstile_token, action, query, max_results, date_from, date_to, client_run_id } = body;
+
+                // 1. Verify Turnstile
+                const turnstileValid = await verifyTurnstile(turnstile_token, env.TURNSTILE_SECRET_KEY);
+                if (!turnstileValid) {
+                    return json({ error: 'Turnstile validation failed' }, 403, corsHeaders);
+                }
+
+                // 2. Generate or use client_run_id
+                const run_id = client_run_id || generateRunId();
+
+                // 3. Initialize status in KV (if available)
+                if (env.STATUS_KV) {
+                    const initialStatus = {
+                        run_id: run_id,
+                        percent: 0,
+                        stage: 'queued',
+                        message: 'Waiting for GitHub Actions to start',
+                        counters: { query: query || '' },
+                        updated_at: new Date().toISOString(),
+                    };
+                    await env.STATUS_KV.put(`run:${run_id}`, JSON.stringify(initialStatus), { expirationTtl: CONFIG.STATUS_TTL });
+                }
+
+                // 4. Trigger GitHub Actions
+                const dispatchResult = await triggerGitHubAction(
+                    {
+                        action: action || 'pipeline',
+                        query: query || '',
+                        max_results: String(max_results || 10),
+                        date_from: date_from || '',
+                        date_to: date_to || '',
+                        run_id: run_id, // Pass run_id to workflow
+                    },
+                    env.GITHUB_TOKEN,
+                    CONFIG
+                );
+
+                if (!dispatchResult.success) {
+                    return json({ error: dispatchResult.error }, 500, corsHeaders);
+                }
+
+                // 5. Return run_id for UI to track
+                return json({
+                    ok: true,
                     status: 'queued',
                     message: 'GitHub Actions triggered successfully',
-                }),
-                {
-                    status: 200,
-                    headers: getCORSHeaders(env),
-                }
-            );
-        } catch (error) {
-            return new Response(JSON.stringify({ error: error.message }), {
-                status: 500,
-                headers: getCORSHeaders(env),
-            });
+                    run_id: run_id,
+                }, 200, corsHeaders);
+
+            } catch (error) {
+                return json({ error: error.message }, 500, corsHeaders);
+            }
         }
+
+        // === Fallback: Not Found ===
+        return json({ ok: false, error: 'not found' }, 404, corsHeaders);
     },
 };
 
-/**
- * Turnstile検証
- */
-async function verifyTurnstile(token, env) {
-    if (!token) return false;
+// === Helper Functions ===
 
+function json(obj, status = 200, headers = {}) {
+    return new Response(JSON.stringify(obj), {
+        status,
+        headers: { 'Content-Type': 'application/json', ...headers },
+    });
+}
+
+async function verifyTurnstile(token, secretKey) {
+    if (!token || !secretKey) return false;
     const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            secret: env.TURNSTILE_SECRET_KEY,
-            response: token,
-        }),
+        body: JSON.stringify({ secret: secretKey, response: token }),
     });
-
     const data = await res.json();
     return data.success === true;
 }
 
-/**
- * run_id生成
- */
 function generateRunId() {
     const now = new Date();
-    const timestamp = now.toISOString().slice(0, 19).replace(/[-:T]/g, '').slice(0, 14); // YYYYMMDDHHMMSS
+    const timestamp = now.toISOString().slice(0, 19).replace(/[-:T]/g, '').slice(0, 14);
     const rand = Math.random().toString(36).substring(2, 10);
     return `${timestamp}_${rand}`;
 }
 
-/**
- * GitHub Actions workflow_dispatch実行
- */
-async function triggerGitHubAction(inputs, env) {
-    const url = `https://api.github.com/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/actions/workflows/${env.GITHUB_WORKFLOW_FILE}/dispatches`;
+async function triggerGitHubAction(inputs, token, config) {
+    if (!token) return { success: false, error: 'Missing GITHUB_TOKEN secret' };
+
+    const url = `https://api.github.com/repos/${config.GITHUB_OWNER}/${config.GITHUB_REPO}/actions/workflows/${config.GITHUB_WORKFLOW_FILE}/dispatches`;
 
     const res = await fetch(url, {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${env.GITHUB_TOKEN}`,
+            'Authorization': `Bearer ${token}`,
             'Accept': 'application/vnd.github+json',
             'Content-Type': 'application/json',
-            'User-Agent': 'Cloudflare-Worker',
+            'User-Agent': 'Cloudflare-Worker'
         },
-        body: JSON.stringify({
-            ref: 'main', // または master
-            inputs,
-        }),
+        body: JSON.stringify({ ref: 'main', inputs }),
     });
 
-    if (res.ok) {
-        return { success: true };
-    } else {
-        const error = await res.text();
-        return { success: false, error: `GitHub API error: ${res.status} - ${error}` };
-    }
-}
-
-/**
- * CORS headers
- */
-function getCORSHeaders(env) {
-    return {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': env.ALLOWED_ORIGIN,
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-    };
-}
-
-/**
- * CORS preflight response
- */
-function handleCORS(env) {
-    return new Response(null, {
-        status: 204,
-        headers: getCORSHeaders(env),
-    });
+    if (res.ok) return { success: true };
+    const error = await res.text();
+    return { success: false, error: `GitHub API error: ${res.status} - ${error}` };
 }

@@ -19,8 +19,8 @@ on:
       max_results:
         description: 'Max papers to fetch'
         required: false
-        type: number
-        default: 10
+        type: string
+        default: '10'
       date_from:
         description: 'Date from (YYYY/MM/DD)'
         required: false
@@ -30,7 +30,7 @@ on:
         required: false
         type: string
       run_id:
-        description: 'Run ID (auto-generated if not provided)'
+        description: 'Run ID (client_run_id from Worker)'
         required: false
         type: string
 
@@ -41,10 +41,34 @@ jobs:
   dispatch:
     runs-on: ubuntu-latest
     
+    env:
+      # Use input run_id or fallback to github.run_id
+      RUN_ID: ${{ inputs.run_id || github.run_id }}
+      CF_STATUS_URL: ${{ secrets.CF_STATUS_URL }}
+      CF_STATUS_TOKEN: ${{ secrets.CF_STATUS_TOKEN }}
+      QUERY: ${{ inputs.query }}
+      MAX_RESULTS: ${{ inputs.max_results }}
+    
     steps:
+      - name: Update status (start)
+        if: ${{ env.CF_STATUS_URL != '' }}
+        run: |
+          curl -sS -X POST "${CF_STATUS_URL}/status/update" \
+            -H "Content-Type: application/json" \
+            -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
+            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":5,\"stage\":\"checkout\",\"message\":\"Starting workflow\"}"
+
       - name: Checkout repository
         uses: actions/checkout@v4
       
+      - name: Update status (python setup)
+        if: ${{ env.CF_STATUS_URL != '' }}
+        run: |
+          curl -sS -X POST "${CF_STATUS_URL}/status/update" \
+            -H "Content-Type: application/json" \
+            -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
+            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":10,\"stage\":\"setup\",\"message\":\"Setting up Python\"}"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -55,29 +79,53 @@ jobs:
         with:
           enable-cache: true
       
+      - name: Update status (dependencies)
+        if: ${{ env.CF_STATUS_URL != '' }}
+        run: |
+          curl -sS -X POST "${CF_STATUS_URL}/status/update" \
+            -H "Content-Type: application/json" \
+            -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
+            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":15,\"stage\":\"deps\",\"message\":\"Installing dependencies\"}"
+
       - name: Install dependencies
         run: |
           uv pip install --system -r requirements.lock
           uv pip install --system -e .
       
+      - name: Update status (pipeline start)
+        if: ${{ env.CF_STATUS_URL != '' }}
+        run: |
+          curl -sS -X POST "${CF_STATUS_URL}/status/update" \
+            -H "Content-Type: application/json" \
+            -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
+            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":20,\"stage\":\"pipeline\",\"message\":\"Running pipeline\"}"
+
       - name: Run CI pipeline
         env:
           NCBI_API_KEY: ${{ secrets.NCBI_API_KEY }}
         run: |
-          if [ "${{ github.event.inputs.action }}" = "pipeline" ]; then
+          if [ "${{ inputs.action }}" = "pipeline" ]; then
             python scripts/ci_run.py \
               --action pipeline \
-              --query "${{ github.event.inputs.query }}" \
-              --max-results ${{ github.event.inputs.max_results }} \
-              ${{ github.event.inputs.date_from && format('--date-from {0}', github.event.inputs.date_from) || '' }} \
-              ${{ github.event.inputs.date_to && format('--date-to {0}', github.event.inputs.date_to) || '' }} \
-              ${{ github.event.inputs.run_id && format('--run-id {0}', github.event.inputs.run_id) || '' }}
-          elif [ "${{ github.event.inputs.action }}" = "rebuild_index" ]; then
-            python scripts/ci_run.py --action rebuild_index --query "dummy"
-          elif [ "${{ github.event.inputs.action }}" = "export_report" ]; then
-            python scripts/ci_run.py --action export_report --query "dummy"
+              --query "${{ inputs.query }}" \
+              --max-results ${{ inputs.max_results || '10' }} \
+              ${{ inputs.date_from && format('--date-from {0}', inputs.date_from) || '' }} \
+              ${{ inputs.date_to && format('--date-to {0}', inputs.date_to) || '' }} \
+              --run-id "${RUN_ID}"
+          elif [ "${{ inputs.action }}" = "rebuild_index" ]; then
+            python scripts/ci_run.py --action rebuild_index --query "dummy" --run-id "${RUN_ID}"
+          elif [ "${{ inputs.action }}" = "export_report" ]; then
+            python scripts/ci_run.py --action export_report --query "dummy" --run-id "${RUN_ID}"
           fi
       
+      - name: Update status (deploy)
+        if: ${{ env.CF_STATUS_URL != '' }}
+        run: |
+          curl -sS -X POST "${CF_STATUS_URL}/status/update" \
+            -H "Content-Type: application/json" \
+            -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
+            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":90,\"stage\":\"deploy\",\"message\":\"Deploying to GitHub Pages\"}"
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
@@ -86,3 +134,11 @@ jobs:
           publish_branch: gh-pages
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
+      
+      - name: Update status (complete)
+        if: ${{ env.CF_STATUS_URL != '' }}
+        run: |
+          curl -sS -X POST "${CF_STATUS_URL}/status/update" \
+            -H "Content-Type: application/json" \
+            -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
+            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":100,\"stage\":\"done\",\"message\":\"Pipeline completed successfully\"}"
