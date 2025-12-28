@@ -14,6 +14,9 @@ from .drift_detector import (
     DriftAlert,
     freeze_spec,
     detect_drift,
+    GoldenTestRunner,
+    GoldenTestCase,
+    GoldenTestResult,
 )
 from .audit import (
     log_audit,
@@ -35,6 +38,9 @@ __all__ = [
     "DriftAlert",
     "freeze_spec",
     "detect_drift",
+    "GoldenTestRunner",
+    "GoldenTestCase",
+    "GoldenTestResult",
     "log_audit",
     "get_audit_logger",
     "AuditLogger",
