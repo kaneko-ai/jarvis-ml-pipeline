@@ -43,6 +43,7 @@ class DriftAlert:
     drift_percent: float
     severity: str  # low, medium, high, critical
     timestamp: str
+    message: str = ""
     
     def to_dict(self) -> dict:
         return {
@@ -52,7 +53,128 @@ class DriftAlert:
             "drift_percent": self.drift_percent,
             "severity": self.severity,
             "timestamp": self.timestamp,
+            "message": self.message,
         }
+
+
+@dataclass
+class GoldenTestCase:
+    """Goldenテストケース."""
+    test_id: str
+    input_data: Dict[str, Any]
+    expected_output: Dict[str, Any]
+    tolerance: float = 0.05
+
+
+@dataclass
+class GoldenTestResult:
+    """Goldenテスト結果."""
+    test_id: str
+    passed: bool
+    similarity: float
+    differences: List[str] = field(default_factory=list)
+    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+
+
+class GoldenTestRunner:
+    """Goldenテストランナー.
+    
+    期待される出力と実際の出力を比較し、回帰テストを実施。
+    """
+    
+    def __init__(self, golden_dir: Optional[Path] = None):
+        self.golden_dir = golden_dir or Path("evals/golden")
+        self.golden_dir = Path(self.golden_dir)
+        self._test_cases: Dict[str, GoldenTestCase] = {}
+    
+    def compare_outputs(
+        self,
+        expected: Dict[str, Any],
+        actual: Dict[str, Any],
+        tolerance: float = 0.05,
+    ) -> tuple[float, List[str]]:
+        """出力を比較."""
+        differences = []
+        total_keys = set(expected.keys()) | set(actual.keys())
+        
+        if not total_keys:
+            return 1.0, []
+        
+        matching_keys = 0
+        
+        for key in total_keys:
+            if key not in expected:
+                differences.append(f"Key '{key}' missing in expected")
+                continue
+            if key not in actual:
+                differences.append(f"Key '{key}' missing in actual")
+                continue
+            
+            exp_val = expected[key]
+            act_val = actual[key]
+            
+            # 数値の比較（許容誤差あり）
+            if isinstance(exp_val, (int, float)) and isinstance(act_val, (int, float)):
+                if exp_val == 0:
+                    if act_val == 0:
+                        matching_keys += 1
+                    else:
+                        differences.append(f"Key '{key}': expected {exp_val}, got {act_val}")
+                else:
+                    rel_diff = abs(act_val - exp_val) / abs(exp_val)
+                    if rel_diff <= tolerance:
+                        matching_keys += 1
+                    else:
+                        differences.append(f"Key '{key}': expected {exp_val}, got {act_val} (diff: {rel_diff*100:.1f}%)")
+            # その他の値の比較
+            elif exp_val == act_val:
+                matching_keys += 1
+            else:
+                differences.append(f"Key '{key}': expected {exp_val}, got {act_val}")
+        
+        similarity = matching_keys / len(total_keys) if total_keys else 1.0
+        
+        return similarity, differences
+    
+    def run_test(
+        self,
+        test_case: GoldenTestCase,
+        actual_output: Dict[str, Any],
+    ) -> GoldenTestResult:
+        """テストを実行."""
+        similarity, differences = self.compare_outputs(
+            test_case.expected_output,
+            actual_output,
+            tolerance=test_case.tolerance,
+        )
+        
+        passed = similarity >= 0.95  # 95%以上一致で合格
+        
+        return GoldenTestResult(
+            test_id=test_case.test_id,
+            passed=passed,
+            similarity=similarity,
+            differences=differences,
+        )
+    
+    def save_golden(self, test_id: str, output: Dict[str, Any]) -> None:
+        """Golden出力を保存."""
+        self.golden_dir.mkdir(parents=True, exist_ok=True)
+        golden_file = self.golden_dir / f"{test_id}.json"
+        
+        with open(golden_file, "w", encoding="utf-8") as f:
+            json.dump(output, f, indent=2, ensure_ascii=False)
+    
+    def load_golden(self, test_id: str) -> Optional[Dict[str, Any]]:
+        """Golden出力を読み込み."""
+        golden_file = self.golden_dir / f"{test_id}.json"
+        
+        if not golden_file.exists():
+            return None
+        
+        with open(golden_file, "r", encoding="utf-8") as f:
+            return json.load(f)
 
 
 class SpecFreezer:
@@ -218,6 +340,53 @@ class DriftDetector:
     def get_all_alerts(self) -> List[DriftAlert]:
         """全アラートを取得."""
         return self._alerts
+    
+    def check_drift(
+        self,
+        metric_name: str,
+        current_value: float,
+        baseline: Optional[float] = None,
+        threshold: float = 0.1,
+    ) -> Optional[DriftAlert]:
+        """ドリフトをチェック（単一メトリクス向け）."""
+        # ベースラインが指定されていない場合は保存されているものを使用
+        if baseline is None:
+            if metric_name not in self._baselines:
+                return None
+            baseline = self._baselines[metric_name]
+        
+        if baseline == 0:
+            return None
+        
+        drift = abs(current_value - baseline) / baseline
+        
+        # 閾値を超えていない場合はNone
+        if drift < threshold:
+            return None
+        
+        # 深刻度判定
+        severity = "low"
+        for level, thresh in sorted(
+            self.DRIFT_THRESHOLDS.items(),
+            key=lambda x: x[1],
+            reverse=True,
+        ):
+            if drift >= thresh:
+                severity = level
+                break
+        
+        alert = DriftAlert(
+            metric_name=metric_name,
+            baseline_value=baseline,
+            current_value=current_value,
+            drift_percent=drift * 100,
+            severity=severity,
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            message=f"{metric_name} drifted by {drift*100:.1f}% from baseline {baseline:.3f} to {current_value:.3f}",
+        )
+        self._alerts.append(alert)
+        
+        return alert
 
 
 def freeze_spec(
