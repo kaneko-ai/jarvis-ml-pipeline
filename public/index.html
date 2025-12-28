@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JARVIS Dashboard - Complete</title>
     <meta name="description" content="JARVIS Research OS - Literature Survey & Evidence Extraction Platform">
+    <!-- Cloudflare Turnstile -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         :root {
             --bg-primary: #0f0f23;
@@ -549,7 +551,10 @@
                         </select>
                     </div>
                 </div>
-                <button class="btn btn-primary" id="run-query-btn" onclick="runQuery()">🚀 パイプライン実行</button>
+                <!-- Turnstile Widget -->
+                <div class="cf-turnstile" id="turnstile-widget" data-sitekey="YOUR_TURNSTILE_SITE_KEY"
+                    data-callback="onTurnstileSuccess"></div>
+                <button class="btn btn-primary" id="run-query-btn" onclick="runQuery()" disabled>🚀 パイプライン実行</button>
                 <div id="query-status" style="margin-top: 15px;"></div>
             </div>
         </div>
@@ -634,9 +639,13 @@
     </div>
 
     <script>
-        const API_BASE = '';
+        // ===  Configuration (ユーザーが設定する) ===
+        const WORKER_URL = 'https://YOUR_WORKER.YOUR_SUBDOMAIN.workers.dev/dispatch'; // Cloudflare WorkerのURL
+        const TURNSTILE_SITE_KEY = 'YOUR_TURNSTILE_SITE_KEY'; // Turnstile Site Key
+
         let runs = [];
         let currentTab = 'overview';
+        let turnstileToken = null;
 
         // === Tab Navigation ===
         function showTab(tabId) {
@@ -674,13 +683,19 @@
             document.getElementById('success-bar').style.width = total > 0 ? `${(successful / total) * 100}%` : '0%';
         }
 
+        // === Turnstile Callback ===
+        function onTurnstileSuccess(token) {
+            turnstileToken = token;
+            document.getElementById('run-query-btn').disabled = false;
+        }
+
         // === Load Runs ===
         async function loadRuns() {
             try {
-                const res = await fetch(`${API_BASE}/api/runs?limit=50`);
-                if (!res.ok) throw new Error('API error');
-                const data = await res.json();
-                runs = data.runs || [];
+                // runs/index.jsonから直接読み込み（GitHub Pages静的ファイル）
+                const res = await fetch('runs/index.json');
+                if (!res.ok) throw new Error('Failed to load runs/index.json');
+                runs = await res.json();
                 renderRecentRuns();
                 renderRunsTable();
                 updateKPIs();
@@ -743,37 +758,61 @@
         async function runQuery() {
             const query = document.getElementById('query-input').value;
             if (!query) { showToast('クエリを入力してください', 'warning'); return; }
+            if (!turnstileToken) { showToast('Turnstile検証が必要です', 'warning'); return; }
 
             const btn = document.getElementById('run-query-btn');
             const status = document.getElementById('query-status');
 
             btn.disabled = true;
-            status.innerHTML = '<div class="spinner"></div><p>パイプライン実行中...</p>';
+            status.innerHTML = '<div class="spinner"></div><p>実行キューに追加中...</p>';
 
             try {
-                const res = await fetch(`${API_BASE}/api/run`, {
+                // Cloudflare Workerに送信
+                const res = await fetch(WORKER_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        turnstile_token: turnstileToken,
+                        action: 'pipeline',
                         query,
-                        max_papers: parseInt(document.getElementById('max-papers').value),
-                        config: {
-                            domain: document.getElementById('domain-select').value,
-                            oa_only: document.getElementById('oa-only').value === 'true'
-                        }
+                        max_results: parseInt(document.getElementById('max-papers').value),
                     })
                 });
 
+                if (!res.ok) {
+                    throw new Error(`Worker error: ${res.status}`);
+                }
+
                 const result = await res.json();
-                status.innerHTML = `<p style="color: var(--success);">✅ 完了: ${result.message}</p>`;
-                showToast('パイプライン完了', 'success');
-                loadRuns();
+                status.innerHTML = `<p style="color: var(--success);">✅ キュー追加成功: run_id=${result.run_id}</p><p style="color: var(--text-secondary); font-size: 0.9em;">実行完了まで数分かかります。ページを更新して結果を確認してください。</p>`;
+                showToast('GitHub Actionsが開始されました', 'success');
+
+                // Turnstileをリセット
+                turnstileToken = null;
+                btn.disabled = true;
+                if (window.turnstile) {
+                    window.turnstile.reset();
+                }
+
+                // 30秒後に自動更新（最大10回、5分間）
+                pollRunsUpdate(10, 30000);
             } catch (e) {
                 status.innerHTML = `<p style="color: var(--danger);">❌ エラー: ${e.message}</p>`;
                 showToast('実行エラー', 'danger');
-            } finally {
                 btn.disabled = false;
             }
+        }
+
+        // === Poll Runs Update ===
+        function pollRunsUpdate(maxAttempts, interval) {
+            let attempts = 0;
+            const poll = setInterval(() => {
+                attempts++;
+                loadRuns();
+                if (attempts >= maxAttempts) {
+                    clearInterval(poll);
+                }
+            }, interval);
         }
 
         // === Search Corpus ===
