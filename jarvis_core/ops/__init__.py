@@ -15,6 +15,12 @@ from .drift_detector import (
     freeze_spec,
     detect_drift,
 )
+from .audit import (
+    log_audit,
+    get_audit_logger,
+    AuditLogger,
+    AuditEntry,
+)
 
 __all__ = [
     "ResourceMonitor",
@@ -29,4 +35,8 @@ __all__ = [
     "DriftAlert",
     "freeze_spec",
     "detect_drift",
+    "log_audit",
+    "get_audit_logger",
+    "AuditLogger",
+    "AuditEntry",
 ]
