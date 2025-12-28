@@ -552,7 +552,7 @@
                     </div>
                 </div>
                 <!-- Turnstile Widget -->
-                <div class="cf-turnstile" id="turnstile-widget" data-sitekey="YOUR_TURNSTILE_SITE_KEY"
+                <div class="cf-turnstile" id="turnstile-widget" data-sitekey="0x4AAAAAACJZ1KI1ylp2m11j"
                     data-callback="onTurnstileSuccess"></div>
                 <button class="btn btn-primary" id="run-query-btn" onclick="runQuery()" disabled>🚀 パイプライン実行</button>
                 <div id="query-status" style="margin-top: 15px;"></div>
@@ -640,8 +640,8 @@
 
     <script>
         // ===  Configuration (ユーザーが設定する) ===
-        const WORKER_URL = 'https://YOUR_WORKER.YOUR_SUBDOMAIN.workers.dev/dispatch'; // Cloudflare WorkerのURL
-        const TURNSTILE_SITE_KEY = 'YOUR_TURNSTILE_SITE_KEY'; // Turnstile Site Key
+        const WORKER_URL = 'https://jarvis-ml-pipeline.kanekiti1125.workers.dev'; // Cloudflare WorkerのURL
+        const TURNSTILE_SITE_KEY = '0x4AAAAAACJZ1KI1ylp2m11j'; // Turnstile Site Key
 
         let runs = [];
         let currentTab = 'overview';
