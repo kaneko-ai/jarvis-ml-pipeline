@@ -780,7 +780,16 @@
                 });
 
                 if (!res.ok) {
-                    throw new Error(`Worker error: ${res.status}`);
+                    let errorMessage = `Worker error: ${res.status}`;
+                    try {
+                        const errorData = await res.json();
+                        if (errorData.error) {
+                            errorMessage = errorData.error;
+                        }
+                    } catch (e) {
+                        // JSON parse failed, stick with status code
+                    }
+                    throw new Error(errorMessage);
                 }
 
                 const result = await res.json();
