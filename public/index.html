@@ -463,13 +463,13 @@
         <!-- Navigation -->
         <div class="nav-tabs">
             <div class="nav-tab active" onclick="showTab('overview')">📊 概要</div>
-            <div class="nav-tab" onclick="showTab('new-query')">🔍 新規クエリ (分析実行)</div>
-            <div class="nav-tab" onclick="showTab('search')">📑 検索 (BM25)</div>
-            <!-- Serverlessモードでは一時的に非表示
-            <div class="nav-tab" onclick="showTab('collect')">📥 収集</div>
-            <div class="nav-tab" onclick="showTab('upload')">📁 アップロード</div>
-            -->
+            <div class="nav-tab" onclick="showTab('new-query')">🔍 新規クエリ</div>
+            <div class="nav-tab" onclick="showTab('search')">📑 検索</div>
+            <div class="nav-tab local-only-tab" style="display:none;" onclick="showTab('collect')">📥 収集</div>
+            <div class="nav-tab local-only-tab" style="display:none;" onclick="showTab('upload')">📁 アップロード</div>
             <div class="nav-tab" onclick="showTab('runs')">📋 実行履歴</div>
+            <span id="server-mode-indicator"
+                style="margin-left:auto;padding:12px;color:var(--text-secondary);font-size:0.85em;">☁️ Serverless</span>
         </div>
 
         <!-- KPI Grid (S-02: Fixed Definition) -->
@@ -642,13 +642,34 @@
 
     <script>
         // ===  Configuration (ユーザーが設定する) ===
-        const WORKER_URL = 'https://jarvis-ml-pipeline.kanekiti1125.workers.dev'; // Cloudflare WorkerのURL
-        const API_BASE = WORKER_URL; // For compatibility
-        const TURNSTILE_SITE_KEY = '0x4AAAAAACJZ1KI1ylp2m11j'; // Turnstile Site Key
+        const WORKER_URL = 'https://jarvis-ml-pipeline.kanekiti1125.workers.dev'; // Serverless Mode
+        const LOCAL_API_URL = 'http://127.0.0.1:8000'; // Local Server Mode (uvicorn)
+        const TURNSTILE_SITE_KEY = '0x4AAAAAACJZ1KI1ylp2m11j';
 
+        let API_BASE = WORKER_URL; // Default to serverless
+        let localServerAvailable = false;
         let runs = [];
         let currentTab = 'overview';
         let turnstileToken = null;
+
+        // === Check Local Server Availability ===
+        async function checkLocalServer() {
+            try {
+                const res = await fetch(`${LOCAL_API_URL}/health`, { method: 'GET', mode: 'cors' });
+                if (res.ok) {
+                    localServerAvailable = true;
+                    API_BASE = LOCAL_API_URL;
+                    showToast('ローカルサーバー接続OK (収集・アップロード有効)', 'success');
+                    document.getElementById('server-mode-indicator').innerHTML = '🟢 ローカルサーバー';
+                    // Show local-only tabs
+                    document.querySelectorAll('.local-only-tab').forEach(el => el.style.display = 'block');
+                }
+            } catch (e) {
+                localServerAvailable = false;
+                API_BASE = WORKER_URL;
+                document.getElementById('server-mode-indicator').innerHTML = '☁️ Serverless';
+            }
+        }
 
         // === Tab Navigation ===
         function showTab(tabId) {
@@ -1022,6 +1043,7 @@
         }
 
         // === Initialize ===
+        checkLocalServer(); // Check if local server is running
         loadRuns();
     </script>
 </body>
