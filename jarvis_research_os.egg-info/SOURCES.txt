@@ -157,6 +157,8 @@ jarvis_core/eval/noise_injection.py
 jarvis_core/eval/quality_gate.py
 jarvis_core/eval/regression_runner.py
 jarvis_core/eval/score_paper.py
+jarvis_core/evals/ranking_eval.py
+jarvis_core/evals/trick_eval.py
 jarvis_core/evaluation/__init__.py
 jarvis_core/evaluation/counterevidence.py
 jarvis_core/evaluation/dataset_governance.py
@@ -165,12 +167,15 @@ jarvis_core/evaluation/fitness.py
 jarvis_core/evaluation/gates.py
 jarvis_core/evaluation/multi_judge.py
 jarvis_core/evaluation/pico_consistency.py
+jarvis_core/evidence/locator_verify.py
 jarvis_core/executor/tabular_executor.py
 jarvis_core/exporters/notebooklm.py
+jarvis_core/external/sources.py
 jarvis_core/extraction/__init__.py
 jarvis_core/extraction/claim_extractor.py
 jarvis_core/extraction/pdf_extractor.py
 jarvis_core/extraction/semantic_search.py
+jarvis_core/feature_engineering/statistical.py
 jarvis_core/graphrag/engine.py
 jarvis_core/index/__init__.py
 jarvis_core/index/bm25_store.py
@@ -235,6 +240,7 @@ jarvis_core/multimodal/scientific.py
 jarvis_core/observability/__init__.py
 jarvis_core/observability/stack.py
 jarvis_core/ops/__init__.py
+jarvis_core/ops/approval.py
 jarvis_core/ops/audit.py
 jarvis_core/ops/checkpoint.py
 jarvis_core/ops/drift_detector.py
@@ -245,6 +251,8 @@ jarvis_core/ops/rate_limiter.py
 jarvis_core/ops/security.py
 jarvis_core/ops/security_ops.py
 jarvis_core/ops/snapshot.py
+jarvis_core/output/manifest.py
+jarvis_core/output/runs_index.py
 jarvis_core/perf/__init__.py
 jarvis_core/perf/dashboard.py
 jarvis_core/perf/report.py
@@ -295,6 +303,11 @@ jarvis_core/replay/claimset_diff.py
 jarvis_core/replay/reproduce.py
 jarvis_core/report/__init__.py
 jarvis_core/report/generator.py
+jarvis_core/reporting/__init__.py
+jarvis_core/reporting/language_lint.py
+jarvis_core/reporting/rank_explain.py
+jarvis_core/reporting/report_schema.py
+jarvis_core/reporting/uncertainty.py
 jarvis_core/research/__init__.py
 jarvis_core/research/hypothesis.py
 jarvis_core/research/writing_assistant.py
@@ -315,12 +328,14 @@ jarvis_core/retrieval/multi_query.py
 jarvis_core/retrieval/query_decompose.py
 jarvis_core/retrieval/query_understanding.py
 jarvis_core/retrieval/semantic_dedup.py
+jarvis_core/retrieval/snapshot.py
 jarvis_core/retrieval/two_stage.py
 jarvis_core/review/__init__.py
 jarvis_core/review/triage.py
 jarvis_core/runtime/__init__.py
 jarvis_core/runtime/budget.py
 jarvis_core/runtime/circuit_breaker.py
+jarvis_core/runtime/cost_tracker.py
 jarvis_core/runtime/distributed.py
 jarvis_core/runtime/durable.py
 jarvis_core/runtime/escalation.py
@@ -353,7 +368,9 @@ jarvis_core/security/storage_policy.py
 jarvis_core/stages/__init__.py
 jarvis_core/stages/extract_claims.py
 jarvis_core/stages/extract_features.py
+jarvis_core/stages/find_counter_evidence.py
 jarvis_core/stages/find_evidence.py
+jarvis_core/stages/generate_report.py
 jarvis_core/stages/grade_evidence.py
 jarvis_core/stages/output_quality.py
 jarvis_core/stages/pretrain_citation.py
@@ -502,6 +519,7 @@ tests/test_remediation_catalog.py
 tests/test_repair_loop_stops_correctly.py
 tests/test_repair_planner_priority.py
 tests/test_repair_policy_schema.py
+tests/test_report_generation.py
 tests/test_reproducibility.py
 tests/test_reproducibility_snapshot.py
 tests/test_research_os.py

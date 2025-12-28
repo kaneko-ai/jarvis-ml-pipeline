@@ -138,6 +138,7 @@ def run_task(
         evidence_store=evidence_store,
     )
 
+
     # Initialize verifier (per MASTER_SPEC: Verify強制)
     verifier = QualityGateVerifier(
         require_citations=True,
@@ -149,6 +150,9 @@ def run_task(
     citations: List[Dict[str, Any]] = []
     warnings: List[str] = []
     execution_error: Optional[str] = None
+    papers: List[Dict[str, Any]] = []
+    claims: List[Dict[str, Any]] = []
+    evidence: List[Dict[str, Any]] = []
 
     try:
         subtasks = engine.run(task)
@@ -163,6 +167,9 @@ def run_task(
                     citations = result.citations or []
                 if hasattr(result, "meta") and result.meta:
                     warnings.extend(result.meta.get("warnings", []))
+                    papers = result.meta.get("papers", [])
+                    claims = result.meta.get("claims", [])
+                    evidence = result.meta.get("evidence", [])
 
         # === RUN_END (mandatory event) ===
         logger.log_event(
@@ -222,32 +229,61 @@ def run_task(
         # gate_passed == false → cannot be success
         final_status = "failed"
 
-    # === Save result.json (artifact 2/4) ===
-    result_data = {
+    # === AG-03: Use BundleAssembler for 10-file contract compliance ===
+    from .bundle import BundleAssembler
+    
+    assembler = BundleAssembler(store.run_dir)
+    context = {
         "run_id": run_id,
         "task_id": task_id,
-        "status": final_status,
-        "answer": answer,
-        "citations": citations,
-        "warnings": warnings,
+        "goal": goal,
+        "query": task.inputs.get("query", goal) if hasattr(task, "inputs") else goal,
+        "pipeline": "default",
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        "seed": config.seed,
+        "model": config.model,
     }
-    store.save_result(result_data)
+    
+    if execution_error:
+        # 失敗時: FAILURE_REQUIRED + 可能な成果物
+        fail_reasons = [{"code": "EXECUTION_ERROR", "msg": execution_error}]
+        fail_reasons.extend(verify_result.fail_reasons)
+        assembler.build_failure(
+            context=context,
+            error=execution_error,
+            partial_artifacts={"warnings": warnings},
+            fail_reasons=fail_reasons,
+        )
+    else:
+        # 成功/品質不足時: 10ファイル全て生成
+        artifacts = {
+            "papers": papers,
+            "claims": claims,
+            "evidence": evidence,
+            "answer": answer,
+            "citations": citations,
+            "warnings": [{"code": "GENERAL", "message": w, "severity": "warning"} 
+                        if isinstance(w, str) else w for w in warnings],
+        }
+        quality_report = {
+            "gate_passed": verify_result.gate_passed,
+            "fail_reasons": verify_result.fail_reasons,
+        }
+        assembler.build(context, artifacts, quality_report)
+    
+    # eval_dataを取得（BundleAssemblerが生成したものを読む）
+    eval_data = store.load_eval() or {}
 
-    # === Save eval_summary.json (artifact 3/4) ===
-    eval_data = verify_result.to_eval_summary(run_id)
-    eval_data["timestamp"] = datetime.now(timezone.utc).isoformat()
-    store.save_eval(eval_data)
-
-    # === HARD GATE 1: Verify telemetry was written (artifact 4/4) ===
+    # === HARD GATE 1: Verify telemetry was written ===
     events_file = store.events_file
     if not events_file.exists() or events_file.stat().st_size == 0:
         raise TelemetryMissingError(
             f"Telemetry hard gate failed: events.jsonl not generated at {events_file}"
         )
 
-    # === HARD GATE 2: Verify artifact contract ===
-    missing = store.validate_contract()
+    # === HARD GATE 2: Verify artifact contract (10ファイル) ===
+    is_failure = final_status == "failed"
+    missing = store.validate_contract(is_failure=is_failure)
     if missing:
         raise ContractViolationError(
             f"Artifact contract violated: missing files {missing}"
@@ -263,5 +299,4 @@ def run_task(
         gate_passed=verify_result.gate_passed,
         eval_result=eval_data,
     )
-
 

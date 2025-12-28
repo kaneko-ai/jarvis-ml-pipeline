@@ -1,341 +1,236 @@
-"""
-JARVIS Model Drift Detection
+"""ITER-10: 仕様凍結・劣化検知 (Spec Freeze & Drift Detection).
 
-M6: 長期信頼性のためのモデル劣化検知
-- Goldenテスト回帰
-- 品質スコアトレンド
-- アラート生成
+仕様の凍結と性能ドリフトの検知。
+- スキーマ凍結
+- 性能ベースライン
+- ドリフトアラート
 """
-
 from __future__ import annotations
 
+import hashlib
 import json
-import logging
-from dataclasses import dataclass, field, asdict
-from datetime import datetime
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-
-logger = logging.getLogger(__name__)
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
-class GoldenTestCase:
-    """Goldenテストケース."""
-    test_id: str
-    input_data: Dict[str, Any]
-    expected_output: Dict[str, Any]
-    tolerance: float = 0.05
-    critical: bool = False
-    description: str = ""
-
-
-@dataclass
-class GoldenTestResult:
-    """Goldenテスト結果."""
-    test_id: str
-    passed: bool
-    similarity_score: float
-    expected_keys: List[str]
-    actual_keys: List[str]
-    differences: List[str] = field(default_factory=list)
-    error: Optional[str] = None
+class SpecSnapshot:
+    """仕様スナップショット."""
+    spec_id: str
+    version: str
+    schema_hash: str
+    created_at: str
+    frozen: bool = False
+    
+    def to_dict(self) -> dict:
+        return {
+            "spec_id": self.spec_id,
+            "version": self.version,
+            "schema_hash": self.schema_hash,
+            "created_at": self.created_at,
+            "frozen": self.frozen,
+        }
 
 
 @dataclass
 class DriftAlert:
-    """劣化アラート."""
-    alert_id: str
-    severity: str  # low, medium, high, critical
+    """ドリフトアラート."""
     metric_name: str
-    current_value: float
     baseline_value: float
-    threshold: float
-    message: str
-    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
+    current_value: float
+    drift_percent: float
+    severity: str  # low, medium, high, critical
+    timestamp: str
+    
+    def to_dict(self) -> dict:
+        return {
+            "metric_name": self.metric_name,
+            "baseline_value": self.baseline_value,
+            "current_value": self.current_value,
+            "drift_percent": self.drift_percent,
+            "severity": self.severity,
+            "timestamp": self.timestamp,
+        }
 
 
-class GoldenTestRunner:
-    """Goldenテストランナー."""
+class SpecFreezer:
+    """仕様凍結器.
     
-    def __init__(self, golden_dir: str = "tests/golden"):
-        """
-        初期化.
-        
-        Args:
-            golden_dir: Goldenテストデータディレクトリ
-        """
-        self.golden_dir = Path(golden_dir)
-        self.golden_dir.mkdir(parents=True, exist_ok=True)
+    仕様をスナップショットとして保存し、変更を検知。
+    """
     
-    def load_test_cases(self) -> List[GoldenTestCase]:
-        """テストケースを読み込み."""
-        cases = []
-        golden_file = self.golden_dir / "golden_cases.json"
-        
-        if not golden_file.exists():
-            return cases
-        
-        with open(golden_file, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        
-        for item in data.get("cases", []):
-            cases.append(GoldenTestCase(
-                test_id=item["test_id"],
-                input_data=item["input_data"],
-                expected_output=item["expected_output"],
-                tolerance=item.get("tolerance", 0.05),
-                critical=item.get("critical", False),
-                description=item.get("description", "")
-            ))
-        
-        return cases
+    def __init__(self, spec_dir: Optional[Path] = None):
+        self.spec_dir = spec_dir or Path("specs")
+        self._snapshots: Dict[str, SpecSnapshot] = {}
+        self._load_snapshots()
     
-    def save_test_cases(self, cases: List[GoldenTestCase]):
-        """テストケースを保存."""
-        golden_file = self.golden_dir / "golden_cases.json"
-        
-        with open(golden_file, 'w', encoding='utf-8') as f:
-            json.dump({
-                "version": "1.0",
-                "updated_at": datetime.now().isoformat(),
-                "cases": [asdict(c) for c in cases]
-            }, f, ensure_ascii=False, indent=2)
+    def _load_snapshots(self) -> None:
+        """スナップショットを読み込み."""
+        snapshot_file = self.spec_dir / "frozen_specs.json"
+        if snapshot_file.exists():
+            try:
+                with open(snapshot_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                for key, val in data.items():
+                    self._snapshots[key] = SpecSnapshot(**val)
+            except Exception:
+                pass
     
-    def compare_outputs(
-        self, 
-        expected: Dict[str, Any], 
-        actual: Dict[str, Any],
-        tolerance: float = 0.05
-    ) -> Tuple[float, List[str]]:
-        """
-        出力を比較.
+    def _save_snapshots(self) -> None:
+        """スナップショットを保存."""
+        self.spec_dir.mkdir(parents=True, exist_ok=True)
+        snapshot_file = self.spec_dir / "frozen_specs.json"
         
-        Args:
-            expected: 期待出力
-            actual: 実際の出力
-            tolerance: 許容誤差
-        
-        Returns:
-            (類似度スコア, 差異リスト)
-        """
-        differences = []
-        matches = 0
-        total = 0
-        
-        # キーの比較
-        expected_keys = set(expected.keys())
-        actual_keys = set(actual.keys())
-        
-        missing_keys = expected_keys - actual_keys
-        extra_keys = actual_keys - expected_keys
-        
-        if missing_keys:
-            differences.append(f"Missing keys: {missing_keys}")
-        if extra_keys:
-            differences.append(f"Extra keys: {extra_keys}")
-        
-        # 値の比較
-        for key in expected_keys & actual_keys:
-            total += 1
-            expected_val = expected[key]
-            actual_val = actual.get(key)
-            
-            if isinstance(expected_val, (int, float)) and isinstance(actual_val, (int, float)):
-                if abs(expected_val - actual_val) <= abs(expected_val * tolerance):
-                    matches += 1
-                else:
-                    differences.append(f"{key}: expected {expected_val}, got {actual_val}")
-            elif expected_val == actual_val:
-                matches += 1
-            else:
-                differences.append(f"{key}: values differ")
-        
-        similarity = matches / total if total > 0 else 0.0
-        return similarity, differences
+        data = {k: v.to_dict() for k, v in self._snapshots.items()}
+        with open(snapshot_file, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
     
-    def run_test(
-        self, 
-        test_case: GoldenTestCase, 
-        actual_output: Dict[str, Any]
-    ) -> GoldenTestResult:
-        """
-        テストを実行.
+    def freeze(
+        self,
+        spec_id: str,
+        schema: Dict[str, Any],
+        version: str = "1.0",
+    ) -> SpecSnapshot:
+        """仕様を凍結."""
+        schema_json = json.dumps(schema, sort_keys=True)
+        schema_hash = hashlib.sha256(schema_json.encode()).hexdigest()[:16]
         
-        Args:
-            test_case: テストケース
-            actual_output: 実際の出力
+        snapshot = SpecSnapshot(
+            spec_id=spec_id,
+            version=version,
+            schema_hash=schema_hash,
+            created_at=datetime.now(timezone.utc).isoformat(),
+            frozen=True,
+        )
         
-        Returns:
-            テスト結果
-        """
-        try:
-            similarity, differences = self.compare_outputs(
-                test_case.expected_output,
-                actual_output,
-                test_case.tolerance
-            )
-            
-            passed = similarity >= (1.0 - test_case.tolerance)
-            
-            return GoldenTestResult(
-                test_id=test_case.test_id,
-                passed=passed,
-                similarity_score=similarity,
-                expected_keys=list(test_case.expected_output.keys()),
-                actual_keys=list(actual_output.keys()),
-                differences=differences
-            )
-        except Exception as e:
-            return GoldenTestResult(
-                test_id=test_case.test_id,
-                passed=False,
-                similarity_score=0.0,
-                expected_keys=[],
-                actual_keys=[],
-                error=str(e)
-            )
+        self._snapshots[spec_id] = snapshot
+        self._save_snapshots()
+        
+        return snapshot
+    
+    def check(
+        self,
+        spec_id: str,
+        schema: Dict[str, Any],
+    ) -> bool:
+        """凍結された仕様と一致するか確認."""
+        if spec_id not in self._snapshots:
+            return True  # 凍結されていない
+        
+        snapshot = self._snapshots[spec_id]
+        if not snapshot.frozen:
+            return True
+        
+        schema_json = json.dumps(schema, sort_keys=True)
+        current_hash = hashlib.sha256(schema_json.encode()).hexdigest()[:16]
+        
+        return current_hash == snapshot.schema_hash
+    
+    def list_frozen(self) -> List[SpecSnapshot]:
+        """凍結された仕様一覧."""
+        return [s for s in self._snapshots.values() if s.frozen]
 
 
 class DriftDetector:
-    """劣化検知器."""
+    """ドリフト検知器.
     
-    def __init__(self, metrics_path: str = "artifacts/metrics_aggregate.jsonl"):
-        """
-        初期化.
-        
-        Args:
-            metrics_path: メトリクス集約ファイルパス
-        """
-        self.metrics_path = Path(metrics_path)
-        self.alerts: List[DriftAlert] = []
-        self._alert_counter = 0
+    性能メトリクスのドリフトを検知。
+    """
     
-    def load_recent_metrics(self, window_size: int = 10) -> List[Dict[str, Any]]:
-        """最近のメトリクスを読み込み."""
-        if not self.metrics_path.exists():
-            return []
-        
-        metrics = []
-        with open(self.metrics_path, 'r', encoding='utf-8') as f:
-            for line in f:
-                if line.strip():
-                    metrics.append(json.loads(line))
-        
-        return metrics[-window_size:]
+    DRIFT_THRESHOLDS = {
+        "low": 0.05,      # 5%
+        "medium": 0.10,   # 10%
+        "high": 0.20,     # 20%
+        "critical": 0.30, # 30%
+    }
     
-    def calculate_baseline(self, metrics: List[Dict[str, Any]], metric_name: str) -> Optional[float]:
-        """ベースライン値を計算."""
-        values = []
-        for m in metrics:
-            if metric_name in m:
-                values.append(m[metric_name])
-            elif "quality" in m and metric_name in m.get("quality", {}):
-                values.append(m["quality"][metric_name])
-        
-        if not values:
-            return None
-        
-        return sum(values) / len(values)
+    def __init__(self, baseline_path: Optional[Path] = None):
+        self.baseline_path = baseline_path or Path("evals/performance_baseline.json")
+        self._baselines: Dict[str, float] = {}
+        self._alerts: List[DriftAlert] = []
+        self._load_baselines()
     
-    def check_drift(
+    def _load_baselines(self) -> None:
+        """ベースラインを読み込み."""
+        if self.baseline_path.exists():
+            try:
+                with open(self.baseline_path, "r", encoding="utf-8") as f:
+                    self._baselines = json.load(f)
+            except Exception:
+                pass
+    
+    def _save_baselines(self) -> None:
+        """ベースラインを保存."""
+        self.baseline_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(self.baseline_path, "w", encoding="utf-8") as f:
+            json.dump(self._baselines, f, indent=2)
+    
+    def set_baseline(self, metric_name: str, value: float) -> None:
+        """ベースラインを設定."""
+        self._baselines[metric_name] = value
+        self._save_baselines()
+    
+    def detect(
         self,
-        metric_name: str,
-        current_value: float,
-        baseline: float,
-        threshold: float = 0.1
-    ) -> Optional[DriftAlert]:
-        """
-        劣化をチェック.
-        
-        Args:
-            metric_name: メトリクス名
-            current_value: 現在の値
-            baseline: ベースライン値
-            threshold: 劣化閾値（相対）
-        
-        Returns:
-            アラート（劣化検知時）
-        """
-        if baseline == 0:
-            return None
-        
-        drift_ratio = (baseline - current_value) / baseline
-        
-        if drift_ratio > threshold:
-            self._alert_counter += 1
-            
-            if drift_ratio > 0.3:
-                severity = "critical"
-            elif drift_ratio > 0.2:
-                severity = "high"
-            elif drift_ratio > 0.15:
-                severity = "medium"
-            else:
-                severity = "low"
-            
-            alert = DriftAlert(
-                alert_id=f"DRIFT-{self._alert_counter:04d}",
-                severity=severity,
-                metric_name=metric_name,
-                current_value=current_value,
-                baseline_value=baseline,
-                threshold=threshold,
-                message=f"{metric_name} degraded by {drift_ratio:.1%} from baseline"
-            )
-            
-            self.alerts.append(alert)
-            return alert
-        
-        return None
-    
-    def run_drift_check(self, current_metrics: Dict[str, float]) -> List[DriftAlert]:
-        """
-        全メトリクスの劣化チェックを実行.
-        
-        Args:
-            current_metrics: 現在のメトリクス
-        
-        Returns:
-            アラートリスト
-        """
-        recent = self.load_recent_metrics()
+        metrics: Dict[str, float],
+    ) -> List[DriftAlert]:
+        """ドリフトを検知."""
         alerts = []
         
-        thresholds = {
-            "provenance_rate": 0.05,
-            "pico_consistency_rate": 0.10,
-            "extraction_completeness": 0.10
-        }
-        
-        for metric_name, current_value in current_metrics.items():
-            baseline = self.calculate_baseline(recent, metric_name)
-            if baseline is None:
+        for metric_name, current_value in metrics.items():
+            if metric_name not in self._baselines:
                 continue
             
-            threshold = thresholds.get(metric_name, 0.10)
-            alert = self.check_drift(metric_name, current_value, baseline, threshold)
-            if alert:
+            baseline = self._baselines[metric_name]
+            if baseline == 0:
+                continue
+            
+            drift = abs(current_value - baseline) / baseline
+            
+            # 深刻度判定
+            severity = "low"
+            for level, threshold in sorted(
+                self.DRIFT_THRESHOLDS.items(),
+                key=lambda x: x[1],
+                reverse=True,
+            ):
+                if drift >= threshold:
+                    severity = level
+                    break
+            
+            # 閾値以上のみアラート
+            if drift >= self.DRIFT_THRESHOLDS["low"]:
+                alert = DriftAlert(
+                    metric_name=metric_name,
+                    baseline_value=baseline,
+                    current_value=current_value,
+                    drift_percent=drift * 100,
+                    severity=severity,
+                    timestamp=datetime.now(timezone.utc).isoformat(),
+                )
                 alerts.append(alert)
+                self._alerts.append(alert)
         
         return alerts
     
-    def get_alerts(self) -> List[DriftAlert]:
-        """アラートを取得."""
-        return self.alerts
-    
-    def clear_alerts(self):
-        """アラートをクリア."""
-        self.alerts = []
+    def get_all_alerts(self) -> List[DriftAlert]:
+        """全アラートを取得."""
+        return self._alerts
 
 
-# グローバルインスタンス
-_drift_detector: Optional[DriftDetector] = None
+def freeze_spec(
+    spec_id: str,
+    schema: Dict[str, Any],
+    version: str = "1.0",
+) -> SpecSnapshot:
+    """便利関数: 仕様を凍結."""
+    freezer = SpecFreezer()
+    return freezer.freeze(spec_id, schema, version)
 
 
-def get_drift_detector() -> DriftDetector:
-    """劣化検知器を取得."""
-    global _drift_detector
-    if _drift_detector is None:
-        _drift_detector = DriftDetector()
-    return _drift_detector
+def detect_drift(metrics: Dict[str, float]) -> List[DriftAlert]:
+    """便利関数: ドリフトを検知."""
+    detector = DriftDetector()
+    return detector.detect(metrics)
