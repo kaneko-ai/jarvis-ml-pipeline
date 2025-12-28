@@ -4,1000 +4,989 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JARVIS Research OS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="jarvis-ext.js"></script>
-    <script src="jarvis-v2.js"></script>
+    <title>JARVIS Dashboard - Complete</title>
+    <meta name="description" content="JARVIS Research OS - Literature Survey & Evidence Extraction Platform">
+    <!-- Cloudflare Turnstile -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         :root {
-            --bg: #0a0a1a;
-            --bg2: #12122a;
-            --card: rgba(26, 26, 62, 0.8);
-            --glass: rgba(255, 255, 255, 0.05);
-            --txt: #fff;
-            --txt2: #a0a0c0;
-            --pink: #f472b6;
-            --blue: #60a5fa;
-            --green: #4ade80;
-            --yellow: #fbbf24;
-            --purple: #a78bfa;
-            --cyan: #22d3ee;
-            --red: #f87171;
-            --border: rgba(255, 255, 255, 0.1);
-            --blur: blur(20px)
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #16213e;
+            --accent: #00d4ff;
+            --accent-dark: #0a9ec7;
+            --text-primary: #e8e8e8;
+            --text-secondary: #a0a0a0;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff4444;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
-            padding: 0
+            padding: 0;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--txt);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
-            line-height: 1.6
-        }
-
-        .bg {
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(ellipse at 20% 20%, rgba(167, 139, 250, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(244, 114, 182, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(96, 165, 250, 0.1) 0%, transparent 60%);
-            z-index: -1;
-            animation: pulse 15s infinite
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1
-            }
-
-            50% {
-                opacity: 0.7
-            }
-        }
-
-        .header {
-            background: var(--glass);
-            backdrop-filter: var(--blur);
-            padding: 0.75rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid var(--border)
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 1.4rem;
-            font-weight: 700
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--pink), var(--purple));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            box-shadow: 0 4px 15px rgba(244, 114, 182, 0.4)
-        }
-
-        .nav {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center
-        }
-
-        .nav-btn {
-            background: var(--glass);
-            border: 1px solid var(--border);
-            color: var(--txt);
-            padding: 0.5rem 1rem;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.85rem
-        }
-
-        .nav-btn:hover,
-        .nav-btn.active {
-            background: linear-gradient(135deg, var(--purple), var(--pink));
-            border-color: transparent;
-            transform: translateY(-2px)
+            line-height: 1.6;
         }
 
         .container {
             max-width: 1600px;
             margin: 0 auto;
-            padding: 1.5rem
+            padding: 20px;
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 1.5rem
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
-        .c3 {
-            grid-column: span 3
+        .nav-tab {
+            padding: 12px 24px;
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        .c4 {
-            grid-column: span 4
+        .nav-tab:hover,
+        .nav-tab.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
         }
 
-        .c6 {
-            grid-column: span 6
-        }
-
-        .c8 {
-            grid-column: span 8
-        }
-
-        .c12 {
-            grid-column: span 12
-        }
-
-        @media(max-width:1200px) {
-
-            .c3,
-            .c4 {
-                grid-column: span 6
-            }
-
-            .c6,
-            .c8 {
-                grid-column: span 12
-            }
-        }
-
-        @media(max-width:768px) {
-            .grid {
-                grid-template-columns: 1fr
-            }
-
-            [class*="c"] {
-                grid-column: span 1 !important
-            }
-
-            .header {
-                padding: 0.75rem 1rem;
-                flex-wrap: wrap
-            }
-
-            .nav {
-                flex-wrap: wrap
-            }
-        }
-
-        .card {
-            background: var(--card);
-            backdrop-filter: var(--blur);
-            border-radius: 20px;
-            padding: 1.5rem;
-            border: 1px solid var(--border);
-            transition: all 0.4s
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            border-color: var(--purple);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 40px rgba(167, 139, 250, 0.15)
-        }
-
-        .card-header {
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+            padding: 25px 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid var(--border)
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
-        .card-title {
-            font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem
-        }
-
-        .stat {
-            text-align: center;
-            padding: 1.5rem
-        }
-
-        .stat-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem
-        }
-
-        .stat-val {
-            font-size: 3rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--pink), var(--blue));
+        header h1 {
+            font-size: 2em;
+            background: linear-gradient(135deg, var(--accent) 0%, #00ff88 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text
         }
 
-        .stat-lbl {
-            color: var(--txt2);
-            font-size: 0.85rem;
-            margin-top: 0.25rem
-        }
-
-        .stat-chg {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.6rem;
-            border-radius: 20px;
-            margin-top: 0.5rem;
-            display: inline-block;
-            background: rgba(74, 222, 128, 0.2);
-            color: var(--green)
-        }
-
-        .status-bar {
+        .header-actions {
             display: flex;
-            gap: 1rem;
-            padding: 1rem;
-            background: var(--glass);
-            backdrop-filter: var(--blur);
-            border-radius: 16px;
-            margin-bottom: 1.5rem;
-            overflow-x: auto;
-            border: 1px solid var(--border)
+            gap: 10px;
         }
 
-        .status-item {
+        /* KPI Grid - Fixed Definition (S-02) */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent);
+        }
+
+        .kpi-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .kpi-label {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+
+        .kpi-trend {
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+
+        .kpi-trend.up {
+            color: var(--success);
+        }
+
+        .kpi-trend.down {
+            color: var(--danger);
+        }
+
+        /* Sections */
+        .section {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            font-size: 1.3em;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--bg2);
-            border-radius: 10px;
-            white-space: nowrap;
-            font-size: 0.85rem
+            gap: 10px;
         }
 
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--green);
-            box-shadow: 0 0 10px var(--green);
-            animation: blink 2s infinite
-        }
-
-        @keyframes blink {
-
-            0%,
-            100% {
-                opacity: 1
-            }
-
-            50% {
-                opacity: 0.6
-            }
-        }
-
-        .quota-bar {
-            width: 100px;
-            height: 8px;
-            background: var(--border);
-            border-radius: 4px;
-            overflow: hidden
-        }
-
-        .quota-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--green), var(--cyan));
-            transition: width 0.5s
-        }
-
-        .search-box {
+        /* Form Controls */
+        .form-row {
             display: flex;
-            gap: 0.75rem;
-            margin-bottom: 1rem
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
         }
 
-        .search-input {
+        .form-group {
             flex: 1;
-            background: var(--glass);
-            border: 1px solid var(--border);
-            color: var(--txt);
-            padding: 1rem;
-            border-radius: 14px;
-            font-size: 1rem;
-            transition: all 0.3s
+            min-width: 200px;
         }
 
-        .search-input:focus {
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-primary);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1em;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
             outline: none;
-            border-color: var(--purple);
-            box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.2)
+            border-color: var(--accent);
         }
 
         .btn {
-            background: linear-gradient(135deg, var(--pink), var(--purple));
+            padding: 12px 24px;
             border: none;
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 14px;
-            font-weight: 600;
+            border-radius: 8px;
+            font-weight: bold;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(244, 114, 182, 0.3)
         }
 
-        .btn:hover {
-            transform: scale(1.03);
-            box-shadow: 0 6px 25px rgba(244, 114, 182, 0.5)
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: var(--bg-primary);
         }
 
-        .results {
-            background: var(--glass);
-            border-radius: 14px;
-            max-height: 400px;
-            overflow-y: auto
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
         }
 
-        .result {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-            cursor: pointer;
-            transition: all 0.2s
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .result:hover {
-            background: var(--bg2);
-            padding-left: 1.5rem
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
-        .result:last-child {
-            border-bottom: none
+        /* Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .result-title {
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .data-table th {
+            color: var(--accent);
             font-weight: 600;
-            margin-bottom: 0.3rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem
+            font-size: 0.85em;
+            text-transform: uppercase;
         }
 
-        .result-meta {
-            font-size: 0.8rem;
-            color: var(--txt2)
+        .data-table tr:hover {
+            background: rgba(0, 212, 255, 0.05);
+            cursor: pointer;
         }
 
-        .tags {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-            flex-wrap: wrap
-        }
-
-        .tag {
-            font-size: 0.7rem;
-            padding: 0.25rem 0.6rem;
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
             border-radius: 20px;
-            background: var(--card);
-            border: 1px solid var(--border)
+            font-size: 0.75em;
+            font-weight: bold;
         }
 
-        .tag.ai {
-            background: rgba(167, 139, 250, 0.2);
-            color: var(--purple);
-            border-color: var(--purple)
+        .badge-success {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
         }
 
-        .tag.health {
-            background: rgba(74, 222, 128, 0.2);
-            color: var(--green);
-            border-color: var(--green)
+        .badge-warning {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--warning);
         }
 
-        .health-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem
+        .badge-danger {
+            background: rgba(255, 68, 68, 0.2);
+            color: var(--danger);
         }
 
-        .health-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.875rem;
-            background: var(--glass);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            transition: all 0.2s
-        }
-
-        .health-item:hover {
-            border-color: var(--green);
-            transform: translateX(4px)
-        }
-
-        .health-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            background: rgba(74, 222, 128, 0.2)
-        }
-
-        .health-info h4 {
-            font-size: 0.9rem;
-            margin-bottom: 0.1rem
-        }
-
-        .health-info span {
-            font-size: 0.75rem;
-            color: var(--txt2)
-        }
-
-        .chart-box {
-            height: 220px;
-            padding: 1rem;
-            background: var(--glass);
-            border-radius: 14px
-        }
-
-        .log-box {
-            background: var(--glass);
-            border-radius: 12px;
-            padding: 1rem;
-            max-height: 250px;
+        /* Search Results */
+        .search-results {
+            max-height: 500px;
             overflow-y: auto;
-            font-family: monospace;
-            font-size: 0.75rem
         }
 
-        .log {
-            padding: 0.3rem 0;
-            display: flex;
-            gap: 0.75rem;
-            border-bottom: 1px dashed var(--border)
+        .search-result {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--accent);
         }
 
-        .log:last-child {
-            border-bottom: none
+        .search-result-title {
+            font-weight: bold;
+            margin-bottom: 5px;
         }
 
-        .log-time {
-            color: var(--txt2);
-            min-width: 70px
+        .search-result-meta {
+            color: var(--text-secondary);
+            font-size: 0.85em;
         }
 
-        .log-lvl {
-            font-weight: 600;
-            min-width: 60px
+        .search-result-snippet {
+            margin-top: 10px;
+            font-size: 0.9em;
         }
 
-        .log-lvl.info {
-            color: var(--blue)
+        .highlight {
+            background: rgba(0, 212, 255, 0.3);
+            padding: 2px 4px;
+            border-radius: 3px;
         }
 
-        .log-lvl.success {
-            color: var(--green)
-        }
-
-        .log-lvl.error {
-            color: var(--red)
-        }
-
-        .favs,
-        .tag-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem
-        }
-
-        .fav-item,
-        .tag-item {
-            padding: 0.6rem 1rem;
-            background: var(--glass);
-            border: 1px solid var(--border);
-            border-radius: 25px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem
-        }
-
-        .fav-item:hover,
-        .tag-item:hover {
-            background: linear-gradient(135deg, var(--purple), var(--pink));
-            border-color: transparent;
-            transform: scale(1.05)
-        }
-
-        .notif-list {
-            max-height: 220px;
-            overflow-y: auto
-        }
-
-        .notif {
-            display: flex;
-            gap: 0.75rem;
-            padding: 0.875rem;
-            border-bottom: 1px solid var(--border);
-            transition: all 0.2s
-        }
-
-        .notif:hover {
-            background: var(--glass);
-            padding-left: 1rem
-        }
-
-        .notif:last-child {
-            border-bottom: none
-        }
-
-        .notif-icon {
-            width: 36px;
-            height: 36px;
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed rgba(0, 212, 255, 0.3);
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            background: rgba(96, 165, 250, 0.2)
-        }
-
-        .quick-actions {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap
-        }
-
-        .quick-actions .btn {
-            flex: 1;
-            min-width: 150px;
-            justify-content: center
-        }
-
-        .icon-btn {
-            background: var(--glass);
-            border: 1px solid var(--border);
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--txt2);
-            transition: all 0.2s
+            transition: all 0.3s;
         }
 
-        .icon-btn:hover {
-            background: var(--purple);
-            color: white;
-            border-color: var(--purple)
+        .upload-zone:hover {
+            border-color: var(--accent);
+            background: rgba(0, 212, 255, 0.05);
         }
 
-        .card-actions {
-            display: flex;
-            gap: 0.5rem
+        .upload-zone.dragover {
+            border-color: var(--success);
+            background: rgba(0, 255, 136, 0.05);
         }
 
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
             z-index: 1000;
-            align-items: center;
-            justify-content: center
-        }
-
-        .modal.show {
-            display: flex
+            overflow-y: auto;
         }
 
         .modal-content {
-            background: var(--card);
-            backdrop-filter: var(--blur);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 550px;
-            width: 90%;
-            max-height: 85vh;
-            overflow-y: auto
-        }
-
-        .shortcut {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.6rem 0;
-            border-bottom: 1px solid var(--border)
-        }
-
-        .key {
-            background: var(--bg2);
-            padding: 0.3rem 0.6rem;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 0.8rem;
-            border: 1px solid var(--border)
-        }
-
-        .footer {
-            text-align: center;
-            padding: 2.5rem;
-            color: var(--txt2);
-            font-size: 0.85rem;
-            border-top: 1px solid var(--border);
-            margin-top: 2rem
-        }
-
-        .footer a {
-            color: var(--blue);
-            text-decoration: none
-        }
-
-        .footer a:hover {
-            color: var(--pink)
-        }
-
-        .chat-msgs {
-            height: 350px;
-            overflow-y: auto;
-            padding: 1rem;
-            background: var(--glass);
-            border-radius: 14px;
-            margin-bottom: 1rem
-        }
-
-        .chat-msg {
-            max-width: 85%;
-            padding: 1rem;
+            background: var(--bg-card);
+            margin: 50px auto;
+            padding: 30px;
             border-radius: 16px;
-            margin-bottom: 0.75rem
+            max-width: 900px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
         }
 
-        .chat-msg.user {
-            background: linear-gradient(135deg, var(--blue), var(--purple));
-            margin-left: auto
+        .modal-close {
+            float: right;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--text-secondary);
         }
 
-        .chat-msg.bot {
-            background: var(--card);
-            border: 1px solid var(--border)
+        .modal-close:hover {
+            color: var(--danger);
         }
 
-        .chat-input {
-            display: flex;
-            gap: 0.75rem
+        /* Progress */
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
         }
-    </style>
-</head>
 
-<body>
-    <div class="bg"></div>
-    <header class="header">
-        <div class="logo">
-            <div class="logo-icon">🧬</div>JARVIS Research OS
-        </div>
-        <nav class="nav">
-            <button class="nav-btn active" onclick="showTab('dash')">📊 Dashboard</button>
-            <button class="nav-btn" onclick="showTab('research')">🔬 Research</button>
-            <button class="nav-btn" onclick="showTab('chat')">🤖 AI Chat</button>
-            <button class="nav-btn" onclick="showTab('settings')">⚙️ Settings</button>
-            <select class="nav-btn" onchange="localStorage.setItem('lang',this.value)">
-                <option value="ja">🇯🇵 日本語</option>
-                <option value="en">🇺🇸 English</option>
-            </select>
-            <button class="icon-btn" onclick="toggleTheme()" title="Theme">🌙</button>
-        </nav>
-    </header>
-    <div class="container">
-        <div class="status-bar">
-            <div class="status-item"><span class="dot"></span>System: Healthy</div>
-            <div class="status-item"><span class="dot"></span>API: Online</div>
-            <div class="status-item" style="display:flex;align-items:center;gap:0.75rem"><span>Gemini:</span>
-                <div class="quota-bar">
-                    <div class="quota-fill" id="quota" style="width:85%"></div>
-                </div><span id="quota-txt">1275/1500</span>
-            </div>
-            <div class="status-item"><span class="dot"></span>GitHub: ✓</div>
-            <div class="status-item">🕐 Last sync: Just now</div>
-        </div>
-        <div class="grid" id="tab-dash">
-            <div class="card stat c3">
-                <div class="stat-icon">📝</div>
-                <div class="stat-val">384</div>
-                <div class="stat-lbl">PRs Implemented</div><span class="stat-chg">↑ +12</span>
-            </div>
-            <div class="card stat c3">
-                <div class="stat-icon">✅</div>
-                <div class="stat-val">236</div>
-                <div class="stat-lbl">Tests Passed</div><span class="stat-chg">↑ +14</span>
-            </div>
-            <div class="card stat c3">
-                <div class="stat-icon">🔍</div>
-                <div class="stat-val" id="searches">0</div>
-                <div class="stat-lbl">Total Searches</div>
-            </div>
-            <div class="card stat c3">
-                <div class="stat-icon">📄</div>
-                <div class="stat-val" id="papers">0</div>
-                <div class="stat-lbl">Papers Found</div>
-            </div>
-            <div class="card c8">
-                <div class="card-header">
-                    <h3 class="card-title">🔬 Paper Search Pipeline</h3>
-                    <div class="card-actions"><button class="icon-btn" onclick="showModal('shortcuts')"
-                            title="Shortcuts">⌨️</button><button class="icon-btn" onclick="location.reload()"
-                            title="Refresh">🔄</button></div>
-                </div>
-                <div class="search-box"><input type="text" class="search-input" id="query"
-                        placeholder="🔍 Search papers... (e.g., COVID-19 treatment)"><button class="btn" id="search-btn"
-                        onclick="runSearch()">🔍 Search</button></div>
-                <div class="results" id="results">
-                    <div style="padding:2rem;text-align:center;color:var(--txt2)">💡 Enter a query and press Search or
-                        <kbd class="key">Ctrl+Enter</kbd>
-                    </div>
-                </div>
-            </div>
-            <div class="card c4">
-                <div class="card-header">
-                    <h3 class="card-title">💚 System Health</h3>
-                </div>
-                <div class="health-grid">
-                    <div class="health-item">
-                        <div class="health-icon">🖥️</div>
-                        <div class="health-info">
-                            <h4>API Server</h4><span>Healthy • 99.9%</span>
-                        </div>
-                    </div>
-                    <div class="health-item">
-                        <div class="health-icon">📊</div>
-                        <div class="health-info">
-                            <h4>Dashboard</h4><span>Online • v4.4</span>
-                        </div>
-                    </div>
-                    <div class="health-item">
-                        <div class="health-icon">⚡</div>
-                        <div class="health-info">
-                            <h4>Actions</h4><span>13 workflows</span>
-                        </div>
-                    </div>
-                    <div class="health-item">
-                        <div class="health-icon">🧪</div>
-                        <div class="health-info">
-                            <h4>Tests</h4><span>236 passed</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card c6">
-                <div class="card-header">
-                    <h3 class="card-title">📈 Search Activity (7 days)</h3>
-                </div>
-                <div class="chart-box"><canvas id="chart"></canvas></div>
-            </div>
-            <div class="card c6">
-                <div class="card-header">
-                    <h3 class="card-title">📜 Real-time Logs</h3><button class="icon-btn"
-                        onclick="clearLogs()">🗑️</button>
-                </div>
-                <div class="log-box" id="logs">
-                    <div class="log"><span class="log-time">--:--:--</span><span
-                            class="log-lvl success">[OK]</span><span>Dashboard initialized</span></div>
-                </div>
-            </div>
-            <div class="card c4">
-                <div class="card-header">
-                    <h3 class="card-title">⭐ Favorites</h3>
-                </div>
-                <div class="favs">
-                    <div class="fav-item" onclick="setQuery('COVID-19 treatment')">💉 COVID-19</div>
-                    <div class="fav-item" onclick="setQuery('machine learning healthcare')">🤖 ML Healthcare</div>
-                    <div class="fav-item" onclick="setQuery('cancer immunotherapy')">🧬 Immunotherapy</div>
-                </div>
-            </div>
-            <div class="card c4">
-                <div class="card-header">
-                    <h3 class="card-title">🏷️ Popular Tags</h3>
-                </div>
-                <div class="tag-list">
-                    <div class="tag-item" onclick="setQuery('AI')">🤖 AI</div>
-                    <div class="tag-item" onclick="setQuery('cancer')">🎗️ Cancer</div>
-                    <div class="tag-item" onclick="setQuery('diabetes')">💉 Diabetes</div>
-                    <div class="tag-item" onclick="setQuery('genomics')">🧬 Genomics</div>
-                </div>
-            </div>
-            <div class="card c4">
-                <div class="card-header">
-                    <h3 class="card-title">🔔 Notifications</h3><span
-                        style="background:var(--red);padding:0.2rem 0.5rem;border-radius:10px;font-size:0.7rem">3</span>
-                </div>
-                <div class="notif-list">
-                    <div class="notif">
-                        <div class="notif-icon">📄</div>
-                        <div><strong>5 new papers</strong>
-                            <p style="font-size:0.75rem;color:var(--txt2)">AI Healthcare - 2 min ago</p>
-                        </div>
-                    </div>
-                    <div class="notif">
-                        <div class="notif-icon" style="background:rgba(74,222,128,0.2)">✅</div>
-                        <div><strong>Pipeline done</strong>
-                            <p style="font-size:0.75rem;color:var(--txt2)">42 papers - 1h ago</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card c12">
-                <div class="card-header">
-                    <h3 class="card-title">⚡ Quick Actions</h3>
-                </div>
-                <div class="quick-actions"><button class="btn" onclick="toast('Report generated!','success')"
-                        style="background:linear-gradient(135deg,var(--green),var(--cyan))">📝 Report</button><button
-                        class="btn" onclick="toast('AI summarizing...','info')">🤖 AI Summarize</button><button
-                        class="btn" onclick="exportData()"
-                        style="background:linear-gradient(135deg,var(--blue),var(--cyan))">📥 Export</button><button
-                        class="btn" onclick="window.open('https://github.com/kaneko-ai/jarvis-ml-pipeline/actions')"
-                        style="background:linear-gradient(135deg,var(--yellow),#f97316)">🚀 Run Pipeline</button><button
-                        class="btn" onclick="window.open('api.html')" style="background:#4b5563">📡 API Docs</button>
-                </div>
-            </div>
-        </div>
-        <div class="grid" id="tab-research" style="display:none">
-            <div class="card c12">
-                <div class="card-header">
-                    <h3 class="card-title">🔬 Research Tools</h3>
-                </div>
-                <p style="color:var(--txt2);padding:1rem">Citation networks, author analysis, trend detection - coming
-                    soon...</p>
-            </div>
-        </div>
-        <div class="grid" id="tab-chat" style="display:none">
-            <div class="card c8">
-                <div class="card-header">
-                    <h3 class="card-title">🤖 AI Research Assistant</h3>
-                </div>
-                <div class="chat-msgs" id="chat-msgs">
-                    <div class="chat-msg bot">👋 Hi! I'm JARVIS. Ask me anything about research!</div>
-                </div>
-                <div class="chat-input"><input type="text" class="search-input" id="chat-in"
-                        placeholder="Ask me anything..." onkeypress="if(event.key==='Enter')sendChat()"><button
-                        class="btn" onclick="sendChat()">Send</button></div>
-            </div>
-            <div class="card c4">
-                <div class="card-header">
-                    <h3 class="card-title">💡 Suggested</h3>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:0.5rem"><button class="nav-btn"
-                        onclick="askQ('Summarize COVID-19 research')">Summarize COVID</button><button class="nav-btn"
-                        onclick="askQ('AI healthcare trends')">AI trends</button><button class="nav-btn"
-                        onclick="askQ('ML paper recommendations')">ML papers</button></div>
-            </div>
-        </div>
-        <div class="grid" id="tab-settings" style="display:none">
-            <div class="card c6">
-                <div class="card-header">
-                    <h3 class="card-title">⚙️ Settings</h3>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:1rem"><label
-                        style="display:flex;justify-content:space-between"><span>Dark Mode</span><input type="checkbox"
-                            checked onchange="toggleTheme()"></label><label
-                        style="display:flex;justify-content:space-between"><span>Notifications</span><input
-                            type="checkbox" checked></label></div>
-            </div>
-            <div class="card c6">
-                <div class="card-header">
-                    <h3 class="card-title">🔗 Integrations</h3>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:0.75rem">
-                    <div
-                        style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;background:var(--glass);border-radius:8px">
-                        <span>📱 Slack</span><button class="nav-btn">Connect</button>
-                    </div>
-                    <div
-                        style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;background:var(--glass);border-radius:8px">
-                        <span>🐙 GitHub</span><span style="color:var(--green)">✓ Connected</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal" id="shortcuts">
-        <div class="modal-content">
-            <div class="card-header">
-                <h3 class="card-title">⌨️ Keyboard Shortcuts</h3><button class="icon-btn"
-                    onclick="hideModal('shortcuts')">✕</button>
-            </div>
-            <div class="shortcut"><span>Search</span><span class="key">Ctrl+K</span></div>
-            <div class="shortcut"><span>Run Search</span><span class="key">Ctrl+Enter</span></div>
-            <div class="shortcut"><span>Dashboard</span><span class="key">1</span></div>
-            <div class="shortcut"><span>Research</span><span class="key">2</span></div>
-            <div class="shortcut"><span>Chat</span><span class="key">3</span></div>
-            <div class="shortcut"><span>Settings</span><span class="key">4</span></div>
-            <div class="shortcut"><span>Toggle Theme</span><span class="key">T</span></div>
-        </div>
-    </div>
-    <footer class="footer">
-        <p>JARVIS Research OS v4.4.0 | <a href="https://github.com/kaneko-ai/jarvis-ml-pipeline">GitHub</a> | <a
-                href="api.html">API</a></p>
-        <p>© 2024 kaneko-ai | Built with 💜</p>
-    </footer>
-    <div id="toast-box"
-        style="position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem"></div>
-    <script>
-        let state = { searches: +(localStorage.getItem('searches') || 0), papers: +(localStorage.getItem('papers') || 0), quota: 1275 };
-        document.addEventListener('DOMContentLoaded', () => { updateStats(); initChart(); setupKeys(); addLog('success', 'Dashboard loaded'); setInterval(() => { if (Math.random() > 0.7) addLog('info', ['Health check passed', 'Synced with GitHub', 'Cache refreshed'][Math.floor(Math.random() * 3)]) }, 8000) });
-        function updateStats() { document.getElementById('searches').textContent = state.searches; document.getElementById('papers').textContent = state.papers }
-        function showTab(t) { ['dash', 'research', 'chat', 'settings'].forEach(x => { const e = document.getElementById('tab-' + x); if (e) e.style.display = x === t ? 'grid' : 'none' }); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); event?.target?.classList?.add('active') }
-        function setQuery(q) { document.getElementById('query').value = q; document.getElementById('query').focus() }
-        async function runSearch() { const q = document.getElementById('query').value.trim(); if (!q) return toast('Please enter a query', 'error'); const btn = document.getElementById('search-btn'), res = document.getElementById('results'); btn.disabled = true; btn.innerHTML = '⏳ Searching...'; res.innerHTML = '<div style="padding:2rem;text-align:center"><div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto"></div><p style="margin-top:1rem;color:var(--txt2)">Searching PubMed...</p></div>'; addLog('info', `Searching: "${q}"`); await new Promise(r => setTimeout(r, 1200)); const data = [{ t: `Novel approaches to ${q}`, a: 'Smith J, et al.', y: 2024, id: '39' + Math.floor(Math.random() * 1e6), tags: ['ai'] }, { t: `Clinical review of ${q}`, a: 'Johnson A, et al.', y: 2024, id: '39' + Math.floor(Math.random() * 1e6), tags: ['health'] }, { t: `Advances in ${q} research`, a: 'Williams B, et al.', y: 2023, id: '38' + Math.floor(Math.random() * 1e6), tags: ['ai'] }, { t: `${q}: A comprehensive study`, a: 'Brown C, et al.', y: 2024, id: '39' + Math.floor(Math.random() * 1e6), tags: ['health', 'ai'] }, { t: `Machine learning for ${q}`, a: 'Davis D, et al.', y: 2024, id: '39' + Math.floor(Math.random() * 1e6), tags: ['ai'] }]; state.searches++; state.papers += data.length; state.quota--; localStorage.setItem('searches', state.searches); localStorage.setItem('papers', state.papers); updateStats(); document.getElementById('quota').style.width = (state.quota / 1500 * 100) + '%'; document.getElementById('quota-txt').textContent = state.quota + '/1500'; res.innerHTML = data.map(r => `<div class="result" onclick="window.open('https://pubmed.ncbi.nlm.nih.gov/${r.id}','_blank')"><div class="result-title">📄 ${r.t} <span style="margin-left:auto;cursor:pointer" onclick="event.stopPropagation();toast('Added to favorites','success')">⭐</span></div><div class="result-meta">${r.a} • ${r.y} • PMID: ${r.id}</div><div class="tags">${r.tags.map(t => `<span class="tag ${t}">${t.toUpperCase()}</span>`).join('')}</div></div>`).join(''); btn.disabled = false; btn.innerHTML = '🔍 Search'; addLog('success', `Found ${data.length} papers`); toast(`Found ${data.length} papers!`, 'success') }
-        function addLog(lvl, msg) { const c = document.getElementById('logs'), t = new Date().toLocaleTimeString('ja-JP', { hour12: false }); c.innerHTML += `<div class="log"><span class="log-time">${t}</span><span class="log-lvl ${lvl}">[${lvl.toUpperCase()}]</span><span>${msg}</span></div>`; c.scrollTop = c.scrollHeight }
-        function clearLogs() { document.getElementById('logs').innerHTML = ''; addLog('info', 'Logs cleared') }
-        function toast(msg, type = 'info') { const box = document.getElementById('toast-box'), t = document.createElement('div'); t.style.cssText = `background:var(--card);backdrop-filter:var(--blur);border:1px solid var(--border);padding:1rem 1.5rem;border-radius:12px;display:flex;align-items:center;gap:0.75rem;box-shadow:0 8px 32px rgba(0,0,0,0.4);border-left:4px solid var(--${type === 'success' ? 'green' : type === 'error' ? 'red' : 'blue'});animation:slideIn 0.3s ease`; t.innerHTML = `<span>${{ success: '✅', error: '❌', info: 'ℹ️' }[type]}</span><span>${msg}</span>`; box.appendChild(t); setTimeout(() => t.remove(), 3000) }
-        function initChart() { const ctx = document.getElementById('chart')?.getContext?.('2d'); if (!ctx || typeof Chart === 'undefined') return; new Chart(ctx, { type: 'line', data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ label: 'Searches', data: [12, 19, 8, 25, 15, 30, 22], borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.1)', fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0a0c0' } }, x: { grid: { display: false }, ticks: { color: '#a0a0c0' } } } } }) }
-        function exportData() { const d = { stats: { searches: state.searches, papers: state.papers } }, b = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'jarvis_export.json'; a.click(); toast('Data exported!', 'success') }
-        async function sendChat() { const i = document.getElementById('chat-in'), m = document.getElementById('chat-msgs'), t = i.value.trim(); if (!t) return; m.innerHTML += `<div class="chat-msg user">${t}</div>`; i.value = ''; m.scrollTop = m.scrollHeight; await new Promise(r => setTimeout(r, 800)); const r = [`I found relevant papers about "${t}". Would you like a summary?`, `Based on "${t}", here are key findings from recent research...`, `Great topic! Let me search for the latest publications on "${t}".`]; m.innerHTML += `<div class="chat-msg bot">${r[Math.floor(Math.random() * r.length)]}</div>`; m.scrollTop = m.scrollHeight }
-        function askQ(q) { document.getElementById('chat-in').value = q; showTab('chat'); sendChat() }
-        function setupKeys() { document.addEventListener('keydown', e => { if (e.ctrlKey && e.key === 'k') { e.preventDefault(); document.getElementById('query')?.focus() } if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); runSearch() } if (e.key === 'Escape') hideModal('shortcuts'); if (!e.ctrlKey && !e.altKey && document.activeElement.tagName !== 'INPUT') { if (e.key === '1') showTab('dash'); if (e.key === '2') showTab('research'); if (e.key === '3') showTab('chat'); if (e.key === '4') showTab('settings'); if (e.key.toLowerCase() === 't') toggleTheme(); if (e.key === '?') showModal('shortcuts') } }) }
-        function showModal(id) { document.getElementById(id)?.classList.add('show') }
-        function hideModal(id) { document.getElementById(id)?.classList.remove('show') }
-        function toggleTheme() { document.body.classList.toggle('light-mode'); toast('Theme changed!', 'info') }
-    </script>
-    <style>
-        @keyframes spin {
-            to {
-                transform: rotate(360deg)
-            }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            transition: width 0.5s;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+            animation: slideIn 0.3s;
+            z-index: 2000;
         }
 
         @keyframes slideIn {
             from {
                 transform: translateX(100%);
-                opacity: 0
             }
 
             to {
                 transform: translateX(0);
-                opacity: 1
             }
         }
 
-        .light-mode {
-            --bg: #f0f4f8;
-            --bg2: #e2e8f0;
-            --card: rgba(255, 255, 255, 0.8);
-            --glass: rgba(0, 0, 0, 0.02);
-            --txt: #1e293b;
-            --txt2: #64748b;
-            --border: rgba(0, 0, 0, 0.1)
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--bg-secondary);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
         }
     </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div>
+                <h1>🧬 JARVIS Research OS</h1>
+                <p style="color: var(--text-secondary);">Literature Survey & Evidence Extraction Platform</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="refreshAll()">🔄 更新</button>
+                <button class="btn btn-primary" onclick="showTab('new-query')">+ 新規クエリ</button>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="showTab('overview')">📊 概要</div>
+            <div class="nav-tab" onclick="showTab('new-query')">🔍 新規クエリ</div>
+            <div class="nav-tab" onclick="showTab('search')">📑 検索</div>
+            <div class="nav-tab" onclick="showTab('collect')">📥 収集</div>
+            <div class="nav-tab" onclick="showTab('upload')">📁 アップロード</div>
+            <div class="nav-tab" onclick="showTab('runs')">📋 実行履歴</div>
+        </div>
+
+        <!-- KPI Grid (S-02: Fixed Definition) -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi-runs">-</div>
+                <div class="kpi-label">Total Runs</div>
+                <div class="kpi-trend" id="kpi-runs-trend"></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi-success">-</div>
+                <div class="kpi-label">Success Rate</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="success-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi-coverage">-</div>
+                <div class="kpi-label">Avg Evidence Coverage</div>
+                <div class="kpi-trend" id="kpi-coverage-trend"></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi-contract">-</div>
+                <div class="kpi-label">Contract Valid</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi-papers">-</div>
+                <div class="kpi-label">Total Papers</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi-claims">-</div>
+                <div class="kpi-label">Total Claims</div>
+            </div>
+        </div>
+
+        <!-- Tab: Overview -->
+        <div id="tab-overview" class="tab-content active">
+            <div class="section">
+                <div class="section-header">
+                    <h2>📋 最近の実行</h2>
+                </div>
+                <div id="recent-runs-container">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: New Query -->
+        <div id="tab-new-query" class="tab-content">
+            <div class="section">
+                <h2>🔍 新規クエリ実行</h2>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 3;">
+                        <label>検索クエリ</label>
+                        <input type="text" id="query-input" placeholder="例: CD73 immunotherapy in solid tumors">
+                    </div>
+                    <div class="form-group">
+                        <label>最大論文数</label>
+                        <select id="max-papers">
+                            <option value="5">5件</option>
+                            <option value="10" selected>10件</option>
+                            <option value="20">20件</option>
+                            <option value="50">50件</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ドメイン</label>
+                        <select id="domain-select">
+                            <option value="immuno_onco_preclinical">免疫腫瘍学</option>
+                            <option value="antibody">抗体創薬</option>
+                            <option value="general">一般</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>OAのみ</label>
+                        <select id="oa-only">
+                            <option value="false">いいえ</option>
+                            <option value="true">はい</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Turnstile Widget -->
+                <div class="cf-turnstile" id="turnstile-widget" data-sitekey="0x4AAAAAACJZ1KI1ylp2m11j"
+                    data-callback="onTurnstileSuccess"></div>
+                <button class="btn btn-primary" id="run-query-btn" onclick="runQuery()" disabled>🚀 パイプライン実行</button>
+                <div id="query-status" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+
+        <!-- Tab: Search -->
+        <div id="tab-search" class="tab-content">
+            <div class="section">
+                <h2>📑 コーパス検索（BM25）</h2>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 4;">
+                        <input type="text" id="search-input" placeholder="検索キーワード...">
+                    </div>
+                    <button class="btn btn-primary" onclick="searchCorpus()">検索</button>
+                </div>
+                <div id="search-results" class="search-results"></div>
+            </div>
+        </div>
+
+        <!-- Tab: Collect -->
+        <div id="tab-collect" class="tab-content">
+            <div class="section">
+                <h2>📥 PubMed/PMC論文収集</h2>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 3;">
+                        <label>PubMed検索クエリ</label>
+                        <input type="text" id="collect-query" placeholder="例: CD73[Title] AND immunotherapy">
+                    </div>
+                    <div class="form-group">
+                        <label>最大件数</label>
+                        <input type="number" id="collect-max" value="50" min="1" max="500">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="collect-oa" style="width: auto;">
+                            OAのみ
+                        </label>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="collectPapers()">📥 収集開始</button>
+                <div id="collect-status" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+
+        <!-- Tab: Upload -->
+        <div id="tab-upload" class="tab-content">
+            <div class="section">
+                <h2>📁 ファイルアップロード</h2>
+                <div class="upload-zone" id="upload-zone">
+                    <div style="font-size: 3em; margin-bottom: 15px;">📤</div>
+                    <p>ドラッグ&ドロップ または クリックして選択</p>
+                    <p style="font-size: 0.85em; color: var(--text-secondary);">PDF / BibTeX / ZIP（最大100ファイル）</p>
+                </div>
+                <input type="file" id="file-input" multiple accept=".pdf,.bib,.zip" style="display: none;">
+                <div id="upload-status" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+
+        <!-- Tab: Runs -->
+        <div id="tab-runs" class="tab-content">
+            <div class="section">
+                <div class="section-header">
+                    <h2>📋 全実行履歴</h2>
+                    <button class="btn btn-secondary" onclick="loadRuns()">更新</button>
+                </div>
+                <div id="runs-table-container"></div>
+            </div>
+        </div>
+
+        <!-- Run Detail Modal -->
+        <div class="modal" id="run-modal">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+                <div id="modal-body"></div>
+            </div>
+        </div>
+
+        <footer>
+            JARVIS Research OS v4.3 | 10-File Contract Compliant | KPI Fixed (S-02)
+        </footer>
+    </div>
+
+    <script>
+        // ===  Configuration (ユーザーが設定する) ===
+        const WORKER_URL = 'https://jarvis-ml-pipeline.kanekiti1125.workers.dev'; // Cloudflare WorkerのURL
+        const TURNSTILE_SITE_KEY = '0x4AAAAAACJZ1KI1ylp2m11j'; // Turnstile Site Key
+
+        let runs = [];
+        let currentTab = 'overview';
+        let turnstileToken = null;
+
+        // === Tab Navigation ===
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+
+            document.getElementById('tab-' + tabId).classList.add('active');
+            document.querySelector(`.nav-tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+            currentTab = tabId;
+        }
+
+        // === KPI Update (S-02: Fixed Definition) ===
+        function updateKPIs() {
+            const total = runs.length;
+            const successful = runs.filter(r => r.status === 'success').length;
+            const contractValid = runs.filter(r => r.contract_valid).length;
+            const avgCoverage = runs.length > 0
+                ? runs.reduce((sum, r) => sum + (r.metrics?.evidence_coverage || 0), 0) / runs.length
+                : 0;
+
+            // Total papers/claims from all runs
+            let totalPapers = 0, totalClaims = 0;
+            runs.forEach(r => {
+                totalPapers += r.metrics?.paper_count || 0;
+                totalClaims += r.metrics?.claim_count || 0;
+            });
+
+            document.getElementById('kpi-runs').textContent = total;
+            document.getElementById('kpi-success').textContent = total > 0 ? `${((successful / total) * 100).toFixed(0)}%` : '-';
+            document.getElementById('kpi-coverage').textContent = `${(avgCoverage * 100).toFixed(1)}%`;
+            document.getElementById('kpi-contract').textContent = `${contractValid}/${total}`;
+            document.getElementById('kpi-papers').textContent = totalPapers || '-';
+            document.getElementById('kpi-claims').textContent = totalClaims || '-';
+
+            document.getElementById('success-bar').style.width = total > 0 ? `${(successful / total) * 100}%` : '0%';
+        }
+
+        // === Turnstile Callback ===
+        function onTurnstileSuccess(token) {
+            turnstileToken = token;
+            document.getElementById('run-query-btn').disabled = false;
+        }
+
+        // === Load Runs ===
+        async function loadRuns() {
+            try {
+                // runs/index.jsonから直接読み込み（GitHub Pages静的ファイル）
+                const res = await fetch('runs/index.json');
+                if (!res.ok) throw new Error('Failed to load runs/index.json');
+                runs = await res.json();
+                renderRecentRuns();
+                renderRunsTable();
+                updateKPIs();
+            } catch (e) {
+                console.error('Failed to load runs:', e);
+                document.getElementById('recent-runs-container').innerHTML = '<p style="color: var(--text-secondary);">データ読み込みエラー</p>';
+            }
+        }
+
+        // === Render Recent Runs ===
+        function renderRecentRuns() {
+            const container = document.getElementById('recent-runs-container');
+            if (runs.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">実行履歴がありません</p>';
+                return;
+            }
+
+            let html = '<table class="data-table"><thead><tr><th>Run ID</th><th>Timestamp</th><th>Status</th><th>Gate</th><th>Coverage</th></tr></thead><tbody>';
+            runs.slice(0, 10).forEach(run => {
+                const statusClass = run.status === 'success' ? 'badge-success' : run.status === 'failed' ? 'badge-danger' : 'badge-warning';
+                const coverage = ((run.metrics?.evidence_coverage || 0) * 100).toFixed(1);
+                html += `<tr onclick="showRunDetail('${run.run_id}')">
+                    <td>${run.run_id?.substring(0, 16) || '-'}...</td>
+                    <td>${run.timestamp || '-'}</td>
+                    <td><span class="badge ${statusClass}">${run.status || 'unknown'}</span></td>
+                    <td>${run.gate_passed ? '✅' : '❌'}</td>
+                    <td>${coverage}%</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // === Render Runs Table ===
+        function renderRunsTable() {
+            const container = document.getElementById('runs-table-container');
+            if (runs.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">実行履歴がありません</p>';
+                return;
+            }
+
+            let html = '<table class="data-table"><thead><tr><th>Run ID</th><th>Timestamp</th><th>Status</th><th>Gate</th><th>Contract</th><th>Coverage</th></tr></thead><tbody>';
+            runs.forEach(run => {
+                const statusClass = run.status === 'success' ? 'badge-success' : run.status === 'failed' ? 'badge-danger' : 'badge-warning';
+                const coverage = ((run.metrics?.evidence_coverage || 0) * 100).toFixed(1);
+                html += `<tr onclick="showRunDetail('${run.run_id}')">
+                    <td>${run.run_id?.substring(0, 20) || '-'}...</td>
+                    <td>${run.timestamp || '-'}</td>
+                    <td><span class="badge ${statusClass}">${run.status || 'unknown'}</span></td>
+                    <td>${run.gate_passed ? '✅' : '❌'}</td>
+                    <td>${run.contract_valid ? '10/10' : 'Missing'}</td>
+                    <td>${coverage}%</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // === Run Query ===
+        async function runQuery() {
+            const query = document.getElementById('query-input').value;
+            if (!query) { showToast('クエリを入力してください', 'warning'); return; }
+            if (!turnstileToken) { showToast('Turnstile検証が必要です', 'warning'); return; }
+
+            const btn = document.getElementById('run-query-btn');
+            const status = document.getElementById('query-status');
+
+            btn.disabled = true;
+            status.innerHTML = '<div class="spinner"></div><p>実行キューに追加中...</p>';
+
+            try {
+                // Cloudflare Workerに送信
+                const res = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        turnstile_token: turnstileToken,
+                        action: 'pipeline',
+                        query,
+                        max_results: parseInt(document.getElementById('max-papers').value),
+                    })
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Worker error: ${res.status}`);
+                }
+
+                const result = await res.json();
+                status.innerHTML = `<p style="color: var(--success);">✅ キュー追加成功: run_id=${result.run_id}</p><p style="color: var(--text-secondary); font-size: 0.9em;">実行完了まで数分かかります。ページを更新して結果を確認してください。</p>`;
+                showToast('GitHub Actionsが開始されました', 'success');
+
+                // Turnstileをリセット
+                turnstileToken = null;
+                btn.disabled = true;
+                if (window.turnstile) {
+                    window.turnstile.reset();
+                }
+
+                // 30秒後に自動更新（最大10回、5分間）
+                pollRunsUpdate(10, 30000);
+            } catch (e) {
+                status.innerHTML = `<p style="color: var(--danger);">❌ エラー: ${e.message}</p>`;
+                showToast('実行エラー', 'danger');
+                btn.disabled = false;
+            }
+        }
+
+        // === Poll Runs Update ===
+        function pollRunsUpdate(maxAttempts, interval) {
+            let attempts = 0;
+            const poll = setInterval(() => {
+                attempts++;
+                loadRuns();
+                if (attempts >= maxAttempts) {
+                    clearInterval(poll);
+                }
+            }, interval);
+        }
+
+        // === Search Corpus ===
+        async function searchCorpus() {
+            const query = document.getElementById('search-input').value;
+            if (!query) { showToast('検索キーワードを入力', 'warning'); return; }
+
+            const container = document.getElementById('search-results');
+            container.innerHTML = '<div class="spinner"></div>';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}&top_k=20`);
+                const data = await res.json();
+
+                if (!data.results || data.results.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-secondary);">結果がありません</p>';
+                    return;
+                }
+
+                container.innerHTML = data.results.map(r => `
+                    <div class="search-result">
+                        <div class="search-result-title">${r.paper_title || 'Unknown Paper'}</div>
+                        <div class="search-result-meta">
+                            📍 ${r.locator?.section || 'Unknown'} | Score: ${r.score?.toFixed(2) || 0}
+                        </div>
+                        <div class="search-result-snippet">${highlightText(r.text?.substring(0, 300) || '', query)}...</div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<p style="color: var(--danger);">検索エラー</p>';
+            }
+        }
+
+        function highlightText(text, query) {
+            const words = query.toLowerCase().split(/\s+/);
+            let result = text;
+            words.forEach(w => {
+                if (w.length > 2) {
+                    const regex = new RegExp(`(${w})`, 'gi');
+                    result = result.replace(regex, '<span class="highlight">$1</span>');
+                }
+            });
+            return result;
+        }
+
+        // === Collect Papers ===
+        async function collectPapers() {
+            const query = document.getElementById('collect-query').value;
+            if (!query) { showToast('検索クエリを入力', 'warning'); return; }
+
+            const status = document.getElementById('collect-status');
+            status.innerHTML = '<div class="spinner"></div><p>収集中...</p>';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/collect/pubmed`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query,
+                        max_results: parseInt(document.getElementById('collect-max').value),
+                        oa_only: document.getElementById('collect-oa').checked
+                    })
+                });
+
+                const result = await res.json();
+                status.innerHTML = `<p style="color: var(--success);">✅ ${result.collected || 0}件収集完了</p>`;
+                showToast('収集完了', 'success');
+            } catch (e) {
+                status.innerHTML = `<p style="color: var(--danger);">❌ エラー: ${e.message}</p>`;
+            }
+        }
+
+        // === Upload ===
+        const uploadZone = document.getElementById('upload-zone');
+        const fileInput = document.getElementById('file-input');
+
+        uploadZone.onclick = () => fileInput.click();
+        uploadZone.ondragover = e => { e.preventDefault(); uploadZone.classList.add('dragover'); };
+        uploadZone.ondragleave = () => uploadZone.classList.remove('dragover');
+        uploadZone.ondrop = async e => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            await handleUpload(e.dataTransfer.files);
+        };
+        fileInput.onchange = async e => await handleUpload(e.target.files);
+
+        async function handleUpload(files) {
+            if (files.length === 0) return;
+
+            const status = document.getElementById('upload-status');
+            status.innerHTML = '<div class="spinner"></div><p>アップロード中...</p>';
+
+            const formData = new FormData();
+            for (const file of files) formData.append('files', file);
+
+            try {
+                let endpoint = '/api/upload/pdf';
+                if (files[0].name.endsWith('.bib')) endpoint = '/api/upload/bibtex';
+                else if (files[0].name.endsWith('.zip')) endpoint = '/api/upload/zip';
+
+                const res = await fetch(`${API_BASE}${endpoint}`, { method: 'POST', body: formData });
+                const result = await res.json();
+
+                status.innerHTML = `<p style="color: var(--success);">✅ Accepted: ${result.accepted}, Duplicates: ${result.duplicates}, Rejected: ${result.rejected}</p>`;
+                showToast('アップロード完了', 'success');
+            } catch (e) {
+                status.innerHTML = `<p style="color: var(--danger);">❌ ${e.message}</p>`;
+            }
+        }
+
+        // === Run Detail Modal ===
+        async function showRunDetail(runId) {
+            const modal = document.getElementById('run-modal');
+            const body = document.getElementById('modal-body');
+            body.innerHTML = '<div class="spinner"></div>';
+            modal.style.display = 'block';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/runs/${runId}`);
+                const run = await res.json();
+
+                body.innerHTML = `
+                    <h2>Run: ${runId}</h2>
+                    <table class="data-table" style="margin: 20px 0;">
+                        <tr><th>Status</th><td><span class="badge ${run.status === 'success' ? 'badge-success' : 'badge-danger'}">${run.status}</span></td></tr>
+                        <tr><th>Gate Passed</th><td>${run.gate_passed ? '✅' : '❌'}</td></tr>
+                        <tr><th>Contract Valid</th><td>${run.contract_valid ? '✅ 10/10' : '❌ Missing files'}</td></tr>
+                        <tr><th>Timestamp</th><td>${run.timestamp || '-'}</td></tr>
+                    </table>
+                    
+                    <h3>📊 Metrics</h3>
+                    <table class="data-table" style="margin: 20px 0;">
+                        ${Object.entries(run.metrics || {}).map(([k, v]) =>
+                    `<tr><th>${k}</th><td>${typeof v === 'number' ? v.toFixed(4) : v}</td></tr>`
+                ).join('')}
+                    </table>
+
+                    <h3>📁 Files</h3>
+                    <table class="data-table" style="margin: 20px 0;">
+                        ${Object.entries(run.files || {}).map(([name, info]) =>
+                    `<tr><td>${info.exists ? '✅' : '❌'} ${name}</td><td>${info.size} bytes</td></tr>`
+                ).join('')}
+                    </table>
+
+                    ${run.report ? `<h3>📝 Report</h3><pre style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(run.report)}</pre>` : ''}
+                `;
+            } catch (e) {
+                body.innerHTML = `<p style="color: var(--danger);">読み込みエラー: ${e.message}</p>`;
+            }
+        }
+
+        function closeModal() { document.getElementById('run-modal').style.display = 'none'; }
+        window.onclick = e => { if (e.target === document.getElementById('run-modal')) closeModal(); };
+
+        // === Utilities ===
+        function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = type === 'success' ? 'var(--success)' : type === 'danger' ? 'var(--danger)' : 'var(--warning)';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function refreshAll() {
+            loadRuns();
+            showToast('更新しました');
+        }
+
+        // === Initialize ===
+        loadRuns();
+    </script>
 </body>
 
 </html>
