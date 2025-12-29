@@ -40,6 +40,8 @@
     </section>
   </main>
 
+  <script src="assets/api_map.js"></script>
+  <script src="assets/adapter_manifest.js"></script>
   <script src="assets/app.js"></script>
   <script src="assets/ui.js"></script>
   <script>
@@ -69,7 +71,7 @@
           ui.qs("#finance-status").textContent = "cashflow JSONが不正です";
           return;
         }
-        const response = await app.apiFetchSafe("/api/finance/optimize", {
+        const response = await app.apiFetchSafe(app.getPath("finance_optimize"), {
           method: "POST",
           body: { cashflow, time },
         });

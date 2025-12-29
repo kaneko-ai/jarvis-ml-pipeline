@@ -40,6 +40,8 @@
     </section>
   </main>
 
+  <script src="assets/api_map.js"></script>
+  <script src="assets/adapter_manifest.js"></script>
   <script src="assets/app.js"></script>
   <script src="assets/ui.js"></script>
   <script>
@@ -69,7 +71,7 @@
           ui.qs("#decision-status").textContent = "options JSONが不正です";
           return;
         }
-        const response = await app.apiFetchSafe("/api/decision/simulate", {
+        const response = await app.apiFetchSafe(app.getPath("decision_simulate"), {
           method: "POST",
           body: { options, assumptions },
         });

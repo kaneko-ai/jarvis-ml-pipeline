@@ -51,6 +51,8 @@
     </section>
   </main>
 
+  <script src="assets/api_map.js"></script>
+  <script src="assets/adapter_manifest.js"></script>
   <script src="assets/app.js"></script>
   <script src="assets/ui.js"></script>
   <script>
@@ -74,7 +76,7 @@
       });
 
       ui.qs("#test-connection").addEventListener("click", async () => {
-        const response = await app.apiFetchSafe("/api/health");
+        const response = await app.apiFetchSafe(app.getPath("health"));
         ui.qs("#settings-status").textContent = response.ok
           ? "接続OK"
           : "API_BASE or TOKENが誤り";

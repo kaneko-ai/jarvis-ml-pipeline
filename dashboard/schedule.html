@@ -147,6 +147,8 @@
     </section>
   </main>
 
+  <script src="assets/api_map.js"></script>
+  <script src="assets/adapter_manifest.js"></script>
   <script src="assets/app.js"></script>
   <script src="assets/ui.js"></script>
   <script>
@@ -181,7 +183,7 @@
         emptyEl.style.display = "block";
         return;
       }
-      const response = await app.apiFetchSafe(`/api/schedules/${encodeURIComponent(scheduleId)}/history?limit=50`);
+      const response = await app.apiFetchSafe(app.formatPath("schedules_history", { scheduleId }, { limit: 50 }));
       if (!response.ok) {
         emptyEl.textContent = "取得に失敗しました";
         emptyEl.style.display = "block";
@@ -208,7 +210,7 @@
       const tableBody = ui.qs("#schedule-table tbody");
       const emptyEl = ui.qs("#schedule-empty");
       tableBody.innerHTML = "";
-      const response = await app.apiFetchSafe("/api/schedules");
+      const response = await app.apiFetchSafe(app.getPath("schedules_list"));
       if (!response.ok) {
         emptyEl.textContent = "未実装/未接続";
         emptyEl.style.display = "block";
@@ -228,7 +230,7 @@
         const toggle = ui.el("input", { type: "checkbox" });
         toggle.checked = Boolean(item.enabled);
         toggle.addEventListener("change", async () => {
-          await app.apiFetchSafe(`/api/schedules/${encodeURIComponent(item.schedule_id)}`, {
+          await app.apiFetchSafe(app.formatPath("schedules_update", { scheduleId: item.schedule_id }), {
             method: "PATCH",
             body: { enabled: toggle.checked },
           });
@@ -242,7 +244,7 @@
         const actions = ui.el("td");
         const runButton = ui.el("button", { text: "Run now" });
         runButton.addEventListener("click", async () => {
-          await app.apiFetchSafe(`/api/schedules/${encodeURIComponent(item.schedule_id)}/run?force=true`, {
+          await app.apiFetchSafe(app.formatPath("schedules_run", { scheduleId: item.schedule_id }, { force: true }), {
             method: "POST",
           });
           renderSchedules();
@@ -295,7 +297,7 @@
             cooldown_minutes_after_failure: Number(ui.qs("#schedule-cooldown").value || 30),
           },
         };
-        const response = await app.apiFetchSafe("/api/schedules", { method: "POST", body: payload });
+        const response = await app.apiFetchSafe(app.getPath("schedules_create"), { method: "POST", body: payload });
         ui.qs("#schedule-create-status").textContent = response.ok ? "作成完了" : "作成失敗";
         renderSchedules();
       });

@@ -10,7 +10,42 @@ const app = (() => {
     localStorage.setItem(STORAGE_TOKEN, (token || "").trim());
   };
 
+  const getApiMap = () => window.api_map_v1 || {};
+
+  const getPath = (key) => {
+    const entry = getApiMap()[key];
+    if (!entry) return null;
+    if (typeof entry === "string") return entry;
+    return entry.path || null;
+  };
+
+  const formatQuery = (query = {}) => {
+    const entries = Object.entries(query).filter(([, value]) => value !== undefined && value !== null);
+    if (!entries.length) return "";
+    const params = entries
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join("&");
+    return params ? `?${params}` : "";
+  };
+
+  const formatPath = (key, params = {}, query = {}) => {
+    const rawPath = getPath(key);
+    if (!rawPath) return null;
+    let missingParam = false;
+    const filled = rawPath.replace(/:([A-Za-z0-9_]+)/g, (_, token) => {
+      const value = params[token];
+      if (value === undefined || value === null) {
+        missingParam = true;
+        return "";
+      }
+      return encodeURIComponent(value);
+    });
+    if (missingParam) return null;
+    return `${filled}${formatQuery(query)}`;
+  };
+
   const buildUrl = (path) => {
+    if (!path) return null;
     if (path.startsWith("http")) return path;
     const base = getApiBase();
     if (!base) return null;
@@ -26,6 +61,9 @@ const app = (() => {
   };
 
   const apiFetch = async (path, options = {}) => {
+    if (!path) {
+      throw new Error("APIが未実装です。");
+    }
     const url = buildUrl(path);
     if (!url) {
       throw new Error("API_BASEが未設定です。Settingsで設定してください。");
@@ -89,14 +127,14 @@ const app = (() => {
   const resolveFileUrl = (runId, file) => {
     if (!file) return null;
     if (typeof file === "string") {
-      return buildUrl(`/api/runs/${runId}/files/${encodeURIComponent(file)}`) || file;
+      return buildUrl(formatPath("runs_files", { runId, file })) || file;
     }
     return (
       file.url ||
       file.download_url ||
       file.downloadUrl ||
-      (file.path ? buildUrl(`/api/runs/${runId}/files/${encodeURIComponent(file.path)}`) : null) ||
-      (file.key ? buildUrl(`/api/runs/${runId}/files/${encodeURIComponent(file.key)}`) : null)
+      (file.path ? buildUrl(formatPath("runs_files", { runId, file: file.path })) : null) ||
+      (file.key ? buildUrl(formatPath("runs_files", { runId, file: file.key })) : null)
     );
   };
 
@@ -112,32 +150,32 @@ const app = (() => {
     };
   };
 
-  const listRuns = () => apiFetch("/api/runs");
-  const getRun = (runId) => apiFetch(`/api/runs/${runId}`);
-  const getRunEventsUrl = (runId) => buildUrl(`/api/runs/${runId}/events`);
-  const getHealth = () => apiFetch("/api/health");
-  const getCronHealth = () => apiFetch("/api/health/cron");
+  const listRuns = () => apiFetch(getPath("runs_list"));
+  const getRun = (runId) => apiFetch(formatPath("runs_detail", { runId }));
+  const getRunEventsUrl = (runId) => buildUrl(formatPath("runs_events", { runId }));
+  const getHealth = () => apiFetch(getPath("health"));
+  const getCronHealth = () => apiFetch(getPath("health_cron"));
   const getRank = (runId, topK = 50) =>
-    apiFetch(`/api/research/rank?run_id=${encodeURIComponent(runId)}&top_k=${topK}`);
+    apiFetch(formatPath("research_rank", {}, { run_id: runId, top_k: topK }));
   const getPaper = (runId, paperId) =>
-    apiFetch(`/api/research/paper/${encodeURIComponent(paperId)}?run_id=${encodeURIComponent(runId)}`);
-  const getQaReport = (runId) => apiFetch(`/api/qa/report?run_id=${encodeURIComponent(runId)}`);
-  const buildSubmission = (payload) => apiFetch("/api/submission/build", { method: "POST", body: payload });
-  const getSubmissionLatest = (runId) => apiFetch(`/api/submission/run/${encodeURIComponent(runId)}/latest`);
-  const getSubmissionEmail = (runId) => apiFetch(`/api/submission/run/${encodeURIComponent(runId)}/email`);
-  const getSubmissionChangelog = (runId) => apiFetch(`/api/submission/run/${encodeURIComponent(runId)}/changelog`);
-  const listSchedules = () => apiFetch("/api/schedules");
-  const createSchedule = (payload) => apiFetch("/api/schedules", { method: "POST", body: payload });
+    apiFetch(formatPath("research_paper", { paperId }, { run_id: runId }));
+  const getQaReport = (runId) => apiFetch(formatPath("qa_report", {}, { run_id: runId }));
+  const buildSubmission = (payload) => apiFetch(getPath("submission_build"), { method: "POST", body: payload });
+  const getSubmissionLatest = (runId) => apiFetch(formatPath("submission_latest", { runId }));
+  const getSubmissionEmail = (runId) => apiFetch(formatPath("submission_email", { runId }));
+  const getSubmissionChangelog = (runId) => apiFetch(formatPath("submission_changelog", { runId }));
+  const listSchedules = () => apiFetch(getPath("schedules_list"));
+  const createSchedule = (payload) => apiFetch(getPath("schedules_create"), { method: "POST", body: payload });
   const updateSchedule = (scheduleId, payload) =>
-    apiFetch(`/api/schedules/${encodeURIComponent(scheduleId)}`, { method: "PATCH", body: payload });
+    apiFetch(formatPath("schedules_update", { scheduleId }), { method: "PATCH", body: payload });
   const runScheduleNow = (scheduleId, force = false) =>
-    apiFetch(`/api/schedules/${encodeURIComponent(scheduleId)}/run?force=${force}`, { method: "POST" });
+    apiFetch(formatPath("schedules_run", { scheduleId }, { force }), { method: "POST" });
   const getScheduleHistory = (scheduleId, limit = 50) =>
-    apiFetch(`/api/schedules/${encodeURIComponent(scheduleId)}/history?limit=${limit}`);
-  const importFeedback = (payload) => apiFetch("/api/feedback/import", { method: "POST", body: payload });
-  const getFeedbackRisk = (runId) => apiFetch(`/api/feedback/risk?run_id=${encodeURIComponent(runId)}`);
-  const decisionSimulate = (payload) => apiFetch("/api/decision/simulate", { method: "POST", body: payload });
-  const financeOptimize = (payload) => apiFetch("/api/finance/optimize", { method: "POST", body: payload });
+    apiFetch(formatPath("schedules_history", { scheduleId }, { limit }));
+  const importFeedback = (payload) => apiFetch(getPath("feedback_import"), { method: "POST", body: payload });
+  const getFeedbackRisk = (runId) => apiFetch(formatPath("feedback_risk", {}, { run_id: runId }));
+  const decisionSimulate = (payload) => apiFetch(getPath("decision_simulate"), { method: "POST", body: payload });
+  const financeOptimize = (payload) => apiFetch(getPath("finance_optimize"), { method: "POST", body: payload });
 
   return {
     STORAGE_BASE,
@@ -149,6 +187,8 @@ const app = (() => {
     apiFetchSafe,
     resolveFileUrl,
     normalizeFileEntry,
+    getPath,
+    formatPath,
     listRuns,
     getRun,
     getRunEventsUrl,
