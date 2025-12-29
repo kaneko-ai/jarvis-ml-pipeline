@@ -328,8 +328,14 @@ def run_job(job_id: str) -> None:
     job = jobs.read_job(job_id)
     job_type = job.get("type")
     payload = job.get("payload", {})
+    schedule_run_id = payload.get("schedule_run_id")
 
     try:
+        if schedule_run_id:
+            from jarvis_core.scheduler import runner as schedule_runner
+
+            schedule_runner.mark_run_running(schedule_run_id)
+
         if job_type == "collect_and_ingest":
             run_collect_and_ingest(job_id, payload)
         else:
@@ -340,3 +346,37 @@ def run_job(job_id: str) -> None:
         jobs.append_event(job_id, {"message": trimmed, "level": "error"})
         jobs.set_error(job_id, f"{type(exc).__name__}: {exc}")
         jobs.set_status(job_id, "failed")
+    finally:
+        if schedule_run_id:
+            from jarvis_core.obs import alert as obs_alert
+            from jarvis_core.scheduler import retry as schedule_retry
+            from jarvis_core.scheduler import store as schedule_store
+
+            latest = jobs.read_job(job_id)
+            status = latest.get("status")
+            error = latest.get("error")
+            run = schedule_store.read_run(schedule_run_id)
+            if not run:
+                return
+            schedule_id = run.get("schedule_id")
+            schedule = schedule_store.get_schedule(schedule_id) if schedule_id else None
+            if status == "success":
+                schedule_store.update_run(schedule_run_id, status="success", error=None, next_retry_at=None)
+                schedule_store.update_schedule_status(schedule_id, "success")
+                return
+            attempts = (run.get("attempts", 0) or 0) + 1
+            schedule_store.update_run(schedule_run_id, status="failed", error=error, attempts=attempts)
+            if not schedule:
+                return
+            limits = schedule.get("limits", {})
+            max_retries = int(limits.get("max_retries", 0))
+            if attempts > max_retries:
+                schedule_store.update_schedule(schedule_id, {"enabled": False, "degraded": True})
+                obs_alert(
+                    "schedule_failed",
+                    "high",
+                    f"Schedule {schedule_id} disabled after {attempts} failures",
+                )
+                return
+            next_retry = schedule_retry.next_retry_at(attempts, int(limits.get("cooldown_minutes_after_failure", 30)))
+            schedule_store.update_run(schedule_run_id, next_retry_at=next_retry)
