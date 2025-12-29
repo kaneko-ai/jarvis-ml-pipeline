@@ -25,6 +25,8 @@ from jarvis_core.supervisor.lyra import get_lyra, LyraSupervisor
 from jarvis_core.pipelines.stage_registry import (
     get_stage_registry, StageNotImplementedError
 )
+from jarvis_core.obs.logger import get_logger
+from jarvis_core.obs import metrics
 
 
 @dataclass
@@ -150,6 +152,8 @@ class PipelineExecutor:
         self.results = []
         
         result = ResultBundle()
+        obs_logger = get_logger(run_id=context.run_id, job_id=context.run_id, component="pipeline")
+        metrics.record_run_start(run_id=context.run_id, job_id=context.run_id, component="pipeline")
         result.add_log(f"Pipeline {self.config.name} started")
         
         # StageRegistry事前検証 - 未登録は即失敗
@@ -166,7 +170,7 @@ class PipelineExecutor:
         
         # Execute each stage via StageRegistry
         for stage_name in self.config.stages:
-            stage_result = self._execute_stage(stage_name, context, artifacts)
+            stage_result = self._execute_stage(stage_name, context, artifacts, obs_logger)
             self.results.append(stage_result)
             
             if not stage_result.success:
@@ -198,18 +202,30 @@ class PipelineExecutor:
         
         result.provenance = artifacts.claims
         result.add_log(f"Pipeline {self.config.name} completed in {total_time:.0f}ms")
+        obs_logger.step_end("Pipeline", data={"duration_ms": total_time})
+        metrics.record_run_end(
+            run_id=context.run_id,
+            job_id=context.run_id,
+            status="failed" if not result.success else "success",
+            duration_ms=total_time,
+            error_type="PipelineError" if not result.success else None,
+            error_message=result.error if not result.success else None,
+        )
         
         return result
     
     def _execute_stage(self, stage_name: str, 
                        context: TaskContext, 
-                       artifacts: Artifacts) -> StageResult:
+                       artifacts: Artifacts,
+                       obs_logger: Optional[Any] = None) -> StageResult:
         """
         個別ステージを実行.
         
         StageRegistryから取得したハンドラを実行。
         """
         start = time.time()
+        if obs_logger:
+            obs_logger.step_start(stage_name, message="stage start")
         
         # StageRegistryから取得（事前検証済みなので必ず存在）
         handler = self._registry.get(stage_name)
@@ -227,6 +243,10 @@ class PipelineExecutor:
             else:
                 outputs = {}
             
+            duration = (time.time() - start) * 1000
+            if obs_logger:
+                obs_logger.step_end(stage_name, data={"duration_ms": duration})
+            metrics.record_step_duration(context.run_id, stage_name, duration)
             return StageResult(
                 stage_name=stage_name,
                 success=True,
@@ -236,6 +256,9 @@ class PipelineExecutor:
             )
         except Exception as e:
             duration = (time.time() - start) * 1000
+            if obs_logger:
+                obs_logger.error(f"stage {stage_name} failed", step=stage_name, exc=e)
+            metrics.record_step_duration(context.run_id, stage_name, duration)
             return StageResult(
                 stage_name=stage_name,
                 success=False,

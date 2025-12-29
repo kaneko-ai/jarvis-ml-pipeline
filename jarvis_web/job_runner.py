@@ -5,12 +5,15 @@ import hashlib
 import json
 import os
 import threading
+import time
 import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 from jarvis_web import jobs
+from jarvis_core.obs.logger import get_logger
+from jarvis_core.obs import metrics
 
 
 STEP_WEIGHTS = {
@@ -142,14 +145,26 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
     except Exception as exc:
         jobs.set_error(job_id, f"collect failed: {exc}")
         jobs.set_status(job_id, "failed")
+        logger.error("collect failed", step="Collecting", exc=exc)
+        metrics.record_run_end(
+            run_id=run_id,
+            job_id=job_id,
+            status="failed",
+            duration_ms=(time.time() - run_start) * 1000,
+            error_type=type(exc).__name__,
+            error_message=str(exc),
+        )
         return
 
     jobs.inc_counts(job_id, found=result.total_found)
     if result.warnings:
         for warning in result.warnings:
             jobs.append_event(job_id, {"message": warning.get("message", "warning"), "level": "warning"})
+            logger.warning(warning.get("message", "warning"), step="Collecting")
 
     jobs.set_progress(job_id, STEP_WEIGHTS["collect"])
+    metrics.record_progress(run_id, "Collecting", STEP_WEIGHTS["collect"])
+    logger.step_end("Collecting", data={"found": result.total_found})
 
     research_dir = Path("data/research") / job_id
     research_dir.mkdir(parents=True, exist_ok=True)
@@ -162,11 +177,14 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
 
     oa_resolver = OAResolver(unpaywall_email=os.getenv("UNPAYWALL_EMAIL"))
     papers: List[Dict[str, Any]] = []
+    oa_count = 0
     for paper in result.papers:
         record = paper.to_dict()
         record["pdf_url"] = paper.pdf_url or ""
         record["fulltext_url"] = paper.xml_url or ""
         record.update(oa_resolver.resolve(record))
+        if record.get("is_oa") or record.get("oa_status") == "oa":
+            oa_count += 1
         papers.append(record)
     if papers:
         _append_jsonl(papers_path, papers)
@@ -179,6 +197,7 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
     dedup_result = dedup_engine.deduplicate(audited_papers)
     canonical_papers = dedup_result.canonical_papers
     jobs.inc_counts(job_id, deduped=dedup_result.merged_count, canonical_papers=len(canonical_papers))
+    jobs.inc_counts(job_id, oa_count=oa_count)
     _append_jsonl(research_dir / "canonical_papers.jsonl", canonical_papers)
 
     total_papers = len(result.papers)
@@ -275,9 +294,14 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
         jobs.set_step(job_id, "index")
             jobs.inc_counts(job_id, failed=1)
             jobs.append_event(job_id, {"message": f"extract failed for PMID {paper.pmid}: {exc}", "level": "warning"})
+            logger.warning(f"extract failed for PMID {paper.pmid}", step="Extracting", data={"error": str(exc)})
         _set_step_progress(job_id, 40, STEP_WEIGHTS["extract"], idx, len(downloaded))
+    logger.step_end("Extracting", data={"extracted": len(extracted)})
+    metrics.record_step_duration(run_id, "Extracting", (time.time() - step_start) * 1000)
 
     jobs.set_step(job_id, "chunk")
+    step_start = time.time()
+    logger.step_start("Chunking")
     chunker = TextChunker()
     for idx, (paper, text) in enumerate(extracted, start=1):
         try:
@@ -435,6 +459,14 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
     jobs.set_step(job_id, "done")
     jobs.set_status(job_id, "success")
     jobs.append_event(job_id, {"message": "job complete", "level": "info"})
+    logger.step_end("RunComplete", data={"status": "success"})
+    metrics.record_counts(run_id, jobs.read_job(job_id)["counts"])
+    metrics.record_run_end(
+        run_id=run_id,
+        job_id=job_id,
+        status="success",
+        duration_ms=(time.time() - run_start) * 1000,
+    )
 
 
 def run_job(job_id: str) -> None:
