@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Schedule - Research OS Dashboard</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body data-page="schedule">
+  <nav class="top-nav">
+    <a href="index.html">Home</a>
+    <a href="runs.html">Runs</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="feedback.html">Feedback Risk</a>
+    <a href="decision.html">Decision</a>
+    <a href="finance.html">Finance</a>
+    <a href="settings.html">Settings</a>
+  </nav>
+  <main class="container">
+    <header class="page-header">
+      <h1>Schedule</h1>
+      <p>定期実行スケジュールの一覧と作成。</p>
+    </header>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Create Schedule</h2>
+      </div>
+      <div class="form-row">
+        <input id="schedule-name" placeholder="name" />
+        <input id="schedule-cron" placeholder="cron (e.g. 0 9 * * *)" />
+        <input id="schedule-target" placeholder="target" />
+      </div>
+      <button id="create-schedule">Create</button>
+      <div id="schedule-create-status" class="notice">未実行</div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Schedules</h2>
+        <button class="secondary" id="refresh-schedule">更新</button>
+      </div>
+      <table class="table" id="schedule-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Cron</th>
+            <th>Target</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="schedule-empty" class="notice">未接続</div>
+    </section>
+  </main>
+
+  <script src="assets/app.js"></script>
+  <script src="assets/ui.js"></script>
+  <script>
+    const setActiveNav = () => {
+      const page = document.body.dataset.page;
+      ui.qsa(".top-nav a").forEach((link) => {
+        if (link.getAttribute("href").includes(page)) {
+          link.classList.add("active");
+        }
+      });
+    };
+
+    const renderSchedules = async () => {
+      const tableBody = ui.qs("#schedule-table tbody");
+      const emptyEl = ui.qs("#schedule-empty");
+      tableBody.innerHTML = "";
+      const response = await app.apiFetchSafe("/api/schedule");
+      if (!response.ok) {
+        emptyEl.textContent = "未実装/未接続";
+        emptyEl.style.display = "block";
+        return;
+      }
+      const list = response.data || [];
+      if (!list.length) {
+        emptyEl.textContent = "データがありません";
+        emptyEl.style.display = "block";
+        return;
+      }
+      emptyEl.style.display = "none";
+      list.forEach((item) => {
+        const row = ui.el("tr");
+        row.appendChild(ui.el("td", { text: item.name || "-" }));
+        row.appendChild(ui.el("td", { text: item.cron || item.schedule || "-" }));
+        row.appendChild(ui.el("td", { text: item.target || "-" }));
+        row.appendChild(ui.el("td", { text: item.enabled ? "ON" : "OFF" }));
+        tableBody.appendChild(row);
+      });
+    };
+
+    const init = () => {
+      setActiveNav();
+      renderSchedules();
+      ui.qs("#refresh-schedule").addEventListener("click", renderSchedules);
+      ui.qs("#create-schedule").addEventListener("click", async () => {
+        const payload = {
+          name: ui.qs("#schedule-name").value,
+          cron: ui.qs("#schedule-cron").value,
+          target: ui.qs("#schedule-target").value,
+        };
+        const response = await app.apiFetchSafe("/api/schedule", { method: "POST", body: payload });
+        ui.qs("#schedule-create-status").textContent = response.ok ? "作成完了" : "未実装/未接続";
+        renderSchedules();
+      });
+    };
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,1302 +1,197 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JARVIS Dashboard - Complete</title>
-    <meta name="description" content="JARVIS Research OS - Literature Survey & Evidence Extraction Platform">
-    <style>
-        :root {
-            --bg-primary: #0f0f23;
-            --bg-secondary: #1a1a2e;
-            --bg-card: #16213e;
-            --accent: #00d4ff;
-            --accent-dark: #0a9ec7;
-            --text-primary: #e8e8e8;
-            --text-secondary: #a0a0a0;
-            --success: #00ff88;
-            --warning: #ffaa00;
-            --danger: #ff4444;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Navigation Tabs */
-        .nav-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .nav-tab {
-            padding: 12px 24px;
-            background: var(--bg-card);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .nav-tab:hover,
-        .nav-tab.active {
-            background: var(--accent);
-            color: var(--bg-primary);
-            border-color: var(--accent);
-        }
-
-        /* Header */
-        header {
-            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
-            padding: 25px 30px;
-            border-radius: 16px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        header h1 {
-            font-size: 2em;
-            background: linear-gradient(135deg, var(--accent) 0%, #00ff88 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        /* KPI Grid - Fixed Definition (S-02) */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .kpi-card {
-            background: var(--bg-card);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .kpi-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--accent);
-        }
-
-        .kpi-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: var(--accent);
-        }
-
-        .kpi-label {
-            color: var(--text-secondary);
-            font-size: 0.85em;
-            text-transform: uppercase;
-        }
-
-        .kpi-trend {
-            font-size: 0.8em;
-            margin-top: 5px;
-        }
-
-        .kpi-trend.up {
-            color: var(--success);
-        }
-
-        .kpi-trend.down {
-            color: var(--danger);
-        }
-
-        .job-card {
-            background: var(--bg-secondary);
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 16px;
-        }
-
-        .job-card.hidden {
-            display: none;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent) 0%, var(--success) 100%);
-            width: 0%;
-            transition: width 0.4s ease;
-        }
-
-        .job-counts {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 8px;
-            margin-top: 10px;
-            font-size: 0.85em;
-            color: var(--text-secondary);
-        }
-
-        .job-log {
-            margin-top: 12px;
-            padding: 10px;
-            background: var(--bg-primary);
-            border-radius: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-            font-size: 0.8em;
-            white-space: pre-wrap;
-        }
-
-        /* Sections */
-        .section {
-            background: var(--bg-card);
-            padding: 25px;
-            border-radius: 16px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .section h2 {
-            font-size: 1.3em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Form Controls */
-        .form-row {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-
-        .form-group {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--text-secondary);
-            font-size: 0.9em;
-        }
-
-        input,
-        select,
-        textarea {
-            width: 100%;
-            padding: 12px 16px;
-            background: var(--bg-primary);
-            border: 2px solid rgba(0, 212, 255, 0.3);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-size: 1em;
-        }
-
-        input:focus,
-        select:focus,
-        textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
-            color: var(--bg-primary);
-        }
-
-        .btn-primary:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
-        }
-
-        .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Table */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .data-table th,
-        .data-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .data-table th {
-            color: var(--accent);
-            font-weight: 600;
-            font-size: 0.85em;
-            text-transform: uppercase;
-        }
-
-        .data-table tr:hover {
-            background: rgba(0, 212, 255, 0.05);
-            cursor: pointer;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75em;
-            font-weight: bold;
-        }
-
-        .badge-success {
-            background: rgba(0, 255, 136, 0.2);
-            color: var(--success);
-        }
-
-        .badge-warning {
-            background: rgba(255, 170, 0, 0.2);
-            color: var(--warning);
-        }
-
-        .badge-danger {
-            background: rgba(255, 68, 68, 0.2);
-            color: var(--danger);
-        }
-
-        /* Search Results */
-        .search-results {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .search-result {
-            background: var(--bg-secondary);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border-left: 3px solid var(--accent);
-        }
-
-        .search-result-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .search-result-meta {
-            color: var(--text-secondary);
-            font-size: 0.85em;
-        }
-
-        .search-result-snippet {
-            margin-top: 10px;
-            font-size: 0.9em;
-        }
-
-        .highlight {
-            background: rgba(0, 212, 255, 0.3);
-            padding: 2px 4px;
-            border-radius: 3px;
-        }
-
-        .paper-card {
-            background: var(--bg-secondary);
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-
-        .paper-card h4 {
-            margin-bottom: 8px;
-        }
-
-        .paper-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            color: var(--text-secondary);
-            font-size: 0.85em;
-        }
-
-        .tier-badge {
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 0.8em;
-        }
-
-        .tier-S {
-            background: rgba(0, 212, 255, 0.2);
-            color: var(--accent);
-        }
-
-        .tier-A {
-            background: rgba(0, 255, 136, 0.2);
-            color: var(--success);
-        }
-
-        .tier-B {
-            background: rgba(255, 170, 0, 0.2);
-            color: var(--warning);
-        }
-
-        .tier-C {
-            background: rgba(255, 68, 68, 0.2);
-            color: var(--danger);
-        }
-
-        .claim-item {
-            margin-top: 8px;
-            padding: 8px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .claim-warning {
-            border-left: 3px solid var(--warning);
-        }
-
-        .evidence-item {
-            margin-top: 6px;
-            font-size: 0.85em;
-            color: var(--text-secondary);
-        }
-
-        /* Upload Zone */
-        .upload-zone {
-            border: 2px dashed rgba(0, 212, 255, 0.3);
-            border-radius: 10px;
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .upload-zone:hover {
-            border-color: var(--accent);
-            background: rgba(0, 212, 255, 0.05);
-        }
-
-        .upload-zone.dragover {
-            border-color: var(--success);
-            background: rgba(0, 255, 136, 0.05);
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            overflow-y: auto;
-        }
-
-        .modal-content {
-            background: var(--bg-card);
-            margin: 50px auto;
-            padding: 30px;
-            border-radius: 16px;
-            max-width: 900px;
-            border: 1px solid rgba(0, 212, 255, 0.2);
-        }
-
-        .modal-close {
-            float: right;
-            font-size: 1.5em;
-            cursor: pointer;
-            color: var(--text-secondary);
-        }
-
-        .modal-close:hover {
-            color: var(--danger);
-        }
-
-        /* Progress */
-        .progress-bar {
-            height: 8px;
-            background: var(--bg-primary);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--success));
-            transition: width 0.5s;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            background: var(--bg-card);
-            border-radius: 8px;
-            border-left: 4px solid var(--accent);
-            animation: slideIn 0.3s;
-            z-index: 2000;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-            }
-
-            to {
-                transform: translateX(0);
-            }
-        }
-
-        /* Tab Content */
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Spinner */
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--bg-secondary);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        footer {
-            text-align: center;
-            padding: 30px;
-            color: var(--text-secondary);
-            font-size: 0.9em;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Research OS Dashboard - Home</title>
+  <link rel="stylesheet" href="assets/styles.css" />
 </head>
+<body data-page="index">
+  <nav class="top-nav">
+    <a href="index.html">Home</a>
+    <a href="runs.html">Runs</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="feedback.html">Feedback Risk</a>
+    <a href="decision.html">Decision</a>
+    <a href="finance.html">Finance</a>
+    <a href="settings.html">Settings</a>
+  </nav>
+  <main class="container">
+    <header class="page-header">
+      <h1>Research OS Dashboard</h1>
+      <p>ヘルス、KPI、最新のRunを確認します。</p>
+    </header>
 
-<body>
-    <div class="container">
-        <!-- Header -->
-        <header>
-            <div>
-                <h1>🧬 JARVIS Research OS</h1>
-                <p style="color: var(--text-secondary);">Literature Survey & Evidence Extraction Platform</p>
-            </div>
-            <div class="header-actions">
-                <button class="btn btn-secondary" onclick="refreshAll()">🔄 更新</button>
-                <button class="btn btn-primary" onclick="showTab('new-query')">+ 新規クエリ</button>
-            </div>
-        </header>
-
-        <!-- Navigation -->
-        <div class="nav-tabs">
-            <div class="nav-tab active" onclick="showTab('overview')">📊 概要</div>
-            <div class="nav-tab" onclick="showTab('new-query')">🔍 新規クエリ</div>
-            <div class="nav-tab" onclick="showTab('search')">📑 検索</div>
-            <div class="nav-tab" onclick="showTab('collect')">📥 収集</div>
-            <div class="nav-tab" onclick="showTab('upload')">📁 アップロード</div>
-            <div class="nav-tab" onclick="showTab('research')">🏷️ Research</div>
-            <div class="nav-tab" onclick="showTab('runs')">📋 実行履歴</div>
+    <section class="panel">
+      <div class="section-title">
+        <h2>Health</h2>
+        <button class="secondary" id="refresh-health">更新</button>
+      </div>
+      <div class="grid cols-2">
+        <div>
+          <p class="muted">/api/health</p>
+          <div id="health-status" class="notice">未接続</div>
+          <div id="health-warnings"></div>
         </div>
-
-        <!-- KPI Grid (S-02: Fixed Definition) -->
-        <div class="kpi-grid">
-            <div class="kpi-card">
-                <div class="kpi-value" id="kpi-runs">-</div>
-                <div class="kpi-label">Total Runs</div>
-                <div class="kpi-trend" id="kpi-runs-trend"></div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-value" id="kpi-success">-</div>
-                <div class="kpi-label">Success Rate</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="success-bar" style="width: 0%"></div>
-                </div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-value" id="kpi-coverage">-</div>
-                <div class="kpi-label">Avg Evidence Coverage</div>
-                <div class="kpi-trend" id="kpi-coverage-trend"></div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-value" id="kpi-contract">-</div>
-                <div class="kpi-label">Contract Valid</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-value" id="kpi-papers">-</div>
-                <div class="kpi-label">Total Papers</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-value" id="kpi-claims">-</div>
-                <div class="kpi-label">Total Claims</div>
-            </div>
+        <div>
+          <p class="muted">/api/health/cron</p>
+          <div id="cron-status" class="notice">未接続</div>
+          <div id="cron-jobs"></div>
         </div>
+      </div>
+    </section>
 
-        <!-- Tab: Overview -->
-        <div id="tab-overview" class="tab-content active">
-            <div class="section">
-                <div class="section-header">
-                    <h2>📋 最近の実行</h2>
-                </div>
-                <div id="recent-runs-container">
-                    <div class="spinner"></div>
-                </div>
-            </div>
-        </div>
+    <section class="panel">
+      <div class="section-title">
+        <h2>KPI</h2>
+        <button class="secondary" id="refresh-kpi">更新</button>
+      </div>
+      <div class="grid cols-4" id="kpi-grid"></div>
+    </section>
 
-        <!-- Tab: New Query -->
-        <div id="tab-new-query" class="tab-content">
-            <div class="section">
-                <h2>🔍 新規クエリ実行</h2>
-                <div class="form-row">
-                    <div class="form-group" style="flex: 3;">
-                        <label>検索クエリ</label>
-                        <input type="text" id="query-input" placeholder="例: CD73 immunotherapy in solid tumors">
-                    </div>
-                    <div class="form-group">
-                        <label>最大論文数</label>
-                        <select id="max-papers">
-                            <option value="5">5件</option>
-                            <option value="10" selected>10件</option>
-                            <option value="20">20件</option>
-                            <option value="50">50件</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>ドメイン</label>
-                        <select id="domain-select">
-                            <option value="immuno_onco_preclinical">免疫腫瘍学</option>
-                            <option value="antibody">抗体創薬</option>
-                            <option value="general">一般</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>OAのみ</label>
-                        <select id="oa-only">
-                            <option value="false">いいえ</option>
-                            <option value="true">はい</option>
-                        </select>
-                    </div>
-                </div>
-                <button class="btn btn-primary" id="run-query-btn" onclick="runQuery()">🚀 パイプライン実行</button>
-                <div id="query-status" style="margin-top: 15px;"></div>
-                <div id="job-card" class="job-card hidden">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong>現在実行中ジョブ</strong>
-                        <span id="job-status-badge" class="badge badge-warning">queued</span>
-                    </div>
-                    <div style="margin-top: 8px; font-size: 0.9em; color: var(--text-secondary);">
-                        <span id="job-id">-</span>
-                        <span id="job-step" style="margin-left: 10px;">step: -</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="job-progress"></div>
-                    </div>
-                    <div id="job-progress-label" style="font-size: 0.85em;">0%</div>
-                    <div class="job-counts" id="job-counts"></div>
-                    <div id="job-error" style="color: var(--danger); margin-top: 6px;"></div>
-                    <div class="job-log" id="job-log"></div>
-                </div>
-            </div>
-        </div>
+    <section class="panel">
+      <div class="section-title">
+        <h2>Latest Runs</h2>
+        <a class="badge" href="runs.html">一覧へ</a>
+      </div>
+      <table class="table" id="latest-runs">
+        <thead>
+          <tr>
+            <th>Run ID</th>
+            <th>Status</th>
+            <th>Progress</th>
+            <th>Tier Summary</th>
+            <th>QA</th>
+            <th>Submission</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="latest-runs-empty" class="notice">データがありません。</div>
+    </section>
+  </main>
 
-        <!-- Tab: Search -->
-        <div id="tab-search" class="tab-content">
-            <div class="section">
-                <h2>📑 コーパス検索（BM25）</h2>
-                <div class="form-row">
-                    <div class="form-group" style="flex: 4;">
-                        <input type="text" id="search-input" placeholder="検索キーワード...">
-                    </div>
-                    <button class="btn btn-primary" onclick="searchCorpus()">検索</button>
-                </div>
-                <div id="search-results" class="search-results"></div>
-            </div>
-        </div>
-
-        <!-- Tab: Collect -->
-        <div id="tab-collect" class="tab-content">
-            <div class="section">
-                <h2>📥 PubMed/PMC論文収集</h2>
-                <div class="form-row">
-                    <div class="form-group" style="flex: 3;">
-                        <label>PubMed検索クエリ</label>
-                        <input type="text" id="collect-query" placeholder="例: CD73[Title] AND immunotherapy">
-                    </div>
-                    <div class="form-group">
-                        <label>最大件数</label>
-                        <input type="number" id="collect-max" value="50" min="1" max="500">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" id="collect-oa" style="width: auto;">
-                            OAのみ
-                        </label>
-                    </div>
-                </div>
-                <button class="btn btn-primary" onclick="collectPapers()">📥 収集開始</button>
-                <div id="collect-status" style="margin-top: 15px;"></div>
-            </div>
-        </div>
-
-        <!-- Tab: Upload -->
-        <div id="tab-upload" class="tab-content">
-            <div class="section">
-                <h2>📁 ファイルアップロード</h2>
-                <div class="upload-zone" id="upload-zone">
-                    <div style="font-size: 3em; margin-bottom: 15px;">📤</div>
-                    <p>ドラッグ&ドロップ または クリックして選択</p>
-                    <p style="font-size: 0.85em; color: var(--text-secondary);">PDF / BibTeX / ZIP（最大100ファイル）</p>
-                </div>
-                <input type="file" id="file-input" multiple accept=".pdf,.bib,.zip" style="display: none;">
-                <div id="upload-status" style="margin-top: 15px;"></div>
-            </div>
-        </div>
-
-        <!-- Tab: Research -->
-        <div id="tab-research" class="tab-content">
-            <div class="section">
-                <div class="section-header">
-                    <h2>🏷️ Research Ranking</h2>
-                    <div class="header-actions">
-                        <button class="btn btn-secondary" onclick="downloadManifest()">manifest ダウンロード</button>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Run ID（空欄なら最新ジョブ）</label>
-                        <input type="text" id="research-run-id" placeholder="job_YYYYMMDD_XXXXXX">
-                    </div>
-                    <div class="form-group">
-                        <label>クエリ</label>
-                        <input type="text" id="research-query" placeholder="CD73">
-                    </div>
-                    <div class="form-group">
-                        <label>Top K</label>
-                        <input type="number" id="research-top-k" value="50" min="1" max="200">
-                    </div>
-                </div>
-                <button class="btn btn-primary" onclick="loadResearchRank()">📊 Rank papers</button>
-                <div class="form-row" style="margin-top: 12px;">
-                    <button class="btn btn-secondary" onclick="setTierFilter('all')">All</button>
-                    <button class="btn btn-secondary" onclick="setTierFilter('S')">Tier S</button>
-                    <button class="btn btn-secondary" onclick="setTierFilter('A')">Tier A</button>
-                    <button class="btn btn-secondary" onclick="setTierFilter('B')">Tier B</button>
-                    <button class="btn btn-secondary" onclick="setTierFilter('C')">Tier C</button>
-                </div>
-                <div id="research-results" style="margin-top: 16px;"></div>
-            </div>
-        </div>
-
-        <!-- Tab: Runs -->
-        <div id="tab-runs" class="tab-content">
-            <div class="section">
-                <div class="section-header">
-                    <h2>📋 全実行履歴</h2>
-                    <button class="btn btn-secondary" onclick="loadRuns()">更新</button>
-                </div>
-                <div id="runs-table-container"></div>
-            </div>
-        </div>
-
-        <!-- Run Detail Modal -->
-        <div class="modal" id="run-modal">
-            <div class="modal-content">
-                <span class="modal-close" onclick="closeModal()">&times;</span>
-                <div id="modal-body"></div>
-            </div>
-        </div>
-
-        <footer>
-            JARVIS Research OS v4.3 | 10-File Contract Compliant | KPI Fixed (S-02)
-        </footer>
-    </div>
-
-    <script>
-        let API_BASE = '';
-        let runs = [];
-        let currentTab = 'overview';
-        let currentJobId = null;
-        let jobPoller = null;
-        let eventPoller = null;
-        let researchResults = [];
-        let tierFilter = 'all';
-
-        async function loadConfig() {
-            try {
-                const res = await fetch('config.json', { cache: 'no-store' });
-                if (res.ok) {
-                    const config = await res.json();
-                    API_BASE = config.apiBase || '';
-                }
-            } catch (e) {
-                API_BASE = '';
-            }
+  <script src="assets/app.js"></script>
+  <script src="assets/ui.js"></script>
+  <script>
+    const setActiveNav = () => {
+      const page = document.body.dataset.page;
+      ui.qsa(".top-nav a").forEach((link) => {
+        if (link.getAttribute("href").includes(page)) {
+          link.classList.add("active");
         }
+      });
+    };
 
-        // === Tab Navigation ===
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+    const renderHealth = async () => {
+      const healthEl = ui.qs("#health-status");
+      const cronEl = ui.qs("#cron-status");
+      const warningEl = ui.qs("#health-warnings");
+      const cronJobsEl = ui.qs("#cron-jobs");
+      warningEl.innerHTML = "";
+      cronJobsEl.innerHTML = "";
 
-            document.getElementById('tab-' + tabId).classList.add('active');
-            document.querySelector(`.nav-tab[onclick="showTab('${tabId}')"]`).classList.add('active');
-            currentTab = tabId;
+      const health = await app.apiFetchSafe("/api/health");
+      if (health.ok) {
+        const data = health.data || {};
+        healthEl.innerHTML = "";
+        healthEl.appendChild(ui.badge(data.redis_ok ? "Redis OK" : "Redis NG", data.redis_ok ? "success" : "danger"));
+        healthEl.appendChild(ui.badge(data.worker_heartbeat_ok ? "Worker OK" : "Worker NG", data.worker_heartbeat_ok ? "success" : "danger"));
+        if (Array.isArray(data.warnings) && data.warnings.length) {
+          warningEl.appendChild(ui.el("div", { className: "notice", text: data.warnings.join(" / ") }));
         }
+      } else {
+        healthEl.textContent = "未実装/未接続";
+      }
 
-        function resolveRunId() {
-            const input = document.getElementById('research-run-id');
-            if (input && input.value.trim()) {
-                return input.value.trim();
-            }
-            if (currentJobId) {
-                return currentJobId;
-            }
-            if (runs.length > 0) {
-                return runs[0].run_id;
-            }
-            return '';
+      const cron = await app.apiFetchSafe("/api/health/cron");
+      if (cron.ok) {
+        const data = cron.data || {};
+        cronEl.innerHTML = "";
+        cronEl.appendChild(ui.badge(data.redis_ok ? "Redis OK" : "Redis NG", data.redis_ok ? "success" : "danger"));
+        cronEl.appendChild(ui.badge(data.worker_heartbeat_ok ? "Cron OK" : "Cron NG", data.worker_heartbeat_ok ? "success" : "danger"));
+        if (Array.isArray(data.last_cron_jobs)) {
+          data.last_cron_jobs.slice(0, 4).forEach((job) => {
+            cronJobsEl.appendChild(ui.el("div", { className: "muted", text: JSON.stringify(job) }));
+          });
         }
+      } else {
+        cronEl.textContent = "未実装/未接続";
+      }
+    };
 
-        async function loadResearchRank() {
-            const runId = resolveRunId();
-            const query = document.getElementById('research-query').value.trim();
-            const topK = document.getElementById('research-top-k').value || 50;
-            if (!runId) {
-                document.getElementById('research-results').innerHTML = '<p>run_id がありません。</p>';
-                return;
-            }
+    const renderKpi = async () => {
+      const grid = ui.qs("#kpi-grid");
+      grid.innerHTML = "";
+      const runs = await app.apiFetchSafe("/api/runs");
+      if (!runs.ok) {
+        grid.appendChild(ui.el("div", { className: "notice", text: "未接続" }));
+        return;
+      }
+      const list = runs.data || [];
+      const total = list.length;
+      const running = list.filter((item) => item.status === "running").length;
+      const success = list.filter((item) => item.status === "success").length;
+      const qaReady = list.filter((item) => item.qa_status === "READY").length;
 
-            try {
-                const res = await fetch(`${API_BASE}/api/research/rank?run_id=${runId}&q=${encodeURIComponent(query)}&top_k=${topK}&mode=hybrid`);
-                if (!res.ok) {
-                    throw new Error(await res.text());
-                }
-                const payload = await res.json();
-                researchResults = payload.results || [];
-                renderResearchResults();
-            } catch (err) {
-                document.getElementById('research-results').innerHTML = `<p style="color: var(--danger);">rank failed: ${err}</p>`;
-            }
-        }
+      const cards = [
+        { label: "Total Runs", value: total },
+        { label: "Running", value: running },
+        { label: "Success", value: success },
+        { label: "QA Ready", value: qaReady },
+      ];
+      cards.forEach((card) => {
+        const node = ui.el("div", { className: "kpi-card" });
+        node.appendChild(ui.el("h3", { text: card.label }));
+        node.appendChild(ui.el("div", { className: "value", text: ui.formatNumber(card.value) }));
+        grid.appendChild(node);
+      });
+    };
 
-        function setTierFilter(tier) {
-            tierFilter = tier;
-            renderResearchResults();
-        }
+    const renderLatestRuns = async () => {
+      const tableBody = ui.qs("#latest-runs tbody");
+      const empty = ui.qs("#latest-runs-empty");
+      tableBody.innerHTML = "";
+      const runs = await app.apiFetchSafe("/api/runs");
+      if (!runs.ok) {
+        empty.textContent = "未接続";
+        empty.style.display = "block";
+        return;
+      }
+      const list = (runs.data || []).slice(0, 5);
+      if (!list.length) {
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+      list.forEach((run) => {
+        const row = ui.el("tr");
+        const idLink = ui.el("a", { text: run.id || run.run_id || "-", attrs: { href: `run.html?id=${run.id || run.run_id}` } });
+        row.appendChild(ui.el("td", { html: idLink.outerHTML }));
+        row.appendChild(ui.el("td", { text: run.status || "-" }));
+        row.appendChild(ui.el("td", { text: run.progress || run.step || "-" }));
+        row.appendChild(ui.el("td", { text: run.tier_summary || "-" }));
+        row.appendChild(ui.el("td", { text: run.qa_status || run.qa_ready || "-" }));
+        row.appendChild(ui.el("td", { text: run.submission_status || "-" }));
+        row.appendChild(ui.el("td", { text: ui.formatDateTime(run.created_at) }));
+        tableBody.appendChild(row);
+      });
+    };
 
-        function renderResearchResults() {
-            const container = document.getElementById('research-results');
-            if (!researchResults.length) {
-                container.innerHTML = '<p>結果がありません。</p>';
-                return;
-            }
-            const filtered = tierFilter === 'all'
-                ? researchResults
-                : researchResults.filter(item => item.tier === tierFilter);
+    const init = () => {
+      setActiveNav();
+      renderHealth();
+      renderKpi();
+      renderLatestRuns();
+      ui.qs("#refresh-health").addEventListener("click", renderHealth);
+      ui.qs("#refresh-kpi").addEventListener("click", () => {
+        renderKpi();
+        renderLatestRuns();
+      });
+    };
 
-            container.innerHTML = filtered.map(item => {
-                const auditFlags = (item.audit_flags || []).map(flag => `<span class="badge badge-warning">${flag}</span>`).join(' ');
-                const oaBadge = item.oa_status ? `<span class="badge badge-success">${item.oa_status}</span>` : '';
-                const claims = (item.top_claims || []).map(claim => {
-                    const weak = (claim.audit_flags || []).includes('weak_evidence');
-                    const evidenceHtml = (claim.evidence || []).map(ev => `
-                        <div class="evidence-item">📌 ${ev.chunk_id} (${ev.locator?.section || 'section'}:${ev.locator?.paragraph_index || 0}) — ${ev.quote}</div>
-                    `).join('');
-                    return `
-                        <div class="claim-item ${weak ? 'claim-warning' : ''}">
-                            <div><strong>${claim.claim_type}</strong>: ${claim.claim_text}</div>
-                            ${weak ? '<div style="color: var(--warning); font-size: 0.85em;">⚠ weak evidence</div>' : ''}
-                            ${evidenceHtml}
-                        </div>
-                    `;
-                }).join('');
-
-                return `
-                    <div class="paper-card">
-                        <h4>${item.title || item.canonical_paper_id}</h4>
-                        <div class="paper-meta">
-                            <span class="tier-badge tier-${item.tier}">Tier ${item.tier}</span>
-                            <span>score ${item.score}</span>
-                            <span>${item.year || ''}</span>
-                            <span>${item.journal || ''}</span>
-                            ${oaBadge}
-                            ${auditFlags}
-                        </div>
-                        <details style="margin-top: 10px;">
-                            <summary>Top claims (${(item.top_claims || []).length})</summary>
-                            ${claims || '<div class="claim-item">No claims</div>'}
-                        </details>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function downloadManifest() {
-            const runId = resolveRunId();
-            if (!runId) {
-                alert('run_id がありません');
-                return;
-            }
-            window.open(`${API_BASE}/api/runs/${runId}/manifest`, '_blank');
-        }
-
-        // === KPI Update (S-02: Fixed Definition) ===
-        function updateKPIs() {
-            const total = runs.length;
-            const successful = runs.filter(r => r.status === 'success').length;
-            const contractValid = runs.filter(r => r.contract_valid).length;
-            const avgCoverage = runs.length > 0
-                ? runs.reduce((sum, r) => sum + (r.metrics?.evidence_coverage || 0), 0) / runs.length
-                : 0;
-
-            // Total papers/claims from all runs
-            let totalPapers = 0, totalClaims = 0;
-            runs.forEach(r => {
-                totalPapers += r.metrics?.paper_count || 0;
-                totalClaims += r.metrics?.claim_count || 0;
-            });
-
-            document.getElementById('kpi-runs').textContent = total;
-            document.getElementById('kpi-success').textContent = total > 0 ? `${((successful / total) * 100).toFixed(0)}%` : '-';
-            document.getElementById('kpi-coverage').textContent = `${(avgCoverage * 100).toFixed(1)}%`;
-            document.getElementById('kpi-contract').textContent = `${contractValid}/${total}`;
-            document.getElementById('kpi-papers').textContent = totalPapers || '-';
-            document.getElementById('kpi-claims').textContent = totalClaims || '-';
-
-            document.getElementById('success-bar').style.width = total > 0 ? `${(successful / total) * 100}%` : '0%';
-        }
-
-        // === Load Runs ===
-        async function loadRuns() {
-            try {
-                const res = await fetch(`${API_BASE}/api/runs?limit=50`);
-                if (!res.ok) throw new Error('API error');
-                const data = await res.json();
-                runs = data.runs || [];
-                renderRecentRuns();
-                renderRunsTable();
-                updateKPIs();
-            } catch (e) {
-                console.error('Failed to load runs:', e);
-                document.getElementById('recent-runs-container').innerHTML = '<p style="color: var(--text-secondary);">データ読み込みエラー</p>';
-            }
-        }
-
-        // === Render Recent Runs ===
-        function renderRecentRuns() {
-            const container = document.getElementById('recent-runs-container');
-            if (runs.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-secondary);">実行履歴がありません</p>';
-                return;
-            }
-
-            let html = '<table class="data-table"><thead><tr><th>Run ID</th><th>Timestamp</th><th>Status</th><th>Gate</th><th>Coverage</th></tr></thead><tbody>';
-            runs.slice(0, 10).forEach(run => {
-                const statusClass = run.status === 'success' ? 'badge-success' : run.status === 'failed' ? 'badge-danger' : 'badge-warning';
-                const coverage = ((run.metrics?.evidence_coverage || 0) * 100).toFixed(1);
-                html += `<tr onclick="showRunDetail('${run.run_id}')">
-                    <td>${run.run_id?.substring(0, 16) || '-'}...</td>
-                    <td>${run.timestamp || '-'}</td>
-                    <td><span class="badge ${statusClass}">${run.status || 'unknown'}</span></td>
-                    <td>${run.gate_passed ? '✅' : '❌'}</td>
-                    <td>${coverage}%</td>
-                </tr>`;
-            });
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
-
-        // === Render Runs Table ===
-        function renderRunsTable() {
-            const container = document.getElementById('runs-table-container');
-            if (runs.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-secondary);">実行履歴がありません</p>';
-                return;
-            }
-
-            let html = '<table class="data-table"><thead><tr><th>Run ID</th><th>Timestamp</th><th>Status</th><th>Gate</th><th>Contract</th><th>Coverage</th></tr></thead><tbody>';
-            runs.forEach(run => {
-                const statusClass = run.status === 'success' ? 'badge-success' : run.status === 'failed' ? 'badge-danger' : 'badge-warning';
-                const coverage = ((run.metrics?.evidence_coverage || 0) * 100).toFixed(1);
-                html += `<tr onclick="showRunDetail('${run.run_id}')">
-                    <td>${run.run_id?.substring(0, 20) || '-'}...</td>
-                    <td>${run.timestamp || '-'}</td>
-                    <td><span class="badge ${statusClass}">${run.status || 'unknown'}</span></td>
-                    <td>${run.gate_passed ? '✅' : '❌'}</td>
-                    <td>${run.contract_valid ? '10/10' : 'Missing'}</td>
-                    <td>${coverage}%</td>
-                </tr>`;
-            });
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
-
-        // === Run Query ===
-        async function runQuery() {
-            const query = document.getElementById('query-input').value;
-            if (!query) { showToast('クエリを入力してください', 'warning'); return; }
-
-            const btn = document.getElementById('run-query-btn');
-            const status = document.getElementById('query-status');
-
-            btn.disabled = true;
-            status.innerHTML = '<div class="spinner"></div><p>パイプライン実行中...</p>';
-
-            try {
-                const res = await fetch(`${API_BASE}/api/jobs`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        type: 'collect_and_ingest',
-                        payload: {
-                            query,
-                            max_results: parseInt(document.getElementById('max-papers').value),
-                            oa_only: document.getElementById('oa-only').value === 'true',
-                            domain: document.getElementById('domain-select').value
-                        }
-                    })
-                });
-
-                const result = await res.json();
-                status.innerHTML = `<p style="color: var(--success);">✅ ジョブ投入: ${result.job_id}</p>`;
-                showToast('ジョブ投入完了', 'success');
-                startJobPolling(result.job_id);
-            } catch (e) {
-                status.innerHTML = `<p style="color: var(--danger);">❌ エラー: ${e.message}</p>`;
-                showToast('実行エラー', 'danger');
-            } finally {
-                btn.disabled = false;
-            }
-        }
-
-        // === Search Corpus ===
-        async function searchCorpus() {
-            const query = document.getElementById('search-input').value;
-            if (!query) { showToast('検索キーワードを入力', 'warning'); return; }
-
-            const container = document.getElementById('search-results');
-            container.innerHTML = '<div class="spinner"></div>';
-
-            try {
-                const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}&top_k=20`);
-                const data = await res.json();
-
-                if (!data.results || data.results.length === 0) {
-                    container.innerHTML = '<p style="color: var(--text-secondary);">結果がありません</p>';
-                    return;
-                }
-
-                container.innerHTML = data.results.map(r => `
-                    <div class="search-result">
-                        <div class="search-result-title">${r.paper_title || 'Unknown Paper'}</div>
-                        <div class="search-result-meta">
-                            📍 ${r.locator?.section || 'Unknown'} | Score: ${r.score?.toFixed(2) || 0}
-                        </div>
-                        <div class="search-result-snippet">${highlightText(r.text?.substring(0, 300) || '', query)}...</div>
-                    </div>
-                `).join('');
-            } catch (e) {
-                container.innerHTML = '<p style="color: var(--danger);">検索エラー</p>';
-            }
-        }
-
-        function highlightText(text, query) {
-            const words = query.toLowerCase().split(/\s+/);
-            let result = text;
-            words.forEach(w => {
-                if (w.length > 2) {
-                    const regex = new RegExp(`(${w})`, 'gi');
-                    result = result.replace(regex, '<span class="highlight">$1</span>');
-                }
-            });
-            return result;
-        }
-
-        // === Collect Papers ===
-        async function collectPapers() {
-            const query = document.getElementById('collect-query').value;
-            if (!query) { showToast('検索クエリを入力', 'warning'); return; }
-
-            const status = document.getElementById('collect-status');
-            status.innerHTML = '<div class="spinner"></div><p>収集中...</p>';
-
-            try {
-                const res = await fetch(`${API_BASE}/api/jobs`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        type: 'collect_and_ingest',
-                        payload: {
-                            query,
-                            max_results: parseInt(document.getElementById('collect-max').value),
-                            oa_only: document.getElementById('collect-oa').checked
-                        }
-                    })
-                });
-
-                const result = await res.json();
-                status.innerHTML = `<p style="color: var(--success);">✅ ジョブ投入: ${result.job_id}</p>`;
-                showToast('収集ジョブ開始', 'success');
-                startJobPolling(result.job_id);
-            } catch (e) {
-                status.innerHTML = `<p style="color: var(--danger);">❌ エラー: ${e.message}</p>`;
-            }
-        }
-
-        // === Upload ===
-        const uploadZone = document.getElementById('upload-zone');
-        const fileInput = document.getElementById('file-input');
-
-        uploadZone.onclick = () => fileInput.click();
-        uploadZone.ondragover = e => { e.preventDefault(); uploadZone.classList.add('dragover'); };
-        uploadZone.ondragleave = () => uploadZone.classList.remove('dragover');
-        uploadZone.ondrop = async e => {
-            e.preventDefault();
-            uploadZone.classList.remove('dragover');
-            await handleUpload(e.dataTransfer.files);
-        };
-        fileInput.onchange = async e => await handleUpload(e.target.files);
-
-        async function handleUpload(files) {
-            if (files.length === 0) return;
-
-            const status = document.getElementById('upload-status');
-            status.innerHTML = '<div class="spinner"></div><p>アップロード中...</p>';
-
-            const formData = new FormData();
-            for (const file of files) formData.append('files', file);
-
-            try {
-                let endpoint = '/api/upload/pdf';
-                if (files[0].name.endsWith('.bib')) endpoint = '/api/upload/bibtex';
-                else if (files[0].name.endsWith('.zip')) endpoint = '/api/upload/zip';
-
-                const res = await fetch(`${API_BASE}${endpoint}`, { method: 'POST', body: formData });
-                const result = await res.json();
-
-                status.innerHTML = `<p style="color: var(--success);">✅ Accepted: ${result.accepted}, Duplicates: ${result.duplicates}, Rejected: ${result.rejected}</p>`;
-                showToast('アップロード完了', 'success');
-            } catch (e) {
-                status.innerHTML = `<p style="color: var(--danger);">❌ ${e.message}</p>`;
-            }
-        }
-
-        // === Run Detail Modal ===
-        async function showRunDetail(runId) {
-            const modal = document.getElementById('run-modal');
-            const body = document.getElementById('modal-body');
-            body.innerHTML = '<div class="spinner"></div>';
-            modal.style.display = 'block';
-
-            try {
-                const res = await fetch(`${API_BASE}/api/runs/${runId}`);
-                const run = await res.json();
-
-                body.innerHTML = `
-                    <h2>Run: ${runId}</h2>
-                    <table class="data-table" style="margin: 20px 0;">
-                        <tr><th>Status</th><td><span class="badge ${run.status === 'success' ? 'badge-success' : 'badge-danger'}">${run.status}</span></td></tr>
-                        <tr><th>Gate Passed</th><td>${run.gate_passed ? '✅' : '❌'}</td></tr>
-                        <tr><th>Contract Valid</th><td>${run.contract_valid ? '✅ 10/10' : '❌ Missing files'}</td></tr>
-                        <tr><th>Timestamp</th><td>${run.timestamp || '-'}</td></tr>
-                    </table>
-                    
-                    <h3>📊 Metrics</h3>
-                    <table class="data-table" style="margin: 20px 0;">
-                        ${Object.entries(run.metrics || {}).map(([k, v]) =>
-                    `<tr><th>${k}</th><td>${typeof v === 'number' ? v.toFixed(4) : v}</td></tr>`
-                ).join('')}
-                    </table>
-
-                    <h3>📁 Files</h3>
-                    <table class="data-table" style="margin: 20px 0;">
-                        ${Object.entries(run.files || {}).map(([name, info]) =>
-                    `<tr><td>${info.exists ? '✅' : '❌'} ${name}</td><td>${info.size} bytes</td></tr>`
-                ).join('')}
-                    </table>
-
-                    ${run.report ? `<h3>📝 Report</h3><pre style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(run.report)}</pre>` : ''}
-                `;
-            } catch (e) {
-                body.innerHTML = `<p style="color: var(--danger);">読み込みエラー: ${e.message}</p>`;
-            }
-        }
-
-        function closeModal() { document.getElementById('run-modal').style.display = 'none'; }
-        window.onclick = e => { if (e.target === document.getElementById('run-modal')) closeModal(); };
-
-        // === Utilities ===
-        function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
-
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.borderLeftColor = type === 'success' ? 'var(--success)' : type === 'danger' ? 'var(--danger)' : 'var(--warning)';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        function refreshAll() {
-            loadRuns();
-            showToast('更新しました');
-        }
-
-        function startJobPolling(jobId) {
-            currentJobId = jobId;
-            const card = document.getElementById('job-card');
-            card.classList.remove('hidden');
-            document.getElementById('job-id').textContent = jobId;
-
-            if (jobPoller) clearInterval(jobPoller);
-            if (eventPoller) clearInterval(eventPoller);
-
-            jobPoller = setInterval(fetchJobStatus, 1000);
-            eventPoller = setInterval(fetchJobEvents, 1000);
-            fetchJobStatus();
-            fetchJobEvents();
-        }
-
-        async function fetchJobStatus() {
-            if (!currentJobId) return;
-            try {
-                const res = await fetch(`${API_BASE}/api/jobs/${currentJobId}`);
-                if (!res.ok) return;
-                const job = await res.json();
-                updateJobCard(job);
-                if (['success', 'failed', 'canceled'].includes(job.status)) {
-                    clearInterval(jobPoller);
-                    clearInterval(eventPoller);
-                    loadRuns();
-                }
-            } catch (e) {
-                // ignore polling errors
-            }
-        }
-
-        async function fetchJobEvents() {
-            if (!currentJobId) return;
-            try {
-                const res = await fetch(`${API_BASE}/api/jobs/${currentJobId}/events?tail=200`);
-                if (!res.ok) return;
-                const data = await res.json();
-                const log = document.getElementById('job-log');
-                log.textContent = (data.events || [])
-                    .map(ev => `[${ev.timestamp}] ${ev.level || 'info'} ${ev.message || ''}`)
-                    .join('\n');
-                log.scrollTop = log.scrollHeight;
-            } catch (e) {
-                // ignore polling errors
-            }
-        }
-
-        function updateJobCard(job) {
-            const statusBadge = document.getElementById('job-status-badge');
-            statusBadge.textContent = job.status || '-';
-            statusBadge.className = `badge ${job.status === 'success' ? 'badge-success' : job.status === 'failed' ? 'badge-danger' : 'badge-warning'}`;
-            document.getElementById('job-step').textContent = `step: ${job.step || '-'}`;
-            document.getElementById('job-progress').style.width = `${job.progress || 0}%`;
-            document.getElementById('job-progress-label').textContent = `${job.progress || 0}%`;
-            const counts = job.counts || {};
-            document.getElementById('job-counts').innerHTML = Object.entries(counts)
-                .map(([k, v]) => `<div>${k}: ${v}</div>`)
-                .join('');
-            document.getElementById('job-error').textContent = job.error ? `Error: ${job.error}` : '';
-        }
-
-        // === Initialize ===
-        loadConfig().then(() => {
-            loadRuns();
-        });
-    </script>
+    init();
+  </script>
 </body>
-
 </html>

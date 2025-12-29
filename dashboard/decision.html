@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Finance - Research OS Dashboard</title>
+  <title>Decision - Research OS Dashboard</title>
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
-<body data-page="finance">
+<body data-page="decision">
   <nav class="top-nav">
     <a href="index.html">Home</a>
     <a href="runs.html">Runs</a>
@@ -18,25 +18,25 @@
   </nav>
   <main class="container">
     <header class="page-header">
-      <h1>Finance Optimizer</h1>
-      <p>月次収支と週次時間を入力し最適化。</p>
+      <h1>Decision Simulator</h1>
+      <p>選択肢と前提条件を入力して比較します。</p>
     </header>
 
     <section class="panel">
       <div class="section-title">
         <h2>Inputs</h2>
       </div>
-      <textarea id="finance-cashflow" rows="5" placeholder='monthly cashflow JSON (例: {"revenue":1000,"cost":400})'></textarea>
-      <textarea id="finance-time" rows="4" placeholder='weekly time JSON (例: {"hours":40})'></textarea>
-      <button id="run-finance">Optimize</button>
-      <div id="finance-status" class="notice">未実行</div>
+      <textarea id="decision-options" rows="6" placeholder='options JSON (例: [{"name":"A","cost":100}])'></textarea>
+      <textarea id="decision-assumptions" rows="4" placeholder='assumptions JSON (例: {"target":"x"})'></textarea>
+      <button id="run-decision">Simulate</button>
+      <div id="decision-status" class="notice">未実行</div>
     </section>
 
     <section class="panel">
       <div class="section-title">
         <h2>Result</h2>
       </div>
-      <div id="finance-result" class="notice">結果がここに表示されます。</div>
+      <div id="decision-result" class="notice">結果がここに表示されます。</div>
     </section>
   </main>
 
@@ -62,24 +62,24 @@
 
     const init = () => {
       setActiveNav();
-      ui.qs("#run-finance").addEventListener("click", async () => {
-        const cashflow = parseJson(ui.qs("#finance-cashflow").value);
-        const time = parseJson(ui.qs("#finance-time").value);
-        if (!cashflow) {
-          ui.qs("#finance-status").textContent = "cashflow JSONが不正です";
+      ui.qs("#run-decision").addEventListener("click", async () => {
+        const options = parseJson(ui.qs("#decision-options").value);
+        const assumptions = parseJson(ui.qs("#decision-assumptions").value);
+        if (!options) {
+          ui.qs("#decision-status").textContent = "options JSONが不正です";
           return;
         }
-        const response = await app.apiFetchSafe("/api/finance/optimize", {
+        const response = await app.apiFetchSafe("/api/decision/simulate", {
           method: "POST",
-          body: { cashflow, time },
+          body: { options, assumptions },
         });
         if (!response.ok) {
-          ui.qs("#finance-status").textContent = "未実装/未接続";
-          ui.qs("#finance-result").textContent = "";
+          ui.qs("#decision-status").textContent = "未実装/未接続";
+          ui.qs("#decision-result").textContent = "";
           return;
         }
-        ui.qs("#finance-status").textContent = "実行完了";
-        ui.qs("#finance-result").textContent = JSON.stringify(response.data, null, 2);
+        ui.qs("#decision-status").textContent = "実行完了";
+        ui.qs("#decision-result").textContent = JSON.stringify(response.data, null, 2);
       });
     };
 
