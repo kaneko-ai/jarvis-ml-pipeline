@@ -9,11 +9,11 @@
 <body data-page="schedule">
   <nav class="top-nav">
     <a href="index.html">Home</a>
-    <a href="runs.html">Runs</a>
+    <a href="runs.html" data-feature="runs">Runs</a>
     <a href="schedule.html">Schedule</a>
-    <a href="feedback.html">Feedback Risk</a>
-    <a href="decision.html">Decision</a>
-    <a href="finance.html">Finance</a>
+    <a href="feedback.html" data-feature="feedback">Feedback Risk</a>
+    <a href="decision.html" data-feature="decision">Decision</a>
+    <a href="finance.html" data-feature="finance">Finance</a>
     <a href="settings.html">Settings</a>
   </nav>
   <main class="container">
@@ -257,8 +257,18 @@
       });
     };
 
-    const init = () => {
+    const applyCapabilities = async () => {
+      const result = await app.getCapabilities();
+      if (result.ok) {
+        ui.applyCapabilitiesToNav(result.data);
+        return;
+      }
+      ui.applyCapabilitiesToNav({});
+    };
+
+    const init = async () => {
       setActiveNav();
+      await applyCapabilities();
       renderSchedules();
       ui.qs("#refresh-schedule").addEventListener("click", renderSchedules);
       ui.qs("#schedule-rrule-preset").addEventListener("change", (event) => {

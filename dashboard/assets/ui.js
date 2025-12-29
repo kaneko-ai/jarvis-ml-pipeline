@@ -55,6 +55,18 @@ const ui = (() => {
     }
   };
 
+  const applyCapabilitiesToNav = (capabilities) => {
+    if (!capabilities || !capabilities.features) return;
+    qsa(".top-nav a[data-feature]").forEach((link) => {
+      const featureKey = link.dataset.feature;
+      if (!featureKey) return;
+      if (!window.app || !window.app.isFeatureEnabled) return;
+      if (!window.app.isFeatureEnabled(capabilities, featureKey)) {
+        link.style.display = "none";
+      }
+    });
+  };
+
   return {
     qs,
     qsa,
@@ -65,6 +77,7 @@ const ui = (() => {
     formatNumber,
     renderList,
     copyToClipboard,
+    applyCapabilitiesToNav,
   };
 })();
 
