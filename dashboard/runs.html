@@ -172,7 +172,7 @@
       statusEl.textContent = "データ取得中...";
       tableBody.innerHTML = "";
 
-      const response = await app.apiFetchSafe("/api/runs");
+      const response = await listRuns();
       if (!response.ok) {
         statusEl.textContent = "未実装/未接続";
         emptyEl.style.display = "block";
