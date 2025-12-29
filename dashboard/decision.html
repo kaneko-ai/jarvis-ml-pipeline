@@ -100,7 +100,7 @@
           ui.qs("#decision-status").textContent = "options JSONが不正です";
           return;
         }
-        const response = await app.apiFetchSafe("/api/decision/simulate", {
+        const response = await app.apiFetchSafe(app.getPath("decision_simulate"), {
           method: "POST",
           body: { options, assumptions },
         });

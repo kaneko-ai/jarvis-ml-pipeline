@@ -186,7 +186,7 @@
         emptyEl.style.display = "block";
         return;
       }
-      const response = await app.apiFetchSafe(`/api/schedules/${encodeURIComponent(scheduleId)}/history?limit=50`);
+      const response = await app.apiFetchSafe(app.formatPath("schedules_history", { scheduleId }, { limit: 50 }));
       if (!response.ok) {
         emptyEl.textContent = "取得に失敗しました";
         emptyEl.style.display = "block";
@@ -273,7 +273,7 @@
       const tableBody = ui.qs("#schedule-table tbody");
       const emptyEl = ui.qs("#schedule-empty");
       tableBody.innerHTML = "";
-      const response = await app.apiFetchSafe("/api/schedules");
+      const response = await app.apiFetchSafe(app.getPath("schedules_list"));
       if (!response.ok) {
         emptyEl.textContent = "未実装/未接続";
         emptyEl.style.display = "block";
