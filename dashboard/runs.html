@@ -24,6 +24,21 @@
 
     <section class="panel">
       <div class="section-title">
+        <h2>Run作成</h2>
+      </div>
+      <div class="form-row">
+        <input id="run-query" placeholder="query" />
+        <input id="run-max-papers" type="number" min="1" value="10" />
+        <input id="run-seed" type="number" value="42" />
+      </div>
+      <div class="flex">
+        <button id="create-run">Run作成</button>
+      </div>
+      <div class="notice" id="create-run-status">未実行</div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
         <h2>Filters</h2>
         <button class="secondary" id="refresh-runs">更新</button>
       </div>
@@ -113,6 +128,32 @@
       });
     };
 
+    const createRun = async () => {
+      const statusEl = ui.qs("#create-run-status");
+      const query = ui.qs("#run-query").value.trim();
+      if (!query) {
+        statusEl.textContent = "queryを入力してください。";
+        return;
+      }
+      statusEl.textContent = "作成中...";
+      const maxPapersValue = parseInt(ui.qs("#run-max-papers").value, 10);
+      const seedValue = parseInt(ui.qs("#run-seed").value, 10);
+      const payload = {
+        query,
+        max_papers: Number.isFinite(maxPapersValue) ? maxPapersValue : 10,
+        seed: Number.isFinite(seedValue) ? seedValue : 42,
+      };
+
+      const response = await app.apiFetchSafe("/api/runs", { method: "POST", body: payload });
+      if (!response.ok) {
+        statusEl.textContent = "未実装/未接続";
+        return;
+      }
+      const runId = response.data?.run_id || response.data?.id || "-";
+      statusEl.textContent = `作成完了: ${runId}`;
+      renderRuns();
+    };
+
     const renderRuns = async () => {
       const statusEl = ui.qs("#runs-status");
       const tableBody = ui.qs("#runs-table tbody");
@@ -160,6 +201,7 @@
         ui.qs(selector).addEventListener("change", renderRuns);
         ui.qs(selector).addEventListener("keyup", renderRuns);
       });
+      ui.qs("#create-run").addEventListener("click", createRun);
       ui.qs("#refresh-runs").addEventListener("click", renderRuns);
     };
 
