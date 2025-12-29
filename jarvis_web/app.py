@@ -478,38 +478,59 @@ if FASTAPI_AVAILABLE:
         query: str
         max_results: int = 50
         oa_only: bool = False
+        domain: Optional[str] = None
+
+    class JobRequest(BaseModel):
+        """Job request."""
+        type: str
+        payload: dict = {}
+
+    @app.post("/api/jobs")
+    async def create_job(request: JobRequest, _: bool = Depends(verify_token)):
+        """Create a new job and run in background."""
+        from jarvis_web import jobs
+        from jarvis_web.job_runner import run_job
+
+        job = jobs.create_job(request.type, request.payload)
+        jobs.run_in_background(job["job_id"], lambda: run_job(job["job_id"]))
+        return {"job_id": job["job_id"], "status": job["status"]}
+
+    @app.get("/api/jobs/{job_id}")
+    async def get_job(job_id: str, _: bool = Depends(verify_token)):
+        """Get job status."""
+        from jarvis_web import jobs
+
+        try:
+            return jobs.read_job(job_id)
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail=f"Job {job_id} not found")
+
+    @app.get("/api/jobs/{job_id}/events")
+    async def get_job_events(job_id: str, tail: int = 200, _: bool = Depends(verify_token)):
+        """Get job events (tail)."""
+        from jarvis_web import jobs
+
+        try:
+            jobs.read_job(job_id)
+            return {"events": jobs.tail_events(job_id, tail=tail)}
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail=f"Job {job_id} not found")
 
     @app.post("/api/collect/pubmed")
     async def collect_pubmed(request: CollectRequest, _: bool = Depends(verify_token)):
-        """Collect papers from PubMed."""
-        try:
-            from jarvis_tools.papers.collector import collect_papers
-            from jarvis_core.ingestion import IngestionPipeline
-            
-            # Collect from PubMed
-            result = collect_papers(
-                query=request.query,
-                max_results=request.max_results,
-                oa_only=request.oa_only,
-            )
-            
-            # Save to papers.jsonl
-            output_dir = Path("data")
-            output_dir.mkdir(parents=True, exist_ok=True)
-            
-            papers_file = output_dir / "collected_papers.jsonl"
-            with open(papers_file, "a", encoding="utf-8") as f:
-                for paper in result.papers:
-                    f.write(json.dumps(paper.to_dict(), ensure_ascii=False) + "\n")
-            
-            return {
-                "collected": result.collected,
-                "total_found": result.total_found,
-                "query": request.query,
-                "warnings": result.warnings,
-            }
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+        """Collect papers from PubMed (compat: create job)."""
+        from jarvis_web import jobs
+        from jarvis_web.job_runner import run_job
+
+        payload = {
+            "query": request.query,
+            "max_results": request.max_results,
+            "oa_only": request.oa_only,
+            "domain": request.domain,
+        }
+        job = jobs.create_job("collect_and_ingest", payload)
+        jobs.run_in_background(job["job_id"], lambda: run_job(job["job_id"]))
+        return {"job_id": job["job_id"], "status": job["status"]}
 
 
 # === KPI API (S-02) ===
