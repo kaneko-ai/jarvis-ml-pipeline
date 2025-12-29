@@ -7,18 +7,18 @@
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body data-page="settings">
-    <nav class="top-nav">
-    <a href="index.html">Home</a>
-    <a href="runs.html">Runs</a>
-    <a href="ops.html">Ops</a>
-    <a href="schedule.html">Schedule</a>
-    <a href="kb.html">KB</a>
-    <a href="search.html">Search</a>
-    <a href="settings.html">Settings</a>
+    <nav class="top-nav" data-testid="top-nav">
+    <a href="index.html" data-testid="nav-home">Home</a>
+    <a href="runs.html" data-testid="nav-runs">Runs</a>
+    <a href="ops.html" data-testid="nav-ops">Ops</a>
+    <a href="schedule.html" data-testid="nav-schedule">Schedule</a>
+    <a href="kb.html" data-testid="nav-kb">KB</a>
+    <a href="search.html" data-testid="nav-search">Search</a>
+    <a href="settings.html" data-testid="nav-settings">Settings</a>
   </nav>
   <main class="container">
     <header class="page-header">
-      <h1>Settings</h1>
+      <h1 data-testid="page-title">Settings</h1>
       <p>API_BASE と API_TOKEN を保存し、接続テストを行います。</p>
     </header>
 
@@ -27,15 +27,15 @@
         <h2>API Settings</h2>
       </div>
       <div class="form-row">
-        <input id="api-base" placeholder="API_BASE (https://xxx.workers.dev)" />
-        <input id="api-token" placeholder="API_TOKEN (Bearer)" />
+        <input id="api-base" placeholder="API_BASE (https://xxx.workers.dev)" data-testid="api-base" />
+        <input id="api-token" placeholder="API_TOKEN (Bearer)" data-testid="api-token" />
       </div>
       <div class="flex">
-        <button id="save-settings">保存</button>
-        <button class="secondary" id="test-connection">接続テスト</button>
-        <button class="secondary" id="clear-settings">削除</button>
+        <button id="save-settings" data-testid="save-settings">保存</button>
+        <button class="secondary" id="test-connection" data-testid="test-connection">接続テスト</button>
+        <button class="secondary" id="clear-settings" data-testid="clear-settings">削除</button>
       </div>
-      <div id="settings-status" class="notice">未保存</div>
+      <div id="settings-status" class="notice" data-testid="settings-status">未保存</div>
     </section>
 
     <section class="panel">
