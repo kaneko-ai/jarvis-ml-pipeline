@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>P10 資金×時間最適化</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 24px;
+      background: #f7f8fb;
+      color: #1e1f23;
+    }
+    header {
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin: 0 0 8px 0;
+    }
+    .note {
+      color: #6d6f76;
+      font-size: 0.9rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 8px 20px rgba(15, 18, 30, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      margin-right: 6px;
+    }
+    .badge.warn {
+      background: #fff3cd;
+      color: #8b6c00;
+    }
+    .badge.danger {
+      background: #fde2e2;
+      color: #b42318;
+    }
+    .badge.ok {
+      background: #e7f7ef;
+      color: #107154;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #e6e8ec;
+      text-align: left;
+    }
+    th {
+      background: #f2f4f8;
+    }
+    .scenario {
+      margin-top: 12px;
+    }
+    .scenario h3 {
+      margin: 8px 0;
+    }
+    .summary {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .summary span {
+      background: #eef2ff;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>P10 資金×時間最適化ダッシュボード</h1>
+    <div class="note">すべての数値・提案は仮定に基づく推測です。</div>
+  </header>
+
+  <section class="grid">
+    <div class="card">
+      <h2>警告バッジ</h2>
+      <div>
+        <span class="badge danger">赤字リスク</span>
+        <span class="badge warn">過労リスク</span>
+        <span class="badge warn">研究遅延</span>
+        <span class="badge ok">成立可能</span>
+      </div>
+      <p class="note">シナリオごとに自動検知（推測です）。</p>
+    </div>
+    <div class="card">
+      <h2>週次可処分時間</h2>
+      <div class="summary">
+        <span>研究 45h</span>
+        <span>RA/TA 10h</span>
+        <span>休養 15h</span>
+      </div>
+      <p class="note">P9の計画と照合（推測です）。</p>
+    </div>
+    <div class="card">
+      <h2>月次キャッシュフロー</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>月</th>
+            <th>収入</th>
+            <th>支出</th>
+            <th>残高</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2025-04</td>
+            <td>¥250,000</td>
+            <td>¥155,000</td>
+            <td>¥395,000</td>
+          </tr>
+          <tr>
+            <td>2025-05</td>
+            <td>¥230,000</td>
+            <td>¥155,000</td>
+            <td>¥470,000</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">期待値と下振れを併記（推測です）。</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>シナリオ比較</h2>
+    <div class="scenario">
+      <h3>S1: DC1採択（RAなし）</h3>
+      <div class="summary">
+        <span>status: feasible</span>
+        <span>最低残高: ¥320,000</span>
+        <span>研究達成率: 95%</span>
+      </div>
+    </div>
+    <div class="scenario">
+      <h3>S2: DC1不採択＋RA/TA</h3>
+      <div class="summary">
+        <span>status: risky</span>
+        <span>最低残高: ¥120,000</span>
+        <span>研究達成率: 85%</span>
+      </div>
+    </div>
+    <div class="scenario">
+      <h3>S4: 最悪ケース</h3>
+      <div class="summary">
+        <span>status: infeasible</span>
+        <span>破綻月: 2026-02</span>
+        <span>過労リスク: 高</span>
+      </div>
+    </div>
+    <p class="note">最適/準最適解の提示は説明可能性を優先（推測です）。</p>
+  </section>
+</body>
+</html>
