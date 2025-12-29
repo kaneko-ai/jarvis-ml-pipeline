@@ -1,0 +1,40 @@
+base: -0.1
+ready_high_limit: 1
+thresholds:
+  high: 0.75
+  medium: 0.45
+weights:
+  error_count: 0.7
+  warn_count: 0.3
+  ambiguous_count: 0.2
+  weak_evidence: 0.6
+  avg_sentence_length: 0.05
+  subject_missing: 0.25
+  causal_present: 0.2
+category_rules:
+  evidence:
+    base: 0.2
+    features:
+      weak_evidence: 0.5
+      evidence_count: -0.1
+  terminology:
+    base: 0.1
+    features:
+      ambiguous_count: 0.2
+  logic:
+    base: 0.1
+    features:
+      causal_present: 0.2
+  expression:
+    base: 0.1
+    features:
+      ambiguous_count: 0.1
+  figure:
+    base: 0.05
+    features: {}
+  conclusion:
+    base: 0.05
+    features: {}
+  format:
+    base: 0.05
+    features: {}

@@ -317,6 +317,7 @@ class BundleAssembler:
         citations = artifacts.get("citations", [])
         evidence = artifacts.get("evidence", [])
         warnings = artifacts.get("warnings", [])
+        feedback_risk = artifacts.get("feedback_risk") or {}
         
         # メトリクス計算
         citation_count = len(citations)
@@ -346,12 +347,22 @@ class BundleAssembler:
             if not quality_report.get("gate_passed", True):
                 gate_passed = False
             fail_reasons.extend(quality_report.get("fail_reasons", []))
+
+        feedback_summary = feedback_risk.get("summary") if isinstance(feedback_risk, dict) else None
+        ready_to_submit = True
+        ready_with_risk = False
+        if feedback_summary:
+            ready_to_submit = feedback_summary.get("ready_to_submit", True)
+            ready_with_risk = feedback_summary.get("ready_with_risk", False)
         
         return {
             "run_id": context.get("run_id", "unknown"),
             "status": "pass" if gate_passed else "fail",
             "gate_passed": gate_passed,
             "fail_reasons": fail_reasons,
+            "ready_to_submit": ready_to_submit,
+            "ready_with_risk": ready_with_risk,
+            "feedback_risk": feedback_summary,
             "metrics": {
                 "citation_count": citation_count,
                 "evidence_count": evidence_count,
@@ -382,6 +393,16 @@ class BundleAssembler:
         metrics = eval_summary.get("metrics", {})
         for key, value in metrics.items():
             lines.append(f"- **{key}:** {value}")
+
+        feedback_summary = eval_summary.get("feedback_risk")
+        if feedback_summary:
+            lines.extend(["", "## Feedback Risk Summary", ""])
+            lines.append(f"- **High:** {feedback_summary.get('high', 0)}")
+            lines.append(f"- **Medium:** {feedback_summary.get('medium', 0)}")
+            lines.append(f"- **Low:** {feedback_summary.get('low', 0)}")
+            top_categories = ", ".join(feedback_summary.get("top_categories", []))
+            lines.append(f"- **Top Categories:** {top_categories or 'N/A'}")
+            lines.append(f"- **Ready to Submit:** {eval_summary.get('ready_to_submit', True)}")
         
         lines.extend(["", "---", "", "## Answer", "", artifacts.get("answer", "(no answer)"), ""])
         

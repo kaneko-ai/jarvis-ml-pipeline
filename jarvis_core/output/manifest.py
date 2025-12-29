@@ -65,6 +65,7 @@ def build_manifest(run_dir: Path) -> Dict[str, Any]:
         "cost_report.json",
         "features.jsonl",
         "retrieval_snapshot.json",
+        "feedback_risk.json",
     ]
     
     all_files = bundle_files + optional_files
@@ -96,6 +97,17 @@ def build_manifest(run_dir: Path) -> Dict[str, Any]:
                 "size_bytes": None,
                 "exists": False
             }
+
+    eval_path = run_dir / "eval_summary.json"
+    if eval_path.exists():
+        try:
+            with open(eval_path, "r", encoding="utf-8") as f:
+                eval_summary = json.load(f)
+            feedback_summary = eval_summary.get("feedback_risk")
+            if feedback_summary:
+                manifest["feedback_risk"] = feedback_summary
+        except Exception:
+            pass
     
     return manifest
 

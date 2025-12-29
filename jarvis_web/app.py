@@ -905,6 +905,13 @@ if FASTAPI_AVAILABLE:
         return await call_next(request)
 
 
+# === Feedback API (P8) ===
+if FASTAPI_AVAILABLE:
+    from jarvis_web.routes import feedback_router
+
+    app.include_router(feedback_router)
+
+
 # Legacy compatibility endpoints
 if FASTAPI_AVAILABLE:
 

@@ -64,6 +64,15 @@ def _notify_job_failed(job_id: str, reason: str) -> None:
     )
 
 
+def _top_categories(items: List[Dict[str, Any]]) -> List[str]:
+    tally: Dict[str, float] = {}
+    for item in items:
+        for category in item["top_categories"]:
+            key = category["category"]
+            tally[key] = tally.get(key, 0.0) + category["prob"]
+    return [k for k, _ in sorted(tally.items(), key=lambda kv: kv[1], reverse=True)[:3]]
+
+
 def _set_step_progress(job_id: str, base: int, weight: int, done: int, total: int) -> None:
     if total <= 0:
         jobs.set_progress(job_id, base + weight)
@@ -478,6 +487,72 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
         status="success",
         duration_ms=(time.time() - run_start) * 1000,
     )
+
+
+def run_feedback_analysis(job_id: str, payload: Dict[str, Any]) -> None:
+    from jarvis_core.feedback.feature_extractor import FeedbackFeatureExtractor
+    from jarvis_core.feedback.history_store import FeedbackHistoryStore
+    from jarvis_core.feedback.risk_model import FeedbackRiskModel
+    from jarvis_core.feedback.suggestion_engine import SuggestionEngine
+
+    text = payload.get("text", "")
+    section = payload.get("section", "draft")
+    document_type = payload.get("document_type", "draft")
+
+    if not text.strip():
+        jobs.set_error(job_id, "feedback analysis requires text payload")
+        jobs.set_status(job_id, "failed")
+        return
+
+    jobs.set_status(job_id, "running")
+    jobs.set_step(job_id, "analyze")
+
+    extractor = FeedbackFeatureExtractor()
+    history = FeedbackHistoryStore().list_entries(limit=200)
+    risk_model = FeedbackRiskModel()
+    suggestion_engine = SuggestionEngine(history)
+
+    items = []
+    for record in extractor.extract(text, section=section):
+        risk = risk_model.score(record.features, history, section=record.section)
+        top_categories = [c["category"] for c in risk["top_categories"]]
+        suggestions = suggestion_engine.suggest(record.text, top_categories)
+        items.append({
+            "location": record.location,
+            "risk_score": risk["risk_score"],
+            "risk_level": risk["risk_level"],
+            "top_categories": risk["top_categories"],
+            "reasons": risk["reasons"],
+            "suggestions": suggestions,
+        })
+
+    summary = {
+        "high": sum(1 for i in items if i["risk_level"] == "high"),
+        "medium": sum(1 for i in items if i["risk_level"] == "medium"),
+        "low": sum(1 for i in items if i["risk_level"] == "low"),
+        "top_categories": _top_categories(items),
+        "ready_to_submit": False,
+        "ready_with_risk": False,
+    }
+    ready_high_limit = risk_model.ready_threshold()
+    summary["ready_to_submit"] = summary["high"] <= 0
+    summary["ready_with_risk"] = 0 < summary["high"] <= ready_high_limit
+
+    report = {
+        "document_type": document_type,
+        "summary": summary,
+        "items": items,
+    }
+
+    output_path = Path("data/feedback") / f"analysis_{job_id}.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(report, f, ensure_ascii=False, indent=2)
+
+    jobs.set_progress(job_id, 100)
+    jobs.set_step(job_id, "done")
+    jobs.set_status(job_id, "success")
+    jobs.append_event(job_id, {"message": f"feedback analysis saved: {output_path}", "level": "info"})
 
 
 def run_job(job_id: str) -> None:
