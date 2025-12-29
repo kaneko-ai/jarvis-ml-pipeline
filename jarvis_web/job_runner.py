@@ -4,12 +4,15 @@ from __future__ import annotations
 import json
 import os
 import threading
+import time
 import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 from jarvis_web import jobs
+from jarvis_core.obs.logger import get_logger
+from jarvis_core.obs import metrics
 
 
 STEP_WEIGHTS = {
@@ -87,23 +90,41 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
     max_results = int(payload.get("max_results", 50))
     oa_only = bool(payload.get("oa_only", False))
 
+    run_id = job_id
+    logger = get_logger(run_id=run_id, job_id=job_id, component="scheduler")
+    metrics.record_run_start(run_id=run_id, job_id=job_id, component="scheduler")
+    run_start = time.time()
+
     jobs.set_status(job_id, "running")
     jobs.set_step(job_id, "collect")
     jobs.append_event(job_id, {"message": f"collecting: {query}", "level": "info"})
+    logger.step_start("Collecting", data={"query": query, "max_results": max_results, "oa_only": oa_only})
 
     try:
         result = collect_papers(query=query, max_results=max_results, oa_only=oa_only)
     except Exception as exc:
         jobs.set_error(job_id, f"collect failed: {exc}")
         jobs.set_status(job_id, "failed")
+        logger.error("collect failed", step="Collecting", exc=exc)
+        metrics.record_run_end(
+            run_id=run_id,
+            job_id=job_id,
+            status="failed",
+            duration_ms=(time.time() - run_start) * 1000,
+            error_type=type(exc).__name__,
+            error_message=str(exc),
+        )
         return
 
     jobs.inc_counts(job_id, found=result.total_found)
     if result.warnings:
         for warning in result.warnings:
             jobs.append_event(job_id, {"message": warning.get("message", "warning"), "level": "warning"})
+            logger.warning(warning.get("message", "warning"), step="Collecting")
 
     jobs.set_progress(job_id, STEP_WEIGHTS["collect"])
+    metrics.record_progress(run_id, "Collecting", STEP_WEIGHTS["collect"])
+    logger.step_end("Collecting", data={"found": result.total_found})
 
     research_dir = Path("data/research") / job_id
     research_dir.mkdir(parents=True, exist_ok=True)
@@ -116,11 +137,14 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
 
     oa_resolver = OAResolver(unpaywall_email=os.getenv("UNPAYWALL_EMAIL"))
     papers: List[Dict[str, Any]] = []
+    oa_count = 0
     for paper in result.papers:
         record = paper.to_dict()
         record["pdf_url"] = paper.pdf_url or ""
         record["fulltext_url"] = paper.xml_url or ""
         record.update(oa_resolver.resolve(record))
+        if record.get("is_oa") or record.get("oa_status") == "oa":
+            oa_count += 1
         papers.append(record)
     if papers:
         _append_jsonl(papers_path, papers)
@@ -133,27 +157,36 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
     dedup_result = dedup_engine.deduplicate(audited_papers)
     canonical_papers = dedup_result.canonical_papers
     jobs.inc_counts(job_id, deduped=dedup_result.merged_count, canonical_papers=len(canonical_papers))
+    jobs.inc_counts(job_id, oa_count=oa_count)
     _append_jsonl(research_dir / "canonical_papers.jsonl", canonical_papers)
 
     total_papers = len(result.papers)
     downloaded: List[Tuple[Any, str]] = []
 
     jobs.set_step(job_id, "download")
+    step_start = time.time()
+    logger.step_start("Downloading")
     for idx, paper in enumerate(result.papers, start=1):
         try:
             text = "\n\n".join([p for p in [paper.title, paper.abstract] if p])
             if not text.strip():
                 jobs.inc_counts(job_id, failed=1)
                 jobs.append_event(job_id, {"message": f"no text for PMID {paper.pmid}", "level": "warning"})
+                logger.warning(f"no text for PMID {paper.pmid}", step="Downloading")
             else:
                 downloaded.append((paper, text))
                 jobs.inc_counts(job_id, downloaded=1)
         except Exception as exc:
             jobs.inc_counts(job_id, failed=1)
             jobs.append_event(job_id, {"message": f"download failed for PMID {paper.pmid}: {exc}", "level": "warning"})
+            logger.warning(f"download failed for PMID {paper.pmid}", step="Downloading", data={"error": str(exc)})
         _set_step_progress(job_id, STEP_WEIGHTS["collect"], STEP_WEIGHTS["download"], idx, total_papers)
+    logger.step_end("Downloading", data={"downloaded": len(downloaded)})
+    metrics.record_step_duration(run_id, "Downloading", (time.time() - step_start) * 1000)
 
     jobs.set_step(job_id, "extract")
+    step_start = time.time()
+    logger.step_start("Extracting")
     extracted: List[Tuple[Any, str]] = []
     for idx, (paper, text) in enumerate(downloaded, start=1):
         try:
@@ -162,9 +195,14 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
         except Exception as exc:
             jobs.inc_counts(job_id, failed=1)
             jobs.append_event(job_id, {"message": f"extract failed for PMID {paper.pmid}: {exc}", "level": "warning"})
+            logger.warning(f"extract failed for PMID {paper.pmid}", step="Extracting", data={"error": str(exc)})
         _set_step_progress(job_id, 40, STEP_WEIGHTS["extract"], idx, len(downloaded))
+    logger.step_end("Extracting", data={"extracted": len(extracted)})
+    metrics.record_step_duration(run_id, "Extracting", (time.time() - step_start) * 1000)
 
     jobs.set_step(job_id, "chunk")
+    step_start = time.time()
+    logger.step_start("Chunking")
     chunker = TextChunker()
     for idx, (paper, text) in enumerate(extracted, start=1):
         try:
@@ -181,18 +219,35 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
         except Exception as exc:
             jobs.inc_counts(job_id, failed=1)
             jobs.append_event(job_id, {"message": f"chunk failed for PMID {paper.pmid}: {exc}", "level": "warning"})
+            logger.warning(f"chunk failed for PMID {paper.pmid}", step="Chunking", data={"error": str(exc)})
         _set_step_progress(job_id, 65, STEP_WEIGHTS["chunk"], idx, len(extracted))
+    logger.step_end("Chunking")
+    metrics.record_step_duration(run_id, "Chunking", (time.time() - step_start) * 1000)
 
     jobs.set_step(job_id, "index")
+    step_start = time.time()
+    logger.step_start("Indexing")
     try:
         engine = get_search_engine()
         indexed = engine.load_chunks(chunks_path)
         jobs.inc_counts(job_id, indexed=indexed)
         jobs.append_event(job_id, {"message": f"indexed {indexed} chunks", "level": "info"})
+        logger.info(f"indexed {indexed} chunks", step="Indexing", data={"indexed": indexed})
     except Exception as exc:
         jobs.set_error(job_id, f"index failed: {exc}")
         jobs.set_status(job_id, "failed")
+        logger.error("index failed", step="Indexing", exc=exc)
+        metrics.record_run_end(
+            run_id=run_id,
+            job_id=job_id,
+            status="failed",
+            duration_ms=(time.time() - run_start) * 1000,
+            error_type=type(exc).__name__,
+            error_message=str(exc),
+        )
         return
+    logger.step_end("Indexing")
+    metrics.record_step_duration(run_id, "Indexing", (time.time() - step_start) * 1000)
 
     claims: List[Dict[str, Any]] = []
     scores: Dict[str, Any] = {}
@@ -322,12 +377,22 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
     jobs.set_step(job_id, "done")
     jobs.set_status(job_id, "success")
     jobs.append_event(job_id, {"message": "job complete", "level": "info"})
+    logger.step_end("RunComplete", data={"status": "success"})
+    metrics.record_counts(run_id, jobs.read_job(job_id)["counts"])
+    metrics.record_run_end(
+        run_id=run_id,
+        job_id=job_id,
+        status="success",
+        duration_ms=(time.time() - run_start) * 1000,
+    )
 
 
 def run_job(job_id: str) -> None:
     job = jobs.read_job(job_id)
     job_type = job.get("type")
     payload = job.get("payload", {})
+    logger = get_logger(run_id=job_id, job_id=job_id, component="scheduler")
+    start_time = time.time()
 
     try:
         if job_type == "collect_and_ingest":
@@ -335,8 +400,26 @@ def run_job(job_id: str) -> None:
         else:
             jobs.set_error(job_id, f"unknown job type: {job_type}")
             jobs.set_status(job_id, "failed")
+            logger.error("unknown job type", step="Dispatch", data={"job_type": job_type})
+            metrics.record_run_end(
+                run_id=job_id,
+                job_id=job_id,
+                status="failed",
+                duration_ms=(time.time() - start_time) * 1000,
+                error_type="UnknownJobType",
+                error_message=str(job_type),
+            )
     except Exception as exc:
         trimmed = "\n".join(traceback.format_exc().splitlines()[-6:])
         jobs.append_event(job_id, {"message": trimmed, "level": "error"})
         jobs.set_error(job_id, f"{type(exc).__name__}: {exc}")
         jobs.set_status(job_id, "failed")
+        logger.error("job crashed", step="Dispatch", exc=exc)
+        metrics.record_run_end(
+            run_id=job_id,
+            job_id=job_id,
+            status="failed",
+            duration_ms=(time.time() - start_time) * 1000,
+            error_type=type(exc).__name__,
+            error_message=str(exc),
+        )
