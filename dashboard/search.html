@@ -24,12 +24,85 @@
 
     <section class="panel">
       <div class="section-title">
-        <h2>Search Hub</h2>
+        <h2>Search Index 管理</h2>
+        <div class="flex">
+          <button class="secondary" id="refreshIndexButton" type="button">ステータス更新</button>
+          <button id="rebuildIndexButton" type="button">再構築</button>
+        </div>
       </div>
-      <div class="notice">未実装: キーワード検索やフィルタUIをここに追加します。</div>
+      <div class="grid cols-3">
+        <div class="kpi-card">
+          <h3>Index Status</h3>
+          <div class="value" id="indexStatusValue">-</div>
+          <div id="indexStatusBadge"></div>
+        </div>
+        <div class="kpi-card">
+          <h3>Documents</h3>
+          <div class="value" id="indexDocumentCount">-</div>
+        </div>
+        <div class="kpi-card">
+          <h3>Last Updated</h3>
+          <div class="value" id="indexUpdatedAt">-</div>
+        </div>
+      </div>
+      <p class="muted" id="indexStatusMessage">API連携の準備ができていません。</p>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Saved Queries</h2>
+      </div>
+      <form id="savedQueryForm">
+        <div class="form-row">
+          <label>
+            保存名
+            <input type="text" id="savedQueryName" placeholder="例: 最新の糖尿病研究" />
+          </label>
+          <label>
+            検索クエリ
+            <input type="text" id="savedQueryText" placeholder="キーワードを入力" required />
+          </label>
+        </div>
+        <div class="form-row">
+          <label>
+            top_k
+            <input type="number" id="savedQueryTopK" min="1" max="100" value="20" />
+          </label>
+          <label>
+            paper_id (任意)
+            <input type="text" id="savedQueryPaperId" placeholder="特定論文ID" />
+          </label>
+        </div>
+        <div class="form-row">
+          <label>
+            メモ
+            <input type="text" id="savedQueryNote" placeholder="用途や前提" />
+          </label>
+        </div>
+        <div class="flex">
+          <button type="submit">保存</button>
+          <button type="button" class="secondary" id="runSearchButton">検索実行</button>
+        </div>
+      </form>
+
+      <hr />
+
+      <div class="section-title">
+        <h3>保存済み検索条件</h3>
+      </div>
+      <div id="savedQueriesList" class="grid cols-2"></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Search Results</h2>
+      </div>
+      <div id="searchResults" class="notice">検索結果はここに表示されます。</div>
     </section>
   </main>
 
+  <script src="assets/storage.js"></script>
+  <script src="assets/app.js"></script>
   <script src="assets/ui.js"></script>
   <script>
     const setActiveNav = () => {
@@ -42,6 +115,256 @@
     };
 
     setActiveNav();
+
+    const SAVED_QUERIES_KEY = "JARVIS_SAVED_SEARCH_QUERIES";
+    const indexStatusValue = ui.qs("#indexStatusValue");
+    const indexStatusBadge = ui.qs("#indexStatusBadge");
+    const indexDocumentCount = ui.qs("#indexDocumentCount");
+    const indexUpdatedAt = ui.qs("#indexUpdatedAt");
+    const indexStatusMessage = ui.qs("#indexStatusMessage");
+    const refreshIndexButton = ui.qs("#refreshIndexButton");
+    const rebuildIndexButton = ui.qs("#rebuildIndexButton");
+    const savedQueryForm = ui.qs("#savedQueryForm");
+    const savedQueryName = ui.qs("#savedQueryName");
+    const savedQueryText = ui.qs("#savedQueryText");
+    const savedQueryTopK = ui.qs("#savedQueryTopK");
+    const savedQueryPaperId = ui.qs("#savedQueryPaperId");
+    const savedQueryNote = ui.qs("#savedQueryNote");
+    const runSearchButton = ui.qs("#runSearchButton");
+    const savedQueriesList = ui.qs("#savedQueriesList");
+    const searchResults = ui.qs("#searchResults");
+
+    const getSavedQueries = () => {
+      try {
+        const raw = localStorage.getItem(SAVED_QUERIES_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    };
+
+    const setSavedQueries = (queries) => {
+      localStorage.setItem(SAVED_QUERIES_KEY, JSON.stringify(queries));
+    };
+
+    const formatIndexStatus = (status) => {
+      const value = String(status || "unknown");
+      const normalized = value.toLowerCase();
+      if (["ready", "available", "built", "ok"].some((key) => normalized.includes(key))) {
+        return { label: value, tone: "success" };
+      }
+      if (["building", "indexing", "running"].some((key) => normalized.includes(key))) {
+        return { label: value, tone: "warning" };
+      }
+      if (["missing", "empty", "error", "failed"].some((key) => normalized.includes(key))) {
+        return { label: value, tone: "danger" };
+      }
+      return { label: value, tone: "" };
+    };
+
+    const renderIndexStatus = (payload = {}) => {
+      const statusValue = payload.status || payload.state || payload.health || "未確認";
+      const { label, tone } = formatIndexStatus(statusValue);
+      indexStatusValue.textContent = label;
+      indexStatusBadge.innerHTML = "";
+      indexStatusBadge.appendChild(ui.badge("status", tone));
+      indexDocumentCount.textContent = ui.formatNumber(
+        payload.document_count ?? payload.documents ?? payload.doc_count ?? "-"
+      );
+      indexUpdatedAt.textContent = ui.formatDateTime(payload.updated_at || payload.last_updated || payload.built_at);
+      indexStatusMessage.textContent = payload.message || payload.note || "インデックス情報を確認中です。";
+    };
+
+    const showIndexFallback = (message) => {
+      renderIndexStatus({
+        status: "未実装",
+        document_count: "-",
+        updated_at: null,
+        message,
+      });
+    };
+
+    const isApiConfigured = () => Boolean(app.getApiBase());
+
+    const setIndexControlsState = () => {
+      const enabled = isApiConfigured();
+      refreshIndexButton.disabled = !enabled;
+      rebuildIndexButton.disabled = !enabled;
+      if (!enabled) {
+        showIndexFallback("API_BASEが未設定のため、インデックス状態を取得できません。");
+      }
+    };
+
+    const fetchIndexStatus = async () => {
+      if (!isApiConfigured()) {
+        setIndexControlsState();
+        return;
+      }
+      const response = await app.apiFetchSafe("/api/search/index/status");
+      if (!response.ok) {
+        const message = response.error?.message || "未実装の可能性があります。";
+        showIndexFallback(`未実装表示: ${message}`);
+        return;
+      }
+      renderIndexStatus(response.data || {});
+    };
+
+    const rebuildIndex = async () => {
+      if (!isApiConfigured()) {
+        setIndexControlsState();
+        return;
+      }
+      const response = await app.apiFetchSafe("/api/search/index/rebuild", { method: "POST" });
+      if (!response.ok) {
+        const message = response.error?.message || "未実装の可能性があります。";
+        showIndexFallback(`未実装表示: ${message}`);
+        return;
+      }
+      indexStatusMessage.textContent = "再構築ジョブを開始しました。";
+      ui.toast("再構築を開始しました", "success");
+      fetchIndexStatus();
+    };
+
+    const renderSavedQueries = () => {
+      const queries = getSavedQueries();
+      savedQueriesList.innerHTML = "";
+      if (queries.length === 0) {
+        savedQueriesList.appendChild(
+          ui.el("div", { className: "notice", text: "保存済みの検索条件がありません。" })
+        );
+        return;
+      }
+      queries.forEach((query, index) => {
+        const card = ui.el("div", { className: "kpi-card saved-query-card" });
+        card.appendChild(ui.el("h3", { text: query.name || query.query || "Saved Query" }));
+        card.appendChild(ui.el("p", { className: "muted", text: `Query: ${query.query}` }));
+        if (query.paper_id) {
+          card.appendChild(ui.el("p", { className: "muted", text: `paper_id: ${query.paper_id}` }));
+        }
+        if (query.note) {
+          card.appendChild(ui.el("p", { className: "muted", text: query.note }));
+        }
+        const meta = ui.el("p", {
+          className: "muted",
+          text: `top_k: ${query.top_k} / 保存: ${ui.formatDateTime(query.saved_at)}`,
+        });
+        card.appendChild(meta);
+        const actions = ui.el("div", { className: "flex" });
+        const runButton = ui.el("button", { text: "再実行", attrs: { type: "button" } });
+        runButton.addEventListener("click", () => runSearch(query));
+        const deleteButton = ui.el("button", {
+          text: "削除",
+          className: "secondary",
+          attrs: { type: "button" },
+        });
+        deleteButton.addEventListener("click", () => {
+          const updated = getSavedQueries().filter((_, i) => i !== index);
+          setSavedQueries(updated);
+          renderSavedQueries();
+        });
+        actions.append(runButton, deleteButton);
+        card.appendChild(actions);
+        savedQueriesList.appendChild(card);
+      });
+    };
+
+    const showSearchNotice = (message) => {
+      searchResults.className = "notice";
+      searchResults.textContent = message;
+    };
+
+    const renderSearchResults = (payload) => {
+      if (!payload) {
+        showSearchNotice("検索結果がありません。");
+        return;
+      }
+      if (payload.error) {
+        showSearchNotice(`未実装表示: ${payload.error}`);
+        return;
+      }
+      const results = payload.results || payload.items || [];
+      searchResults.innerHTML = "";
+      if (results.length === 0) {
+        showSearchNotice("検索結果がありません。");
+        return;
+      }
+      const list = ui.el("div", { className: "grid cols-2" });
+      results.forEach((item) => {
+        const card = ui.el("div", { className: "kpi-card" });
+        card.appendChild(ui.el("h3", { text: item.title || item.paper_title || "Result" }));
+        if (item.score !== undefined) {
+          card.appendChild(ui.el("p", { className: "muted", text: `score: ${item.score}` }));
+        }
+        card.appendChild(ui.el("p", { className: "muted", text: item.text || item.snippet || "" }));
+        list.appendChild(card);
+      });
+      searchResults.appendChild(list);
+    };
+
+    const runSearch = async (queryPayload) => {
+      if (!isApiConfigured()) {
+        showSearchNotice("API_BASEが未設定のため検索できません。");
+        return;
+      }
+      const params = new URLSearchParams({
+        q: queryPayload.query,
+        top_k: String(queryPayload.top_k || 20),
+      });
+      if (queryPayload.paper_id) {
+        params.set("paper_id", queryPayload.paper_id);
+      }
+      showSearchNotice("検索中...");
+      const response = await app.apiFetchSafe(`/api/search?${params.toString()}`);
+      if (!response.ok) {
+        showSearchNotice(`未実装表示: ${response.error?.message || "検索に失敗しました。"}`);
+        return;
+      }
+      renderSearchResults(response.data || {});
+    };
+
+    savedQueryForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const name = savedQueryName.value.trim();
+      const query = savedQueryText.value.trim();
+      if (!query) {
+        ui.toast("検索クエリを入力してください", "warning");
+        return;
+      }
+      const payload = {
+        name,
+        query,
+        top_k: Number(savedQueryTopK.value) || 20,
+        paper_id: savedQueryPaperId.value.trim(),
+        note: savedQueryNote.value.trim(),
+        saved_at: new Date().toISOString(),
+      };
+      const updated = [payload, ...getSavedQueries()].slice(0, 20);
+      setSavedQueries(updated);
+      renderSavedQueries();
+      ui.toast("検索条件を保存しました", "success");
+    });
+
+    runSearchButton.addEventListener("click", () => {
+      const payload = {
+        query: savedQueryText.value.trim(),
+        top_k: Number(savedQueryTopK.value) || 20,
+        paper_id: savedQueryPaperId.value.trim(),
+      };
+      if (!payload.query) {
+        ui.toast("検索クエリを入力してください", "warning");
+        return;
+      }
+      runSearch(payload);
+    });
+
+    refreshIndexButton.addEventListener("click", fetchIndexStatus);
+    rebuildIndexButton.addEventListener("click", rebuildIndex);
+
+    setIndexControlsState();
+    fetchIndexStatus();
+    renderSavedQueries();
   </script>
 </body>
 </html>
