@@ -367,6 +367,70 @@
             border-radius: 3px;
         }
 
+        .paper-card {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .paper-card h4 {
+            margin-bottom: 8px;
+        }
+
+        .paper-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 0.85em;
+        }
+
+        .tier-badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.8em;
+        }
+
+        .tier-S {
+            background: rgba(0, 212, 255, 0.2);
+            color: var(--accent);
+        }
+
+        .tier-A {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+        }
+
+        .tier-B {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--warning);
+        }
+
+        .tier-C {
+            background: rgba(255, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .claim-item {
+            margin-top: 8px;
+            padding: 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .claim-warning {
+            border-left: 3px solid var(--warning);
+        }
+
+        .evidence-item {
+            margin-top: 6px;
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+
         /* Upload Zone */
         .upload-zone {
             border: 2px dashed rgba(0, 212, 255, 0.3);
@@ -514,6 +578,7 @@
             <div class="nav-tab" onclick="showTab('search')">📑 検索</div>
             <div class="nav-tab" onclick="showTab('collect')">📥 収集</div>
             <div class="nav-tab" onclick="showTab('upload')">📁 アップロード</div>
+            <div class="nav-tab" onclick="showTab('research')">🏷️ Research</div>
             <div class="nav-tab" onclick="showTab('runs')">📋 実行履歴</div>
         </div>
 
@@ -675,6 +740,41 @@
             </div>
         </div>
 
+        <!-- Tab: Research -->
+        <div id="tab-research" class="tab-content">
+            <div class="section">
+                <div class="section-header">
+                    <h2>🏷️ Research Ranking</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="downloadManifest()">manifest ダウンロード</button>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Run ID（空欄なら最新ジョブ）</label>
+                        <input type="text" id="research-run-id" placeholder="job_YYYYMMDD_XXXXXX">
+                    </div>
+                    <div class="form-group">
+                        <label>クエリ</label>
+                        <input type="text" id="research-query" placeholder="CD73">
+                    </div>
+                    <div class="form-group">
+                        <label>Top K</label>
+                        <input type="number" id="research-top-k" value="50" min="1" max="200">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="loadResearchRank()">📊 Rank papers</button>
+                <div class="form-row" style="margin-top: 12px;">
+                    <button class="btn btn-secondary" onclick="setTierFilter('all')">All</button>
+                    <button class="btn btn-secondary" onclick="setTierFilter('S')">Tier S</button>
+                    <button class="btn btn-secondary" onclick="setTierFilter('A')">Tier A</button>
+                    <button class="btn btn-secondary" onclick="setTierFilter('B')">Tier B</button>
+                    <button class="btn btn-secondary" onclick="setTierFilter('C')">Tier C</button>
+                </div>
+                <div id="research-results" style="margin-top: 16px;"></div>
+            </div>
+        </div>
+
         <!-- Tab: Runs -->
         <div id="tab-runs" class="tab-content">
             <div class="section">
@@ -706,6 +806,8 @@
         let currentJobId = null;
         let jobPoller = null;
         let eventPoller = null;
+        let researchResults = [];
+        let tierFilter = 'all';
 
         async function loadConfig() {
             try {
@@ -727,6 +829,103 @@
             document.getElementById('tab-' + tabId).classList.add('active');
             document.querySelector(`.nav-tab[onclick="showTab('${tabId}')"]`).classList.add('active');
             currentTab = tabId;
+        }
+
+        function resolveRunId() {
+            const input = document.getElementById('research-run-id');
+            if (input && input.value.trim()) {
+                return input.value.trim();
+            }
+            if (currentJobId) {
+                return currentJobId;
+            }
+            if (runs.length > 0) {
+                return runs[0].run_id;
+            }
+            return '';
+        }
+
+        async function loadResearchRank() {
+            const runId = resolveRunId();
+            const query = document.getElementById('research-query').value.trim();
+            const topK = document.getElementById('research-top-k').value || 50;
+            if (!runId) {
+                document.getElementById('research-results').innerHTML = '<p>run_id がありません。</p>';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/research/rank?run_id=${runId}&q=${encodeURIComponent(query)}&top_k=${topK}&mode=hybrid`);
+                if (!res.ok) {
+                    throw new Error(await res.text());
+                }
+                const payload = await res.json();
+                researchResults = payload.results || [];
+                renderResearchResults();
+            } catch (err) {
+                document.getElementById('research-results').innerHTML = `<p style="color: var(--danger);">rank failed: ${err}</p>`;
+            }
+        }
+
+        function setTierFilter(tier) {
+            tierFilter = tier;
+            renderResearchResults();
+        }
+
+        function renderResearchResults() {
+            const container = document.getElementById('research-results');
+            if (!researchResults.length) {
+                container.innerHTML = '<p>結果がありません。</p>';
+                return;
+            }
+            const filtered = tierFilter === 'all'
+                ? researchResults
+                : researchResults.filter(item => item.tier === tierFilter);
+
+            container.innerHTML = filtered.map(item => {
+                const auditFlags = (item.audit_flags || []).map(flag => `<span class="badge badge-warning">${flag}</span>`).join(' ');
+                const oaBadge = item.oa_status ? `<span class="badge badge-success">${item.oa_status}</span>` : '';
+                const claims = (item.top_claims || []).map(claim => {
+                    const weak = (claim.audit_flags || []).includes('weak_evidence');
+                    const evidenceHtml = (claim.evidence || []).map(ev => `
+                        <div class="evidence-item">📌 ${ev.chunk_id} (${ev.locator?.section || 'section'}:${ev.locator?.paragraph_index || 0}) — ${ev.quote}</div>
+                    `).join('');
+                    return `
+                        <div class="claim-item ${weak ? 'claim-warning' : ''}">
+                            <div><strong>${claim.claim_type}</strong>: ${claim.claim_text}</div>
+                            ${weak ? '<div style="color: var(--warning); font-size: 0.85em;">⚠ weak evidence</div>' : ''}
+                            ${evidenceHtml}
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="paper-card">
+                        <h4>${item.title || item.canonical_paper_id}</h4>
+                        <div class="paper-meta">
+                            <span class="tier-badge tier-${item.tier}">Tier ${item.tier}</span>
+                            <span>score ${item.score}</span>
+                            <span>${item.year || ''}</span>
+                            <span>${item.journal || ''}</span>
+                            ${oaBadge}
+                            ${auditFlags}
+                        </div>
+                        <details style="margin-top: 10px;">
+                            <summary>Top claims (${(item.top_claims || []).length})</summary>
+                            ${claims || '<div class="claim-item">No claims</div>'}
+                        </details>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function downloadManifest() {
+            const runId = resolveRunId();
+            if (!runId) {
+                alert('run_id がありません');
+                return;
+            }
+            window.open(`${API_BASE}/api/runs/${runId}/manifest`, '_blank');
         }
 
         // === KPI Update (S-02: Fixed Definition) ===
