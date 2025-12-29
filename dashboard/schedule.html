@@ -19,17 +19,87 @@
   <main class="container">
     <header class="page-header">
       <h1>Schedule</h1>
-      <p>定期実行スケジュールの一覧と作成。</p>
+      <p>定期実行スケジュールの作成・編集・即時実行。</p>
     </header>
 
     <section class="panel">
       <div class="section-title">
         <h2>Create Schedule</h2>
       </div>
+      <div class="form-grid">
+        <label>
+          Name
+          <input id="schedule-name" placeholder="CD73 OA weekly" />
+        </label>
+        <label>
+          Timezone
+          <input id="schedule-timezone" placeholder="Asia/Tokyo" value="Asia/Tokyo" />
+        </label>
+        <label>
+          RRULE preset
+          <select id="schedule-rrule-preset">
+            <option value="">Custom</option>
+            <option value="DAILY">Daily</option>
+            <option value="WEEKLY">Weekly (Mon 03:00)</option>
+            <option value="MONTHLY">Monthly (1st 03:00)</option>
+          </select>
+        </label>
+        <label>
+          RRULE
+          <input id="schedule-rrule" placeholder="FREQ=WEEKLY;BYDAY=MO;BYHOUR=3;BYMINUTE=0;BYSECOND=0" />
+        </label>
+        <label>
+          Keywords (comma)
+          <input id="schedule-keywords" placeholder="CD73,NT5E" />
+        </label>
+        <label>
+          Date range (days)
+          <input id="schedule-date-range" type="number" value="30" />
+        </label>
+        <label>
+          Max papers
+          <input id="schedule-max-papers" type="number" value="50" />
+        </label>
+        <label>
+          OA only
+          <select id="schedule-oa-only">
+            <option value="true" selected>Yes</option>
+            <option value="false">No</option>
+          </select>
+        </label>
+        <label>
+          OA policy
+          <select id="schedule-oa-policy">
+            <option value="strict" selected>Strict</option>
+            <option value="lenient">Lenient</option>
+          </select>
+        </label>
+        <label>
+          Max runtime (minutes)
+          <input id="schedule-max-runtime" type="number" value="60" />
+        </label>
+        <label>
+          Max retries
+          <input id="schedule-max-retries" type="number" value="3" />
+        </label>
+        <label>
+          Cooldown (minutes)
+          <input id="schedule-cooldown" type="number" value="30" />
+        </label>
+      </div>
       <div class="form-row">
-        <input id="schedule-name" placeholder="name" />
-        <input id="schedule-cron" placeholder="cron (e.g. 0 9 * * *)" />
-        <input id="schedule-target" placeholder="target" />
+        <label class="checkbox">
+          <input id="schedule-output-notes" type="checkbox" checked />
+          Generate notes
+        </label>
+        <label class="checkbox">
+          <input id="schedule-output-zip" type="checkbox" checked />
+          Generate package zip
+        </label>
+        <label class="checkbox">
+          <input id="schedule-output-submission" type="checkbox" />
+          Generate submission package
+        </label>
       </div>
       <button id="create-schedule">Create</button>
       <div id="schedule-create-status" class="notice">未実行</div>
@@ -44,14 +114,36 @@
         <thead>
           <tr>
             <th>Name</th>
-            <th>Cron</th>
-            <th>Target</th>
+            <th>Enabled</th>
+            <th>Next Run</th>
+            <th>Last Run</th>
             <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
       <div id="schedule-empty" class="notice">未接続</div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>History</h2>
+        <span id="history-title" class="muted">未選択</span>
+      </div>
+      <table class="table" id="history-table">
+        <thead>
+          <tr>
+            <th>Run ID</th>
+            <th>Status</th>
+            <th>Attempts</th>
+            <th>Error</th>
+            <th>Updated</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="history-empty" class="notice">履歴がありません</div>
     </section>
   </main>
 
@@ -67,17 +159,62 @@
       });
     };
 
+    const presetToRrule = (preset) => {
+      if (preset === "DAILY") {
+        return "FREQ=DAILY;BYHOUR=3;BYMINUTE=0;BYSECOND=0";
+      }
+      if (preset === "WEEKLY") {
+        return "FREQ=WEEKLY;BYDAY=MO;BYHOUR=3;BYMINUTE=0;BYSECOND=0";
+      }
+      if (preset === "MONTHLY") {
+        return "FREQ=MONTHLY;BYMONTHDAY=1;BYHOUR=3;BYMINUTE=0;BYSECOND=0";
+      }
+      return "";
+    };
+
+    const renderHistory = async (scheduleId, name) => {
+      const tableBody = ui.qs("#history-table tbody");
+      const emptyEl = ui.qs("#history-empty");
+      ui.qs("#history-title").textContent = name || scheduleId || "未選択";
+      tableBody.innerHTML = "";
+      if (!scheduleId) {
+        emptyEl.style.display = "block";
+        return;
+      }
+      const response = await app.apiFetchSafe(`/api/schedules/${encodeURIComponent(scheduleId)}/history?limit=50`);
+      if (!response.ok) {
+        emptyEl.textContent = "取得に失敗しました";
+        emptyEl.style.display = "block";
+        return;
+      }
+      const history = response.data.history || [];
+      if (!history.length) {
+        emptyEl.style.display = "block";
+        return;
+      }
+      emptyEl.style.display = "none";
+      history.forEach((item) => {
+        const row = ui.el("tr");
+        row.appendChild(ui.el("td", { text: item.run_id }));
+        row.appendChild(ui.el("td", { text: item.status || "-" }));
+        row.appendChild(ui.el("td", { text: item.attempts || 0 }));
+        row.appendChild(ui.el("td", { text: item.error || "-" }));
+        row.appendChild(ui.el("td", { text: item.updated_at || "-" }));
+        tableBody.appendChild(row);
+      });
+    };
+
     const renderSchedules = async () => {
       const tableBody = ui.qs("#schedule-table tbody");
       const emptyEl = ui.qs("#schedule-empty");
       tableBody.innerHTML = "";
-      const response = await app.apiFetchSafe("/api/schedule");
+      const response = await app.apiFetchSafe("/api/schedules");
       if (!response.ok) {
         emptyEl.textContent = "未実装/未接続";
         emptyEl.style.display = "block";
         return;
       }
-      const list = response.data || [];
+      const list = response.data.schedules || [];
       if (!list.length) {
         emptyEl.textContent = "データがありません";
         emptyEl.style.display = "block";
@@ -87,9 +224,35 @@
       list.forEach((item) => {
         const row = ui.el("tr");
         row.appendChild(ui.el("td", { text: item.name || "-" }));
-        row.appendChild(ui.el("td", { text: item.cron || item.schedule || "-" }));
-        row.appendChild(ui.el("td", { text: item.target || "-" }));
-        row.appendChild(ui.el("td", { text: item.enabled ? "ON" : "OFF" }));
+        const enabledCell = ui.el("td");
+        const toggle = ui.el("input", { type: "checkbox" });
+        toggle.checked = Boolean(item.enabled);
+        toggle.addEventListener("change", async () => {
+          await app.apiFetchSafe(`/api/schedules/${encodeURIComponent(item.schedule_id)}`, {
+            method: "PATCH",
+            body: { enabled: toggle.checked },
+          });
+          renderSchedules();
+        });
+        enabledCell.appendChild(toggle);
+        row.appendChild(enabledCell);
+        row.appendChild(ui.el("td", { text: item.next_run_at || "-" }));
+        row.appendChild(ui.el("td", { text: item.last_run_at || "-" }));
+        row.appendChild(ui.el("td", { text: item.last_status || "-" }));
+        const actions = ui.el("td");
+        const runButton = ui.el("button", { text: "Run now" });
+        runButton.addEventListener("click", async () => {
+          await app.apiFetchSafe(`/api/schedules/${encodeURIComponent(item.schedule_id)}/run?force=true`, {
+            method: "POST",
+          });
+          renderSchedules();
+          renderHistory(item.schedule_id, item.name);
+        });
+        const historyButton = ui.el("button", { text: "History", className: "secondary" });
+        historyButton.addEventListener("click", () => renderHistory(item.schedule_id, item.name));
+        actions.appendChild(runButton);
+        actions.appendChild(historyButton);
+        row.appendChild(actions);
         tableBody.appendChild(row);
       });
     };
@@ -98,14 +261,42 @@
       setActiveNav();
       renderSchedules();
       ui.qs("#refresh-schedule").addEventListener("click", renderSchedules);
+      ui.qs("#schedule-rrule-preset").addEventListener("change", (event) => {
+        const preset = event.target.value;
+        const rrule = presetToRrule(preset);
+        if (rrule) {
+          ui.qs("#schedule-rrule").value = rrule;
+        }
+      });
       ui.qs("#create-schedule").addEventListener("click", async () => {
         const payload = {
           name: ui.qs("#schedule-name").value,
-          cron: ui.qs("#schedule-cron").value,
-          target: ui.qs("#schedule-target").value,
+          timezone: ui.qs("#schedule-timezone").value,
+          rrule: ui.qs("#schedule-rrule").value,
+          query: {
+            keywords: ui
+              .qs("#schedule-keywords")
+              .value.split(",")
+              .map((item) => item.trim())
+              .filter(Boolean),
+            date_range_days: Number(ui.qs("#schedule-date-range").value || 30),
+            max_papers: Number(ui.qs("#schedule-max-papers").value || 50),
+            oa_only: ui.qs("#schedule-oa-only").value === "true",
+            oa_policy: ui.qs("#schedule-oa-policy").value,
+          },
+          outputs: {
+            generate_notes: ui.qs("#schedule-output-notes").checked,
+            generate_package_zip: ui.qs("#schedule-output-zip").checked,
+            generate_submission_package: ui.qs("#schedule-output-submission").checked,
+          },
+          limits: {
+            max_runtime_minutes: Number(ui.qs("#schedule-max-runtime").value || 60),
+            max_retries: Number(ui.qs("#schedule-max-retries").value || 3),
+            cooldown_minutes_after_failure: Number(ui.qs("#schedule-cooldown").value || 30),
+          },
         };
-        const response = await app.apiFetchSafe("/api/schedule", { method: "POST", body: payload });
-        ui.qs("#schedule-create-status").textContent = response.ok ? "作成完了" : "未実装/未接続";
+        const response = await app.apiFetchSafe("/api/schedules", { method: "POST", body: payload });
+        ui.qs("#schedule-create-status").textContent = response.ok ? "作成完了" : "作成失敗";
         renderSchedules();
       });
     };

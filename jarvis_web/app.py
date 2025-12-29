@@ -38,13 +38,16 @@ LEGACY_RUNS_DIR = Path("logs/runs")
 UPLOADS_DIR = Path("data/uploads")
 MAX_UPLOAD_SIZE = 100 * 1024 * 1024  # 100MB per file
 MAX_BATCH_FILES = 100
-API_TOKEN = os.getenv("API_TOKEN")
 
 
 # Create app if FastAPI available
 if FASTAPI_AVAILABLE:
+    from jarvis_web.auth import verify_api_token, verify_token
     from jarvis_web.routes.research import router as research_router
     from jarvis_web.routes.finance import router as finance_router
+    from jarvis_web.routes.schedules import router as schedules_router
+    from jarvis_web.routes.cron import router as cron_router
+    from jarvis_web.routes.queue import router as queue_router
 
     app = FastAPI(
         title="JARVIS Research OS",
@@ -63,6 +66,9 @@ if FASTAPI_AVAILABLE:
 
     app.include_router(research_router)
     app.include_router(finance_router)
+    app.include_router(schedules_router)
+    app.include_router(cron_router)
+    app.include_router(queue_router)
 else:
     app = None
 
@@ -102,36 +108,7 @@ class UploadResponse(BaseModel):
     files: List[dict]
 
 
-# Authentication (RP-168)
-def verify_token(authorization: Optional[str] = Header(None)) -> bool:
-    """Verify authorization token."""
-    expected = os.environ.get("JARVIS_WEB_TOKEN", "")
-    if not expected:
-        return True  # No auth required
-
-    if authorization is None:
-        raise HTTPException(status_code=401, detail="Authorization header required")
-
-    token = authorization.replace("Bearer ", "")
-    if token != expected:
-        raise HTTPException(status_code=403, detail="Invalid token")
-
-    return True
-
-
-def verify_api_token(authorization: Optional[str] = Header(None)) -> bool:
-    """Verify API token for job creation."""
-    if not API_TOKEN:
-        return True
-
-    if authorization is None or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
-    token = authorization.replace("Bearer ", "")
-    if token != API_TOKEN:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
-    return True
+# Authentication (RP-168) moved to jarvis_web.auth
 
 
 def get_file_hash(filepath: Path) -> str:
