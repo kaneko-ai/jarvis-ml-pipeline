@@ -25,11 +25,11 @@
     <section class="panel">
       <div class="tabs">
         <button class="active" data-tab="overview">Overview</button>
-        <button data-tab="progress">Progress & Logs</button>
-        <button data-tab="papers">Papers (Rank)</button>
-        <button data-tab="claims">Claims & Evidence</button>
-        <button data-tab="qa">QA Report</button>
+        <button data-tab="progress">Progress</button>
         <button data-tab="exports">Exports</button>
+        <button data-tab="rank">Rank</button>
+        <button data-tab="claims">Claims</button>
+        <button data-tab="qa">QA</button>
         <button data-tab="submission">Submission</button>
       </div>
 
@@ -60,13 +60,23 @@
         <pre id="run-logs">ログ待機中...</pre>
       </div>
 
-      <div id="tab-papers" class="tab-content">
+      <div id="tab-exports" class="tab-content">
+        <div class="section-title">
+          <h2>Exports</h2>
+          <button class="secondary" id="refresh-exports">更新</button>
+        </div>
+        <div class="link-list" id="recommended-downloads"></div>
+        <hr />
+        <div id="exports-list"></div>
+      </div>
+
+      <div id="tab-rank" class="tab-content">
         <div class="section-title">
           <h2>Ranked Papers</h2>
-          <button class="secondary" id="refresh-papers">更新</button>
+          <button class="secondary" id="refresh-rank">更新</button>
         </div>
-        <div class="notice" id="papers-status">読み込み中...</div>
-        <div id="papers-content"></div>
+        <div class="notice" id="rank-status">読み込み中...</div>
+        <div id="rank-content"></div>
       </div>
 
       <div id="tab-claims" class="tab-content">
@@ -88,16 +98,6 @@
         </div>
         <div id="qa-status" class="notice">読み込み中...</div>
         <div id="qa-content"></div>
-      </div>
-
-      <div id="tab-exports" class="tab-content">
-        <div class="section-title">
-          <h2>Exports</h2>
-          <button class="secondary" id="refresh-exports">更新</button>
-        </div>
-        <div class="link-list" id="recommended-downloads"></div>
-        <hr />
-        <div id="exports-list"></div>
       </div>
 
       <div id="tab-submission" class="tab-content">
@@ -252,6 +252,7 @@
     };
 
     const startSse = () => {
+      if (!runId) return;
       const url = app.getRunEventsUrl(runId);
       if (!url || !window.EventSource) {
         startPolling();
@@ -294,9 +295,9 @@
       renderLogs(runData.logs || runData.log || runData.events);
     };
 
-    const renderPapers = async () => {
-      const status = ui.qs("#papers-status");
-      const content = ui.qs("#papers-content");
+    const renderRank = async () => {
+      const status = ui.qs("#rank-status");
+      const content = ui.qs("#rank-content");
       status.textContent = "読み込み中...";
       content.innerHTML = "";
 
@@ -484,13 +485,13 @@
       setTabs();
       await loadRun();
       startSse();
-      renderPapers();
+      renderRank();
       renderExports();
       renderQa();
       renderSubmission();
 
       ui.qs("#refresh-progress").addEventListener("click", loadRun);
-      ui.qs("#refresh-papers").addEventListener("click", renderPapers);
+      ui.qs("#refresh-rank").addEventListener("click", renderRank);
       ui.qs("#load-claims").addEventListener("click", renderClaims);
       ui.qs("#refresh-qa").addEventListener("click", renderQa);
       ui.qs("#refresh-exports").addEventListener("click", renderExports);
