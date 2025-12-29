@@ -114,6 +114,7 @@ const app = (() => {
 
   const listRuns = () => apiFetch("/api/runs");
   const getRun = (runId) => apiFetch(`/api/runs/${runId}`);
+  const listRunFiles = (runId) => apiFetch(`/api/runs/${runId}/files`);
   const getRunEventsUrl = (runId) => buildUrl(`/api/runs/${runId}/events`);
   const getHealth = () => apiFetch("/api/health");
   const getCronHealth = () => apiFetch("/api/health/cron");
@@ -151,6 +152,7 @@ const app = (() => {
     normalizeFileEntry,
     listRuns,
     getRun,
+    listRunFiles,
     getRunEventsUrl,
     getHealth,
     getCronHealth,
