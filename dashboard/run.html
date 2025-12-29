@@ -426,32 +426,62 @@
       content.appendChild(warnSection);
     };
 
-    const renderExports = () => {
+    const renderExports = async () => {
       const listEl = ui.qs("#exports-list");
       const recommended = ui.qs("#recommended-downloads");
       listEl.innerHTML = "";
       recommended.innerHTML = "";
-      const files = (runData.files || []).map(app.normalizeFileEntry).filter(Boolean);
-      if (!files.length) {
-        listEl.appendChild(ui.el("div", { className: "notice", text: "未実装/未接続" }));
+      if (!runId) {
+        listEl.appendChild(ui.el("div", { className: "notice", text: "run idが指定されていません" }));
+        recommended.appendChild(ui.el("div", { className: "notice", text: "成果物がありません" }));
         return;
       }
-      const recommendedKeys = [
-        "package.zip",
-        "notes.zip",
-        "drafts.docx",
-        "slides.pptx",
-        "manifest.json",
+      const apiFiles = await app.apiFetchSafe(`/api/runs/${encodeURIComponent(runId)}/files`);
+      const sourceFiles = apiFiles.ok ? apiFiles.data?.files : runData.files;
+      const files = (sourceFiles || []).map(app.normalizeFileEntry).filter(Boolean);
+      if (!files.length) {
+        listEl.appendChild(ui.el("div", { className: "notice", text: "未実装/未接続" }));
+        recommended.appendChild(ui.el("div", { className: "notice", text: "成果物がありません" }));
+        return;
+      }
+      const recommendedConfigs = [
+        { label: "Download ZIP", patterns: ["package.zip", "bundle.zip", "artifacts.zip", "submission.zip", "release.zip"] },
+        { label: "Download Notes", patterns: ["notes.zip", "notes.md", "notes.txt"] },
+        { label: "Download Slides", patterns: ["slides.pptx", "slides.pdf", "slides.key"] },
+        { label: "Download Manuscript", patterns: ["drafts.docx", "draft.docx", "manuscript.docx", "paper.docx"] },
+        { label: "Download Manifest", patterns: ["manifest.json"] },
       ];
+      const normalized = files.map((file) => ({
+        ...file,
+        name: file.name || "",
+        nameLower: String(file.name || "").toLowerCase(),
+      }));
+      const recommendedLinks = [];
+      recommendedConfigs.forEach((config) => {
+        const match = normalized.find((file) =>
+          config.patterns.some((pattern) => file.nameLower.includes(pattern))
+        );
+        if (!match) return;
+        const url = app.resolveFileUrl(runId, match);
+        if (!url) return;
+        recommendedLinks.push(
+          ui.el("a", {
+            text: config.label,
+            className: "download-button",
+            attrs: { href: url, target: "_blank", rel: "noopener" },
+          })
+        );
+      });
+      if (recommendedLinks.length) {
+        recommendedLinks.forEach((link) => recommended.appendChild(link));
+      } else {
+        recommended.appendChild(ui.el("div", { className: "notice", text: "おすすめ成果物はありません" }));
+      }
       files.forEach((file) => {
         const url = app.resolveFileUrl(runId, file);
         if (!url) return;
-        const link = ui.el("a", { text: file.name, attrs: { href: url, target: "_blank" } });
+        const link = ui.el("a", { text: file.name, attrs: { href: url, target: "_blank", rel: "noopener" } });
         listEl.appendChild(link);
-        if (recommendedKeys.some((key) => file.name.includes(key))) {
-          const rec = ui.el("a", { text: `Download ${file.name}`, attrs: { href: url, target: "_blank" } });
-          recommended.appendChild(rec);
-        }
       });
     };
 
@@ -484,7 +514,7 @@
       await loadRun();
       startSse();
       renderPapers();
-      renderExports();
+      await renderExports();
       renderQa();
       renderSubmission();
 

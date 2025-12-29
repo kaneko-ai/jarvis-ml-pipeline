@@ -299,6 +299,17 @@ pre {
   background: rgba(255, 255, 255, 0.08);
 }
 
+.download-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: var(--accent-strong);
+  color: #07111f;
+  font-weight: 600;
+}
+
 .notice {
   padding: 10px 14px;
   border-radius: 12px;
