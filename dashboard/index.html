@@ -1004,8 +1004,19 @@
                 ).join('')}
                     </table>
 
+                    <h3>✍️ Drafts</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0;">
+                        <button class="btn btn-primary" onclick="generateWriting('${runId}')">Generate drafts</button>
+                        <button class="btn btn-secondary" onclick="downloadWriting('${runId}', 'writing/research_plan_draft.docx')">Download research_plan.docx</button>
+                        <button class="btn btn-secondary" onclick="downloadWriting('${runId}', 'writing/thesis_draft.docx')">Download thesis_draft.docx</button>
+                        <button class="btn btn-secondary" onclick="downloadWriting('${runId}', 'writing/slides_draft.pptx')">Download slides_draft.pptx</button>
+                        <button class="btn btn-secondary" onclick="downloadPackage('${runId}')">Download all package.zip</button>
+                    </div>
+                    <div id="writing-files" style="margin-bottom: 20px; color: var(--text-secondary);">Checking writing outputs...</div>
+
                     ${run.report ? `<h3>📝 Report</h3><pre style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(run.report)}</pre>` : ''}
                 `;
+                loadWritingFiles(runId);
             } catch (e) {
                 body.innerHTML = `<p style="color: var(--danger);">読み込みエラー: ${e.message}</p>`;
             }
@@ -1029,6 +1040,60 @@
         function refreshAll() {
             loadRuns();
             showToast('更新しました');
+        }
+
+        async function generateWriting(runId) {
+            try {
+                const res = await fetch(`${API_BASE}/api/writing/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        run_id: runId,
+                        outputs: {
+                            research_plan: true,
+                            thesis: true,
+                            slides: true,
+                            docx: true,
+                            pptx: true
+                        }
+                    })
+                });
+                const data = await res.json();
+                if (data.job_id) {
+                    startJobPolling(data.job_id);
+                    showToast('Writing generation started', 'info');
+                } else {
+                    showToast('Writing generation failed', 'danger');
+                }
+            } catch (e) {
+                showToast(`Writing generation error: ${e.message}`, 'danger');
+            }
+        }
+
+        async function loadWritingFiles(runId) {
+            const container = document.getElementById('writing-files');
+            if (!container) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/writing/run/${runId}/files`);
+                const data = await res.json();
+                if (!data.files || data.files.length === 0) {
+                    container.textContent = 'No writing outputs generated yet.';
+                    return;
+                }
+                container.innerHTML = data.files
+                    .map(file => `${file.name} (${file.size} bytes)`)
+                    .join('<br>');
+            } catch (e) {
+                container.textContent = `Failed to load writing outputs: ${e.message}`;
+            }
+        }
+
+        function downloadWriting(runId, path) {
+            window.open(`${API_BASE}/api/writing/run/${runId}/download?path=${encodeURIComponent(path)}`, '_blank');
+        }
+
+        function downloadPackage(runId) {
+            window.open(`${API_BASE}/api/export/run/${runId}/package`, '_blank');
         }
 
         function startJobPolling(jobId) {

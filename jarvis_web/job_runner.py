@@ -138,6 +138,8 @@ def run_job(job_id: str) -> None:
     try:
         if job_type == "collect_and_ingest":
             run_collect_and_ingest(job_id, payload)
+        elif job_type == "writing_generate":
+            run_writing_generate(job_id, payload)
         else:
             jobs.set_error(job_id, f"unknown job type: {job_type}")
             jobs.set_status(job_id, "failed")
@@ -146,3 +148,35 @@ def run_job(job_id: str) -> None:
         jobs.append_event(job_id, {"message": trimmed, "level": "error"})
         jobs.set_error(job_id, f"{type(exc).__name__}: {exc}")
         jobs.set_status(job_id, "failed")
+
+
+def run_writing_generate(job_id: str, payload: Dict[str, Any]) -> None:
+    from jarvis_core.writing.draft_generator import generate_writing_outputs
+
+    run_id = payload.get("run_id")
+    outputs = payload.get("outputs", {})
+
+    jobs.set_status(job_id, "running")
+    jobs.set_step(job_id, "load_inputs")
+
+    if not run_id:
+        jobs.set_error(job_id, "run_id is required")
+        jobs.set_status(job_id, "failed")
+        return
+
+    try:
+        jobs.set_progress(job_id, 20)
+        jobs.set_step(job_id, "generate_drafts")
+        result = generate_writing_outputs(run_id, outputs)
+        jobs.inc_counts(job_id, written=len(result.get("outputs", [])))
+        jobs.set_progress(job_id, 90)
+        jobs.set_step(job_id, "finalize")
+    except Exception as exc:
+        jobs.set_error(job_id, f"writing generation failed: {exc}")
+        jobs.set_status(job_id, "failed")
+        return
+
+    jobs.set_progress(job_id, 100)
+    jobs.set_step(job_id, "done")
+    jobs.set_status(job_id, "success")
+    jobs.append_event(job_id, {"message": "writing drafts generated", "level": "info"})

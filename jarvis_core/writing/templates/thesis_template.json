@@ -1,0 +1,13 @@
+{
+  "template_version": "p5-v1",
+  "sections": [
+    {"key": "abstract", "title": "要旨 (Abstract)"},
+    {"key": "background", "title": "背景 (Background)"},
+    {"key": "objectives", "title": "目的 (Objectives)"},
+    {"key": "methods", "title": "方法 (Methods)"},
+    {"key": "results", "title": "結果 (Results)"},
+    {"key": "discussion", "title": "考察 (Discussion)"},
+    {"key": "conclusion", "title": "結論 (Conclusion)"},
+    {"key": "references", "title": "参考文献 (References)"}
+  ]
+}
