@@ -127,11 +127,15 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="container" data-testid="runs-page">
         <h1>📊 JARVIS Runs Dashboard</h1>
-        <button class="refresh-btn" onclick="loadRuns()">🔄 Refresh</button>
+        <div style="margin-bottom: 12px;">
+            <a href="index.html" style="color: var(--accent); margin-right: 12px; text-decoration: none;">Home</a>
+            <a href="settings.html" style="color: var(--accent); text-decoration: none;">Settings</a>
+        </div>
+        <button class="refresh-btn" data-testid="runs-refresh-btn" onclick="loadRuns()">🔄 Refresh</button>
 
-        <div class="runs-grid" id="runs-container">
+        <div class="runs-grid" id="runs-container" data-testid="runs-container">
             <!-- Runs will be loaded here -->
             <div class="run-card">
                 <div class="run-header">
@@ -162,10 +166,30 @@
             'input.json', 'papers.jsonl', 'claims.jsonl',
             'evidence.jsonl', 'scores.json', 'report.md', 'warnings.jsonl'
         ];
+        const apiBase = localStorage.getItem('apiBase') || '';
 
-        function loadRuns() {
-            // In production: fetch from API
-            console.log('Loading runs...');
+        async function loadRuns() {
+            const container = document.getElementById('runs-container');
+            if (!apiBase) {
+                container.innerHTML = '<div class="run-card">API base is not set.</div>';
+                return;
+            }
+            container.innerHTML = '<div class="run-card">Loading...</div>';
+            try {
+                const res = await fetch(`${apiBase}/api/runs`);
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                const payload = await res.json();
+                const runs = payload.runs || payload || [];
+                if (!runs.length) {
+                    container.innerHTML = '<div class="run-card">No runs found.</div>';
+                    return;
+                }
+                container.innerHTML = runs.map(renderRun).join('');
+            } catch (err) {
+                container.innerHTML = `<div class="run-card">Failed to load runs: ${err}</div>`;
+            }
         }
 
         function renderRun(run) {
@@ -176,21 +200,26 @@
             }).join('');
 
             return `
-                <div class="run-card">
+                <div class="run-card" data-testid="run-row">
                     <div class="run-header">
                         <span class="run-id">${run.run_id}</span>
-                        <span class="run-date">${run.date}</span>
+                        <span class="run-date">${run.date || ''}</span>
                     </div>
-                    <div class="run-query">${run.query}</div>
+                    <div class="run-query">${run.query || ''}</div>
                     <div class="run-stats">
-                        <span class="stat">Papers: <span class="stat-value">${run.papers}</span></span>
-                        <span class="stat">Claims: <span class="stat-value">${run.claims}</span></span>
-                        <span class="stat">Evidence: <span class="stat-value">${run.evidence}</span></span>
+                        <span class="stat">Papers: <span class="stat-value">${run.papers || 0}</span></span>
+                        <span class="stat">Claims: <span class="stat-value">${run.claims || 0}</span></span>
+                        <span class="stat">Evidence: <span class="stat-value">${run.evidence || 0}</span></span>
+                    </div>
+                    <div style="margin-top: 8px;">
+                        <a data-testid="run-link" href="run.html?id=${run.run_id}" style="color: var(--accent); text-decoration: none;">View detail</a>
                     </div>
                     <div class="bundle-files">${fileBadges}</div>
                 </div>
             `;
         }
+
+        loadRuns();
     </script>
 </body>
 

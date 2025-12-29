@@ -1,0 +1,11 @@
+{
+  "name": "jarvis-qa-e2e",
+  "private": true,
+  "devDependencies": {
+    "@playwright/test": "^1.50.1",
+    "typescript": "^5.7.3"
+  },
+  "scripts": {
+    "test:e2e": "playwright test -c tests/e2e/playwright.config.ts"
+  }
+}

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS Run Detail</title>
+    <style>
+        :root {
+            --bg: #0a0a1a;
+            --card: #12122a;
+            --accent: #00d4ff;
+            --text: #e0e0e0;
+            --muted: #666;
+            --warn: #ffaa00;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 12px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .tab {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--card);
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .panel {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .files {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .file-link {
+            color: var(--accent);
+            text-decoration: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 212, 255, 0.4);
+        }
+
+        .warning {
+            color: var(--warn);
+        }
+
+        .nav a {
+            color: var(--accent);
+            margin-right: 12px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" data-testid="run-page">
+        <h1 data-testid="run-title">Run Detail</h1>
+        <div class="nav">
+            <a href="index.html">Home</a>
+            <a href="runs.html">Runs</a>
+            <a href="settings.html">Settings</a>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-testid="tab-exports" onclick="showTab('exports')">Exports</button>
+            <button class="tab" data-testid="tab-rank" onclick="showTab('rank')">Rank</button>
+        </div>
+
+        <div id="panel-exports" class="panel" data-testid="exports-panel">
+            <div id="exports-status">Loading...</div>
+            <div class="files" id="exports-files"></div>
+        </div>
+        <div id="panel-rank" class="panel hidden" data-testid="rank-panel">
+            <div id="rank-status">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const runId = params.get('id') || '';
+        const apiBase = localStorage.getItem('apiBase') || '';
+        const capabilitiesQuery = localStorage.getItem('capabilitiesQuery') || '';
+
+        document.querySelector('[data-testid="run-title"]').textContent = runId
+            ? `Run ${runId}`
+            : 'Run Detail';
+
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(el => el.classList.add('hidden'));
+            document.querySelector(`[data-testid="tab-${tab}"]`).classList.add('active');
+            document.getElementById(`panel-${tab}`).classList.remove('hidden');
+        }
+
+        async function loadExports() {
+            const status = document.getElementById('exports-status');
+            const filesContainer = document.getElementById('exports-files');
+            if (!apiBase) {
+                status.textContent = 'API base is not set.';
+                return;
+            }
+            try {
+                const res = await fetch(`${apiBase}/api/runs/${runId}/files`);
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                const payload = await res.json();
+                const files = payload.files || payload || [];
+                status.textContent = files.length ? '' : 'No exports found.';
+                filesContainer.innerHTML = files.map(file => {
+                    const path = typeof file === 'string' ? file : file.path;
+                    return `<a class="file-link" data-testid="export-file-link" href="${apiBase}/api/runs/${runId}/files/${path}">${path}</a>`;
+                }).join('');
+            } catch (err) {
+                status.textContent = `Failed to load exports: ${err}`;
+            }
+        }
+
+        async function loadCapabilities() {
+            const status = document.getElementById('rank-status');
+            if (!apiBase) {
+                status.textContent = 'API base is not set.';
+                return;
+            }
+            const query = capabilitiesQuery ? `?${capabilitiesQuery}` : '';
+            try {
+                const res = await fetch(`${apiBase}/api/capabilities${query}`);
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                const payload = await res.json();
+                const features = payload.features || {};
+                if (features.research_rank === false) {
+                    status.textContent = '未実装';
+                    status.classList.add('warning');
+                } else {
+                    status.textContent = 'Rank is available.';
+                }
+            } catch (err) {
+                status.textContent = `Failed to load capabilities: ${err}`;
+            }
+        }
+
+        loadExports();
+        loadCapabilities();
+    </script>
+</body>
+
+</html>
