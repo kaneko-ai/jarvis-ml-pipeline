@@ -118,6 +118,26 @@ header.page-header p {
   padding: 16px;
 }
 
+.status-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.status-card h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
 .kpi-card h3 {
   margin: 0 0 6px;
   font-size: 0.9rem;
