@@ -26,10 +26,44 @@
       <div class="section-title">
         <h2>KB Overview</h2>
       </div>
-      <div class="notice">未実装: KB記事のカードやタグフィルタが表示される予定です。</div>
+      <div class="grid cols-4" id="kb-status-cards"></div>
+      <div class="notice" id="kb-status-note">データ取得中...</div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Topics</h2>
+        <button class="secondary" id="kb-refresh">更新</button>
+      </div>
+      <div class="form-row">
+        <input id="kb-topic-filter" placeholder="topic 検索" />
+        <select id="kb-topic-status">
+          <option value="">Status</option>
+          <option value="active">active</option>
+          <option value="draft">draft</option>
+          <option value="archived">archived</option>
+        </select>
+      </div>
+      <div class="notice" id="kb-topics-status">データ取得中...</div>
+      <table class="table" id="kb-topics-table">
+        <thead>
+          <tr>
+            <th>Topic</th>
+            <th>Status</th>
+            <th>Papers</th>
+            <th>Packs</th>
+            <th>Owner</th>
+            <th>Updated</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="kb-topics-empty" class="notice">データがありません。</div>
     </section>
   </main>
 
+  <script src="assets/storage.js"></script>
+  <script src="assets/app.js"></script>
   <script src="assets/ui.js"></script>
   <script>
     const setActiveNav = () => {
@@ -41,7 +75,188 @@
       });
     };
 
-    setActiveNav();
+    const fallbackStatus = {
+      topics: 12,
+      papers: 482,
+      packs: 7,
+      last_sync: "2024-05-21T09:10:00Z",
+      ingestion_health: "healthy",
+    };
+
+    const fallbackTopics = [
+      {
+        id: "multimodal",
+        name: "Multimodal Retrieval",
+        status: "active",
+        papers: 74,
+        packs: 2,
+        owner: "ML Ops",
+        updated_at: "2024-05-20T11:20:00Z",
+      },
+      {
+        id: "agent-evals",
+        name: "Agent Evaluation",
+        status: "active",
+        papers: 93,
+        packs: 1,
+        owner: "Research",
+        updated_at: "2024-05-19T15:02:00Z",
+      },
+      {
+        id: "infra-roadmap",
+        name: "Infra Roadmap",
+        status: "draft",
+        papers: 18,
+        packs: 0,
+        owner: "Platform",
+        updated_at: "2024-05-18T09:44:00Z",
+      },
+      {
+        id: "policy-reg",
+        name: "Policy & Regulation",
+        status: "archived",
+        papers: 57,
+        packs: 3,
+        owner: "Compliance",
+        updated_at: "2024-05-12T20:31:00Z",
+      },
+    ];
+
+    const state = {
+      status: null,
+      topics: [],
+      apiAvailable: false,
+    };
+
+    const normalizeStatus = (data) => {
+      if (!data) return null;
+      return {
+        topics: data.topics || data.topics_count || data.topic_count || data.total_topics,
+        papers: data.papers || data.paper_count || data.total_papers,
+        packs: data.packs || data.pack_count || data.total_packs,
+        last_sync: data.last_sync || data.updated_at || data.last_ingested_at,
+        ingestion_health: data.ingestion_health || data.health || data.status,
+      };
+    };
+
+    const normalizeTopics = (data) => {
+      if (!data) return [];
+      if (Array.isArray(data)) return data;
+      return data.topics || data.items || [];
+    };
+
+    const toneForStatus = (value) => {
+      if (!value) return "";
+      const status = value.toLowerCase();
+      if (status === "active" || status === "healthy") return "success";
+      if (status === "draft" || status === "warning") return "warning";
+      if (status === "archived" || status === "error") return "danger";
+      return "";
+    };
+
+    const renderStatus = () => {
+      const cardsEl = ui.qs("#kb-status-cards");
+      const noteEl = ui.qs("#kb-status-note");
+      cardsEl.innerHTML = "";
+      if (!state.status) {
+        noteEl.textContent = "未実装/未接続";
+        return;
+      }
+      const status = state.status;
+      const cardItems = [
+        { label: "Topics", value: ui.formatNumber(status.topics) },
+        { label: "Papers", value: ui.formatNumber(status.papers) },
+        { label: "Packs", value: ui.formatNumber(status.packs) },
+        { label: "Last Sync", value: ui.formatDateTime(status.last_sync) },
+      ];
+      cardItems.forEach((item) => {
+        const card = ui.el("div", { className: "kpi-card" });
+        card.appendChild(ui.el("h3", { text: item.label }));
+        card.appendChild(ui.el("div", { className: "value", text: item.value || "-" }));
+        cardsEl.appendChild(card);
+      });
+      const healthBadge = ui.badge(status.ingestion_health || "-", toneForStatus(status.ingestion_health));
+      const healthCard = ui.el("div", { className: "kpi-card" });
+      healthCard.appendChild(ui.el("h3", { text: "Ingestion Health" }));
+      healthCard.appendChild(healthBadge);
+      cardsEl.appendChild(healthCard);
+      noteEl.textContent = state.apiAvailable ? "" : "未実装/未接続";
+    };
+
+    const renderTopics = () => {
+      const tableBody = ui.qs("#kb-topics-table tbody");
+      const emptyEl = ui.qs("#kb-topics-empty");
+      const statusEl = ui.qs("#kb-topics-status");
+      const keyword = ui.qs("#kb-topic-filter").value.trim().toLowerCase();
+      const statusFilter = ui.qs("#kb-topic-status").value;
+      tableBody.innerHTML = "";
+
+      let topics = state.topics;
+      if (keyword) {
+        topics = topics.filter((topic) =>
+          `${topic.name || topic.title || ""}`.toLowerCase().includes(keyword)
+        );
+      }
+      if (statusFilter) {
+        topics = topics.filter((topic) => (topic.status || "").toLowerCase() === statusFilter);
+      }
+      if (!topics.length) {
+        emptyEl.style.display = "block";
+        statusEl.textContent = state.apiAvailable ? "" : "未実装/未接続";
+        return;
+      }
+      emptyEl.style.display = "none";
+      statusEl.textContent = state.apiAvailable ? "" : "未実装/未接続";
+      topics.forEach((topic) => {
+        const row = ui.el("tr");
+        row.appendChild(ui.el("td", { text: topic.name || topic.title || topic.id || "-" }));
+        const statusCell = ui.el("td");
+        statusCell.appendChild(ui.badge(topic.status || "-", toneForStatus(topic.status)));
+        row.appendChild(statusCell);
+        row.appendChild(ui.el("td", { text: ui.formatNumber(topic.papers || topic.paper_count || 0) }));
+        row.appendChild(ui.el("td", { text: ui.formatNumber(topic.packs || topic.pack_count || 0) }));
+        row.appendChild(ui.el("td", { text: topic.owner || topic.owner_team || "-" }));
+        row.appendChild(ui.el("td", { text: ui.formatDateTime(topic.updated_at || topic.updated) }));
+        tableBody.appendChild(row);
+      });
+    };
+
+    const fetchKb = async () => {
+      const statusEl = ui.qs("#kb-status-note");
+      const topicsStatusEl = ui.qs("#kb-topics-status");
+      statusEl.textContent = "データ取得中...";
+      topicsStatusEl.textContent = "データ取得中...";
+      const [statusResponse, topicsResponse] = await Promise.all([
+        app.apiFetchSafe("/api/kb/status"),
+        app.apiFetchSafe("/api/kb/topics"),
+      ]);
+
+      if (!statusResponse.ok || !topicsResponse.ok) {
+        state.apiAvailable = false;
+        state.status = fallbackStatus;
+        state.topics = fallbackTopics;
+      } else {
+        state.apiAvailable = true;
+        state.status = normalizeStatus(statusResponse.data);
+        state.topics = normalizeTopics(topicsResponse.data);
+      }
+      renderStatus();
+      renderTopics();
+    };
+
+    const bindActions = () => {
+      ui.qs("#kb-refresh").addEventListener("click", fetchKb);
+      ui.qs("#kb-topic-filter").addEventListener("input", renderTopics);
+      ui.qs("#kb-topic-status").addEventListener("change", renderTopics);
+    };
+
+    const init = () => {
+      setActiveNav();
+      bindActions();
+      fetchKb();
+    };
+
+    init();
   </script>
 </body>
 </html>
