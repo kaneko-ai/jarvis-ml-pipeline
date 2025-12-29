@@ -422,14 +422,13 @@ if FASTAPI_AVAILABLE:
         """Decision simulate not yet implemented."""
         raise HTTPException(status_code=501, detail="Decision simulate not implemented")
 
-    @app.post("/api/run", response_model=RunResponse)
-    async def start_run(request: RunRequest, _: bool = Depends(verify_token)):
+    def _start_run(request: RunRequest) -> RunResponse:
         """Start a new paper survey run."""
         import uuid
         from jarvis_core.app import run_task
 
         run_id = str(uuid.uuid4())
-        
+
         try:
             result = run_task(
                 task_dict={
@@ -442,7 +441,7 @@ if FASTAPI_AVAILABLE:
                     **request.config,
                 },
             )
-            
+
             return RunResponse(
                 run_id=result.run_id,
                 status=result.status,
@@ -454,6 +453,16 @@ if FASTAPI_AVAILABLE:
                 status="error",
                 message=str(e),
             )
+
+    @app.post("/api/runs", response_model=RunResponse)
+    async def start_run(request: RunRequest, _: bool = Depends(verify_token)):
+        """Start a new paper survey run."""
+        return _start_run(request)
+
+    @app.post("/api/run", response_model=RunResponse)
+    async def start_run_legacy(request: RunRequest, _: bool = Depends(verify_token)):
+        """Legacy start run endpoint."""
+        return _start_run(request)
 
     # === File Upload (AG-07) ===
 
