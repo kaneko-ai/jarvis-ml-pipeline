@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KB Viewer - Research OS Dashboard</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body data-page="kb">
+  <nav class="top-nav">
+    <a href="index.html">Home</a>
+    <a href="runs.html">Runs</a>
+    <a href="search.html">Search</a>
+    <a href="settings.html">Settings</a>
+  </nav>
+  <main class="container">
+    <header class="page-header">
+      <h1>KB Viewer</h1>
+      <p>KBノートの閲覧は未実装です。doc_idを参照してください。</p>
+    </header>
+    <section class="panel">
+      <div id="kb-detail" class="notice">Loading...</div>
+    </section>
+  </main>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const docId = params.get("id") || "";
+    const detail = document.getElementById("kb-detail");
+    detail.textContent = docId ? `doc_id: ${docId}` : "doc_id not provided.";
+  </script>
+</body>
+</html>
