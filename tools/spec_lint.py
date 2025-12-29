@@ -78,10 +78,12 @@ def check_file(filepath: Path) -> List[Violation]:
     
     try:
         content = filepath.read_text(encoding="utf-8")
-    except Exception:
+    except Exception as e:
+        print(f"DEBUG: Failed to read {filepath}: {e}")
         return violations
     
     authority = extract_authority(content)
+    print(f"DEBUG: Checking {filepath}, Authority: {authority}")
     
     # Authorityがない場合はスキップ（警告のみ）
     if authority is None:
@@ -94,20 +96,26 @@ def check_file(filepath: Path) -> List[Violation]:
     
     # Non-binding文書で強制語彙をチェック
     lines = content.split("\n")
+    print(f"DEBUG: Checking {len(lines)} lines")
     for i, line in enumerate(lines, 1):
         # Authority Header自体はスキップ
         if i <= 3 and "Authority:" in line:
+            print(f"DEBUG: Skipping header line {i}: {line}")
             continue
         
+        print(f"DEBUG: Line {i}: '{line}'")
         for pattern in FORCE_PATTERNS:
             match = pattern.search(line)
             if match:
+                print(f"DEBUG: Match found: {match.group()} in '{line}'")
+                print(f"DEBUG: Size before append: {len(violations)}")
                 violations.append(Violation(
                     file=str(filepath),
                     line=i,
                     word=match.group(),
                     authority=authority,
                 ))
+                print(f"DEBUG: Size after append: {len(violations)}")
     
     return violations
 
