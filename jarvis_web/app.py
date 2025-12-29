@@ -940,7 +940,7 @@ if FASTAPI_AVAILABLE:
 
 # === Feedback API (P8) ===
 if FASTAPI_AVAILABLE:
-    from jarvis_web.routes import feedback_router
+    from jarvis_web.routes.feedback import router as feedback_router
 
     app.include_router(feedback_router)
 
