@@ -127,6 +127,7 @@
             font-size: 0.9em;
         }
     </style>
+    <link rel="stylesheet" href="assets/styles.css">
 </head>
 
 <body>
@@ -135,6 +136,24 @@
             <h1>Resource Optimization (P10)</h1>
             <p class="note">すべての結果は仮定依存（推測）として表示されます。</p>
         </header>
+        <div class="status-strip">
+            <span class="status-label">Connection</span>
+            <span id="status-badges"></span>
+        </div>
+        <div id="global-error"></div>
+
+        <div class="card settings-card">
+            <h2>⚙️ API Settings</h2>
+            <div class="settings-row" style="margin-top: 12px;">
+                <input type="text" id="api-base-input" placeholder="https://xxxx.workers.dev">
+                <input type="password" id="api-token-input" placeholder="API Token">
+            </div>
+            <div style="margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button id="save-settings-btn">保存</button>
+                <button class="secondary" id="clear-settings-btn">クリア</button>
+                <button class="secondary" id="refresh-cap-btn">再チェック</button>
+            </div>
+        </div>
 
         <div class="card">
             <h2>シナリオ比較</h2>
@@ -163,11 +182,65 @@
         </div>
     </div>
 
+    <script src="assets/storage.js"></script>
+    <script src="assets/errors.js"></script>
+    <script src="assets/parsers.js"></script>
+    <script src="assets/fallbacks.js"></script>
+    <script src="assets/capabilities.js"></script>
+    <script src="assets/app.js"></script>
+    <script src="assets/ui.js"></script>
     <script>
-        const apiBase = '';
+        const storage = window.JarvisStorage;
+        const app = window.JarvisApp;
+        const ui = window.JarvisUI;
+        const errors = window.JarvisErrors;
+
         const scenarioCards = document.getElementById('scenario-cards');
         const cashflowBody = document.getElementById('cashflow-body');
         const optimizeNote = document.getElementById('optimize-note');
+
+        function updateStatusBadge(kind) {
+            document.getElementById('status-badges').innerHTML = ui.renderStatusBadge(kind);
+        }
+
+        function setGlobalError(err) {
+            document.getElementById('global-error').innerHTML = err ? ui.renderErrorPanel(err) : '';
+            if (err) {
+                const kind = err.kind === 'UNAUTHORIZED' ? 'UNAUTHORIZED' : err.kind === 'NO_CONNECTION' ? 'NO_CONNECTION' : err.kind === 'NOT_IMPLEMENTED' ? 'NOT_IMPLEMENTED' : 'BLOCKED';
+                updateStatusBadge(kind);
+            }
+        }
+
+        async function refreshCapabilities() {
+            try {
+                const caps = await window.JarvisCapabilities.getCapabilities(true);
+                updateStatusBadge(caps.endpoints.health ? 'READY' : 'NO_CONNECTION');
+            } catch (err) {
+                setGlobalError(err);
+            }
+        }
+
+        async function initSettings() {
+            await app.bootstrapSettings();
+            document.getElementById('api-base-input').value = storage.getApiBase();
+            document.getElementById('api-token-input').value = storage.getToken();
+        }
+
+        function saveSettings() {
+            storage.setApiBase(document.getElementById('api-base-input').value);
+            storage.setToken(document.getElementById('api-token-input').value);
+            localStorage.removeItem('JAVIS_CAP_CACHE');
+            refreshCapabilities();
+            ui.toast('設定を保存しました', 'success');
+        }
+
+        function clearSettings() {
+            storage.clearAllSettings();
+            document.getElementById('api-base-input').value = '';
+            document.getElementById('api-token-input').value = '';
+            refreshCapabilities();
+            ui.toast('設定をクリアしました', 'warning');
+        }
 
         function statusBadge(status) {
             if (status === 'feasible') return 'success';
@@ -210,33 +283,44 @@
         }
 
         async function loadSimulation() {
-            const response = await fetch(`${apiBase}/api/finance/simulate`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ months: 36 })
-            });
-            const data = await response.json();
-            renderScenarios(data.scenarios || []);
+            try {
+                const data = await app.simulateFinance({ months: 36 });
+                renderScenarios(data.scenarios || []);
+                setGlobalError(null);
+            } catch (err) {
+                const normalized = errors.normalizeError(err, err && err.response);
+                scenarioCards.innerHTML = ui.renderErrorPanel(normalized);
+                setGlobalError(normalized);
+            }
         }
 
         async function runOptimize() {
-            const response = await fetch(`${apiBase}/api/finance/optimize`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ months: 36 })
-            });
-            const data = await response.json();
-            optimizeNote.textContent = `推奨シナリオ: ${data.scenario} (${data.status}) - ${data.recommendation}`;
+            try {
+                const data = await app.optimizeFinance({ months: 36 });
+                optimizeNote.textContent = `推奨シナリオ: ${data.scenario} (${data.status}) - ${data.recommendation}`;
+                setGlobalError(null);
+            } catch (err) {
+                const normalized = errors.normalizeError(err, err && err.response);
+                optimizeNote.textContent = '';
+                setGlobalError(normalized);
+                ui.toast('最適化に失敗しました', 'danger');
+            }
         }
 
         async function downloadReport() {
-            window.location.href = `${apiBase}/api/finance/download?format=zip`;
+            window.location.href = app.apiDownloadUrl('/api/finance/download?format=zip');
         }
 
         document.getElementById('optimize-btn').addEventListener('click', runOptimize);
         document.getElementById('download-btn').addEventListener('click', downloadReport);
+        document.getElementById('save-settings-btn').addEventListener('click', saveSettings);
+        document.getElementById('clear-settings-btn').addEventListener('click', clearSettings);
+        document.getElementById('refresh-cap-btn').addEventListener('click', refreshCapabilities);
 
-        loadSimulation();
+        initSettings().then(() => {
+            refreshCapabilities();
+            loadSimulation();
+        });
     </script>
 </body>
 

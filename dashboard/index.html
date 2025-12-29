@@ -555,6 +555,7 @@
             font-size: 0.9em;
         }
     </style>
+    <link rel="stylesheet" href="assets/styles.css">
 </head>
 
 <body>
@@ -570,6 +571,11 @@
                 <button class="btn btn-primary" onclick="showTab('new-query')">+ 新規クエリ</button>
             </div>
         </header>
+        <div class="status-strip">
+            <span class="status-label">Connection</span>
+            <span id="status-badges"></span>
+        </div>
+        <div id="global-error"></div>
 
         <!-- Navigation -->
         <div class="nav-tabs">
@@ -580,6 +586,7 @@
             <div class="nav-tab" onclick="showTab('upload')">📁 アップロード</div>
             <div class="nav-tab" onclick="showTab('research')">🏷️ Research</div>
             <div class="nav-tab" onclick="showTab('runs')">📋 実行履歴</div>
+            <div class="nav-tab" onclick="showTab('settings')">⚙️ Settings</div>
         </div>
 
         <!-- KPI Grid (S-02: Fixed Definition) -->
@@ -786,6 +793,22 @@
             </div>
         </div>
 
+        <div id="tab-settings" class="tab-content">
+            <div class="section settings-card">
+                <h2>⚙️ API Settings</h2>
+                <p style="color: var(--text-secondary); margin: 8px 0 16px;">API Base / Token を設定すると認証が復旧します。</p>
+                <div class="settings-row">
+                    <input type="text" id="api-base-input" placeholder="https://xxxx.workers.dev">
+                    <input type="password" id="api-token-input" placeholder="API Token">
+                </div>
+                <div style="margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="saveSettings()">保存</button>
+                    <button class="btn btn-secondary" onclick="clearSettings()">クリア</button>
+                    <button class="btn btn-secondary" onclick="refreshCapabilities()">再チェック</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Run Detail Modal -->
         <div class="modal" id="run-modal">
             <div class="modal-content">
@@ -799,8 +822,19 @@
         </footer>
     </div>
 
+    <script src="assets/storage.js"></script>
+    <script src="assets/errors.js"></script>
+    <script src="assets/parsers.js"></script>
+    <script src="assets/fallbacks.js"></script>
+    <script src="assets/capabilities.js"></script>
+    <script src="assets/app.js"></script>
+    <script src="assets/ui.js"></script>
     <script>
-        let API_BASE = '';
+        const storage = window.JarvisStorage;
+        const app = window.JarvisApp;
+        const ui = window.JarvisUI;
+        const errors = window.JarvisErrors;
+
         let runs = [];
         let currentTab = 'overview';
         let currentJobId = null;
@@ -809,16 +843,58 @@
         let researchResults = [];
         let tierFilter = 'all';
 
-        async function loadConfig() {
+        function statusKindFromError(err) {
+            if (!err) return 'READY';
+            if (err.kind === 'NO_CONNECTION') return 'NO_CONNECTION';
+            if (err.kind === 'UNAUTHORIZED') return 'UNAUTHORIZED';
+            if (err.kind === 'NOT_IMPLEMENTED') return 'NOT_IMPLEMENTED';
+            return 'BLOCKED';
+        }
+
+        function updateStatusBadge(kind) {
+            const container = document.getElementById('status-badges');
+            container.innerHTML = ui.renderStatusBadge(kind);
+        }
+
+        function setGlobalError(err) {
+            const container = document.getElementById('global-error');
+            container.innerHTML = err ? ui.renderErrorPanel(err) : '';
+            updateStatusBadge(statusKindFromError(err));
+        }
+
+        async function refreshCapabilities() {
             try {
-                const res = await fetch('config.json', { cache: 'no-store' });
-                if (res.ok) {
-                    const config = await res.json();
-                    API_BASE = config.apiBase || '';
+                const caps = await window.JarvisCapabilities.getCapabilities(true);
+                if (!caps.endpoints.health) {
+                    updateStatusBadge('NO_CONNECTION');
+                } else {
+                    updateStatusBadge('READY');
                 }
-            } catch (e) {
-                API_BASE = '';
+            } catch (err) {
+                setGlobalError(err);
             }
+        }
+
+        async function initSettings() {
+            await app.bootstrapSettings();
+            document.getElementById('api-base-input').value = storage.getApiBase();
+            document.getElementById('api-token-input').value = storage.getToken();
+        }
+
+        function saveSettings() {
+            storage.setApiBase(document.getElementById('api-base-input').value);
+            storage.setToken(document.getElementById('api-token-input').value);
+            localStorage.removeItem('JAVIS_CAP_CACHE');
+            refreshCapabilities();
+            ui.toast('設定を保存しました', 'success');
+        }
+
+        function clearSettings() {
+            storage.clearAllSettings();
+            document.getElementById('api-base-input').value = '';
+            document.getElementById('api-token-input').value = '';
+            refreshCapabilities();
+            ui.toast('設定をクリアしました', 'warning');
         }
 
         // === Tab Navigation ===
@@ -850,20 +926,19 @@
             const query = document.getElementById('research-query').value.trim();
             const topK = document.getElementById('research-top-k').value || 50;
             if (!runId) {
-                document.getElementById('research-results').innerHTML = '<p>run_id がありません。</p>';
+                document.getElementById('research-results').innerHTML = ui.renderEmptyState('run_id がありません', 'Runsからrun_idを選択してください。');
                 return;
             }
 
             try {
-                const res = await fetch(`${API_BASE}/api/research/rank?run_id=${runId}&q=${encodeURIComponent(query)}&top_k=${topK}&mode=hybrid`);
-                if (!res.ok) {
-                    throw new Error(await res.text());
-                }
-                const payload = await res.json();
+                const payload = await app.getRank(runId, topK, query);
                 researchResults = payload.results || [];
                 renderResearchResults();
+                setGlobalError(null);
             } catch (err) {
-                document.getElementById('research-results').innerHTML = `<p style="color: var(--danger);">rank failed: ${err}</p>`;
+                const normalized = errors.normalizeError(err, err && err.response);
+                document.getElementById('research-results').innerHTML = ui.renderErrorPanel(normalized);
+                setGlobalError(normalized);
             }
         }
 
@@ -875,7 +950,7 @@
         function renderResearchResults() {
             const container = document.getElementById('research-results');
             if (!researchResults.length) {
-                container.innerHTML = '<p>結果がありません。</p>';
+                container.innerHTML = ui.renderEmptyState('結果がありません', 'API または成果物ファイルを確認してください。');
                 return;
             }
             const filtered = tierFilter === 'all'
@@ -925,7 +1000,7 @@
                 alert('run_id がありません');
                 return;
             }
-            window.open(`${API_BASE}/api/runs/${runId}/manifest`, '_blank');
+            window.open(app.getManifestUrl(runId), '_blank');
         }
 
         // === KPI Update (S-02: Fixed Definition) ===
@@ -957,16 +1032,16 @@
         // === Load Runs ===
         async function loadRuns() {
             try {
-                const res = await fetch(`${API_BASE}/api/runs?limit=50`);
-                if (!res.ok) throw new Error('API error');
-                const data = await res.json();
-                runs = data.runs || [];
+                runs = await app.listRuns();
                 renderRecentRuns();
                 renderRunsTable();
                 updateKPIs();
+                setGlobalError(null);
             } catch (e) {
-                console.error('Failed to load runs:', e);
-                document.getElementById('recent-runs-container').innerHTML = '<p style="color: var(--text-secondary);">データ読み込みエラー</p>';
+                const normalized = errors.normalizeError(e, e && e.response);
+                document.getElementById('recent-runs-container').innerHTML = ui.renderErrorPanel(normalized);
+                document.getElementById('runs-table-container').innerHTML = ui.renderErrorPanel(normalized);
+                setGlobalError(normalized);
             }
         }
 
@@ -974,7 +1049,7 @@
         function renderRecentRuns() {
             const container = document.getElementById('recent-runs-container');
             if (runs.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-secondary);">実行履歴がありません</p>';
+                container.innerHTML = ui.renderEmptyState('実行履歴がありません', 'Runが生成されるとここに表示されます。');
                 return;
             }
 
@@ -998,7 +1073,7 @@
         function renderRunsTable() {
             const container = document.getElementById('runs-table-container');
             if (runs.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-secondary);">実行履歴がありません</p>';
+                container.innerHTML = ui.renderEmptyState('実行履歴がありません', 'Runs API または成果物を確認してください。');
                 return;
             }
 
@@ -1031,27 +1106,23 @@
             status.innerHTML = '<div class="spinner"></div><p>パイプライン実行中...</p>';
 
             try {
-                const res = await fetch(`${API_BASE}/api/jobs`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        type: 'collect_and_ingest',
-                        payload: {
-                            query,
-                            max_results: parseInt(document.getElementById('max-papers').value),
-                            oa_only: document.getElementById('oa-only').value === 'true',
-                            domain: document.getElementById('domain-select').value
-                        }
-                    })
+                const result = await app.listJobs({
+                    type: 'collect_and_ingest',
+                    payload: {
+                        query,
+                        max_results: parseInt(document.getElementById('max-papers').value),
+                        oa_only: document.getElementById('oa-only').value === 'true',
+                        domain: document.getElementById('domain-select').value
+                    }
                 });
-
-                const result = await res.json();
                 status.innerHTML = `<p style="color: var(--success);">✅ ジョブ投入: ${result.job_id}</p>`;
-                showToast('ジョブ投入完了', 'success');
+                ui.toast('ジョブ投入完了', 'success');
                 startJobPolling(result.job_id);
             } catch (e) {
-                status.innerHTML = `<p style="color: var(--danger);">❌ エラー: ${e.message}</p>`;
-                showToast('実行エラー', 'danger');
+                const normalized = errors.normalizeError(e, e && e.response);
+                status.innerHTML = ui.renderErrorPanel(normalized);
+                setGlobalError(normalized);
+                ui.toast('実行エラー', 'danger');
             } finally {
                 btn.disabled = false;
             }
@@ -1066,11 +1137,10 @@
             container.innerHTML = '<div class="spinner"></div>';
 
             try {
-                const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}&top_k=20`);
-                const data = await res.json();
+                const data = await app.searchCorpus(query, 20);
 
                 if (!data.results || data.results.length === 0) {
-                    container.innerHTML = '<p style="color: var(--text-secondary);">結果がありません</p>';
+                    container.innerHTML = ui.renderEmptyState('結果がありません', '検索条件を変えてください。');
                     return;
                 }
 
@@ -1084,7 +1154,9 @@
                     </div>
                 `).join('');
             } catch (e) {
-                container.innerHTML = '<p style="color: var(--danger);">検索エラー</p>';
+                const normalized = errors.normalizeError(e, e && e.response);
+                container.innerHTML = ui.renderErrorPanel(normalized);
+                setGlobalError(normalized);
             }
         }
 
@@ -1109,25 +1181,21 @@
             status.innerHTML = '<div class="spinner"></div><p>収集中...</p>';
 
             try {
-                const res = await fetch(`${API_BASE}/api/jobs`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        type: 'collect_and_ingest',
-                        payload: {
-                            query,
-                            max_results: parseInt(document.getElementById('collect-max').value),
-                            oa_only: document.getElementById('collect-oa').checked
-                        }
-                    })
+                const result = await app.listJobs({
+                    type: 'collect_and_ingest',
+                    payload: {
+                        query,
+                        max_results: parseInt(document.getElementById('collect-max').value),
+                        oa_only: document.getElementById('collect-oa').checked
+                    }
                 });
-
-                const result = await res.json();
                 status.innerHTML = `<p style="color: var(--success);">✅ ジョブ投入: ${result.job_id}</p>`;
-                showToast('収集ジョブ開始', 'success');
+                ui.toast('収集ジョブ開始', 'success');
                 startJobPolling(result.job_id);
             } catch (e) {
-                status.innerHTML = `<p style="color: var(--danger);">❌ エラー: ${e.message}</p>`;
+                const normalized = errors.normalizeError(e, e && e.response);
+                status.innerHTML = ui.renderErrorPanel(normalized);
+                setGlobalError(normalized);
             }
         }
 
@@ -1159,13 +1227,13 @@
                 if (files[0].name.endsWith('.bib')) endpoint = '/api/upload/bibtex';
                 else if (files[0].name.endsWith('.zip')) endpoint = '/api/upload/zip';
 
-                const res = await fetch(`${API_BASE}${endpoint}`, { method: 'POST', body: formData });
-                const result = await res.json();
-
+                const result = await app.uploadFiles(endpoint, files);
                 status.innerHTML = `<p style="color: var(--success);">✅ Accepted: ${result.accepted}, Duplicates: ${result.duplicates}, Rejected: ${result.rejected}</p>`;
-                showToast('アップロード完了', 'success');
+                ui.toast('アップロード完了', 'success');
             } catch (e) {
-                status.innerHTML = `<p style="color: var(--danger);">❌ ${e.message}</p>`;
+                const normalized = errors.normalizeError(e, e && e.response);
+                status.innerHTML = ui.renderErrorPanel(normalized);
+                setGlobalError(normalized);
             }
         }
 
@@ -1177,8 +1245,7 @@
             modal.style.display = 'block';
 
             try {
-                const res = await fetch(`${API_BASE}/api/runs/${runId}`);
-                const run = await res.json();
+                const run = await app.getRun(runId);
 
                 body.innerHTML = `
                     <h2>Run: ${runId}</h2>
@@ -1206,7 +1273,9 @@
                     ${run.report ? `<h3>📝 Report</h3><pre style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(run.report)}</pre>` : ''}
                 `;
             } catch (e) {
-                body.innerHTML = `<p style="color: var(--danger);">読み込みエラー: ${e.message}</p>`;
+                const normalized = errors.normalizeError(e, e && e.response);
+                body.innerHTML = ui.renderErrorPanel(normalized);
+                setGlobalError(normalized);
             }
         }
 
@@ -1216,18 +1285,9 @@
         // === Utilities ===
         function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
 
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.borderLeftColor = type === 'success' ? 'var(--success)' : type === 'danger' ? 'var(--danger)' : 'var(--warning)';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
         function refreshAll() {
             loadRuns();
-            showToast('更新しました');
+            ui.toast('更新しました');
         }
 
         function startJobPolling(jobId) {
@@ -1248,9 +1308,7 @@
         async function fetchJobStatus() {
             if (!currentJobId) return;
             try {
-                const res = await fetch(`${API_BASE}/api/jobs/${currentJobId}`);
-                if (!res.ok) return;
-                const job = await res.json();
+                const job = await app.getJob(currentJobId);
                 updateJobCard(job);
                 if (['success', 'failed', 'canceled'].includes(job.status)) {
                     clearInterval(jobPoller);
@@ -1265,9 +1323,7 @@
         async function fetchJobEvents() {
             if (!currentJobId) return;
             try {
-                const res = await fetch(`${API_BASE}/api/jobs/${currentJobId}/events?tail=200`);
-                if (!res.ok) return;
-                const data = await res.json();
+                const data = await app.getJobEvents(currentJobId);
                 const log = document.getElementById('job-log');
                 log.textContent = (data.events || [])
                     .map(ev => `[${ev.timestamp}] ${ev.level || 'info'} ${ev.message || ''}`)
@@ -1293,7 +1349,8 @@
         }
 
         // === Initialize ===
-        loadConfig().then(() => {
+        initSettings().then(() => {
+            refreshCapabilities();
             loadRuns();
         });
     </script>
