@@ -43,6 +43,7 @@ API_TOKEN = os.getenv("API_TOKEN")
 # Create app if FastAPI available
 if FASTAPI_AVAILABLE:
     from jarvis_web.routes.research import router as research_router
+    from jarvis_web.routes.finance import router as finance_router
 
     app = FastAPI(
         title="JARVIS Research OS",
@@ -60,6 +61,7 @@ if FASTAPI_AVAILABLE:
     )
 
     app.include_router(research_router)
+    app.include_router(finance_router)
 else:
     app = None
 
