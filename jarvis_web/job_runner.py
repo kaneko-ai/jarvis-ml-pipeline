@@ -466,6 +466,7 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
         jobs.append_event(job_id, {"message": f"kb update skipped: {exc}", "level": "warning"})
 
     jobs.set_progress(job_id, 100)
+    _maybe_generate_exports(job_id, payload)
     jobs.set_step(job_id, "done")
     jobs.set_status(job_id, "success")
     jobs.append_event(job_id, {"message": "job complete", "level": "info"})
