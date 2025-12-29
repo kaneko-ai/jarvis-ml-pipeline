@@ -56,6 +56,10 @@ if FASTAPI_AVAILABLE:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    from jarvis_web.routes.writing import router as writing_router
+
+    app.include_router(writing_router)
 else:
     app = None
 
@@ -260,6 +264,18 @@ if FASTAPI_AVAILABLE:
         
         # Return as file
         return FileResponse(filepath)
+
+    @app.get("/api/export/run/{run_id}/package")
+    async def download_run_package(run_id: str, _: bool = Depends(verify_token)):
+        """Download run package zip including writing outputs."""
+        from jarvis_core.export import build_run_package
+
+        try:
+            package_path = build_run_package(run_id)
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+        return FileResponse(package_path)
 
     @app.post("/api/run", response_model=RunResponse)
     async def start_run(request: RunRequest, _: bool = Depends(verify_token)):
