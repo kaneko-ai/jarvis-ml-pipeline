@@ -451,6 +451,8 @@ def run_job(job_id: str) -> None:
 
         if job_type == "collect_and_ingest":
             run_collect_and_ingest(job_id, payload)
+        elif job_type == "writing_generate":
+            run_writing_generate(job_id, payload)
         else:
             jobs.set_error(job_id, f"unknown job type: {job_type}")
             jobs.set_status(job_id, "failed")

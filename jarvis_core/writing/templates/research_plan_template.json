@@ -1,0 +1,14 @@
+{
+  "template_version": "p5-v1",
+  "sections": [
+    {"key": "background", "title": "背景 (Background)"},
+    {"key": "gap", "title": "未解決課題 (Gap)"},
+    {"key": "hypothesis", "title": "仮説 (Hypothesis)"},
+    {"key": "aims", "title": "目的 (Aims)"},
+    {"key": "approach", "title": "研究方法 (Approach)"},
+    {"key": "expected", "title": "期待される結果と解釈 (Expected outcomes)"},
+    {"key": "risks", "title": "リスクと代替案 (Risks & Alternatives)"},
+    {"key": "impact", "title": "インパクト (Impact)"},
+    {"key": "references", "title": "参考文献 (References)"}
+  ]
+}

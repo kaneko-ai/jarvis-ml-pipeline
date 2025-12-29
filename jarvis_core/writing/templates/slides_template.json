@@ -1,0 +1,15 @@
+{
+  "template_version": "p5-v1",
+  "slides": [
+    {"key": "title", "title": "Title"},
+    {"key": "background", "title": "Background"},
+    {"key": "gap_hypothesis", "title": "Gap & Hypothesis"},
+    {"key": "aims", "title": "Aim / Objective"},
+    {"key": "methods", "title": "Methods overview"},
+    {"key": "result1", "title": "Key Result 1"},
+    {"key": "result2", "title": "Key Result 2"},
+    {"key": "discussion", "title": "Discussion"},
+    {"key": "future", "title": "Future work"},
+    {"key": "takehome", "title": "Take-home message"}
+  ]
+}
