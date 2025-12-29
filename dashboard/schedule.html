@@ -345,8 +345,18 @@
       });
     };
 
-    const init = () => {
+    const applyCapabilities = async () => {
+      const result = await app.getCapabilities();
+      if (result.ok) {
+        ui.applyCapabilitiesToNav(result.data);
+        return;
+      }
+      ui.applyCapabilitiesToNav({});
+    };
+
+    const init = async () => {
       setActiveNav();
+      await applyCapabilities();
       renderSchedules();
       ui.qs("#refresh-schedule").addEventListener("click", renderSchedules);
       ui.qs("#schedule-rrule-preset").addEventListener("change", (event) => {

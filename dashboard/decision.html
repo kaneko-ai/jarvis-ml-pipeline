@@ -53,6 +53,9 @@
       });
     };
 
+    let decisionEnabled = true;
+    let capabilityStatus = "available";
+
     const parseJson = (value) => {
       try {
         return value ? JSON.parse(value) : null;
@@ -61,9 +64,36 @@
       }
     };
 
-    const init = () => {
+    const applyCapabilities = async () => {
+      const result = await app.getCapabilities();
+      if (result.ok) {
+        ui.applyCapabilitiesToNav(result.data);
+        decisionEnabled = app.isFeatureEnabled(result.data, "decision");
+        capabilityStatus = decisionEnabled ? "available" : "unavailable";
+      } else {
+        decisionEnabled = false;
+        capabilityStatus = "disconnected";
+        ui.applyCapabilitiesToNav({});
+      }
+      if (!decisionEnabled) {
+        ui.qsa(".panel").forEach((panel) => {
+          panel.style.display = "none";
+        });
+        const main = ui.qs("main.container");
+        const notice = ui.el("div", { className: "notice", text: capabilityStatus === "unavailable" ? "未実装" : "未接続" });
+        main.appendChild(notice);
+      }
+    };
+
+    const init = async () => {
       setActiveNav();
+      await applyCapabilities();
       ui.qs("#run-decision").addEventListener("click", async () => {
+        if (!decisionEnabled) {
+          ui.qs("#decision-status").textContent = capabilityStatus === "unavailable" ? "未実装" : "未接続";
+          ui.qs("#decision-result").textContent = "";
+          return;
+        }
         const options = parseJson(ui.qs("#decision-options").value);
         const assumptions = parseJson(ui.qs("#decision-assumptions").value);
         if (!options) {
