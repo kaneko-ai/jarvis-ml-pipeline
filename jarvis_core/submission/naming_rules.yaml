@@ -1,0 +1,13 @@
+defaults:
+  author_name: "金子優"
+  lab: "加藤研"
+  project: "CDH13_Ca13Mab"
+  doc_lang: "JP"
+
+files:
+  thesis_docx: "{project}_修士論文_{author_name}_ver{version}.docx"
+  thesis_pdf: "{project}_修士論文_{author_name}_ver{version}.pdf"
+  slides_pptx: "{project}_最終審査発表_{author_name}_ver{version}.pptx"
+  qa_report: "{project}_QAレポート_ver{version}.pdf"
+  changelog: "{project}_ChangeLog_ver{version}.md"
+  manifest: "{project}_manifest_ver{version}.json"

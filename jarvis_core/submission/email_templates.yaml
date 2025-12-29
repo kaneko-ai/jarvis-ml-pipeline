@@ -1,0 +1,44 @@
+kato_prof:
+  subject: "【提出】{project} 修士論文・最終審査資料 ver{submission_version}"
+  salutation: "加藤先生"
+  body: |
+    いつもお世話になっております。{author_name}です。
+    {project}の提出物（ver{submission_version}）をお送りします。
+
+    変更サマリ：
+    {changelog_summary}
+
+    添付資料：
+    {attachments_list}
+
+    ご確認のほど、よろしくお願いいたします。
+
+suzuki_sensei:
+  subject: "【確認依頼】{project} 提出物 ver{submission_version}"
+  salutation: "鈴木先生"
+  body: |
+    いつもお世話になっております。{author_name}です。
+    {project}の提出物（ver{submission_version}）について、ご確認をお願いいたします。
+
+    変更サマリ：
+    {changelog_summary}
+
+    添付資料：
+    {attachments_list}
+
+    お忙しいところ恐縮ですが、よろしくお願いいたします。
+
+office:
+  subject: "【提出】{project} 提出書類 ver{submission_version}"
+  salutation: "教務掛 御中"
+  body: |
+    お世話になっております。{author_name}です。
+    {project}の提出書類（ver{submission_version}）を提出いたします。
+
+    変更サマリ：
+    {changelog_summary}
+
+    添付資料：
+    {attachments_list}
+
+    何卒よろしくお願いいたします。

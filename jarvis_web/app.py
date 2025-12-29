@@ -31,6 +31,11 @@ except ImportError:
     HTTPException = None
     BaseModel = object
 
+if FASTAPI_AVAILABLE:
+    from jarvis_web.routes.submission import router as submission_router
+else:
+    submission_router = None
+
 
 # Constants
 RUNS_DIR = Path("logs/runs")
@@ -56,6 +61,9 @@ if FASTAPI_AVAILABLE:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    if submission_router:
+        app.include_router(submission_router)
 else:
     app = None
 
