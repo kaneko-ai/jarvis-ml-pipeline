@@ -138,6 +138,8 @@ def run_job(job_id: str) -> None:
     try:
         if job_type == "collect_and_ingest":
             run_collect_and_ingest(job_id, payload)
+        elif job_type == "submission_build":
+            run_submission_build(job_id, payload)
         else:
             jobs.set_error(job_id, f"unknown job type: {job_type}")
             jobs.set_status(job_id, "failed")
@@ -145,4 +147,43 @@ def run_job(job_id: str) -> None:
         trimmed = "\n".join(traceback.format_exc().splitlines()[-6:])
         jobs.append_event(job_id, {"message": trimmed, "level": "error"})
         jobs.set_error(job_id, f"{type(exc).__name__}: {exc}")
+        jobs.set_status(job_id, "failed")
+
+
+def run_submission_build(job_id: str, payload: Dict[str, Any]) -> None:
+    from jarvis_core.submission import build_submission_package, is_ready_to_submit
+
+    run_id = payload.get("run_id")
+    submission_version = payload.get("submission_version")
+    recipient_type = payload.get("recipient_type", "kato_prof")
+    previous_package_path = payload.get("previous_package_path")
+    require_ready = payload.get("require_ready", True)
+
+    jobs.set_status(job_id, "running")
+    jobs.set_step(job_id, "submission")
+
+    if not run_id or not submission_version:
+        jobs.set_error(job_id, "run_id and submission_version are required")
+        jobs.set_status(job_id, "failed")
+        return
+
+    if require_ready:
+        ready, reason = is_ready_to_submit(run_id)
+        if not ready:
+            jobs.set_error(job_id, f"P6 not ready: {reason}")
+            jobs.set_status(job_id, "failed")
+            return
+
+    try:
+        result = build_submission_package(
+            run_id=run_id,
+            submission_version=submission_version,
+            recipient_type=recipient_type,
+            previous_package_path=previous_package_path,
+        )
+        jobs.append_event(job_id, {"message": f"package: {result.package_path}", "level": "info"})
+        jobs.set_progress(job_id, 100)
+        jobs.set_status(job_id, "success")
+    except Exception as exc:
+        jobs.set_error(job_id, f"submission build failed: {exc}")
         jobs.set_status(job_id, "failed")

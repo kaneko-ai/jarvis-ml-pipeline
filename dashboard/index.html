@@ -192,6 +192,28 @@
             white-space: pre-wrap;
         }
 
+        .submission-panel {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .submission-output {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg-primary);
+            border-radius: 10px;
+            font-size: 0.9em;
+        }
+
+        .submission-output pre {
+            white-space: pre-wrap;
+            max-height: 240px;
+            overflow: auto;
+        }
+
         /* Sections */
         .section {
             background: var(--bg-card);
@@ -1005,7 +1027,33 @@
                     </table>
 
                     ${run.report ? `<h3>📝 Report</h3><pre style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(run.report)}</pre>` : ''}
+
+                    <div class="submission-panel">
+                        <h3>📦 Submission Package</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Submission Version</label>
+                                <input type="text" id="submission-version" placeholder="例: 6.2">
+                            </div>
+                            <div class="form-group">
+                                <label>Recipient</label>
+                                <select id="submission-recipient">
+                                    <option value="kato_prof">加藤先生</option>
+                                    <option value="suzuki_sensei">鈴木先生</option>
+                                    <option value="office">教務掛</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 2;">
+                                <label>Previous Package Path (optional)</label>
+                                <input type="text" id="submission-previous" placeholder="例: /path/to/previous.zip">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="buildSubmission('${runId}')">Build submission package</button>
+                        <div id="submission-status" style="margin-top: 10px;"></div>
+                        <div id="submission-output" class="submission-output" style="display: none;"></div>
+                    </div>
                 `;
+                loadSubmissionLatest(runId);
             } catch (e) {
                 body.innerHTML = `<p style="color: var(--danger);">読み込みエラー: ${e.message}</p>`;
             }
@@ -1024,6 +1072,84 @@
             toast.textContent = message;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
+        }
+
+        async function loadSubmissionLatest(runId) {
+            try {
+                const res = await fetch(`${API_BASE}/api/submission/run/${runId}/latest`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const input = document.getElementById('submission-version');
+                if (input && !input.value) {
+                    input.value = data.latest_version || '';
+                }
+            } catch (e) {
+                // ignore errors
+            }
+        }
+
+        async function buildSubmission(runId) {
+            const version = document.getElementById('submission-version').value.trim();
+            const recipient = document.getElementById('submission-recipient').value;
+            const previous = document.getElementById('submission-previous').value.trim() || null;
+            const status = document.getElementById('submission-status');
+            const output = document.getElementById('submission-output');
+
+            if (!version) {
+                status.innerHTML = '<p style="color: var(--warning);">submission_versionを入力してください</p>';
+                return;
+            }
+
+            status.innerHTML = '<div class="spinner"></div><p>パッケージ生成中...</p>';
+            output.style.display = 'none';
+            output.innerHTML = '';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/submission/build`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        run_id: runId,
+                        submission_version: version,
+                        recipient_type: recipient,
+                        previous_package_path: previous
+                    })
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail || 'build failed');
+
+                const blockedLabel = result.blocked ? '❌ BLOCKED' : '✅ READY';
+                const downloadUrl = `${API_BASE}/api/submission/run/${runId}/download?version=${version}`;
+                const changelogUrl = `${API_BASE}/api/submission/run/${runId}/changelog?version=${version}`;
+                const emailUrl = `${API_BASE}/api/submission/run/${runId}/email?version=${version}&recipient_type=${recipient}`;
+
+                status.innerHTML = `<p style="color: ${result.blocked ? 'var(--danger)' : 'var(--success)'};">${blockedLabel}</p>`;
+                output.innerHTML = `
+                    <p><strong>Package:</strong> <a href="${downloadUrl}" target="_blank">Download zip</a></p>
+                    <p><strong>ChangeLog:</strong> <a href="${changelogUrl}" target="_blank">View</a></p>
+                    <p><strong>Email draft:</strong> <a href="${emailUrl}" target="_blank">Open</a></p>
+                    <button class="btn btn-secondary" onclick="copyEmail('${runId}', '${version}', '${recipient}')">メール草案コピー</button>
+                    <h4 style="margin-top: 10px;">Email Preview</h4>
+                    <pre>${escapeHtml(`Subject: ${result.email_subject}\n\n${result.email_body}`)}</pre>
+                `;
+                output.style.display = 'block';
+                showToast('提出パッケージを生成しました', result.blocked ? 'warning' : 'success');
+            } catch (e) {
+                status.innerHTML = `<p style="color: var(--danger);">❌ ${e.message}</p>`;
+                showToast('提出パッケージ生成エラー', 'danger');
+            }
+        }
+
+        async function copyEmail(runId, version, recipient) {
+            try {
+                const res = await fetch(`${API_BASE}/api/submission/run/${runId}/email?version=${version}&recipient_type=${recipient}`);
+                if (!res.ok) throw new Error('email fetch failed');
+                const text = await res.text();
+                await navigator.clipboard.writeText(text);
+                showToast('メール草案をコピーしました', 'success');
+            } catch (e) {
+                showToast('コピーに失敗しました', 'danger');
+            }
         }
 
         function refreshAll() {

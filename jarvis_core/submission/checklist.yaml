@@ -1,0 +1,38 @@
+checks:
+  - id: required_files
+    title: "必須ファイルが存在する（docx/pptx/qa_report/manifest）"
+    severity: fail
+    type: required_files
+    required:
+      - thesis_docx
+      - slides_pptx
+      - qa_report
+      - manifest
+  - id: p6_ready
+    title: "P6のREADY_TO_SUBMIT=true"
+    severity: fail
+    type: p6_ready
+  - id: qa_error_zero
+    title: "QA ERROR=0"
+    severity: fail
+    type: qa_error_zero
+  - id: figure_reference_zero
+    title: "図表参照破綻=0"
+    severity: fail
+    type: figure_reference_zero
+  - id: unused_references
+    title: "参考文献未使用=0（P3でunused refsがあるなら警告）"
+    severity: warn
+    type: unused_references
+  - id: docx_headings
+    title: "目次/ページ番号/体裁（最低限：docxの章見出しが存在）"
+    severity: fail
+    type: docx_headings
+  - id: slide_titles
+    title: "スライド：タイトル・結論スライドが存在"
+    severity: fail
+    type: slide_titles
+  - id: email_attachments
+    title: "メール草案に添付ファイル一覧が埋まっている"
+    severity: fail
+    type: email_attachments
