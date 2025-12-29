@@ -8,8 +8,10 @@ const app = (() => {
     clearApiConfig,
   } = storage;
 
+  const isAbsoluteUrl = (value) => /^https?:\/\//i.test(value || "");
+
   const buildUrl = (path) => {
-    if (path.startsWith("http")) return path;
+    if (isAbsoluteUrl(path)) return path;
     const base = getApiBase();
     if (!base) return null;
     return `${base.replace(/\/$/, "")}${path}`;
@@ -124,12 +126,13 @@ const app = (() => {
   const resolveFileUrl = (runId, file) => {
     if (!file) return null;
     if (typeof file === "string") {
-      return buildUrl(`/api/runs/${runId}/files/${encodeURIComponent(file)}`) || file;
+      if (isAbsoluteUrl(file)) return file;
+      return buildUrl(`/api/runs/${runId}/files/${encodeURIComponent(file)}`);
     }
+    if (isAbsoluteUrl(file.url)) return file.url;
+    if (isAbsoluteUrl(file.download_url)) return file.download_url;
+    if (isAbsoluteUrl(file.downloadUrl)) return file.downloadUrl;
     return (
-      file.url ||
-      file.download_url ||
-      file.downloadUrl ||
       (file.path ? buildUrl(`/api/runs/${runId}/files/${encodeURIComponent(file.path)}`) : null) ||
       (file.key ? buildUrl(`/api/runs/${runId}/files/${encodeURIComponent(file.key)}`) : null)
     );

@@ -7,36 +7,36 @@
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body data-page="index">
-    <nav class="top-nav">
-    <a href="index.html">Home</a>
-    <a href="runs.html">Runs</a>
-    <a href="ops.html">Ops</a>
-    <a href="schedule.html">Schedule</a>
-    <a href="kb.html">KB</a>
-    <a href="search.html">Search</a>
-    <a href="settings.html">Settings</a>
+    <nav class="top-nav" data-testid="top-nav">
+    <a href="index.html" data-testid="nav-home">Home</a>
+    <a href="runs.html" data-testid="nav-runs">Runs</a>
+    <a href="ops.html" data-testid="nav-ops">Ops</a>
+    <a href="schedule.html" data-testid="nav-schedule">Schedule</a>
+    <a href="kb.html" data-testid="nav-kb">KB</a>
+    <a href="search.html" data-testid="nav-search">Search</a>
+    <a href="settings.html" data-testid="nav-settings">Settings</a>
   </nav>
   <main class="container">
     <header class="page-header">
-      <h1>Research OS Dashboard</h1>
+      <h1 data-testid="page-title">Research OS Dashboard</h1>
       <p>ヘルス、KPI、最新のRunを確認します。</p>
     </header>
 
     <section class="panel">
       <div class="section-title">
         <h2>Health</h2>
-        <button class="secondary" id="refresh-health">更新</button>
+        <button class="secondary" id="refresh-health" data-testid="refresh-health">更新</button>
       </div>
       <div class="grid cols-2">
         <div>
           <p class="muted">/api/health</p>
-          <div id="health-status" class="notice">未接続</div>
-          <div id="health-warnings"></div>
+          <div id="health-status" class="notice" data-testid="health-status">未接続</div>
+          <div id="health-warnings" data-testid="health-warnings"></div>
         </div>
         <div>
           <p class="muted">/api/health/cron</p>
-          <div id="cron-status" class="notice">未接続</div>
-          <div id="cron-jobs"></div>
+          <div id="cron-status" class="notice" data-testid="cron-status">未接続</div>
+          <div id="cron-jobs" data-testid="cron-jobs"></div>
         </div>
       </div>
     </section>
@@ -44,17 +44,17 @@
     <section class="panel">
       <div class="section-title">
         <h2>KPI</h2>
-        <button class="secondary" id="refresh-kpi">更新</button>
+        <button class="secondary" id="refresh-kpi" data-testid="refresh-kpi">更新</button>
       </div>
-      <div class="grid cols-4" id="kpi-grid"></div>
+      <div class="grid cols-4" id="kpi-grid" data-testid="kpi-grid"></div>
     </section>
 
     <section class="panel">
       <div class="section-title">
         <h2>Latest Runs</h2>
-        <a class="badge" href="runs.html">一覧へ</a>
+        <a class="badge" href="runs.html" data-testid="latest-runs-link">一覧へ</a>
       </div>
-      <table class="table" id="latest-runs">
+      <table class="table" id="latest-runs" data-testid="latest-runs-table">
         <thead>
           <tr>
             <th>Run ID</th>
@@ -68,7 +68,7 @@
         </thead>
         <tbody></tbody>
       </table>
-      <div id="latest-runs-empty" class="notice">データがありません。</div>
+      <div id="latest-runs-empty" class="notice" data-testid="latest-runs-empty">データがありません。</div>
     </section>
   </main>
 
