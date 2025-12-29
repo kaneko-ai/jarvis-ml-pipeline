@@ -132,6 +132,14 @@ const app = (() => {
   const getFeedbackRisk = (runId) => apiFetch(`/api/feedback/risk?run_id=${encodeURIComponent(runId)}`);
   const decisionSimulate = (payload) => apiFetch("/api/decision/simulate", { method: "POST", body: payload });
   const financeOptimize = (payload) => apiFetch("/api/finance/optimize", { method: "POST", body: payload });
+  const searchV2 = (payload) => apiFetch("/api/search/v2", { method: "POST", body: payload });
+  const searchExportV2 = (payload) => apiFetch("/api/search/v2/export", { method: "POST", body: payload, timeout: 30000 });
+  const indexStatusV2 = () => apiFetch("/api/index/v2/status");
+  const indexUpdateV2 = (payload) => apiFetch("/api/index/v2/update", { method: "POST", body: payload });
+  const indexRebuildV2 = (payload) => apiFetch("/api/index/v2/rebuild", { method: "POST", body: payload });
+  const listSavedQueries = () => apiFetch("/api/queries");
+  const createSavedQuery = (payload) => apiFetch("/api/queries", { method: "POST", body: payload });
+  const deleteSavedQuery = (id) => apiFetch(`/api/queries/${encodeURIComponent(id)}`, { method: "DELETE" });
 
   return {
     STORAGE_BASE,
@@ -161,6 +169,14 @@ const app = (() => {
     getFeedbackRisk,
     decisionSimulate,
     financeOptimize,
+    searchV2,
+    searchExportV2,
+    indexStatusV2,
+    indexUpdateV2,
+    indexRebuildV2,
+    listSavedQueries,
+    createSavedQuery,
+    deleteSavedQuery,
     buildUrl,
   };
 })();

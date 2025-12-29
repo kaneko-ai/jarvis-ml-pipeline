@@ -1,0 +1,2 @@
+{"qid":"q1","query":"CD73 adenosine TME","expected_any":[{"doc_id":"kb:topic:CD73"},{"pmid":"1234"}]}
+{"qid":"q2","query":"CDH13 lipid raft GPI anchor","expected_any":[{"doc_id":"run:RUN_2:report"}]}
