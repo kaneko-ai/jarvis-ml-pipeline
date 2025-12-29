@@ -1,0 +1,15 @@
+name = "jarvis-cron-enqueuer"
+main = "src/index.ts"
+compatibility_date = "2025-12-01"
+
+[vars]
+# 例: "https://your-api.example.com"
+JARVIS_API_BASE = "CHANGE_ME"
+DRY_RUN = "0"
+TIMEZONE = "Asia/Tokyo"
+
+# Cron Triggers (UTC)
+# 00:10 UTC = 09:10 JST
+# 12:10 UTC = 21:10 JST
+[triggers]
+crons = ["10 0 * * *", "10 12 * * *"]

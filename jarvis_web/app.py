@@ -37,6 +37,7 @@ RUNS_DIR = Path("logs/runs")
 UPLOADS_DIR = Path("data/uploads")
 MAX_UPLOAD_SIZE = 100 * 1024 * 1024  # 100MB per file
 MAX_BATCH_FILES = 100
+API_TOKEN = os.getenv("API_TOKEN")
 
 
 # Create app if FastAPI available
@@ -107,6 +108,21 @@ def verify_token(authorization: Optional[str] = Header(None)) -> bool:
     token = authorization.replace("Bearer ", "")
     if token != expected:
         raise HTTPException(status_code=403, detail="Invalid token")
+
+    return True
+
+
+def verify_api_token(authorization: Optional[str] = Header(None)) -> bool:
+    """Verify API token for job creation."""
+    if not API_TOKEN:
+        return True
+
+    if authorization is None or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    token = authorization.replace("Bearer ", "")
+    if token != API_TOKEN:
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
     return True
 
@@ -486,7 +502,7 @@ if FASTAPI_AVAILABLE:
         payload: dict = {}
 
     @app.post("/api/jobs")
-    async def create_job(request: JobRequest, _: bool = Depends(verify_token)):
+    async def create_job(request: JobRequest, _: bool = Depends(verify_api_token)):
         """Create a new job and run in background."""
         from jarvis_web import jobs
         from jarvis_web.job_runner import run_job
