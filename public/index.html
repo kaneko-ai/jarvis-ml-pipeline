@@ -465,7 +465,7 @@
             <div class="nav-tab active" onclick="showTab('overview')">📊 概要</div>
             <div class="nav-tab" onclick="showTab('new-query')">🔍 新規クエリ</div>
             <div class="nav-tab" onclick="showTab('search')">📑 検索</div>
-            <div class="nav-tab local-only-tab" style="display:none;" onclick="showTab('collect')">📥 収集</div>
+            <div class="nav-tab" onclick="window.location.href='dashboard/schedule.html'">🗓️ スケジューラ</div>
             <div class="nav-tab local-only-tab" style="display:none;" onclick="showTab('upload')">📁 アップロード</div>
             <div class="nav-tab" onclick="showTab('runs')">📋 実行履歴</div>
             <span id="server-mode-indicator"
@@ -589,33 +589,6 @@
                     <button class="btn btn-primary" onclick="searchCorpus()">検索</button>
                 </div>
                 <div id="search-results" class="search-results"></div>
-            </div>
-        </div>
-
-        <!-- Tab: Collect -->
-        <div id="tab-collect" class="tab-content">
-            <div class="section">
-                <h2>📥 PubMed/PMC論文収集</h2>
-                <div class="form-row">
-                    <div class="form-group" style="flex: 3;">
-                        <label>PubMed検索クエリ</label>
-                        <input type="text" id="collect-query" placeholder="例: CD73[Title] AND immunotherapy">
-                    </div>
-                    <div class="form-group">
-                        <label>最大件数</label>
-                        <input type="number" id="collect-max" value="50" min="1" max="500">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" id="collect-oa" style="width: auto;">
-                            OAのみ
-                        </label>
-                    </div>
-                </div>
-                <button class="btn btn-primary" onclick="collectPapers()">📥 収集開始</button>
-                <div id="collect-status" style="margin-top: 15px;"></div>
             </div>
         </div>
 
@@ -994,33 +967,6 @@
                 }
             });
             return result;
-        }
-
-        // === Collect Papers ===
-        async function collectPapers() {
-            const query = document.getElementById('collect-query').value;
-            if (!query) { showToast('検索クエリを入力', 'warning'); return; }
-
-            const status = document.getElementById('collect-status');
-            status.innerHTML = '<div class="spinner"></div><p>収集中...</p>';
-
-            try {
-                const res = await fetch(`${API_BASE}/api/collect/pubmed`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        query,
-                        max_results: parseInt(document.getElementById('collect-max').value),
-                        oa_only: document.getElementById('collect-oa').checked
-                    })
-                });
-
-                const result = await res.json();
-                status.innerHTML = `<p style="color: var(--success);">✅ ${result.collected || 0}件収集完了</p>`;
-                showToast('収集完了', 'success');
-            } catch (e) {
-                status.innerHTML = `<p style="color: var(--danger);">❌ エラー: ${e.message}</p>`;
-            }
         }
 
         // === Upload ===
