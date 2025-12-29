@@ -73,6 +73,8 @@
     </section>
   </main>
 
+  <script src="assets/api_map.js"></script>
+  <script src="assets/adapter_manifest.js"></script>
   <script src="assets/app.js"></script>
   <script src="assets/ui.js"></script>
   <script>
@@ -120,7 +122,7 @@
       statusEl.textContent = "データ取得中...";
       tableBody.innerHTML = "";
 
-      const response = await app.apiFetchSafe("/api/runs");
+      const response = await app.apiFetchSafe(app.getPath("runs_list"));
       if (!response.ok) {
         statusEl.textContent = "未実装/未接続";
         emptyEl.style.display = "block";
