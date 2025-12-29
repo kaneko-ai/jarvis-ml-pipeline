@@ -1,0 +1,74 @@
+preferred_terms:
+  - id: CDH13_primary
+    preferred: "Cadherin-13"
+    variants:
+      - "CDH13"
+      - "T-cadherin"
+      - "T cadherin"
+  - id: Ca13Mab_clone
+    preferred: "Ca13Mab-4"
+    variants:
+      - "Ca13Mab4"
+      - "Ca13Mab 4"
+  - id: FCM_first_use
+    preferred: "Flow cytometry (FCM)"
+    variants:
+      - "flow cytometry"
+      - "FCM"
+  - id: CBIS_first_use
+    preferred: "Cell-Based Immunization and Screening (CBIS)"
+    variants:
+      - "CBIS"
+      - "cell-based immunization and screening"
+  - id: forced_expression
+    preferred: "強制発現株"
+    variants:
+      - "過剰発現株"
+      - "強制発現細胞"
+
+forbidden_terms:
+  - id: vague_observed
+    pattern: "示唆された"
+    reason: "曖昧表現の濫用を避ける"
+  - id: vague_confirmed
+    pattern: "確認された"
+    reason: "主語・根拠を明確化する"
+
+writing_rules:
+  voice_preference: "能動態を優先し、受動態は必要最小限にする"
+  ambiguous_phrases:
+    - "〜と思われる"
+    - "〜が示唆される"
+    - "〜と考えられる"
+  statistical_templates:
+    - "mean ± SD"
+    - "n="
+    - "p<0.05"
+
+lab_specific_phrases:
+  - "FCMでは平均蛍光強度 (MFI) を記載する"
+  - "濃度依存的（dose-dependent）に統一する"
+
+units_and_notation:
+  preferred_units:
+    - "µg/mL"
+    - "ng/mL"
+    - "min"
+    - "°C"
+  unit_variants:
+    - id: ug_per_ml
+      preferred: "µg/mL"
+      variants:
+        - "ug/mL"
+        - "ug/ml"
+        - "μg/mL"
+
+abbrev_rules:
+  - id: FCM_abbrev
+    abbreviation: "FCM"
+    full_form: "Flow cytometry"
+    first_use_format: "Flow cytometry (FCM)"
+  - id: CBIS_abbrev
+    abbreviation: "CBIS"
+    full_form: "Cell-Based Immunization and Screening"
+    first_use_format: "Cell-Based Immunization and Screening (CBIS)"

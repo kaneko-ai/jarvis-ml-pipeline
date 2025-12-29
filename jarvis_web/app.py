@@ -102,6 +102,9 @@ class RunSummary(BaseModel):
     gate_passed: bool
     contract_valid: bool
     metrics: dict
+    qa_ready: bool = False
+    qa_error_count: int = 0
+    qa_warn_count: int = 0
 
 
 class UploadResponse(BaseModel):
@@ -276,6 +279,10 @@ def load_run_summary(run_dir: Path) -> dict:
         "gate_passed": False,
         "contract_valid": False,
         "metrics": {},
+        "qa_ready": False,
+        "qa_error_count": 0,
+        "qa_warn_count": 0,
+        "qa_top_errors": [],
     }
     
     # Load result.json
@@ -306,8 +313,32 @@ def load_run_summary(run_dir: Path) -> dict:
                 "warnings.jsonl", "report.md"]
     missing = [f for f in required if not (run_dir / f).exists()]
     summary["contract_valid"] = len(missing) == 0
+
+    qa_summary = load_qa_summary(run_dir.name)
+    if qa_summary:
+        summary.update({
+            "qa_ready": qa_summary.get("ready_to_submit", False),
+            "qa_error_count": qa_summary.get("error_count", 0),
+            "qa_warn_count": qa_summary.get("warn_count", 0),
+            "qa_top_errors": qa_summary.get("top_errors", []),
+        })
     
     return summary
+
+
+def load_qa_summary(run_id: str) -> Optional[dict]:
+    qa_paths = [
+        Path("data/runs") / run_id / "qa" / "qa_report.json",
+        RUNS_DIR / run_id / "qa" / "qa_report.json",
+    ]
+    for qa_path in qa_paths:
+        if qa_path.exists():
+            try:
+                with open(qa_path, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except:
+                return None
+    return None
 
 
 if FASTAPI_AVAILABLE:
