@@ -196,6 +196,12 @@ button {
   font-weight: 600;
 }
 
+button.small {
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  border-radius: 8px;
+}
+
 button.secondary {
   background: rgba(255, 255, 255, 0.1);
   color: var(--text);
@@ -325,6 +331,49 @@ pre {
   border: 1px dashed var(--border);
   color: var(--muted);
   background: rgba(255, 255, 255, 0.04);
+}
+
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+
+.toggle-slider::before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  top: 3px;
+  background: #0f1325;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.toggle input:checked + .toggle-slider {
+  background: var(--accent-strong);
+}
+
+.toggle input:checked + .toggle-slider::before {
+  transform: translateX(20px);
 }
 
 .progress-status {
