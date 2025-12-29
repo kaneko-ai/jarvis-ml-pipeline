@@ -8,8 +8,8 @@ import pytest
 import tempfile
 from pathlib import Path
 
-import numpy as np
-import pandas as pd
+np = pytest.importorskip("numpy")
+pd = pytest.importorskip("pandas")
 
 from pipelines.tabular.io import load_train_test
 from pipelines.tabular.preprocess import fit_transform, transform

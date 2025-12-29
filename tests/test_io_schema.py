@@ -8,8 +8,8 @@ import pytest
 import tempfile
 from pathlib import Path
 
-import pandas as pd
-import numpy as np
+pd = pytest.importorskip("pandas")
+np = pytest.importorskip("numpy")
 
 from pipelines.tabular.io import load_train_test, validate_schema, save_schema
 

@@ -8,7 +8,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from jarvis_web.app import verify_token
+from jarvis_web.auth import verify_token
 from jarvis_core.feedback.collector import FeedbackCollector
 from jarvis_core.feedback.feature_extractor import FeedbackFeatureExtractor
 from jarvis_core.feedback.history_store import FeedbackHistoryStore
