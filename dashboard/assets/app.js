@@ -117,6 +117,7 @@ const app = (() => {
   const getRunEventsUrl = (runId) => buildUrl(`/api/runs/${runId}/events`);
   const getHealth = () => apiFetch("/api/health");
   const getCronHealth = () => apiFetch("/api/health/cron");
+  const createRun = (payload) => apiFetch("/api/runs", { method: "POST", body: payload });
   const getRank = (runId, topK = 50) =>
     apiFetch(`/api/research/rank?run_id=${encodeURIComponent(runId)}&top_k=${topK}`);
   const getPaper = (runId, paperId) =>
@@ -154,6 +155,7 @@ const app = (() => {
     getRunEventsUrl,
     getHealth,
     getCronHealth,
+    createRun,
     getRank,
     getPaper,
     getQaReport,
