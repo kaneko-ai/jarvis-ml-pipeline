@@ -62,7 +62,7 @@ class TestCheckFile:
     def test_japanese_force_word(self, tmp_path):
         """日本語の強制語彙も検出."""
         md = tmp_path / "test.md"
-        md.write_text("> Authority: REFERENCE (Level 4, Non-binding)\n\nこれは必須です。")
+        md.write_text("> Authority: REFERENCE (Level 4, Non-binding)\n\nこれは必須です。", encoding="utf-8")
         
         violations = check_file(md)
         assert len(violations) == 1

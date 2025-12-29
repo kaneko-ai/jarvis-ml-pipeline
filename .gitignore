@@ -17,3 +17,6 @@ data/
 runs/
 !public/runs/
 outputs/
+
+test_experiments/
+pdf_fail_*.txt
