@@ -56,6 +56,7 @@ if FASTAPI_AVAILABLE:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
 else:
     app = None
 
@@ -618,6 +619,13 @@ if FASTAPI_AVAILABLE:
             "current_values": current_values,
             "sample_size": len(runs),
         }
+
+
+# === Feedback API (P8) ===
+if FASTAPI_AVAILABLE:
+    from jarvis_web.routes import feedback_router
+
+    app.include_router(feedback_router)
 
 
 # Legacy compatibility endpoints

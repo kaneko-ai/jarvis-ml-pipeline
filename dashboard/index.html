@@ -560,6 +560,16 @@
                     <div class="spinner"></div>
                 </div>
             </div>
+            <div class="section">
+                <div class="section-header">
+                    <h2>🧠 Feedback Intelligence</h2>
+                    <button class="btn btn-secondary" onclick="loadFeedbackSummary()">更新</button>
+                </div>
+                <div id="feedback-summary">
+                    <div class="spinner"></div>
+                </div>
+                <div id="feedback-heatmap" style="margin-top: 16px;"></div>
+            </div>
         </div>
 
         <!-- Tab: New Query -->
@@ -768,6 +778,58 @@
             } catch (e) {
                 console.error('Failed to load runs:', e);
                 document.getElementById('recent-runs-container').innerHTML = '<p style="color: var(--text-secondary);">データ読み込みエラー</p>';
+            }
+        }
+
+        // === Feedback Intelligence ===
+        async function loadFeedbackSummary() {
+            const summaryEl = document.getElementById('feedback-summary');
+            const heatmapEl = document.getElementById('feedback-heatmap');
+            summaryEl.innerHTML = '<div class="spinner"></div>';
+            heatmapEl.innerHTML = '';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/feedback/latest`);
+                if (!res.ok) throw new Error('API error');
+                const data = await res.json();
+                if (!data.summary) {
+                    summaryEl.innerHTML = '<p style="color: var(--text-secondary);">Feedbackデータがありません</p>';
+                    return;
+                }
+
+                summaryEl.innerHTML = `
+                    <div class="job-counts">
+                        <div>High: <strong>${data.summary.high}</strong></div>
+                        <div>Medium: <strong>${data.summary.medium}</strong></div>
+                        <div>Low: <strong>${data.summary.low}</strong></div>
+                        <div>Top: <strong>${(data.summary.top_categories || []).join(', ') || 'N/A'}</strong></div>
+                        <div>Ready: <strong>${data.summary.ready_to_submit ? 'YES' : 'NO'}</strong></div>
+                    </div>
+                `;
+
+                if (data.items && data.items.length > 0) {
+                    heatmapEl.innerHTML = `
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Location</th><th>Risk</th><th>Categories</th><th>理由</th></tr>
+                            </thead>
+                            <tbody>
+                                ${data.items.map(item => `
+                                    <tr>
+                                        <td>${item.location.type} ${item.location.index}</td>
+                                        <td>${item.risk_level} (${item.risk_score})</td>
+                                        <td>${item.top_categories.map(c => c.category).join(', ')}</td>
+                                        <td>${(item.reasons || []).join(' / ')}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                } else {
+                    heatmapEl.innerHTML = '<p style="color: var(--text-secondary);">リスク分析結果がありません</p>';
+                }
+            } catch (e) {
+                summaryEl.innerHTML = '<p style="color: var(--danger);">Feedback読み込みエラー</p>';
             }
         }
 
@@ -1028,6 +1090,7 @@
 
         function refreshAll() {
             loadRuns();
+            loadFeedbackSummary();
             showToast('更新しました');
         }
 
@@ -1096,6 +1159,7 @@
         // === Initialize ===
         loadConfig().then(() => {
             loadRuns();
+            loadFeedbackSummary();
         });
     </script>
 </body>
