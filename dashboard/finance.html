@@ -100,7 +100,7 @@
           ui.qs("#finance-status").textContent = "cashflow JSONが不正です";
           return;
         }
-        const response = await app.apiFetchSafe("/api/finance/optimize", {
+        const response = await app.apiFetchSafe(app.getPath("finance_optimize"), {
           method: "POST",
           body: { cashflow, time },
         });

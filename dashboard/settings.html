@@ -86,7 +86,7 @@
       });
 
       ui.qs("#test-connection").addEventListener("click", async () => {
-        const response = await app.apiFetchSafe("/api/health");
+        const response = await app.apiFetchSafe(app.getPath("health"));
         ui.qs("#settings-status").textContent = response.ok
           ? "接続OK"
           : `接続失敗: ${response.error.message}`;

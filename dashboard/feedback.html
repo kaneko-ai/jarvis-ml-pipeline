@@ -76,7 +76,7 @@
         high.appendChild(ui.el("div", { className: "notice", text: "run_idを入力してください" }));
         return;
       }
-      const response = await app.apiFetchSafe(`/api/feedback/risk?run_id=${encodeURIComponent(runId)}`);
+      const response = await app.apiFetchSafe(app.formatPath("feedback_risk", {}, { run_id: runId }));
       if (!response.ok) {
         high.appendChild(ui.el("div", { className: "notice", text: "未実装/未接続" }));
         return;
@@ -146,7 +146,7 @@
           run_id: ui.qs("#feedback-run").value.trim(),
           content: ui.qs("#feedback-input").value,
         };
-        const response = await app.apiFetchSafe("/api/feedback/import", { method: "POST", body: payload });
+        const response = await app.apiFetchSafe(app.getPath("feedback_import"), { method: "POST", body: payload });
         ui.qs("#feedback-status").textContent = response.ok ? "保存完了" : "未実装/未接続";
         renderRisk();
       });

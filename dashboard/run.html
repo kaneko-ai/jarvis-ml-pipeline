@@ -339,7 +339,7 @@
       transportMode = "Polling";
       updateStatusUI();
       poller = setInterval(async () => {
-        const response = await app.apiFetchSafe(`/api/runs/${runId}`);
+        const response = await app.apiFetchSafe(app.formatPath("runs_detail", { runId }));
         if (response.ok) {
           runData = response.data || defaultRun;
           lastUpdateAt = Date.now();
@@ -390,7 +390,7 @@
         ui.toast("run idが指定されていません", "warning");
         return;
       }
-      const response = await app.apiFetchSafe(`/api/runs/${runId}`);
+      const response = await app.apiFetchSafe(app.formatPath("runs_detail", { runId }));
       if (response.ok) {
         runData = response.data || defaultRun;
       } else {
@@ -411,7 +411,7 @@
       content.innerHTML = "";
 
       let data = null;
-      const response = await app.apiFetchSafe(`/api/research/rank?run_id=${encodeURIComponent(runId)}&top_k=50`);
+      const response = await app.apiFetchSafe(app.formatPath("research_rank", {}, { run_id: runId, top_k: 50 }));
       if (response.ok) {
         data = response.data;
       } else {
@@ -466,7 +466,7 @@
         return;
       }
       let data = null;
-      const response = await app.apiFetchSafe(`/api/research/paper/${encodeURIComponent(paperId)}?run_id=${encodeURIComponent(runId)}`);
+      const response = await app.apiFetchSafe(app.formatPath("research_paper", { paperId }, { run_id: runId }));
       if (response.ok) {
         data = response.data;
       } else {
@@ -511,7 +511,7 @@
       status.textContent = "読み込み中...";
       content.innerHTML = "";
       let data = null;
-      const response = await app.apiFetchSafe(`/api/qa/report?run_id=${encodeURIComponent(runId)}`);
+      const response = await app.apiFetchSafe(app.formatPath("qa_report", {}, { run_id: runId }));
       if (response.ok) {
         data = response.data;
       } else {
@@ -619,7 +619,7 @@
       latestEl.textContent = "読み込み中...";
       linkEl.innerHTML = "";
 
-      const latest = await app.apiFetchSafe(`/api/submission/run/${encodeURIComponent(runId)}/latest`);
+      const latest = await app.apiFetchSafe(app.formatPath("submission_latest", { runId }));
       if (latest.ok) {
         latestEl.textContent = JSON.stringify(latest.data, null, 2);
         if (latest.data && latest.data.package_url) {
@@ -629,10 +629,10 @@
         latestEl.textContent = "未実装/未接続";
       }
 
-      const changelog = await app.apiFetchSafe(`/api/submission/run/${encodeURIComponent(runId)}/changelog`);
+      const changelog = await app.apiFetchSafe(app.formatPath("submission_changelog", { runId }));
       ui.qs("#submission-changelog").textContent = changelog.ok ? JSON.stringify(changelog.data, null, 2) : "未実装/未接続";
 
-      const email = await app.apiFetchSafe(`/api/submission/run/${encodeURIComponent(runId)}/email`);
+      const email = await app.apiFetchSafe(app.formatPath("submission_email", { runId }));
       ui.qs("#submission-email").textContent = email.ok ? JSON.stringify(email.data, null, 2) : "未実装/未接続";
     };
 
@@ -723,13 +723,13 @@
           recipient_type: ui.qs("#submission-recipient").value,
           previous_package_path: ui.qs("#submission-previous").value || null,
         };
-        const result = await app.apiFetchSafe("/api/submission/build", { method: "POST", body: payload });
+        const result = await app.apiFetchSafe(app.getPath("submission_build"), { method: "POST", body: payload });
         ui.qs("#build-status").textContent = result.ok ? "Build開始" : "未実装/未接続";
         renderSubmission();
       });
 
       ui.qs("#download-logs").addEventListener("click", async () => {
-        const logsUrl = app.buildUrl ? app.buildUrl(`/api/runs/${runId}/logs`) : null;
+        const logsUrl = app.buildUrl ? app.buildUrl(app.formatPath("runs_logs", { runId })) : null;
         if (logsUrl) {
           window.open(logsUrl, "_blank");
         } else {

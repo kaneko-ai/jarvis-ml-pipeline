@@ -95,7 +95,7 @@
       warningEl.innerHTML = "";
       cronJobsEl.innerHTML = "";
 
-      const health = await app.apiFetchSafe("/api/health");
+      const health = await app.apiFetchSafe(app.getPath("health"));
       if (health.ok) {
         const data = health.data || {};
         healthEl.innerHTML = "";
@@ -108,7 +108,7 @@
         healthEl.textContent = "未実装/未接続";
       }
 
-      const cron = await app.apiFetchSafe("/api/health/cron");
+      const cron = await app.apiFetchSafe(app.getPath("health_cron"));
       if (cron.ok) {
         const data = cron.data || {};
         cronEl.innerHTML = "";
@@ -127,7 +127,7 @@
     const renderKpi = async () => {
       const grid = ui.qs("#kpi-grid");
       grid.innerHTML = "";
-      const runs = await app.apiFetchSafe("/api/runs");
+      const runs = await app.apiFetchSafe(app.getPath("runs_list"));
       if (!runs.ok) {
         grid.appendChild(ui.el("div", { className: "notice", text: "未接続" }));
         return;
@@ -156,7 +156,7 @@
       const tableBody = ui.qs("#latest-runs tbody");
       const empty = ui.qs("#latest-runs-empty");
       tableBody.innerHTML = "";
-      const runs = await app.apiFetchSafe("/api/runs");
+      const runs = await app.apiFetchSafe(app.getPath("runs_list"));
       if (!runs.ok) {
         empty.textContent = "未接続";
         empty.style.display = "block";
