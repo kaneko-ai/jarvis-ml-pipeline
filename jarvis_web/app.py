@@ -44,6 +44,8 @@ API_TOKEN = os.getenv("API_TOKEN")
 if FASTAPI_AVAILABLE:
     from jarvis_web.routes.research import router as research_router
     from jarvis_web.routes.finance import router as finance_router
+    from jarvis_web.routes.observability import router as observability_router
+    from jarvis_web.routes.webhook import router as webhook_router
 
     app = FastAPI(
         title="JARVIS Research OS",
@@ -62,6 +64,8 @@ if FASTAPI_AVAILABLE:
 
     app.include_router(research_router)
     app.include_router(finance_router)
+    app.include_router(observability_router)
+    app.include_router(webhook_router)
 else:
     app = None
 

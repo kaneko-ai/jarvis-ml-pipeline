@@ -118,6 +118,22 @@
             background: var(--accent);
         }
 
+        .ops-status-card {
+            border-left: 4px solid var(--success);
+        }
+
+        .ops-status-indicator[data-status="red"] {
+            color: var(--danger);
+        }
+
+        .ops-status-indicator[data-status="yellow"] {
+            color: var(--warning);
+        }
+
+        .ops-status-indicator[data-status="green"] {
+            color: var(--success);
+        }
+
         .kpi-value {
             font-size: 2em;
             font-weight: bold;
@@ -580,10 +596,20 @@
             <div class="nav-tab" onclick="showTab('upload')">📁 アップロード</div>
             <div class="nav-tab" onclick="showTab('research')">🏷️ Research</div>
             <div class="nav-tab" onclick="showTab('runs')">📋 実行履歴</div>
+            <a class="nav-tab" href="ops.html">🛟 Ops</a>
         </div>
 
         <!-- KPI Grid (S-02: Fixed Definition) -->
         <div class="kpi-grid">
+            <div class="kpi-card ops-status-card">
+                <div class="kpi-value ops-status-indicator" id="ops-status-indicator" data-status="green">
+                    <span id="ops-status-text">green</span>
+                </div>
+                <div class="kpi-label">Ops Status</div>
+                <div class="kpi-trend">Cron: <span id="ops-status-cron">-</span></div>
+                <div class="kpi-trend">Stalled: <span id="ops-status-stalled">-</span></div>
+                <div class="kpi-trend">Fail Rate: <span id="ops-status-failure-rate">-</span></div>
+            </div>
             <div class="kpi-card">
                 <div class="kpi-value" id="kpi-runs">-</div>
                 <div class="kpi-label">Total Runs</div>
@@ -799,6 +825,7 @@
         </footer>
     </div>
 
+    <script src="assets/app.js"></script>
     <script>
         let API_BASE = '';
         let runs = [];

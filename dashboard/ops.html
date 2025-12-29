@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS Ops Dashboard</title>
+    <style>
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #16213e;
+            --accent: #00d4ff;
+            --text-primary: #e8e8e8;
+            --text-secondary: #a0a0a0;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card h2 {
+            margin-top: 0;
+        }
+
+        pre {
+            background: var(--bg-secondary);
+            padding: 12px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📡 Ops Dashboard</h1>
+
+        <div class="card">
+            <h2>System Status</h2>
+            <div id="ops-health-status">Status: loading...</div>
+        </div>
+
+        <div class="card">
+            <h2>Stalled Runs</h2>
+            <pre id="ops-stalled-list">Loading...</pre>
+        </div>
+
+        <div class="card">
+            <h2>Failed Runs (Top Causes)</h2>
+            <pre id="ops-failed-list">Loading...</pre>
+        </div>
+
+        <div class="card">
+            <h2>Recent Alerts</h2>
+            <pre id="ops-alerts-list">Loading...</pre>
+        </div>
+
+        <div class="card">
+            <h2>Alert Rules</h2>
+            <pre id="ops-rules-list">Loading...</pre>
+        </div>
+    </div>
+
+    <script src="assets/app.js"></script>
+</body>
+
+</html>
