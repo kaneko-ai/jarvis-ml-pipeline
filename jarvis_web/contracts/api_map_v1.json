@@ -1,0 +1,83 @@
+{
+  "version": "v1",
+  "generated_at": "2025-12-29T06:55:19.951623+00:00",
+  "base_paths": {
+    "runs_list": "/api/runs",
+    "run_detail": "/api/runs/{run_id}",
+    "run_files": "/api/runs/{run_id}/files",
+    "run_file_get": "/api/runs/{run_id}/files/{path}",
+    "run_manifest": "/api/runs/{run_id}/manifest",
+    "capabilities": "/api/capabilities",
+    "health": "/api/health",
+    "research_rank": "/api/research/rank",
+    "research_paper": "/api/research/paper/{paper_id}",
+    "qa_report": "/api/qa/report",
+    "submission_build": "/api/submission/build",
+    "submission_latest": "/api/submission/run/{run_id}/latest",
+    "feedback_risk": "/api/feedback/risk",
+    "decision_simulate": "/api/decision/simulate",
+    "finance_optimize": "/api/finance/optimize",
+    "finance_simulate": "/api/finance/simulate",
+    "finance_download": "/api/finance/download",
+    "jobs": "/api/jobs",
+    "job_detail": "/api/jobs/{job_id}",
+    "job_events": "/api/jobs/{job_id}/events",
+    "search": "/api/search",
+    "upload_pdf": "/api/upload/pdf",
+    "upload_bibtex": "/api/upload/bibtex",
+    "upload_zip": "/api/upload/zip"
+  },
+  "methods": {
+    "runs_list": "GET",
+    "run_detail": "GET",
+    "run_files": "GET",
+    "run_file_get": "GET",
+    "run_manifest": "GET",
+    "capabilities": "GET",
+    "health": "GET",
+    "research_rank": "GET",
+    "research_paper": "GET",
+    "qa_report": "GET",
+    "submission_build": "POST",
+    "submission_latest": "GET",
+    "feedback_risk": "POST",
+    "decision_simulate": "POST",
+    "finance_optimize": "POST",
+    "finance_simulate": "POST",
+    "finance_download": "GET",
+    "jobs": "POST",
+    "job_detail": "GET",
+    "job_events": "GET",
+    "search": "GET",
+    "upload_pdf": "POST",
+    "upload_bibtex": "POST",
+    "upload_zip": "POST"
+  },
+  "query_params": {
+    "runs_list": [
+      "limit"
+    ],
+    "research_rank": [
+      "mode",
+      "q",
+      "run_id",
+      "top_k"
+    ],
+    "research_paper": [
+      "run_id"
+    ],
+    "qa_report": [
+      "run_id"
+    ],
+    "finance_download": [
+      "format"
+    ],
+    "job_events": [
+      "tail"
+    ],
+    "search": [
+      "q",
+      "top_k"
+    ]
+  }
+}
