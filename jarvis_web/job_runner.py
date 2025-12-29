@@ -37,6 +37,36 @@ def _append_chunk_lines(chunks_path: Path, chunk_lines: List[Dict[str, Any]]) ->
                 f.write(json.dumps(chunk, ensure_ascii=False) + "\n")
 
 
+def _get_export_flags(payload: Dict[str, Any]) -> Dict[str, bool]:
+    return {
+        "generate_notes": payload.get("generate_notes", True),
+        "generate_notebooklm": payload.get("generate_notebooklm", False),
+        "export_bibtex": payload.get("export_bibtex", True),
+        "package_zip": payload.get("package_zip", True),
+    }
+
+
+def _maybe_generate_exports(job_id: str, payload: Dict[str, Any]) -> None:
+    run_id = payload.get("run_id")
+    if not run_id:
+        return
+    from jarvis_core.export.package_builder import build_run_package
+
+    flags = _get_export_flags(payload)
+    jobs.set_step(job_id, "export")
+    try:
+        build_run_package(
+            run_id,
+            generate_notes=flags["generate_notes"],
+            generate_notebooklm=flags["generate_notebooklm"],
+            export_bibtex_flag=flags["export_bibtex"],
+            package_zip=flags["package_zip"],
+        )
+        jobs.append_event(job_id, {"message": f"export generated for run {run_id}", "level": "info"})
+    except Exception as exc:
+        jobs.append_event(job_id, {"message": f"export failed for run {run_id}: {exc}", "level": "warning"})
+
+
 def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
     from jarvis_tools.papers.collector import collect_papers
     from jarvis_core.ingestion.pipeline import TextChunker
@@ -125,6 +155,7 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
         return
 
     jobs.set_progress(job_id, 100)
+    _maybe_generate_exports(job_id, payload)
     jobs.set_step(job_id, "done")
     jobs.set_status(job_id, "success")
     jobs.append_event(job_id, {"message": "job complete", "level": "info"})
