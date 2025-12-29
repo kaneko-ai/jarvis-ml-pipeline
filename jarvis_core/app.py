@@ -7,6 +7,7 @@ Per MASTER_SPEC v1.1, this is the ONLY entry point for task execution.
 from __future__ import annotations
 
 import uuid
+import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -271,6 +272,27 @@ def run_task(
         }
         assembler.build(context, artifacts, quality_report)
     
+    qa_result = None
+    try:
+        from .style import run_qa_gate
+        qa_result = run_qa_gate(run_id=run_id, run_dir=store.run_dir)
+    except Exception as exc:
+        warnings.append(f"QA gate failed: {exc}")
+    
+    if qa_result:
+        eval_summary_path = store.run_dir / "eval_summary.json"
+        if eval_summary_path.exists():
+            eval_data = json.loads(eval_summary_path.read_text(encoding="utf-8"))
+            eval_data["qa"] = {
+                "ready_to_submit": qa_result.get("ready_to_submit", False),
+                "error_count": qa_result.get("error_count", 0),
+                "warn_count": qa_result.get("warn_count", 0),
+                "top_errors": qa_result.get("top_errors", []),
+            }
+            eval_summary_path.write_text(json.dumps(eval_data, indent=2, ensure_ascii=False), encoding="utf-8")
+        from .output.manifest import export_manifest
+        export_manifest(store.run_dir)
+    
     # eval_dataを取得（BundleAssemblerが生成したものを読む）
     eval_data = store.load_eval() or {}
 
@@ -299,4 +321,3 @@ def run_task(
         gate_passed=verify_result.gate_passed,
         eval_result=eval_data,
     )
-

@@ -779,15 +779,17 @@
                 return;
             }
 
-            let html = '<table class="data-table"><thead><tr><th>Run ID</th><th>Timestamp</th><th>Status</th><th>Gate</th><th>Coverage</th></tr></thead><tbody>';
+            let html = '<table class="data-table"><thead><tr><th>Run ID</th><th>Timestamp</th><th>Status</th><th>Gate</th><th>QA</th><th>Coverage</th></tr></thead><tbody>';
             runs.slice(0, 10).forEach(run => {
                 const statusClass = run.status === 'success' ? 'badge-success' : run.status === 'failed' ? 'badge-danger' : 'badge-warning';
+                const qaClass = run.qa_ready ? 'badge-success' : 'badge-danger';
                 const coverage = ((run.metrics?.evidence_coverage || 0) * 100).toFixed(1);
                 html += `<tr onclick="showRunDetail('${run.run_id}')">
                     <td>${run.run_id?.substring(0, 16) || '-'}...</td>
                     <td>${run.timestamp || '-'}</td>
                     <td><span class="badge ${statusClass}">${run.status || 'unknown'}</span></td>
                     <td>${run.gate_passed ? '✅' : '❌'}</td>
+                    <td><span class="badge ${qaClass}">${run.qa_ready ? 'READY' : 'NOT READY'}</span></td>
                     <td>${coverage}%</td>
                 </tr>`;
             });
@@ -803,15 +805,17 @@
                 return;
             }
 
-            let html = '<table class="data-table"><thead><tr><th>Run ID</th><th>Timestamp</th><th>Status</th><th>Gate</th><th>Contract</th><th>Coverage</th></tr></thead><tbody>';
+            let html = '<table class="data-table"><thead><tr><th>Run ID</th><th>Timestamp</th><th>Status</th><th>Gate</th><th>QA</th><th>Contract</th><th>Coverage</th></tr></thead><tbody>';
             runs.forEach(run => {
                 const statusClass = run.status === 'success' ? 'badge-success' : run.status === 'failed' ? 'badge-danger' : 'badge-warning';
+                const qaClass = run.qa_ready ? 'badge-success' : 'badge-danger';
                 const coverage = ((run.metrics?.evidence_coverage || 0) * 100).toFixed(1);
                 html += `<tr onclick="showRunDetail('${run.run_id}')">
                     <td>${run.run_id?.substring(0, 20) || '-'}...</td>
                     <td>${run.timestamp || '-'}</td>
                     <td><span class="badge ${statusClass}">${run.status || 'unknown'}</span></td>
                     <td>${run.gate_passed ? '✅' : '❌'}</td>
+                    <td><span class="badge ${qaClass}">${run.qa_ready ? 'READY' : 'NOT READY'}</span></td>
                     <td>${run.contract_valid ? '10/10' : 'Missing'}</td>
                     <td>${coverage}%</td>
                 </tr>`;
@@ -986,6 +990,9 @@
                     <table class="data-table" style="margin: 20px 0;">
                         <tr><th>Status</th><td><span class="badge ${run.status === 'success' ? 'badge-success' : 'badge-danger'}">${run.status}</span></td></tr>
                         <tr><th>Gate Passed</th><td>${run.gate_passed ? '✅' : '❌'}</td></tr>
+                        <tr><th>QA Ready</th><td><span class="badge ${run.qa_ready ? 'badge-success' : 'badge-danger'}">${run.qa_ready ? 'READY' : 'NOT READY'}</span></td></tr>
+                        <tr><th>QA Errors</th><td>${run.qa_error_count || 0}</td></tr>
+                        <tr><th>QA Warnings</th><td>${run.qa_warn_count || 0}</td></tr>
                         <tr><th>Contract Valid</th><td>${run.contract_valid ? '✅ 10/10' : '❌ Missing files'}</td></tr>
                         <tr><th>Timestamp</th><td>${run.timestamp || '-'}</td></tr>
                     </table>
@@ -1004,6 +1011,16 @@
                 ).join('')}
                     </table>
 
+                    ${run.qa_top_errors && run.qa_top_errors.length > 0 ? `
+                        <h3>🚦 QA Errors</h3>
+                        <ul>
+                            ${run.qa_top_errors.map(err => `<li>${escapeHtml(err.issue_type || '')}: ${escapeHtml(err.message || '')} (${escapeHtml(err.location || '')})</li>`).join('')}
+                        </ul>
+                    ` : ''}
+                    <h3>🧪 QA Report</h3>
+                    <button class="btn btn-secondary" onclick="loadQaReport('${runId}')">QA Report</button>
+                    <pre id="qa-report" style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap; display: none;"></pre>
+
                     ${run.report ? `<h3>📝 Report</h3><pre style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(run.report)}</pre>` : ''}
                 `;
             } catch (e) {
@@ -1016,6 +1033,20 @@
 
         // === Utilities ===
         function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+
+        async function loadQaReport(runId) {
+            const report = document.getElementById('qa-report');
+            report.style.display = 'block';
+            report.textContent = 'Loading QA report...';
+            try {
+                const res = await fetch(`${API_BASE}/api/qa/report?run_id=${runId}`);
+                if (!res.ok) throw new Error('QA report not found');
+                const data = await res.json();
+                report.textContent = JSON.stringify(data, null, 2);
+            } catch (e) {
+                report.textContent = `QA report error: ${e.message}`;
+            }
+        }
 
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
