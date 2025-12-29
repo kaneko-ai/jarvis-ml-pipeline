@@ -86,6 +86,35 @@ const app = (() => {
     }
   };
 
+  let capabilitiesCache = null;
+  let capabilitiesPromise = null;
+
+  const getCapabilities = async () => {
+    if (capabilitiesCache) {
+      return { ok: true, data: capabilitiesCache };
+    }
+    if (!getApiBase()) {
+      return { ok: false, error: new Error("API_BASEが未設定です。Settingsで設定してください。") };
+    }
+    if (capabilitiesPromise) {
+      return capabilitiesPromise;
+    }
+    capabilitiesPromise = apiFetchSafe("/api/capabilities").then((result) => {
+      if (result.ok) {
+        capabilitiesCache = result.data;
+      }
+      return result;
+    }).finally(() => {
+      capabilitiesPromise = null;
+    });
+    return capabilitiesPromise;
+  };
+
+  const isFeatureEnabled = (capabilities, featureKey) => {
+    if (!capabilities || !capabilities.features) return false;
+    return Boolean(capabilities.features[featureKey]);
+  };
+
   const resolveFileUrl = (runId, file) => {
     if (!file) return null;
     if (typeof file === "string") {
@@ -171,6 +200,8 @@ const app = (() => {
     decisionSimulate,
     financeOptimize,
     buildUrl,
+    getCapabilities,
+    isFeatureEnabled,
   };
 })();
 
