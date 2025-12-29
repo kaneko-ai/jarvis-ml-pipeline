@@ -163,81 +163,8 @@
         </div>
     </div>
 
-    <script>
-        const apiBase = '';
-        const scenarioCards = document.getElementById('scenario-cards');
-        const cashflowBody = document.getElementById('cashflow-body');
-        const optimizeNote = document.getElementById('optimize-note');
-
-        function statusBadge(status) {
-            if (status === 'feasible') return 'success';
-            if (status === 'risky') return 'warning';
-            return 'danger';
-        }
-
-        function renderScenarios(scenarios) {
-            scenarioCards.innerHTML = '';
-            scenarios.forEach((scenario) => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <h3>${scenario.name}</h3>
-                    <p class="badge ${statusBadge(scenario.status)}">${scenario.status}</p>
-                    <p>Expected Balance End: ${scenario.expected_balance_end.toFixed(0)}</p>
-                    <p>Bankruptcy Risk: ${(scenario.bankruptcy_risk * 100).toFixed(1)}%</p>
-                    <p>Research Hours Avg: ${scenario.research_hours_avg.toFixed(1)}</p>
-                    <p class="note">${scenario.recommendation}</p>
-                `;
-                card.addEventListener('click', () => renderCashflows(scenario.summary.monthly));
-                scenarioCards.appendChild(card);
-            });
-            if (scenarios.length) {
-                renderCashflows(scenarios[0].summary.monthly);
-            }
-        }
-
-        function renderCashflows(monthly) {
-            cashflowBody.innerHTML = '';
-            monthly.forEach((row) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row.month}</td>
-                    <td>${row.expected_balance_end.toFixed(0)}</td>
-                    <td>${row.downside_balance_end.toFixed(0)}</td>
-                `;
-                cashflowBody.appendChild(tr);
-            });
-        }
-
-        async function loadSimulation() {
-            const response = await fetch(`${apiBase}/api/finance/simulate`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ months: 36 })
-            });
-            const data = await response.json();
-            renderScenarios(data.scenarios || []);
-        }
-
-        async function runOptimize() {
-            const response = await fetch(`${apiBase}/api/finance/optimize`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ months: 36 })
-            });
-            const data = await response.json();
-            optimizeNote.textContent = `推奨シナリオ: ${data.scenario} (${data.status}) - ${data.recommendation}`;
-        }
-
-        async function downloadReport() {
-            window.location.href = `${apiBase}/api/finance/download?format=zip`;
-        }
-
-        document.getElementById('optimize-btn').addEventListener('click', runOptimize);
-        document.getElementById('download-btn').addEventListener('click', downloadReport);
-
-        loadSimulation();
-    </script>
+    <script src="assets/api_map.js"></script>
+    <script src="assets/finance.js"></script>
 </body>
 
 </html>

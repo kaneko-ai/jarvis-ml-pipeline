@@ -1,0 +1,231 @@
+openapi: 3.0.0
+info:
+  title: JARVIS API Contract v1
+  version: v1
+paths:
+  /api/health:
+    get:
+      responses:
+        '200':
+          description: OK
+  /api/capabilities:
+    get:
+      responses:
+        '200':
+          description: OK
+  /api/runs:
+    get:
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+  /api/runs/{run_id}:
+    get:
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /api/runs/{run_id}/files:
+    get:
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /api/runs/{run_id}/files/{path}:
+    get:
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /api/runs/{run_id}/manifest:
+    get:
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /api/research/rank:
+    get:
+      parameters:
+        - name: run_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: top_k
+          in: query
+          schema:
+            type: integer
+        - name: mode
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /api/research/paper/{paper_id}:
+    get:
+      parameters:
+        - name: paper_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: run_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /api/qa/report:
+    get:
+      parameters:
+        - name: run_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /api/submission/build:
+    post:
+      responses:
+        '200':
+          description: OK
+  /api/submission/run/{run_id}/latest:
+    get:
+      parameters:
+        - name: run_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /api/feedback/risk:
+    post:
+      responses:
+        '200':
+          description: OK
+  /api/decision/simulate:
+    post:
+      responses:
+        '200':
+          description: OK
+  /api/finance/optimize:
+    post:
+      responses:
+        '200':
+          description: OK
+  /api/finance/simulate:
+    post:
+      responses:
+        '200':
+          description: OK
+  /api/finance/download:
+    get:
+      parameters:
+        - name: format
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /api/jobs:
+    post:
+      responses:
+        '200':
+          description: OK
+  /api/jobs/{job_id}:
+    get:
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /api/jobs/{job_id}/events:
+    get:
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tail
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+  /api/search:
+    get:
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: top_k
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+  /api/upload/pdf:
+    post:
+      responses:
+        '200':
+          description: OK
+  /api/upload/bibtex:
+    post:
+      responses:
+        '200':
+          description: OK
+  /api/upload/zip:
+    post:
+      responses:
+        '200':
+          description: OK

@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import shutil
 import tempfile
 import zipfile
@@ -37,7 +38,7 @@ RUNS_DIR = Path("logs/runs")
 UPLOADS_DIR = Path("data/uploads")
 MAX_UPLOAD_SIZE = 100 * 1024 * 1024  # 100MB per file
 MAX_BATCH_FILES = 100
-API_TOKEN = os.getenv("API_TOKEN")
+API_MAP_PATH = Path(__file__).resolve().parent / "contracts" / "api_map_v1.json"
 
 
 # Create app if FastAPI available
@@ -120,17 +121,33 @@ def verify_token(authorization: Optional[str] = Header(None)) -> bool:
 
 def verify_api_token(authorization: Optional[str] = Header(None)) -> bool:
     """Verify API token for job creation."""
-    if not API_TOKEN:
+    api_token = os.getenv("API_TOKEN")
+    if not api_token:
         return True
 
     if authorization is None or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     token = authorization.replace("Bearer ", "")
-    if token != API_TOKEN:
+    if token != api_token:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     return True
+
+
+def _load_api_map() -> dict:
+    if not API_MAP_PATH.exists():
+        return {}
+    with open(API_MAP_PATH, "r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def _compiled_path_patterns(paths: List[str]) -> List[str]:
+    patterns = []
+    for path in paths:
+        pattern = "^" + path.replace("{", "(?P<").replace("}", ">[^/]+)") + "$"
+        patterns.append(pattern)
+    return patterns
 
 
 def get_file_hash(filepath: Path) -> str:
@@ -191,6 +208,38 @@ if FASTAPI_AVAILABLE:
     async def health():
         """Health check endpoint."""
         return {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat()}
+
+    @app.get("/api/map/v1")
+    async def get_api_map():
+        """Expose the generated API map for front adapters."""
+        api_map = _load_api_map()
+        if not api_map:
+            raise HTTPException(status_code=404, detail="api_map_v1.json not found")
+        return api_map
+
+    @app.get("/api/capabilities")
+    async def get_capabilities():
+        """Return feature flags and implemented endpoints."""
+        api_map = _load_api_map()
+        base_paths = api_map.get("base_paths", {}) if api_map else {}
+        registered_paths = {
+            route.path
+            for route in app.router.routes
+            if getattr(route, "methods", None)
+        }
+        features = {}
+        endpoints = {}
+        for key, path in base_paths.items():
+            implemented = path in registered_paths
+            features[key] = implemented
+            if implemented:
+                endpoints[key] = path
+        return {
+            "version": api_map.get("version", "v1"),
+            "generated_at": api_map.get("generated_at"),
+            "features": features,
+            "endpoints": endpoints,
+        }
 
     # === Run Management (AG-05) ===
 
@@ -633,6 +682,31 @@ if FASTAPI_AVAILABLE:
             "current_values": current_values,
             "sample_size": len(runs),
         }
+
+    @app.middleware("http")
+    async def map_unimplemented_endpoints(request, call_next):
+        api_map = _load_api_map()
+        base_paths = api_map.get("base_paths", {}) if api_map else {}
+        if base_paths:
+            registered_paths = {
+                route.path
+                for route in app.router.routes
+                if getattr(route, "methods", None)
+            }
+            unimplemented = [
+                path for path in base_paths.values() if path not in registered_paths
+            ]
+            if unimplemented:
+                patterns = [
+                    re.compile(pattern)
+                    for pattern in _compiled_path_patterns(unimplemented)
+                ]
+                if any(pattern.match(request.url.path) for pattern in patterns):
+                    return JSONResponse(
+                        {"detail": "Not Implemented"},
+                        status_code=501,
+                    )
+        return await call_next(request)
 
 
 # Legacy compatibility endpoints
