@@ -51,6 +51,27 @@
           <h2>Progress</h2>
           <button class="secondary" id="refresh-progress">更新</button>
         </div>
+        <div class="progress-status">
+          <div>
+            <div class="muted">接続</div>
+            <div id="progress-connection" class="status-pill">未接続</div>
+          </div>
+          <div>
+            <div class="muted">稼働状況</div>
+            <div id="progress-activity" class="status-pill">不明</div>
+          </div>
+          <div>
+            <div class="muted">最終更新</div>
+            <div id="progress-updated" class="status-value">-</div>
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-meta">
+          <div id="progress-step">Step: -</div>
+          <div id="progress-value">Progress: -</div>
+        </div>
         <div class="grid cols-3" id="progress-cards"></div>
         <hr />
         <div class="section-title">
@@ -145,6 +166,10 @@
     const defaultRun = { files: [] };
     let runData = defaultRun;
     let poller = null;
+    let sseSource = null;
+    let transportMode = "未接続";
+    let lastUpdateAt = null;
+    let activityTimer = null;
 
     const setActiveNav = () => {
       ui.qsa(".top-nav a").forEach((link) => {
@@ -192,6 +217,9 @@
     };
 
     const renderProgress = (data = runData) => {
+      const stepText = data.step || data.progress || "-";
+      ui.qs("#progress-step").textContent = `Step: ${stepText}`;
+      ui.qs("#progress-value").textContent = `Progress: ${data.progress || "-"}`;
       const container = ui.qs("#progress-cards");
       container.innerHTML = "";
       const items = [
@@ -206,6 +234,50 @@
         card.appendChild(ui.el("div", { className: "value", text: ui.formatNumber(item.value) }));
         container.appendChild(card);
       });
+    };
+
+    const getProgressPercent = (value) => {
+      if (typeof value === "number" && Number.isFinite(value)) {
+        if (value > 1 && value <= 100) return value;
+        if (value >= 0 && value <= 1) return Math.round(value * 100);
+      }
+      if (typeof value === "string") {
+        const match = value.match(/(\d+(\.\d+)?)%/);
+        if (match) return Math.min(100, Math.max(0, Number(match[1])));
+        const numeric = Number(value);
+        if (!Number.isNaN(numeric)) {
+          if (numeric > 1 && numeric <= 100) return numeric;
+          if (numeric >= 0 && numeric <= 1) return Math.round(numeric * 100);
+        }
+      }
+      return 0;
+    };
+
+    const getActivityStatus = (data = runData) => {
+      const statusText = String(data.status || data.state || data.phase || "").toLowerCase();
+      const stoppedSignals = ["done", "completed", "failed", "error", "cancel", "stopped", "idle"];
+      const runningSignals = ["running", "in_progress", "processing", "active", "queued"];
+      if (stoppedSignals.some((flag) => statusText.includes(flag))) return { label: "停止中", tone: "danger" };
+      if (runningSignals.some((flag) => statusText.includes(flag))) return { label: "稼働中", tone: "success" };
+      if (lastUpdateAt && Date.now() - lastUpdateAt < 15000) return { label: "更新中", tone: "success" };
+      if (lastUpdateAt && Date.now() - lastUpdateAt >= 30000) return { label: "停止中", tone: "danger" };
+      return { label: "不明", tone: "" };
+    };
+
+    const updateStatusUI = () => {
+      const connection = ui.qs("#progress-connection");
+      const activity = ui.qs("#progress-activity");
+      const updated = ui.qs("#progress-updated");
+      const progressFill = ui.qs("#progress-fill");
+      connection.textContent = transportMode;
+      connection.className = `status-pill ${transportMode === "SSE" ? "success" : transportMode === "Polling" ? "warning" : ""}`;
+      const activityState = getActivityStatus();
+      activity.textContent = activityState.label;
+      activity.className = `status-pill ${activityState.tone}`;
+      updated.textContent = lastUpdateAt ? new Date(lastUpdateAt).toLocaleTimeString() : "-";
+      const percent = getProgressPercent(runData.progress);
+      progressFill.style.width = `${percent}%`;
+      progressFill.textContent = percent ? `${percent}%` : "";
     };
 
     const renderCounts = (data = runData) => {
@@ -238,14 +310,18 @@
 
     const startPolling = () => {
       if (poller) return;
+      transportMode = "Polling";
+      updateStatusUI();
       poller = setInterval(async () => {
         const response = await app.apiFetchSafe(`/api/runs/${runId}`);
         if (response.ok) {
           runData = response.data || defaultRun;
+          lastUpdateAt = Date.now();
           updateOverview();
           renderProgress();
           renderCounts();
           renderLogs(runData.logs || runData.log || runData.events);
+          updateStatusUI();
         }
       }, 2000);
     };
@@ -253,24 +329,30 @@
     const startSse = () => {
       const url = app.getRunEventsUrl(runId);
       if (!url || !window.EventSource) {
+        transportMode = "Polling";
         startPolling();
         return;
       }
-      const source = new EventSource(url);
-      source.onmessage = (event) => {
+      if (sseSource) sseSource.close();
+      sseSource = new EventSource(url);
+      transportMode = "SSE";
+      updateStatusUI();
+      sseSource.onmessage = (event) => {
         try {
           const payload = JSON.parse(event.data);
           runData = { ...runData, ...payload };
+          lastUpdateAt = Date.now();
           updateOverview();
           renderProgress(payload);
           renderCounts(payload);
           renderLogs(payload.logs || payload.log || payload.events);
+          updateStatusUI();
         } catch (error) {
           ui.toast("SSEのデータ解析に失敗しました", "warning");
         }
       };
-      source.onerror = () => {
-        source.close();
+      sseSource.onerror = () => {
+        sseSource.close();
         ui.toast("SSEが利用できません。ポーリングに切り替えます。", "warning");
         startPolling();
       };
@@ -291,6 +373,8 @@
       renderProgress();
       renderCounts();
       renderLogs(runData.logs || runData.log || runData.events);
+      lastUpdateAt = Date.now();
+      updateStatusUI();
     };
 
     const renderPapers = async () => {
@@ -487,6 +571,9 @@
       renderExports();
       renderQa();
       renderSubmission();
+
+      if (activityTimer) clearInterval(activityTimer);
+      activityTimer = setInterval(updateStatusUI, 5000);
 
       ui.qs("#refresh-progress").addEventListener("click", loadRun);
       ui.qs("#refresh-papers").addEventListener("click", renderPapers);
