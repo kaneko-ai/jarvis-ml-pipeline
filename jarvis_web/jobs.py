@@ -30,8 +30,12 @@ def _events_path(job_id: str) -> Path:
     return JOBS_DIR / f"{job_id}.events.jsonl"
 
 
-def create_job(job_type: str, payload: Dict[str, Any]) -> Dict[str, Any]:
-    job_id = f"job_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:6]}"
+def generate_job_id() -> str:
+    return f"job_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:6]}"
+
+
+def create_job(job_type: str, payload: Dict[str, Any], job_id: Optional[str] = None) -> Dict[str, Any]:
+    job_id = job_id or generate_job_id()
     job = {
         "job_id": job_id,
         "type": job_type,
