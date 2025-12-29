@@ -19,17 +19,55 @@
   <main class="container">
     <header class="page-header">
       <h1>Ops</h1>
-      <p>運用状況やアラート、リカバリ導線をまとめる予定のページです。</p>
+      <p>運用状況のモニタリングとアラートルールの管理をまとめます。</p>
     </header>
 
     <section class="panel">
       <div class="section-title">
-        <h2>Ops Dashboard</h2>
+        <h2>Alert Rules</h2>
+        <button class="secondary" id="refresh-alerts">更新</button>
       </div>
-      <div class="notice">未実装: 運用チェックリストや障害対応メニューをここに追加します。</div>
+      <div class="notice" id="alerts-status">データ取得中...</div>
+      <table class="table" id="alerts-table">
+        <thead>
+          <tr>
+            <th>Rule</th>
+            <th>Severity</th>
+            <th>Channels</th>
+            <th>Schedule</th>
+            <th>ON/OFF</th>
+            <th>Last Triggered</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="alerts-empty" class="notice">データがありません。</div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Notification Test</h2>
+      </div>
+      <div class="form-row">
+        <select id="alert-test-rule"></select>
+        <select id="alert-test-channel">
+          <option value="slack">Slack</option>
+          <option value="email">Email</option>
+          <option value="pagerduty">PagerDuty</option>
+        </select>
+        <input id="alert-test-recipient" placeholder="送信先 (optional)" />
+      </div>
+      <textarea id="alert-test-message" rows="3" placeholder="テスト通知の内容"></textarea>
+      <div class="flex">
+        <button id="alert-test-send">テスト送信</button>
+      </div>
+      <div class="notice" id="alert-test-status">未実行</div>
     </section>
   </main>
 
+  <script src="assets/storage.js"></script>
+  <script src="assets/app.js"></script>
   <script src="assets/ui.js"></script>
   <script>
     const setActiveNav = () => {
@@ -41,7 +79,214 @@
       });
     };
 
-    setActiveNav();
+    const fallbackRules = [
+      {
+        id: "cpu-spike",
+        name: "CPU使用率の急上昇",
+        severity: "high",
+        channels: ["Slack", "PagerDuty"],
+        schedule: "5分",
+        enabled: true,
+        last_triggered: "2024-05-22T08:42:00Z",
+      },
+      {
+        id: "queue-lag",
+        name: "ジョブキュー遅延",
+        severity: "medium",
+        channels: ["Slack"],
+        schedule: "10分",
+        enabled: true,
+        last_triggered: "2024-05-21T19:10:00Z",
+      },
+      {
+        id: "storage-limit",
+        name: "ストレージ上限接近",
+        severity: "low",
+        channels: ["Email"],
+        schedule: "1時間",
+        enabled: false,
+        last_triggered: null,
+      },
+    ];
+
+    const state = {
+      rules: [],
+      apiAvailable: false,
+    };
+
+    const normalizeRules = (data) => {
+      if (!data) return [];
+      if (Array.isArray(data)) return data;
+      return data.rules || data.items || [];
+    };
+
+    const severityTone = (severity) => {
+      if (!severity) return "";
+      const value = severity.toLowerCase();
+      if (["critical", "high"].includes(value)) return "danger";
+      if (["medium", "warning"].includes(value)) return "warning";
+      if (["low", "info"].includes(value)) return "success";
+      return "";
+    };
+
+    const renderRules = () => {
+      const tableBody = ui.qs("#alerts-table tbody");
+      const emptyEl = ui.qs("#alerts-empty");
+      tableBody.innerHTML = "";
+      if (!state.rules.length) {
+        emptyEl.style.display = "block";
+        return;
+      }
+      emptyEl.style.display = "none";
+      state.rules.forEach((rule) => {
+        const row = ui.el("tr");
+        row.appendChild(ui.el("td", { text: rule.name || rule.id || "-" }));
+        const severityBadge = ui.badge(rule.severity || "-", severityTone(rule.severity));
+        const severityCell = ui.el("td");
+        severityCell.appendChild(severityBadge);
+        row.appendChild(severityCell);
+
+        const channelsCell = ui.el("td");
+        const channels = rule.channels || [];
+        if (channels.length === 0) {
+          channelsCell.appendChild(ui.el("span", { text: "-" }));
+        } else {
+          channels.forEach((channel) => {
+            channelsCell.appendChild(ui.badge(channel));
+          });
+        }
+        row.appendChild(channelsCell);
+
+        row.appendChild(ui.el("td", { text: rule.schedule || "-" }));
+
+        const toggleCell = ui.el("td");
+        const toggleLabel = ui.el("label", { className: "toggle" });
+        const toggleInput = ui.el("input", {
+          attrs: {
+            type: "checkbox",
+            "data-rule-id": rule.id,
+          },
+        });
+        toggleInput.checked = Boolean(rule.enabled);
+        toggleLabel.appendChild(toggleInput);
+        toggleLabel.appendChild(ui.el("span", { className: "toggle-slider" }));
+        toggleCell.appendChild(toggleLabel);
+        row.appendChild(toggleCell);
+
+        row.appendChild(ui.el("td", { text: ui.formatDateTime(rule.last_triggered) }));
+
+        const actionCell = ui.el("td");
+        const testButton = ui.el("button", {
+          text: "テスト",
+          className: "secondary small",
+          attrs: { "data-test-rule": rule.id },
+        });
+        actionCell.appendChild(testButton);
+        row.appendChild(actionCell);
+
+        tableBody.appendChild(row);
+      });
+    };
+
+    const renderRuleOptions = () => {
+      const select = ui.qs("#alert-test-rule");
+      select.innerHTML = "";
+      state.rules.forEach((rule) => {
+        select.appendChild(
+          ui.el("option", { text: rule.name || rule.id, attrs: { value: rule.id } })
+        );
+      });
+    };
+
+    const updateRuleToggle = async (ruleId, enabled) => {
+      const statusEl = ui.qs("#alerts-status");
+      const rule = state.rules.find((item) => item.id === ruleId);
+      if (rule) rule.enabled = enabled;
+      if (!state.apiAvailable) {
+        statusEl.textContent = "未実装/未接続 (ローカル反映のみ)";
+        return;
+      }
+      const response = await app.apiFetchSafe(`/api/alerts/rules/${encodeURIComponent(ruleId)}`, {
+        method: "PATCH",
+        body: { enabled },
+      });
+      if (!response.ok) {
+        statusEl.textContent = "更新に失敗しました";
+        if (rule) rule.enabled = !enabled;
+        renderRules();
+        return;
+      }
+      statusEl.textContent = "更新しました";
+    };
+
+    const sendTestNotification = async (payload) => {
+      const statusEl = ui.qs("#alert-test-status");
+      statusEl.textContent = "送信中...";
+      if (!state.apiAvailable) {
+        statusEl.textContent = "未実装/未接続";
+        ui.toast("未実装のためローカル確認のみです", "warning");
+        return;
+      }
+      const response = await app.apiFetchSafe("/api/alerts/test", { method: "POST", body: payload });
+      if (!response.ok) {
+        statusEl.textContent = "送信に失敗しました";
+        return;
+      }
+      statusEl.textContent = "送信完了";
+      ui.toast("テスト通知を送信しました", "success");
+    };
+
+    const fetchRules = async () => {
+      const statusEl = ui.qs("#alerts-status");
+      statusEl.textContent = "データ取得中...";
+      const response = await app.apiFetchSafe("/api/alerts/rules");
+      if (!response.ok) {
+        state.rules = fallbackRules;
+        state.apiAvailable = false;
+        statusEl.textContent = "未実装/未接続";
+      } else {
+        state.rules = normalizeRules(response.data);
+        state.apiAvailable = true;
+        statusEl.textContent = "";
+      }
+      renderRules();
+      renderRuleOptions();
+    };
+
+    const bindActions = () => {
+      ui.qs("#refresh-alerts").addEventListener("click", fetchRules);
+      ui.qs("#alerts-table").addEventListener("change", (event) => {
+        const target = event.target;
+        if (target.matches("input[type='checkbox'][data-rule-id]")) {
+          const ruleId = target.dataset.ruleId;
+          updateRuleToggle(ruleId, target.checked);
+        }
+      });
+      ui.qs("#alerts-table").addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-test-rule]");
+        if (!button) return;
+        const ruleId = button.dataset.testRule;
+        const channel = "slack";
+        sendTestNotification({ rule_id: ruleId, channel, message: "ルール単体テスト" });
+      });
+      ui.qs("#alert-test-send").addEventListener("click", () => {
+        const payload = {
+          rule_id: ui.qs("#alert-test-rule").value,
+          channel: ui.qs("#alert-test-channel").value,
+          recipient: ui.qs("#alert-test-recipient").value.trim(),
+          message: ui.qs("#alert-test-message").value.trim() || "テスト通知",
+        };
+        sendTestNotification(payload);
+      });
+    };
+
+    const init = () => {
+      setActiveNav();
+      bindActions();
+      fetchRules();
+    };
+
+    init();
   </script>
 </body>
 </html>
