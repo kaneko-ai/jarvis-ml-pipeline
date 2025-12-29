@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS Finance Optimizer</title>
+    <style>
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #16213e;
+            --accent: #00d4ff;
+            --accent-dark: #0a9ec7;
+            --text-primary: #e8e8e8;
+            --text-secondary: #a0a0a0;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+            padding: 25px 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        header h1 {
+            font-size: 2em;
+            color: var(--accent);
+        }
+
+        .card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.85em;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .badge.success {
+            color: var(--success);
+        }
+
+        .badge.warning {
+            color: var(--warning);
+        }
+
+        .badge.danger {
+            color: var(--danger);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: left;
+        }
+
+        th {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        button {
+            background: var(--accent);
+            border: none;
+            color: var(--bg-primary);
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        button.secondary {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .note {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Resource Optimization (P10)</h1>
+            <p class="note">すべての結果は仮定依存（推測）として表示されます。</p>
+        </header>
+
+        <div class="card">
+            <h2>シナリオ比較</h2>
+            <div class="grid" id="scenario-cards"></div>
+        </div>
+
+        <div class="card">
+            <h2>月次キャッシュフロー</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Expected Balance End</th>
+                        <th>Downside Balance End</th>
+                    </tr>
+                </thead>
+                <tbody id="cashflow-body"></tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>アクション</h2>
+            <button id="optimize-btn">最適化を再実行</button>
+            <button class="secondary" id="download-btn">レポートZIPをDL</button>
+            <p class="note" id="optimize-note"></p>
+        </div>
+    </div>
+
+    <script>
+        const apiBase = '';
+        const scenarioCards = document.getElementById('scenario-cards');
+        const cashflowBody = document.getElementById('cashflow-body');
+        const optimizeNote = document.getElementById('optimize-note');
+
+        function statusBadge(status) {
+            if (status === 'feasible') return 'success';
+            if (status === 'risky') return 'warning';
+            return 'danger';
+        }
+
+        function renderScenarios(scenarios) {
+            scenarioCards.innerHTML = '';
+            scenarios.forEach((scenario) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <h3>${scenario.name}</h3>
+                    <p class="badge ${statusBadge(scenario.status)}">${scenario.status}</p>
+                    <p>Expected Balance End: ${scenario.expected_balance_end.toFixed(0)}</p>
+                    <p>Bankruptcy Risk: ${(scenario.bankruptcy_risk * 100).toFixed(1)}%</p>
+                    <p>Research Hours Avg: ${scenario.research_hours_avg.toFixed(1)}</p>
+                    <p class="note">${scenario.recommendation}</p>
+                `;
+                card.addEventListener('click', () => renderCashflows(scenario.summary.monthly));
+                scenarioCards.appendChild(card);
+            });
+            if (scenarios.length) {
+                renderCashflows(scenarios[0].summary.monthly);
+            }
+        }
+
+        function renderCashflows(monthly) {
+            cashflowBody.innerHTML = '';
+            monthly.forEach((row) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.month}</td>
+                    <td>${row.expected_balance_end.toFixed(0)}</td>
+                    <td>${row.downside_balance_end.toFixed(0)}</td>
+                `;
+                cashflowBody.appendChild(tr);
+            });
+        }
+
+        async function loadSimulation() {
+            const response = await fetch(`${apiBase}/api/finance/simulate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ months: 36 })
+            });
+            const data = await response.json();
+            renderScenarios(data.scenarios || []);
+        }
+
+        async function runOptimize() {
+            const response = await fetch(`${apiBase}/api/finance/optimize`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ months: 36 })
+            });
+            const data = await response.json();
+            optimizeNote.textContent = `推奨シナリオ: ${data.scenario} (${data.status}) - ${data.recommendation}`;
+        }
+
+        async function downloadReport() {
+            window.location.href = `${apiBase}/api/finance/download?format=zip`;
+        }
+
+        document.getElementById('optimize-btn').addEventListener('click', runOptimize);
+        document.getElementById('download-btn').addEventListener('click', downloadReport);
+
+        loadSimulation();
+    </script>
+</body>
+
+</html>
