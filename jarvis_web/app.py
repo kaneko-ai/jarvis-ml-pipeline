@@ -18,9 +18,8 @@ from pathlib import Path
 from typing import Any, List, Optional
 
 try:
-    from fastapi import FastAPI, HTTPException, Depends, Header, UploadFile, File
-    from fastapi.responses import JSONResponse, FileResponse
-    from fastapi.staticfiles import StaticFiles
+    from fastapi import FastAPI, HTTPException, Depends, UploadFile, File
+    from fastapi.responses import FileResponse
     from fastapi.middleware.cors import CORSMiddleware
     from pydantic import BaseModel
 
@@ -37,7 +36,6 @@ RUNS_DIR = Path("logs/runs")
 UPLOADS_DIR = Path("data/uploads")
 MAX_UPLOAD_SIZE = 100 * 1024 * 1024  # 100MB per file
 MAX_BATCH_FILES = 100
-API_TOKEN = os.getenv("API_TOKEN")
 
 
 # Create app if FastAPI available
@@ -56,6 +54,9 @@ if FASTAPI_AVAILABLE:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    from jarvis_web.routes.export import router as export_router
+
+    app.include_router(export_router)
 else:
     app = None
 
@@ -95,36 +96,7 @@ class UploadResponse(BaseModel):
     files: List[dict]
 
 
-# Authentication (RP-168)
-def verify_token(authorization: Optional[str] = Header(None)) -> bool:
-    """Verify authorization token."""
-    expected = os.environ.get("JARVIS_WEB_TOKEN", "")
-    if not expected:
-        return True  # No auth required
-
-    if authorization is None:
-        raise HTTPException(status_code=401, detail="Authorization header required")
-
-    token = authorization.replace("Bearer ", "")
-    if token != expected:
-        raise HTTPException(status_code=403, detail="Invalid token")
-
-    return True
-
-
-def verify_api_token(authorization: Optional[str] = Header(None)) -> bool:
-    """Verify API token for job creation."""
-    if not API_TOKEN:
-        return True
-
-    if authorization is None or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
-    token = authorization.replace("Bearer ", "")
-    if token != API_TOKEN:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
-    return True
+from jarvis_web.auth import verify_api_token, verify_token
 
 
 def get_file_hash(filepath: Path) -> str:
@@ -266,6 +238,7 @@ if FASTAPI_AVAILABLE:
         """Start a new paper survey run."""
         import uuid
         from jarvis_core.app import run_task
+        from jarvis_core.export.package_builder import build_run_package
 
         run_id = str(uuid.uuid4())
         
@@ -282,6 +255,23 @@ if FASTAPI_AVAILABLE:
                 },
             )
             
+            export_flags = {
+                "generate_notes": request.config.get("generate_notes", True),
+                "generate_notebooklm": request.config.get("generate_notebooklm", False),
+                "export_bibtex": request.config.get("export_bibtex", True),
+                "package_zip": request.config.get("package_zip", True),
+            }
+            try:
+                build_run_package(
+                    result.run_id,
+                    generate_notes=export_flags["generate_notes"],
+                    generate_notebooklm=export_flags["generate_notebooklm"],
+                    export_bibtex_flag=export_flags["export_bibtex"],
+                    package_zip=export_flags["package_zip"],
+                )
+            except Exception:
+                pass
+
             return RunResponse(
                 run_id=result.run_id,
                 status=result.status,

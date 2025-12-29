@@ -284,6 +284,18 @@
             cursor: not-allowed;
         }
 
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85em;
+        }
+
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0 20px;
+        }
+
         /* Table */
         .data-table {
             width: 100%;
@@ -841,7 +853,11 @@
                             query,
                             max_results: parseInt(document.getElementById('max-papers').value),
                             oa_only: document.getElementById('oa-only').value === 'true',
-                            domain: document.getElementById('domain-select').value
+                            domain: document.getElementById('domain-select').value,
+                            generate_notes: true,
+                            generate_notebooklm: false,
+                            export_bibtex: true,
+                            package_zip: true
                         }
                     })
                 });
@@ -918,7 +934,11 @@
                         payload: {
                             query,
                             max_results: parseInt(document.getElementById('collect-max').value),
-                            oa_only: document.getElementById('collect-oa').checked
+                            oa_only: document.getElementById('collect-oa').checked,
+                            generate_notes: true,
+                            generate_notebooklm: false,
+                            export_bibtex: true,
+                            package_zip: true
                         }
                     })
                 });
@@ -983,6 +1003,18 @@
 
                 body.innerHTML = `
                     <h2>Run: ${runId}</h2>
+                    <div class="button-row">
+                        <a class="btn btn-secondary btn-small" href="${API_BASE}/api/export/run/${runId}/package" target="_blank">Download Package</a>
+                        <a class="btn btn-secondary btn-small" href="${API_BASE}/api/export/run/${runId}/notes" target="_blank">Download Notes</a>
+                        <a class="btn btn-secondary btn-small" href="${API_BASE}/api/export/run/${runId}/notebooklm" target="_blank">Download NotebookLM</a>
+                        <select id="notebooklm-prompt-select" class="btn btn-secondary btn-small" style="padding: 6px 12px;">
+                            <option value="podcast_prompt_1paper">1本深掘り</option>
+                            <option value="podcast_prompt_3to5papers">3-5本統合</option>
+                            <option value="podcast_script_outline">台本アウトライン</option>
+                        </select>
+                        <button class="btn btn-primary btn-small" onclick="loadNotebookPrompt('${runId}')">NotebookLM Prompt</button>
+                    </div>
+                    <pre id="notebooklm-prompt" style="display:none; max-height: 260px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;"></pre>
                     <table class="data-table" style="margin: 20px 0;">
                         <tr><th>Status</th><td><span class="badge ${run.status === 'success' ? 'badge-success' : 'badge-danger'}">${run.status}</span></td></tr>
                         <tr><th>Gate Passed</th><td>${run.gate_passed ? '✅' : '❌'}</td></tr>
@@ -1091,6 +1123,23 @@
                 .map(([k, v]) => `<div>${k}: ${v}</div>`)
                 .join('');
             document.getElementById('job-error').textContent = job.error ? `Error: ${job.error}` : '';
+        }
+
+        async function loadNotebookPrompt(runId) {
+            const promptBox = document.getElementById('notebooklm-prompt');
+            const promptSelect = document.getElementById('notebooklm-prompt-select');
+            if (!promptBox || !promptSelect) return;
+            promptBox.style.display = 'block';
+            promptBox.textContent = 'Loading...';
+            try {
+                const promptName = promptSelect.value;
+                const res = await fetch(`${API_BASE}/api/export/run/${runId}/notebooklm/prompt/${promptName}`);
+                if (!res.ok) throw new Error('Prompt not available');
+                const text = await res.text();
+                promptBox.textContent = text;
+            } catch (e) {
+                promptBox.textContent = `Error: ${e.message}`;
+            }
         }
 
         // === Initialize ===
