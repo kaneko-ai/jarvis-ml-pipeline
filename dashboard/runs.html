@@ -7,18 +7,18 @@
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body data-page="runs">
-    <nav class="top-nav">
-    <a href="index.html">Home</a>
-    <a href="runs.html">Runs</a>
-    <a href="ops.html">Ops</a>
-    <a href="schedule.html">Schedule</a>
-    <a href="kb.html">KB</a>
-    <a href="search.html">Search</a>
-    <a href="settings.html">Settings</a>
+    <nav class="top-nav" data-testid="top-nav">
+    <a href="index.html" data-testid="nav-home">Home</a>
+    <a href="runs.html" data-testid="nav-runs">Runs</a>
+    <a href="ops.html" data-testid="nav-ops">Ops</a>
+    <a href="schedule.html" data-testid="nav-schedule">Schedule</a>
+    <a href="kb.html" data-testid="nav-kb">KB</a>
+    <a href="search.html" data-testid="nav-search">Search</a>
+    <a href="settings.html" data-testid="nav-settings">Settings</a>
   </nav>
   <main class="container">
     <header class="page-header">
-      <h1>Run一覧</h1>
+      <h1 data-testid="page-title">Run一覧</h1>
       <p>Run/Jobの検索とフィルタリングを行います。</p>
     </header>
 
@@ -27,49 +27,49 @@
         <h2>Run作成</h2>
       </div>
       <div class="form-row">
-        <input id="run-query" placeholder="query" />
-        <input id="run-max-papers" type="number" min="1" value="10" />
-        <input id="run-seed" type="number" value="42" />
+        <input id="run-query" placeholder="query" data-testid="run-query" />
+        <input id="run-max-papers" type="number" min="1" value="10" data-testid="run-max-papers" />
+        <input id="run-seed" type="number" value="42" data-testid="run-seed" />
       </div>
       <div class="flex">
-        <button id="create-run">Run作成</button>
+        <button id="create-run" data-testid="create-run">Run作成</button>
       </div>
-      <div class="notice" id="create-run-status">未実行</div>
+      <div class="notice" id="create-run-status" data-testid="create-run-status">未実行</div>
     </section>
 
     <section class="panel">
       <div class="section-title">
         <h2>Filters</h2>
-        <button class="secondary" id="refresh-runs">更新</button>
+        <button class="secondary" id="refresh-runs" data-testid="refresh-runs">更新</button>
       </div>
       <div class="form-row">
-        <select id="filter-status">
+        <select id="filter-status" data-testid="filter-status">
           <option value="">Status</option>
           <option value="running">running</option>
           <option value="success">success</option>
           <option value="failed">failed</option>
         </select>
-        <select id="filter-qa">
+        <select id="filter-qa" data-testid="filter-qa">
           <option value="">QA</option>
           <option value="READY">READY</option>
           <option value="NOT_READY">NOT_READY</option>
         </select>
-        <select id="filter-package">
+        <select id="filter-package" data-testid="filter-package">
           <option value="">Package</option>
           <option value="true">has_package</option>
           <option value="false">no_package</option>
         </select>
-        <input id="filter-keyword" placeholder="keyword (title/journal/target)" />
+        <input id="filter-keyword" placeholder="keyword (title/journal/target)" data-testid="filter-keyword" />
       </div>
-      <div class="notice" id="runs-status">データ取得中...</div>
+      <div class="notice" id="runs-status" data-testid="runs-status">データ取得中...</div>
     </section>
 
     <section class="panel">
       <div class="section-title">
         <h2>Runs</h2>
-        <span class="badge" id="runs-count">0</span>
+        <span class="badge" id="runs-count" data-testid="runs-count">0</span>
       </div>
-      <table class="table" id="runs-table">
+      <table class="table" id="runs-table" data-testid="runs-table">
         <thead>
           <tr>
             <th>Run ID</th>
@@ -84,7 +84,7 @@
         </thead>
         <tbody></tbody>
       </table>
-      <div id="runs-empty" class="notice">データがありません。</div>
+      <div id="runs-empty" class="notice" data-testid="runs-empty">データがありません。</div>
     </section>
   </main>
 

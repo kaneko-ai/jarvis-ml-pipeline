@@ -7,18 +7,18 @@
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body data-page="feedback">
-    <nav class="top-nav">
-    <a href="index.html">Home</a>
-    <a href="runs.html">Runs</a>
-    <a href="ops.html">Ops</a>
-    <a href="schedule.html">Schedule</a>
-    <a href="kb.html">KB</a>
-    <a href="search.html">Search</a>
-    <a href="settings.html">Settings</a>
+    <nav class="top-nav" data-testid="top-nav">
+    <a href="index.html" data-testid="nav-home">Home</a>
+    <a href="runs.html" data-testid="nav-runs">Runs</a>
+    <a href="ops.html" data-testid="nav-ops">Ops</a>
+    <a href="schedule.html" data-testid="nav-schedule">Schedule</a>
+    <a href="kb.html" data-testid="nav-kb">KB</a>
+    <a href="search.html" data-testid="nav-search">Search</a>
+    <a href="settings.html" data-testid="nav-settings">Settings</a>
   </nav>
   <main class="container">
     <header class="page-header">
-      <h1>Feedback Risk</h1>
+      <h1 data-testid="page-title">Feedback Risk</h1>
       <p>指摘履歴の投入とリスク可視化。</p>
     </header>
 
@@ -26,21 +26,21 @@
       <div class="section-title">
         <h2>Import Feedback</h2>
       </div>
-      <textarea id="feedback-input" rows="6" placeholder="メール貼り付け"></textarea>
+      <textarea id="feedback-input" rows="6" placeholder="メール貼り付け" data-testid="feedback-input"></textarea>
       <div class="flex">
-        <input id="feedback-run" placeholder="run_id" />
-        <button id="import-feedback">保存 & 再評価</button>
+        <input id="feedback-run" placeholder="run_id" data-testid="feedback-run" />
+        <button id="import-feedback" data-testid="import-feedback">保存 & 再評価</button>
       </div>
-      <div id="feedback-status" class="notice">未実行</div>
+      <div id="feedback-status" class="notice" data-testid="feedback-status">未実行</div>
     </section>
 
     <section class="panel">
       <div class="section-title">
         <h2>Risk Summary</h2>
-        <button class="secondary" id="refresh-risk">更新</button>
+        <button class="secondary" id="refresh-risk" data-testid="refresh-risk">更新</button>
       </div>
-      <div class="grid cols-3" id="risk-kpi"></div>
-      <div id="risk-high"></div>
+      <div class="grid cols-3" id="risk-kpi" data-testid="risk-kpi"></div>
+      <div id="risk-high" data-testid="risk-high"></div>
     </section>
   </main>
 

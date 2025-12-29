@@ -7,18 +7,18 @@
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body data-page="decision">
-    <nav class="top-nav">
-    <a href="index.html">Home</a>
-    <a href="runs.html">Runs</a>
-    <a href="ops.html">Ops</a>
-    <a href="schedule.html">Schedule</a>
-    <a href="kb.html">KB</a>
-    <a href="search.html">Search</a>
-    <a href="settings.html">Settings</a>
+    <nav class="top-nav" data-testid="top-nav">
+    <a href="index.html" data-testid="nav-home">Home</a>
+    <a href="runs.html" data-testid="nav-runs">Runs</a>
+    <a href="ops.html" data-testid="nav-ops">Ops</a>
+    <a href="schedule.html" data-testid="nav-schedule">Schedule</a>
+    <a href="kb.html" data-testid="nav-kb">KB</a>
+    <a href="search.html" data-testid="nav-search">Search</a>
+    <a href="settings.html" data-testid="nav-settings">Settings</a>
   </nav>
   <main class="container">
     <header class="page-header">
-      <h1>Decision Simulator</h1>
+      <h1 data-testid="page-title">Decision Simulator</h1>
       <p>選択肢と前提条件を入力して比較します。</p>
     </header>
 
@@ -26,17 +26,17 @@
       <div class="section-title">
         <h2>Inputs</h2>
       </div>
-      <textarea id="decision-options" rows="6" placeholder='options JSON (例: [{"name":"A","cost":100}])'></textarea>
-      <textarea id="decision-assumptions" rows="4" placeholder='assumptions JSON (例: {"target":"x"})'></textarea>
-      <button id="run-decision">Simulate</button>
-      <div id="decision-status" class="notice">未実行</div>
+      <textarea id="decision-options" rows="6" placeholder='options JSON (例: [{"name":"A","cost":100}])' data-testid="decision-options"></textarea>
+      <textarea id="decision-assumptions" rows="4" placeholder='assumptions JSON (例: {"target":"x"})' data-testid="decision-assumptions"></textarea>
+      <button id="run-decision" data-testid="run-decision">Simulate</button>
+      <div id="decision-status" class="notice" data-testid="decision-status">未実行</div>
     </section>
 
     <section class="panel">
       <div class="section-title">
         <h2>Result</h2>
       </div>
-      <div id="decision-result" class="notice">結果がここに表示されます。</div>
+      <div id="decision-result" class="notice" data-testid="decision-result">結果がここに表示されます。</div>
     </section>
   </main>
 
