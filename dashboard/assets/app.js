@@ -126,8 +126,14 @@ const app = (() => {
   const getSubmissionLatest = (runId) => apiFetch(`/api/submission/run/${encodeURIComponent(runId)}/latest`);
   const getSubmissionEmail = (runId) => apiFetch(`/api/submission/run/${encodeURIComponent(runId)}/email`);
   const getSubmissionChangelog = (runId) => apiFetch(`/api/submission/run/${encodeURIComponent(runId)}/changelog`);
-  const listSchedules = () => apiFetch("/api/schedule");
-  const createSchedule = (payload) => apiFetch("/api/schedule", { method: "POST", body: payload });
+  const listSchedules = () => apiFetch("/api/schedules");
+  const createSchedule = (payload) => apiFetch("/api/schedules", { method: "POST", body: payload });
+  const updateSchedule = (scheduleId, payload) =>
+    apiFetch(`/api/schedules/${encodeURIComponent(scheduleId)}`, { method: "PATCH", body: payload });
+  const runScheduleNow = (scheduleId, force = false) =>
+    apiFetch(`/api/schedules/${encodeURIComponent(scheduleId)}/run?force=${force}`, { method: "POST" });
+  const getScheduleHistory = (scheduleId, limit = 50) =>
+    apiFetch(`/api/schedules/${encodeURIComponent(scheduleId)}/history?limit=${limit}`);
   const importFeedback = (payload) => apiFetch("/api/feedback/import", { method: "POST", body: payload });
   const getFeedbackRisk = (runId) => apiFetch(`/api/feedback/risk?run_id=${encodeURIComponent(runId)}`);
   const decisionSimulate = (payload) => apiFetch("/api/decision/simulate", { method: "POST", body: payload });
@@ -157,6 +163,9 @@ const app = (() => {
     getSubmissionChangelog,
     listSchedules,
     createSchedule,
+    updateSchedule,
+    runScheduleNow,
+    getScheduleHistory,
     importFeedback,
     getFeedbackRisk,
     decisionSimulate,
