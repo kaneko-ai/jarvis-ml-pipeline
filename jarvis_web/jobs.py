@@ -56,6 +56,7 @@ def create_job(job_type: str, payload: Dict[str, Any], job_id: Optional[str] = N
         "payload": payload,
         "started_at": None,
         "updated_at": _now(),
+        "progress_ts": _now(),
         "error": None,
     }
     _write_job(job)
@@ -97,7 +98,7 @@ def set_status(job_id: str, status: str) -> Dict[str, Any]:
 
 
 def set_step(job_id: str, step: str) -> Dict[str, Any]:
-    job = update_job(job_id, step=step)
+    job = update_job(job_id, step=step, progress_ts=_now())
     append_event(job_id, {"message": f"step -> {step}", "level": "info"})
     return job
 
@@ -106,6 +107,7 @@ def set_progress(job_id: str, progress: int) -> Dict[str, Any]:
     job = read_job(job_id)
     current = job.get("progress", 0)
     job["progress"] = max(current, min(progress, 100))
+    job["progress_ts"] = _now()
     _write_job(job)
     return job
 
