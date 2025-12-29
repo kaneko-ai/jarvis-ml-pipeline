@@ -65,8 +65,18 @@
       });
     };
 
-    const init = () => {
+    const applyCapabilities = async () => {
+      const result = await app.getCapabilities();
+      if (result.ok) {
+        ui.applyCapabilitiesToNav(result.data);
+        return;
+      }
+      ui.applyCapabilitiesToNav({});
+    };
+
+    const init = async () => {
       setActiveNav();
+      await applyCapabilities();
       ui.qs("#api-base").value = app.getApiBase();
       ui.qs("#api-token").value = app.getApiToken();
 

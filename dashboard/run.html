@@ -100,7 +100,7 @@
         <div id="rank-content"></div>
       </div>
 
-      <div id="tab-claims" class="tab-content">
+      <div id="tab-claims" class="tab-content" data-feature="research_paper">
         <div class="section-title">
           <h2>Claims & Evidence</h2>
           <div class="flex">
@@ -112,7 +112,7 @@
         <div id="claims-content"></div>
       </div>
 
-      <div id="tab-qa" class="tab-content">
+      <div id="tab-qa" class="tab-content" data-feature="qa_report">
         <div class="section-title">
           <h2>QA Report</h2>
           <button class="secondary" id="refresh-qa">更新</button>
@@ -189,6 +189,21 @@
           ui.qs(`#tab-${button.dataset.tab}`).classList.add("active");
         });
       });
+    };
+
+    const capabilityFallbackLabel = () => (capabilityStatus === "disconnected" ? "未接続" : "未実装");
+
+    const setFeatureVisibility = (featureKey, enabled) => {
+      ui.qsa(`[data-feature="${featureKey}"]`).forEach((el) => {
+        el.style.display = enabled ? "" : "none";
+      });
+      const active = ui.qs(".tabs button.active");
+      if (active && active.style.display === "none") {
+        const overview = ui.qs('.tabs button[data-tab="overview"]');
+        if (overview) {
+          overview.click();
+        }
+      }
     };
 
     const updateOverview = () => {
@@ -430,6 +445,11 @@
       const paperId = ui.qs("#paper-id").value.trim();
       const status = ui.qs("#claims-status");
       const content = ui.qs("#claims-content");
+      if (!features.research_paper) {
+        status.textContent = capabilityFallbackLabel();
+        content.innerHTML = "";
+        return;
+      }
       status.textContent = "読み込み中...";
       content.innerHTML = "";
       if (!paperId) {
@@ -474,6 +494,11 @@
     const renderQa = async () => {
       const status = ui.qs("#qa-status");
       const content = ui.qs("#qa-content");
+      if (!features.qa_report) {
+        status.textContent = capabilityFallbackLabel();
+        content.innerHTML = "";
+        return;
+      }
       status.textContent = "読み込み中...";
       content.innerHTML = "";
       let data = null;
@@ -544,6 +569,15 @@
     const renderSubmission = async () => {
       const latestEl = ui.qs("#submission-latest");
       const linkEl = ui.qs("#submission-links");
+      if (!features.submission) {
+        const label = capabilityFallbackLabel();
+        latestEl.textContent = label;
+        ui.qs("#submission-changelog").textContent = label;
+        ui.qs("#submission-email").textContent = label;
+        ui.qs("#build-status").textContent = label;
+        linkEl.innerHTML = "";
+        return;
+      }
       latestEl.textContent = "読み込み中...";
       linkEl.innerHTML = "";
 
@@ -564,15 +598,71 @@
       ui.qs("#submission-email").textContent = email.ok ? JSON.stringify(email.data, null, 2) : "未実装/未接続";
     };
 
+    const applyCapabilities = async () => {
+      const result = await app.getCapabilities();
+      if (result.ok) {
+        ui.applyCapabilitiesToNav(result.data);
+        features = {
+          research_rank: app.isFeatureEnabled(result.data, "research_rank"),
+          research_paper: app.isFeatureEnabled(result.data, "research_paper"),
+          qa_report: app.isFeatureEnabled(result.data, "qa_report"),
+          submission: app.isFeatureEnabled(result.data, "submission"),
+          events: app.isFeatureEnabled(result.data, "events"),
+        };
+        capabilityStatus = "available";
+        setFeatureVisibility("research_rank", features.research_rank);
+        setFeatureVisibility("research_paper", features.research_paper);
+        setFeatureVisibility("qa_report", features.qa_report);
+        setFeatureVisibility("submission", features.submission);
+        if (!features.research_rank) {
+          ui.qs("#papers-status").textContent = "未実装";
+        }
+        if (!features.research_paper) {
+          ui.qs("#claims-status").textContent = "未実装";
+        }
+        if (!features.qa_report) {
+          ui.qs("#qa-status").textContent = "未実装";
+        }
+        if (!features.submission) {
+          ui.qs("#submission-latest").textContent = "未実装";
+          ui.qs("#submission-changelog").textContent = "未実装";
+          ui.qs("#submission-email").textContent = "未実装";
+          ui.qs("#build-status").textContent = "未実装";
+        }
+        return;
+      }
+      ui.applyCapabilitiesToNav({});
+      capabilityStatus = "disconnected";
+      features = {
+        research_rank: false,
+        research_paper: false,
+        qa_report: false,
+        submission: false,
+        events: false,
+      };
+      ui.qs("#papers-status").textContent = "未接続";
+      ui.qs("#claims-status").textContent = "未接続";
+      ui.qs("#qa-status").textContent = "未接続";
+      ui.qs("#submission-latest").textContent = "未接続";
+      ui.qs("#submission-changelog").textContent = "未接続";
+      ui.qs("#submission-email").textContent = "未接続";
+      ui.qs("#build-status").textContent = "未接続";
+    };
+
     const init = async () => {
       setActiveNav();
       setTabs();
+      await applyCapabilities();
       await loadRun();
       startSse();
       renderRank();
       renderExports();
-      renderQa();
-      renderSubmission();
+      if (features.qa_report) {
+        renderQa();
+      }
+      if (features.submission) {
+        renderSubmission();
+      }
 
       if (activityTimer) clearInterval(activityTimer);
       activityTimer = setInterval(updateStatusUI, 5000);
@@ -585,6 +675,10 @@
       ui.qs("#refresh-submission").addEventListener("click", renderSubmission);
 
       ui.qs("#build-submission").addEventListener("click", async () => {
+        if (!features.submission) {
+          ui.qs("#build-status").textContent = capabilityFallbackLabel();
+          return;
+        }
         const payload = {
           run_id: runId,
           submission_version: ui.qs("#submission-version").value,

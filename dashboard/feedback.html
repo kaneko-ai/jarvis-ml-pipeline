@@ -57,10 +57,19 @@
       });
     };
 
+    let feedbackEnabled = true;
+    let capabilityStatus = "available";
+
     const renderRisk = async () => {
       const runId = ui.qs("#feedback-run").value.trim();
       const kpi = ui.qs("#risk-kpi");
       const high = ui.qs("#risk-high");
+      if (!feedbackEnabled) {
+        kpi.innerHTML = "";
+        high.innerHTML = "";
+        high.appendChild(ui.el("div", { className: "notice", text: capabilityStatus === "unavailable" ? "未実装" : "未接続" }));
+        return;
+      }
       kpi.innerHTML = "";
       high.innerHTML = "";
       if (!runId) {
@@ -103,10 +112,36 @@
       });
     };
 
-    const init = () => {
+    const applyCapabilities = async () => {
+      const result = await app.getCapabilities();
+      if (result.ok) {
+        ui.applyCapabilitiesToNav(result.data);
+        feedbackEnabled = app.isFeatureEnabled(result.data, "feedback");
+        capabilityStatus = feedbackEnabled ? "available" : "unavailable";
+      } else {
+        feedbackEnabled = false;
+        capabilityStatus = "disconnected";
+        ui.applyCapabilitiesToNav({});
+      }
+      if (!feedbackEnabled) {
+        ui.qsa(".panel").forEach((panel) => {
+          panel.style.display = "none";
+        });
+        const main = ui.qs("main.container");
+        const notice = ui.el("div", { className: "notice", text: capabilityStatus === "unavailable" ? "未実装" : "未接続" });
+        main.appendChild(notice);
+      }
+    };
+
+    const init = async () => {
       setActiveNav();
+      await applyCapabilities();
       ui.qs("#refresh-risk").addEventListener("click", renderRisk);
       ui.qs("#import-feedback").addEventListener("click", async () => {
+        if (!feedbackEnabled) {
+          ui.qs("#feedback-status").textContent = capabilityStatus === "unavailable" ? "未実装" : "未接続";
+          return;
+        }
         const payload = {
           run_id: ui.qs("#feedback-run").value.trim(),
           content: ui.qs("#feedback-input").value,
