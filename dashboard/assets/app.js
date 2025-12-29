@@ -1,14 +1,12 @@
 const app = (() => {
-  const STORAGE_BASE = "JAVIS_API_BASE";
-  const STORAGE_TOKEN = "JAVIS_API_TOKEN";
-
-  const getApiBase = () => (localStorage.getItem(STORAGE_BASE) || "").trim();
-  const getApiToken = () => (localStorage.getItem(STORAGE_TOKEN) || "").trim();
-
-  const setApiConfig = (base, token) => {
-    localStorage.setItem(STORAGE_BASE, (base || "").trim());
-    localStorage.setItem(STORAGE_TOKEN, (token || "").trim());
-  };
+  const {
+    STORAGE_BASE,
+    STORAGE_TOKEN,
+    getApiBase,
+    getApiToken,
+    setApiConfig,
+    clearApiConfig,
+  } = storage;
 
   const buildUrl = (path) => {
     if (path.startsWith("http")) return path;
@@ -36,9 +34,10 @@ const app = (() => {
       ...headers,
     };
     const token = getApiToken();
-    if (token) {
-      finalHeaders.Authorization = `Bearer ${token}`;
+    if (!token) {
+      throw new Error("API_TOKENが未設定です。Settingsで設定してください。");
     }
+    finalHeaders.Authorization = `Bearer ${token}`;
     let payload = body;
     if (body && !(body instanceof FormData)) {
       finalHeaders["Content-Type"] = "application/json";
@@ -67,6 +66,13 @@ const app = (() => {
       } else {
         data = rawText;
       }
+    }
+
+    if (response.status === 401) {
+      if (!window.location.pathname.endsWith("settings.html")) {
+        window.location.href = "settings.html";
+      }
+      throw new Error("認証エラー: Settingsでトークンを設定してください。");
     }
 
     if (![200, 201].includes(response.status)) {
@@ -145,6 +151,7 @@ const app = (() => {
     getApiBase,
     getApiToken,
     setApiConfig,
+    clearApiConfig,
     apiFetch,
     apiFetchSafe,
     resolveFileUrl,
