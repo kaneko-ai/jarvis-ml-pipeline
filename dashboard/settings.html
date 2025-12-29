@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Settings - Research OS Dashboard</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body data-page="settings">
+    <nav class="top-nav">
+    <a href="index.html">Home</a>
+    <a href="runs.html">Runs</a>
+    <a href="ops.html">Ops</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="kb.html">KB</a>
+    <a href="search.html">Search</a>
+    <a href="settings.html">Settings</a>
+  </nav>
+  <main class="container">
+    <header class="page-header">
+      <h1>Settings</h1>
+      <p>API_BASE と API_TOKEN を保存し、接続テストを行います。</p>
+    </header>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>API Settings</h2>
+      </div>
+      <div class="form-row">
+        <input id="api-base" placeholder="API_BASE (https://xxx.workers.dev)" />
+        <input id="api-token" placeholder="API_TOKEN (Bearer)" />
+      </div>
+      <div class="flex">
+        <button id="save-settings">保存</button>
+        <button class="secondary" id="test-connection">接続テスト</button>
+        <button class="secondary" id="clear-settings">削除</button>
+      </div>
+      <div id="settings-status" class="notice">未保存</div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Storage Keys</h2>
+      </div>
+      <div class="notice">
+        <p>LocalStorage Keys:</p>
+        <ul>
+          <li>JAVIS_API_BASE</li>
+          <li>JAVIS_API_TOKEN</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script src="assets/storage.js"></script>
+  <script src="assets/app.js"></script>
+  <script src="assets/ui.js"></script>
+  <script>
+    const setActiveNav = () => {
+      const page = document.body.dataset.page;
+      ui.qsa(".top-nav a").forEach((link) => {
+        if (link.getAttribute("href").includes(page)) {
+          link.classList.add("active");
+        }
+      });
+    };
+
+    const init = () => {
+      setActiveNav();
+      ui.qs("#api-base").value = app.getApiBase();
+      ui.qs("#api-token").value = app.getApiToken();
+
+      ui.qs("#save-settings").addEventListener("click", () => {
+        app.setApiConfig(ui.qs("#api-base").value, ui.qs("#api-token").value);
+        ui.qs("#settings-status").textContent = "保存しました";
+      });
+
+      ui.qs("#test-connection").addEventListener("click", async () => {
+        const response = await app.apiFetchSafe("/api/health");
+        ui.qs("#settings-status").textContent = response.ok
+          ? "接続OK"
+          : `接続失敗: ${response.error.message}`;
+      });
+
+      ui.qs("#clear-settings").addEventListener("click", () => {
+        app.clearApiConfig();
+        ui.qs("#api-base").value = "";
+        ui.qs("#api-token").value = "";
+        ui.qs("#settings-status").textContent = "削除しました";
+      });
+    };
+
+    init();
+  </script>
+</body>
+</html>

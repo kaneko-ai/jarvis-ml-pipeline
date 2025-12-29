@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ops - Research OS Dashboard</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body data-page="ops">
+  <nav class="top-nav">
+    <a href="index.html">Home</a>
+    <a href="runs.html">Runs</a>
+    <a href="ops.html">Ops</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="kb.html">KB</a>
+    <a href="search.html">Search</a>
+    <a href="settings.html">Settings</a>
+  </nav>
+  <main class="container">
+    <header class="page-header">
+      <h1>Ops</h1>
+      <p>運用状況やアラート、リカバリ導線をまとめるダッシュボード。</p>
+    </header>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Health Overview</h2>
+        <button class="secondary" id="refresh-ops">更新</button>
+      </div>
+      <div class="grid cols-3" id="health-grid">
+        <div class="status-card" data-key="api">
+          <div class="status-header">
+            <h3>API</h3>
+            <span class="badge" data-role="status">未取得</span>
+          </div>
+          <p class="muted" data-role="detail">未実装/未接続</p>
+        </div>
+        <div class="status-card" data-key="cron">
+          <div class="status-header">
+            <h3>Cron</h3>
+            <span class="badge" data-role="status">未取得</span>
+          </div>
+          <p class="muted" data-role="detail">未実装/未接続</p>
+        </div>
+        <div class="status-card" data-key="scheduler">
+          <div class="status-header">
+            <h3>Scheduler</h3>
+            <span class="badge" data-role="status">未取得</span>
+          </div>
+          <p class="muted" data-role="detail">未実装/未接続</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Run Metrics</h2>
+      </div>
+      <div class="grid cols-4" id="metrics-grid">
+        <div class="kpi-card">
+          <h3>Total runs</h3>
+          <div class="value" data-role="metric-total">-</div>
+        </div>
+        <div class="kpi-card">
+          <h3>Running</h3>
+          <div class="value" data-role="metric-running">-</div>
+        </div>
+        <div class="kpi-card">
+          <h3>Failed</h3>
+          <div class="value" data-role="metric-failed">-</div>
+        </div>
+        <div class="kpi-card">
+          <h3>Success</h3>
+          <div class="value" data-role="metric-success">-</div>
+        </div>
+      </div>
+      <div class="notice" id="metrics-status">データ取得中...</div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Stalled Runs</h2>
+        <span class="muted" id="stalled-summary">-</span>
+      </div>
+      <table class="table" id="stalled-table">
+        <thead>
+          <tr>
+            <th>Run ID</th>
+            <th>Status</th>
+            <th>Updated</th>
+            <th>Age</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="stalled-empty" class="notice">データがありません。</div>
+    </section>
+  </main>
+
+  <script src="assets/storage.js"></script>
+  <script src="assets/app.js"></script>
+  <script src="assets/ui.js"></script>
+  <script>
+    const setActiveNav = () => {
+      const page = document.body.dataset.page;
+      ui.qsa(".top-nav a").forEach((link) => {
+        if (link.getAttribute("href").includes(page)) {
+          link.classList.add("active");
+        }
+      });
+    };
+
+    const statusTone = (value) => {
+      if (value === true) return "success";
+      if (value === false) return "danger";
+      const normalized = String(value || "").toLowerCase();
+      if (["ok", "healthy", "up", "success"].includes(normalized)) return "success";
+      if (["warn", "warning", "degraded"].includes(normalized)) return "warning";
+      if (!normalized) return "";
+      return "danger";
+    };
+
+    const setStatusCard = (key, label, detail, tone) => {
+      const card = ui.qs(`.status-card[data-key="${key}"]`);
+      if (!card) return;
+      const badge = ui.qs('[data-role="status"]', card);
+      const detailEl = ui.qs('[data-role="detail"]', card);
+      badge.textContent = label || "-";
+      badge.className = `badge ${tone || ""}`.trim();
+      detailEl.textContent = detail || "-";
+    };
+
+    const renderHealth = async () => {
+      const apiResponse = await app.apiFetchSafe("/api/health");
+      if (!apiResponse.ok) {
+        setStatusCard("api", "未接続", "API未実装/未接続", "warning");
+      } else {
+        const statusValue = apiResponse.data?.status || apiResponse.data?.state || "ok";
+        setStatusCard("api", statusValue, apiResponse.data?.message || "API is reachable", statusTone(statusValue));
+      }
+
+      const cronResponse = await app.apiFetchSafe("/api/health/cron");
+      if (!cronResponse.ok) {
+        setStatusCard("cron", "未接続", "Cron未実装/未接続", "warning");
+      } else {
+        const statusValue = cronResponse.data?.status || cronResponse.data?.state || "ok";
+        const nextRun = cronResponse.data?.next_run_at || cronResponse.data?.next_run || "-";
+        setStatusCard(
+          "cron",
+          statusValue,
+          `Next: ${nextRun}`,
+          statusTone(statusValue)
+        );
+      }
+
+      const scheduleResponse = await app.apiFetchSafe("/api/schedules");
+      if (!scheduleResponse.ok) {
+        setStatusCard("scheduler", "未接続", "Scheduler未実装/未接続", "warning");
+      } else {
+        const list = scheduleResponse.data?.schedules || [];
+        const enabledCount = list.filter((item) => item.enabled).length;
+        const detail = `Enabled: ${enabledCount}/${list.length}`;
+        const tone = list.length ? "success" : "warning";
+        setStatusCard("scheduler", list.length ? "Active" : "Empty", detail, tone);
+      }
+    };
+
+    const parseDate = (value) => {
+      if (!value) return null;
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? null : date;
+    };
+
+    const formatAge = (ms) => {
+      if (!Number.isFinite(ms)) return "-";
+      const minutes = Math.floor(ms / 60000);
+      if (minutes < 60) return `${minutes} min`;
+      const hours = Math.floor(minutes / 60);
+      const rem = minutes % 60;
+      return `${hours}h ${rem}m`;
+    };
+
+    const renderRuns = async () => {
+      const metricsStatus = ui.qs("#metrics-status");
+      const tableBody = ui.qs("#stalled-table tbody");
+      const emptyEl = ui.qs("#stalled-empty");
+      const summaryEl = ui.qs("#stalled-summary");
+      tableBody.innerHTML = "";
+      metricsStatus.textContent = "データ取得中...";
+
+      const response = await app.apiFetchSafe("/api/runs");
+      if (!response.ok) {
+        metricsStatus.textContent = "未実装/未接続";
+        emptyEl.style.display = "block";
+        summaryEl.textContent = "-";
+        return;
+      }
+
+      const runs = response.data || [];
+      const total = runs.length;
+      const running = runs.filter((run) => run.status === "running").length;
+      const failed = runs.filter((run) => run.status === "failed").length;
+      const success = runs.filter((run) => run.status === "success").length;
+      ui.qs('[data-role="metric-total"]').textContent = ui.formatNumber(total);
+      ui.qs('[data-role="metric-running"]').textContent = ui.formatNumber(running);
+      ui.qs('[data-role="metric-failed"]').textContent = ui.formatNumber(failed);
+      ui.qs('[data-role="metric-success"]').textContent = ui.formatNumber(success);
+      metricsStatus.textContent = "";
+
+      const now = Date.now();
+      const stalledRuns = runs.filter((run) => {
+        if (run.status !== "running") return false;
+        const updated = parseDate(run.updated_at || run.last_updated || run.created_at);
+        if (!updated) return false;
+        const ageMs = now - updated.getTime();
+        return ageMs > 2 * 60 * 60 * 1000;
+      });
+
+      if (!stalledRuns.length) {
+        emptyEl.style.display = "block";
+        summaryEl.textContent = "stalled 0";
+        return;
+      }
+      emptyEl.style.display = "none";
+      summaryEl.textContent = `stalled ${stalledRuns.length}`;
+      stalledRuns.forEach((run) => {
+        const row = ui.el("tr");
+        const id = run.id || run.run_id || "-";
+        const link = ui.el("a", { text: id, attrs: { href: `run.html?id=${id}` } });
+        row.appendChild(ui.el("td", { html: link.outerHTML }));
+        row.appendChild(ui.el("td", { text: run.status || "-" }));
+        const updatedAt = parseDate(run.updated_at || run.last_updated || run.created_at);
+        row.appendChild(ui.el("td", { text: updatedAt ? updatedAt.toLocaleString() : "-" }));
+        const ageMs = updatedAt ? Date.now() - updatedAt.getTime() : null;
+        row.appendChild(ui.el("td", { text: formatAge(ageMs) }));
+        tableBody.appendChild(row);
+      });
+    };
+
+    const init = () => {
+      setActiveNav();
+      renderHealth();
+      renderRuns();
+      ui.qs("#refresh-ops").addEventListener("click", () => {
+        renderHealth();
+        renderRuns();
+      });
+    };
+
+    init();
+  </script>
+</body>
+</html>

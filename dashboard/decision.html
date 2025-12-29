@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Decision - Research OS Dashboard</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body data-page="decision">
+    <nav class="top-nav">
+    <a href="index.html">Home</a>
+    <a href="runs.html">Runs</a>
+    <a href="ops.html">Ops</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="kb.html">KB</a>
+    <a href="search.html">Search</a>
+    <a href="settings.html">Settings</a>
+  </nav>
+  <main class="container">
+    <header class="page-header">
+      <h1>Decision Simulator</h1>
+      <p>選択肢と前提条件を入力して比較します。</p>
+    </header>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Inputs</h2>
+      </div>
+      <textarea id="decision-options" rows="6" placeholder='options JSON (例: [{"name":"A","cost":100}])'></textarea>
+      <textarea id="decision-assumptions" rows="4" placeholder='assumptions JSON (例: {"target":"x"})'></textarea>
+      <button id="run-decision">Simulate</button>
+      <div id="decision-status" class="notice">未実行</div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Result</h2>
+      </div>
+      <div id="decision-result" class="notice">結果がここに表示されます。</div>
+    </section>
+  </main>
+
+  <script src="assets/storage.js"></script>
+  <script src="assets/app.js"></script>
+  <script src="assets/ui.js"></script>
+  <script>
+    const setActiveNav = () => {
+      const page = document.body.dataset.page;
+      ui.qsa(".top-nav a").forEach((link) => {
+        if (link.getAttribute("href").includes(page)) {
+          link.classList.add("active");
+        }
+      });
+    };
+
+    const parseJson = (value) => {
+      try {
+        return value ? JSON.parse(value) : null;
+      } catch (error) {
+        return null;
+      }
+    };
+
+    const init = () => {
+      setActiveNav();
+      ui.qs("#run-decision").addEventListener("click", async () => {
+        const options = parseJson(ui.qs("#decision-options").value);
+        const assumptions = parseJson(ui.qs("#decision-assumptions").value);
+        if (!options) {
+          ui.qs("#decision-status").textContent = "options JSONが不正です";
+          return;
+        }
+        const response = await app.apiFetchSafe("/api/decision/simulate", {
+          method: "POST",
+          body: { options, assumptions },
+        });
+        if (!response.ok) {
+          ui.qs("#decision-status").textContent = "未実装/未接続";
+          ui.qs("#decision-result").textContent = "";
+          return;
+        }
+        ui.qs("#decision-status").textContent = "実行完了";
+        ui.qs("#decision-result").textContent = JSON.stringify(response.data, null, 2);
+      });
+    };
+
+    init();
+  </script>
+</body>
+</html>

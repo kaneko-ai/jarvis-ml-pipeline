@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import threading
 import traceback
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
@@ -20,6 +22,7 @@ STEP_WEIGHTS = {
 }
 
 _chunks_lock = threading.Lock()
+_jsonl_lock = threading.Lock()
 
 
 def _normalize_text(text: str) -> str:
@@ -74,12 +77,50 @@ def _append_chunk_lines(chunks_path: Path, chunk_lines: List[Dict[str, Any]]) ->
                 f.write(json.dumps(chunk, ensure_ascii=False) + "\n")
 
 
+def _append_jsonl(path: Path, rows: List[Dict[str, Any]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with _jsonl_lock:
+        with open(path, "a", encoding="utf-8") as f:
+            for row in rows:
+                f.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
+def _split_sentences(text: str) -> List[str]:
+    normalized = text.replace("\n", " ").strip()
+    sentences = [s.strip() for s in normalized.split(".") if s.strip()]
+    return [s + "." if not s.endswith(".") else s for s in sentences]
+
+
+def _infer_claim_type(text: str) -> str:
+    lowered = text.lower()
+    if any(word in lowered for word in ["method", "materials", "procedure"]):
+        return "method"
+    if any(word in lowered for word in ["result", "finding", "observed", "increased", "decreased"]):
+        return "result"
+    if any(word in lowered for word in ["conclude", "conclusion", "suggest"]):
+        return "conclusion"
+    if any(word in lowered for word in ["limitation", "limited", "weakness"]):
+        return "limitation"
+    return "background"
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
 def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
     from jarvis_tools.papers.collector import collect_papers
     from jarvis_core.ingestion.pipeline import TextChunker
     from jarvis_core.search import get_search_engine
     from jarvis_web import dedup
     from jarvis_web.health import start_worker_heartbeat
+    from jarvis_core.oa import OAResolver
+    from jarvis_core.metadata import audit_records
+    from jarvis_core.dedup import DedupEngine
+    from jarvis_core.provenance.aligner import align_claim_to_chunks
+    from jarvis_core.provenance.schema import ClaimUnit, EvidenceItem
+    from jarvis_core.scoring.paper_score import score_paper
+    from jarvis_core.repro.run_manifest import create_run_manifest
 
     query = payload.get("query", "")
     max_results = int(payload.get("max_results", 50))
@@ -97,6 +138,51 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
         jobs.set_status(job_id, "running")
         jobs.set_step(job_id, "collect")
         jobs.append_event(job_id, {"message": f"collecting: {query}", "level": "info"})
+        result = collect_papers(query=query, max_results=max_results, oa_only=oa_only)
+    except Exception as exc:
+        jobs.set_error(job_id, f"collect failed: {exc}")
+        jobs.set_status(job_id, "failed")
+        return
+
+    jobs.inc_counts(job_id, found=result.total_found)
+    if result.warnings:
+        for warning in result.warnings:
+            jobs.append_event(job_id, {"message": warning.get("message", "warning"), "level": "warning"})
+
+    jobs.set_progress(job_id, STEP_WEIGHTS["collect"])
+
+    research_dir = Path("data/research") / job_id
+    research_dir.mkdir(parents=True, exist_ok=True)
+    papers_path = research_dir / "papers.jsonl"
+    chunks_path = research_dir / "chunks.jsonl"
+    claims_path = research_dir / "claims.jsonl"
+    scores_path = research_dir / "scores.json"
+    audit_summary_path = research_dir / "audit_summary.json"
+    manifest_path = research_dir / "manifest.json"
+
+    oa_resolver = OAResolver(unpaywall_email=os.getenv("UNPAYWALL_EMAIL"))
+    papers: List[Dict[str, Any]] = []
+    for paper in result.papers:
+        record = paper.to_dict()
+        record["pdf_url"] = paper.pdf_url or ""
+        record["fulltext_url"] = paper.xml_url or ""
+        record.update(oa_resolver.resolve(record))
+        papers.append(record)
+    if papers:
+        _append_jsonl(papers_path, papers)
+
+    audited_papers, audit_summary = audit_records(papers)
+    with open(audit_summary_path, "w", encoding="utf-8") as f:
+        json.dump(audit_summary, f, ensure_ascii=False, indent=2)
+
+    dedup_engine = DedupEngine()
+    dedup_result = dedup_engine.deduplicate(audited_papers)
+    canonical_papers = dedup_result.canonical_papers
+    jobs.inc_counts(job_id, deduped=dedup_result.merged_count, canonical_papers=len(canonical_papers))
+    _append_jsonl(research_dir / "canonical_papers.jsonl", canonical_papers)
+
+    total_papers = len(result.papers)
+    downloaded: List[Tuple[Any, str]] = []
 
         try:
             result = collect_papers(query=query, max_results=max_results, oa_only=oa_only)
@@ -187,6 +273,13 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
             _set_step_progress(job_id, 65, STEP_WEIGHTS["chunk"], idx, len(extracted))
 
         jobs.set_step(job_id, "index")
+            jobs.inc_counts(job_id, failed=1)
+            jobs.append_event(job_id, {"message": f"extract failed for PMID {paper.pmid}: {exc}", "level": "warning"})
+        _set_step_progress(job_id, 40, STEP_WEIGHTS["extract"], idx, len(downloaded))
+
+    jobs.set_step(job_id, "chunk")
+    chunker = TextChunker()
+    for idx, (paper, text) in enumerate(extracted, start=1):
         try:
             engine = get_search_engine()
             indexed = engine.load_chunks(chunks_path)
@@ -214,14 +307,148 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
         jobs.append_event(job_id, {"message": "job complete", "level": "info"})
     finally:
         heartbeat_stop.set()
+    claims: List[Dict[str, Any]] = []
+    scores: Dict[str, Any] = {}
+    chunk_records: Dict[str, List[Dict[str, Any]]] = {}
+    if chunks_path.exists():
+        with open(chunks_path, "r", encoding="utf-8") as f:
+            for line in f:
+                if not line.strip():
+                    continue
+                chunk = json.loads(line)
+                chunk_records.setdefault(chunk.get("paper_id", ""), []).append(chunk)
+
+    for paper in canonical_papers:
+        paper_id = paper.get("canonical_paper_id") or paper.get("paper_id") or ""
+        chunk_key = paper.get("pmcid") or (
+            f"PMID:{paper.get('pmid')}" if paper.get("pmid") else paper_id
+        )
+        paper_claims: List[Dict[str, Any]] = []
+        for idx, sentence in enumerate(_split_sentences(paper.get("abstract") or "")):
+            if not sentence:
+                continue
+            claim_id = f"{paper_id}-claim-{idx}"
+            claim_type = _infer_claim_type(sentence)
+            evidence_candidates = align_claim_to_chunks(sentence, chunk_records.get(chunk_key, []))
+            if not evidence_candidates and chunk_records.get(chunk_key):
+                fallback = chunk_records[chunk_key][0]
+                evidence_candidates = [
+                    EvidenceItem(
+                        chunk_id=fallback.get("chunk_id", ""),
+                        locator={
+                            "section": fallback.get("section") or "",
+                            "paragraph_index": fallback.get("paragraph_index") or 0,
+                            "sentence_index": 0,
+                        },
+                        quote=" ".join((fallback.get("text") or "").split()[:25]),
+                        score=0.1,
+                    )
+                ]
+            if not evidence_candidates:
+                evidence_candidates = [
+                    EvidenceItem(
+                        chunk_id="unknown",
+                        locator={"section": "", "paragraph_index": 0, "sentence_index": 0},
+                        quote=sentence,
+                        score=0.0,
+                    )
+                ]
+            evidence_items = [
+                EvidenceItem(
+                    chunk_id=item.chunk_id,
+                    locator=item.locator,
+                    quote=item.quote,
+                    score=item.score,
+                ).to_dict()
+                if hasattr(item, "chunk_id")
+                else item.to_dict()
+                for item in evidence_candidates
+            ]
+            claim = ClaimUnit(
+                claim_id=claim_id,
+                paper_id=paper_id,
+                claim_text=sentence,
+                claim_type=claim_type,
+                evidence=[
+                    EvidenceItem(
+                        chunk_id=item["chunk_id"],
+                        locator=item["locator"],
+                        quote=item["quote"],
+                        score=item["score"],
+                    )
+                    for item in evidence_items
+                ],
+                generated_at=_now(),
+                model_info={"summarizer": "heuristic-sentence-splitter", "aligner": "heuristic-v1"},
+            ).to_dict()
+            if evidence_items and max(item["score"] for item in evidence_items) < 0.4:
+                claim["audit_flags"] = ["weak_evidence"]
+            paper_claims.append(claim)
+
+        claims.extend(paper_claims)
+        jobs.inc_counts(job_id, claims=len(paper_claims))
+        if any("weak_evidence" in (claim.get("audit_flags") or []) for claim in paper_claims):
+            paper.setdefault("audit_flags", []).append("weak_evidence")
+        score_result = score_paper(paper, paper_claims, query=query, domain=payload.get("domain", ""))
+        scores[paper_id] = score_result.to_dict()
+
+    if claims:
+        _append_jsonl(claims_path, claims)
+    with open(scores_path, "w", encoding="utf-8") as f:
+        json.dump(scores, f, ensure_ascii=False, indent=2)
+
+    manifest = create_run_manifest(
+        run_id=job_id,
+        targets={
+            "query": query,
+            "filters": {},
+            "max_results": max_results,
+            "oa_only": oa_only,
+            "domain": payload.get("domain", ""),
+        },
+        resolver_versions={
+            "oa_resolver": "v1",
+            "dedup_engine": "v1",
+            "scorer": "v1",
+        },
+        model_info={"embedder": "local-heuristic", "summarizer": "heuristic-sentence-splitter"},
+        index_version={"generated_at": _now(), "path": str(chunks_path)},
+        input_counts={
+            "found": result.total_found,
+            "downloaded": len(downloaded),
+            "extracted": len(extracted),
+            "chunked": jobs.read_job(job_id)["counts"].get("chunked", 0),
+        },
+        output_counts={
+            "deduped": dedup_result.merged_count,
+            "canonical_papers": len(canonical_papers),
+            "claims": len(claims),
+        },
+        warnings_summary={"audit": audit_summary},
+    )
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest.to_dict(), f, ensure_ascii=False, indent=2)
+
+    jobs.update_job(job_id, manifest_path=str(manifest_path))
+
+    jobs.set_progress(job_id, 100)
+    jobs.set_step(job_id, "done")
+    jobs.set_status(job_id, "success")
+    jobs.append_event(job_id, {"message": "job complete", "level": "info"})
 
 
 def run_job(job_id: str) -> None:
     job = jobs.read_job(job_id)
     job_type = job.get("type")
     payload = job.get("payload", {})
+    schedule_run_id = payload.get("schedule_run_id")
 
     try:
+        if schedule_run_id:
+            from jarvis_core.scheduler import runner as schedule_runner
+
+            schedule_runner.mark_run_running(schedule_run_id)
+
         if job_type == "collect_and_ingest":
             run_collect_and_ingest(job_id, payload)
         else:
@@ -234,3 +461,37 @@ def run_job(job_id: str) -> None:
         jobs.set_error(job_id, f"{type(exc).__name__}: {exc}")
         jobs.set_status(job_id, "failed")
         _notify_job_failed(job_id, f"{type(exc).__name__}: {exc}")
+    finally:
+        if schedule_run_id:
+            from jarvis_core.obs import alert as obs_alert
+            from jarvis_core.scheduler import retry as schedule_retry
+            from jarvis_core.scheduler import store as schedule_store
+
+            latest = jobs.read_job(job_id)
+            status = latest.get("status")
+            error = latest.get("error")
+            run = schedule_store.read_run(schedule_run_id)
+            if not run:
+                return
+            schedule_id = run.get("schedule_id")
+            schedule = schedule_store.get_schedule(schedule_id) if schedule_id else None
+            if status == "success":
+                schedule_store.update_run(schedule_run_id, status="success", error=None, next_retry_at=None)
+                schedule_store.update_schedule_status(schedule_id, "success")
+                return
+            attempts = (run.get("attempts", 0) or 0) + 1
+            schedule_store.update_run(schedule_run_id, status="failed", error=error, attempts=attempts)
+            if not schedule:
+                return
+            limits = schedule.get("limits", {})
+            max_retries = int(limits.get("max_retries", 0))
+            if attempts > max_retries:
+                schedule_store.update_schedule(schedule_id, {"enabled": False, "degraded": True})
+                obs_alert(
+                    "schedule_failed",
+                    "high",
+                    f"Schedule {schedule_id} disabled after {attempts} failures",
+                )
+                return
+            next_retry = schedule_retry.next_retry_at(attempts, int(limits.get("cooldown_minutes_after_failure", 30)))
+            schedule_store.update_run(schedule_run_id, next_retry_at=next_retry)

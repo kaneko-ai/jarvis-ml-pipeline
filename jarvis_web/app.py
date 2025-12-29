@@ -33,7 +33,8 @@ except ImportError:
 
 
 # Constants
-RUNS_DIR = Path("logs/runs")
+RUNS_DIR = Path("data/runs")
+LEGACY_RUNS_DIR = Path("logs/runs")
 UPLOADS_DIR = Path("data/uploads")
 MAX_UPLOAD_SIZE = 100 * 1024 * 1024  # 100MB per file
 MAX_BATCH_FILES = 100
@@ -41,6 +42,13 @@ MAX_BATCH_FILES = 100
 
 # Create app if FastAPI available
 if FASTAPI_AVAILABLE:
+    from jarvis_web.auth import verify_api_token, verify_token
+    from jarvis_web.routes.research import router as research_router
+    from jarvis_web.routes.finance import router as finance_router
+    from jarvis_web.routes.schedules import router as schedules_router
+    from jarvis_web.routes.cron import router as cron_router
+    from jarvis_web.routes.queue import router as queue_router
+
     app = FastAPI(
         title="JARVIS Research OS",
         description="API for paper survey and knowledge synthesis",
@@ -55,6 +63,12 @@ if FASTAPI_AVAILABLE:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    app.include_router(research_router)
+    app.include_router(finance_router)
+    app.include_router(schedules_router)
+    app.include_router(cron_router)
+    app.include_router(queue_router)
 else:
     app = None
 
@@ -94,21 +108,7 @@ class UploadResponse(BaseModel):
     files: List[dict]
 
 
-# Authentication (RP-168)
-def verify_token(authorization: Optional[str] = Header(None)) -> bool:
-    """Verify authorization token."""
-    expected = os.environ.get("JARVIS_WEB_TOKEN", "")
-    if not expected:
-        return True  # No auth required
-
-    if authorization is None:
-        raise HTTPException(status_code=401, detail="Authorization header required")
-
-    token = authorization.replace("Bearer ", "")
-    if token != expected:
-        raise HTTPException(status_code=403, detail="Invalid token")
-
-    return True
+# Authentication (RP-168) moved to jarvis_web.auth
 
 
 def get_file_hash(filepath: Path) -> str:
@@ -118,6 +118,133 @@ def get_file_hash(filepath: Path) -> str:
         for chunk in iter(lambda: f.read(8192), b""):
             sha256.update(chunk)
     return sha256.hexdigest()
+
+def normalize_status(status: str) -> str:
+    """Normalize status into contract-compatible value."""
+    normalized = status.lower().strip()
+    if normalized in {"queued", "running", "success", "failed"}:
+        return normalized
+    if normalized in {"error", "failure", "failed"}:
+        return "failed"
+    if normalized in {"complete", "completed", "success", "succeeded"}:
+        return "success"
+    if normalized in {"pending", "queued"}:
+        return "queued"
+    if normalized in {"in_progress", "progress"}:
+        return "running"
+    return "running"
+
+
+def _load_json(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def _load_jsonl(path: Path) -> list:
+    if not path.exists():
+        return []
+    rows = []
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    rows.append(json.loads(line))
+    except Exception:
+        return []
+    return rows
+
+
+def _iter_run_dirs() -> list[Path]:
+    RUNS_DIR.mkdir(parents=True, exist_ok=True)
+    legacy = []
+    if LEGACY_RUNS_DIR.exists():
+        legacy = [d for d in LEGACY_RUNS_DIR.iterdir() if d.is_dir() and not d.name.startswith(".")]
+    current = [d for d in RUNS_DIR.iterdir() if d.is_dir() and not d.name.startswith(".")]
+    run_dirs = {d.name: d for d in legacy}
+    for run_dir in current:
+        run_dirs[run_dir.name] = run_dir
+    return list(run_dirs.values())
+
+
+def _resolve_run_dir(run_id: str) -> Path:
+    run_dir = RUNS_DIR / run_id
+    if run_dir.exists():
+        return run_dir
+    legacy = LEGACY_RUNS_DIR / run_id
+    if legacy.exists():
+        return legacy
+    raise HTTPException(status_code=404, detail=f"Run {run_id} not found")
+
+
+def _run_timestamps(run_dir: Path) -> tuple[str, str]:
+    stat = run_dir.stat()
+    created_at = datetime.fromtimestamp(stat.st_ctime, tz=timezone.utc).isoformat()
+    updated_at = datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat()
+    return created_at, updated_at
+
+
+def _list_run_files(run_dir: Path) -> list[dict]:
+    files = []
+    for file_path in sorted(run_dir.rglob("*")):
+        if file_path.is_file():
+            rel_path = file_path.relative_to(run_dir).as_posix()
+            files.append(
+                {
+                    "path": rel_path,
+                    "size": file_path.stat().st_size,
+                    "sha256": get_file_hash(file_path),
+                }
+            )
+    return files
+
+
+def _build_run_response(run_dir: Path, include_files: bool) -> dict:
+    result = _load_json(run_dir / "result.json")
+    eval_summary = _load_json(run_dir / "eval_summary.json")
+    warnings = _load_jsonl(run_dir / "warnings.jsonl")
+    errors = _load_jsonl(run_dir / "errors.jsonl")
+    progress = _load_json(run_dir / "progress.json")
+    created_at, updated_at = _run_timestamps(run_dir)
+    files_list = _list_run_files(run_dir) if include_files else []
+
+    response = {
+        "run_id": run_dir.name,
+        "status": normalize_status(result.get("status", "running")),
+        "created_at": created_at,
+        "updated_at": updated_at,
+        "progress": {
+            "step": progress.get("step", ""),
+            "percent": progress.get("percent", 0),
+            "counts": progress.get("counts", {}),
+        },
+        "metrics": eval_summary.get("metrics", {}),
+        "warnings": warnings,
+        "errors": errors,
+        "files": files_list,
+    }
+
+    files_map = {}
+    for entry in files_list:
+        files_map[entry["path"]] = {
+            "exists": True,
+            "size": entry["size"],
+            "sha256": entry["sha256"],
+        }
+    response["files_map"] = files_map
+
+    report_file = run_dir / "report.md"
+    if report_file.exists():
+        try:
+            with open(report_file, "r", encoding="utf-8") as f:
+                response["report"] = f.read()
+        except Exception:
+            response["report"] = ""
+    return response
 
 
 def load_run_summary(run_dir: Path) -> dict:
@@ -175,84 +302,133 @@ if FASTAPI_AVAILABLE:
     @app.get("/api/runs")
     async def list_runs(limit: int = 20, _: bool = Depends(verify_token)):
         """List runs from logs/runs/ (per BUNDLE_CONTRACT.md)."""
-        RUNS_DIR.mkdir(parents=True, exist_ok=True)
-        
-        runs = []
-        run_dirs = [d for d in RUNS_DIR.iterdir() if d.is_dir() and not d.name.startswith(".")]
+        run_dirs = _iter_run_dirs()
         run_dirs.sort(key=lambda p: p.stat().st_mtime, reverse=True)
-        
-        for run_dir in run_dirs[:limit]:
-            runs.append(load_run_summary(run_dir))
-        
+        runs = [_build_run_response(run_dir, include_files=False) for run_dir in run_dirs[:limit]]
         return {"runs": runs, "total": len(run_dirs)}
 
     @app.get("/api/runs/{run_id}")
     async def get_run(run_id: str, _: bool = Depends(verify_token)):
         """Get run details."""
-        run_dir = RUNS_DIR / run_id
-        
-        if not run_dir.exists():
-            raise HTTPException(status_code=404, detail=f"Run {run_id} not found")
-        
-        summary = load_run_summary(run_dir)
-        
-        # Add file list
-        files = {}
-        for f in run_dir.iterdir():
-            if f.is_file():
-                files[f.name] = {
-                    "exists": True,
-                    "size": f.stat().st_size,
-                }
-        summary["files"] = files
-        
-        # Load report.md if exists
-        report_file = run_dir / "report.md"
-        if report_file.exists():
-            try:
-                with open(report_file, "r", encoding="utf-8") as f:
-                    summary["report"] = f.read()
-            except:
-                summary["report"] = ""
-        
-        return summary
+        run_dir = _resolve_run_dir(run_id)
+        return _build_run_response(run_dir, include_files=True)
 
-    @app.get("/api/runs/{run_id}/files/{filename}")
-    async def get_run_file(run_id: str, filename: str, _: bool = Depends(verify_token)):
+    @app.get("/api/runs/{run_id}/files")
+    async def list_run_files(run_id: str, _: bool = Depends(verify_token)):
+        """List files for a run."""
+        run_dir = _resolve_run_dir(run_id)
+        files = _list_run_files(run_dir)
+        return {"files": files}
+
+    @app.get("/api/runs/{run_id}/manifest")
+    async def get_run_manifest(run_id: str, _: bool = Depends(verify_token)):
+        """Get reproducibility manifest for a run."""
+        manifest_path = Path("data/research") / run_id / "manifest.json"
+        if not manifest_path.exists():
+            raise HTTPException(status_code=404, detail="manifest not found")
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    @app.get("/api/runs/{run_id}/files/{path:path}")
+    async def get_run_file(run_id: str, path: str, _: bool = Depends(verify_token)):
         """Get specific file from run."""
-        run_dir = RUNS_DIR / run_id
-        filepath = run_dir / filename
-        
+        run_dir = _resolve_run_dir(run_id)
+        candidate = Path(path)
+        if candidate.is_absolute() or ".." in candidate.parts:
+            raise HTTPException(status_code=400, detail="Invalid path")
+        filepath = (run_dir / candidate).resolve()
+        run_root = run_dir.resolve()
+        if not str(filepath).startswith(str(run_root)):
+            raise HTTPException(status_code=400, detail="Invalid path")
         if not filepath.exists():
-            raise HTTPException(status_code=404, detail=f"File {filename} not found")
-        
-        # Return JSON content directly for JSON files
-        if filename.endswith(".json"):
-            try:
-                with open(filepath, "r", encoding="utf-8") as f:
-                    return json.load(f)
-            except:
-                pass
-        
-        # Return JSONL as array
-        if filename.endswith(".jsonl"):
-            try:
-                with open(filepath, "r", encoding="utf-8") as f:
-                    return [json.loads(line) for line in f if line.strip()]
-            except:
-                pass
-        
-        # Return as file
-        return FileResponse(filepath)
+            raise HTTPException(status_code=404, detail=f"File {path} not found")
+        return FileResponse(
+            filepath,
+            filename=candidate.name,
+            media_type="application/octet-stream",
+        )
 
-    @app.post("/api/run", response_model=RunResponse)
-    async def start_run(request: RunRequest, _: bool = Depends(verify_token)):
+    @app.get("/api/runs/{run_id}/events")
+    async def get_run_events(run_id: str, _: bool = Depends(verify_token)):
+        """Run events are not implemented."""
+        raise HTTPException(status_code=501, detail="Run events not implemented")
+
+    @app.get("/api/capabilities")
+    async def get_capabilities(_: bool = Depends(verify_token)):
+        """Report API capabilities."""
+        return {
+            "version": "v1",
+            "features": {
+                "runs": True,
+                "events": False,
+                "research_rank": True,
+                "research_paper": True,
+                "qa_report": False,
+                "submission": False,
+                "feedback": False,
+                "decision": False,
+                "finance": True,
+            },
+            "endpoints": {
+                "runs_list": "/api/runs",
+                "run_detail": "/api/runs/{run_id}",
+                "run_files": "/api/runs/{run_id}/files",
+                "run_file_get": "/api/runs/{run_id}/files/{path}",
+            },
+        }
+
+    @app.get("/api/qa/report")
+    async def qa_report(_: bool = Depends(verify_token)):
+        """QA report not yet implemented."""
+        raise HTTPException(status_code=501, detail="QA report not implemented")
+
+    @app.post("/api/submission/build")
+    async def build_submission(_: bool = Depends(verify_token)):
+        """Submission build not yet implemented."""
+        raise HTTPException(status_code=501, detail="Submission build not implemented")
+
+    @app.get("/api/submission/run/{run_id}/latest")
+    async def submission_latest(run_id: str, _: bool = Depends(verify_token)):
+        """Submission latest not yet implemented."""
+        raise HTTPException(status_code=501, detail="Submission latest not implemented")
+
+    @app.get("/api/submission/run/{run_id}/changelog")
+    async def submission_changelog(run_id: str, version: str, _: bool = Depends(verify_token)):
+        """Submission changelog not yet implemented."""
+        raise HTTPException(status_code=501, detail="Submission changelog not implemented")
+
+    @app.get("/api/submission/run/{run_id}/email")
+    async def submission_email(
+        run_id: str,
+        version: str,
+        recipient_type: str,
+        _: bool = Depends(verify_token),
+    ):
+        """Submission email not yet implemented."""
+        raise HTTPException(status_code=501, detail="Submission email not implemented")
+
+    @app.get("/api/feedback/risk")
+    async def feedback_risk(run_id: str, _: bool = Depends(verify_token)):
+        """Feedback risk not yet implemented."""
+        raise HTTPException(status_code=501, detail="Feedback risk not implemented")
+
+    @app.post("/api/feedback/import")
+    async def feedback_import(_: bool = Depends(verify_token)):
+        """Feedback import not yet implemented."""
+        raise HTTPException(status_code=501, detail="Feedback import not implemented")
+
+    @app.post("/api/decision/simulate")
+    async def decision_simulate(_: bool = Depends(verify_token)):
+        """Decision simulate not yet implemented."""
+        raise HTTPException(status_code=501, detail="Decision simulate not implemented")
+
+    def _start_run(request: RunRequest) -> RunResponse:
         """Start a new paper survey run."""
         import uuid
         from jarvis_core.app import run_task
 
         run_id = str(uuid.uuid4())
-        
+
         try:
             result = run_task(
                 task_dict={
@@ -265,7 +441,7 @@ if FASTAPI_AVAILABLE:
                     **request.config,
                 },
             )
-            
+
             return RunResponse(
                 run_id=result.run_id,
                 status=result.status,
@@ -277,6 +453,16 @@ if FASTAPI_AVAILABLE:
                 status="error",
                 message=str(e),
             )
+
+    @app.post("/api/runs", response_model=RunResponse)
+    async def start_run(request: RunRequest, _: bool = Depends(verify_token)):
+        """Start a new paper survey run."""
+        return _start_run(request)
+
+    @app.post("/api/run", response_model=RunResponse)
+    async def start_run_legacy(request: RunRequest, _: bool = Depends(verify_token)):
+        """Legacy start run endpoint."""
+        return _start_run(request)
 
     # === File Upload (AG-07) ===
 
@@ -487,7 +673,7 @@ if FASTAPI_AVAILABLE:
         dedupe_key: Optional[str] = None
 
     @app.post("/api/jobs")
-    async def create_job(request: JobRequest, _: bool = Depends(verify_token)):
+    async def create_job(request: JobRequest, _: bool = Depends(verify_api_token)):
         """Create a new job and run in background."""
         from jarvis_web import dedup
         from jarvis_web import jobs
@@ -657,6 +843,16 @@ if FASTAPI_AVAILABLE:
     @app.get("/run/{run_id}")
     async def get_run_legacy(run_id: str, _: bool = Depends(verify_token)):
         """Legacy run endpoint."""
+        return await get_run(run_id, _)
+
+    @app.get("/api/run")
+    async def list_runs_api_legacy(limit: int = 20, _: bool = Depends(verify_token)):
+        """Legacy API runs endpoint."""
+        return await list_runs(limit, _)
+
+    @app.get("/api/run/{run_id}")
+    async def get_run_api_legacy(run_id: str, _: bool = Depends(verify_token)):
+        """Legacy API run endpoint."""
         return await get_run(run_id, _)
 
 

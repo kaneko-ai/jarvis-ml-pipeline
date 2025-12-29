@@ -121,6 +121,36 @@ pytest -v
 
 ---
 
+## 🌐 Dashboard (Static UI)
+
+P11 Dashboardは `dashboard/` 配下に分割されています。GitHub Pagesなどの静的ホスティングで利用できます。
+
+### 変更ファイル
+
+- `dashboard/assets/app.js`
+- `dashboard/assets/ui.js`
+- `dashboard/assets/styles.css`
+- `dashboard/index.html`
+- `dashboard/runs.html`
+- `dashboard/run.html`
+- `dashboard/schedule.html`
+- `dashboard/feedback.html`
+- `dashboard/decision.html`
+- `dashboard/finance.html`
+- `dashboard/settings.html`
+
+### 動作確認手順（主要画面）
+
+1. `dashboard/settings.html` を開き、`API_BASE` と `API_TOKEN` を保存して接続テストを実行。
+2. `dashboard/index.html` で Health/KPI/Latest Runs が表示されることを確認。
+3. `dashboard/runs.html` で Run一覧のフィルタ・遷移が動作することを確認。
+4. `dashboard/run.html?id=<run_id>` で Progress/Logs, Claims/Evidence, QA, Exports, Submission が表示されることを確認。
+5. `dashboard/feedback.html` で Feedback Risk の取り込みと High一覧表示を確認。
+6. `dashboard/decision.html` と `dashboard/finance.html` で入力→実行→結果表示を確認。
+7. `dashboard/schedule.html` でスケジュール作成/一覧表示を確認。
+
+---
+
 ## 🤝 Contributing
 
 1. Fork the repository

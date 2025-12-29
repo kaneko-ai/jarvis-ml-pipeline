@@ -1,197 +1,211 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JARVIS Runs Dashboard</title>
-    <style>
-        :root {
-            --bg: #0a0a1a;
-            --card: #12122a;
-            --accent: #00d4ff;
-            --success: #00ff88;
-            --warn: #ffaa00;
-            --text: #e0e0e0;
-            --muted: #666;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        h1 {
-            font-size: 2em;
-            background: linear-gradient(135deg, var(--accent), var(--success));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 20px;
-        }
-
-        .runs-grid {
-            display: grid;
-            gap: 15px;
-        }
-
-        .run-card {
-            background: var(--card);
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 4px solid var(--accent);
-        }
-
-        .run-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .run-id {
-            font-weight: bold;
-            color: var(--accent);
-        }
-
-        .run-date {
-            color: var(--muted);
-            font-size: 0.9em;
-        }
-
-        .run-query {
-            margin-bottom: 10px;
-        }
-
-        .run-stats {
-            display: flex;
-            gap: 20px;
-            font-size: 0.9em;
-        }
-
-        .stat {
-            color: var(--muted);
-        }
-
-        .stat-value {
-            color: var(--success);
-            font-weight: bold;
-        }
-
-        .bundle-files {
-            margin-top: 15px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .file-badge {
-            background: rgba(0, 212, 255, 0.1);
-            padding: 4px 10px;
-            border-radius: 15px;
-            font-size: 0.8em;
-            color: var(--accent);
-        }
-
-        .file-missing {
-            background: rgba(255, 170, 0, 0.1);
-            color: var(--warn);
-        }
-
-        .refresh-btn {
-            background: var(--accent);
-            color: var(--bg);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-bottom: 20px;
-        }
-
-        .refresh-btn:hover {
-            opacity: 0.8;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Runs - Research OS Dashboard</title>
+  <link rel="stylesheet" href="assets/styles.css" />
 </head>
+<body data-page="runs">
+    <nav class="top-nav">
+    <a href="index.html">Home</a>
+    <a href="runs.html">Runs</a>
+    <a href="ops.html">Ops</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="kb.html">KB</a>
+    <a href="search.html">Search</a>
+    <a href="settings.html">Settings</a>
+  </nav>
+  <main class="container">
+    <header class="page-header">
+      <h1>Run一覧</h1>
+      <p>Run/Jobの検索とフィルタリングを行います。</p>
+    </header>
 
-<body>
-    <div class="container">
-        <h1>📊 JARVIS Runs Dashboard</h1>
-        <button class="refresh-btn" onclick="loadRuns()">🔄 Refresh</button>
+    <section class="panel">
+      <div class="section-title">
+        <h2>Run作成</h2>
+      </div>
+      <div class="form-row">
+        <input id="run-query" placeholder="query" />
+        <input id="run-max-papers" type="number" min="1" value="10" />
+        <input id="run-seed" type="number" value="42" />
+      </div>
+      <div class="flex">
+        <button id="create-run">Run作成</button>
+      </div>
+      <div class="notice" id="create-run-status">未実行</div>
+    </section>
 
-        <div class="runs-grid" id="runs-container">
-            <!-- Runs will be loaded here -->
-            <div class="run-card">
-                <div class="run-header">
-                    <span class="run-id">20251227_172401</span>
-                    <span class="run-date">2024-12-27 17:24:01</span>
-                </div>
-                <div class="run-query">CD73 immunotherapy</div>
-                <div class="run-stats">
-                    <span class="stat">Papers: <span class="stat-value">5</span></span>
-                    <span class="stat">Claims: <span class="stat-value">3</span></span>
-                    <span class="stat">Evidence: <span class="stat-value">3</span></span>
-                </div>
-                <div class="bundle-files">
-                    <span class="file-badge">input.json</span>
-                    <span class="file-badge">papers.jsonl</span>
-                    <span class="file-badge">claims.jsonl</span>
-                    <span class="file-badge">evidence.jsonl</span>
-                    <span class="file-badge">scores.json</span>
-                    <span class="file-badge">report.md</span>
-                    <span class="file-badge">warnings.jsonl</span>
-                </div>
-            </div>
-        </div>
-    </div>
+    <section class="panel">
+      <div class="section-title">
+        <h2>Filters</h2>
+        <button class="secondary" id="refresh-runs">更新</button>
+      </div>
+      <div class="form-row">
+        <select id="filter-status">
+          <option value="">Status</option>
+          <option value="running">running</option>
+          <option value="success">success</option>
+          <option value="failed">failed</option>
+        </select>
+        <select id="filter-qa">
+          <option value="">QA</option>
+          <option value="READY">READY</option>
+          <option value="NOT_READY">NOT_READY</option>
+        </select>
+        <select id="filter-package">
+          <option value="">Package</option>
+          <option value="true">has_package</option>
+          <option value="false">no_package</option>
+        </select>
+        <input id="filter-keyword" placeholder="keyword (title/journal/target)" />
+      </div>
+      <div class="notice" id="runs-status">データ取得中...</div>
+    </section>
 
-    <script>
-        const REQUIRED_FILES = [
-            'input.json', 'papers.jsonl', 'claims.jsonl',
-            'evidence.jsonl', 'scores.json', 'report.md', 'warnings.jsonl'
-        ];
+    <section class="panel">
+      <div class="section-title">
+        <h2>Runs</h2>
+        <span class="badge" id="runs-count">0</span>
+      </div>
+      <table class="table" id="runs-table">
+        <thead>
+          <tr>
+            <th>Run ID</th>
+            <th>Status</th>
+            <th>Progress</th>
+            <th>Tier Summary</th>
+            <th>OA Ratio</th>
+            <th>QA</th>
+            <th>Submission</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="runs-empty" class="notice">データがありません。</div>
+    </section>
+  </main>
 
-        function loadRuns() {
-            // In production: fetch from API
-            console.log('Loading runs...');
+  <script src="assets/storage.js"></script>
+  <script src="assets/app.js"></script>
+  <script src="assets/ui.js"></script>
+  <script>
+    const setActiveNav = () => {
+      const page = document.body.dataset.page;
+      ui.qsa(".top-nav a").forEach((link) => {
+        if (link.getAttribute("href").includes(page)) {
+          link.classList.add("active");
         }
+      });
+    };
 
-        function renderRun(run) {
-            const files = run.files || [];
-            const fileBadges = REQUIRED_FILES.map(f => {
-                const exists = files.includes(f);
-                return `<span class="file-badge ${exists ? '' : 'file-missing'}">${f}</span>`;
-            }).join('');
+    const getFilters = () => ({
+      status: ui.qs("#filter-status").value,
+      qa: ui.qs("#filter-qa").value,
+      pkg: ui.qs("#filter-package").value,
+      keyword: ui.qs("#filter-keyword").value.trim().toLowerCase(),
+    });
 
-            return `
-                <div class="run-card">
-                    <div class="run-header">
-                        <span class="run-id">${run.run_id}</span>
-                        <span class="run-date">${run.date}</span>
-                    </div>
-                    <div class="run-query">${run.query}</div>
-                    <div class="run-stats">
-                        <span class="stat">Papers: <span class="stat-value">${run.papers}</span></span>
-                        <span class="stat">Claims: <span class="stat-value">${run.claims}</span></span>
-                        <span class="stat">Evidence: <span class="stat-value">${run.evidence}</span></span>
-                    </div>
-                    <div class="bundle-files">${fileBadges}</div>
-                </div>
-            `;
+    const applyFilters = (runs, filters) => {
+      return runs.filter((run) => {
+        if (filters.status && run.status !== filters.status) return false;
+        if (filters.qa) {
+          const qaValue = run.qa_status || run.qa_ready || run.qa;
+          if (qaValue !== filters.qa) return false;
         }
-    </script>
+        if (filters.pkg) {
+          const hasPackage = Boolean(run.package_path || run.package || run.submission_package);
+          if (filters.pkg === "true" && !hasPackage) return false;
+          if (filters.pkg === "false" && hasPackage) return false;
+        }
+        if (filters.keyword) {
+          const haystack = `${run.title || ""} ${run.journal || ""} ${run.target || ""}`.toLowerCase();
+          if (!haystack.includes(filters.keyword)) return false;
+        }
+        return true;
+      });
+    };
+
+    const createRun = async () => {
+      const statusEl = ui.qs("#create-run-status");
+      const query = ui.qs("#run-query").value.trim();
+      if (!query) {
+        statusEl.textContent = "queryを入力してください。";
+        return;
+      }
+      statusEl.textContent = "作成中...";
+      const maxPapersValue = parseInt(ui.qs("#run-max-papers").value, 10);
+      const seedValue = parseInt(ui.qs("#run-seed").value, 10);
+      const payload = {
+        query,
+        max_papers: Number.isFinite(maxPapersValue) ? maxPapersValue : 10,
+        seed: Number.isFinite(seedValue) ? seedValue : 42,
+      };
+
+      const response = await app.apiFetchSafe("/api/runs", { method: "POST", body: payload });
+      if (!response.ok) {
+        statusEl.textContent = "未実装/未接続";
+        return;
+      }
+      const runId = response.data?.run_id || response.data?.id || "-";
+      statusEl.textContent = `作成完了: ${runId}`;
+      renderRuns();
+    };
+
+    const renderRuns = async () => {
+      const statusEl = ui.qs("#runs-status");
+      const tableBody = ui.qs("#runs-table tbody");
+      const emptyEl = ui.qs("#runs-empty");
+      const countEl = ui.qs("#runs-count");
+      statusEl.textContent = "データ取得中...";
+      tableBody.innerHTML = "";
+
+      const response = await app.apiFetchSafe("/api/runs");
+      if (!response.ok) {
+        statusEl.textContent = "未実装/未接続";
+        emptyEl.style.display = "block";
+        countEl.textContent = "0";
+        return;
+      }
+      statusEl.textContent = "";
+      const filters = getFilters();
+      const list = applyFilters(response.data || [], filters);
+      countEl.textContent = list.length;
+      if (!list.length) {
+        emptyEl.style.display = "block";
+        return;
+      }
+      emptyEl.style.display = "none";
+      list.forEach((run) => {
+        const row = ui.el("tr");
+        const id = run.id || run.run_id || "-";
+        const link = ui.el("a", { text: id, attrs: { href: `run.html?id=${id}` } });
+        row.appendChild(ui.el("td", { html: link.outerHTML }));
+        row.appendChild(ui.el("td", { text: run.status || "-" }));
+        row.appendChild(ui.el("td", { text: run.progress || run.step || "-" }));
+        row.appendChild(ui.el("td", { text: run.tier_summary || "-" }));
+        row.appendChild(ui.el("td", { text: run.oa_ratio || "-" }));
+        row.appendChild(ui.el("td", { text: run.qa_status || run.qa_ready || "-" }));
+        row.appendChild(ui.el("td", { text: run.submission_status || "-" }));
+        row.appendChild(ui.el("td", { text: ui.formatDateTime(run.created_at) }));
+        tableBody.appendChild(row);
+      });
+    };
+
+    const init = () => {
+      setActiveNav();
+      renderRuns();
+      ["#filter-status", "#filter-qa", "#filter-package", "#filter-keyword"].forEach((selector) => {
+        ui.qs(selector).addEventListener("change", renderRuns);
+        ui.qs(selector).addEventListener("keyup", renderRuns);
+      });
+      ui.qs("#create-run").addEventListener("click", createRun);
+      ui.qs("#refresh-runs").addEventListener("click", renderRuns);
+    };
+
+    init();
+  </script>
 </body>
-
 </html>
