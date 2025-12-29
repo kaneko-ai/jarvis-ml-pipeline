@@ -56,6 +56,11 @@ if FASTAPI_AVAILABLE:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    from jarvis_web.routes import decision_router
+
+    app.include_router(decision_router, prefix="/api/decision", tags=["decision"])
+    app.mount("/dashboard", StaticFiles(directory="dashboard", html=True), name="dashboard")
 else:
     app = None
 

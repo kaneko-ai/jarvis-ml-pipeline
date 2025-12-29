@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decision Intelligence - JARVIS</title>
+    <style>
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #16213e;
+            --accent: #00d4ff;
+            --text-primary: #e8e8e8;
+            --text-secondary: #a0a0a0;
+            --danger: #ff4444;
+            --success: #00ff88;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: var(--accent);
+        }
+
+        .card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 180px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: "SFMono-Regular", Consolas, monospace;
+        }
+
+        button {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-weight: 600;
+        }
+
+        .error {
+            color: var(--danger);
+            margin-top: 10px;
+        }
+
+        .success {
+            color: var(--success);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: left;
+        }
+
+        .disclaimer {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h1>Decision Intelligence (P9)</h1>
+    <p class="disclaimer">すべての結果は仮定に依存する（推測です）。</p>
+
+    <div class="card">
+        <h2>入力</h2>
+        <p>Options と Assumptions は JSON 配列で入力してください。数値はすべて rationale を含む必要があります。</p>
+        <button id="load-template">テンプレート読み込み</button>
+        <button id="simulate">比較を実行</button>
+        <button id="download">レポートDL</button>
+        <div id="error" class="error"></div>
+    </div>
+
+    <div class="card">
+        <h3>Options (JSON)</h3>
+        <textarea id="options"></textarea>
+    </div>
+
+    <div class="card">
+        <h3>Assumptions (JSON)</h3>
+        <textarea id="assumptions"></textarea>
+    </div>
+
+    <div class="card">
+        <h2>比較結果</h2>
+        <div id="results"></div>
+    </div>
+</div>
+
+<script>
+    const optionsEl = document.getElementById('options');
+    const assumptionsEl = document.getElementById('assumptions');
+    const errorEl = document.getElementById('error');
+    const resultsEl = document.getElementById('results');
+
+    async function loadTemplate() {
+        errorEl.textContent = '';
+        const response = await fetch('/api/decision/templates');
+        const data = await response.json();
+        optionsEl.value = JSON.stringify(data.options, null, 2);
+        assumptionsEl.value = JSON.stringify(data.assumptions, null, 2);
+    }
+
+    function validatePayload(payload) {
+        const errors = [];
+        if (!payload.options || payload.options.length < 1) {
+            errors.push('Options は1つ以上必要です。');
+        }
+        if (!payload.assumptions || payload.assumptions.length < 1) {
+            errors.push('Assumptions は1つ以上必要です。');
+        }
+        payload.options?.forEach((option, index) => {
+            if (!option.time_horizon_months?.rationale) {
+                errors.push(`Option ${index + 1}: time_horizon_months の rationale が必要です。`);
+            }
+            if (!option.constraints?.weekly_hours?.rationale) {
+                errors.push(`Option ${index + 1}: weekly_hours の rationale が必要です。`);
+            }
+        });
+        payload.assumptions?.forEach((assumption, index) => {
+            if (!assumption.rationale) {
+                errors.push(`Assumption ${index + 1}: rationale が必要です。`);
+            }
+            const dist = assumption.distribution || {};
+            ['low', 'mode', 'high', 'mean', 'std', 'sigma'].forEach((key) => {
+                if (dist[key] && !dist[key].rationale) {
+                    errors.push(`Assumption ${index + 1}: ${key} の rationale が必要です。`);
+                }
+            });
+        });
+        return errors;
+    }
+
+    function renderResults(data) {
+        if (!data.results) {
+            resultsEl.innerHTML = '<p class="error">結果がありません。</p>';
+            return;
+        }
+        const rows = data.results.map(result => `
+            <tr>
+                <td>${result.label}</td>
+                <td>${result.success_probability.p10.toFixed(2)} / ${result.success_probability.p50.toFixed(2)} / ${result.success_probability.p90.toFixed(2)}</td>
+                <td>${result.expected_outputs.papers_range.p50.toFixed(2)}</td>
+                <td>${result.expected_outputs.presentations_range.p50.toFixed(2)}</td>
+            </tr>
+        `).join('');
+
+        resultsEl.innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>Option</th>
+                        <th>Success (P10/P50/P90)</th>
+                        <th>Papers P50</th>
+                        <th>Presentations P50</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows}
+                </tbody>
+            </table>
+            <p class="disclaimer">${data.disclaimer || '仮定に依存する（推測です）'}</p>
+        `;
+    }
+
+    async function simulate() {
+        errorEl.textContent = '';
+        resultsEl.innerHTML = '';
+        let options;
+        let assumptions;
+        try {
+            options = JSON.parse(optionsEl.value || '[]');
+            assumptions = JSON.parse(assumptionsEl.value || '[]');
+        } catch (err) {
+            errorEl.textContent = 'JSONの形式が正しくありません。';
+            return;
+        }
+
+        const payload = { options, assumptions };
+        const validationErrors = validatePayload(payload);
+        if (validationErrors.length) {
+            errorEl.textContent = validationErrors.join(' ');
+            return;
+        }
+
+        const response = await fetch('/api/decision/simulate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const detail = await response.json();
+            errorEl.textContent = `エラー: ${JSON.stringify(detail.detail)}`;
+            return;
+        }
+
+        const data = await response.json();
+        renderResults(data);
+
+        await fetch('/api/decision/report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ comparison: data })
+        });
+    }
+
+    async function downloadReport() {
+        window.open('/api/decision/download?format=zip', '_blank');
+    }
+
+    document.getElementById('load-template').addEventListener('click', loadTemplate);
+    document.getElementById('simulate').addEventListener('click', simulate);
+    document.getElementById('download').addEventListener('click', downloadReport);
+
+    loadTemplate();
+</script>
+</body>
+
+</html>
