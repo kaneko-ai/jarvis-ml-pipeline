@@ -1,0 +1,11 @@
+[
+  {
+    "run_id": "RUN_MOCK_001",
+    "query": "Mock query",
+    "date": "2024-01-01 00:00:00",
+    "papers": 5,
+    "claims": 3,
+    "evidence": 3,
+    "files": ["report.md", "claims.jsonl", "papers.jsonl"]
+  }
+]

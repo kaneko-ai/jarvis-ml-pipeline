@@ -566,6 +566,7 @@
                 <p style="color: var(--text-secondary);">Literature Survey & Evidence Extraction Platform</p>
             </div>
             <div class="header-actions">
+                <button class="btn btn-secondary" onclick="window.location.href='settings.html'" data-testid="settings-link">⚙️ Settings</button>
                 <button class="btn btn-secondary" onclick="refreshAll()">🔄 更新</button>
                 <button class="btn btn-primary" onclick="showTab('new-query')">+ 新規クエリ</button>
             </div>
@@ -617,6 +618,12 @@
 
         <!-- Tab: Overview -->
         <div id="tab-overview" class="tab-content active">
+            <div class="section" data-testid="health-section">
+                <div class="section-header">
+                    <h2>🩺 API Health</h2>
+                    <span id="health-status" data-testid="health-status">Not checked</span>
+                </div>
+            </div>
             <div class="section">
                 <div class="section-header">
                     <h2>📋 最近の実行</h2>
@@ -810,6 +817,11 @@
         let tierFilter = 'all';
 
         async function loadConfig() {
+            const storedBase = localStorage.getItem('apiBase');
+            if (storedBase) {
+                API_BASE = storedBase;
+                return;
+            }
             try {
                 const res = await fetch('config.json', { cache: 'no-store' });
                 if (res.ok) {
@@ -818,6 +830,23 @@
                 }
             } catch (e) {
                 API_BASE = '';
+            }
+        }
+
+        async function loadHealthStatus() {
+            const statusEl = document.getElementById('health-status');
+            if (!statusEl) {
+                return;
+            }
+            if (!API_BASE) {
+                statusEl.textContent = 'API base not set';
+                return;
+            }
+            try {
+                const res = await fetch(`${API_BASE}/api/health`);
+                statusEl.textContent = res.ok ? 'OK' : `ERROR (${res.status})`;
+            } catch (e) {
+                statusEl.textContent = 'ERROR';
             }
         }
 
@@ -1294,6 +1323,7 @@
 
         // === Initialize ===
         loadConfig().then(() => {
+            loadHealthStatus();
             loadRuns();
         });
     </script>

@@ -38,6 +38,7 @@ UPLOADS_DIR = Path("data/uploads")
 MAX_UPLOAD_SIZE = 100 * 1024 * 1024  # 100MB per file
 MAX_BATCH_FILES = 100
 API_TOKEN = os.getenv("API_TOKEN")
+CAPABILITIES_PATH = Path("schemas/capabilities_v1.json")
 
 
 # Create app if FastAPI available
@@ -185,12 +186,34 @@ def load_run_summary(run_dir: Path) -> dict:
     return summary
 
 
+def load_capabilities() -> dict:
+    """Load capabilities definition for the API."""
+    if CAPABILITIES_PATH.exists():
+        with CAPABILITIES_PATH.open("r", encoding="utf-8") as f:
+            return json.load(f)
+    return {"version": "v1", "capabilities": {}}
+
+
 if FASTAPI_AVAILABLE:
 
     @app.get("/api/health")
     async def health():
         """Health check endpoint."""
         return {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat()}
+
+    @app.get("/api/capabilities")
+    async def get_capabilities():
+        """Expose API capabilities for the dashboard."""
+        payload = load_capabilities()
+        features = {
+            key.replace(".", "_"): value
+            for key, value in payload.get("capabilities", {}).items()
+        }
+        return {
+            "version": payload.get("version", "v1"),
+            "capabilities": payload.get("capabilities", {}),
+            "features": features,
+        }
 
     # === Run Management (AG-05) ===
 
@@ -275,6 +298,15 @@ if FASTAPI_AVAILABLE:
         
         # Return as file
         return FileResponse(filepath)
+
+    @app.get("/api/runs/{run_id}/files")
+    async def list_run_files(run_id: str, _: bool = Depends(verify_token)):
+        """List files available for a run."""
+        run_dir = RUNS_DIR / run_id
+        if not run_dir.exists():
+            raise HTTPException(status_code=404, detail=f"Run {run_id} not found")
+        files = [f.name for f in run_dir.iterdir() if f.is_file()]
+        return {"files": files}
 
     @app.post("/api/run", response_model=RunResponse)
     async def start_run(request: RunRequest, _: bool = Depends(verify_token)):
