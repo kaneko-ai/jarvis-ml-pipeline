@@ -101,7 +101,11 @@
           Generate submission package
         </label>
       </div>
-      <button id="create-schedule">Create</button>
+      <div class="form-row">
+        <button id="create-schedule">Create</button>
+        <button class="secondary" id="update-schedule" disabled>Save changes</button>
+        <button class="ghost" id="cancel-edit" disabled>Cancel edit</button>
+      </div>
       <div id="schedule-create-status" class="notice">未実行</div>
     </section>
 
@@ -205,6 +209,66 @@
       });
     };
 
+    const serializeForm = () => ({
+      name: ui.qs("#schedule-name").value,
+      timezone: ui.qs("#schedule-timezone").value,
+      rrule: ui.qs("#schedule-rrule").value,
+      query: {
+        keywords: ui
+          .qs("#schedule-keywords")
+          .value.split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
+        date_range_days: Number(ui.qs("#schedule-date-range").value || 30),
+        max_papers: Number(ui.qs("#schedule-max-papers").value || 50),
+        oa_only: ui.qs("#schedule-oa-only").value === "true",
+        oa_policy: ui.qs("#schedule-oa-policy").value,
+      },
+      outputs: {
+        generate_notes: ui.qs("#schedule-output-notes").checked,
+        generate_package_zip: ui.qs("#schedule-output-zip").checked,
+        generate_submission_package: ui.qs("#schedule-output-submission").checked,
+      },
+      limits: {
+        max_runtime_minutes: Number(ui.qs("#schedule-max-runtime").value || 60),
+        max_retries: Number(ui.qs("#schedule-max-retries").value || 3),
+        cooldown_minutes_after_failure: Number(ui.qs("#schedule-cooldown").value || 30),
+      },
+    });
+
+    const populateForm = (item) => {
+      ui.qs("#schedule-name").value = item?.name || "";
+      ui.qs("#schedule-timezone").value = item?.timezone || "Asia/Tokyo";
+      ui.qs("#schedule-rrule").value = item?.rrule || "";
+      ui.qs("#schedule-keywords").value = (item?.query?.keywords || []).join(", ");
+      ui.qs("#schedule-date-range").value = item?.query?.date_range_days ?? 30;
+      ui.qs("#schedule-max-papers").value = item?.query?.max_papers ?? 50;
+      ui.qs("#schedule-oa-only").value = String(item?.query?.oa_only ?? true);
+      ui.qs("#schedule-oa-policy").value = item?.query?.oa_policy || "strict";
+      ui.qs("#schedule-max-runtime").value = item?.limits?.max_runtime_minutes ?? 60;
+      ui.qs("#schedule-max-retries").value = item?.limits?.max_retries ?? 3;
+      ui.qs("#schedule-cooldown").value = item?.limits?.cooldown_minutes_after_failure ?? 30;
+      ui.qs("#schedule-output-notes").checked = item?.outputs?.generate_notes ?? true;
+      ui.qs("#schedule-output-zip").checked = item?.outputs?.generate_package_zip ?? true;
+      ui.qs("#schedule-output-submission").checked = item?.outputs?.generate_submission_package ?? false;
+    };
+
+    const setEditMode = (schedule) => {
+      const updateButton = ui.qs("#update-schedule");
+      const cancelButton = ui.qs("#cancel-edit");
+      updateButton.disabled = !schedule;
+      cancelButton.disabled = !schedule;
+      if (schedule) {
+        updateButton.dataset.scheduleId = schedule.schedule_id;
+        populateForm(schedule);
+        ui.qs("#schedule-create-status").textContent = `編集モード: ${schedule.name || schedule.schedule_id}`;
+      } else {
+        updateButton.dataset.scheduleId = "";
+        populateForm(null);
+        ui.qs("#schedule-create-status").textContent = "未実行";
+      }
+    };
+
     const renderSchedules = async () => {
       const tableBody = ui.qs("#schedule-table tbody");
       const emptyEl = ui.qs("#schedule-empty");
@@ -229,10 +293,13 @@
         const toggle = ui.el("input", { type: "checkbox" });
         toggle.checked = Boolean(item.enabled);
         toggle.addEventListener("change", async () => {
-          await app.apiFetchSafe(`/api/schedules/${encodeURIComponent(item.schedule_id)}`, {
+          const result = await app.apiFetchSafe(`/api/schedules/${encodeURIComponent(item.schedule_id)}`, {
             method: "PATCH",
             body: { enabled: toggle.checked },
           });
+          if (!result.ok) {
+            ui.toast("未実装/未接続", "warning");
+          }
           renderSchedules();
         });
         enabledCell.appendChild(toggle);
@@ -243,16 +310,36 @@
         const actions = ui.el("td");
         const runButton = ui.el("button", { text: "Run now" });
         runButton.addEventListener("click", async () => {
-          await app.apiFetchSafe(`/api/schedules/${encodeURIComponent(item.schedule_id)}/run?force=true`, {
+          const result = await app.apiFetchSafe(`/api/schedules/${encodeURIComponent(item.schedule_id)}/run?force=true`, {
             method: "POST",
           });
+          if (!result.ok) {
+            ui.toast("未実装/未接続", "warning");
+          }
           renderSchedules();
           renderHistory(item.schedule_id, item.name);
         });
+        const editButton = ui.el("button", { text: "Edit", className: "secondary" });
+        editButton.addEventListener("click", () => setEditMode(item));
         const historyButton = ui.el("button", { text: "History", className: "secondary" });
         historyButton.addEventListener("click", () => renderHistory(item.schedule_id, item.name));
+        const deleteButton = ui.el("button", { text: "Delete", className: "ghost" });
+        deleteButton.addEventListener("click", async () => {
+          if (!confirm("このスケジュールを削除しますか？")) return;
+          const result = await app.apiFetchSafe(`/api/schedules/${encodeURIComponent(item.schedule_id)}`, {
+            method: "DELETE",
+          });
+          if (!result.ok) {
+            ui.toast("未実装/未接続", "warning");
+          }
+          setEditMode(null);
+          renderSchedules();
+          renderHistory(null);
+        });
         actions.appendChild(runButton);
+        actions.appendChild(editButton);
         actions.appendChild(historyButton);
+        actions.appendChild(deleteButton);
         row.appendChild(actions);
         tableBody.appendChild(row);
       });
@@ -270,35 +357,25 @@
         }
       });
       ui.qs("#create-schedule").addEventListener("click", async () => {
-        const payload = {
-          name: ui.qs("#schedule-name").value,
-          timezone: ui.qs("#schedule-timezone").value,
-          rrule: ui.qs("#schedule-rrule").value,
-          query: {
-            keywords: ui
-              .qs("#schedule-keywords")
-              .value.split(",")
-              .map((item) => item.trim())
-              .filter(Boolean),
-            date_range_days: Number(ui.qs("#schedule-date-range").value || 30),
-            max_papers: Number(ui.qs("#schedule-max-papers").value || 50),
-            oa_only: ui.qs("#schedule-oa-only").value === "true",
-            oa_policy: ui.qs("#schedule-oa-policy").value,
-          },
-          outputs: {
-            generate_notes: ui.qs("#schedule-output-notes").checked,
-            generate_package_zip: ui.qs("#schedule-output-zip").checked,
-            generate_submission_package: ui.qs("#schedule-output-submission").checked,
-          },
-          limits: {
-            max_runtime_minutes: Number(ui.qs("#schedule-max-runtime").value || 60),
-            max_retries: Number(ui.qs("#schedule-max-retries").value || 3),
-            cooldown_minutes_after_failure: Number(ui.qs("#schedule-cooldown").value || 30),
-          },
-        };
+        const payload = serializeForm();
         const response = await app.apiFetchSafe("/api/schedules", { method: "POST", body: payload });
-        ui.qs("#schedule-create-status").textContent = response.ok ? "作成完了" : "作成失敗";
+        ui.qs("#schedule-create-status").textContent = response.ok ? "作成完了" : "未実装/未接続";
         renderSchedules();
+      });
+      ui.qs("#update-schedule").addEventListener("click", async (event) => {
+        const scheduleId = event.currentTarget.dataset.scheduleId;
+        if (!scheduleId) return;
+        const payload = serializeForm();
+        const response = await app.apiFetchSafe(`/api/schedules/${encodeURIComponent(scheduleId)}`, {
+          method: "PATCH",
+          body: payload,
+        });
+        ui.qs("#schedule-create-status").textContent = response.ok ? "更新完了" : "未実装/未接続";
+        setEditMode(null);
+        renderSchedules();
+      });
+      ui.qs("#cancel-edit").addEventListener("click", () => {
+        setEditMode(null);
       });
     };
 
