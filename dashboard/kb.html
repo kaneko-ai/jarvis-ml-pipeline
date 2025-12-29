@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Knowledge Base Dashboard</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body data-page="kb">
+  <nav class="top-nav">
+    <a href="index.html">Home</a>
+    <a href="runs.html">Runs</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="feedback.html">Feedback Risk</a>
+    <a href="decision.html">Decision</a>
+    <a href="finance.html">Finance</a>
+    <a href="kb.html">Knowledge Base</a>
+    <a href="settings.html">Settings</a>
+  </nav>
+  <main class="container">
+    <header class="page-header">
+      <h1>Knowledge Base</h1>
+      <p>KBの状態確認、Topicノートのプレビュー、学習パックのダウンロード。</p>
+    </header>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>KB Status</h2>
+        <button class="secondary" id="refresh-kb">更新</button>
+      </div>
+      <div class="grid cols-3">
+        <div class="kpi-card">
+          <h3>Papers</h3>
+          <div class="value" id="kb-papers">-</div>
+        </div>
+        <div class="kpi-card">
+          <h3>Topics</h3>
+          <div class="value" id="kb-topics">-</div>
+        </div>
+        <div class="kpi-card">
+          <h3>Last Updated</h3>
+          <div class="value" id="kb-updated">-</div>
+        </div>
+      </div>
+      <div id="kb-topic-list" class="tag-list"></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Topic Preview</h2>
+      </div>
+      <div class="grid cols-2">
+        <div>
+          <label class="muted">Topic</label>
+          <select id="topic-select"></select>
+          <button class="secondary" id="preview-topic">プレビュー</button>
+        </div>
+        <pre id="topic-preview" class="code-block">未選択</pre>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Weekly Packs</h2>
+        <button class="secondary" id="generate-pack">Generate pack now</button>
+      </div>
+      <table class="table" id="pack-table">
+        <thead>
+          <tr>
+            <th>Pack ID</th>
+            <th>Generated At</th>
+            <th>Notes</th>
+            <th>Download</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="pack-empty" class="notice">パックがありません。</div>
+    </section>
+  </main>
+
+  <script src="assets/app.js"></script>
+  <script src="assets/ui.js"></script>
+  <script>
+    const setActiveNav = () => {
+      ui.qsa(".top-nav a").forEach((link) => {
+        if (link.getAttribute("href").includes("kb")) {
+          link.classList.add("active");
+        }
+      });
+    };
+
+    const renderStatus = async () => {
+      const response = await app.apiFetchSafe("/api/kb/status");
+      if (!response.ok) {
+        ui.qs("#kb-papers").textContent = "-";
+        ui.qs("#kb-topics").textContent = "-";
+        ui.qs("#kb-updated").textContent = "未接続";
+        ui.qs("#kb-topic-list").textContent = "";
+        return;
+      }
+      const data = response.data || {};
+      ui.qs("#kb-papers").textContent = data.papers ?? 0;
+      ui.qs("#kb-topics").textContent = data.topics ?? 0;
+      ui.qs("#kb-updated").textContent = ui.formatDateTime(data.last_updated);
+
+      const topicList = ui.qs("#kb-topic-list");
+      topicList.innerHTML = "";
+      const topics = data.topic_list || [];
+      topics.forEach((topic) => {
+        topicList.appendChild(ui.el("span", { className: "badge", text: topic }));
+      });
+
+      const select = ui.qs("#topic-select");
+      select.innerHTML = "";
+      topics.forEach((topic) => {
+        select.appendChild(ui.el("option", { text: topic, attrs: { value: topic } }));
+      });
+    };
+
+    const previewTopic = async () => {
+      const select = ui.qs("#topic-select");
+      const topic = select.value;
+      if (!topic) {
+        ui.qs("#topic-preview").textContent = "未選択";
+        return;
+      }
+      const response = await app.apiFetchSafe(`/api/kb/topic/${encodeURIComponent(topic)}`);
+      if (!response.ok) {
+        ui.qs("#topic-preview").textContent = "取得失敗";
+        return;
+      }
+      ui.qs("#topic-preview").textContent = response.data.content || "";
+    };
+
+    const renderPacks = async () => {
+      const tableBody = ui.qs("#pack-table tbody");
+      tableBody.innerHTML = "";
+      const empty = ui.qs("#pack-empty");
+      const response = await app.apiFetchSafe("/api/packs");
+      if (!response.ok) {
+        empty.textContent = "未接続";
+        empty.style.display = "block";
+        return;
+      }
+      const packs = response.data.packs || [];
+      if (!packs.length) {
+        empty.style.display = "block";
+        return;
+      }
+      empty.style.display = "none";
+      packs.forEach((pack) => {
+        const meta = pack.metadata || {};
+        const row = ui.el("tr");
+        row.appendChild(ui.el("td", { text: pack.id }));
+        row.appendChild(ui.el("td", { text: ui.formatDateTime(meta.generated_at) }));
+        row.appendChild(ui.el("td", { text: (meta.notes || []).length }));
+        const downloadUrl = app.buildPackDownloadUrl(pack.id);
+        const link = downloadUrl ? `<a href="${downloadUrl}">Download</a>` : "-";
+        row.appendChild(ui.el("td", { html: link }));
+        tableBody.appendChild(row);
+      });
+    };
+
+    const generatePack = async () => {
+      const response = await app.apiFetchSafe("/api/packs/generate", { method: "POST" });
+      if (!response.ok) {
+        alert("パック生成に失敗しました。");
+        return;
+      }
+      await renderPacks();
+    };
+
+    const init = () => {
+      setActiveNav();
+      renderStatus();
+      renderPacks();
+      ui.qs("#refresh-kb").addEventListener("click", renderStatus);
+      ui.qs("#preview-topic").addEventListener("click", previewTopic);
+      ui.qs("#generate-pack").addEventListener("click", generatePack);
+    };
+
+    init();
+  </script>
+</body>
+</html>

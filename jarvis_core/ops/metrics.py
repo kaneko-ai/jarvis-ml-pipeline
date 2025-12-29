@@ -45,6 +45,10 @@ class RunMetrics:
     # ステータス
     status: str = "running"  # running, completed, failed, degraded
 
+    # Knowledge base
+    kb_updates: int = 0
+    packs_generated: int = 0
+
 
 @dataclass
 class QualityMetrics:
@@ -124,6 +128,16 @@ class MetricsCollector:
         """degraded状態を記録."""
         if self._current_run:
             self._current_run.degraded_reasons.append(reason)
+
+    def record_kb_update(self, count: int = 1):
+        """KB更新数を記録."""
+        if self._current_run:
+            self._current_run.kb_updates += count
+
+    def record_pack_generation(self, count: int = 1):
+        """学習パック生成数を記録."""
+        if self._current_run:
+            self._current_run.packs_generated += count
     
     def update_quality(
         self,
