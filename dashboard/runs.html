@@ -112,6 +112,12 @@
       });
     };
 
+    const listRuns = async () => {
+      const response = await app.apiFetchSafe("/api/runs");
+      if (!response.ok) return response;
+      return { ...response, data: Array.isArray(response.data) ? response.data : [] };
+    };
+
     const renderRuns = async () => {
       const statusEl = ui.qs("#runs-status");
       const tableBody = ui.qs("#runs-table tbody");
@@ -120,7 +126,7 @@
       statusEl.textContent = "データ取得中...";
       tableBody.innerHTML = "";
 
-      const response = await app.apiFetchSafe("/api/runs");
+      const response = await listRuns();
       if (!response.ok) {
         statusEl.textContent = "未実装/未接続";
         emptyEl.style.display = "block";

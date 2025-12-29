@@ -51,24 +51,10 @@
 
     <section class="panel">
       <div class="section-title">
-        <h2>Latest Runs</h2>
-        <a class="badge" href="runs.html">一覧へ</a>
+        <h2>Runs</h2>
+        <a class="badge" href="runs.html">runs.htmlへ</a>
       </div>
-      <table class="table" id="latest-runs">
-        <thead>
-          <tr>
-            <th>Run ID</th>
-            <th>Status</th>
-            <th>Progress</th>
-            <th>Tier Summary</th>
-            <th>QA</th>
-            <th>Submission</th>
-            <th>Created</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <div id="latest-runs-empty" class="notice">データがありません。</div>
+      <div class="notice">Runs一覧は runs.html で確認してください。</div>
     </section>
   </main>
 
@@ -149,46 +135,12 @@
       });
     };
 
-    const renderLatestRuns = async () => {
-      const tableBody = ui.qs("#latest-runs tbody");
-      const empty = ui.qs("#latest-runs-empty");
-      tableBody.innerHTML = "";
-      const runs = await app.apiFetchSafe("/api/runs");
-      if (!runs.ok) {
-        empty.textContent = "未接続";
-        empty.style.display = "block";
-        return;
-      }
-      const list = (runs.data || []).slice(0, 5);
-      if (!list.length) {
-        empty.style.display = "block";
-        return;
-      }
-      empty.style.display = "none";
-      list.forEach((run) => {
-        const row = ui.el("tr");
-        const idLink = ui.el("a", { text: run.id || run.run_id || "-", attrs: { href: `run.html?id=${run.id || run.run_id}` } });
-        row.appendChild(ui.el("td", { html: idLink.outerHTML }));
-        row.appendChild(ui.el("td", { text: run.status || "-" }));
-        row.appendChild(ui.el("td", { text: run.progress || run.step || "-" }));
-        row.appendChild(ui.el("td", { text: run.tier_summary || "-" }));
-        row.appendChild(ui.el("td", { text: run.qa_status || run.qa_ready || "-" }));
-        row.appendChild(ui.el("td", { text: run.submission_status || "-" }));
-        row.appendChild(ui.el("td", { text: ui.formatDateTime(run.created_at) }));
-        tableBody.appendChild(row);
-      });
-    };
-
     const init = () => {
       setActiveNav();
       renderHealth();
       renderKpi();
-      renderLatestRuns();
       ui.qs("#refresh-health").addEventListener("click", renderHealth);
-      ui.qs("#refresh-kpi").addEventListener("click", () => {
-        renderKpi();
-        renderLatestRuns();
-      });
+      ui.qs("#refresh-kpi").addEventListener("click", renderKpi);
     };
 
     init();
