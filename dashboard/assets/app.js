@@ -145,6 +145,12 @@ const app = (() => {
   const getFeedbackRisk = (runId) => apiFetch(`/api/feedback/risk?run_id=${encodeURIComponent(runId)}`);
   const decisionSimulate = (payload) => apiFetch("/api/decision/simulate", { method: "POST", body: payload });
   const financeOptimize = (payload) => apiFetch("/api/finance/optimize", { method: "POST", body: payload });
+  const getKbStatus = () => apiFetch("/api/kb/status");
+  const getKbTopic = (topic) => apiFetch(`/api/kb/topic/${encodeURIComponent(topic)}`);
+  const getKbPaper = (pmid) => apiFetch(`/api/kb/paper/${encodeURIComponent(pmid)}`);
+  const listPacks = () => apiFetch("/api/packs");
+  const generatePack = () => apiFetch("/api/packs/generate", { method: "POST" });
+  const buildPackDownloadUrl = (packId) => buildUrl(`/api/packs/${encodeURIComponent(packId)}/download`);
 
   return {
     STORAGE_BASE,
@@ -179,6 +185,12 @@ const app = (() => {
     getFeedbackRisk,
     decisionSimulate,
     financeOptimize,
+    getKbStatus,
+    getKbTopic,
+    getKbPaper,
+    listPacks,
+    generatePack,
+    buildPackDownloadUrl,
     buildUrl,
   };
 })();

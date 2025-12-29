@@ -455,6 +455,16 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
 
     jobs.update_job(job_id, manifest_path=str(manifest_path))
 
+    try:
+        from jarvis_core.kb import ingest_run, generate_weekly_pack
+
+        kb_result = ingest_run(research_dir, run_id=job_id)
+        jobs.append_event(job_id, {"message": f"kb updated: {kb_result}", "level": "info"})
+        pack_path = generate_weekly_pack()
+        jobs.append_event(job_id, {"message": f"weekly pack: {pack_path}", "level": "info"})
+    except Exception as exc:  # pragma: no cover - best effort
+        jobs.append_event(job_id, {"message": f"kb update skipped: {exc}", "level": "warning"})
+
     jobs.set_progress(job_id, 100)
     jobs.set_step(job_id, "done")
     jobs.set_status(job_id, "success")
