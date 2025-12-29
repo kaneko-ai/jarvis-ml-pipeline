@@ -47,6 +47,8 @@ if FASTAPI_AVAILABLE:
         description="API for paper survey and knowledge synthesis",
         version="4.3.0",
     )
+
+    from jarvis_web.routes.finance import router as finance_router
     
     # Add CORS middleware to allow cross-origin requests (for GitHub Pages dashboard)
     app.add_middleware(
@@ -56,6 +58,9 @@ if FASTAPI_AVAILABLE:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    if finance_router is not None:
+        app.include_router(finance_router)
 else:
     app = None
 
