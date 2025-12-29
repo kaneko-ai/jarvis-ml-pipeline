@@ -1,0 +1,137 @@
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75em;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    background: rgba(255, 255, 255, 0.08);
+    color: #e8e8e8;
+}
+
+.status-READY {
+    color: #00ff88;
+    border: 1px solid rgba(0, 255, 136, 0.4);
+}
+
+.status-BLOCKED,
+.status-NO_CONNECTION {
+    color: #ffaa00;
+    border: 1px solid rgba(255, 170, 0, 0.4);
+}
+
+.status-UNAUTHORIZED {
+    color: #ff4444;
+    border: 1px solid rgba(255, 68, 68, 0.4);
+}
+
+.status-NOT_IMPLEMENTED {
+    color: #a0a0a0;
+    border: 1px dashed rgba(160, 160, 160, 0.6);
+}
+
+.error-panel {
+    background: rgba(255, 68, 68, 0.1);
+    border: 1px solid rgba(255, 68, 68, 0.4);
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin: 12px 0;
+}
+
+.error-header {
+    font-weight: 700;
+    color: #ff6666;
+}
+
+.error-message {
+    margin-top: 6px;
+    color: #f1f1f1;
+}
+
+.error-detail {
+    font-size: 0.85em;
+    color: #ffaa00;
+    margin-top: 6px;
+}
+
+.error-hint {
+    font-size: 0.85em;
+    color: #a0a0a0;
+    margin-top: 6px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.empty-state h3 {
+    margin-bottom: 8px;
+}
+
+.empty-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.toast {
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    background: rgba(15, 15, 35, 0.95);
+    border-left: 4px solid #00d4ff;
+    padding: 12px 16px;
+    border-radius: 10px;
+    color: #e8e8e8;
+    z-index: 1000;
+}
+
+.toast-success {
+    border-left-color: #00ff88;
+}
+
+.toast-warning {
+    border-left-color: #ffaa00;
+}
+
+.toast-danger {
+    border-left-color: #ff4444;
+}
+
+.settings-card {
+    background: rgba(0, 212, 255, 0.05);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.settings-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.settings-row input {
+    flex: 1;
+    min-width: 220px;
+}
+
+.status-strip {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.status-label {
+    color: #a0a0a0;
+    font-size: 0.85em;
+}

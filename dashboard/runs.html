@@ -124,11 +124,28 @@
             opacity: 0.8;
         }
     </style>
+    <link rel="stylesheet" href="assets/styles.css">
 </head>
 
 <body>
     <div class="container">
         <h1>📊 JARVIS Runs Dashboard</h1>
+        <div class="status-strip">
+            <span class="status-label">Connection</span>
+            <span id="status-badges"></span>
+        </div>
+        <div id="global-error"></div>
+        <div class="settings-card" style="margin: 16px 0;">
+            <div class="settings-row">
+                <input type="text" id="api-base-input" placeholder="https://xxxx.workers.dev">
+                <input type="password" id="api-token-input" placeholder="API Token">
+            </div>
+            <div style="margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="refresh-btn" onclick="saveSettings()">保存</button>
+                <button class="refresh-btn" onclick="clearSettings()">クリア</button>
+                <button class="refresh-btn" onclick="refreshCapabilities()">再チェック</button>
+            </div>
+        </div>
         <button class="refresh-btn" onclick="loadRuns()">🔄 Refresh</button>
 
         <div class="runs-grid" id="runs-container">
@@ -157,19 +174,88 @@
         </div>
     </div>
 
+    <script src="assets/storage.js"></script>
+    <script src="assets/errors.js"></script>
+    <script src="assets/parsers.js"></script>
+    <script src="assets/fallbacks.js"></script>
+    <script src="assets/capabilities.js"></script>
+    <script src="assets/app.js"></script>
+    <script src="assets/ui.js"></script>
     <script>
+        const storage = window.JarvisStorage;
+        const app = window.JarvisApp;
+        const ui = window.JarvisUI;
+        const errors = window.JarvisErrors;
+        const parsers = window.JarvisParsers;
+
         const REQUIRED_FILES = [
             'input.json', 'papers.jsonl', 'claims.jsonl',
             'evidence.jsonl', 'scores.json', 'report.md', 'warnings.jsonl'
         ];
 
-        function loadRuns() {
-            // In production: fetch from API
-            console.log('Loading runs...');
+        function updateStatusBadge(kind) {
+            document.getElementById('status-badges').innerHTML = ui.renderStatusBadge(kind);
+        }
+
+        function setGlobalError(err) {
+            const container = document.getElementById('global-error');
+            container.innerHTML = err ? ui.renderErrorPanel(err) : '';
+            if (err) {
+                const kind = err.kind === 'UNAUTHORIZED' ? 'UNAUTHORIZED' : err.kind === 'NO_CONNECTION' ? 'NO_CONNECTION' : err.kind === 'NOT_IMPLEMENTED' ? 'NOT_IMPLEMENTED' : 'BLOCKED';
+                updateStatusBadge(kind);
+            }
+        }
+
+        async function refreshCapabilities() {
+            try {
+                const caps = await window.JarvisCapabilities.getCapabilities(true);
+                updateStatusBadge(caps.endpoints.health ? 'READY' : 'NO_CONNECTION');
+            } catch (err) {
+                setGlobalError(err);
+            }
+        }
+
+        async function initSettings() {
+            await app.bootstrapSettings();
+            document.getElementById('api-base-input').value = storage.getApiBase();
+            document.getElementById('api-token-input').value = storage.getToken();
+        }
+
+        function saveSettings() {
+            storage.setApiBase(document.getElementById('api-base-input').value);
+            storage.setToken(document.getElementById('api-token-input').value);
+            localStorage.removeItem('JAVIS_CAP_CACHE');
+            refreshCapabilities();
+            ui.toast('設定を保存しました', 'success');
+        }
+
+        function clearSettings() {
+            storage.clearAllSettings();
+            document.getElementById('api-base-input').value = '';
+            document.getElementById('api-token-input').value = '';
+            refreshCapabilities();
+            ui.toast('設定をクリアしました', 'warning');
+        }
+
+        async function loadRuns() {
+            try {
+                const runs = await app.listRuns();
+                const container = document.getElementById('runs-container');
+                if (!runs.length) {
+                    container.innerHTML = ui.renderEmptyState('実行履歴がありません', 'Runが生成されるとここに表示されます。');
+                    return;
+                }
+                container.innerHTML = runs.map(renderRun).join('');
+                setGlobalError(null);
+            } catch (err) {
+                const normalized = errors.normalizeError(err, err && err.response);
+                document.getElementById('runs-container').innerHTML = ui.renderErrorPanel(normalized);
+                setGlobalError(normalized);
+            }
         }
 
         function renderRun(run) {
-            const files = run.files || [];
+            const files = parsers.normalizeFiles(run.files).map(item => item.name);
             const fileBadges = REQUIRED_FILES.map(f => {
                 const exists = files.includes(f);
                 return `<span class="file-badge ${exists ? '' : 'file-missing'}">${f}</span>`;
@@ -177,20 +263,25 @@
 
             return `
                 <div class="run-card">
-                    <div class="run-header">
-                        <span class="run-id">${run.run_id}</span>
-                        <span class="run-date">${run.date}</span>
-                    </div>
-                    <div class="run-query">${run.query}</div>
-                    <div class="run-stats">
-                        <span class="stat">Papers: <span class="stat-value">${run.papers}</span></span>
-                        <span class="stat">Claims: <span class="stat-value">${run.claims}</span></span>
-                        <span class="stat">Evidence: <span class="stat-value">${run.evidence}</span></span>
-                    </div>
-                    <div class="bundle-files">${fileBadges}</div>
+                <div class="run-header">
+                    <span class="run-id">${run.run_id}</span>
+                    <span class="run-date">${run.timestamp || '-'}</span>
                 </div>
+                <div class="run-query">${run.query || run.input?.query || '-'}</div>
+                <div class="run-stats">
+                    <span class="stat">Papers: <span class="stat-value">${run.metrics?.paper_count || '-'}</span></span>
+                    <span class="stat">Claims: <span class="stat-value">${run.metrics?.claim_count || '-'}</span></span>
+                    <span class="stat">Evidence: <span class="stat-value">${run.metrics?.evidence_count || '-'}</span></span>
+                </div>
+                <div class="bundle-files">${fileBadges}</div>
+            </div>
             `;
         }
+
+        initSettings().then(() => {
+            refreshCapabilities();
+            loadRuns();
+        });
     </script>
 </body>
 
