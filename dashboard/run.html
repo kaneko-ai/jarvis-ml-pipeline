@@ -7,152 +7,152 @@
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body data-page="run">
-    <nav class="top-nav">
-    <a href="index.html">Home</a>
-    <a href="runs.html">Runs</a>
-    <a href="ops.html">Ops</a>
-    <a href="schedule.html">Schedule</a>
-    <a href="kb.html">KB</a>
-    <a href="search.html">Search</a>
-    <a href="settings.html">Settings</a>
+    <nav class="top-nav" data-testid="top-nav">
+    <a href="index.html" data-testid="nav-home">Home</a>
+    <a href="runs.html" data-testid="nav-runs">Runs</a>
+    <a href="ops.html" data-testid="nav-ops">Ops</a>
+    <a href="schedule.html" data-testid="nav-schedule">Schedule</a>
+    <a href="kb.html" data-testid="nav-kb">KB</a>
+    <a href="search.html" data-testid="nav-search">Search</a>
+    <a href="settings.html" data-testid="nav-settings">Settings</a>
   </nav>
   <main class="container">
     <header class="page-header">
-      <h1 id="run-title">Run Detail</h1>
-      <p id="run-subtitle">進捗/成果物/QA/Submissionの詳細を表示します。</p>
+      <h1 id="run-title" data-testid="page-title">Run Detail</h1>
+      <p id="run-subtitle" data-testid="run-subtitle">進捗/成果物/QA/Submissionの詳細を表示します。</p>
     </header>
 
     <section class="panel">
-      <div class="tabs">
-        <button class="active" data-tab="overview">Overview</button>
-        <button data-tab="progress">Progress</button>
-        <button data-tab="exports">Exports</button>
-        <button data-tab="rank">Rank</button>
-        <button data-tab="claims">Claims</button>
-        <button data-tab="qa">QA</button>
-        <button data-tab="submission">Submission</button>
+      <div class="tabs" data-testid="run-tabs">
+        <button class="active" data-tab="overview" data-testid="tab-overview">Overview</button>
+        <button data-tab="progress" data-testid="tab-progress">Progress</button>
+        <button data-tab="exports" data-testid="tab-exports">Exports</button>
+        <button data-tab="rank" data-testid="tab-rank">Rank</button>
+        <button data-tab="claims" data-testid="tab-claims">Claims</button>
+        <button data-tab="qa" data-testid="tab-qa">QA</button>
+        <button data-tab="submission" data-testid="tab-submission">Submission</button>
       </div>
 
-      <div id="tab-overview" class="tab-content active">
+      <div id="tab-overview" class="tab-content active" data-testid="tab-content-overview">
         <div class="grid cols-2">
           <div>
             <h2>Summary</h2>
-            <div id="run-summary" class="notice">読み込み中...</div>
+            <div id="run-summary" class="notice" data-testid="run-summary">読み込み中...</div>
           </div>
           <div>
             <h2>Meta</h2>
-            <div id="run-meta" class="notice">読み込み中...</div>
+            <div id="run-meta" class="notice" data-testid="run-meta">読み込み中...</div>
           </div>
         </div>
       </div>
 
-      <div id="tab-progress" class="tab-content">
+      <div id="tab-progress" class="tab-content" data-testid="tab-content-progress">
         <div class="section-title">
           <h2>Progress</h2>
-          <button class="secondary" id="refresh-progress">更新</button>
+          <button class="secondary" id="refresh-progress" data-testid="refresh-progress">更新</button>
         </div>
         <div class="progress-status">
           <div>
             <div class="muted">接続</div>
-            <div id="progress-connection" class="status-pill">未接続</div>
+            <div id="progress-connection" class="status-pill" data-testid="progress-connection">未接続</div>
           </div>
           <div>
             <div class="muted">稼働状況</div>
-            <div id="progress-activity" class="status-pill">不明</div>
+            <div id="progress-activity" class="status-pill" data-testid="progress-activity">不明</div>
           </div>
           <div>
             <div class="muted">最終更新</div>
-            <div id="progress-updated" class="status-value">-</div>
+            <div id="progress-updated" class="status-value" data-testid="progress-updated">-</div>
           </div>
         </div>
         <div class="progress-bar">
-          <div class="progress-fill" id="progress-fill"></div>
+          <div class="progress-fill" id="progress-fill" data-testid="progress-fill"></div>
         </div>
         <div class="progress-meta">
-          <div id="progress-step">Step: -</div>
-          <div id="progress-value">Progress: -</div>
+          <div id="progress-step" data-testid="progress-step">Step: -</div>
+          <div id="progress-value" data-testid="progress-value">Progress: -</div>
         </div>
-        <div class="grid cols-3" id="progress-cards"></div>
+        <div class="grid cols-3" id="progress-cards" data-testid="progress-cards"></div>
         <hr />
         <div class="section-title">
           <h2>Logs</h2>
-          <button class="secondary" id="download-logs">Download</button>
+          <button class="secondary" id="download-logs" data-testid="download-logs">Download</button>
         </div>
-        <pre id="run-logs">ログ待機中...</pre>
+        <pre id="run-logs" data-testid="run-logs">ログ待機中...</pre>
       </div>
 
-      <div id="tab-exports" class="tab-content">
+      <div id="tab-exports" class="tab-content" data-testid="tab-content-exports">
         <div class="section-title">
           <h2>Exports</h2>
-          <button class="secondary" id="refresh-exports">更新</button>
+          <button class="secondary" id="refresh-exports" data-testid="refresh-exports">更新</button>
         </div>
-        <div class="link-list" id="recommended-downloads"></div>
+        <div class="link-list" id="recommended-downloads" data-testid="recommended-downloads"></div>
         <hr />
-        <div id="exports-list"></div>
+        <div id="exports-list" data-testid="exports-list"></div>
       </div>
 
-      <div id="tab-rank" class="tab-content">
+      <div id="tab-rank" class="tab-content" data-testid="tab-content-rank">
         <div class="section-title">
           <h2>Ranked Papers</h2>
-          <button class="secondary" id="refresh-rank">更新</button>
+          <button class="secondary" id="refresh-rank" data-testid="refresh-rank">更新</button>
         </div>
-        <div class="notice" id="rank-status">読み込み中...</div>
-        <div id="rank-content"></div>
+        <div class="notice" id="rank-status" data-testid="rank-status">読み込み中...</div>
+        <div id="rank-content" data-testid="rank-content"></div>
       </div>
 
-      <div id="tab-claims" class="tab-content">
+      <div id="tab-claims" class="tab-content" data-testid="tab-content-claims">
         <div class="section-title">
           <h2>Claims & Evidence</h2>
           <div class="flex">
-            <input id="paper-id" placeholder="paper_id" />
-            <button id="load-claims">Load</button>
+            <input id="paper-id" placeholder="paper_id" data-testid="paper-id" />
+            <button id="load-claims" data-testid="load-claims">Load</button>
           </div>
         </div>
-        <div id="claims-status" class="notice">paper_idを入力してください。</div>
-        <div id="claims-content"></div>
+        <div id="claims-status" class="notice" data-testid="claims-status">paper_idを入力してください。</div>
+        <div id="claims-content" data-testid="claims-content"></div>
       </div>
 
-      <div id="tab-qa" class="tab-content">
+      <div id="tab-qa" class="tab-content" data-testid="tab-content-qa">
         <div class="section-title">
           <h2>QA Report</h2>
-          <button class="secondary" id="refresh-qa">更新</button>
+          <button class="secondary" id="refresh-qa" data-testid="refresh-qa">更新</button>
         </div>
-        <div id="qa-status" class="notice">読み込み中...</div>
-        <div id="qa-content"></div>
+        <div id="qa-status" class="notice" data-testid="qa-status">読み込み中...</div>
+        <div id="qa-content" data-testid="qa-content"></div>
       </div>
 
-      <div id="tab-submission" class="tab-content">
+      <div id="tab-submission" class="tab-content" data-testid="tab-content-submission">
         <div class="section-title">
           <h2>Submission</h2>
-          <button class="secondary" id="refresh-submission">更新</button>
+          <button class="secondary" id="refresh-submission" data-testid="refresh-submission">更新</button>
         </div>
         <div class="grid cols-2">
           <div>
             <h3>Build</h3>
             <div class="form-row">
-              <input id="submission-version" placeholder="submission_version" />
-              <input id="submission-recipient" placeholder="recipient_type" />
-              <input id="submission-previous" placeholder="previous_package_path (optional)" />
+              <input id="submission-version" placeholder="submission_version" data-testid="submission-version" />
+              <input id="submission-recipient" placeholder="recipient_type" data-testid="submission-recipient" />
+              <input id="submission-previous" placeholder="previous_package_path (optional)" data-testid="submission-previous" />
             </div>
-            <button id="build-submission">Build Submission</button>
-            <div id="build-status" class="notice">未実行</div>
+            <button id="build-submission" data-testid="build-submission">Build Submission</button>
+            <div id="build-status" class="notice" data-testid="build-status">未実行</div>
           </div>
           <div>
             <h3>Latest</h3>
-            <div id="submission-latest" class="notice">読み込み中...</div>
-            <div id="submission-links" class="link-list"></div>
+            <div id="submission-latest" class="notice" data-testid="submission-latest">読み込み中...</div>
+            <div id="submission-links" class="link-list" data-testid="submission-links"></div>
           </div>
         </div>
         <hr />
         <div class="grid cols-2">
           <div>
             <h3>ChangeLog</h3>
-            <pre id="submission-changelog">読み込み中...</pre>
+            <pre id="submission-changelog" data-testid="submission-changelog">読み込み中...</pre>
           </div>
           <div>
             <h3>Email Draft</h3>
-            <pre id="submission-email">読み込み中...</pre>
-            <button class="secondary" id="copy-email">Copy</button>
+            <pre id="submission-email" data-testid="submission-email">読み込み中...</pre>
+            <button class="secondary" id="copy-email" data-testid="copy-email">Copy</button>
           </div>
         </div>
       </div>
@@ -171,6 +171,16 @@
     let transportMode = "未接続";
     let lastUpdateAt = null;
     let activityTimer = null;
+    const fetchIfUrl = async (url, responseType = "text") => {
+      if (!url) return null;
+      try {
+        const res = await fetch(url);
+        if (responseType === "json") return await res.json();
+        return await res.text();
+      } catch (error) {
+        return null;
+      }
+    };
 
     const setActiveNav = () => {
       ui.qsa(".top-nav a").forEach((link) => {
@@ -393,8 +403,7 @@
         const fallback = (runData.files || []).find((file) => String(file.path || file).includes("research_rank"));
         if (fallback) {
           const url = app.resolveFileUrl(runId, fallback);
-          const fileResponse = await fetch(url).then((res) => res.json()).catch(() => null);
-          data = fileResponse;
+          data = await fetchIfUrl(url, "json");
         }
       }
 
@@ -444,7 +453,7 @@
         const fallback = (runData.files || []).find((file) => String(file.path || file).includes(`${paperId}.claims`));
         if (fallback) {
           const url = app.resolveFileUrl(runId, fallback);
-          data = await fetch(url).then((res) => res.text()).catch(() => null);
+          data = await fetchIfUrl(url, "text");
         }
       }
       if (!data) {
@@ -484,8 +493,7 @@
         const fallback = (runData.files || []).find((file) => String(file.path || file).includes("qa_report"));
         if (fallback) {
           const url = app.resolveFileUrl(runId, fallback);
-          const text = await fetch(url).then((res) => res.text()).catch(() => null);
-          data = text;
+          data = await fetchIfUrl(url, "text");
         }
       }
       if (!data) {
