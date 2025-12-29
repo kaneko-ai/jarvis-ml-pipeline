@@ -143,6 +143,55 @@
             color: var(--danger);
         }
 
+        .job-card {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .job-card.hidden {
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--success) 100%);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .job-counts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+
+        .job-log {
+            margin-top: 12px;
+            padding: 10px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.8em;
+            white-space: pre-wrap;
+        }
+
         /* Sections */
         .section {
             background: var(--bg-card);
@@ -551,6 +600,23 @@
                 </div>
                 <button class="btn btn-primary" id="run-query-btn" onclick="runQuery()">🚀 パイプライン実行</button>
                 <div id="query-status" style="margin-top: 15px;"></div>
+                <div id="job-card" class="job-card hidden">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>現在実行中ジョブ</strong>
+                        <span id="job-status-badge" class="badge badge-warning">queued</span>
+                    </div>
+                    <div style="margin-top: 8px; font-size: 0.9em; color: var(--text-secondary);">
+                        <span id="job-id">-</span>
+                        <span id="job-step" style="margin-left: 10px;">step: -</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="job-progress"></div>
+                    </div>
+                    <div id="job-progress-label" style="font-size: 0.85em;">0%</div>
+                    <div class="job-counts" id="job-counts"></div>
+                    <div id="job-error" style="color: var(--danger); margin-top: 6px;"></div>
+                    <div class="job-log" id="job-log"></div>
+                </div>
             </div>
         </div>
 
@@ -634,9 +700,24 @@
     </div>
 
     <script>
-        const API_BASE = '';
+        let API_BASE = '';
         let runs = [];
         let currentTab = 'overview';
+        let currentJobId = null;
+        let jobPoller = null;
+        let eventPoller = null;
+
+        async function loadConfig() {
+            try {
+                const res = await fetch('config.json', { cache: 'no-store' });
+                if (res.ok) {
+                    const config = await res.json();
+                    API_BASE = config.apiBase || '';
+                }
+            } catch (e) {
+                API_BASE = '';
+            }
+        }
 
         // === Tab Navigation ===
         function showTab(tabId) {
@@ -751,23 +832,24 @@
             status.innerHTML = '<div class="spinner"></div><p>パイプライン実行中...</p>';
 
             try {
-                const res = await fetch(`${API_BASE}/api/run`, {
+                const res = await fetch(`${API_BASE}/api/jobs`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        query,
-                        max_papers: parseInt(document.getElementById('max-papers').value),
-                        config: {
-                            domain: document.getElementById('domain-select').value,
-                            oa_only: document.getElementById('oa-only').value === 'true'
+                        type: 'collect_and_ingest',
+                        payload: {
+                            query,
+                            max_results: parseInt(document.getElementById('max-papers').value),
+                            oa_only: document.getElementById('oa-only').value === 'true',
+                            domain: document.getElementById('domain-select').value
                         }
                     })
                 });
 
                 const result = await res.json();
-                status.innerHTML = `<p style="color: var(--success);">✅ 完了: ${result.message}</p>`;
-                showToast('パイプライン完了', 'success');
-                loadRuns();
+                status.innerHTML = `<p style="color: var(--success);">✅ ジョブ投入: ${result.job_id}</p>`;
+                showToast('ジョブ投入完了', 'success');
+                startJobPolling(result.job_id);
             } catch (e) {
                 status.innerHTML = `<p style="color: var(--danger);">❌ エラー: ${e.message}</p>`;
                 showToast('実行エラー', 'danger');
@@ -828,19 +910,23 @@
             status.innerHTML = '<div class="spinner"></div><p>収集中...</p>';
 
             try {
-                const res = await fetch(`${API_BASE}/api/collect/pubmed`, {
+                const res = await fetch(`${API_BASE}/api/jobs`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        query,
-                        max_results: parseInt(document.getElementById('collect-max').value),
-                        oa_only: document.getElementById('collect-oa').checked
+                        type: 'collect_and_ingest',
+                        payload: {
+                            query,
+                            max_results: parseInt(document.getElementById('collect-max').value),
+                            oa_only: document.getElementById('collect-oa').checked
+                        }
                     })
                 });
 
                 const result = await res.json();
-                status.innerHTML = `<p style="color: var(--success);">✅ ${result.collected || 0}件収集完了</p>`;
-                showToast('収集完了', 'success');
+                status.innerHTML = `<p style="color: var(--success);">✅ ジョブ投入: ${result.job_id}</p>`;
+                showToast('収集ジョブ開始', 'success');
+                startJobPolling(result.job_id);
             } catch (e) {
                 status.innerHTML = `<p style="color: var(--danger);">❌ エラー: ${e.message}</p>`;
             }
@@ -945,8 +1031,72 @@
             showToast('更新しました');
         }
 
+        function startJobPolling(jobId) {
+            currentJobId = jobId;
+            const card = document.getElementById('job-card');
+            card.classList.remove('hidden');
+            document.getElementById('job-id').textContent = jobId;
+
+            if (jobPoller) clearInterval(jobPoller);
+            if (eventPoller) clearInterval(eventPoller);
+
+            jobPoller = setInterval(fetchJobStatus, 1000);
+            eventPoller = setInterval(fetchJobEvents, 1000);
+            fetchJobStatus();
+            fetchJobEvents();
+        }
+
+        async function fetchJobStatus() {
+            if (!currentJobId) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/jobs/${currentJobId}`);
+                if (!res.ok) return;
+                const job = await res.json();
+                updateJobCard(job);
+                if (['success', 'failed', 'canceled'].includes(job.status)) {
+                    clearInterval(jobPoller);
+                    clearInterval(eventPoller);
+                    loadRuns();
+                }
+            } catch (e) {
+                // ignore polling errors
+            }
+        }
+
+        async function fetchJobEvents() {
+            if (!currentJobId) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/jobs/${currentJobId}/events?tail=200`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const log = document.getElementById('job-log');
+                log.textContent = (data.events || [])
+                    .map(ev => `[${ev.timestamp}] ${ev.level || 'info'} ${ev.message || ''}`)
+                    .join('\n');
+                log.scrollTop = log.scrollHeight;
+            } catch (e) {
+                // ignore polling errors
+            }
+        }
+
+        function updateJobCard(job) {
+            const statusBadge = document.getElementById('job-status-badge');
+            statusBadge.textContent = job.status || '-';
+            statusBadge.className = `badge ${job.status === 'success' ? 'badge-success' : job.status === 'failed' ? 'badge-danger' : 'badge-warning'}`;
+            document.getElementById('job-step').textContent = `step: ${job.step || '-'}`;
+            document.getElementById('job-progress').style.width = `${job.progress || 0}%`;
+            document.getElementById('job-progress-label').textContent = `${job.progress || 0}%`;
+            const counts = job.counts || {};
+            document.getElementById('job-counts').innerHTML = Object.entries(counts)
+                .map(([k, v]) => `<div>${k}: ${v}</div>`)
+                .join('');
+            document.getElementById('job-error').textContent = job.error ? `Error: ${job.error}` : '';
+        }
+
         // === Initialize ===
-        loadRuns();
+        loadConfig().then(() => {
+            loadRuns();
+        });
     </script>
 </body>
 
