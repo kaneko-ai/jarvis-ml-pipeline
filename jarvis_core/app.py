@@ -6,6 +6,7 @@ Per MASTER_SPEC v1.1, this is the ONLY entry point for task execution.
 """
 from __future__ import annotations
 
+import json
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -24,6 +25,59 @@ class TelemetryMissingError(Exception):
 class ContractViolationError(Exception):
     """Raised when artifact contract is violated."""
     pass
+
+
+def _run_feedback_analysis(text: str) -> Optional[dict]:
+    if not text.strip():
+        return None
+    from jarvis_core.feedback.feature_extractor import FeedbackFeatureExtractor
+    from jarvis_core.feedback.history_store import FeedbackHistoryStore
+    from jarvis_core.feedback.risk_model import FeedbackRiskModel
+    from jarvis_core.feedback.suggestion_engine import SuggestionEngine
+
+    extractor = FeedbackFeatureExtractor()
+    history = FeedbackHistoryStore().list_entries(limit=200)
+    risk_model = FeedbackRiskModel()
+    suggestion_engine = SuggestionEngine(history)
+
+    items = []
+    for record in extractor.extract(text, section="draft"):
+        risk = risk_model.score(record.features, history, section=record.section)
+        top_categories = [c["category"] for c in risk["top_categories"]]
+        suggestions = suggestion_engine.suggest(record.text, top_categories)
+        items.append({
+            "location": record.location,
+            "risk_score": risk["risk_score"],
+            "risk_level": risk["risk_level"],
+            "top_categories": risk["top_categories"],
+            "reasons": risk["reasons"],
+            "suggestions": suggestions,
+        })
+
+    summary = {
+        "high": sum(1 for i in items if i["risk_level"] == "high"),
+        "medium": sum(1 for i in items if i["risk_level"] == "medium"),
+        "low": sum(1 for i in items if i["risk_level"] == "low"),
+        "top_categories": _top_categories(items),
+    }
+    ready_high_limit = risk_model.ready_threshold()
+    summary["ready_to_submit"] = summary["high"] <= 0
+    summary["ready_with_risk"] = 0 < summary["high"] <= ready_high_limit
+
+    return {
+        "document_type": "draft",
+        "summary": summary,
+        "items": items,
+    }
+
+
+def _top_categories(items: List[dict]) -> List[str]:
+    tally: Dict[str, float] = {}
+    for item in items:
+        for category in item["top_categories"]:
+            key = category["category"]
+            tally[key] = tally.get(key, 0.0) + category["prob"]
+    return [k for k, _ in sorted(tally.items(), key=lambda kv: kv[1], reverse=True)[:3]]
 
 
 @dataclass
@@ -229,6 +283,12 @@ def run_task(
         # gate_passed == false → cannot be success
         final_status = "failed"
 
+    feedback_report = _run_feedback_analysis(answer)
+    if feedback_report:
+        feedback_path = store.run_dir / "feedback_risk.json"
+        with open(feedback_path, "w", encoding="utf-8") as f:
+            json.dump(feedback_report, f, ensure_ascii=False, indent=2)
+
     # === AG-03: Use BundleAssembler for 10-file contract compliance ===
     from .bundle import BundleAssembler
     
@@ -264,6 +324,7 @@ def run_task(
             "citations": citations,
             "warnings": [{"code": "GENERAL", "message": w, "severity": "warning"} 
                         if isinstance(w, str) else w for w in warnings],
+            "feedback_risk": feedback_report,
         }
         quality_report = {
             "gate_passed": verify_result.gate_passed,
@@ -299,4 +360,3 @@ def run_task(
         gate_passed=verify_result.gate_passed,
         eval_result=eval_data,
     )
-
