@@ -9,11 +9,11 @@
 <body data-page="runs">
   <nav class="top-nav">
     <a href="index.html">Home</a>
-    <a href="runs.html">Runs</a>
+    <a href="runs.html" data-feature="runs">Runs</a>
     <a href="schedule.html">Schedule</a>
-    <a href="feedback.html">Feedback Risk</a>
-    <a href="decision.html">Decision</a>
-    <a href="finance.html">Finance</a>
+    <a href="feedback.html" data-feature="feedback">Feedback Risk</a>
+    <a href="decision.html" data-feature="decision">Decision</a>
+    <a href="finance.html" data-feature="finance">Finance</a>
     <a href="settings.html">Settings</a>
   </nav>
   <main class="container">
@@ -85,6 +85,9 @@
       });
     };
 
+    let runsEnabled = true;
+    let runsCapabilityStatus = "available";
+
     const getFilters = () => ({
       status: ui.qs("#filter-status").value,
       qa: ui.qs("#filter-qa").value,
@@ -117,6 +120,13 @@
       const tableBody = ui.qs("#runs-table tbody");
       const emptyEl = ui.qs("#runs-empty");
       const countEl = ui.qs("#runs-count");
+      if (!runsEnabled) {
+        statusEl.textContent = runsCapabilityStatus === "unavailable" ? "未実装" : "未接続";
+        tableBody.innerHTML = "";
+        emptyEl.style.display = "block";
+        countEl.textContent = "0";
+        return;
+      }
       statusEl.textContent = "データ取得中...";
       tableBody.innerHTML = "";
 
@@ -152,8 +162,36 @@
       });
     };
 
-    const init = () => {
+    const applyCapabilities = async () => {
+      const result = await app.getCapabilities();
+      if (result.ok) {
+        ui.applyCapabilitiesToNav(result.data);
+        runsEnabled = app.isFeatureEnabled(result.data, "runs");
+        runsCapabilityStatus = runsEnabled ? "available" : "unavailable";
+        if (!runsEnabled) {
+          ui.qsa(".panel").forEach((panel) => {
+            panel.style.display = "none";
+          });
+          const main = ui.qs("main.container");
+          const notice = ui.el("div", { className: "notice", text: "未実装" });
+          main.appendChild(notice);
+        }
+        return;
+      }
+      runsEnabled = false;
+      runsCapabilityStatus = "disconnected";
+      ui.applyCapabilitiesToNav({});
+      ui.qsa(".panel").forEach((panel) => {
+        panel.style.display = "none";
+      });
+      const main = ui.qs("main.container");
+      const notice = ui.el("div", { className: "notice", text: "未接続" });
+      main.appendChild(notice);
+    };
+
+    const init = async () => {
       setActiveNav();
+      await applyCapabilities();
       renderRuns();
       ["#filter-status", "#filter-qa", "#filter-package", "#filter-keyword"].forEach((selector) => {
         ui.qs(selector).addEventListener("change", renderRuns);
