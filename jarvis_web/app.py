@@ -42,6 +42,8 @@ API_TOKEN = os.getenv("API_TOKEN")
 
 # Create app if FastAPI available
 if FASTAPI_AVAILABLE:
+    from jarvis_web.routes.research import router as research_router
+
     app = FastAPI(
         title="JARVIS Research OS",
         description="API for paper survey and knowledge synthesis",
@@ -56,6 +58,8 @@ if FASTAPI_AVAILABLE:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    app.include_router(research_router)
 else:
     app = None
 
@@ -232,6 +236,15 @@ if FASTAPI_AVAILABLE:
                 summary["report"] = ""
         
         return summary
+
+    @app.get("/api/runs/{run_id}/manifest")
+    async def get_run_manifest(run_id: str, _: bool = Depends(verify_token)):
+        """Get reproducibility manifest for a run."""
+        manifest_path = Path("data/research") / run_id / "manifest.json"
+        if not manifest_path.exists():
+            raise HTTPException(status_code=404, detail="manifest not found")
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            return json.load(f)
 
     @app.get("/api/runs/{run_id}/files/{filename}")
     async def get_run_file(run_id: str, filename: str, _: bool = Depends(verify_token)):
