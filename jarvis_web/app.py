@@ -670,14 +670,44 @@ if FASTAPI_AVAILABLE:
         """Job request."""
         type: str
         payload: dict = {}
+        dedupe_key: Optional[str] = None
 
     @app.post("/api/jobs")
     async def create_job(request: JobRequest, _: bool = Depends(verify_api_token)):
         """Create a new job and run in background."""
+        from jarvis_web import dedup
         from jarvis_web import jobs
         from jarvis_web.job_runner import run_job
 
-        job = jobs.create_job(request.type, request.payload)
+        dedupe_key = request.dedupe_key or request.payload.get("dedupe_key")
+        if not dedupe_key:
+            raise HTTPException(status_code=400, detail="dedupe_key is required")
+
+        job_id = jobs.generate_job_id()
+        try:
+            redis_client = dedup.get_redis()
+            claimed, existing_job_id = dedup.claim_dedupe_key(
+                redis_client,
+                dedupe_key=dedupe_key,
+                job_id=job_id,
+                ttl_sec=None,
+            )
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"dedupe failed: {exc}")
+
+        if not claimed:
+            status = "duplicate"
+            if existing_job_id:
+                try:
+                    existing_job = jobs.read_job(existing_job_id)
+                    status = existing_job.get("status", status)
+                except FileNotFoundError:
+                    pass
+            return {"job_id": existing_job_id or job_id, "status": status}
+
+        payload = dict(request.payload)
+        payload.setdefault("dedupe_key", dedupe_key)
+        job = jobs.create_job(request.type, payload, job_id=job_id)
         jobs.run_in_background(job["job_id"], lambda: run_job(job["job_id"]))
         return {"job_id": job["job_id"], "status": job["status"]}
 
@@ -701,6 +731,13 @@ if FASTAPI_AVAILABLE:
             return {"events": jobs.tail_events(job_id, tail=tail)}
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail=f"Job {job_id} not found")
+
+    @app.get("/api/health/cron")
+    async def health_cron(_: bool = Depends(verify_token)):
+        """Cron/worker/index health check."""
+        from jarvis_web.health import get_health_snapshot
+
+        return get_health_snapshot()
 
     @app.post("/api/collect/pubmed")
     async def collect_pubmed(request: CollectRequest, _: bool = Depends(verify_token)):
