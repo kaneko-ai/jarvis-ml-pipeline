@@ -19,9 +19,8 @@ from pathlib import Path
 from typing import Any, List, Optional
 
 try:
-    from fastapi import FastAPI, HTTPException, Depends, Header, UploadFile, File
-    from fastapi.responses import JSONResponse, FileResponse
-    from fastapi.staticfiles import StaticFiles
+    from fastapi import FastAPI, HTTPException, Depends, UploadFile, File
+    from fastapi.responses import FileResponse
     from fastapi.middleware.cors import CORSMiddleware
     from pydantic import BaseModel
 
@@ -479,6 +478,7 @@ if FASTAPI_AVAILABLE:
         """Start a new paper survey run."""
         import uuid
         from jarvis_core.app import run_task
+        from jarvis_core.export.package_builder import build_run_package
 
         run_id = str(uuid.uuid4())
 
