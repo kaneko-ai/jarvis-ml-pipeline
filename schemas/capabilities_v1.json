@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "capabilities": {
+    "health": true,
+    "capabilities": true,
+    "runs": true,
+    "runs.detail": true,
+    "runs.files": true,
+    "runs.files.download": true,
+    "research.rank": true,
+    "qa.report": true,
+    "submission.decision": false,
+    "finance.forecast": false
+  }
+}

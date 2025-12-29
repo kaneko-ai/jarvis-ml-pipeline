@@ -1,0 +1,11 @@
+{
+  "results": [
+    {
+      "canonical_paper_id": "PAPER_001",
+      "title": "Mock Paper",
+      "tier": "A",
+      "score": 0.82,
+      "top_claims": []
+    }
+  ]
+}

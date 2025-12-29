@@ -1,0 +1,72 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  contract_and_unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Generate api map
+        run: make api-map
+      - name: Contract tests
+        run: pytest -q tests/test_api_map_vs_capabilities.py tests/test_front_adapter_contract.py
+
+  api_smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Start API server
+        run: |
+          python -m uvicorn jarvis_web.app:app --port 8000 --log-level warning &
+          sleep 2
+      - name: API smoke tests
+        env:
+          API_BASE: http://localhost:8000
+        run: pytest -q tests/smoke_api_v1.py
+
+  dashboard_e2e_mock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install python dependencies
+        run: pip install -r requirements.txt
+      - name: Install node dependencies
+        run: npm install
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      - name: Start mock server and dashboard
+        run: |
+          python -m uvicorn tests.mock_server.app:app --port 4010 --log-level warning &
+          python -m http.server 4173 -d dashboard &
+          sleep 2
+      - name: Dashboard E2E (mock)
+        env:
+          MOCK_API_BASE: http://localhost:4010
+          DASHBOARD_BASE_URL: http://localhost:4173
+        run: npx playwright test -c tests/e2e/playwright.config.ts
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: playwright-results

@@ -1,0 +1,8 @@
+{
+  "run_id": "RUN_MOCK_001",
+  "query": "Mock query",
+  "date": "2024-01-01 00:00:00",
+  "status": "success",
+  "files": ["report.md", "claims.jsonl", "papers.jsonl"],
+  "summary": "Mock run detail for E2E."
+}
