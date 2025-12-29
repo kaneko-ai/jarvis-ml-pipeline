@@ -7,6 +7,8 @@ from .linker import (
     get_provenance_linker,
     get_provenance_validator,
 )
+from .schema import ClaimUnit, EvidenceItem
+from .aligner import align_claim_to_chunks, EvidenceCandidate
 
 __all__ = [
     "ProvenanceError",
@@ -15,4 +17,8 @@ __all__ = [
     "ProvenanceValidator",
     "get_provenance_linker",
     "get_provenance_validator",
+    "ClaimUnit",
+    "EvidenceItem",
+    "EvidenceCandidate",
+    "align_claim_to_chunks",
 ]

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Finance - Research OS Dashboard</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body data-page="finance">
+    <nav class="top-nav">
+    <a href="index.html">Home</a>
+    <a href="runs.html">Runs</a>
+    <a href="ops.html">Ops</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="kb.html">KB</a>
+    <a href="search.html">Search</a>
+    <a href="settings.html">Settings</a>
+  </nav>
+  <main class="container">
+    <header class="page-header">
+      <h1>Finance Optimizer</h1>
+      <p>月次収支と週次時間を入力し最適化。</p>
+    </header>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Inputs</h2>
+      </div>
+      <textarea id="finance-cashflow" rows="5" placeholder='monthly cashflow JSON (例: {"revenue":1000,"cost":400})'></textarea>
+      <textarea id="finance-time" rows="4" placeholder='weekly time JSON (例: {"hours":40})'></textarea>
+      <button id="run-finance">Optimize</button>
+      <div id="finance-status" class="notice">未実行</div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Result</h2>
+      </div>
+      <div id="finance-result" class="notice">結果がここに表示されます。</div>
+    </section>
+  </main>
+
+  <script src="assets/storage.js"></script>
+  <script src="assets/app.js"></script>
+  <script src="assets/ui.js"></script>
+  <script>
+    const setActiveNav = () => {
+      const page = document.body.dataset.page;
+      ui.qsa(".top-nav a").forEach((link) => {
+        if (link.getAttribute("href").includes(page)) {
+          link.classList.add("active");
+        }
+      });
+    };
+
+    const parseJson = (value) => {
+      try {
+        return value ? JSON.parse(value) : null;
+      } catch (error) {
+        return null;
+      }
+    };
+
+    const init = () => {
+      setActiveNav();
+      ui.qs("#run-finance").addEventListener("click", async () => {
+        const cashflow = parseJson(ui.qs("#finance-cashflow").value);
+        const time = parseJson(ui.qs("#finance-time").value);
+        if (!cashflow) {
+          ui.qs("#finance-status").textContent = "cashflow JSONが不正です";
+          return;
+        }
+        const response = await app.apiFetchSafe("/api/finance/optimize", {
+          method: "POST",
+          body: { cashflow, time },
+        });
+        if (!response.ok) {
+          ui.qs("#finance-status").textContent = "未実装/未接続";
+          ui.qs("#finance-result").textContent = "";
+          return;
+        }
+        ui.qs("#finance-status").textContent = "実行完了";
+        ui.qs("#finance-result").textContent = JSON.stringify(response.data, null, 2);
+      });
+    };
+
+    init();
+  </script>
+</body>
+</html>

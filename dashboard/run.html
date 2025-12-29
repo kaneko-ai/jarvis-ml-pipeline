@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Run Detail - Research OS Dashboard</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body data-page="run">
+    <nav class="top-nav">
+    <a href="index.html">Home</a>
+    <a href="runs.html">Runs</a>
+    <a href="ops.html">Ops</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="kb.html">KB</a>
+    <a href="search.html">Search</a>
+    <a href="settings.html">Settings</a>
+  </nav>
+  <main class="container">
+    <header class="page-header">
+      <h1 id="run-title">Run Detail</h1>
+      <p id="run-subtitle">進捗/成果物/QA/Submissionの詳細を表示します。</p>
+    </header>
+
+    <section class="panel">
+      <div class="tabs">
+        <button class="active" data-tab="overview">Overview</button>
+        <button data-tab="progress">Progress</button>
+        <button data-tab="exports">Exports</button>
+        <button data-tab="rank">Rank</button>
+        <button data-tab="claims">Claims</button>
+        <button data-tab="qa">QA</button>
+        <button data-tab="submission">Submission</button>
+      </div>
+
+      <div id="tab-overview" class="tab-content active">
+        <div class="grid cols-2">
+          <div>
+            <h2>Summary</h2>
+            <div id="run-summary" class="notice">読み込み中...</div>
+          </div>
+          <div>
+            <h2>Meta</h2>
+            <div id="run-meta" class="notice">読み込み中...</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-progress" class="tab-content">
+        <div class="section-title">
+          <h2>Progress</h2>
+          <button class="secondary" id="refresh-progress">更新</button>
+        </div>
+        <div class="progress-status">
+          <div>
+            <div class="muted">接続</div>
+            <div id="progress-connection" class="status-pill">未接続</div>
+          </div>
+          <div>
+            <div class="muted">稼働状況</div>
+            <div id="progress-activity" class="status-pill">不明</div>
+          </div>
+          <div>
+            <div class="muted">最終更新</div>
+            <div id="progress-updated" class="status-value">-</div>
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-meta">
+          <div id="progress-step">Step: -</div>
+          <div id="progress-value">Progress: -</div>
+        </div>
+        <div class="grid cols-3" id="progress-cards"></div>
+        <hr />
+        <div class="section-title">
+          <h2>Logs</h2>
+          <button class="secondary" id="download-logs">Download</button>
+        </div>
+        <pre id="run-logs">ログ待機中...</pre>
+      </div>
+
+      <div id="tab-exports" class="tab-content">
+        <div class="section-title">
+          <h2>Exports</h2>
+          <button class="secondary" id="refresh-exports">更新</button>
+        </div>
+        <div class="link-list" id="recommended-downloads"></div>
+        <hr />
+        <div id="exports-list"></div>
+      </div>
+
+      <div id="tab-rank" class="tab-content">
+        <div class="section-title">
+          <h2>Ranked Papers</h2>
+          <button class="secondary" id="refresh-rank">更新</button>
+        </div>
+        <div class="notice" id="rank-status">読み込み中...</div>
+        <div id="rank-content"></div>
+      </div>
+
+      <div id="tab-claims" class="tab-content">
+        <div class="section-title">
+          <h2>Claims & Evidence</h2>
+          <div class="flex">
+            <input id="paper-id" placeholder="paper_id" />
+            <button id="load-claims">Load</button>
+          </div>
+        </div>
+        <div id="claims-status" class="notice">paper_idを入力してください。</div>
+        <div id="claims-content"></div>
+      </div>
+
+      <div id="tab-qa" class="tab-content">
+        <div class="section-title">
+          <h2>QA Report</h2>
+          <button class="secondary" id="refresh-qa">更新</button>
+        </div>
+        <div id="qa-status" class="notice">読み込み中...</div>
+        <div id="qa-content"></div>
+      </div>
+
+      <div id="tab-submission" class="tab-content">
+        <div class="section-title">
+          <h2>Submission</h2>
+          <button class="secondary" id="refresh-submission">更新</button>
+        </div>
+        <div class="grid cols-2">
+          <div>
+            <h3>Build</h3>
+            <div class="form-row">
+              <input id="submission-version" placeholder="submission_version" />
+              <input id="submission-recipient" placeholder="recipient_type" />
+              <input id="submission-previous" placeholder="previous_package_path (optional)" />
+            </div>
+            <button id="build-submission">Build Submission</button>
+            <div id="build-status" class="notice">未実行</div>
+          </div>
+          <div>
+            <h3>Latest</h3>
+            <div id="submission-latest" class="notice">読み込み中...</div>
+            <div id="submission-links" class="link-list"></div>
+          </div>
+        </div>
+        <hr />
+        <div class="grid cols-2">
+          <div>
+            <h3>ChangeLog</h3>
+            <pre id="submission-changelog">読み込み中...</pre>
+          </div>
+          <div>
+            <h3>Email Draft</h3>
+            <pre id="submission-email">読み込み中...</pre>
+            <button class="secondary" id="copy-email">Copy</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="assets/storage.js"></script>
+  <script src="assets/app.js"></script>
+  <script src="assets/ui.js"></script>
+  <script>
+    const runId = new URLSearchParams(window.location.search).get("id");
+    const defaultRun = { files: [] };
+    let runData = defaultRun;
+    let poller = null;
+    let sseSource = null;
+    let transportMode = "未接続";
+    let lastUpdateAt = null;
+    let activityTimer = null;
+
+    const setActiveNav = () => {
+      ui.qsa(".top-nav a").forEach((link) => {
+        if (link.getAttribute("href").includes("runs")) {
+          link.classList.add("active");
+        }
+      });
+    };
+
+    const setTabs = () => {
+      ui.qsa(".tabs button").forEach((button) => {
+        button.addEventListener("click", () => {
+          ui.qsa(".tabs button").forEach((btn) => btn.classList.remove("active"));
+          ui.qsa(".tab-content").forEach((tab) => tab.classList.remove("active"));
+          button.classList.add("active");
+          ui.qs(`#tab-${button.dataset.tab}`).classList.add("active");
+        });
+      });
+    };
+
+    const updateOverview = () => {
+      ui.qs("#run-title").textContent = `Run ${runId || "-"}`;
+      const summary = ui.qs("#run-summary");
+      const meta = ui.qs("#run-meta");
+      summary.innerHTML = "";
+      meta.innerHTML = "";
+      if (!runData || runData === defaultRun) {
+        summary.textContent = "未接続";
+        meta.textContent = "未接続";
+        return;
+      }
+      const summaryList = ui.el("div");
+      summaryList.appendChild(ui.el("div", { text: `Status: ${runData.status || "-"}` }));
+      summaryList.appendChild(ui.el("div", { text: `Progress: ${runData.progress || runData.step || "-"}` }));
+      summaryList.appendChild(ui.el("div", { text: `QA: ${runData.qa_status || runData.qa_ready || "-"}` }));
+      summaryList.appendChild(ui.el("div", { text: `Submission: ${runData.submission_status || "-"}` }));
+      summary.appendChild(summaryList);
+
+      const metaList = ui.el("div");
+      metaList.appendChild(ui.el("div", { text: `Created: ${ui.formatDateTime(runData.created_at)}` }));
+      metaList.appendChild(ui.el("div", { text: `Title: ${runData.title || "-"}` }));
+      metaList.appendChild(ui.el("div", { text: `Journal: ${runData.journal || "-"}` }));
+      metaList.appendChild(ui.el("div", { text: `Target: ${runData.target || "-"}` }));
+      meta.appendChild(metaList);
+    };
+
+    const renderProgress = (data = runData) => {
+      const stepText = data.step || data.progress || "-";
+      ui.qs("#progress-step").textContent = `Step: ${stepText}`;
+      ui.qs("#progress-value").textContent = `Progress: ${data.progress || "-"}`;
+      const container = ui.qs("#progress-cards");
+      container.innerHTML = "";
+      const items = [
+        { label: "Current Step", value: data.step || "-" },
+        { label: "Progress", value: data.progress || "-" },
+        { label: "Warnings", value: (data.warnings || []).length || 0 },
+        { label: "Errors", value: (data.errors || []).length || 0 },
+      ];
+      items.forEach((item) => {
+        const card = ui.el("div", { className: "kpi-card" });
+        card.appendChild(ui.el("h3", { text: item.label }));
+        card.appendChild(ui.el("div", { className: "value", text: ui.formatNumber(item.value) }));
+        container.appendChild(card);
+      });
+    };
+
+    const getProgressPercent = (value) => {
+      if (typeof value === "number" && Number.isFinite(value)) {
+        if (value > 1 && value <= 100) return value;
+        if (value >= 0 && value <= 1) return Math.round(value * 100);
+      }
+      if (typeof value === "string") {
+        const match = value.match(/(\d+(\.\d+)?)%/);
+        if (match) return Math.min(100, Math.max(0, Number(match[1])));
+        const numeric = Number(value);
+        if (!Number.isNaN(numeric)) {
+          if (numeric > 1 && numeric <= 100) return numeric;
+          if (numeric >= 0 && numeric <= 1) return Math.round(numeric * 100);
+        }
+      }
+      return 0;
+    };
+
+    const getActivityStatus = (data = runData) => {
+      const statusText = String(data.status || data.state || data.phase || "").toLowerCase();
+      const stoppedSignals = ["done", "completed", "failed", "error", "cancel", "stopped", "idle"];
+      const runningSignals = ["running", "in_progress", "processing", "active", "queued"];
+      if (stoppedSignals.some((flag) => statusText.includes(flag))) return { label: "停止中", tone: "danger" };
+      if (runningSignals.some((flag) => statusText.includes(flag))) return { label: "稼働中", tone: "success" };
+      if (lastUpdateAt && Date.now() - lastUpdateAt < 15000) return { label: "更新中", tone: "success" };
+      if (lastUpdateAt && Date.now() - lastUpdateAt >= 30000) return { label: "停止中", tone: "danger" };
+      return { label: "不明", tone: "" };
+    };
+
+    const updateStatusUI = () => {
+      const connection = ui.qs("#progress-connection");
+      const activity = ui.qs("#progress-activity");
+      const updated = ui.qs("#progress-updated");
+      const progressFill = ui.qs("#progress-fill");
+      connection.textContent = transportMode;
+      connection.className = `status-pill ${transportMode === "SSE" ? "success" : transportMode === "Polling" ? "warning" : ""}`;
+      const activityState = getActivityStatus();
+      activity.textContent = activityState.label;
+      activity.className = `status-pill ${activityState.tone}`;
+      updated.textContent = lastUpdateAt ? new Date(lastUpdateAt).toLocaleTimeString() : "-";
+      const percent = getProgressPercent(runData.progress);
+      progressFill.style.width = `${percent}%`;
+      progressFill.textContent = percent ? `${percent}%` : "";
+    };
+
+    const renderCounts = (data = runData) => {
+      const counts = data.counts || {};
+      const extra = [
+        { label: "found", value: counts.found },
+        { label: "downloaded", value: counts.downloaded },
+        { label: "extracted", value: counts.extracted },
+        { label: "chunked", value: counts.chunked },
+        { label: "deduped", value: counts.deduped },
+        { label: "claims", value: counts.claims },
+      ];
+      extra.forEach((item) => {
+        const card = ui.el("div", { className: "kpi-card" });
+        card.appendChild(ui.el("h3", { text: item.label }));
+        card.appendChild(ui.el("div", { className: "value", text: ui.formatNumber(item.value) }));
+        ui.qs("#progress-cards").appendChild(card);
+      });
+    };
+
+    const renderLogs = (logs) => {
+      const logEl = ui.qs("#run-logs");
+      if (!logs) {
+        logEl.textContent = "ログがありません";
+        return;
+      }
+      const lines = Array.isArray(logs) ? logs : String(logs).split("\n");
+      logEl.textContent = lines.slice(-200).join("\n");
+    };
+
+    const startPolling = () => {
+      if (poller) return;
+      transportMode = "Polling";
+      updateStatusUI();
+      poller = setInterval(async () => {
+        const response = await app.apiFetchSafe(`/api/runs/${runId}`);
+        if (response.ok) {
+          runData = response.data || defaultRun;
+          lastUpdateAt = Date.now();
+          updateOverview();
+          renderProgress();
+          renderCounts();
+          renderLogs(runData.logs || runData.log || runData.events);
+          updateStatusUI();
+        }
+      }, 2000);
+    };
+
+    const startSse = () => {
+      if (!runId) return;
+      const url = app.getRunEventsUrl(runId);
+      if (!url || !window.EventSource) {
+        transportMode = "Polling";
+        startPolling();
+        return;
+      }
+      if (sseSource) sseSource.close();
+      sseSource = new EventSource(url);
+      transportMode = "SSE";
+      updateStatusUI();
+      sseSource.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          runData = { ...runData, ...payload };
+          lastUpdateAt = Date.now();
+          updateOverview();
+          renderProgress(payload);
+          renderCounts(payload);
+          renderLogs(payload.logs || payload.log || payload.events);
+          updateStatusUI();
+        } catch (error) {
+          ui.toast("SSEのデータ解析に失敗しました", "warning");
+        }
+      };
+      sseSource.onerror = () => {
+        sseSource.close();
+        ui.toast("SSEが利用できません。ポーリングに切り替えます。", "warning");
+        startPolling();
+      };
+    };
+
+    const loadRun = async () => {
+      if (!runId) {
+        ui.toast("run idが指定されていません", "warning");
+        return;
+      }
+      const response = await app.apiFetchSafe(`/api/runs/${runId}`);
+      if (response.ok) {
+        runData = response.data || defaultRun;
+      } else {
+        runData = defaultRun;
+      }
+      updateOverview();
+      renderProgress();
+      renderCounts();
+      renderLogs(runData.logs || runData.log || runData.events);
+      lastUpdateAt = Date.now();
+      updateStatusUI();
+    };
+
+    const renderRank = async () => {
+      const status = ui.qs("#rank-status");
+      const content = ui.qs("#rank-content");
+      status.textContent = "読み込み中...";
+      content.innerHTML = "";
+
+      let data = null;
+      const response = await app.apiFetchSafe(`/api/research/rank?run_id=${encodeURIComponent(runId)}&top_k=50`);
+      if (response.ok) {
+        data = response.data;
+      } else {
+        const fallback = (runData.files || []).find((file) => String(file.path || file).includes("research_rank"));
+        if (fallback) {
+          const url = app.resolveFileUrl(runId, fallback);
+          const fileResponse = await fetch(url).then((res) => res.json()).catch(() => null);
+          data = fileResponse;
+        }
+      }
+
+      if (!data) {
+        status.textContent = "未実装/未接続";
+        return;
+      }
+      status.textContent = "";
+      const tiers = data.tiers || data || {};
+      Object.entries(tiers).forEach(([tier, papers]) => {
+        const section = ui.el("div", { className: "panel" });
+        section.appendChild(ui.el("h3", { text: `Tier ${tier}` }));
+        (papers || []).forEach((paper) => {
+          const card = ui.el("div", { className: "panel" });
+          card.appendChild(ui.el("div", { text: `${paper.title || "Untitled"} (${paper.year || "-"})` }));
+          card.appendChild(ui.el("div", { className: "muted", text: `Score: ${paper.score || "-"} / OA: ${paper.oa_status || "-"}` }));
+          if (paper.audit_flags) {
+            card.appendChild(ui.el("div", { className: "muted", text: `Audit: ${paper.audit_flags.join(", ")}` }));
+          }
+          if (paper.top_claims) {
+            const details = ui.el("details");
+            details.appendChild(ui.el("summary", { text: "Top Claims" }));
+            details.appendChild(ui.el("div", { text: paper.top_claims.join("\n") }));
+            card.appendChild(details);
+          }
+          section.appendChild(card);
+        });
+        content.appendChild(section);
+      });
+    };
+
+    const renderClaims = async () => {
+      const paperId = ui.qs("#paper-id").value.trim();
+      const status = ui.qs("#claims-status");
+      const content = ui.qs("#claims-content");
+      status.textContent = "読み込み中...";
+      content.innerHTML = "";
+      if (!paperId) {
+        status.textContent = "paper_idを入力してください。";
+        return;
+      }
+      let data = null;
+      const response = await app.apiFetchSafe(`/api/research/paper/${encodeURIComponent(paperId)}?run_id=${encodeURIComponent(runId)}`);
+      if (response.ok) {
+        data = response.data;
+      } else {
+        const fallback = (runData.files || []).find((file) => String(file.path || file).includes(`${paperId}.claims`));
+        if (fallback) {
+          const url = app.resolveFileUrl(runId, fallback);
+          data = await fetch(url).then((res) => res.text()).catch(() => null);
+        }
+      }
+      if (!data) {
+        status.textContent = "未実装/未接続";
+        return;
+      }
+      status.textContent = "";
+      const claims = data.claims || data;
+      if (Array.isArray(claims)) {
+        claims.forEach((claim) => {
+          const card = ui.el("div", { className: "panel" });
+          card.appendChild(ui.el("div", { text: claim.text || claim.claim || "" }));
+          (claim.evidence || []).forEach((evidence) => {
+            const ev = ui.el("div", { className: "muted", text: `Evidence: ${evidence.quote || evidence.paragraph || ""}` });
+            if (evidence.weak_evidence) {
+              ev.appendChild(ui.badge("weak", "warning"));
+            }
+            card.appendChild(ev);
+          });
+          content.appendChild(card);
+        });
+      } else {
+        content.appendChild(ui.el("pre", { text: typeof data === "string" ? data : JSON.stringify(data, null, 2) }));
+      }
+    };
+
+    const renderQa = async () => {
+      const status = ui.qs("#qa-status");
+      const content = ui.qs("#qa-content");
+      status.textContent = "読み込み中...";
+      content.innerHTML = "";
+      let data = null;
+      const response = await app.apiFetchSafe(`/api/qa/report?run_id=${encodeURIComponent(runId)}`);
+      if (response.ok) {
+        data = response.data;
+      } else {
+        const fallback = (runData.files || []).find((file) => String(file.path || file).includes("qa_report"));
+        if (fallback) {
+          const url = app.resolveFileUrl(runId, fallback);
+          const text = await fetch(url).then((res) => res.text()).catch(() => null);
+          data = text;
+        }
+      }
+      if (!data) {
+        status.textContent = "未実装/未接続";
+        return;
+      }
+      status.textContent = "";
+      if (typeof data === "string") {
+        content.appendChild(ui.el("pre", { text: data }));
+        return;
+      }
+      content.appendChild(ui.el("div", { text: `READY: ${data.ready ?? data.status ?? "-"}` }));
+      const errorSection = ui.el("div");
+      errorSection.appendChild(ui.el("h3", { text: "Errors" }));
+      (data.errors || []).forEach((item) => {
+        errorSection.appendChild(ui.el("div", { className: "muted", text: `${item.location || ""} ${item.reason || ""} ${item.suggestion || ""}` }));
+      });
+      const warnSection = ui.el("div");
+      warnSection.appendChild(ui.el("h3", { text: "Warnings" }));
+      (data.warnings || []).forEach((item) => {
+        warnSection.appendChild(ui.el("div", { className: "muted", text: `${item.location || ""} ${item.reason || ""}` }));
+      });
+      content.appendChild(errorSection);
+      content.appendChild(warnSection);
+    };
+
+    const renderExports = () => {
+      const listEl = ui.qs("#exports-list");
+      const recommended = ui.qs("#recommended-downloads");
+      listEl.innerHTML = "";
+      recommended.innerHTML = "";
+      const files = (runData.files || []).map(app.normalizeFileEntry).filter(Boolean);
+      if (!files.length) {
+        listEl.appendChild(ui.el("div", { className: "notice", text: "未実装/未接続" }));
+        return;
+      }
+      const recommendedKeys = [
+        "package.zip",
+        "notes.zip",
+        "drafts.docx",
+        "slides.pptx",
+        "manifest.json",
+      ];
+      files.forEach((file) => {
+        const url = app.resolveFileUrl(runId, file);
+        if (!url) return;
+        const link = ui.el("a", { text: file.name, attrs: { href: url, target: "_blank" } });
+        listEl.appendChild(link);
+        if (recommendedKeys.some((key) => file.name.includes(key))) {
+          const rec = ui.el("a", { text: `Download ${file.name}`, attrs: { href: url, target: "_blank" } });
+          recommended.appendChild(rec);
+        }
+      });
+    };
+
+    const renderSubmission = async () => {
+      const latestEl = ui.qs("#submission-latest");
+      const linkEl = ui.qs("#submission-links");
+      latestEl.textContent = "読み込み中...";
+      linkEl.innerHTML = "";
+
+      const latest = await app.apiFetchSafe(`/api/submission/run/${encodeURIComponent(runId)}/latest`);
+      if (latest.ok) {
+        latestEl.textContent = JSON.stringify(latest.data, null, 2);
+        if (latest.data && latest.data.package_url) {
+          linkEl.appendChild(ui.el("a", { text: "Download submission package", attrs: { href: latest.data.package_url, target: "_blank" } }));
+        }
+      } else {
+        latestEl.textContent = "未実装/未接続";
+      }
+
+      const changelog = await app.apiFetchSafe(`/api/submission/run/${encodeURIComponent(runId)}/changelog`);
+      ui.qs("#submission-changelog").textContent = changelog.ok ? JSON.stringify(changelog.data, null, 2) : "未実装/未接続";
+
+      const email = await app.apiFetchSafe(`/api/submission/run/${encodeURIComponent(runId)}/email`);
+      ui.qs("#submission-email").textContent = email.ok ? JSON.stringify(email.data, null, 2) : "未実装/未接続";
+    };
+
+    const init = async () => {
+      setActiveNav();
+      setTabs();
+      await loadRun();
+      startSse();
+      renderRank();
+      renderExports();
+      renderQa();
+      renderSubmission();
+
+      if (activityTimer) clearInterval(activityTimer);
+      activityTimer = setInterval(updateStatusUI, 5000);
+
+      ui.qs("#refresh-progress").addEventListener("click", loadRun);
+      ui.qs("#refresh-rank").addEventListener("click", renderRank);
+      ui.qs("#load-claims").addEventListener("click", renderClaims);
+      ui.qs("#refresh-qa").addEventListener("click", renderQa);
+      ui.qs("#refresh-exports").addEventListener("click", renderExports);
+      ui.qs("#refresh-submission").addEventListener("click", renderSubmission);
+
+      ui.qs("#build-submission").addEventListener("click", async () => {
+        const payload = {
+          run_id: runId,
+          submission_version: ui.qs("#submission-version").value,
+          recipient_type: ui.qs("#submission-recipient").value,
+          previous_package_path: ui.qs("#submission-previous").value || null,
+        };
+        const result = await app.apiFetchSafe("/api/submission/build", { method: "POST", body: payload });
+        ui.qs("#build-status").textContent = result.ok ? "Build開始" : "未実装/未接続";
+        renderSubmission();
+      });
+
+      ui.qs("#download-logs").addEventListener("click", async () => {
+        const logsUrl = app.buildUrl ? app.buildUrl(`/api/runs/${runId}/logs`) : null;
+        if (logsUrl) {
+          window.open(logsUrl, "_blank");
+        } else {
+          ui.toast("ログDLが未実装です", "warning");
+        }
+      });
+
+      ui.qs("#copy-email").addEventListener("click", () => {
+        ui.copyToClipboard(ui.qs("#submission-email").textContent || "");
+      });
+    };
+
+    init();
+  </script>
+</body>
+</html>
