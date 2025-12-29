@@ -138,6 +138,8 @@ def run_job(job_id: str) -> None:
     try:
         if job_type == "collect_and_ingest":
             run_collect_and_ingest(job_id, payload)
+        elif job_type == "qa_gate":
+            run_qa_gate(job_id, payload)
         else:
             jobs.set_error(job_id, f"unknown job type: {job_type}")
             jobs.set_status(job_id, "failed")
@@ -146,3 +148,30 @@ def run_job(job_id: str) -> None:
         jobs.append_event(job_id, {"message": trimmed, "level": "error"})
         jobs.set_error(job_id, f"{type(exc).__name__}: {exc}")
         jobs.set_status(job_id, "failed")
+
+
+def run_qa_gate(job_id: str, payload: Dict[str, Any]) -> None:
+    from jarvis_core.style import run_qa_gate as run_qa
+
+    run_id = payload.get("run_id")
+    targets = payload.get("targets", ["md", "docx", "pptx"])
+    if not run_id:
+        jobs.set_error(job_id, "run_id is required")
+        jobs.set_status(job_id, "failed")
+        return
+
+    run_dir = Path("logs/runs") / run_id
+    if not run_dir.exists():
+        jobs.set_error(job_id, f"run not found: {run_id}")
+        jobs.set_status(job_id, "failed")
+        return
+
+    jobs.set_status(job_id, "running")
+    jobs.set_step(job_id, "qa_gate")
+    jobs.append_event(job_id, {"message": f"qa gate started for {run_id}", "level": "info"})
+
+    qa_result = run_qa(run_id=run_id, run_dir=run_dir, targets=targets)
+    jobs.append_event(job_id, {"message": f\"qa gate complete: errors={qa_result.get('error_count')} warnings={qa_result.get('warn_count')}\", \"level\": \"info\"})
+    jobs.set_progress(job_id, 100)
+    jobs.set_step(job_id, "done")
+    jobs.set_status(job_id, "success")

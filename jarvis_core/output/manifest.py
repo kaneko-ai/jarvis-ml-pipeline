@@ -12,6 +12,24 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def _load_qa_summary(run_dir: Path) -> Dict[str, Any]:
+    qa_paths = [
+        Path("data/runs") / run_dir.name / "qa" / "qa_report.json",
+        run_dir / "qa" / "qa_report.json",
+    ]
+    for qa_path in qa_paths:
+        if qa_path.exists():
+            with open(qa_path, "r", encoding="utf-8") as f:
+                qa_data = json.load(f)
+            return {
+                "ready_to_submit": qa_data.get("ready_to_submit", False),
+                "error_count": qa_data.get("error_count", 0),
+                "warn_count": qa_data.get("warn_count", 0),
+                "top_errors": qa_data.get("top_errors", []),
+            }
+    return {}
+
+
 def calculate_sha256(file_path: Path) -> str:
     """Calculate SHA256 hash of a file.
     
@@ -96,6 +114,10 @@ def build_manifest(run_dir: Path) -> Dict[str, Any]:
                 "size_bytes": None,
                 "exists": False
             }
+
+    qa_summary = _load_qa_summary(run_dir)
+    if qa_summary:
+        manifest["qa"] = qa_summary
     
     return manifest
 
