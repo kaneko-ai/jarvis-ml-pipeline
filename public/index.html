@@ -1214,6 +1214,7 @@
                 let run = null;
                 let report = null;
                 let meta = null;
+                let logsText = '';
                 const errors = [];
 
                 let manifest = null;
@@ -1258,9 +1259,24 @@
                         }
                     }
 
+                    const logsPath = manifest?.artifacts?.logs_jsonl;
+                    if (logsPath) {
+                        try {
+                            const logsRes = await fetch(logsPath, { cache: 'no-store' });
+                            if (!logsRes.ok) {
+                                throw new Error(`logs 取得失敗 (${logsRes.status})`);
+                            }
+                            const rawLogs = await logsRes.text();
+                            logsText = formatLogs(rawLogs);
+                        } catch (e) {
+                            errors.push(e.message);
+                        }
+                    }
+
                     run = {
                         status: manifest.status,
                         gate_passed: manifest?.quality?.gate_passed ?? null,
+                        gate_reason: manifest?.quality?.gate_reason ?? null,
                         contract_valid: null,
                         timestamp: manifest.created_at || '-',
                         metrics: {
@@ -1285,6 +1301,7 @@
                     <table class="data-table" style="margin: 20px 0;">
                         <tr><th>Status</th><td><span class="badge ${normalizedStatus === 'success' ? 'badge-success' : 'badge-danger'}">${normalizedStatus}</span></td></tr>
                         <tr><th>Gate Passed</th><td>${run.gate_passed === null ? '-' : run.gate_passed ? '✅' : '❌'}</td></tr>
+                        <tr><th>Gate Reason</th><td>${run.gate_reason ? escapeHtml(run.gate_reason) : '-'}</td></tr>
                         <tr><th>Contract Valid</th><td>${run.contract_valid === null ? '-' : run.contract_valid ? '✅ 10/10' : '❌ Missing files'}</td></tr>
                         <tr><th>Timestamp</th><td>${run.timestamp || '-'}</td></tr>
                     </table>
@@ -1301,6 +1318,9 @@
                         ${artifactRows || '<tr><td colspan="2">No artifacts</td></tr>'}
                     </table>
 
+                    <h3>🧾 Logs</h3>
+                    <pre style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(logsText || 'No logs available')}</pre>
+
                     ${report ? `<h3>📝 Report</h3><pre style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(report)}</pre>` : ''}
                     ${meta ? `<h3>🧾 Meta</h3><pre style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(JSON.stringify(meta, null, 2))}</pre>` : ''}
                     ${errors.length ? `<p style="color: var(--warning);">⚠️ 取得失敗: ${escapeHtml(errors.join(', '))}</p>` : ''}
@@ -1315,6 +1335,25 @@
 
         // === Utilities ===
         function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+        function formatLogs(rawText) {
+            if (!rawText || !rawText.trim()) return '';
+            const lines = rawText.split('\n').map(line => line.trim()).filter(Boolean);
+            const formatted = lines.map(line => {
+                try {
+                    const entry = JSON.parse(line);
+                    const parts = [];
+                    if (entry.at) parts.push(entry.at);
+                    if (entry.percent !== undefined) parts.push(`${entry.percent}%`);
+                    if (entry.stage) parts.push(entry.stage);
+                    if (entry.type) parts.push(`(${entry.type})`);
+                    if (entry.message) parts.push(entry.message);
+                    return parts.length ? parts.join(' ') : JSON.stringify(entry);
+                } catch {
+                    return line;
+                }
+            });
+            return formatted.join('\n');
+        }
 
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
