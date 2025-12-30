@@ -28,4 +28,11 @@ test.describe('public dashboard e2e', () => {
     await page.getByRole('button', { name: '検索' }).click();
     await expect(page.locator('.search-result-title')).toContainText('Fixture Paper on Biology');
   });
+
+  test('search index is readable', async ({ request }) => {
+    const response = await request.get('/search/index.json');
+    expect(response.ok()).toBeTruthy();
+    const data = await response.json();
+    expect(Array.isArray(data)).toBeTruthy();
+  });
 });
