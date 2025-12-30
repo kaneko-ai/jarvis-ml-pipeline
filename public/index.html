@@ -1218,10 +1218,11 @@
                 const errors = [];
 
                 let manifest = null;
-                const manifestRes = await fetch(`runs/${runId}/manifest.json`, { cache: 'no-store' });
+                const manifestPath = `runs/${runId}/manifest.json`;
+                const manifestRes = await fetch(manifestPath, { cache: 'no-store' });
                 if (manifestRes.ok) {
                     manifest = await manifestRes.json();
-                } else if (localServerAvailable) {
+                } else if (manifestRes.status === 404 && localServerAvailable) {
                     const res = await fetch(`${API_BASE}/api/runs/${runId}`);
                     if (!res.ok) {
                         throw new Error(`manifest 取得失敗 (${manifestRes.status})`);
@@ -1233,10 +1234,12 @@
                 }
 
                 if (manifest) {
+                    const baseUrl = new URL(`runs/${runId}/`, window.location.href);
+                    const resolveArtifactPath = path => new URL(path, baseUrl).toString();
                     const reportPath = manifest?.artifacts?.report_md;
                     if (reportPath) {
                         try {
-                            const reportRes = await fetch(reportPath, { cache: 'no-store' });
+                            const reportRes = await fetch(resolveArtifactPath(reportPath), { cache: 'no-store' });
                             if (!reportRes.ok) {
                                 throw new Error(`report 取得失敗 (${reportRes.status})`);
                             }
@@ -1249,7 +1252,7 @@
                     const metaPath = manifest?.artifacts?.meta_json;
                     if (metaPath) {
                         try {
-                            const metaRes = await fetch(metaPath, { cache: 'no-store' });
+                            const metaRes = await fetch(resolveArtifactPath(metaPath), { cache: 'no-store' });
                             if (!metaRes.ok) {
                                 throw new Error(`meta 取得失敗 (${metaRes.status})`);
                             }
@@ -1262,7 +1265,7 @@
                     const logsPath = manifest?.artifacts?.logs_jsonl;
                     if (logsPath) {
                         try {
-                            const logsRes = await fetch(logsPath, { cache: 'no-store' });
+                            const logsRes = await fetch(resolveArtifactPath(logsPath), { cache: 'no-store' });
                             if (!logsRes.ok) {
                                 throw new Error(`logs 取得失敗 (${logsRes.status})`);
                             }
@@ -1284,7 +1287,12 @@
                             papers_processed: manifest?.quality?.papers_processed ?? 0,
                             citations_attached: manifest?.quality?.citations_attached ?? false
                         },
-                        artifacts: manifest?.artifacts || {}
+                        artifacts: Object.fromEntries(
+                            Object.entries(manifest?.artifacts || {}).map(([name, path]) => [
+                                name,
+                                path ? resolveArtifactPath(path) : path
+                            ])
+                        )
                     };
                 }
 
