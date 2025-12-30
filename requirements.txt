@@ -6,3 +6,4 @@ joblib
 pymupdf
 python-docx
 python-pptx
+reportlab
