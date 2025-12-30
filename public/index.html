@@ -314,6 +314,38 @@
             font-size: 0.9em;
         }
 
+        .search-pagination {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-pagination button {
+            padding: 8px 14px;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+        }
+
+        .search-pagination button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .search-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-top: 6px;
+        }
+
         .highlight {
             background: rgba(0, 212, 255, 0.3);
             padding: 2px 4px;
@@ -464,7 +496,7 @@
         <div class="nav-tabs">
             <div class="nav-tab active" onclick="showTab('overview')">📊 概要</div>
             <div class="nav-tab" onclick="showTab('new-query')">🔍 新規クエリ</div>
-            <div class="nav-tab local-only-tab" style="display:none;" onclick="showTab('search')">📑 検索</div>
+            <div class="nav-tab" onclick="showTab('search')">📑 検索</div>
             <div class="nav-tab local-only-tab" style="display:none;" onclick="showTab('schedule')">🗓️ スケジューラ</div>
             <div class="nav-tab local-only-tab" style="display:none;" onclick="showTab('upload')">📁 アップロード</div>
             <div class="nav-tab" onclick="showTab('runs')">📋 実行履歴</div>
@@ -581,15 +613,28 @@
         <!-- Tab: Search -->
         <div id="tab-search" class="tab-content">
             <div class="section">
-                <h2>📑 コーパス検索（BM25）</h2>
-                <p style="color: var(--warning); margin-bottom: 12px;">⚠️ Local APIが必要です（Serverlessでは利用不可）</p>
+                <h2>📑 コーパス検索（Serverless）</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 12px;">public/search/index.json を読み込み、ブラウザ内で検索します。</p>
                 <div class="form-row">
                     <div class="form-group" style="flex: 4;">
                         <input type="text" id="search-input" placeholder="検索キーワード...">
                     </div>
+                    <div class="form-group" style="flex: 1;">
+                        <select id="search-page-size">
+                            <option value="10">10件/頁</option>
+                            <option value="20" selected>20件/頁</option>
+                            <option value="50">50件/頁</option>
+                        </select>
+                    </div>
                     <button class="btn btn-primary" onclick="searchCorpus()">検索</button>
                 </div>
+                <div id="search-summary" class="search-meta-row"></div>
                 <div id="search-results" class="search-results"></div>
+                <div class="search-pagination" id="search-pagination">
+                    <button id="search-prev" onclick="changeSearchPage(-1)">◀ 前へ</button>
+                    <span id="search-page-info">0 / 0</span>
+                    <button id="search-next" onclick="changeSearchPage(1)">次へ ▶</button>
+                </div>
             </div>
         </div>
 
@@ -651,6 +696,10 @@
         let runs = [];
         let currentTab = 'overview';
         let turnstileToken = null;
+        let searchIndex = null;
+        let searchResults = [];
+        let searchPage = 1;
+        let searchPageSize = 20;
 
         // === Check Local Server Availability ===
         async function checkLocalServer() {
@@ -931,35 +980,170 @@
             }, interval);
         }
 
-        // === Search Corpus ===
+        // === Search Corpus (Serverless) ===
+        async function loadSearchIndex() {
+            if (searchIndex) return searchIndex;
+            const res = await fetch('search/index.json', { cache: 'no-store' });
+            if (!res.ok) {
+                throw new Error('search/index.json が見つかりません');
+            }
+            const data = await res.json();
+            const docs = Array.isArray(data.docs) ? data.docs : [];
+
+            const stopwords = new Set([
+                'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has', 'he', 'in', 'is', 'it', 'its',
+                'of', 'on', 'that', 'the', 'to', 'was', 'were', 'will', 'with', 'this', 'these', 'those', 'we', 'you',
+                'your', 'our', 'or', 'not', 'can', 'may', 'might', 'also', 'into', 'over', 'under', 'within'
+            ]);
+
+            const tokenCounts = [];
+            const docFreqs = {};
+
+            docs.forEach(doc => {
+                const sourceText = [
+                    doc.title || '',
+                    doc.abstract_snippet || '',
+                    doc.content || '',
+                    Array.isArray(doc.keywords) ? doc.keywords.join(' ') : ''
+                ].join(' ');
+                const tokens = (sourceText.toLowerCase().match(/[a-z0-9_]+/g) || [])
+                    .filter(token => token.length > 2 && !stopwords.has(token));
+                const counts = {};
+                tokens.forEach(token => {
+                    counts[token] = (counts[token] || 0) + 1;
+                });
+                tokenCounts.push({ counts, length: tokens.length });
+                const uniqueTokens = new Set(tokens);
+                uniqueTokens.forEach(token => {
+                    docFreqs[token] = (docFreqs[token] || 0) + 1;
+                });
+            });
+
+            const totalDocs = docs.length;
+            const idf = {};
+            Object.keys(docFreqs).forEach(token => {
+                idf[token] = Math.log((totalDocs + 1) / (docFreqs[token] + 1)) + 1;
+            });
+
+            searchIndex = { docs, tokenCounts, idf, totalDocs, stopwords };
+            return searchIndex;
+        }
+
+        function computeScores(query, index) {
+            const tokens = (query.toLowerCase().match(/[a-z0-9_]+/g) || [])
+                .filter(token => token.length > 2 && !index.stopwords.has(token));
+            if (tokens.length === 0) return [];
+            const queryCounts = {};
+            tokens.forEach(token => {
+                queryCounts[token] = (queryCounts[token] || 0) + 1;
+            });
+
+            const results = index.docs.map((doc, idx) => {
+                const { counts, length } = index.tokenCounts[idx];
+                if (length === 0) return null;
+                let score = 0;
+                Object.keys(queryCounts).forEach(token => {
+                    const tf = counts[token] || 0;
+                    if (!tf) return;
+                    const tfNorm = tf / length;
+                    const boost = 1 + Math.log(1 + queryCounts[token]);
+                    score += tfNorm * (index.idf[token] || 0) * boost;
+                });
+                if (score <= 0) return null;
+                return { doc, score };
+            }).filter(Boolean);
+
+            results.sort((a, b) => b.score - a.score);
+            return results;
+        }
+
+        function updateSearchSummary() {
+            const summary = document.getElementById('search-summary');
+            const totalPages = Math.max(1, Math.ceil(searchResults.length / searchPageSize));
+            if (searchResults.length === 0) {
+                summary.textContent = '結果がありません';
+                return;
+            }
+            summary.textContent = `${searchResults.length} 件中 ${searchPage} / ${totalPages} ページ`;
+        }
+
+        function updateSearchPagination() {
+            const totalPages = Math.max(1, Math.ceil(searchResults.length / searchPageSize));
+            const prevBtn = document.getElementById('search-prev');
+            const nextBtn = document.getElementById('search-next');
+            const info = document.getElementById('search-page-info');
+            info.textContent = `${searchPage} / ${totalPages}`;
+            prevBtn.disabled = searchPage <= 1;
+            nextBtn.disabled = searchPage >= totalPages;
+        }
+
+        function renderSearchResults() {
+            const container = document.getElementById('search-results');
+            container.innerHTML = '';
+            if (searchResults.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">結果がありません</p>';
+                updateSearchPagination();
+                return;
+            }
+
+            const start = (searchPage - 1) * searchPageSize;
+            const end = Math.min(searchResults.length, start + searchPageSize);
+            const slice = searchResults.slice(start, end);
+
+            let index = 0;
+            const chunkSize = 6;
+
+            const renderChunk = () => {
+                const chunk = slice.slice(index, index + chunkSize);
+                chunk.forEach(result => {
+                    const doc = result.doc;
+                    const snippet = doc.abstract_snippet || (doc.content || '').slice(0, 300);
+                    const keywords = Array.isArray(doc.keywords) ? doc.keywords.join(', ') : '-';
+                    const score = result.score.toFixed(3);
+                    const card = document.createElement('div');
+                    card.className = 'search-result';
+                    card.innerHTML = `
+                        <div class="search-result-title">${doc.title || 'Untitled'}</div>
+                        <div class="search-result-meta">Run: ${doc.run_id || '-'} | Score: ${score}</div>
+                        <div class="search-result-snippet">${highlightText(snippet, document.getElementById('search-input').value)}</div>
+                        <div class="search-result-meta">Keywords: ${keywords}</div>
+                    `;
+                    container.appendChild(card);
+                });
+                index += chunkSize;
+                if (index < slice.length) {
+                    requestAnimationFrame(renderChunk);
+                }
+            };
+
+            renderChunk();
+            updateSearchPagination();
+        }
+
         async function searchCorpus() {
-            const query = document.getElementById('search-input').value;
+            const query = document.getElementById('search-input').value.trim();
             if (!query) { showToast('検索キーワードを入力', 'warning'); return; }
 
             const container = document.getElementById('search-results');
             container.innerHTML = '<div class="spinner"></div>';
 
             try {
-                const res = await fetch(`${API_BASE}/api/search?q=${encodeURIComponent(query)}&top_k=20`);
-                const data = await res.json();
-
-                if (!data.results || data.results.length === 0) {
-                    container.innerHTML = '<p style="color: var(--text-secondary);">結果がありません</p>';
-                    return;
-                }
-
-                container.innerHTML = data.results.map(r => `
-                    <div class="search-result">
-                        <div class="search-result-title">${r.paper_title || 'Unknown Paper'}</div>
-                        <div class="search-result-meta">
-                            📍 ${r.locator?.section || 'Unknown'} | Score: ${r.score?.toFixed(2) || 0}
-                        </div>
-                        <div class="search-result-snippet">${highlightText(r.text?.substring(0, 300) || '', query)}...</div>
-                    </div>
-                `).join('');
+                const index = await loadSearchIndex();
+                searchPageSize = parseInt(document.getElementById('search-page-size').value, 10);
+                searchResults = computeScores(query, index);
+                searchPage = 1;
+                updateSearchSummary();
+                renderSearchResults();
             } catch (e) {
-                container.innerHTML = '<p style="color: var(--danger);">検索エラー</p>';
+                container.innerHTML = `<p style="color: var(--danger);">検索エラー: ${e.message}</p>`;
             }
+        }
+
+        function changeSearchPage(delta) {
+            const totalPages = Math.max(1, Math.ceil(searchResults.length / searchPageSize));
+            searchPage = Math.min(Math.max(1, searchPage + delta), totalPages);
+            updateSearchSummary();
+            renderSearchResults();
         }
 
         function highlightText(text, query) {
@@ -1146,9 +1330,30 @@
             showToast('更新しました');
         }
 
+        function initializeSearch() {
+            const input = document.getElementById('search-input');
+            const pageSizeSelect = document.getElementById('search-page-size');
+            if (input) {
+                input.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter') {
+                        searchCorpus();
+                    }
+                });
+            }
+            if (pageSizeSelect) {
+                pageSizeSelect.addEventListener('change', () => {
+                    searchPageSize = parseInt(pageSizeSelect.value, 10);
+                    searchPage = 1;
+                    updateSearchSummary();
+                    renderSearchResults();
+                });
+            }
+        }
+
         // === Initialize ===
         checkLocalServer(); // Check if local server is running
         loadRuns();
+        initializeSearch();
     </script>
 </body>
 
