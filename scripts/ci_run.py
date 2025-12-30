@@ -327,6 +327,7 @@ def main():
         else:
             print(f"[ci_run] ERROR: Unknown action: {args.action}", file=sys.stderr)
             append_jsonl(warnings_path, {"type": "unknown_action", "message": args.action, "at": now_iso()})
+            status = "failed"
             sys.exit(1)
     
     except Exception as e:
@@ -338,6 +339,8 @@ def main():
     
     finally:
         # 必ず成果物を生成（partially failed でも UI が読める状態にする）
+        if status not in ("success", "failed"):
+            status = "failed"
         finished_at = now_iso()
         
         stats = generate_stats(run_id, args.query, status, run_dir, started_at, finished_at, error_msg)
