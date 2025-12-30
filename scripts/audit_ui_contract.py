@@ -11,7 +11,12 @@ from typing import Iterable, List, Sequence
 
 HTML_PATH = Path("public/index.html")
 PUBLIC_DIR = Path("public")
-REPORT_PATH = Path("docs/GAP_REPORT.md")
+REPORT_PATH = Path("artifacts/ci/ui_audit.md")
+STATIC_ASSETS = (
+    Path("public/index.html"),
+    Path("public/schedule.html"),
+    Path("public/search/index.json"),
+)
 
 
 @dataclass(frozen=True)
@@ -66,21 +71,21 @@ def normalize_path(value: str) -> str:
     return cleaned
 
 
-def is_static_reference(ref: Reference) -> bool:
-    """Return True if reference should be a static file in public/."""
+def should_skip_static_check(ref: Reference) -> bool:
+    """Return True if reference should be excluded from static file checks."""
     raw = ref.raw.strip()
     normalized = ref.normalized
     if not normalized:
-        return False
+        return True
+    if "${" in raw or "{{" in raw:
+        return True
+    if normalized.startswith("runs/") and re.search(r"(runId|\{|\$)", raw):
+        return True
     if raw.startswith(("http://", "https://")) or normalized.startswith(("http://", "https://")):
-        return False
+        return True
     if "/api/" in raw or normalized.startswith("api/"):
-        return False
-    if normalized == "runs/index.json":
-        return False
-    return normalized.endswith((".html", ".json")) or normalized.startswith(
-        ("dashboard/", "runs/")
-    )
+        return True
+    return False
 
 
 def has_local_only_search_tab(html: str) -> bool:
@@ -109,17 +114,23 @@ def detect_search_exposure(refs: Sequence[Reference], html: str) -> Iterable[Aud
 
 
 def check_static_files(refs: Sequence[Reference]) -> Iterable[AuditIssue]:
-    """Check static references exist under public/."""
+    """Check required static files exist under public/."""
     issues: List[AuditIssue] = []
-    for ref in refs:
-        if not is_static_reference(ref):
-            continue
-        path = PUBLIC_DIR / ref.normalized
+    normalized_required = {asset.relative_to(PUBLIC_DIR).as_posix() for asset in STATIC_ASSETS}
+    referenced_required = {
+        ref.normalized
+        for ref in refs
+        if ref.normalized in normalized_required and not should_skip_static_check(ref)
+    }
+    assets_to_check = {PUBLIC_DIR / path for path in referenced_required}
+    assets_to_check.update(STATIC_ASSETS)
+    for asset in sorted(assets_to_check):
+        path = asset
         if not path.exists():
             issues.append(
                 AuditIssue(
                     category="Static File Missing",
-                    message=f"{ref.normalized} referenced from {ref.source} but missing in public/",
+                    message=f"{path} is required but missing.",
                 )
             )
     return issues
@@ -175,7 +186,7 @@ def main() -> None:
     parser.add_argument(
         "--write-report",
         action="store_true",
-        help="Write audit report to docs/GAP_REPORT.md",
+        help="Write audit report to artifacts/ci/ui_audit.md",
     )
     args = parser.parse_args()
     sys.exit(run_audit(HTML_PATH, args.write_report))
