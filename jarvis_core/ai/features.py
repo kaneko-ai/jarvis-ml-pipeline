@@ -300,7 +300,16 @@ class KeywordExtractor:
         filtered = [w for w in words if w not in self.STOPWORDS]
         
         counter = Counter(filtered)
-        return counter.most_common(top_n)
+        first_positions = {}
+        for index, word in enumerate(filtered):
+            if word not in first_positions:
+                first_positions[word] = index
+
+        sorted_keywords = sorted(
+            counter.items(),
+            key=lambda item: (-item[1], first_positions[item[0]], item[0])
+        )
+        return sorted_keywords[:top_n]
     
     def extract_phrases(self, text: str, top_n: int = 5) -> List[str]:
         """Extract key phrases (bigrams).
