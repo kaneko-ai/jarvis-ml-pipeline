@@ -493,7 +493,7 @@
             </div>
             <div class="kpi-card">
                 <div class="kpi-value" id="kpi-contract">-</div>
-                <div class="kpi-label">Contract Valid</div>
+                <div class="kpi-label">Gate Passed</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-value" id="kpi-papers">-</div>
@@ -685,24 +685,20 @@
         function updateKPIs() {
             const total = runs.length;
             const successful = runs.filter(r => r.status === 'success').length;
-            const contractValid = runs.filter(r => r.contract_valid).length;
-            const avgCoverage = runs.length > 0
-                ? runs.reduce((sum, r) => sum + (r.metrics?.evidence_coverage || 0), 0) / runs.length
-                : 0;
+            const gatePassed = runs.filter(r => r.gate_passed).length;
 
-            // Total papers/claims from all runs
-            let totalPapers = 0, totalClaims = 0;
+            // Total papers from all runs
+            let totalPapers = 0;
             runs.forEach(r => {
-                totalPapers += r.metrics?.paper_count || 0;
-                totalClaims += r.metrics?.claim_count || 0;
+                totalPapers += r.papers_found || 0;
             });
 
             document.getElementById('kpi-runs').textContent = total;
             document.getElementById('kpi-success').textContent = total > 0 ? `${((successful / total) * 100).toFixed(0)}%` : '-';
-            document.getElementById('kpi-coverage').textContent = `${(avgCoverage * 100).toFixed(1)}%`;
-            document.getElementById('kpi-contract').textContent = `${contractValid}/${total}`;
+            document.getElementById('kpi-coverage').textContent = '-';
+            document.getElementById('kpi-contract').textContent = `${gatePassed}/${total}`;
             document.getElementById('kpi-papers').textContent = totalPapers || '-';
-            document.getElementById('kpi-claims').textContent = totalClaims || '-';
+            document.getElementById('kpi-claims').textContent = '-';
 
             document.getElementById('success-bar').style.width = total > 0 ? `${(successful / total) * 100}%` : '0%';
         }
@@ -765,13 +761,13 @@
             let html = '<table class="data-table"><thead><tr><th>Run ID</th><th>Timestamp</th><th>Status</th><th>Gate</th><th>Coverage</th></tr></thead><tbody>';
             runs.slice(0, 10).forEach(run => {
                 const statusClass = run.status === 'success' ? 'badge-success' : run.status === 'failed' ? 'badge-danger' : 'badge-warning';
-                const coverage = ((run.metrics?.evidence_coverage || 0) * 100).toFixed(1);
+                const papersFound = run.papers_found ?? '-';
                 html += `<tr onclick="showRunDetail('${run.run_id}')">
                     <td>${run.run_id?.substring(0, 16) || '-'}...</td>
-                    <td>${run.timestamp || '-'}</td>
+                    <td>${run.created_at || '-'}</td>
                     <td><span class="badge ${statusClass}">${run.status || 'unknown'}</span></td>
                     <td>${run.gate_passed ? '✅' : '❌'}</td>
-                    <td>${coverage}%</td>
+                    <td>${papersFound}</td>
                 </tr>`;
             });
             html += '</tbody></table>';
@@ -786,17 +782,16 @@
                 return;
             }
 
-            let html = '<table class="data-table"><thead><tr><th>Run ID</th><th>Timestamp</th><th>Status</th><th>Gate</th><th>Contract</th><th>Coverage</th></tr></thead><tbody>';
+            let html = '<table class="data-table"><thead><tr><th>Run ID</th><th>Timestamp</th><th>Status</th><th>Gate</th><th>Papers</th></tr></thead><tbody>';
             runs.forEach(run => {
                 const statusClass = run.status === 'success' ? 'badge-success' : run.status === 'failed' ? 'badge-danger' : 'badge-warning';
-                const coverage = ((run.metrics?.evidence_coverage || 0) * 100).toFixed(1);
+                const papersFound = run.papers_found ?? '-';
                 html += `<tr onclick="showRunDetail('${run.run_id}')">
                     <td>${run.run_id?.substring(0, 20) || '-'}...</td>
-                    <td>${run.timestamp || '-'}</td>
+                    <td>${run.created_at || '-'}</td>
                     <td><span class="badge ${statusClass}">${run.status || 'unknown'}</span></td>
                     <td>${run.gate_passed ? '✅' : '❌'}</td>
-                    <td>${run.contract_valid ? '10/10' : 'Missing'}</td>
-                    <td>${coverage}%</td>
+                    <td>${papersFound}</td>
                 </tr>`;
             });
             html += '</tbody></table>';
@@ -1037,21 +1032,23 @@
                 let meta = null;
                 const errors = [];
 
-                if (localServerAvailable) {
+                let manifest = null;
+                const manifestRes = await fetch(`runs/${runId}/manifest.json`, { cache: 'no-store' });
+                if (manifestRes.ok) {
+                    manifest = await manifestRes.json();
+                } else if (localServerAvailable) {
                     const res = await fetch(`${API_BASE}/api/runs/${runId}`);
                     if (!res.ok) {
-                        throw new Error(`summary 取得失敗 (${res.status})`);
+                        throw new Error(`manifest 取得失敗 (${manifestRes.status})`);
                     }
                     run = await res.json();
                     report = run.report || null;
                 } else {
-                    const summaryRes = await fetch(`runs/${runId}/summary.json`, { cache: 'no-store' });
-                    if (!summaryRes.ok) {
-                        throw new Error(`summary 取得失敗 (${summaryRes.status})`);
-                    }
-                    const summary = await summaryRes.json();
+                    throw new Error(`manifest 取得失敗 (${manifestRes.status})`);
+                }
 
-                    const reportPath = summary?.artifacts?.report_md;
+                if (manifest) {
+                    const reportPath = manifest?.artifacts?.report_md;
                     if (reportPath) {
                         try {
                             const reportRes = await fetch(reportPath, { cache: 'no-store' });
@@ -1064,7 +1061,7 @@
                         }
                     }
 
-                    const metaPath = summary?.artifacts?.meta_json;
+                    const metaPath = manifest?.artifacts?.meta_json;
                     if (metaPath) {
                         try {
                             const metaRes = await fetch(metaPath, { cache: 'no-store' });
@@ -1078,20 +1075,26 @@
                     }
 
                     run = {
-                        status: summary.status,
-                        gate_passed: summary.gate_passed ?? null,
-                        contract_valid: summary.contract_valid ?? null,
-                        timestamp: summary.finished_at || summary.started_at || '-',
+                        status: manifest.status,
+                        gate_passed: manifest?.quality?.gate_passed ?? null,
+                        contract_valid: null,
+                        timestamp: manifest.created_at || '-',
                         metrics: {
-                            papers: summary.papers,
-                            claims: summary.claims,
-                            evidence: summary.evidence
+                            papers_found: manifest?.quality?.papers_found ?? 0,
+                            papers_processed: manifest?.quality?.papers_processed ?? 0,
+                            citations_attached: manifest?.quality?.citations_attached ?? false
                         },
-                        files: {}
+                        artifacts: manifest?.artifacts || {}
                     };
                 }
 
                 const normalizedStatus = normalizeStatus(run.status);
+                const artifactRows = Object.entries(run.artifacts || {}).map(([name, path]) => {
+                    if (!path) {
+                        return `<tr><td>${escapeHtml(name)}</td><td>-</td></tr>`;
+                    }
+                    return `<tr><td>${escapeHtml(name)}</td><td><a href="${escapeHtml(path)}" target="_blank" rel="noopener">${escapeHtml(path)}</a></td></tr>`;
+                }).join('');
 
                 body.innerHTML = `
                     <h2>Run: ${runId}</h2>
@@ -1109,11 +1112,9 @@
                 ).join('')}
                     </table>
 
-                    <h3>📁 Files</h3>
+                    <h3>📁 Artifacts</h3>
                     <table class="data-table" style="margin: 20px 0;">
-                        ${Object.entries(run.files || {}).map(([name, info]) =>
-                    `<tr><td>${info.exists ? '✅' : '❌'} ${name}</td><td>${info.size} bytes</td></tr>`
-                ).join('')}
+                        ${artifactRows || '<tr><td colspan="2">No artifacts</td></tr>'}
                     </table>
 
                     ${report ? `<h3>📝 Report</h3><pre style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(report)}</pre>` : ''}
