@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-API_MAP_PATH = ROOT / "schemas" / "api_map_v1.json"
+API_MAP_PATH = ROOT / "jarvis_web" / "contracts" / "api_map_v1.json"
 
 API_MAP = {
     "version": "v1",
