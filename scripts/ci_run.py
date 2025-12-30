@@ -11,6 +11,7 @@
 """
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 import subprocess
@@ -153,6 +154,17 @@ def ensure_json_file(path: Path, data: dict) -> None:
         path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def evaluate_quality_gate(run_dir: Path) -> dict:
+    """Quality Gate v1を評価."""
+    quality_gate_path = Path(__file__).with_name("quality_gate.py")
+    spec = importlib.util.spec_from_file_location("quality_gate", quality_gate_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Unable to load quality gate from {quality_gate_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.evaluate_quality_gate(run_dir)
+
+
 # === Stats & Summary Generation ===
 
 def generate_stats(run_id, query, status, run_dir, started_at, finished_at, error_msg=""):
@@ -217,7 +229,7 @@ def generate_stats(run_id, query, status, run_dir, started_at, finished_at, erro
     return stats
 
 
-def generate_summary(run_id, query, status, run_dir, started_at, finished_at, stats=None):
+def generate_summary(run_id, query, status, run_dir, started_at, finished_at, stats=None, quality=None):
     """summary.jsonを生成（ダッシュボード互換形式）"""
     run_path = Path(run_dir)
     meta_path = run_path / "raw" / "pubmed_metadata.json"
@@ -232,7 +244,10 @@ def generate_summary(run_id, query, status, run_dir, started_at, finished_at, st
         except Exception:
             pass
     
-    gate_passed = papers > 0 and status == "success"
+    if quality is not None:
+        gate_passed = quality.get("gate_passed", False)
+    else:
+        gate_passed = papers > 0 and status == "success"
     required_files = ["report.md"]
     existing = [f for f in required_files if (run_path / f).exists()]
     contract_valid = len(existing) == len(required_files) and papers > 0
@@ -272,10 +287,9 @@ def generate_summary(run_id, query, status, run_dir, started_at, finished_at, st
     return summary
 
 
-def generate_manifest(run_id, query, status, run_dir, created_at, stats, pipeline_version):
+def generate_manifest(run_id, query, status, run_dir, created_at, stats, pipeline_version, quality):
     """Artifact Contract v1に準拠したmanifest.jsonを生成"""
     run_path = Path(run_dir)
-    report_path = run_path / "report.md"
     summary_path = run_path / "summary.json"
     stats_path = run_path / "stats.json"
     meta_path = run_path / "raw" / "pubmed_metadata.json"
@@ -293,18 +307,11 @@ def generate_manifest(run_id, query, status, run_dir, created_at, stats, pipelin
         "logs_jsonl": f"runs/{run_id}/warnings.jsonl",
     }
 
-    papers_found = stats.get("meta", 0) if stats else 0
-    papers_processed = stats.get("chunks", 0) if stats else 0
-    citations_attached = report_path.exists() and report_path.stat().st_size > 0
-    gate_passed = papers_found > 0 and status == "success"
-    if gate_passed:
-        gate_reason = "Gate passed"
-    elif papers_found == 0:
-        gate_reason = "No papers found"
-    elif status != "success":
-        gate_reason = "Pipeline failed"
-    else:
-        gate_reason = "Gate failed"
+    papers_found = quality.get("papers_found", stats.get("meta", 0) if stats else 0)
+    papers_processed = quality.get("papers_processed", stats.get("chunks", 0) if stats else 0)
+    citations_attached = quality.get("citations_attached", False)
+    gate_passed = quality.get("gate_passed", False)
+    gate_reason = quality.get("gate_reason", "Gate failed")
 
     manifest = {
         "run_id": run_id,
@@ -433,7 +440,18 @@ def main():
         
         stats = generate_stats(run_id, args.query, status, run_dir, started_at, finished_at, error_msg)
         generate_summary(run_id, args.query, status, run_dir, started_at, finished_at, stats)
-        generate_manifest(run_id, args.query, status, run_dir, started_at, stats, pipeline_version)
+        quality = evaluate_quality_gate(run_dir)
+        if not quality["gate_passed"]:
+            if status != "failed":
+                status = "failed"
+            append_jsonl(
+                warnings_path,
+                {"type": "quality_gate_failed", "message": quality["gate_reason"], "at": now_iso()},
+            )
+
+        stats = generate_stats(run_id, args.query, status, run_dir, started_at, finished_at, error_msg)
+        generate_summary(run_id, args.query, status, run_dir, started_at, finished_at, stats, quality)
+        generate_manifest(run_id, args.query, status, run_dir, started_at, stats, pipeline_version, quality)
         
         # runs/index.json更新
         print("[ci_run] Building runs index...")
