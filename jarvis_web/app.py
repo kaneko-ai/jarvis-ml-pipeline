@@ -349,6 +349,7 @@ def load_qa_summary(run_id: str) -> Optional[dict]:
 if FASTAPI_AVAILABLE:
 
     @app.get("/api/health")
+    @app.get("/health")
     async def health():
         """Health check endpoint."""
         return {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat()}
@@ -901,11 +902,6 @@ if FASTAPI_AVAILABLE:
 
 # Legacy compatibility endpoints
 if FASTAPI_AVAILABLE:
-
-    @app.get("/health")
-    async def health_legacy():
-        """Legacy health check."""
-        return await health()
 
     @app.get("/runs")
     async def list_runs_legacy(limit: int = 10, _: bool = Depends(verify_token)):
