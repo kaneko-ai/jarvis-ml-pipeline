@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Schedule Manager</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      line-height: 1.5;
+      background: #0f1115;
+      color: #e7e9ee;
+    }
+
+    body {
+      margin: 0;
+      padding: 32px 20px 80px;
+      background: #0f1115;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      font-size: 28px;
+    }
+
+    p.lead {
+      margin-top: 0;
+      color: #b5bcc9;
+    }
+
+    section {
+      margin-top: 28px;
+      padding: 20px;
+      border-radius: 12px;
+      background: #171b23;
+      border: 1px solid #242a36;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input,
+    button,
+    textarea {
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #2b3241;
+      background: #10131a;
+      color: inherit;
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    button {
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      background: #5865f2;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button.secondary {
+      background: #2f3748;
+      color: #e7e9ee;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid #242a36;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 13px;
+      color: #a7afbf;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge.enabled {
+      background: rgba(46, 204, 113, 0.15);
+      color: #2ecc71;
+    }
+
+    .badge.disabled {
+      background: rgba(231, 76, 60, 0.15);
+      color: #e74c3c;
+    }
+
+    .muted {
+      color: #8d96a8;
+      font-size: 13px;
+    }
+
+    .run-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    a {
+      color: #7aa2ff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .error {
+      color: #ff6b6b;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Serverless Schedule Manager</h1>
+    <p class="lead">Cloudflare Cron + KV でスケジュールを管理します。</p>
+
+    <section>
+      <h2>新規スケジュール</h2>
+      <div class="row">
+        <div>
+          <label for="token">SCHEDULE_TOKEN</label>
+          <input id="token" type="password" placeholder="token" />
+        </div>
+        <div>
+          <label for="freq">実行間隔 (分)</label>
+          <input id="freq" type="number" min="1" value="60" />
+        </div>
+        <div>
+          <label for="enabled">初期状態</label>
+          <select id="enabled">
+            <option value="true" selected>有効</option>
+            <option value="false">無効</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <label for="query">検索クエリ</label>
+        <textarea id="query" placeholder="例: generative AI"></textarea>
+      </div>
+      <div style="margin-top:16px;" class="actions">
+        <button id="create">作成</button>
+        <button id="refresh" class="secondary">一覧更新</button>
+      </div>
+      <div id="create-error" class="error"></div>
+    </section>
+
+    <section>
+      <h2>スケジュール一覧</h2>
+      <div id="list-error" class="error"></div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>クエリ</th>
+            <th>間隔</th>
+            <th>状態</th>
+            <th>最終実行</th>
+            <th>履歴</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="schedule-body"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    const apiBase = window.location.origin;
+
+    const tokenInput = document.getElementById('token');
+    const freqInput = document.getElementById('freq');
+    const queryInput = document.getElementById('query');
+    const enabledInput = document.getElementById('enabled');
+    const createButton = document.getElementById('create');
+    const refreshButton = document.getElementById('refresh');
+    const createError = document.getElementById('create-error');
+    const listError = document.getElementById('list-error');
+    const scheduleBody = document.getElementById('schedule-body');
+
+    function setError(el, message) {
+      el.textContent = message || '';
+    }
+
+    async function apiFetch(path, options = {}) {
+      const res = await fetch(`${apiBase}${path}`, options);
+      const data = await res.json();
+      if (!res.ok || data.ok === false) {
+        throw new Error(data.error || 'request failed');
+      }
+      return data;
+    }
+
+    async function loadSchedules() {
+      setError(listError, '');
+      scheduleBody.innerHTML = '';
+      try {
+        const data = await apiFetch('/schedule/list');
+        if (!data.schedules.length) {
+          scheduleBody.innerHTML = '<tr><td colspan="7" class="muted">スケジュールがありません</td></tr>';
+          return;
+        }
+        scheduleBody.innerHTML = data.schedules.map(renderRow).join('');
+      } catch (err) {
+        setError(listError, err.message);
+      }
+    }
+
+    function renderRow(schedule) {
+      const badgeClass = schedule.enabled ? 'enabled' : 'disabled';
+      const badgeLabel = schedule.enabled ? '有効' : '無効';
+      const lastRun = schedule.last_run_at
+        ? new Date(schedule.last_run_at).toLocaleString()
+        : '未実行';
+      const runs = (schedule.runs || []).map((run) => {
+        const ts = new Date(run.at).toLocaleString();
+        return `<div><a href="/status?run_id=${run.run_id}" target="_blank">${run.run_id}</a><span class="muted"> (${ts})</span></div>`;
+      }).join('');
+      const runList = runs || '<span class="muted">なし</span>';
+      return `
+        <tr>
+          <td><div>${schedule.id}</div><div class="muted">作成: ${new Date(schedule.created_at).toLocaleString()}</div></td>
+          <td>${schedule.query}</td>
+          <td>${schedule.freq} 分</td>
+          <td><span class="badge ${badgeClass}">${badgeLabel}</span></td>
+          <td>${lastRun}</td>
+          <td><div class="run-list">${runList}</div></td>
+          <td>
+            <div class="actions">
+              <button class="secondary" data-action="toggle" data-id="${schedule.id}" data-enabled="${!schedule.enabled}">
+                ${schedule.enabled ? '無効化' : '有効化'}
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
+
+    async function createSchedule() {
+      setError(createError, '');
+      const payload = {
+        query: queryInput.value.trim(),
+        freq: Number(freqInput.value || 0),
+        enabled: enabledInput.value === 'true',
+      };
+      try {
+        await apiFetch('/schedule/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-SCHEDULE-TOKEN': tokenInput.value,
+          },
+          body: JSON.stringify(payload),
+        });
+        queryInput.value = '';
+        await loadSchedules();
+      } catch (err) {
+        setError(createError, err.message);
+      }
+    }
+
+    async function toggleSchedule(id, enabled) {
+      try {
+        await apiFetch('/schedule/toggle', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-SCHEDULE-TOKEN': tokenInput.value,
+          },
+          body: JSON.stringify({ id, enabled }),
+        });
+        await loadSchedules();
+      } catch (err) {
+        setError(listError, err.message);
+      }
+    }
+
+    createButton.addEventListener('click', () => createSchedule());
+    refreshButton.addEventListener('click', () => loadSchedules());
+
+    scheduleBody.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-action="toggle"]');
+      if (!button) return;
+      const id = button.dataset.id;
+      const enabled = button.dataset.enabled === 'true';
+      toggleSchedule(id, enabled);
+    });
+
+    loadSchedules();
+  </script>
+</body>
+</html>
