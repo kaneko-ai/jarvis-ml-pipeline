@@ -1008,6 +1008,13 @@
         }
 
         // === Run Detail Modal ===
+        function normalizeStatus(status) {
+            if (!status) return '-';
+            const normalized = status.toLowerCase();
+            if (['complete', 'completed', 'succeeded'].includes(normalized)) return 'success';
+            return normalized;
+        }
+
         async function showRunDetail(runId) {
             const modal = document.getElementById('run-modal');
             const body = document.getElementById('modal-body');
@@ -1015,15 +1022,73 @@
             modal.style.display = 'block';
 
             try {
-                const res = await fetch(`${API_BASE}/api/runs/${runId}`);
-                const run = await res.json();
+                let run = null;
+                let report = null;
+                let meta = null;
+                const errors = [];
+
+                if (localServerAvailable) {
+                    const res = await fetch(`${API_BASE}/api/runs/${runId}`);
+                    if (!res.ok) {
+                        throw new Error(`summary 取得失敗 (${res.status})`);
+                    }
+                    run = await res.json();
+                    report = run.report || null;
+                } else {
+                    const summaryRes = await fetch(`runs/${runId}/summary.json`, { cache: 'no-store' });
+                    if (!summaryRes.ok) {
+                        throw new Error(`summary 取得失敗 (${summaryRes.status})`);
+                    }
+                    const summary = await summaryRes.json();
+
+                    const reportPath = summary?.artifacts?.report_md;
+                    if (reportPath) {
+                        try {
+                            const reportRes = await fetch(reportPath, { cache: 'no-store' });
+                            if (!reportRes.ok) {
+                                throw new Error(`report 取得失敗 (${reportRes.status})`);
+                            }
+                            report = await reportRes.text();
+                        } catch (e) {
+                            errors.push(e.message);
+                        }
+                    }
+
+                    const metaPath = summary?.artifacts?.meta_json;
+                    if (metaPath) {
+                        try {
+                            const metaRes = await fetch(metaPath, { cache: 'no-store' });
+                            if (!metaRes.ok) {
+                                throw new Error(`meta 取得失敗 (${metaRes.status})`);
+                            }
+                            meta = await metaRes.json();
+                        } catch (e) {
+                            errors.push(e.message);
+                        }
+                    }
+
+                    run = {
+                        status: summary.status,
+                        gate_passed: summary.gate_passed ?? null,
+                        contract_valid: summary.contract_valid ?? null,
+                        timestamp: summary.finished_at || summary.started_at || '-',
+                        metrics: {
+                            papers: summary.papers,
+                            claims: summary.claims,
+                            evidence: summary.evidence
+                        },
+                        files: {}
+                    };
+                }
+
+                const normalizedStatus = normalizeStatus(run.status);
 
                 body.innerHTML = `
                     <h2>Run: ${runId}</h2>
                     <table class="data-table" style="margin: 20px 0;">
-                        <tr><th>Status</th><td><span class="badge ${run.status === 'success' ? 'badge-success' : 'badge-danger'}">${run.status}</span></td></tr>
-                        <tr><th>Gate Passed</th><td>${run.gate_passed ? '✅' : '❌'}</td></tr>
-                        <tr><th>Contract Valid</th><td>${run.contract_valid ? '✅ 10/10' : '❌ Missing files'}</td></tr>
+                        <tr><th>Status</th><td><span class="badge ${normalizedStatus === 'success' ? 'badge-success' : 'badge-danger'}">${normalizedStatus}</span></td></tr>
+                        <tr><th>Gate Passed</th><td>${run.gate_passed === null ? '-' : run.gate_passed ? '✅' : '❌'}</td></tr>
+                        <tr><th>Contract Valid</th><td>${run.contract_valid === null ? '-' : run.contract_valid ? '✅ 10/10' : '❌ Missing files'}</td></tr>
                         <tr><th>Timestamp</th><td>${run.timestamp || '-'}</td></tr>
                     </table>
                     
@@ -1041,10 +1106,12 @@
                 ).join('')}
                     </table>
 
-                    ${run.report ? `<h3>📝 Report</h3><pre style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(run.report)}</pre>` : ''}
+                    ${report ? `<h3>📝 Report</h3><pre style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(report)}</pre>` : ''}
+                    ${meta ? `<h3>🧾 Meta</h3><pre style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(JSON.stringify(meta, null, 2))}</pre>` : ''}
+                    ${errors.length ? `<p style="color: var(--warning);">⚠️ 取得失敗: ${escapeHtml(errors.join(', '))}</p>` : ''}
                 `;
             } catch (e) {
-                body.innerHTML = `<p style="color: var(--danger);">読み込みエラー: ${e.message}</p>`;
+                body.innerHTML = `<p style="color: var(--danger);">読み込みエラー: ${escapeHtml(e.message)}</p>`;
             }
         }
 
