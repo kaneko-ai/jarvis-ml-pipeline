@@ -465,7 +465,7 @@
             <div class="nav-tab active" onclick="showTab('overview')">📊 概要</div>
             <div class="nav-tab" onclick="showTab('new-query')">🔍 新規クエリ</div>
             <div class="nav-tab local-only-tab" style="display:none;" onclick="showTab('search')">📑 検索</div>
-            <div class="nav-tab local-only-tab" style="display:none;" onclick="window.location.href='dashboard/schedule.html'">🗓️ スケジューラ</div>
+            <div class="nav-tab local-only-tab" style="display:none;" onclick="showTab('schedule')">🗓️ スケジューラ</div>
             <div class="nav-tab local-only-tab" style="display:none;" onclick="showTab('upload')">📁 アップロード</div>
             <div class="nav-tab" onclick="showTab('runs')">📋 実行履歴</div>
             <span id="server-mode-indicator"
@@ -604,6 +604,15 @@
                 </div>
                 <input type="file" id="file-input" multiple accept=".pdf,.bib,.zip" style="display: none;">
                 <div id="upload-status" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+
+        <!-- Tab: Scheduler -->
+        <div id="tab-schedule" class="tab-content">
+            <div class="section">
+                <h2>🗓️ スケジューラ</h2>
+                <p style="color: var(--warning); margin-bottom: 12px;">⚠️ Local APIが必要です（Serverlessでは利用不可）</p>
+                <button class="btn btn-secondary" onclick="window.location.href='dashboard/schedule.html'">スケジューラを開く</button>
             </div>
         </div>
 
