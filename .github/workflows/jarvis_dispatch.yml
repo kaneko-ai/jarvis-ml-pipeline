@@ -123,6 +123,9 @@ jobs:
 
       - name: Run tests
         run: pytest -q
+      
+      - name: Run CI sweep
+        run: python scripts/ci_sweep.py --fail-if-any
 
       - name: Set up Node
         uses: actions/setup-node@v4
