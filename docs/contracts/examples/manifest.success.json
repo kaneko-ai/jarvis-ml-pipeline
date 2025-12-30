@@ -1,0 +1,28 @@
+{
+  "run_id": "run_20250215_001",
+  "created_at": "2025-02-15T12:34:56Z",
+  "mode": "serverless",
+  "query": "GLP-1 receptor agonists cardiovascular outcomes meta analysis",
+  "pipeline_version": "v1.4.2",
+  "status": "success",
+  "artifacts": {
+    "summary_json": "s3://jarvis-artifacts/run_20250215_001/summary.json",
+    "report_md": "s3://jarvis-artifacts/run_20250215_001/report.md",
+    "stats_json": "s3://jarvis-artifacts/run_20250215_001/stats.json",
+    "meta_json": "s3://jarvis-artifacts/run_20250215_001/meta.json",
+    "logs_jsonl": "s3://jarvis-artifacts/run_20250215_001/logs.jsonl",
+    "corpus_ref": "snapshot:corpus_2025_02_10"
+  },
+  "quality": {
+    "papers_found": 42,
+    "papers_processed": 36,
+    "citations_attached": true,
+    "gate_passed": true,
+    "gate_reason": "Quality gate passed"
+  },
+  "repro": {
+    "seed": 1337,
+    "query_hash": "b3bb0e85a7c9d0d7a2c02c49b1b0e6a3b574a918a81f3dd3b0d7b3a61e937a1a",
+    "source_snapshot_ref": "snapshot:papers_2025_02_10"
+  }
+}

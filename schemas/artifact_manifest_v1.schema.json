@@ -1,0 +1,140 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://jarvis-research-os/schemas/artifact_manifest_v1.schema.json",
+  "title": "Artifact Manifest v1",
+  "description": "Contract for artifact manifests that define run success and reproducibility.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "run_id",
+    "created_at",
+    "mode",
+    "query",
+    "pipeline_version",
+    "status",
+    "artifacts",
+    "quality",
+    "repro"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "serverless",
+        "local"
+      ]
+    },
+    "query": {
+      "type": "string",
+      "minLength": 1
+    },
+    "pipeline_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "running",
+        "success",
+        "failed"
+      ]
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "summary_json",
+        "report_md",
+        "stats_json",
+        "meta_json",
+        "logs_jsonl"
+      ],
+      "properties": {
+        "summary_json": {
+          "type": "string",
+          "minLength": 1
+        },
+        "report_md": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stats_json": {
+          "type": "string",
+          "minLength": 1
+        },
+        "meta_json": {
+          "type": "string",
+          "minLength": 1
+        },
+        "logs_jsonl": {
+          "type": "string",
+          "minLength": 1
+        },
+        "corpus_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "papers_found",
+        "papers_processed",
+        "citations_attached",
+        "gate_passed",
+        "gate_reason"
+      ],
+      "properties": {
+        "papers_found": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "papers_processed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "citations_attached": {
+          "type": "boolean"
+        },
+        "gate_passed": {
+          "type": "boolean"
+        },
+        "gate_reason": {
+          "type": "string"
+        }
+      }
+    },
+    "repro": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "query_hash"
+      ],
+      "properties": {
+        "seed": {
+          "type": "integer"
+        },
+        "query_hash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_snapshot_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
