@@ -492,90 +492,224 @@ def _safe_filename(name: str, max_len: int = 50) -> str:
     return safe
 
 
-def export_evidence_bundle(result, store, output_dir: str) -> None:
+def export_evidence_bundle(
+    result,
+    store,
+    output_dir: str,
+    ref_style: str = "vancouver",
+) -> str:
     """
     Evidence Bundle をエクスポート.
-    
-    Args:
-        result: EvidenceQAResult インスタンス
-        store: EvidenceStore インスタンス
-        output_dir: 出力ディレクトリパス
+
+    必須出力:
+    - bundle.json（references/claims/exports/metrics を含む）
+    - references.md
+    - references.bib
+    - references.ris
+    - claims.md（claimsがある場合）
     """
+    from ..bibtex import export_bibtex
+    from ..claim_export import (
+        export_claims_markdown,
+        export_claims_json,
+        export_claims_pptx_outline,
+    )
     from ..integrations.notebooklm import export_notebooklm
     from ..integrations.obsidian import export_obsidian
     from ..integrations.notion import export_notion
-    
+    from ..reference import extract_references
+    from ..reference_formatter import format_references_markdown
+    from ..ris import export_ris
+
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
-    
+
+    references = extract_references(result.citations, store)
+    claims = result.claims if getattr(result, "claims", None) is not None else None
+
+    style = "apa" if ref_style.lower() == "apa" else "vancouver"
+    exports: dict[str, str] = {}
+
+    metrics = {
+        "citations": len(result.citations),
+        "references": len(references),
+        "claims": len(claims.claims) if claims and hasattr(claims, "claims") else 0,
+        "chunks_used": len(result.chunks_used),
+    }
+
     # 1. bundle.json を作成
     bundle_data = result.to_dict()
+    bundle_data["references"] = [r.to_dict() for r in references]
+    bundle_data["claims"] = claims.to_dict() if hasattr(claims, "to_dict") else claims
+    bundle_data["exports"] = exports
+    bundle_data["metrics"] = metrics
     bundle_path = output_path / "bundle.json"
     with open(bundle_path, "w", encoding="utf-8") as f:
         json.dump(bundle_data, f, indent=2, ensure_ascii=False)
-    
+    exports["bundle_json"] = "bundle.json"
+
     # 2. evidence/*.txt ファイルを作成
     evidence_dir = output_path / "evidence"
     evidence_dir.mkdir(parents=True, exist_ok=True)
-    
-    for citation in result.citations:
-        chunk_id = citation.chunk_id
-        # EvidenceStoreから実際のテキストを取得
+
+    for chunk_id in result.chunks_used:
         chunk = store.get_chunk(chunk_id)
         if chunk:
-            # ファイル名を安全に生成
             filename = _safe_filename(f"{chunk_id}.txt")
             evidence_file = evidence_dir / filename
-            
-            # チャンクテキストを保存
             with open(evidence_file, "w", encoding="utf-8") as f:
-                f.write(chunk.text)
-    
+                content = f"# Chunk: {chunk_id}\n"
+                content += f"Source: {chunk.source}\n"
+                content += f"Locator: {chunk.locator}\n"
+                content += f"\n---\n\n{chunk.text}"
+                f.write(content)
+    exports["evidence_dir"] = "evidence/"
+
     # 3. citations.md を作成
-    citations_lines = [
-        f"# Citations for Query: {result.query}",
+    citations_md = _generate_citations_md(result, store)
+    citations_path = output_path / "citations.md"
+    with open(citations_path, "w", encoding="utf-8") as f:
+        f.write(citations_md)
+    exports["citations_md"] = "citations.md"
+
+    # 4. references.md を作成
+    refs_md = format_references_markdown(references, style=style)
+    refs_path = output_path / "references.md"
+    with open(refs_path, "w", encoding="utf-8") as f:
+        f.write(refs_md)
+    exports["references_md"] = "references.md"
+
+    # 5. references.bib を作成
+    bibtex_content = export_bibtex(references)
+    bibtex_path = output_path / "references.bib"
+    with open(bibtex_path, "w", encoding="utf-8") as f:
+        f.write(bibtex_content)
+    exports["references_bib"] = "references.bib"
+
+    # 6. references.ris を作成
+    ris_content = export_ris(references)
+    ris_path = output_path / "references.ris"
+    with open(ris_path, "w", encoding="utf-8") as f:
+        f.write(ris_content)
+    exports["references_ris"] = "references.ris"
+
+    # 7. Claims 出力
+    if claims is not None:
+        claims_md = export_claims_markdown(claims, references)
+        claims_md_path = output_path / "claims.md"
+        with open(claims_md_path, "w", encoding="utf-8") as f:
+            f.write(claims_md)
+        exports["claims_md"] = "claims.md"
+
+        claims_json = export_claims_json(claims, references)
+        claims_json_path = output_path / "claims.json"
+        with open(claims_json_path, "w", encoding="utf-8") as f:
+            f.write(claims_json)
+        exports["claims_json"] = "claims.json"
+
+        slides_outline = export_claims_pptx_outline(claims, references, title=result.query)
+        slides_path = output_path / "slides_outline.txt"
+        with open(slides_path, "w", encoding="utf-8") as f:
+            f.write(slides_outline)
+        exports["slides_outline"] = "slides_outline.txt"
+
+    # 8. Knowledge Tool Integrations
+    notebooklm_content = export_notebooklm(result, references, store)
+    notebooklm_path = output_path / "notebooklm.md"
+    with open(notebooklm_path, "w", encoding="utf-8") as f:
+        f.write(notebooklm_content)
+    exports["notebooklm_md"] = "notebooklm.md"
+
+    obsidian_dir = output_path / "obsidian"
+    export_obsidian(result, references, str(obsidian_dir))
+    exports["obsidian_dir"] = "obsidian/"
+
+    notion_content = export_notion(result, references)
+    notion_path = output_path / "notion.json"
+    with open(notion_path, "w", encoding="utf-8") as f:
+        f.write(notion_content)
+    exports["notion_json"] = "notion.json"
+
+    # bundle.json の exports/metrics 更新
+    bundle_data["exports"] = exports
+    bundle_data["metrics"] = metrics
+    with open(bundle_path, "w", encoding="utf-8") as f:
+        json.dump(bundle_data, f, indent=2, ensure_ascii=False)
+
+    return str(output_path)
+
+
+def _generate_citations_md(result, store) -> str:
+    """Generate human-readable citations markdown."""
+    lines = [
+        "# Citations",
+        "",
+        f"**Query:** {result.query}",
+        "",
+        f"**Status:** {result.status}",
+        "",
+        "---",
         "",
         "## Answer",
         "",
         result.answer,
         "",
-        "## Evidence",
+        "---",
         "",
     ]
-    
+
+    if result.claims is not None and hasattr(result.claims, "claims"):
+        lines.append("## Claims")
+        lines.append("")
+
+        for i, claim in enumerate(result.claims.claims, 1):
+            status_mark = "✓" if claim.valid else "✗"
+            lines.append(f"### {status_mark} Claim {i}")
+            lines.append("")
+            lines.append(f"**Text:** {claim.text}")
+            lines.append("")
+            lines.append(f"**Citations:** {', '.join(claim.citations) or '(none)'}")
+            lines.append("")
+            if not claim.valid and claim.validation_notes:
+                lines.append(f"**Notes:** {', '.join(claim.validation_notes)}")
+                lines.append("")
+            lines.append("---")
+            lines.append("")
+
+    lines.append("## Evidence Used")
+    lines.append("")
+
     for i, citation in enumerate(result.citations, 1):
         chunk = store.get_chunk(citation.chunk_id)
-        citations_lines.extend([
-            f"### [{i}] {citation.source} - {citation.locator}",
-            "",
-            f"> {citation.quote}",
-            "",
-        ])
+        quote = citation.quote if citation.quote else "(quote not available)"
+
+        lines.append(f"### [{i}] {citation.locator}")
+        lines.append("")
+        lines.append(f"**Chunk ID:** `{citation.chunk_id}`")
+        lines.append("")
+        lines.append(f"**Source:** {citation.source}")
+        lines.append("")
+        lines.append(f"**Quote:** {quote}")
+        lines.append("")
         if chunk:
-            citations_lines.extend([
-                "**Full Text:**",
-                "",
-                chunk.text,
-                "",
-            ])
-    
-    citations_path = output_path / "citations.md"
-    with open(citations_path, "w", encoding="utf-8") as f:
-        f.write("\n".join(citations_lines))
-    
-    # 4. notebooklm.md を作成
-    references = []  # 空のreferencesリストを使用
-    notebooklm_content = export_notebooklm(result, references, store)
-    notebooklm_path = output_path / "notebooklm.md"
-    with open(notebooklm_path, "w", encoding="utf-8") as f:
-        f.write(notebooklm_content)
-    
-    # 5. obsidian/ ディレクトリを作成
-    obsidian_dir = output_path / "obsidian"
-    export_obsidian(result, references, str(obsidian_dir))
-    
-    # 6. notion.json を作成
-    notion_content = export_notion(result, references)
-    notion_path = output_path / "notion.json"
-    with open(notion_path, "w", encoding="utf-8") as f:
-        f.write(notion_content)
+            preview = chunk.text[:200]
+            if len(chunk.text) > 200:
+                preview += "..."
+            lines.append(f"**Context:** {preview}")
+            lines.append("")
+        lines.append("---")
+        lines.append("")
+
+    lines.append("## Inputs")
+    lines.append("")
+    for inp in result.inputs:
+        lines.append(f"- {inp}")
+    lines.append("")
+
+    lines.append("## Metadata")
+    lines.append("")
+    lines.append("```json")
+    lines.append(json.dumps(result.meta, indent=2, ensure_ascii=False))
+    lines.append("```")
+
+    return "\n".join(lines)
