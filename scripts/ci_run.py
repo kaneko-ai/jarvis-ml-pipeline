@@ -190,6 +190,15 @@ def generate_stats(run_id, query, status, run_dir, started_at, finished_at, erro
     return stats
 
 
+def _normalize_summary_status(status: str) -> str:
+    normalized = status.lower().strip()
+    if normalized in {"success", "succeeded", "complete", "completed"}:
+        return "success"
+    if normalized in {"failed", "failure", "error"}:
+        return "failed"
+    return "failed"
+
+
 def generate_summary(run_id, query, status, run_dir, started_at, finished_at, stats=None):
     """summary.jsonを生成（ダッシュボード互換形式）"""
     run_path = Path(run_dir)
@@ -205,7 +214,8 @@ def generate_summary(run_id, query, status, run_dir, started_at, finished_at, st
         except Exception:
             pass
     
-    gate_passed = papers > 0 and status == "complete"
+    normalized_status = _normalize_summary_status(status)
+    gate_passed = papers > 0 and normalized_status == "success"
     required_files = ["report.md"]
     existing = [f for f in required_files if (run_path / f).exists()]
     contract_valid = len(existing) == len(required_files) and papers > 0
@@ -214,7 +224,7 @@ def generate_summary(run_id, query, status, run_dir, started_at, finished_at, st
     summary = {
         "run_id": run_id,
         "query": query,
-        "status": status,
+        "status": normalized_status,
         "timestamp": finished_at,
         "papers": papers,
         "claims": 0,

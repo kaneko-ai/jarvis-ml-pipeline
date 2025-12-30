@@ -439,30 +439,6 @@ if FASTAPI_AVAILABLE:
         """Run events are not implemented."""
         raise HTTPException(status_code=501, detail="Run events not implemented")
 
-    @app.get("/api/capabilities")
-    async def get_capabilities(_: bool = Depends(verify_token)):
-        """Report API capabilities."""
-        return {
-            "version": "v1",
-            "features": {
-                "runs": True,
-                "events": False,
-                "research_rank": True,
-                "research_paper": True,
-                "qa_report": False,
-                "submission": False,
-                "feedback": False,
-                "decision": False,
-                "finance": True,
-            },
-            "endpoints": {
-                "runs_list": "/api/runs",
-                "run_detail": "/api/runs/{run_id}",
-                "run_files": "/api/runs/{run_id}/files",
-                "run_file_get": "/api/runs/{run_id}/files/{path}",
-            },
-        }
-
     @app.get("/api/qa/report")
     async def qa_report(_: bool = Depends(verify_token)):
         """QA report not yet implemented."""
