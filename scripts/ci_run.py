@@ -330,6 +330,7 @@ def generate_manifest(run_id, query, status, run_dir, created_at, stats, pipelin
         },
         "repro": {
             "query_hash": hash_query(query),
+            "source_snapshot_ref": f"runs/{run_id}/snapshot.json",
         },
     }
 
