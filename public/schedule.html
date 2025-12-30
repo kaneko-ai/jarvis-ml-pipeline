@@ -240,11 +240,20 @@
 
     async function apiFetch(path, options = {}) {
       const res = await fetch(`${apiBase}${path}`, options);
-      const data = await res.json();
-      if (!res.ok || data.ok === false) {
-        throw new Error(data.error || 'request failed');
+      const text = await res.text();
+      let data = null;
+      if (text) {
+        try {
+          data = JSON.parse(text);
+        } catch (err) {
+          data = null;
+        }
       }
-      return data;
+      if (!res.ok || (data && data.ok === false)) {
+        const body = text || '(empty body)';
+        throw new Error(`HTTP ${res.status}: ${body}`);
+      }
+      return data ?? { ok: true };
     }
 
     async function loadSchedules() {
