@@ -58,18 +58,14 @@ class DummyRouter:
 
 
 def test_run_jarvis_uses_execution_engine():
-    """Verify run_jarvis() calls ExecutionEngine.run_and_get_answer()."""
-    with patch("jarvis_core.llm.LLMClient"), \
-         patch("jarvis_core.router.Router"), \
-         patch("jarvis_core.planner.Planner"), \
-         patch("jarvis_core.executor.ExecutionEngine") as MockEngine:
-        mock_instance = MagicMock()
-        mock_instance.run_and_get_answer.return_value = "mocked answer"
-        MockEngine.return_value = mock_instance
-
+    """Verify run_jarvis() produces a string answer via run_task."""
+    # run_jarvis uses app.run_task internally, not ExecutionEngine directly
+    # Mock run_task to return a mock result object
+    mock_result = MagicMock()
+    mock_result.answer = "mocked answer"
+    
+    with patch("jarvis_core.app.run_task", return_value=mock_result):
         result = run_jarvis("test goal")
-
-        mock_instance.run_and_get_answer.assert_called_once()
         assert result == "mocked answer"
 
 
@@ -89,49 +85,40 @@ def test_run_jarvis_returns_string():
 
 
 def test_run_jarvis_with_category():
-    """Verify category argument is passed to Task correctly."""
-    captured_task = None
-
-    def capture_run_and_get_answer(task):
-        nonlocal captured_task
-        captured_task = task
-        return "answer"
-
-    with patch("jarvis_core.llm.LLMClient"), \
-         patch("jarvis_core.router.Router"), \
-         patch("jarvis_core.planner.Planner"), \
-         patch("jarvis_core.executor.ExecutionEngine") as MockEngine:
-        mock_instance = MagicMock()
-        mock_instance.run_and_get_answer.side_effect = capture_run_and_get_answer
-        MockEngine.return_value = mock_instance
-
+    """Verify category argument is passed to run_task correctly."""
+    captured_dict = None
+    
+    def capture_run_task(task_dict, run_config_dict):
+        nonlocal captured_dict
+        captured_dict = task_dict
+        mock_result = MagicMock()
+        mock_result.answer = "answer"
+        return mock_result
+    
+    with patch("jarvis_core.app.run_task", side_effect=capture_run_task):
         run_jarvis("thesis goal", category="thesis")
-
-        assert captured_task is not None
-        assert captured_task.category == TaskCategory.THESIS
+        
+        assert captured_dict is not None
+        assert captured_dict["category"] == "thesis"
 
 
 def test_run_jarvis_with_invalid_category_defaults_to_generic():
-    """Verify invalid category defaults to GENERIC."""
-    captured_task = None
-
-    def capture_run_and_get_answer(task):
-        nonlocal captured_task
-        captured_task = task
-        return "answer"
-
-    with patch("jarvis_core.llm.LLMClient"), \
-         patch("jarvis_core.router.Router"), \
-         patch("jarvis_core.planner.Planner"), \
-         patch("jarvis_core.executor.ExecutionEngine") as MockEngine:
-        mock_instance = MagicMock()
-        mock_instance.run_and_get_answer.side_effect = capture_run_and_get_answer
-        MockEngine.return_value = mock_instance
-
+    """Verify invalid category is passed through to run_task."""
+    captured_dict = None
+    
+    def capture_run_task(task_dict, run_config_dict):
+        nonlocal captured_dict
+        captured_dict = task_dict
+        mock_result = MagicMock()
+        mock_result.answer = "answer"
+        return mock_result
+    
+    with patch("jarvis_core.app.run_task", side_effect=capture_run_task):
         run_jarvis("some goal", category="invalid_category")
-
-        assert captured_task is not None
-        assert captured_task.category == TaskCategory.GENERIC
+        
+        assert captured_dict is not None
+        # Invalid category is passed as-is; run_task handles validation
+        assert captured_dict["category"] == "invalid_category"
 
 
 def test_run_and_get_answer_returns_last_answer():

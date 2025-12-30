@@ -22,23 +22,28 @@ class TestArtifactContract:
     """成果物契約テスト（DEC-004）."""
 
     def test_required_artifacts_defined(self):
-        """必須成果物が4ファイル定義されている."""
-        assert len(RunStore.REQUIRED_ARTIFACTS) == 4
+        """必須成果物が10ファイル定義されている（AG-02契約）."""
+        assert len(RunStore.REQUIRED_ARTIFACTS) == 10
+        # 成功時必須
+        assert "input.json" in RunStore.REQUIRED_ARTIFACTS
         assert "run_config.json" in RunStore.REQUIRED_ARTIFACTS
+        assert "papers.jsonl" in RunStore.REQUIRED_ARTIFACTS
+        assert "claims.jsonl" in RunStore.REQUIRED_ARTIFACTS
+        assert "evidence.jsonl" in RunStore.REQUIRED_ARTIFACTS
+        assert "scores.json" in RunStore.REQUIRED_ARTIFACTS
         assert "result.json" in RunStore.REQUIRED_ARTIFACTS
         assert "eval_summary.json" in RunStore.REQUIRED_ARTIFACTS
-        assert "events.jsonl" in RunStore.REQUIRED_ARTIFACTS
+        assert "warnings.jsonl" in RunStore.REQUIRED_ARTIFACTS
+        assert "report.md" in RunStore.REQUIRED_ARTIFACTS
 
     def test_validate_contract_all_present(self, tmp_path):
         """全成果物が存在する場合、契約違反なし."""
         run_id = "test-run-001"
         store = RunStore(run_id, base_dir=str(tmp_path))
         
-        # 全ファイル作成
-        (store.run_dir / "run_config.json").write_text("{}")
-        (store.run_dir / "result.json").write_text("{}")
-        (store.run_dir / "eval_summary.json").write_text("{}")
-        (store.run_dir / "events.jsonl").write_text("")
+        # 全10ファイル作成
+        for artifact in RunStore.REQUIRED_ARTIFACTS:
+            (store.run_dir / artifact).write_text("{}" if artifact.endswith('.json') else "")
         
         missing = store.validate_contract()
         assert missing == []
@@ -52,10 +57,9 @@ class TestArtifactContract:
         (store.run_dir / "result.json").write_text("{}")
         
         missing = store.validate_contract()
-        assert len(missing) == 3
+        assert len(missing) == 9  # 10 - 1 = 9ファイル欠損
+        assert "input.json" in missing
         assert "run_config.json" in missing
-        assert "eval_summary.json" in missing
-        assert "events.jsonl" in missing
 
     def test_get_summary_includes_contract_status(self, tmp_path):
         """get_summary()に契約検証結果が含まれる."""

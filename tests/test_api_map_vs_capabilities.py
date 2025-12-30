@@ -13,7 +13,7 @@ try:
 except ImportError:  # pragma: no cover
     TestClient = None
 
-from jarvis_web import app as jarvis_app
+import jarvis_web.app as jarvis_app_module
 
 ROOT = Path(__file__).resolve().parents[1]
 API_MAP_PATH = ROOT / "jarvis_web" / "contracts" / "api_map_v1.json"
@@ -28,12 +28,12 @@ PARAM_VALUES = {
 
 @pytest.fixture()
 def client(tmp_path, monkeypatch):
-    if TestClient is None or jarvis_app.app is None:
+    if TestClient is None or jarvis_app_module.app is None:
         pytest.skip("FastAPI not available")
 
     monkeypatch.chdir(tmp_path)
     _prepare_sample_data(tmp_path)
-    return TestClient(jarvis_app.app)
+    return TestClient(jarvis_app_module.app)
 
 
 def _prepare_sample_data(tmp_path: Path) -> None:

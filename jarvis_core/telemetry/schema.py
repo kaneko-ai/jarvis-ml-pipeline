@@ -71,11 +71,16 @@ class TelemetryEvent:
     prompt_hash: Optional[str] = None
     tool_input_hash: Optional[str] = None
     cache_hit: Optional[bool] = None
+    
+    # Contract v2 fields (for backward compatibility)
+    status: Optional[str] = None
+    error_type: Optional[str] = None
 
     def to_dict(self) -> dict:
         """Convert to JSON-serializable dict."""
         d = asdict(self)
         d["ts"] = self.ts.isoformat()
+        d["timestamp"] = d["ts"]  # Contract v2: timestamp エイリアス
         # Remove None values
         return {k: v for k, v in d.items() if v is not None}
 

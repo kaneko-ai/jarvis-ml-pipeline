@@ -307,13 +307,17 @@ def run_task(
     
     if execution_error:
         # 失敗時: FAILURE_REQUIRED + 可能な成果物
-        fail_reasons = [{"code": "EXECUTION_ERROR", "msg": execution_error}]
-        fail_reasons.extend(verify_result.fail_reasons)
+        # FailReasonをdict化（JSON直列化のため）
+        fail_reasons_dict = [{"code": "EXECUTION_ERROR", "msg": execution_error}]
+        fail_reasons_dict.extend([
+            fr.to_dict() if hasattr(fr, 'to_dict') else fr
+            for fr in verify_result.fail_reasons
+        ])
         assembler.build_failure(
             context=context,
             error=execution_error,
             partial_artifacts={"warnings": warnings},
-            fail_reasons=fail_reasons,
+            fail_reasons=fail_reasons_dict,
         )
     else:
         # 成功/品質不足時: 10ファイル全て生成
@@ -329,7 +333,10 @@ def run_task(
         }
         quality_report = {
             "gate_passed": verify_result.gate_passed,
-            "fail_reasons": verify_result.fail_reasons,
+            "fail_reasons": [
+                fr.to_dict() if hasattr(fr, 'to_dict') else fr
+                for fr in verify_result.fail_reasons
+            ],
         }
         assembler.build(context, artifacts, quality_report)
     

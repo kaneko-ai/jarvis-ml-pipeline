@@ -704,7 +704,8 @@ class EncryptionManager:
         """Decrypt."""
         encrypted = bytes.fromhex(encrypted_hex)
         key_bytes = key.encode() * (len(encrypted) // len(key) + 1)
-        return "".join(chr(e ^ ord(k)) for e, k in zip(encrypted, key_bytes))
+        # encrypted と key_bytes は共に bytes なので iterate すると int が返る
+        return "".join(chr(e ^ k) for e, k in zip(encrypted, key_bytes))
 
 
 # 247-260: Additional security features

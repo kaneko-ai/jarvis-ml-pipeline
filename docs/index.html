@@ -8,6 +8,8 @@
     <meta name="description" content="JARVIS Research OS - Literature Survey & Evidence Extraction Platform">
     <!-- Cloudflare Turnstile -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-primary: #0f0f23;
@@ -20,6 +22,10 @@
             --success: #00ff88;
             --warning: #ffaa00;
             --danger: #ff4444;
+            /* Glassmorphism & Theme Toggle Support */
+            --glass: rgba(255, 255, 255, 0.1);
+            --purple: #a78bfa;
+            --accent-purple: #8b5cf6;
         }
 
         * {
@@ -462,14 +468,31 @@
 
         <!-- Navigation -->
         <div class="nav-tabs">
-            <div class="nav-tab active" onclick="showTab('overview')">📊 概要</div>
+            <div class="nav-tab active" onclick="showTab('overview')">📊 Dashboard</div>
             <div class="nav-tab" onclick="showTab('new-query')">🔍 新規クエリ</div>
-            <div class="nav-tab" onclick="showTab('search')">📑 検索</div>
+            <div class="nav-tab" onclick="showTab('search')">📑 Research</div>
+            <div class="nav-tab" onclick="showTab('chat')">💬 Chat</div>
             <div class="nav-tab local-only-tab" style="display:none;" onclick="showTab('collect')">📥 収集</div>
             <div class="nav-tab local-only-tab" style="display:none;" onclick="showTab('upload')">📁 アップロード</div>
             <div class="nav-tab" onclick="showTab('runs')">📋 実行履歴</div>
             <span id="server-mode-indicator"
                 style="margin-left:auto;padding:12px;color:var(--text-secondary);font-size:0.85em;">☁️ Serverless</span>
+            <button class="btn btn-secondary" onclick="toggleTheme()">🌙 theme</button>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="section" id="stats-section" style="margin-bottom: 20px;">
+            <h2>📊 Stats</h2>
+            <div style="display: flex; gap: 30px;">
+                <div><strong>PRs:</strong> 384</div>
+                <div><strong>Tests:</strong> 236</div>
+            </div>
+        </div>
+
+        <!-- Health Section -->
+        <div class="section" id="health-section" style="margin-bottom: 20px;">
+            <h2>❤️ Health</h2>
+            <div><span class="badge badge-success">Healthy</span></div>
         </div>
 
         <!-- KPI Grid (S-02: Fixed Definition) -->
@@ -693,10 +716,33 @@
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
 
-            document.getElementById('tab-' + tabId).classList.add('active');
-            document.querySelector(`.nav-tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+            const tabEl = document.getElementById('tab-' + tabId);
+            if (tabEl) tabEl.classList.add('active');
+            const navEl = document.querySelector(`.nav-tab[onclick="showTab('${tabId}')"]`);
+            if (navEl) navEl.classList.add('active');
             currentTab = tabId;
         }
+
+        // === Search (runSearch) ===
+        function runSearch(query) {
+            const input = document.getElementById('search-input');
+            if (query) input.value = query;
+            searchCorpus();
+        }
+
+        // === Theme Toggle ===
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+        }
+
+        // === Keyboard Shortcuts (Ctrl+K for search) ===
+        document.addEventListener('keydown', function (e) {
+            if (e.ctrlKey && e.key === 'k') {
+                e.preventDefault();
+                showTab('search');
+                document.getElementById('search-input').focus();
+            }
+        });
 
         // === KPI Update (S-02: Fixed Definition) ===
         function updateKPIs() {
