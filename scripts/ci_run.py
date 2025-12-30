@@ -6,7 +6,7 @@
 3. query, max_resultsなどを上書き
 4. pathsをpublic/runs/<run_id>/に差し替えた一時configを生成
 5. run_pipeline.pyを実行（emit_progressでステータス更新）
-6. summary.json / stats.json / warnings.jsonl を生成
+6. summary.json / stats.json / warnings.jsonl / logs.jsonl を生成
 7. build_runs_index.pyを呼び出してindex.json更新
 """
 import argparse
@@ -27,12 +27,32 @@ import yaml
 
 # === Progress Emitter (Cloudflare Worker KV) ===
 
+LOGS_PATH: Path | None = None
+
+
+def log_event(payload: dict) -> None:
+    if LOGS_PATH is None:
+        return
+    append_jsonl(LOGS_PATH, payload)
+
+
 def emit_progress(percent: int, stage: str, message: str = "", counters: dict = None):
     """進捗をCloudflare Worker KVに送信（Actions環境でのみ動作）"""
     url = os.environ.get("CF_STATUS_URL")
     token = os.environ.get("CF_STATUS_TOKEN")
     run_id = os.environ.get("RUN_ID")
     
+    log_event(
+        {
+            "type": "progress",
+            "percent": int(percent),
+            "stage": stage,
+            "message": message,
+            "counters": counters or {},
+            "at": now_iso(),
+        }
+    )
+
     if not url or not token or not run_id:
         print(f"[emit_progress] {percent}% [{stage}] {message}")
         return  # ローカル実行では無視
@@ -293,7 +313,7 @@ def generate_manifest(run_id, query, status, run_dir, created_at, stats, pipelin
     summary_path = run_path / "summary.json"
     stats_path = run_path / "stats.json"
     meta_path = run_path / "raw" / "pubmed_metadata.json"
-    logs_path = run_path / "warnings.jsonl"
+    logs_path = run_path / "logs.jsonl"
 
     ensure_text_file(report_path, "# Report\n\nReport is not available.\n")
     ensure_json_file(meta_path, {"records": []})
@@ -304,7 +324,7 @@ def generate_manifest(run_id, query, status, run_dir, created_at, stats, pipelin
         "report_md": f"runs/{run_id}/report.md",
         "stats_json": f"runs/{run_id}/stats.json",
         "meta_json": f"runs/{run_id}/raw/pubmed_metadata.json",
-        "logs_jsonl": f"runs/{run_id}/warnings.jsonl",
+        "logs_jsonl": f"runs/{run_id}/logs.jsonl",
     }
 
     papers_found = quality.get("papers_found", stats.get("meta", 0) if stats else 0)
@@ -361,6 +381,9 @@ def main():
     run_dir.mkdir(parents=True, exist_ok=True)
     
     warnings_path = run_dir / "warnings.jsonl"
+    global LOGS_PATH
+    LOGS_PATH = run_dir / "logs.jsonl"
+    ensure_text_file(LOGS_PATH, "")
     status = "running"
     error_msg = ""
     
@@ -377,6 +400,7 @@ def main():
     
     try:
         if args.action == "pipeline":
+            log_event({"type": "event", "stage": "start", "message": "Pipeline start", "at": now_iso()})
             emit_progress(25, "config", "Creating pipeline configuration", {"query": args.query})
             
             temp_config = create_temp_config(
@@ -395,12 +419,14 @@ def main():
                 if result["success"]:
                     print("[ci_run] Pipeline completed successfully")
                     status = "success"
+                    log_event({"type": "event", "stage": "pipeline", "message": "Pipeline completed", "at": now_iso()})
                     emit_progress(85, "artifacts", "Generating artifacts")
                 else:
                     print(f"[ci_run] Pipeline failed: {result['error']}", file=sys.stderr)
                     status = "failed"
                     error_msg = result["error"][:500] if result["error"] else "Unknown error"
                     append_jsonl(warnings_path, {"type": "pipeline_error", "message": error_msg, "at": now_iso()})
+                    log_event({"type": "error", "stage": "pipeline", "message": error_msg, "at": now_iso()})
                 
                 if result["output"]:
                     print(result["output"])
@@ -413,16 +439,19 @@ def main():
         elif args.action == "rebuild_index":
             emit_progress(50, "rebuild", "Rebuilding index")
             print(f"[ci_run] Action 'rebuild_index' not implemented yet")
+            log_event({"type": "event", "stage": "rebuild_index", "message": "Not implemented", "at": now_iso()})
             status = "success"
         
         elif args.action == "export_report":
             emit_progress(50, "export", "Exporting report")
             print(f"[ci_run] Action 'export_report' not implemented yet")
+            log_event({"type": "event", "stage": "export_report", "message": "Not implemented", "at": now_iso()})
             status = "success"
         
         else:
             print(f"[ci_run] ERROR: Unknown action: {args.action}", file=sys.stderr)
             append_jsonl(warnings_path, {"type": "unknown_action", "message": args.action, "at": now_iso()})
+            log_event({"type": "error", "stage": "unknown_action", "message": args.action, "at": now_iso()})
             status = "failed"
             sys.exit(1)
     
@@ -430,6 +459,7 @@ def main():
         status = "failed"
         error_msg = str(e)
         append_jsonl(warnings_path, {"type": "exception", "message": repr(e), "traceback": traceback.format_exc(), "at": now_iso()})
+        log_event({"type": "exception", "message": repr(e), "traceback": traceback.format_exc(), "at": now_iso()})
         emit_progress(100, "failed", f"Pipeline failed: {error_msg}")
         raise
     
@@ -449,10 +479,12 @@ def main():
                 warnings_path,
                 {"type": "quality_gate_failed", "message": quality["gate_reason"], "at": now_iso()},
             )
+            log_event({"type": "quality_gate_failed", "message": quality["gate_reason"], "at": now_iso()})
 
         stats = generate_stats(run_id, args.query, status, run_dir, started_at, finished_at, error_msg)
         generate_summary(run_id, args.query, status, run_dir, started_at, finished_at, stats, quality)
         generate_manifest(run_id, args.query, status, run_dir, started_at, stats, pipeline_version, quality)
+        log_event({"type": "event", "stage": "complete", "message": f"Run completed with status={status}", "at": now_iso()})
         
         # runs/index.json更新
         print("[ci_run] Building runs index...")
