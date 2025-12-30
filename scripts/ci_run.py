@@ -10,6 +10,7 @@
 7. build_runs_index.pyを呼び出してindex.json更新
 """
 import argparse
+import hashlib
 import json
 import os
 import subprocess
@@ -59,6 +60,18 @@ def emit_progress(percent: int, stage: str, message: str = "", counters: dict = 
 
 def now_iso():
     return datetime.now(timezone.utc).isoformat()
+
+
+def detect_mode() -> str:
+    """実行モードを判定"""
+    if os.environ.get("CF_STATUS_URL") or os.environ.get("GITHUB_ACTIONS") or os.environ.get("CI"):
+        return "serverless"
+    return "local"
+
+
+def hash_query(query: str) -> str:
+    """クエリ文字列のsha256ハッシュ"""
+    return hashlib.sha256(query.encode("utf-8")).hexdigest()
 
 
 # === Helper Functions ===
@@ -124,6 +137,20 @@ def append_jsonl(path: Path, obj: dict):
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(obj, ensure_ascii=False) + "\n")
+
+
+def ensure_text_file(path: Path, content: str) -> None:
+    """ファイルが存在しない場合のみ作成"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not path.exists():
+        path.write_text(content, encoding="utf-8")
+
+
+def ensure_json_file(path: Path, data: dict) -> None:
+    """JSONファイルが存在しない場合のみ作成"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not path.exists():
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 # === Stats & Summary Generation ===
@@ -245,6 +272,66 @@ def generate_summary(run_id, query, status, run_dir, started_at, finished_at, st
     return summary
 
 
+def generate_manifest(run_id, query, status, run_dir, created_at, stats, pipeline_version):
+    """Artifact Contract v1に準拠したmanifest.jsonを生成"""
+    run_path = Path(run_dir)
+    report_path = run_path / "report.md"
+    summary_path = run_path / "summary.json"
+    stats_path = run_path / "stats.json"
+    meta_path = run_path / "raw" / "pubmed_metadata.json"
+    logs_path = run_path / "warnings.jsonl"
+
+    ensure_text_file(report_path, "# Report\n\nReport is not available.\n")
+    ensure_json_file(meta_path, {"records": []})
+    ensure_text_file(logs_path, "")
+
+    artifacts = {
+        "summary_json": f"runs/{run_id}/summary.json",
+        "report_md": f"runs/{run_id}/report.md",
+        "stats_json": f"runs/{run_id}/stats.json",
+        "meta_json": f"runs/{run_id}/raw/pubmed_metadata.json",
+        "logs_jsonl": f"runs/{run_id}/warnings.jsonl",
+    }
+
+    papers_found = stats.get("meta", 0) if stats else 0
+    papers_processed = stats.get("chunks", 0) if stats else 0
+    citations_attached = report_path.exists() and report_path.stat().st_size > 0
+    gate_passed = papers_found > 0 and status == "success"
+    if gate_passed:
+        gate_reason = "Gate passed"
+    elif papers_found == 0:
+        gate_reason = "No papers found"
+    elif status != "success":
+        gate_reason = "Pipeline failed"
+    else:
+        gate_reason = "Gate failed"
+
+    manifest = {
+        "run_id": run_id,
+        "created_at": created_at,
+        "mode": detect_mode(),
+        "query": query,
+        "pipeline_version": pipeline_version,
+        "status": status,
+        "artifacts": artifacts,
+        "quality": {
+            "papers_found": papers_found,
+            "papers_processed": papers_processed,
+            "citations_attached": citations_attached,
+            "gate_passed": gate_passed,
+            "gate_reason": gate_reason,
+        },
+        "repro": {
+            "query_hash": hash_query(query),
+        },
+    }
+
+    manifest_path = run_path / "manifest.json"
+    write_json(manifest_path, manifest)
+    print(f"[ci_run] Generated manifest.json: {manifest_path}")
+    return manifest
+
+
 # === Main Entry Point ===
 
 def main():
@@ -278,6 +365,7 @@ def main():
     
     with open(base_config_path, "r", encoding="utf-8") as f:
         base_config = yaml.safe_load(f)
+    pipeline_version = base_config.get("pipeline_version", "unknown") if isinstance(base_config, dict) else "unknown"
     
     try:
         if args.action == "pipeline":
@@ -345,6 +433,7 @@ def main():
         
         stats = generate_stats(run_id, args.query, status, run_dir, started_at, finished_at, error_msg)
         generate_summary(run_id, args.query, status, run_dir, started_at, finished_at, stats)
+        generate_manifest(run_id, args.query, status, run_dir, started_at, stats, pipeline_version)
         
         # runs/index.json更新
         print("[ci_run] Building runs index...")
