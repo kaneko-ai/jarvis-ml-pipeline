@@ -43,7 +43,7 @@ LEGACY_RUNS_DIR = Path("logs/runs")
 UPLOADS_DIR = Path("data/uploads")
 MAX_UPLOAD_SIZE = 100 * 1024 * 1024  # 100MB per file
 MAX_BATCH_FILES = 100
-API_MAP_PATH = Path("docs/api_map_v1.json")
+API_MAP_PATH = Path("jarvis_web/contracts/api_map_v1.json")
 
 
 # Create app if FastAPI available
@@ -77,6 +77,8 @@ if FASTAPI_AVAILABLE:
     app.include_router(schedules_router)
     app.include_router(cron_router)
     app.include_router(queue_router)
+    if submission_router:
+        app.include_router(submission_router)
 else:
     app = None
 
@@ -360,7 +362,7 @@ if FASTAPI_AVAILABLE:
         return api_map
 
     @app.get("/api/capabilities")
-    async def get_capabilities():
+    async def get_capabilities(_: bool = Depends(verify_token)):
         """Return feature flags and implemented endpoints."""
         api_map = _load_api_map()
         base_paths = api_map.get("base_paths", {}) if api_map else {}
@@ -378,7 +380,7 @@ if FASTAPI_AVAILABLE:
                 endpoints[key] = path
         return {
             "version": api_map.get("version", "v1"),
-            "generated_at": api_map.get("generated_at"),
+            "generated_at": api_map.get("generated_at") if api_map else None,
             "features": features,
             "endpoints": endpoints,
         }
@@ -439,59 +441,10 @@ if FASTAPI_AVAILABLE:
         """Run events are not implemented."""
         raise HTTPException(status_code=501, detail="Run events not implemented")
 
-    @app.get("/api/capabilities")
-    async def get_capabilities(_: bool = Depends(verify_token)):
-        """Report API capabilities."""
-        return {
-            "version": "v1",
-            "features": {
-                "runs": True,
-                "events": False,
-                "research_rank": True,
-                "research_paper": True,
-                "qa_report": False,
-                "submission": False,
-                "feedback": False,
-                "decision": False,
-                "finance": True,
-            },
-            "endpoints": {
-                "runs_list": "/api/runs",
-                "run_detail": "/api/runs/{run_id}",
-                "run_files": "/api/runs/{run_id}/files",
-                "run_file_get": "/api/runs/{run_id}/files/{path}",
-            },
-        }
-
     @app.get("/api/qa/report")
     async def qa_report(_: bool = Depends(verify_token)):
         """QA report not yet implemented."""
         raise HTTPException(status_code=501, detail="QA report not implemented")
-
-    @app.post("/api/submission/build")
-    async def build_submission(_: bool = Depends(verify_token)):
-        """Submission build not yet implemented."""
-        raise HTTPException(status_code=501, detail="Submission build not implemented")
-
-    @app.get("/api/submission/run/{run_id}/latest")
-    async def submission_latest(run_id: str, _: bool = Depends(verify_token)):
-        """Submission latest not yet implemented."""
-        raise HTTPException(status_code=501, detail="Submission latest not implemented")
-
-    @app.get("/api/submission/run/{run_id}/changelog")
-    async def submission_changelog(run_id: str, version: str, _: bool = Depends(verify_token)):
-        """Submission changelog not yet implemented."""
-        raise HTTPException(status_code=501, detail="Submission changelog not implemented")
-
-    @app.get("/api/submission/run/{run_id}/email")
-    async def submission_email(
-        run_id: str,
-        version: str,
-        recipient_type: str,
-        _: bool = Depends(verify_token),
-    ):
-        """Submission email not yet implemented."""
-        raise HTTPException(status_code=501, detail="Submission email not implemented")
 
     @app.get("/api/feedback/risk")
     async def feedback_risk(run_id: str, _: bool = Depends(verify_token)):
