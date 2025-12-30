@@ -117,6 +117,12 @@ jobs:
           elif [ "${{ inputs.action }}" = "export_report" ]; then
             python scripts/ci_run.py --action export_report --query "dummy" --run-id "${RUN_ID}"
           fi
+
+      - name: Audit UI contract
+        run: python scripts/audit_ui_contract.py
+
+      - name: Run tests
+        run: pytest -q
       
       - name: Update status (deploy)
         if: ${{ env.CF_STATUS_URL != '' }}
