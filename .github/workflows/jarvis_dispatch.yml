@@ -123,6 +123,24 @@ jobs:
 
       - name: Run tests
         run: pytest -q
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install E2E dependencies
+        run: |
+          npm install
+          npx playwright install --with-deps
+
+      - name: Run E2E tests
+        env:
+          DASHBOARD_BASE_URL: http://localhost:4173
+        run: |
+          python -m http.server 4173 --directory public &
+          sleep 2
+          npm run test:e2e
       
       - name: Update status (deploy)
         if: ${{ env.CF_STATUS_URL != '' }}
