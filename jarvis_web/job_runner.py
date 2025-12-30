@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-from jarvis_web import jobs
+from . import jobs
 from jarvis_core.obs.logger import get_logger
 from jarvis_core.obs import metrics
 
@@ -44,7 +44,7 @@ def _stable_chunk_id(
 
 
 def _notify_job_failed(job_id: str, reason: str) -> None:
-    from jarvis_web.alerting import alert_event
+    from .alerting import alert_event
 
     try:
         job = jobs.read_job(job_id)
@@ -124,8 +124,8 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
     from jarvis_tools.papers.collector import collect_papers
     from jarvis_core.ingestion.pipeline import TextChunker
     from jarvis_core.search import get_search_engine
-    from jarvis_web import dedup
-    from jarvis_web.health import start_worker_heartbeat
+    from . import dedup
+    from .health import start_worker_heartbeat
     from jarvis_core.oa import OAResolver
     from jarvis_core.metadata import audit_records
     from jarvis_core.dedup import DedupEngine
@@ -133,6 +133,11 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
     from jarvis_core.provenance.schema import ClaimUnit, EvidenceItem
     from jarvis_core.scoring.paper_score import score_paper
     from jarvis_core.repro.run_manifest import create_run_manifest
+
+    run_id = payload.get("run_id") or payload.get("client_run_id") or job_id
+    run_start = time.time()
+    logger = get_logger(run_id=run_id, job_id=job_id, component="job_runner")
+    metrics.record_run_start(run_id, job_id, component="job_runner")
 
     query = payload.get("query", "")
     max_results = int(payload.get("max_results", 50))
@@ -254,7 +259,6 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
     logger.step_start("Chunking")
     chunker = TextChunker()
     try:
-        from jarvis_web import dedup
         redis_client = dedup.get_redis()
     except Exception as exc:
         redis_client = None
