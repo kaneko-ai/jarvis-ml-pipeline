@@ -1,5 +1,14 @@
 {
-  "generated_at": "1970-01-01T00:00:00Z",
-  "doc_count": 0,
-  "docs": []
+  "generated_at": "2025-01-01T00:00:00Z",
+  "doc_count": 1,
+  "docs": [
+    {
+      "id": "fixture-doc-001",
+      "run_id": "fixture_run_001",
+      "title": "Fixture Paper on Biology",
+      "abstract_snippet": "This fixture document mentions biology and cells for E2E validation.",
+      "content": "Biology is the study of living organisms. This fixture content is used in E2E tests.",
+      "keywords": ["biology", "cells", "fixture"]
+    }
+  ]
 }
