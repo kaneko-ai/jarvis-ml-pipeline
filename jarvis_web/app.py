@@ -43,6 +43,7 @@ LEGACY_RUNS_DIR = Path("logs/runs")
 UPLOADS_DIR = Path("data/uploads")
 MAX_UPLOAD_SIZE = 100 * 1024 * 1024  # 100MB per file
 MAX_BATCH_FILES = 100
+API_MAP_PATH = Path("docs/api_map_v1.json")
 
 
 # Create app if FastAPI available

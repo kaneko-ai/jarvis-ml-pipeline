@@ -2,16 +2,16 @@ from __future__ import annotations
 
 import pytest
 
-from jarvis_web import app as jarvis_app
+import jarvis_web.app as jarvis_app_module
 
 
 def test_obs_health_and_metrics_summary(monkeypatch, tmp_path):
     pytest.importorskip("fastapi")
-    if jarvis_app.app is None:
+    if jarvis_app_module.app is None:
         pytest.skip("FastAPI not available")
 
     monkeypatch.chdir(tmp_path)
-    client = pytest.importorskip("fastapi.testclient").TestClient(jarvis_app.app)
+    client = pytest.importorskip("fastapi.testclient").TestClient(jarvis_app_module.app)
 
     health = client.get("/api/obs/health")
     assert health.status_code == 200

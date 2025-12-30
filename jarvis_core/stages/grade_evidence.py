@@ -8,6 +8,8 @@ Output: Updates evidence.jsonl with strength ratings
 from typing import Any, Dict, List
 import logging
 
+from jarvis_core.pipelines.stage_registry import register_stage
+
 logger = logging.getLogger(__name__)
 
 
@@ -40,6 +42,7 @@ def calculate_evidence_strength(evidence: Dict, claim: Dict) -> str:
         return "None"
 
 
+@register_stage("quality_gate.evidence_grading", "Evidence強度評価")
 def grade_evidence(claims: List[Dict], evidence_list: List[Dict], **kwargs) -> Dict[str, Any]:
     """Grade all evidence and calculate support rates."""
     

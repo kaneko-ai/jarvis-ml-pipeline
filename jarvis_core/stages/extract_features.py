@@ -9,6 +9,8 @@ from typing import Any, Dict, List
 import uuid
 import logging
 
+from jarvis_core.pipelines.stage_registry import register_stage
+
 logger = logging.getLogger(__name__)
 
 
@@ -81,6 +83,7 @@ def extract_immuno_onco_features(paper: Dict) -> Dict[str, Any]:
     return features
 
 
+@register_stage("extraction.rubric_features", "Rubric特徴量抽出")
 def extract_features(papers: List[Dict], **kwargs) -> Dict[str, Any]:
     """Extract rubric-based features from papers."""
     

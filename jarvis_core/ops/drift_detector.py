@@ -268,8 +268,13 @@ class DriftDetector:
         "critical": 0.30, # 30%
     }
     
-    def __init__(self, baseline_path: Optional[Path] = None):
-        self.baseline_path = baseline_path or Path("evals/performance_baseline.json")
+    def __init__(self, baseline_path: Optional[Path] = None, metrics_path: Optional[Path] = None):
+        # metrics_path は baseline_path のエイリアス（後方互換性）
+        # 文字列の場合はPathに変換
+        path = baseline_path or metrics_path
+        if isinstance(path, str):
+            path = Path(path)
+        self.baseline_path = path or Path("evals/performance_baseline.json")
         self._baselines: Dict[str, float] = {}
         self._alerts: List[DriftAlert] = []
         self._load_baselines()
