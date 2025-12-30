@@ -205,7 +205,7 @@ def generate_summary(run_id, query, status, run_dir, started_at, finished_at, st
         except Exception:
             pass
     
-    gate_passed = papers > 0 and status == "complete"
+    gate_passed = papers > 0 and status == "success"
     required_files = ["report.md"]
     existing = [f for f in required_files if (run_path / f).exists()]
     contract_valid = len(existing) == len(required_files) and papers > 0
@@ -298,7 +298,7 @@ def main():
                 
                 if result["success"]:
                     print("[ci_run] Pipeline completed successfully")
-                    status = "complete"
+                    status = "success"
                     emit_progress(85, "artifacts", "Generating artifacts")
                 else:
                     print(f"[ci_run] Pipeline failed: {result['error']}", file=sys.stderr)
@@ -317,16 +317,17 @@ def main():
         elif args.action == "rebuild_index":
             emit_progress(50, "rebuild", "Rebuilding index")
             print(f"[ci_run] Action 'rebuild_index' not implemented yet")
-            status = "complete"
+            status = "success"
         
         elif args.action == "export_report":
             emit_progress(50, "export", "Exporting report")
             print(f"[ci_run] Action 'export_report' not implemented yet")
-            status = "complete"
+            status = "success"
         
         else:
             print(f"[ci_run] ERROR: Unknown action: {args.action}", file=sys.stderr)
             append_jsonl(warnings_path, {"type": "unknown_action", "message": args.action, "at": now_iso()})
+            status = "failed"
             sys.exit(1)
     
     except Exception as e:
@@ -338,6 +339,8 @@ def main():
     
     finally:
         # 必ず成果物を生成（partially failed でも UI が読める状態にする）
+        if status not in ("success", "failed"):
+            status = "failed"
         finished_at = now_iso()
         
         stats = generate_stats(run_id, args.query, status, run_dir, started_at, finished_at, error_msg)
