@@ -153,6 +153,12 @@ jobs:
             -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
             -d "{\"run_id\":\"${RUN_ID}\",\"percent\":90,\"stage\":\"deploy\",\"message\":\"Deploying to GitHub Pages\"}"
 
+      - name: Prune old runs
+        run: python scripts/prune_runs.py
+
+      - name: Rebuild runs index
+        run: python scripts/build_runs_index.py
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
