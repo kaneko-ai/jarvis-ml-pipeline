@@ -14,6 +14,13 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import requests
 import yaml
 
+from scripts.source_snapshot import (
+    SourceSnapshot,
+    build_url,
+    compute_file_hash,
+    compute_text_hash,
+)
+
 # PyMuPDF（pymupdf）は任意。あれば優先的に使う。
 try:
     import fitz  # type: ignore
@@ -52,6 +59,7 @@ def pubmed_esearch(
     date_from: Optional[str],
     date_to: Optional[str],
     max_results: int,
+    snapshot: Optional[SourceSnapshot] = None,
 ) -> List[str]:
     """PubMed の esearch を叩いて PMID のリストを取得する。"""
     params: Dict[str, Any] = {
@@ -72,17 +80,53 @@ def pubmed_esearch(
     if NCBI_API_KEY:
         params["api_key"] = NCBI_API_KEY
 
+    url = build_url(PUBMED_ESEARCH_URL, params)
+    if snapshot:
+        snapshot.start_request(
+            url,
+            "pubmed_esearch",
+            metadata={
+                "query": query,
+                "date_from": date_from,
+                "date_to": date_to,
+                "max_results": max_results,
+                "params": params,
+            },
+        )
+
     print(f"[pubmed_esearch] query={query}")
-    resp = requests.get(PUBMED_ESEARCH_URL, params=params, timeout=30)
-    resp.raise_for_status()
+    try:
+        resp = requests.get(PUBMED_ESEARCH_URL, params=params, timeout=30)
+        resp.raise_for_status()
+    except requests.RequestException as e:
+        if snapshot:
+            snapshot.finish_request(
+                url,
+                "pubmed_esearch",
+                status="failed",
+                http_status=getattr(e.response, "status_code", None),
+                error=str(e),
+            )
+        raise
     data = resp.json()
+    if snapshot:
+        snapshot.finish_request(
+            url,
+            "pubmed_esearch",
+            status="success",
+            http_status=resp.status_code,
+            hash_value=compute_text_hash(resp.text),
+        )
 
     ids = data.get("esearchresult", {}).get("idlist", [])
     print(f"[pubmed_esearch] found {len(ids)} PMIDs")
     return ids
 
 
-def pubmed_esummary(pmids: List[str]) -> List[Dict[str, Any]]:
+def pubmed_esummary(
+    pmids: List[str],
+    snapshot: Optional[SourceSnapshot] = None,
+) -> List[Dict[str, Any]]:
     """PMID リストに対して esummary を叩き、論文メタデータを取得する。"""
     if not pmids:
         return []
@@ -96,10 +140,37 @@ def pubmed_esummary(pmids: List[str]) -> List[Dict[str, Any]]:
     if NCBI_API_KEY:
         params["api_key"] = NCBI_API_KEY
 
+    url = build_url(PUBMED_ESUMMARY_URL, params)
+    if snapshot:
+        snapshot.start_request(
+            url,
+            "pubmed_esummary",
+            metadata={"pmids": pmids, "params": params},
+        )
+
     print(f"[pubmed_esummary] fetching metadata for {len(pmids)} PMIDs")
-    resp = requests.get(PUBMED_ESUMMARY_URL, params=params, timeout=30)
-    resp.raise_for_status()
+    try:
+        resp = requests.get(PUBMED_ESUMMARY_URL, params=params, timeout=30)
+        resp.raise_for_status()
+    except requests.RequestException as e:
+        if snapshot:
+            snapshot.finish_request(
+                url,
+                "pubmed_esummary",
+                status="failed",
+                http_status=getattr(e.response, "status_code", None),
+                error=str(e),
+            )
+        raise
     data = resp.json()
+    if snapshot:
+        snapshot.finish_request(
+            url,
+            "pubmed_esummary",
+            status="success",
+            http_status=resp.status_code,
+            hash_value=compute_text_hash(resp.text),
+        )
     result = data.get("result", {})
 
     records: List[Dict[str, Any]] = []
@@ -155,7 +226,10 @@ def sanitize_filename(name: str, max_len: int = 80) -> str:
     return cleaned[:max_len]
 
 
-def get_oa_pdf_url(pmcid: str) -> Optional[str]:
+def get_oa_pdf_url(
+    pmcid: str,
+    snapshot: Optional[SourceSnapshot] = None,
+) -> Optional[str]:
     """
     PMC Open Access Web Service API を使って、
     指定 PMCID の OA PDF URL (ftp://...) を 1 本取得する。
@@ -173,10 +247,22 @@ def get_oa_pdf_url(pmcid: str) -> Optional[str]:
     if NCBI_API_KEY:
         params["api_key"] = NCBI_API_KEY
 
+    url = build_url(OA_SERVICE_URL, params)
+    if snapshot:
+        snapshot.start_request(url, "pmc_oa_lookup", metadata={"pmcid": pmcid_str, "params": params})
+
     try:
         resp = requests.get(OA_SERVICE_URL, params=params, timeout=30)
         resp.raise_for_status()
     except requests.RequestException as e:
+        if snapshot:
+            snapshot.finish_request(
+                url,
+                "pmc_oa_lookup",
+                status="failed",
+                http_status=getattr(e.response, "status_code", None),
+                error=str(e),
+            )
         print(f"[get_oa_pdf_url] WARNING: request failed for {pmcid_str}: {e}", file=sys.stderr)
         return None
 
@@ -184,8 +270,25 @@ def get_oa_pdf_url(pmcid: str) -> Optional[str]:
     try:
         root = ET.fromstring(text)
     except ET.ParseError as e:
+        if snapshot:
+            snapshot.finish_request(
+                url,
+                "pmc_oa_lookup",
+                status="failed",
+                http_status=resp.status_code,
+                error=f"XML parse error: {e}",
+            )
         print(f"[get_oa_pdf_url] WARNING: XML parse error for {pmcid_str}: {e}", file=sys.stderr)
         return None
+
+    if snapshot:
+        snapshot.finish_request(
+            url,
+            "pmc_oa_lookup",
+            status="success",
+            http_status=resp.status_code,
+            hash_value=compute_text_hash(text),
+        )
 
     for record in root.findall(".//record"):
         for link in record.findall("link"):
@@ -201,6 +304,7 @@ def download_pmc_pdfs(
     records: List[Dict[str, Any]],
     raw_dir: pathlib.Path,
     overwrite: bool = False,
+    snapshot: Optional[SourceSnapshot] = None,
 ) -> None:
     """
     esummary 由来の records から PMCID を持つものだけ選び、
@@ -228,7 +332,7 @@ def download_pmc_pdfs(
 
         tried += 1
 
-        pdf_url = get_oa_pdf_url(pmcid_str)
+        pdf_url = get_oa_pdf_url(pmcid_str, snapshot=snapshot)
         if not pdf_url:
             skipped_no_oa_pdf += 1
             continue
@@ -238,13 +342,37 @@ def download_pmc_pdfs(
         pdf_path = pmc_dir / f"{base_name}.pdf"
 
         if pdf_path.exists() and not overwrite:
+            if snapshot:
+                snapshot.finish_request(
+                    pdf_url,
+                    "pmc_pdf",
+                    status="skipped",
+                    output_path=str(pdf_path),
+                    hash_value=compute_file_hash(pdf_path),
+                    metadata={"reason": "already_exists"},
+                )
             skipped_existing += 1
             continue
+
+        if snapshot:
+            snapshot.start_request(
+                pdf_url,
+                "pmc_pdf",
+                metadata={"pmcid": pmcid_str, "title": title},
+            )
 
         print(f"[download_pmc_pdfs] downloading {pmcid_str} → pmc/{pdf_path.name}")
         try:
             urlretrieve(pdf_url, pdf_path)
         except Exception as e:
+            if snapshot:
+                snapshot.finish_request(
+                    pdf_url,
+                    "pmc_pdf",
+                    status="failed",
+                    error=str(e),
+                    output_path=str(pdf_path),
+                )
             print(
                 f"[download_pmc_pdfs] WARNING: failed to download {pmcid_str} "
                 f"from {pdf_url}: {e}",
@@ -252,6 +380,15 @@ def download_pmc_pdfs(
             )
             skipped_error += 1
             continue
+
+        if snapshot:
+            snapshot.finish_request(
+                pdf_url,
+                "pmc_pdf",
+                status="success",
+                output_path=str(pdf_path),
+                hash_value=compute_file_hash(pdf_path),
+            )
 
         downloaded += 1
 
@@ -277,14 +414,25 @@ def fetch_papers(config: Dict[str, Any]) -> None:
 
     overwrite: bool = bool(config.get("options", {}).get("overwrite", False))
 
+    snapshot_path = raw_dir.parent / "snapshot.json"
+    snapshot = SourceSnapshot.load_or_create(
+        snapshot_path,
+        {
+            "query": query,
+            "date_from": date_from,
+            "date_to": date_to,
+            "max_results": max_results,
+        },
+    )
+
     print(
         "[fetch_papers] start: "
         f"query={query}, date_from={date_from}, date_to={date_to}, max_results={max_results}"
     )
 
     try:
-        pmids = pubmed_esearch(query, date_from, date_to, max_results)
-        records = pubmed_esummary(pmids)
+        pmids = pubmed_esearch(query, date_from, date_to, max_results, snapshot=snapshot)
+        records = pubmed_esummary(pmids, snapshot=snapshot)
     except requests.RequestException as e:
         print(f"[fetch_papers] ERROR: PubMed API request failed: {e}", file=sys.stderr)
         sys.exit(1)
@@ -305,7 +453,7 @@ def fetch_papers(config: Dict[str, Any]) -> None:
     )
     print(f"[fetch_papers] wrote metadata JSON: {meta_path}")
 
-    download_pmc_pdfs(records, raw_dir, overwrite=overwrite)
+    download_pmc_pdfs(records, raw_dir, overwrite=overwrite, snapshot=snapshot)
 
 
 # ---- PDF / テキスト → チャンク ------------------------------
