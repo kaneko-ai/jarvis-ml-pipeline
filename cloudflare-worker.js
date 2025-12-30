@@ -5,11 +5,15 @@
  * - POST /           : Trigger GitHub Actions (dispatch)
  * - GET /status      : Get run status (for UI polling)
  * - POST /status/update : Update run status (from GitHub Actions)
+ * - POST /schedule/create : Create schedule (token required)
+ * - POST /schedule/toggle : Toggle schedule enabled (token required)
+ * - GET /schedule/list  : List schedules
  * 
  * Required Secrets:
  * - GITHUB_TOKEN     : GitHub PAT for workflow_dispatch
  * - TURNSTILE_SECRET_KEY : Turnstile verification
  * - STATUS_TOKEN     : Token for status/update authentication
+ * - SCHEDULE_TOKEN   : Token for schedule write endpoints
  * 
  * Required KV Binding:
  * - STATUS_KV        : KV namespace for status storage
@@ -26,13 +30,15 @@ export default {
             GITHUB_REPO: env.GITHUB_REPO || 'jarvis-ml-pipeline',
             GITHUB_WORKFLOW_FILE: env.GITHUB_WORKFLOW_FILE || 'jarvis_dispatch.yml',
             STATUS_TTL: parseInt(env.STATUS_TTL_SEC || '86400', 10), // 24h default
+            DEDUPE_TTL: parseInt(env.DEDUPE_TTL_SEC || '7200', 10),
+            RUN_HISTORY_LIMIT: parseInt(env.SCHEDULE_RUN_HISTORY_LIMIT || '20', 10),
         };
 
         // === CORS Headers ===
         const corsHeaders = {
             'Access-Control-Allow-Origin': CONFIG.ALLOWED_ORIGIN,
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Turnstile-Token, X-STATUS-TOKEN',
+            'Access-Control-Allow-Headers': 'Content-Type, Turnstile-Token, X-STATUS-TOKEN, X-SCHEDULE-TOKEN',
         };
 
         // Handle CORS preflight
@@ -93,6 +99,98 @@ export default {
             }
 
             return json({ ok: true }, 200, corsHeaders);
+        }
+
+        // === POST /schedule/create ===
+        if (url.pathname === '/schedule/create' && request.method === 'POST') {
+            const authError = requireScheduleToken(request, env);
+            if (authError) {
+                return json({ ok: false, error: authError }, 401, corsHeaders);
+            }
+
+            if (!env.STATUS_KV) {
+                return json({ ok: false, error: 'KV not configured' }, 500, corsHeaders);
+            }
+
+            const body = await request.json();
+            const query = (body.query || '').trim();
+            const freq = parseInt(body.freq, 10);
+            const enabled = body.enabled !== false;
+
+            if (!query) {
+                return json({ ok: false, error: 'query required' }, 400, corsHeaders);
+            }
+
+            if (!Number.isFinite(freq) || freq < 1) {
+                return json({ ok: false, error: 'freq must be >= 1 (minutes)' }, 400, corsHeaders);
+            }
+
+            const schedule = {
+                id: `schedule_${generateRunId()}`,
+                query,
+                freq,
+                enabled,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                last_run_at: null,
+                last_run_id: null,
+                runs: [],
+            };
+
+            await env.STATUS_KV.put(`schedules:${schedule.id}`, JSON.stringify(schedule));
+            await addScheduleIndex(env.STATUS_KV, schedule.id);
+
+            return json({ ok: true, schedule }, 200, corsHeaders);
+        }
+
+        // === POST /schedule/toggle ===
+        if (url.pathname === '/schedule/toggle' && request.method === 'POST') {
+            const authError = requireScheduleToken(request, env);
+            if (authError) {
+                return json({ ok: false, error: authError }, 401, corsHeaders);
+            }
+
+            if (!env.STATUS_KV) {
+                return json({ ok: false, error: 'KV not configured' }, 500, corsHeaders);
+            }
+
+            const body = await request.json();
+            const id = body.id;
+            const enabled = body.enabled === true;
+
+            if (!id) {
+                return json({ ok: false, error: 'id required' }, 400, corsHeaders);
+            }
+
+            const raw = await env.STATUS_KV.get(`schedules:${id}`);
+            if (!raw) {
+                return json({ ok: false, error: 'schedule not found' }, 404, corsHeaders);
+            }
+
+            const schedule = JSON.parse(raw);
+            schedule.enabled = enabled;
+            schedule.updated_at = new Date().toISOString();
+            await env.STATUS_KV.put(`schedules:${id}`, JSON.stringify(schedule));
+
+            return json({ ok: true, schedule }, 200, corsHeaders);
+        }
+
+        // === GET /schedule/list ===
+        if (url.pathname === '/schedule/list' && request.method === 'GET') {
+            if (!env.STATUS_KV) {
+                return json({ ok: true, schedules: [], note: 'KV not configured' }, 200, corsHeaders);
+            }
+
+            const ids = await getScheduleIndex(env.STATUS_KV);
+            const schedules = [];
+            for (const id of ids) {
+                const raw = await env.STATUS_KV.get(`schedules:${id}`);
+                if (raw) {
+                    schedules.push(JSON.parse(raw));
+                }
+            }
+            schedules.sort((a, b) => (a.created_at || '').localeCompare(b.created_at || ''));
+            return json({ ok: true, schedules }, 200, corsHeaders);
         }
 
         // === POST / (dispatch - existing functionality) ===
@@ -157,6 +255,84 @@ export default {
         // === Fallback: Not Found ===
         return json({ ok: false, error: 'not found' }, 404, corsHeaders);
     },
+    async scheduled(event, env, ctx) {
+        const CONFIG = {
+            GITHUB_OWNER: env.GITHUB_OWNER || 'kaneko-ai',
+            GITHUB_REPO: env.GITHUB_REPO || 'jarvis-ml-pipeline',
+            GITHUB_WORKFLOW_FILE: env.GITHUB_WORKFLOW_FILE || 'jarvis_dispatch.yml',
+            STATUS_TTL: parseInt(env.STATUS_TTL_SEC || '86400', 10),
+            DEDUPE_TTL: parseInt(env.DEDUPE_TTL_SEC || '7200', 10),
+            RUN_HISTORY_LIMIT: parseInt(env.SCHEDULE_RUN_HISTORY_LIMIT || '20', 10),
+        };
+
+        if (!env.STATUS_KV) {
+            return;
+        }
+
+        const ids = await getScheduleIndex(env.STATUS_KV);
+        const now = new Date();
+        const hourKey = formatHourKey(now);
+
+        for (const id of ids) {
+            const raw = await env.STATUS_KV.get(`schedules:${id}`);
+            if (!raw) {
+                continue;
+            }
+
+            const schedule = JSON.parse(raw);
+            if (!schedule.enabled) {
+                continue;
+            }
+
+            if (!shouldRunSchedule(schedule, now)) {
+                continue;
+            }
+
+            const dedupeKey = `dedupe:${schedule.id}:${hourKey}`;
+            const already = await env.STATUS_KV.get(dedupeKey);
+            if (already) {
+                continue;
+            }
+
+            const runId = generateRunId();
+            const initialStatus = {
+                run_id: runId,
+                percent: 0,
+                stage: 'queued',
+                message: 'Waiting for GitHub Actions to start',
+                counters: { query: schedule.query || '' },
+                updated_at: new Date().toISOString(),
+            };
+            await env.STATUS_KV.put(`run:${runId}`, JSON.stringify(initialStatus), { expirationTtl: CONFIG.STATUS_TTL });
+
+            const dispatchResult = await triggerGitHubAction(
+                {
+                    action: 'pipeline',
+                    query: schedule.query || '',
+                    max_results: String(schedule.max_results || 10),
+                    date_from: schedule.date_from || '',
+                    date_to: schedule.date_to || '',
+                    run_id: runId,
+                },
+                env.GITHUB_TOKEN,
+                CONFIG
+            );
+
+            if (!dispatchResult.success) {
+                continue;
+            }
+
+            await env.STATUS_KV.put(dedupeKey, runId, { expirationTtl: CONFIG.DEDUPE_TTL });
+
+            const runEntry = { run_id: runId, at: now.toISOString() };
+            schedule.last_run_at = runEntry.at;
+            schedule.last_run_id = runId;
+            schedule.updated_at = runEntry.at;
+            schedule.runs = [runEntry, ...(schedule.runs || [])].slice(0, CONFIG.RUN_HISTORY_LIMIT);
+
+            await env.STATUS_KV.put(`schedules:${schedule.id}`, JSON.stringify(schedule));
+        }
+    },
 };
 
 // === Helper Functions ===
@@ -184,6 +360,53 @@ function generateRunId() {
     const timestamp = now.toISOString().slice(0, 19).replace(/[-:T]/g, '').slice(0, 14);
     const rand = Math.random().toString(36).substring(2, 10);
     return `${timestamp}_${rand}`;
+}
+
+function requireScheduleToken(request, env) {
+    const token = request.headers.get('X-SCHEDULE-TOKEN');
+    if (!token || token !== env.SCHEDULE_TOKEN) {
+        return 'unauthorized';
+    }
+    return null;
+}
+
+async function getScheduleIndex(kv) {
+    const raw = await kv.get('schedules:index');
+    if (!raw) return [];
+    try {
+        const ids = JSON.parse(raw);
+        return Array.isArray(ids) ? ids : [];
+    } catch (error) {
+        return [];
+    }
+}
+
+async function addScheduleIndex(kv, id) {
+    const ids = await getScheduleIndex(kv);
+    if (!ids.includes(id)) {
+        ids.push(id);
+        await kv.put('schedules:index', JSON.stringify(ids));
+    }
+}
+
+function shouldRunSchedule(schedule, now) {
+    const freq = parseInt(schedule.freq, 10);
+    if (!Number.isFinite(freq) || freq < 1) {
+        return false;
+    }
+
+    if (!schedule.last_run_at) {
+        return true;
+    }
+
+    const last = new Date(schedule.last_run_at);
+    const diffMinutes = (now - last) / 60000;
+    return diffMinutes >= freq;
+}
+
+function formatHourKey(now) {
+    const pad = (value) => String(value).padStart(2, '0');
+    return `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}`;
 }
 
 async function triggerGitHubAction(inputs, token, config) {
