@@ -1,6 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
-const baseURL = process.env.DASHBOARD_BASE_URL || 'http://localhost:4173';
+const serverPort = process.env.DASHBOARD_PORT || '8000';
+const baseURL = process.env.DASHBOARD_BASE_URL || `http://localhost:${serverPort}`;
 
 export default defineConfig({
   testDir: __dirname,
@@ -16,5 +17,10 @@ export default defineConfig({
     video: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
-  reporter: [['list']]
+  reporter: [['list']],
+  webServer: {
+    command: `python -m http.server ${serverPort} --directory public`,
+    url: baseURL,
+    reuseExistingServer: !process.env.CI,
+  },
 });
