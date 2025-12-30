@@ -1,0 +1,5 @@
+{
+  "run_id": "fixture_run_001",
+  "owner": "e2e-fixture",
+  "notes": "Metadata fixture for public dashboard E2E tests."
+}
