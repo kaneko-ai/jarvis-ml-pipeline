@@ -63,6 +63,7 @@ class TelemetryEvent:
     subtask_id: Optional[str] = None
     agent: Optional[str] = None
     tool: Optional[str] = None
+    message: Optional[str] = None
 
     # Payload (no chain-of-thought!)
     payload: Dict[str, Any] = field(default_factory=dict)
@@ -93,6 +94,7 @@ class TelemetryEvent:
         event: str,
         event_type: str,
         level: str = "INFO",
+        message: Optional[str] = None,
         **kwargs,
     ) -> "TelemetryEvent":
         """Factory method for creating events."""
@@ -104,5 +106,6 @@ class TelemetryEvent:
             step_id=step_id,
             event=event,
             event_type=event_type,
+            message=message,
             **kwargs,
         )
