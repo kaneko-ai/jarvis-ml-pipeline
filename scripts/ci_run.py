@@ -314,6 +314,7 @@ def generate_manifest(run_id, query, status, run_dir, created_at, stats, pipelin
     stats_path = run_path / "stats.json"
     meta_path = run_path / "raw" / "pubmed_metadata.json"
     logs_path = run_path / "logs.jsonl"
+    report_path = run_path / "report.md"
 
     ensure_text_file(report_path, "# Report\n\nReport is not available.\n")
     ensure_json_file(meta_path, {"records": []})
