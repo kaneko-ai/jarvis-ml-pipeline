@@ -1,0 +1,27 @@
+{
+  "run_id": "20681373629_CD73",
+  "query": "(CD73[Title/Abstract] OR NT5E[Title/Abstract]) AND free full text[filter]",
+  "status": "failed",
+  "timestamp": "2026-01-03T18:49:42.793212+00:00",
+  "papers": 50,
+  "claims": 0,
+  "evidence": 0,
+  "gate_passed": false,
+  "contract_valid": true,
+  "metrics": {
+    "evidence_coverage": 1.0,
+    "paper_count": 50,
+    "claim_count": 0,
+    "pmcids": 47,
+    "pdf_ok": 11,
+    "chunks": 736
+  },
+  "index_version": "20681373629_CD73",
+  "started_at": "2026-01-03T18:43:51.791623+00:00",
+  "finished_at": "2026-01-03T18:49:42.793212+00:00",
+  "artifacts": {
+    "report_md": "runs/20681373629_CD73/report.md",
+    "meta_json": "runs/20681373629_CD73/raw/pubmed_metadata.json",
+    "stats_json": "runs/20681373629_CD73/stats.json"
+  }
+}
