@@ -1,44 +1,58 @@
-# JARVIS Docker Configuration (AG-11)
+# JARVIS Research OS Docker Image
+# Multi-stage build for minimal production image
 
-FROM python:3.12-slim
+# --- Build Stage ---
+FROM python:3.12-slim as builder
 
 WORKDIR /app
 
-# Install system dependencies
+# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
+    build-essential \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-
 # Copy project files
-COPY pyproject.toml uv.lock ./
-COPY jarvis_core ./jarvis_core
-COPY jarvis_tools ./jarvis_tools
-COPY jarvis_web ./jarvis_web
-COPY dashboard ./dashboard
-COPY scripts ./scripts
-COPY evals ./evals
-COPY docs ./docs
+COPY pyproject.toml README.md ./
+COPY jarvis_core/ ./jarvis_core/
+COPY jarvis_tools/ ./jarvis_tools/
+COPY jarvis_cli.py ./
 
-# Install dependencies
-RUN ~/.local/bin/uv sync --frozen
+# Install package
+RUN pip install --no-cache-dir -e ".[embedding]"
 
-# Create directories
-RUN mkdir -p /app/logs/runs /app/data/uploads
+# --- Production Stage ---
+FROM python:3.12-slim as production
 
-# Environment
-ENV PYTHONPATH=/app
-ENV JARVIS_RUNS_DIR=/app/logs/runs
-ENV JARVIS_UPLOADS_DIR=/app/data/uploads
+WORKDIR /app
 
-# Expose port
-EXPOSE 8000
+# Install runtime dependencies only
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy installed packages from builder
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Copy application code
+COPY --from=builder /app /app
+
+# Create non-root user
+RUN useradd -m -u 1000 jarvis
+USER jarvis
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    JARVIS_HOME=/app \
+    JARVIS_CACHE_DIR=/app/.cache
+
+# Create cache directory
+RUN mkdir -p /app/.cache
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/api/health || exit 1
+    CMD python -c "from jarvis_core.sources import UnifiedSourceClient; print('OK')"
 
-# Run
-CMD ["~/.local/bin/uv", "run", "uvicorn", "jarvis_web.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
+# Default command
+CMD ["python", "-m", "jarvis_cli", "--help"]

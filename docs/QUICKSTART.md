@@ -1,78 +1,95 @@
-# JARVIS Quickstart Guide
+# JARVIS Research OS クイックスタートガイド
 
-5分でJARVISを使い始めましょう！
+## はじめに
 
-## 1. インストール
+JARVIS Research OSは、学術研究のためのローカルファースト研究支援システムです。
+このガイドでは、基本的な使い方を説明します。
+
+## インストール
+
+### 1. 環境準備
 
 ```bash
-git clone https://github.com/kaneko-ai/jarvis-ml-pipeline
+# リポジトリをクローン
+git clone https://github.com/your-org/jarvis-ml-pipeline.git
 cd jarvis-ml-pipeline
-pip install -r requirements.lock
+
+# 仮想環境作成
+python -m venv .venv
+.venv\Scripts\activate  # Windows
+source .venv/bin/activate  # Linux/Mac
+
+# 依存関係インストール
+pip install -e .
 ```
 
-## 2. 基本的な使い方
-
-### 仮説生成
-
-```python
-from jarvis_core.scientist import HypothesisGenerator
-
-hg = HypothesisGenerator()
-for h in hg.generate_hypotheses("cancer treatment", n=3):
-    print(f"💡 {h['text']}")
-```
-
-### 論文検索
-
-```python
-from jarvis_core.integrations.pubmed import get_pubmed_client
-
-client = get_pubmed_client()
-papers = client.search("machine learning healthcare", max_results=5)
-for p in papers:
-    print(f"📄 {p['title']}")
-```
-
-### タンパク質構造
-
-```python
-from jarvis_core.protein import AlphaFoldIntegration
-
-af = AlphaFoldIntegration()
-url = af.get_structure_url("P12345")["viewer_url"]
-print(f"🔬 View: {url}")
-```
-
-### メタ分析
-
-```python
-from jarvis_core.advanced import MetaAnalysisBot
-
-ma = MetaAnalysisBot()
-result = ma.run_meta_analysis([
-    {"effect_size": 0.5, "sample_size": 100},
-    {"effect_size": 0.6, "sample_size": 150}
-])
-print(f"📊 Pooled effect: {result['pooled_effect_size']}")
-```
-
-## 3. ダッシュボード
-
-ブラウザで開く:
-```
-https://kaneko-ai.github.io/jarvis-ml-pipeline/
-```
-
-## 4. パイプライン実行
+### 2. オプション: ローカルLLM（Ollama）
 
 ```bash
-gh workflow run research-pipelines.yml \
-  -f pipeline=hypothesis \
-  -f topic="cancer immunotherapy"
+# Ollamaインストール（https://ollama.ai）
+# モデルをダウンロード
+ollama pull llama3.1:8b
+ollama pull nomic-embed-text
 ```
 
-## 5. 次のステップ
+## 基本的な使い方
 
-- [FEATURES_300.md](FEATURES_300.md) - 全300機能ガイド
-- [JARVIS_MASTER.md](JARVIS_MASTER.md) - アーキテクチャ
-- [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) - デプロイ方法
+### 文献検索
+
+```python
+from jarvis_core.sources import UnifiedSourceClient
+
+# クライアント作成（メールアドレスでレート制限緩和）
+client = UnifiedSourceClient(email="your@email.com")
+
+# 検索実行
+papers = client.search(
+    "machine learning radiology diagnosis",
+    max_results=20
+)
+
+# 結果表示
+for paper in papers[:5]:
+    print(f"📄 {paper.title}")
+    print(f"   著者: {', '.join(paper.authors[:3])}")
+    print(f"   年: {paper.year}")
+    print(f"   DOI: {paper.doi}")
+    print()
+```
+
+### 証拠グレーディング
+
+```python
+from jarvis_core.analysis.grade_system import EnsembleGrader
+
+grader = EnsembleGrader(use_llm=False)  # ルールベースのみ
+
+assessment = grader.grade(
+    evidence_id="ev1",
+    claim_id="claim1",
+    claim_text="AI診断は放射線科医より正確である",
+    evidence_text="このランダム化比較試験では、500名の患者を対象に...",
+)
+
+print(f"研究デザイン: {assessment.study_design.value}")
+print(f"最終レベル: {assessment.final_level.value}")
+print(f"信頼度: {assessment.confidence_score:.2f}")
+```
+
+### PRISMA図生成
+
+```python
+from jarvis_core.reporting.prisma_generator import generate_prisma
+
+markdown = generate_prisma(
+    search_results=all_papers,
+    screened_results=screened,
+    included_results=included,
+    title="システマティックレビュー"
+)
+```
+
+## 次のステップ
+
+- [API リファレンス](API_REFERENCE.md) - 詳細なAPI仕様
+- [ロードマップ](JARVIS_LOCALFIRST_ROADMAP.md) - 開発計画
