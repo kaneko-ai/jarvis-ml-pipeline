@@ -1,0 +1,19 @@
+FAILED tests/test_ai_features.py::TestKeywordExtractor::test_extract_keywords
+FAILED tests/test_evidence_qa_integration.py::TestIngestInput::test_ingest_pdf
+FAILED tests/test_evidence_qa_integration.py::TestRunEvidenceQA::test_full_pipeline_with_pdf
+FAILED tests/test_evidence_qa_integration.py::TestE2EWithMockedLLM::test_success_case_with_valid_citations
+FAILED tests/test_features_300.py::TestSecurityCompliance::test_encryption - ...
+FAILED tests/test_pdf_extractor.py::TestExtractPdfPages::test_extract_returns_correct_page_count
+FAILED tests/test_pdf_extractor.py::TestExtractPdfPages::test_each_page_has_page_and_text
+FAILED tests/test_pdf_extractor.py::TestExtractPdfPages::test_page_numbers_are_1_indexed
+FAILED tests/test_pdf_extractor.py::TestExtractPdfPages::test_pages_contain_text
+FAILED tests/test_pdf_extractor.py::TestExtractPdfPages::test_nonexistent_file_raises_error
+FAILED tests/test_pdf_extractor.py::TestLoadPdfAsDocuments::test_returns_source_documents
+FAILED tests/test_pdf_extractor.py::TestLoadPdfAsDocuments::test_locator_base_includes_page
+FAILED tests/test_pdf_extractor.py::TestLoadPdfAsDocuments::test_metadata_includes_page_info
+FAILED tests/test_pdf_extractor.py::TestIngestPdf::test_ingest_creates_chunks
+FAILED tests/test_pdf_extractor.py::TestIngestPdf::test_ingest_locator_format
+FAILED tests/test_pdf_extractor.py::TestIngestPdf::test_ingest_preview_includes_page
+FAILED tests/test_pdf_extractor.py::TestIngestPdf::test_ingest_adds_to_context
+FAILED tests/test_pdf_extractor.py::TestIntegration::test_pdf_to_evidence_store_pipeline
+FAILED tests/test_pdf_extractor.py::TestIntegration::test_chunk_quote_from_pdf_content

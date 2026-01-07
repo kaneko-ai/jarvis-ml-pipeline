@@ -1,0 +1,208 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+testpaths: tests
+plugins: cov-7.0.0
+collected 1109 items / 4 skipped
+
+tests\e2e\test_e2e_offline.py .......s                                   [  0%]
+tests\e2e\test_e2e_pipeline.py .....                                     [  1%]
+tests\test_100_steps.py ............                                     [  2%]
+tests\test_additional_integrations.py ......................             [  4%]
+tests\test_agent_registry.py ..                                          [  4%]
+tests\test_ai_features.py .....F...................                      [  6%]
+tests\test_api_map_vs_capabilities.py s                                  [  6%]
+tests\test_bibliography.py ...........                                   [  7%]
+tests\test_budget_policy.py ...........                                  [  8%]
+tests\test_bundle_export.py .............                                [  9%]
+tests\test_citation_relevance.py ......                                  [ 10%]
+tests\test_claim.py ...........                                          [ 11%]
+tests\test_claim_export.py .............                                 [ 12%]
+tests\test_cli.py .                                                      [ 12%]
+tests\test_dashboard_features.py ..............                          [ 13%]
+tests\test_dashboard_ultimate.py .........................               [ 16%]
+tests\test_enforcement.py .............                                  [ 17%]
+tests\test_evidence_qa_integration.py ...F...F.F                         [ 18%]
+tests\test_evidence_store.py ........                                    [ 19%]
+tests\test_execution_engine_retry.py ...                                 [ 19%]
+tests\test_executor.py .                                                 [ 19%]
+tests\test_external_integrations.py .............                        [ 20%]
+tests\test_failure_signal_normalization.py ....                          [ 20%]
+tests\test_features_300.py ............................................. [ 24%]
+F....                                                                    [ 25%]
+tests\test_front_adapter_contract.py .                                   [ 25%]
+tests\test_golden_path.py .............ss                                [ 26%]
+tests\test_goldset_regression.py .                                       [ 26%]
+tests\test_hitl_integration.py ...........                               [ 27%]
+tests\test_hybrid_ranking.py .                                           [ 28%]
+tests\test_idempotency_and_lock.py ..                                    [ 28%]
+tests\test_index_incremental.py .                                        [ 28%]
+tests\test_integrations.py ...........                                   [ 29%]
+tests\test_intelligence.py ..........                                    [ 30%]
+tests\test_kb_indexer.py .                                               [ 30%]
+tests\test_llm_provider.py ..........                                    [ 31%]
+tests\test_meta_typed_extraction.py ...............                      [ 32%]
+tests\test_mobile_performance.py ...........................             [ 34%]
+tests\test_obs_alerts.py .                                               [ 35%]
+tests\test_obs_api.py s                                                  [ 35%]
+tests\test_ops.py .............                                          [ 36%]
+tests\test_ops_dashboard.py s                                            [ 36%]
+tests\test_paper_vector.py ...................                           [ 38%]
+tests\test_pdf_extractor.py FFFFFFFFFFFFFF                               [ 39%]
+tests\test_phase2.py ....                                                [ 39%]
+tests\test_phase2_integration.py ...........                             [ 40%]
+tests\test_phase_alpha_gamma.py ................................         [ 43%]
+tests\test_phase_lambda.py ..............................                [ 46%]
+tests\test_phase_omega.py .....................                          [ 48%]
+tests\test_phase_psi.py ................................                 [ 51%]
+tests\test_phase_sigma.py ..............................                 [ 53%]
+tests\test_planner.py ..                                                 [ 54%]
+tests\test_pretrain_citation_reconstruction.py ...........               [ 55%]
+tests\test_pretrain_meta_core.py .......                                 [ 55%]
+tests\test_pubmed_api.py ............                                    [ 56%]
+tests\test_quality_gate.py ........                                      [ 57%]
+tests\test_ranking.py .....                                              [ 57%]
+tests\test_rate_limit.py .                                               [ 57%]
+tests\test_reference.py ..............                                   [ 59%]
+tests\test_regression_runner_smoke.py ....                               [ 59%]
+tests\test_reliability_security.py ..........                            [ 60%]
+tests\test_remediation_catalog.py .....                                  [ 60%]
+tests\test_repair_loop_stops_correctly.py ...                            [ 61%]
+tests\test_repair_planner_priority.py ....                               [ 61%]
+tests\test_repair_policy_schema.py ........                              [ 62%]
+tests\test_report_generation.py ................                         [ 63%]
+tests\test_reproducibility.py ........                                   [ 64%]
+tests\test_reproducibility_snapshot.py ...........                       [ 65%]
+tests\test_research_os.py ...........                                    [ 66%]
+tests\test_resolvers.py ...........                                      [ 67%]
+tests\test_retriever.py .............                                    [ 68%]
+tests\test_retry_policy.py ..                                            [ 68%]
+tests\test_router_basic.py ..                                            [ 68%]
+tests\test_rp24_27.py ..........                                         [ 69%]
+tests\test_rp29_37.py .....................                              [ 71%]
+tests\test_rp300_retrieval.py .........                                  [ 72%]
+tests\test_rp305_extra.py .......                                        [ 73%]
+tests\test_rp320_kg.py ..                                                [ 73%]
+tests\test_rp355_llm.py ..                                               [ 73%]
+tests\test_rp370_eval.py ...                                             [ 73%]
+tests\test_rp400_scale.py ......                                         [ 74%]
+tests\test_rp500_infra.py ..........                                     [ 75%]
+tests\test_rp510_deploy.py .......................                       [ 77%]
+tests\test_rp520_cloud.py ................                               [ 78%]
+tests\test_rp533_integrations.py ......................                  [ 80%]
+tests\test_run_jarvis_integration.py ......                              [ 81%]
+tests\test_scheduler_engine.py .                                         [ 81%]
+tests\test_scientific_validity.py ............                           [ 82%]
+tests\test_search_v2_contract.py s                                       [ 82%]
+tests\test_sources.py ............                                       [ 83%]
+tests\test_spec_lint.py .......                                          [ 84%]
+tests\test_task_model.py .....                                           [ 84%]
+tests\test_telemetry_contract_v2.py ....                                 [ 85%]
+tests\test_telemetry_required.py ...                                     [ 85%]
+tests\test_telemetry_smoke.py .......                                    [ 86%]
+tests\test_trick_sets.py ......sss                                       [ 86%]
+tests\test_v41_sprint1.py ...................                            [ 88%]
+tests\test_v42_sprint23.py ..................                            [ 90%]
+tests\test_v4_integration.py .........................                   [ 92%]
+tests\test_v4_roads.py ......................                            [ 94%]
+tests\test_validation.py ....                                            [ 94%]
+tests\test_vector_index.py .............                                 [ 95%]
+tests\test_visualization.py ...............                              [ 97%]
+tests\test_web_fetcher.py .................                              [ 98%]
+tests\test_weekly_pack.py .                                              [ 98%]
+tests\test_workflow.py ............                                      [100%]
+
+============================== warnings summary ===============================
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_executor_can_be_created
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\supervisor\lyra.py:158: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow().isoformat()
+
+tests/e2e/test_e2e_pipeline.py: 1 warning
+tests/test_pretrain_citation_reconstruction.py: 9 warnings
+tests/test_pretrain_meta_core.py: 5 warnings
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\contracts\types.py:87: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_pipeline_runs_with_mock_data
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_pipeline_runs_with_mock_data
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_pipeline_runs_with_mock_data
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_pipeline_runs_with_mock_data
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_pipeline_runs_with_mock_data
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\contracts\types.py:324: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    self.logs.append(f"[{datetime.utcnow().isoformat()}] {message}")
+
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_pipeline_runs_with_mock_data
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_pipeline_runs_with_mock_data
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_pipeline_runs_with_mock_data
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_pipeline_runs_with_mock_data
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_pipeline_runs_with_mock_data
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\supervisor\lyra.py:166: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow().isoformat(),
+
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_pipeline_runs_with_mock_data
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\supervisor\lyra.py:563: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    task_id = f"task-{self.run_id}-{datetime.utcnow().strftime('%H%M%S')}"
+
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_pipeline_runs_with_mock_data
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\ops\audit.py:48: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    self.run_id = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+
+tests/e2e/test_e2e_pipeline.py: 9 warnings
+tests/test_pretrain_citation_reconstruction.py: 9 warnings
+tests/test_pretrain_meta_core.py: 5 warnings
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\ops\audit.py:57: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow().isoformat(),
+
+tests/test_ops.py::TestRateLimiter::test_retry_delay_exponential
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\ops\rate_limiter.py:84: DeprecationWarning: There is no current event loop
+    self._lock = asyncio.Lock() if asyncio.get_event_loop().is_running() else None
+
+tests/test_regression_runner_smoke.py::TestRegressionRunnerSmoke::test_compute_summary
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\scripts\run_regression.py:78: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "timestamp": datetime.utcnow().isoformat() + "Z",
+
+tests/test_rp305_extra.py::TestDashboardAPI::test_get_stats
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_web\dashboard.py:85: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    last_updated=datetime.utcnow().isoformat() + "Z",
+
+tests/test_rp305_extra.py::TestObservability::test_logger
+tests/test_rp305_extra.py::TestObservability::test_logger
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\observability\stack.py:305: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "timestamp": datetime.utcnow().isoformat() + "Z",
+
+tests/test_rp370_eval.py::TestABTesting::test_create_experiment
+tests/test_rp370_eval.py::TestABTesting::test_deterministic_assignment
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\eval\ab_testing.py:89: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    start_date=datetime.utcnow().isoformat() + "Z",
+
+tests/test_rp500_infra.py::TestHealthCheck::test_liveness
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\reliability\health.py:100: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow().isoformat() + "Z",
+
+tests/test_rp500_infra.py::TestHealthCheck::test_readiness_with_checks
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\reliability\health.py:140: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow().isoformat() + "Z",
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_ai_features.py::TestKeywordExtractor::test_extract_keywords
+FAILED tests/test_evidence_qa_integration.py::TestIngestInput::test_ingest_pdf
+FAILED tests/test_evidence_qa_integration.py::TestRunEvidenceQA::test_full_pipeline_with_pdf
+FAILED tests/test_evidence_qa_integration.py::TestE2EWithMockedLLM::test_success_case_with_valid_citations
+FAILED tests/test_features_300.py::TestSecurityCompliance::test_encryption - ...
+FAILED tests/test_pdf_extractor.py::TestExtractPdfPages::test_extract_returns_correct_page_count
+FAILED tests/test_pdf_extractor.py::TestExtractPdfPages::test_each_page_has_page_and_text
+FAILED tests/test_pdf_extractor.py::TestExtractPdfPages::test_page_numbers_are_1_indexed
+FAILED tests/test_pdf_extractor.py::TestExtractPdfPages::test_pages_contain_text
+FAILED tests/test_pdf_extractor.py::TestExtractPdfPages::test_nonexistent_file_raises_error
+FAILED tests/test_pdf_extractor.py::TestLoadPdfAsDocuments::test_returns_source_documents
+FAILED tests/test_pdf_extractor.py::TestLoadPdfAsDocuments::test_locator_base_includes_page
+FAILED tests/test_pdf_extractor.py::TestLoadPdfAsDocuments::test_metadata_includes_page_info
+FAILED tests/test_pdf_extractor.py::TestIngestPdf::test_ingest_creates_chunks
+FAILED tests/test_pdf_extractor.py::TestIngestPdf::test_ingest_locator_format
+FAILED tests/test_pdf_extractor.py::TestIngestPdf::test_ingest_preview_includes_page
+FAILED tests/test_pdf_extractor.py::TestIngestPdf::test_ingest_adds_to_context
+FAILED tests/test_pdf_extractor.py::TestIntegration::test_pdf_to_evidence_store_pipeline
+FAILED tests/test_pdf_extractor.py::TestIntegration::test_chunk_quote_from_pdf_content
+========== 19 failed, 1080 passed, 14 skipped, 60 warnings in 16.20s ==========
