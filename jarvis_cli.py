@@ -202,6 +202,154 @@ def cmd_export(args):
         sys.exit(1)
 
 
+def cmd_model(args):
+    """Manage LLM models (Phase 1: Model Management CLI)."""
+    import os
+    import requests
+    
+    ollama_url = os.environ.get("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
+    
+    if args.action == "list":
+        try:
+            resp = requests.get(f"{ollama_url}/api/tags", timeout=10)
+            if resp.status_code == 200:
+                data = resp.json()
+                models = data.get("models", [])
+                
+                if args.json:
+                    print(json.dumps({"models": models}, indent=2))
+                else:
+                    print("=== Available Models ===")
+                    if models:
+                        for m in models:
+                            name = m.get("name", "unknown")
+                            size = m.get("size", 0) / (1024**3)
+                            print(f"  • {name} ({size:.1f} GB)")
+                    else:
+                        print("  No models installed. Use 'jarvis model pull <name>' to download.")
+            else:
+                print(f"Error: Ollama returned {resp.status_code}", file=sys.stderr)
+                sys.exit(1)
+        except requests.exceptions.ConnectionError:
+            print("Error: Cannot connect to Ollama. Is it running?", file=sys.stderr)
+            print(f"  URL: {ollama_url}", file=sys.stderr)
+            print("  Start with: ollama serve", file=sys.stderr)
+            sys.exit(1)
+    
+    elif args.action == "pull":
+        if not args.name:
+            print("Error: Model name required. Example: jarvis model pull llama3.2", file=sys.stderr)
+            sys.exit(1)
+        
+        print(f"Pulling model '{args.name}'...")
+        try:
+            resp = requests.post(
+                f"{ollama_url}/api/pull",
+                json={"name": args.name, "stream": False},
+                timeout=600,  # 10 minutes for large models
+            )
+            if resp.status_code == 200:
+                print(f"✅ Model '{args.name}' pulled successfully")
+            else:
+                print(f"Error: {resp.text}", file=sys.stderr)
+                sys.exit(1)
+        except requests.exceptions.ConnectionError:
+            print("Error: Cannot connect to Ollama", file=sys.stderr)
+            sys.exit(1)
+    
+    elif args.action == "info":
+        if not args.name:
+            print("Error: Model name required", file=sys.stderr)
+            sys.exit(1)
+        
+        try:
+            resp = requests.post(
+                f"{ollama_url}/api/show",
+                json={"name": args.name},
+                timeout=10,
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                if args.json:
+                    print(json.dumps(data, indent=2))
+                else:
+                    print(f"=== Model: {args.name} ===")
+                    print(f"Family: {data.get('details', {}).get('family', 'N/A')}")
+                    print(f"Parameters: {data.get('details', {}).get('parameter_size', 'N/A')}")
+                    print(f"Quantization: {data.get('details', {}).get('quantization_level', 'N/A')}")
+            else:
+                print(f"Error: Model not found", file=sys.stderr)
+                sys.exit(1)
+        except requests.exceptions.ConnectionError:
+            print("Error: Cannot connect to Ollama", file=sys.stderr)
+            sys.exit(1)
+
+
+def cmd_cache(args):
+    """Manage cache (Phase 1: Cache Management CLI)."""
+    from pathlib import Path
+    import os
+    import shutil
+    
+    cache_dir = Path(os.environ.get("JARVIS_CACHE_DIR", Path.home() / ".jarvis" / "cache"))
+    
+    if args.action == "stats":
+        if not cache_dir.exists():
+            print("Cache directory does not exist yet.")
+            return
+        
+        # Calculate stats
+        total_size = 0
+        file_count = 0
+        dir_count = 0
+        
+        for item in cache_dir.rglob("*"):
+            if item.is_file():
+                total_size += item.stat().st_size
+                file_count += 1
+            elif item.is_dir():
+                dir_count += 1
+        
+        size_mb = total_size / (1024 * 1024)
+        
+        if args.json:
+            print(json.dumps({
+                "cache_dir": str(cache_dir),
+                "size_bytes": total_size,
+                "size_mb": round(size_mb, 2),
+                "file_count": file_count,
+                "dir_count": dir_count,
+            }, indent=2))
+        else:
+            print("=== Cache Statistics ===")
+            print(f"Location: {cache_dir}")
+            print(f"Size: {size_mb:.2f} MB")
+            print(f"Files: {file_count}")
+            print(f"Directories: {dir_count}")
+    
+    elif args.action == "clear":
+        if not cache_dir.exists():
+            print("Cache directory does not exist.")
+            return
+        
+        if not args.force:
+            confirm = input(f"Clear all cache at {cache_dir}? [y/N] ").strip().lower()
+            if confirm != "y":
+                print("Cancelled.")
+                return
+        
+        try:
+            shutil.rmtree(cache_dir)
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            print(f"✅ Cache cleared: {cache_dir}")
+        except Exception as e:
+            print(f"Error clearing cache: {e}", file=sys.stderr)
+            sys.exit(1)
+    
+    elif args.action == "path":
+        print(cache_dir)
+
+
 def cmd_show_run(args):
     """Show run summary with fail reasons and missing artifacts (per DEC-006)."""
     from jarvis_core.storage import RunStore
@@ -354,6 +502,18 @@ def main():
     export_parser.add_argument("--output", type=str, required=True, help="Output file path")
     export_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
+    # === model command (Phase 1: Model Management CLI) ===
+    model_parser = subparsers.add_parser("model", help="Manage LLM models (Ollama)")
+    model_parser.add_argument("action", type=str, choices=["list", "pull", "info"], help="Action to perform")
+    model_parser.add_argument("name", type=str, nargs="?", help="Model name (for pull/info)")
+    model_parser.add_argument("--json", action="store_true", help="Output as JSON")
+
+    # === cache command (Phase 1: Cache Management CLI) ===
+    cache_parser = subparsers.add_parser("cache", help="Manage cache")
+    cache_parser.add_argument("action", type=str, choices=["stats", "clear", "path"], help="Action to perform")
+    cache_parser.add_argument("--force", "-f", action="store_true", help="Force clear without confirmation")
+    cache_parser.add_argument("--json", action="store_true", help="Output as JSON")
+
     args = parser.parse_args()
 
     # Legacy mode: if no subcommand but --goal provided
@@ -379,6 +539,10 @@ def main():
         cmd_import(args)
     elif args.command == "export":
         cmd_export(args)
+    elif args.command == "model":
+        cmd_model(args)
+    elif args.command == "cache":
+        cmd_cache(args)
 
 
 if __name__ == "__main__":
