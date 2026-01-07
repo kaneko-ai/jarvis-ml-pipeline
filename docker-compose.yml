@@ -1,40 +1,40 @@
-# JARVIS Docker Compose (AG-11)
-
-version: '3.8'
+# Docker Compose for JARVIS Research OS
 
 services:
   jarvis:
-    build: .
-    container_name: jarvis-api
-    ports:
-      - "8000:8000"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jarvis-research-os:latest
+    container_name: jarvis
     volumes:
-      - ./logs:/app/logs
       - ./data:/app/data
+      - ./artifacts:/app/artifacts
+      - ./cache:/app/cache
     environment:
-      - JARVIS_RUNS_DIR=/app/logs/runs
-      - JARVIS_UPLOADS_DIR=/app/data/uploads
-      - JARVIS_WEB_TOKEN=${JARVIS_WEB_TOKEN:-}
-      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
-    restart: unless-stopped
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-
-  dashboard:
-    image: nginx:alpine
-    container_name: jarvis-dashboard
+      - JARVIS_LOG_LEVEL=INFO
+      - JARVIS_OFFLINE_MODE=false
     ports:
-      - "3000:80"
-    volumes:
-      - ./dashboard:/usr/share/nginx/html:ro
-    depends_on:
-      - jarvis
+      - "8080:8080"
     restart: unless-stopped
+
+  # Optional: Ollama for local LLM
+  ollama:
+    image: ollama/ollama:latest
+    container_name: jarvis-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    profiles:
+      - with-llm
 
 volumes:
-  logs:
-  data:
+  ollama_data:
