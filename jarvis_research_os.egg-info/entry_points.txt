@@ -1,2 +1,3 @@
 [console_scripts]
 jarvis = jarvis_cli:main
+jarvis-screen = jarvis_core.active_learning.cli:cmd_screen

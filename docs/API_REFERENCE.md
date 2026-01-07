@@ -1,335 +1,235 @@
 # JARVIS Research OS API リファレンス
 
-> JARVIS_LOCALFIRST_ROADMAP に基づくローカルファースト研究OS
+> 完全な API ドキュメンテーション | v5.1.0
 
-## 概要
+---
 
-JARVIS Research OSは、学術研究のためのローカルファースト・プライバシー重視の研究支援システムです。
+## 目次
 
-## インストール
+1. [CLI コマンド](#cli-コマンド)
+2. [Evidence Grading](#evidence-grading)
+3. [Citation Analysis](#citation-analysis)
+4. [Contradiction Detection](#contradiction-detection)
+5. [PRISMA Flow](#prisma-flow)
+6. [Active Learning](#active-learning)
+7. [Embeddings](#embeddings)
+8. [Sources](#sources)
+
+---
+
+## CLI コマンド
+
+### `jarvis run`
+
+タスクを実行します。
 
 ```bash
-# 基本インストール
-pip install -e .
-
-# 開発用インストール
-pip install -e ".[dev]"
-
-# 全機能インストール
-pip install -e ".[all]"
+jarvis run --goal "CD73 immunotherapy survey" --pipeline configs/pipelines/e2e_oa10.yml
 ```
 
-## クイックスタート
+| オプション | 型 | デフォルト | 説明 |
+|-----------|-----|-----------|------|
+| `--goal` | str | - | タスクの目標 |
+| `--task-file` | str | - | タスク JSON ファイル |
+| `--category` | str | generic | カテゴリ（paper_survey, thesis, job_hunting, generic） |
+| `--pipeline` | str | e2e_oa10.yml | パイプライン YAML |
+| `--json` | flag | - | JSON 出力 |
 
-```python
-from jarvis_core.sources import UnifiedSourceClient
-from jarvis_core.analysis.grade_system import EnsembleGrader
+### `jarvis screen`
 
-# 文献検索
-client = UnifiedSourceClient(email="your@email.com")
-papers = client.search("machine learning healthcare", max_results=10)
+Active Learning による論文スクリーニング。
 
-# 証拠グレーディング
-grader = EnsembleGrader(use_llm=False)
-assessment = grader.grade(
-    evidence_id="e1",
-    claim_id="c1", 
-    claim_text="ML improves diagnosis",
-    evidence_text="RCT showed 30% improvement..."
-)
+```bash
+jarvis screen --input papers.jsonl --output screened.jsonl --target-recall 0.95
 ```
 
----
+| オプション | 型 | デフォルト | 説明 |
+|-----------|-----|-----------|------|
+| `--input` | str | 必須 | 入力 JSONL |
+| `--output` | str | 必須 | 出力 JSONL |
+| `--batch-size` | int | 10 | バッチサイズ |
+| `--target-recall` | float | 0.95 | 目標再現率 |
+| `--budget-ratio` | float | 0.3 | 予算比率 |
+| `--auto` | flag | - | 自動ラベリング |
 
-## モジュール一覧
+### `jarvis import`
 
-### 1. LLM統合 (`jarvis_core.llm`)
+RIS/BibTeX/Zotero からインポート。
 
-#### OllamaAdapter
-
-ローカルOllamaサーバーとの統合。
-
-```python
-from jarvis_core.llm import OllamaAdapter
-
-adapter = OllamaAdapter(base_url="http://localhost:11434")
-
-# テキスト生成
-response = adapter.generate("Explain quantum computing", max_tokens=500)
-
-# ストリーミング生成
-for chunk in adapter.generate_stream("Explain AI"):
-    print(chunk, end="")
-
-# 埋め込み生成
-embeddings = adapter.embed(["text1", "text2"])
+```bash
+jarvis import --format ris --input refs.ris --output papers.jsonl
 ```
 
-#### LlamaCppAdapter
+### `jarvis export`
 
-llama.cppフォールバック用アダプター。
+RIS/BibTeX/PRISMA へエクスポート。
 
-```python
-from jarvis_core.llm import LlamaCppAdapter
-
-adapter = LlamaCppAdapter(model_path="/path/to/model.gguf")
-response = adapter.generate("Hello", max_tokens=100)
-```
-
-#### ModelRouter
-
-タスクに基づく自動ルーティング。
-
-```python
-from jarvis_core.llm import get_router, TaskType
-
-router = get_router()
-decision = router.route(TaskType.GENERATION, complexity="high")
-print(f"Provider: {decision.provider}, Model: {decision.model}")
+```bash
+jarvis export --format bibtex --input papers.jsonl --output refs.bib
 ```
 
 ---
 
-### 2. 文献検索 (`jarvis_core.sources`)
+## Evidence Grading
 
-#### UnifiedSourceClient
+### `grade_evidence()`
 
-複数ソースの統合検索。
+論文の証拠レベルを評価します。
 
 ```python
-from jarvis_core.sources import UnifiedSourceClient, SourceType
+from jarvis_core.evidence import grade_evidence
 
-client = UnifiedSourceClient(email="user@example.com")
-
-# 全ソース検索
-papers = client.search("cancer immunotherapy", max_results=20)
-
-# 特定ソースのみ
-papers = client.search(
-    "CRISPR", 
-    sources=[SourceType.PUBMED, SourceType.OPENALEX]
+result = grade_evidence(
+    title="A randomized controlled trial...",
+    abstract="Methods: We conducted a double-blind RCT..."
 )
 
-# DOIで取得
+print(result.level)        # EvidenceLevel.LEVEL_1B
+print(result.confidence)   # 0.85
+```
+
+### クラス: `EvidenceLevel`
+
+| レベル | 説明 |
+|--------|------|
+| LEVEL_1A | 系統的レビュー（均質な RCT） |
+| LEVEL_1B | 個別の RCT |
+| LEVEL_2A | 系統的レビュー（コホート） |
+| LEVEL_2B | 個別のコホート研究 |
+| LEVEL_3A | 系統的レビュー（症例対照） |
+| LEVEL_3B | 個別の症例対照研究 |
+| LEVEL_4 | 症例シリーズ |
+| LEVEL_5 | 専門家意見 |
+
+---
+
+## Citation Analysis
+
+### `extract_citation_contexts()`
+
+引用コンテキストを抽出します。
+
+```python
+from jarvis_core.citation import extract_citation_contexts
+
+contexts = extract_citation_contexts(text, paper_id="my_paper")
+```
+
+### `classify_citation_stance()`
+
+引用のスタンスを分類します。
+
+```python
+from jarvis_core.citation import classify_citation_stance
+
+stance = classify_citation_stance("Previous work [1] supports this...")
+print(stance.stance)  # CitationStance.SUPPORT
+```
+
+---
+
+## Contradiction Detection
+
+### `ContradictionDetector`
+
+矛盾を検出します。
+
+```python
+from jarvis_core.contradiction import Claim, ContradictionDetector
+
+detector = ContradictionDetector()
+
+claim_a = Claim(claim_id="1", text="X increases Y", paper_id="A")
+claim_b = Claim(claim_id="2", text="X decreases Y", paper_id="B")
+
+result = detector.detect(claim_a, claim_b)
+print(result.is_contradictory)  # True
+```
+
+---
+
+## PRISMA Flow
+
+### `generate_prisma_flow()`
+
+PRISMA 2020 フローチャートを生成します。
+
+```python
+from jarvis_core.prisma import PRISMAData, generate_prisma_flow
+
+data = PRISMAData(
+    records_from_databases=1500,
+    records_screened=1400,
+    studies_included=50,
+)
+
+mermaid = generate_prisma_flow(data, format="mermaid")
+svg = generate_prisma_flow(data, format="svg")
+```
+
+---
+
+## Active Learning
+
+### `ActiveLearningEngine`
+
+効率的な論文スクリーニング。
+
+```python
+from jarvis_core.active_learning import ActiveLearningEngine, ALConfig
+
+config = ALConfig(batch_size=10, target_recall=0.95)
+engine = ActiveLearningEngine(config)
+engine.initialize(instances)
+
+while not engine.should_stop():
+    to_label = engine.get_next_query()
+    for instance_id in to_label:
+        engine.update(instance_id, label)
+```
+
+---
+
+## Embeddings
+
+### `HybridSearch`
+
+ハイブリッド検索（密＋疎ベクトル）。
+
+```python
+from jarvis_core.embeddings import HybridSearch
+
+search = HybridSearch()
+search.index(documents)
+results = search.search("AI medical diagnosis", k=10)
+```
+
+---
+
+## Sources
+
+### `ArxivClient`
+
+arXiv API クライアント。
+
+```python
+from jarvis_core.sources import ArxivClient
+
+client = ArxivClient()
+papers = client.search("machine learning", max_results=20)
+```
+
+### `CrossrefClient`
+
+Crossref API クライアント。
+
+```python
+from jarvis_core.sources import CrossrefClient
+
+client = CrossrefClient()
 paper = client.get_by_doi("10.1038/s41586-020-2649-2")
 ```
 
-#### 個別クライアント
-
-```python
-from jarvis_core.sources import PubMedClient, SemanticScholarClient, OpenAlexClient
-
-# PubMed
-pubmed = PubMedClient(email="user@example.com")
-pmids = pubmed.search("COVID-19 vaccine", max_results=50)
-articles = pubmed.fetch(pmids)
-
-# Semantic Scholar
-s2 = SemanticScholarClient()
-papers = s2.search("transformer architecture", limit=20)
-citations = s2.get_citations(papers[0].paper_id)
-
-# OpenAlex
-openalex = OpenAlexClient(email="user@example.com")
-works = openalex.search("climate change", filter_open_access=True)
-```
-
 ---
 
-### 3. 証拠分析 (`jarvis_core.analysis`)
-
-#### GRADEシステム
-
-```python
-from jarvis_core.analysis.grade_system import (
-    EnsembleGrader,
-    grade_evidence_with_grade,
-    GRADELevel
-)
-
-# 単一証拠のグレーディング
-grader = EnsembleGrader(use_llm=True)
-assessment = grader.grade(
-    evidence_id="e1",
-    claim_id="c1",
-    claim_text="Drug X reduces mortality",
-    evidence_text="RCT with 500 patients showed...",
-)
-
-print(f"Level: {assessment.final_level.value}")  # high/moderate/low/very_low
-print(f"Confidence: {assessment.confidence_score}")
-
-# バッチグレーディング
-assessments, stats = grade_evidence_with_grade(evidence_list, claims)
-```
-
-#### 引用スタンス分析
-
-```python
-from jarvis_core.analysis.citation_stance import (
-    analyze_citations,
-    CitationStance
-)
-
-results, stats = analyze_citations(claims, evidence_list)
-
-for r in results:
-    if r.stance == CitationStance.CONTRADICTS:
-        print(f"矛盾発見: {r.evidence_id} → {r.claim_id}")
-```
-
-#### 矛盾検出
-
-```python
-from jarvis_core.analysis.contradiction_detector import detect_contradictions
-
-contradictions, stats = detect_contradictions(
-    claims, evidence_list, stance_results
-)
-
-print(f"矛盾数: {stats['total_contradictions']}")
-print(f"高重要度: {stats['high_severity']}")
-```
-
----
-
-### 4. PRISMA生成 (`jarvis_core.reporting`)
-
-```python
-from jarvis_core.reporting.prisma_generator import generate_prisma, PRISMAGenerator
-
-# 簡易生成
-markdown = generate_prisma(
-    search_results=all_papers,
-    screened_results=screened,
-    included_results=included,
-    title="My Systematic Review"
-)
-
-# 詳細制御
-generator = PRISMAGenerator()
-diagram = generator.from_pipeline_results(search, screened, included)
-mermaid = generator.to_mermaid(diagram)
-```
-
----
-
-### 5. Active Learning (`jarvis_core.learning`)
-
-```python
-from jarvis_core.learning.active_learning import (
-    create_active_learner,
-    Label
-)
-
-# 学習ループ作成
-learner = create_active_learner(
-    samples=[{"id": str(i), "text": abstracts[i]} for i in range(len(abstracts))],
-    strategy="combined",
-    batch_size=10
-)
-
-# ラベリングループ
-while learner.should_continue():
-    batch = learner.get_next_batch()
-    
-    # ユーザーからラベル取得
-    labels = [(s.sample_id, Label.INCLUDE, "Good") for s in batch]
-    learner.submit_labels(labels)
-
-included, excluded = learner.get_labeled_samples()
-```
-
----
-
-### 6. プラグインシステム (`jarvis_core.plugins`)
-
-#### プラグイン作成
-
-```python
-from jarvis_core.plugins.plugin_system import (
-    AnalyzerPlugin,
-    PluginType,
-    register_plugin
-)
-
-@register_plugin
-class MyAnalyzer(AnalyzerPlugin):
-    NAME = "my_analyzer"
-    VERSION = "1.0.0"
-    DESCRIPTION = "Custom analysis"
-    
-    def initialize(self):
-        return True
-    
-    def analyze(self, data, **kwargs):
-        return {"result": "analyzed"}
-```
-
-#### プラグイン使用
-
-```python
-from jarvis_core.plugins.plugin_system import get_registry
-
-registry = get_registry()
-plugin = registry.get_plugin("bibtex_exporter")
-bibtex = plugin.export(papers)
-```
-
----
-
-### 7. キャッシュ (`jarvis_core.cache`)
-
-```python
-from jarvis_core.cache.sqlite_cache import SQLiteCache
-
-cache = SQLiteCache(
-    db_path="./cache.db",
-    max_size_mb=100,
-    default_ttl=3600  # 1時間
-)
-
-# 使用
-cache.set("key", {"data": "value"}, namespace="api")
-data = cache.get("key", namespace="api")
-
-# 統計
-stats = cache.stats()
-print(f"ヒット率: {stats['hit_rate']:.1%}")
-```
-
----
-
-### 8. オフラインモード (`jarvis_core.runtime`)
-
-```python
-from jarvis_core.runtime.offline_manager import OfflineManager
-
-manager = OfflineManager()
-
-if manager.is_online:
-    # オンライン処理
-    result = api_call()
-else:
-    # オフラインフォールバック
-    result = manager.get_cached_or_queue(operation)
-```
-
----
-
-## 環境変数
-
-| 変数 | 説明 | デフォルト |
-|------|------|------------|
-| `OLLAMA_BASE_URL` | Ollama API URL | `http://localhost:11434` |
-| `OLLAMA_MODEL` | デフォルトモデル | `llama3.1:8b` |
-| `LLAMACPP_MODEL_PATH` | GGUFモデルパス | - |
-| `ZOTERO_API_KEY` | Zotero APIキー | - |
-| `ZOTERO_USER_ID` | ZoteroユーザーID | - |
-| `JARVIS_OFFLINE` | オフライン強制 | `false` |
-
----
-
-## ライセンス
-
-MIT License
+© 2026 JARVIS Team - MIT License

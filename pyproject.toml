@@ -4,21 +4,36 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jarvis-research-os"
-version = "4.2.0"
-description = "JARVIS Research OS - Orchestrated research assistant"
+version = "5.1.0"
+description = "JARVIS Research OS - AI-Powered Systematic Literature Review Assistant with Evidence Grading, Citation Analysis, and Contradiction Detection"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
-    {name = "JARVIS Team"}
+    {name = "JARVIS Team", email = "jarvis@kaneko-ai.dev"}
+]
+keywords = [
+    "systematic-review",
+    "literature-review",
+    "evidence-grading",
+    "citation-analysis",
+    "PRISMA",
+    "active-learning",
+    "research-assistant",
+    "AI",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
+    "Intended Audience :: Healthcare Industry",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
 ]
 
 dependencies = [
@@ -65,6 +80,7 @@ dev = [
 
 [project.scripts]
 jarvis = "jarvis_cli:main"
+jarvis-screen = "jarvis_core.active_learning.cli:cmd_screen"
 
 [tool.setuptools.packages.find]
 where = ["."]
