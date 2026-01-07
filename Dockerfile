@@ -1,58 +1,57 @@
 # JARVIS Research OS Docker Image
-# Multi-stage build for minimal production image
+# Optimized for research workloads
 
-# --- Build Stage ---
-FROM python:3.12-slim as builder
+FROM python:3.12-slim
 
-WORKDIR /app
+# Labels
+LABEL maintainer="kaneko-ai"
+LABEL version="1.0.0"
+LABEL description="JARVIS Research OS - AI-Powered Systematic Review Assistant"
 
-# Install build dependencies
+# Environment
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PIP_NO_CACHE_DIR=1
+
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
     git \
+    curl \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy project files
-COPY pyproject.toml README.md ./
-COPY jarvis_core/ ./jarvis_core/
-COPY jarvis_tools/ ./jarvis_tools/
-COPY jarvis_cli.py ./
+# Install uv for fast package management
+RUN pip install uv
 
-# Install package
-RUN pip install --no-cache-dir -e ".[embedding]"
-
-# --- Production Stage ---
-FROM python:3.12-slim as production
-
+# Create app directory
 WORKDIR /app
 
-# Install runtime dependencies only
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgomp1 \
-    && rm -rf /var/lib/apt/lists/*
+# Copy dependency files first for caching
+COPY pyproject.toml uv.lock ./
 
-# Copy installed packages from builder
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
+# Install dependencies
+RUN uv sync --no-dev --frozen
 
 # Copy application code
-COPY --from=builder /app /app
+COPY . .
 
-# Create non-root user
-RUN useradd -m -u 1000 jarvis
+# Create directories
+RUN mkdir -p /app/data /app/artifacts /app/cache
+
+# Set up non-root user
+RUN useradd -m -u 1000 jarvis && \
+    chown -R jarvis:jarvis /app
 USER jarvis
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    JARVIS_HOME=/app \
-    JARVIS_CACHE_DIR=/app/.cache
-
-# Create cache directory
-RUN mkdir -p /app/.cache
+# Environment variables
+ENV JARVIS_DATA_DIR=/app/data
+ENV JARVIS_CACHE_DIR=/app/cache
+ENV JARVIS_ARTIFACTS_DIR=/app/artifacts
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "from jarvis_core.sources import UnifiedSourceClient; print('OK')"
+    CMD python -c "from jarvis_core import __version__; print(f'OK: {__version__}')" || exit 1
 
 # Default command
-CMD ["python", "-m", "jarvis_cli", "--help"]
+ENTRYPOINT ["uv", "run", "python", "-m", "jarvis_core.cli"]
+CMD ["--help"]
