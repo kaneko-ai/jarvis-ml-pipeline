@@ -132,6 +132,76 @@ def cmd_train_ranker(args):
         sys.exit(1)
 
 
+def cmd_import(args):
+    """Import references from RIS/BibTeX/Zotero (Sprint 20)."""
+    from pathlib import Path
+    from jarvis_core.integrations.ris_bibtex import (
+        import_references, references_to_jsonl
+    )
+    
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+    
+    if not input_path.exists():
+        print(f"Error: Input file not found: {input_path}", file=sys.stderr)
+        sys.exit(1)
+    
+    try:
+        if args.format == "zotero":
+            from jarvis_core.plugins.zotero_integration import ZoteroClient
+            client = ZoteroClient()
+            refs = client.get_all_items()
+        else:
+            refs = import_references(input_path, args.format)
+        
+        references_to_jsonl(refs, output_path)
+        
+        if args.json:
+            print(json.dumps({"imported": len(refs), "output": str(output_path)}))
+        else:
+            print(f"✅ Imported {len(refs)} references to {output_path}")
+    except Exception as e:
+        print(f"Error importing: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+def cmd_export(args):
+    """Export references to RIS/BibTeX/PRISMA (Sprint 20)."""
+    from pathlib import Path
+    from jarvis_core.integrations.ris_bibtex import (
+        jsonl_to_references, export_references
+    )
+    
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+    
+    if not input_path.exists():
+        print(f"Error: Input file not found: {input_path}", file=sys.stderr)
+        sys.exit(1)
+    
+    try:
+        refs = jsonl_to_references(input_path)
+        
+        if args.format == "prisma":
+            from jarvis_core.prisma import PRISMAData, generate_prisma_flow
+            data = PRISMAData(
+                records_from_databases=len(refs),
+                studies_included=len([r for r in refs if r.abstract]),
+            )
+            content = generate_prisma_flow(data, format="svg")
+            output_path.write_text(content, encoding="utf-8")
+        else:
+            export_references(refs, output_path, args.format)
+        
+        if args.json:
+            print(json.dumps({"exported": len(refs), "output": str(output_path)}))
+        else:
+            print(f"✅ Exported {len(refs)} references to {output_path}")
+    except Exception as e:
+        print(f"Error exporting: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
 def cmd_show_run(args):
     """Show run summary with fail reasons and missing artifacts (per DEC-006)."""
     from jarvis_core.storage import RunStore
@@ -259,6 +329,31 @@ def main():
     ranker_parser.add_argument("--output", type=str, help="Path to save model (optional)")
     ranker_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
+    # === screen command (Sprint 19: Active Learning) ===
+    screen_parser = subparsers.add_parser("screen", help="Active learning paper screening")
+    screen_parser.add_argument("--input", type=str, required=True, help="Input JSONL with papers")
+    screen_parser.add_argument("--output", type=str, required=True, help="Output JSONL with labels")
+    screen_parser.add_argument("--batch-size", type=int, default=10, help="Batch size (default: 10)")
+    screen_parser.add_argument("--target-recall", type=float, default=0.95, help="Target recall (default: 0.95)")
+    screen_parser.add_argument("--budget-ratio", type=float, default=0.3, help="Budget ratio (default: 0.3)")
+    screen_parser.add_argument("--initial-samples", type=int, default=20, help="Initial samples (default: 20)")
+    screen_parser.add_argument("--auto", action="store_true", help="Auto-label (non-interactive)")
+    screen_parser.add_argument("--json", action="store_true", help="Output stats as JSON")
+
+    # === import command (Sprint 20: External Integration) ===
+    import_parser = subparsers.add_parser("import", help="Import references from RIS/BibTeX/Zotero")
+    import_parser.add_argument("--format", type=str, required=True, choices=["ris", "bibtex", "zotero"], help="Import format")
+    import_parser.add_argument("--input", type=str, required=True, help="Input file path")
+    import_parser.add_argument("--output", type=str, default="papers.jsonl", help="Output JSONL path")
+    import_parser.add_argument("--json", action="store_true", help="Output as JSON")
+
+    # === export command (Sprint 20: External Integration) ===
+    export_parser = subparsers.add_parser("export", help="Export references to RIS/BibTeX/PRISMA")
+    export_parser.add_argument("--format", type=str, required=True, choices=["ris", "bibtex", "prisma"], help="Export format")
+    export_parser.add_argument("--input", type=str, required=True, help="Input JSONL path")
+    export_parser.add_argument("--output", type=str, required=True, help="Output file path")
+    export_parser.add_argument("--json", action="store_true", help="Output as JSON")
+
     args = parser.parse_args()
 
     # Legacy mode: if no subcommand but --goal provided
@@ -277,6 +372,13 @@ def main():
         cmd_show_run(args)
     elif args.command == "train-ranker":
         cmd_train_ranker(args)
+    elif args.command == "screen":
+        from jarvis_core.active_learning.cli import cmd_screen
+        cmd_screen(args)
+    elif args.command == "import":
+        cmd_import(args)
+    elif args.command == "export":
+        cmd_export(args)
 
 
 if __name__ == "__main__":
