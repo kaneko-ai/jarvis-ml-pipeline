@@ -37,8 +37,11 @@ JARVIS Research OSは、研究者が体系的文献レビューを効率的に�
 ```bash
 pip install jarvis-research-os
 
-# オプション機能をインストール
-pip install jarvis-research-os[all]
+# オプション機能をインストール（推奨）
+pip install "jarvis-research-os[all]"
+
+# 個別の機能をインストールする場合
+pip install "jarvis-research-os[ml,pdf,llm]"
 ```
 
 ### 方法2: ソースから
@@ -54,6 +57,32 @@ pip install -e .
 ```bash
 docker pull kaneko-ai/jarvis-research-os
 docker run -it jarvis-research-os --help
+```
+
+---
+
+## CLI リファレンス
+
+JARVISは統合CLI `jarvis` を提供します。
+
+```bash
+# ヘルプを表示
+jarvis --help
+
+# タスクの実行
+jarvis run --goal "がん免疫療法の最新動向を調査"
+
+# 論文検索インデックスの構築
+jarvis build-index --query "cancer immunotherapy" --max-papers 50
+
+# Active Learningによるスクリーニング
+jarvis screen --input papers.jsonl --output labeled.jsonl
+
+# 参考文献のインポート (BibTeX/RIS/Zotero)
+jarvis import --format bibtex --input refs.bib --output papers.jsonl
+
+# 参考文献のエクスポート (PRISMAフロー図など)
+jarvis export --format prisma --input papers.jsonl --output prisma.svg
 ```
 
 ---

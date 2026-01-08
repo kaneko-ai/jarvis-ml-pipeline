@@ -123,6 +123,8 @@ class BM25Index:
             return []
 
         scores = self._bm25.get_scores(tokenized_query)
+        # logger.debug(f"BM25 Search: query={tokenized_query}, scores={scores}")
+        # print(f"DEBUG: BM25 Search: query={tokenized_query}, scores={scores}")
 
         # Get top-k indices
         scored_indices = [(i, float(s)) for i, s in enumerate(scores)]
@@ -158,11 +160,12 @@ class BM25Index:
         with open(metadata_path, "w", encoding="utf-8") as f:
             json.dump(metadata, f, indent=2)
 
-        # Save the BM25 object and corpus as pickle
+        # Save the corpus and tokenized corpus as pickle
+        # We don't save the BM25 object itself as it may not be picklable
+        # Instead we rebuild it on load
         data = {
             "corpus": self._corpus,
             "tokenized_corpus": self._tokenized_corpus,
-            "bm25": self._bm25,
         }
 
         with open(path, "wb") as f:
@@ -200,10 +203,24 @@ class BM25Index:
         index = cls(config=config)
         index._corpus = data.get("corpus", [])
         index._tokenized_corpus = data.get("tokenized_corpus", [])
-        index._bm25 = data.get("bm25")
         index._doc_ids = doc_ids if doc_ids else [str(i) for i in range(len(index._corpus))]
-        index._initialized = index._bm25 is not None
-
+        
+        # Rebuild BM25 index from tokenized corpus
+        if index._tokenized_corpus:
+            try:
+                from rank_bm25 import BM25Okapi
+                
+                index._bm25 = BM25Okapi(
+                    index._tokenized_corpus,
+                    k1=index.config.k1,
+                    b=index.config.b,
+                )
+                index._initialized = True
+            except ImportError:
+                logger.warning("rank_bm25 not installed. Cannot initialize index.")
+                index._bm25 = None
+                index._initialized = False
+        
         logger.info(f"BM25Index loaded from {path}")
         return index
 

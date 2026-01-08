@@ -811,6 +811,7 @@ tests/test_scheduler_engine.py
 tests/test_scientific_validity.py
 tests/test_search_v2_contract.py
 tests/test_smoke_schedules_api.py
+tests/test_source_chunking.py
 tests/test_sources.py
 tests/test_spec_lint.py
 tests/test_submission_format.py

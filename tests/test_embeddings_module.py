@@ -103,19 +103,20 @@ class TestBM25Index:
         pytest.importorskip("rank_bm25")
         from jarvis_core.embeddings import BM25Index
 
-        corpus = ["test document one", "test document two"]
+        corpus = ["test document one", "test document two", "other"]
         index = BM25Index()
-        index.build(corpus, ids=["d1", "d2"])
+        index.build(corpus, ids=["d1", "d2", "d3"])
 
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "bm25.pkl"
             index.save(path)
 
             loaded = BM25Index.load(path)
-            assert loaded.doc_count == 2
+            assert loaded.doc_count == 3
 
             results = loaded.search("document", top_k=2)
             assert len(results) == 2
+
 
     def test_add_document(self):
         """Test adding a document."""
