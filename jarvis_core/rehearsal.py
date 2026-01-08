@@ -4,13 +4,13 @@ Per RP35, this generates anticipated questions for presentations.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
-def generate_rehearsal(vectors: List["PaperVector"]) -> dict:
+def generate_rehearsal(vectors: list[PaperVector]) -> dict:
     """Generate presentation rehearsal with anticipated questions.
 
     Args:

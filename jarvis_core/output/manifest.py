@@ -3,23 +3,23 @@
 Generates SHA256 hashes of all bundle files to detect tampering
 and ensure integrity of research outputs.
 """
-from pathlib import Path
-from typing import Dict, Any
 import hashlib
 import json
 import logging
+from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-def _load_qa_summary(run_dir: Path) -> Dict[str, Any]:
+def _load_qa_summary(run_dir: Path) -> dict[str, Any]:
     qa_paths = [
         Path("data/runs") / run_dir.name / "qa" / "qa_report.json",
         run_dir / "qa" / "qa_report.json",
     ]
     for qa_path in qa_paths:
         if qa_path.exists():
-            with open(qa_path, "r", encoding="utf-8") as f:
+            with open(qa_path, encoding="utf-8") as f:
                 qa_data = json.load(f)
             return {
                 "ready_to_submit": qa_data.get("ready_to_submit", False),
@@ -40,16 +40,16 @@ def calculate_sha256(file_path: Path) -> str:
         SHA256 hex digest
     """
     sha256_hash = hashlib.sha256()
-    
+
     with open(file_path, "rb") as f:
         # Read in chunks for large files
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
-    
+
     return sha256_hash.hexdigest()
 
 
-def build_manifest(run_dir: Path) -> Dict[str, Any]:
+def build_manifest(run_dir: Path) -> dict[str, Any]:
     """Build manifest with SHA256 hashes of all bundle files.
     
     Args:
@@ -63,7 +63,7 @@ def build_manifest(run_dir: Path) -> Dict[str, Any]:
         "files": {},
         "version": "1.0"
     }
-    
+
     # Required bundle files
     bundle_files = [
         "input.json",
@@ -77,7 +77,7 @@ def build_manifest(run_dir: Path) -> Dict[str, Any]:
         "warnings.jsonl",
         "report.md",
     ]
-    
+
     # Optional Phase 2 files
     optional_files = [
         "cost_report.json",
@@ -85,17 +85,17 @@ def build_manifest(run_dir: Path) -> Dict[str, Any]:
         "retrieval_snapshot.json",
         "feedback_risk.json",
     ]
-    
+
     all_files = bundle_files + optional_files
-    
+
     for filename in all_files:
         file_path = run_dir / filename
-        
+
         if file_path.exists():
             try:
                 sha256 = calculate_sha256(file_path)
                 file_size = file_path.stat().st_size
-                
+
                 manifest["files"][filename] = {
                     "sha256": sha256,
                     "size_bytes": file_size,
@@ -119,14 +119,14 @@ def build_manifest(run_dir: Path) -> Dict[str, Any]:
     eval_path = run_dir / "eval_summary.json"
     if eval_path.exists():
         try:
-            with open(eval_path, "r", encoding="utf-8") as f:
+            with open(eval_path, encoding="utf-8") as f:
                 eval_summary = json.load(f)
             feedback_summary = eval_summary.get("feedback_risk")
             if feedback_summary:
                 manifest["feedback_risk"] = feedback_summary
         except Exception:
             pass
-    
+
     return manifest
 
 
@@ -140,18 +140,18 @@ def export_manifest(run_dir: Path) -> Path:
         Path to manifest file
     """
     manifest = build_manifest(run_dir)
-    
+
     manifest_path = run_dir / "bundle_manifest.json"
-    
+
     with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
-    
+
     logger.info(f"Bundle manifest exported to {manifest_path}")
-    
+
     return manifest_path
 
 
-def verify_manifest(run_dir: Path) -> Dict[str, Any]:
+def verify_manifest(run_dir: Path) -> dict[str, Any]:
     """Verify bundle integrity against manifest.
     
     Args:
@@ -161,39 +161,39 @@ def verify_manifest(run_dir: Path) -> Dict[str, Any]:
         Dict with 'valid', 'mismatches', 'errors'
     """
     manifest_path = run_dir / "bundle_manifest.json"
-    
+
     if not manifest_path.exists():
         return {
             "valid": False,
             "errors": ["bundle_manifest.json not found"]
         }
-    
-    with open(manifest_path, "r", encoding="utf-8") as f:
+
+    with open(manifest_path, encoding="utf-8") as f:
         manifest = json.load(f)
-    
+
     mismatches = []
     errors = []
-    
+
     for filename, file_info in manifest["files"].items():
         if not file_info["exists"]:
             continue
-        
+
         file_path = run_dir / filename
-        
+
         if not file_path.exists():
             mismatches.append({
                 "file": filename,
                 "issue": "File missing (was in manifest)"
             })
             continue
-        
+
         expected_sha256 = file_info.get("sha256")
         if expected_sha256 is None:
             continue
-        
+
         try:
             actual_sha256 = calculate_sha256(file_path)
-            
+
             if actual_sha256 != expected_sha256:
                 mismatches.append({
                     "file": filename,
@@ -206,9 +206,9 @@ def verify_manifest(run_dir: Path) -> Dict[str, Any]:
                 "file": filename,
                 "error": str(e)
             })
-    
+
     valid = len(mismatches) == 0 and len(errors) == 0
-    
+
     return {
         "valid": valid,
         "mismatches": mismatches,

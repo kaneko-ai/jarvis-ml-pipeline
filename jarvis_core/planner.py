@@ -8,7 +8,6 @@ root task as-is to keep behavior safe and predictable.
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import List
 
 from .task import Task, TaskCategory, TaskStatus
 
@@ -34,7 +33,7 @@ class Planner:
         ],
     }
 
-    def plan(self, task: Task) -> List[Task]:
+    def plan(self, task: Task) -> list[Task]:
         """Expand a root task into an ordered list of subtasks.
 
         If a category recipe exists, generate one subtask per step using the
@@ -46,7 +45,7 @@ class Planner:
         if not recipe:
             return [task]
 
-        subtasks: List[Task] = []
+        subtasks: list[Task] = []
         for idx, step in enumerate(recipe, start=1):
             subtask = Task(
                 task_id=f"{task.task_id}:{idx}",

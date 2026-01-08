@@ -5,57 +5,55 @@ Tests Λ-1 to Λ-30 functions.
 import sys
 from pathlib import Path
 
-import pytest
-
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from jarvis_core.paper_vector import (
-    PaperVector,
-    MetadataVector,
-    ConceptVector,
-    MethodVector,
-    TemporalVector,
-    ImpactVector,
-)
 from jarvis_core.lambda_modules import (
+    alert_decision_delay,
     # Λ-1〜Λ-5
     analyze_hypothesis_risks,
-    score_concept_competition,
-    detect_theme_overlap,
-    detect_claim_ambiguity,
-    warn_strong_assumptions,
     # Λ-6〜Λ-10
     build_experiment_dependency_graph,
-    detect_experiment_bottleneck,
-    warn_control_shortage,
-    optimize_experiment_order,
-    detect_reproduction_failure_signs,
-    # Λ-11〜Λ-15
-    detect_reviewer_fatigue_points,
-    warn_misleading_expressions,
     check_figure_claim_consistency,
-    warn_supplement_bloat,
-    evaluate_citation_balance,
-    # Λ-16〜Λ-20
-    detect_rising_concepts,
-    predict_technique_lifespan,
-    detect_emerging_journals,
-    cluster_researchers,
-    detect_cross_field_citations,
     # Λ-21〜Λ-25
     classify_hypothesis_type,
     classify_thinking_style,
-    diagnose_research_speed,
-    alert_decision_delay,
+    cluster_researchers,
+    detect_claim_ambiguity,
+    detect_cross_field_citations,
+    detect_emerging_journals,
+    detect_experiment_bottleneck,
+    detect_reproduction_failure_signs,
+    # Λ-11〜Λ-15
+    detect_reviewer_fatigue_points,
+    # Λ-16〜Λ-20
+    detect_rising_concepts,
+    detect_theme_overlap,
     detect_undervaluation,
+    diagnose_research_speed,
+    evaluate_citation_balance,
+    generate_monthly_inventory,
+    generate_monthly_strategy_brief,
+    optimize_experiment_order,
+    optimize_for_notebooklm,
+    predict_technique_lifespan,
     # Λ-26〜Λ-30
     restructure_for_obsidian,
-    optimize_for_notebooklm,
-    generate_monthly_inventory,
+    score_concept_competition,
     suggest_log_improvements,
-    generate_monthly_strategy_brief,
+    warn_control_shortage,
+    warn_misleading_expressions,
+    warn_strong_assumptions,
+    warn_supplement_bloat,
+)
+from jarvis_core.paper_vector import (
+    ConceptVector,
+    ImpactVector,
+    MetadataVector,
+    MethodVector,
+    PaperVector,
+    TemporalVector,
 )
 
 

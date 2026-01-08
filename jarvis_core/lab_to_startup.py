@@ -4,14 +4,14 @@ Per Ψ-4, this translates research to business hypotheses.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def translate_to_startup(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     technology_focus: str = "",
 ) -> dict:
     """Translate research findings to startup hypothesis.

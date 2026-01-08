@@ -4,17 +4,16 @@ Per RP-563, implements token bucket rate limiting.
 """
 from __future__ import annotations
 
-import time
 import threading
+import time
 from dataclasses import dataclass
-from typing import Dict, Optional
 from functools import wraps
 
 
 @dataclass
 class RateLimitConfig:
     """Rate limit configuration."""
-    
+
     requests_per_second: float = 10.0
     burst_size: int = 20
     per_user: bool = True
@@ -23,11 +22,11 @@ class RateLimitConfig:
 @dataclass
 class RateLimitResult:
     """Result of rate limit check."""
-    
+
     allowed: bool
     remaining: int
     reset_at: float
-    retry_after: Optional[float] = None
+    retry_after: float | None = None
 
 
 class TokenBucket:
@@ -38,7 +37,7 @@ class TokenBucket:
     - Per-user limits
     - Burst handling
     """
-    
+
     def __init__(
         self,
         rate: float = 10.0,
@@ -49,7 +48,7 @@ class TokenBucket:
         self._tokens = float(capacity)
         self._last_update = time.time()
         self._lock = threading.Lock()
-    
+
     def _refill(self) -> None:
         """Refill tokens based on elapsed time."""
         now = time.time()
@@ -59,7 +58,7 @@ class TokenBucket:
             self._tokens + elapsed * self.rate,
         )
         self._last_update = now
-    
+
     def try_acquire(self, tokens: int = 1) -> RateLimitResult:
         """Try to acquire tokens.
         
@@ -71,7 +70,7 @@ class TokenBucket:
         """
         with self._lock:
             self._refill()
-            
+
             if self._tokens >= tokens:
                 self._tokens -= tokens
                 return RateLimitResult(
@@ -83,15 +82,15 @@ class TokenBucket:
                 # Calculate wait time
                 deficit = tokens - self._tokens
                 wait_time = deficit / self.rate
-                
+
                 return RateLimitResult(
                     allowed=False,
                     remaining=0,
                     reset_at=time.time() + wait_time,
                     retry_after=wait_time,
                 )
-    
-    def acquire(self, tokens: int = 1, timeout: Optional[float] = None) -> bool:
+
+    def acquire(self, tokens: int = 1, timeout: float | None = None) -> bool:
         """Acquire tokens, blocking if necessary.
         
         Args:
@@ -102,18 +101,18 @@ class TokenBucket:
             True if acquired.
         """
         start = time.time()
-        
+
         while True:
             result = self.try_acquire(tokens)
-            
+
             if result.allowed:
                 return True
-            
+
             if timeout is not None:
                 elapsed = time.time() - start
                 if elapsed + result.retry_after > timeout:
                     return False
-            
+
             time.sleep(min(result.retry_after, 0.1))
 
 
@@ -122,16 +121,16 @@ class RateLimiter:
     
     Manages rate limits per user/API key.
     """
-    
-    def __init__(self, config: Optional[RateLimitConfig] = None):
+
+    def __init__(self, config: RateLimitConfig | None = None):
         self.config = config or RateLimitConfig()
-        self._buckets: Dict[str, TokenBucket] = {}
+        self._buckets: dict[str, TokenBucket] = {}
         self._global_bucket = TokenBucket(
             rate=self.config.requests_per_second * 10,
             capacity=self.config.burst_size * 10,
         )
         self._lock = threading.Lock()
-    
+
     def _get_bucket(self, key: str) -> TokenBucket:
         """Get or create bucket for key."""
         with self._lock:
@@ -141,8 +140,8 @@ class RateLimiter:
                     capacity=self.config.burst_size,
                 )
             return self._buckets[key]
-    
-    def check(self, key: Optional[str] = None) -> RateLimitResult:
+
+    def check(self, key: str | None = None) -> RateLimitResult:
         """Check rate limit.
         
         Args:
@@ -155,15 +154,15 @@ class RateLimiter:
         global_result = self._global_bucket.try_acquire()
         if not global_result.allowed:
             return global_result
-        
+
         # Check per-key limit
         if key and self.config.per_user:
             bucket = self._get_bucket(key)
             return bucket.try_acquire()
-        
+
         return global_result
-    
-    def is_allowed(self, key: Optional[str] = None) -> bool:
+
+    def is_allowed(self, key: str | None = None) -> bool:
         """Check if request is allowed.
         
         Args:
@@ -173,11 +172,11 @@ class RateLimiter:
             True if allowed.
         """
         return self.check(key).allowed
-    
+
     def wait(
         self,
-        key: Optional[str] = None,
-        timeout: Optional[float] = None,
+        key: str | None = None,
+        timeout: float | None = None,
     ) -> bool:
         """Wait for rate limit.
         
@@ -194,7 +193,7 @@ class RateLimiter:
 
 class RateLimitError(Exception):
     """Rate limit exceeded error."""
-    
+
     def __init__(self, result: RateLimitResult):
         self.result = result
         super().__init__(
@@ -203,8 +202,8 @@ class RateLimitError(Exception):
 
 
 def rate_limit(
-    config: Optional[RateLimitConfig] = None,
-    key_func: Optional[callable] = None,
+    config: RateLimitConfig | None = None,
+    key_func: callable | None = None,
 ) -> callable:
     """Decorator for rate limiting.
     
@@ -216,19 +215,19 @@ def rate_limit(
         Decorator.
     """
     limiter = RateLimiter(config)
-    
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             key = key_func(*args, **kwargs) if key_func else None
             result = limiter.check(key)
-            
+
             if not result.allowed:
                 raise RateLimitError(result)
-            
+
             return func(*args, **kwargs)
-        
+
         wrapper.limiter = limiter
         return wrapper
-    
+
     return decorator

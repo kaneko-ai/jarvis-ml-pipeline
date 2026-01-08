@@ -4,9 +4,10 @@ Per V4.2 Sprint 2, this provides staged indexing: ingest→normalize→chunk→i
 """
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Dict, Any, Callable, Optional
+from typing import Any
 
 
 class PipelineStage(Enum):
@@ -27,20 +28,20 @@ class StageResult:
     output_count: int
     skipped_count: int
     duration_ms: float
-    outputs: List[Any] = field(default_factory=list)
+    outputs: list[Any] = field(default_factory=list)
 
 
 class IndexPipeline:
     """Staged indexing pipeline with incremental support."""
 
     def __init__(self):
-        self.stages: Dict[PipelineStage, Callable] = {}
-        self.results: Dict[PipelineStage, StageResult] = {}
+        self.stages: dict[PipelineStage, Callable] = {}
+        self.results: dict[PipelineStage, StageResult] = {}
 
     def register_stage(
         self,
         stage: PipelineStage,
-        fn: Callable[[List[Any]], List[Any]],
+        fn: Callable[[list[Any]], list[Any]],
     ) -> None:
         """Register a stage processor."""
         self.stages[stage] = fn
@@ -48,8 +49,8 @@ class IndexPipeline:
     def run_stage(
         self,
         stage: PipelineStage,
-        inputs: List[Any],
-        state: Optional["IncrementalState"] = None,
+        inputs: list[Any],
+        state: IncrementalState | None = None,
     ) -> StageResult:
         """Run a single stage.
 
@@ -62,7 +63,8 @@ class IndexPipeline:
             StageResult with outputs.
         """
         import time
-        from ..perf.trace_spans import start_span, end_span
+
+        from ..perf.trace_spans import end_span, start_span
 
         span_id = start_span(f"index:{stage.value}")
         start_time = time.time()
@@ -109,9 +111,9 @@ class IndexPipeline:
 
     def run_all(
         self,
-        inputs: List[Any],
-        state: Optional["IncrementalState"] = None,
-    ) -> Dict[PipelineStage, StageResult]:
+        inputs: list[Any],
+        state: IncrementalState | None = None,
+    ) -> dict[PipelineStage, StageResult]:
         """Run all stages in order.
 
         Args:
@@ -144,12 +146,12 @@ class IndexPipeline:
 
 
 # Default stage processors
-def default_ingest(items: List[Any]) -> List[Any]:
+def default_ingest(items: list[Any]) -> list[Any]:
     """Default ingest: pass through."""
     return items
 
 
-def default_normalize(items: List[Any]) -> List[Any]:
+def default_normalize(items: list[Any]) -> list[Any]:
     """Default normalize: lowercase text."""
     results = []
     for item in items:
@@ -163,7 +165,7 @@ def default_normalize(items: List[Any]) -> List[Any]:
     return results
 
 
-def default_chunk(items: List[Any], chunk_size: int = 500) -> List[Any]:
+def default_chunk(items: list[Any], chunk_size: int = 500) -> list[Any]:
     """Default chunk: split text into chunks."""
     chunks = []
     for item in items:

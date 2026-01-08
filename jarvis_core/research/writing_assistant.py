@@ -5,13 +5,12 @@ Per RP-444, assists with paper writing.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Dict, Optional
 from enum import Enum
 
 
 class PaperSection(Enum):
     """Paper sections."""
-    
+
     ABSTRACT = "abstract"
     INTRODUCTION = "introduction"
     METHODS = "methods"
@@ -24,7 +23,7 @@ class PaperSection(Enum):
 @dataclass
 class WritingSuggestion:
     """A writing suggestion."""
-    
+
     section: PaperSection
     current_text: str
     suggested_text: str
@@ -35,7 +34,7 @@ class WritingSuggestion:
 @dataclass
 class CitationSuggestion:
     """A citation suggestion."""
-    
+
     position: int
     paper_id: str
     title: str
@@ -51,7 +50,7 @@ class PaperWritingAssistant:
     - Citation insertion
     - Style adjustment
     """
-    
+
     def __init__(
         self,
         llm_generator=None,
@@ -61,12 +60,12 @@ class PaperWritingAssistant:
         self.llm = llm_generator
         self.citation_db = citation_db
         self.style_guide = style_guide
-    
+
     def suggest_structure(
         self,
         topic: str,
         paper_type: str = "research",
-    ) -> Dict[PaperSection, str]:
+    ) -> dict[PaperSection, str]:
         """Suggest paper structure.
         
         Args:
@@ -84,14 +83,14 @@ class PaperWritingAssistant:
             PaperSection.DISCUSSION: "Interpretation, limitations, implications",
             PaperSection.CONCLUSION: "Summary and future directions",
         }
-        
+
         return outlines
-    
+
     def suggest_citations(
         self,
         text: str,
-        available_papers: Optional[List[Dict]] = None,
-    ) -> List[CitationSuggestion]:
+        available_papers: list[dict] | None = None,
+    ) -> list[CitationSuggestion]:
         """Suggest citations for text.
         
         Args:
@@ -102,10 +101,10 @@ class PaperWritingAssistant:
             Citation suggestions.
         """
         suggestions = []
-        
+
         # Find claim-like sentences
         sentences = text.split(". ")
-        
+
         for i, sentence in enumerate(sentences):
             if self._needs_citation(sentence):
                 # Find relevant paper
@@ -119,9 +118,9 @@ class PaperWritingAssistant:
                             relevance_score=0.8,
                             citation_text=self._format_citation(paper),
                         ))
-        
+
         return suggestions
-    
+
     def _needs_citation(self, sentence: str) -> bool:
         """Check if sentence needs citation."""
         claim_indicators = [
@@ -133,49 +132,49 @@ class PaperWritingAssistant:
             "is known to",
             "has been reported",
         ]
-        
+
         sentence_lower = sentence.lower()
         return any(ind in sentence_lower for ind in claim_indicators)
-    
+
     def _find_relevant_paper(
         self,
         sentence: str,
-        papers: List[Dict],
-    ) -> Optional[Dict]:
+        papers: list[dict],
+    ) -> dict | None:
         """Find most relevant paper for sentence."""
         if not papers:
             return None
-        
+
         # Simple keyword matching
         sentence_words = set(sentence.lower().split())
-        
+
         best_paper = None
         best_score = 0
-        
+
         for paper in papers:
             title_words = set(paper.get("title", "").lower().split())
             overlap = len(sentence_words & title_words)
-            
+
             if overlap > best_score:
                 best_score = overlap
                 best_paper = paper
-        
+
         return best_paper if best_score > 2 else None
-    
-    def _format_citation(self, paper: Dict) -> str:
+
+    def _format_citation(self, paper: dict) -> str:
         """Format citation."""
         authors = paper.get("authors", ["Unknown"])
         year = paper.get("year", "")
-        
+
         if len(authors) > 2:
             author_str = f"{authors[0]} et al."
         elif len(authors) == 2:
             author_str = f"{authors[0]} and {authors[1]}"
         else:
             author_str = authors[0]
-        
+
         return f"({author_str}, {year})"
-    
+
     def improve_section(
         self,
         section: PaperSection,
@@ -198,7 +197,7 @@ class PaperWritingAssistant:
             PaperSection.DISCUSSION: "Address potential limitations",
             PaperSection.CONCLUSION: "End with clear future directions",
         }
-        
+
         return WritingSuggestion(
             section=section,
             current_text=text[:100] + "..." if len(text) > 100 else text,
@@ -206,11 +205,11 @@ class PaperWritingAssistant:
             reason=suggestions.get(section, "General improvement"),
             confidence=0.7,
         )
-    
+
     def check_style(
         self,
         text: str,
-    ) -> List[Dict[str, str]]:
+    ) -> list[dict[str, str]]:
         """Check writing style.
         
         Args:
@@ -220,7 +219,7 @@ class PaperWritingAssistant:
             Style issues.
         """
         issues = []
-        
+
         # Check for passive voice overuse
         passive_patterns = ["was ", "were ", "is being", "has been"]
         passive_count = sum(text.lower().count(p) for p in passive_patterns)
@@ -229,7 +228,7 @@ class PaperWritingAssistant:
                 "type": "passive_voice",
                 "message": "Consider reducing passive voice usage",
             })
-        
+
         # Check for long sentences
         sentences = text.split(". ")
         long_sentences = [s for s in sentences if len(s.split()) > 40]
@@ -238,12 +237,12 @@ class PaperWritingAssistant:
                 "type": "long_sentence",
                 "message": f"{len(long_sentences)} sentence(s) exceed 40 words",
             })
-        
+
         # Check for first person
         if " I " in text or " we " in text.lower():
             issues.append({
                 "type": "first_person",
                 "message": "Consider third person for formal style",
             })
-        
+
         return issues

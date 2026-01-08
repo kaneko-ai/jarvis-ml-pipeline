@@ -1,10 +1,10 @@
 """Term normalization utilities for lab style guide."""
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Tuple
-import re
+
 import yaml
 
 STYLE_GUIDE_PATH = Path(__file__).with_name("lab_style_guide.yaml")
@@ -22,28 +22,28 @@ class TermIssue:
 
 @dataclass
 class NormalizationResult:
-    normalized_lines: List[str]
-    issues: List[TermIssue]
-    replacements: List[Dict[str, str]]
+    normalized_lines: list[str]
+    issues: list[TermIssue]
+    replacements: list[dict[str, str]]
 
 
-def load_style_guide(path: Path = STYLE_GUIDE_PATH) -> Dict[str, object]:
+def load_style_guide(path: Path = STYLE_GUIDE_PATH) -> dict[str, object]:
     """Load the lab style guide YAML."""
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 
 def _apply_variants(
     line: str,
-    variants: List[str],
+    variants: list[str],
     preferred: str,
     rule_id: str,
     location: str,
     issue_type: str,
     severity: str,
-) -> Tuple[str, List[TermIssue], List[Dict[str, str]]]:
-    issues: List[TermIssue] = []
-    replacements: List[Dict[str, str]] = []
+) -> tuple[str, list[TermIssue], list[dict[str, str]]]:
+    issues: list[TermIssue] = []
+    replacements: list[dict[str, str]] = []
 
     def _replace(match: re.Match) -> str:
         original = match.group(0)
@@ -74,14 +74,14 @@ def _apply_variants(
 
 
 def normalize_lines(
-    lines: List[str],
-    style_guide: Dict[str, object],
+    lines: list[str],
+    style_guide: dict[str, object],
     source_prefix: str,
 ) -> NormalizationResult:
     """Normalize lines according to style guide."""
-    normalized_lines: List[str] = []
-    issues: List[TermIssue] = []
-    replacements: List[Dict[str, str]] = []
+    normalized_lines: list[str] = []
+    issues: list[TermIssue] = []
+    replacements: list[dict[str, str]] = []
 
     preferred_terms = style_guide.get("preferred_terms", [])
     forbidden_terms = style_guide.get("forbidden_terms", [])
@@ -139,8 +139,8 @@ def normalize_lines(
     )
 
 
-def check_abbrev_rules(text: str, style_guide: Dict[str, object], source_prefix: str) -> List[TermIssue]:
-    issues: List[TermIssue] = []
+def check_abbrev_rules(text: str, style_guide: dict[str, object], source_prefix: str) -> list[TermIssue]:
+    issues: list[TermIssue] = []
     abbrev_rules = style_guide.get("abbrev_rules", [])
     lines = text.splitlines()
     for rule in abbrev_rules:
@@ -174,16 +174,16 @@ def check_abbrev_rules(text: str, style_guide: Dict[str, object], source_prefix:
     return issues
 
 
-def normalize_markdown(text: str, style_guide: Dict[str, object]) -> Tuple[str, List[TermIssue], List[Dict[str, str]]]:
+def normalize_markdown(text: str, style_guide: dict[str, object]) -> tuple[str, list[TermIssue], list[dict[str, str]]]:
     lines = text.splitlines()
     result = normalize_lines(lines, style_guide, source_prefix="md")
     issues = result.issues + check_abbrev_rules(text, style_guide, "md")
     return "\n".join(result.normalized_lines), issues, result.replacements
 
 
-def normalize_docx_paragraphs(paragraphs: List[str], style_guide: Dict[str, object]) -> NormalizationResult:
+def normalize_docx_paragraphs(paragraphs: list[str], style_guide: dict[str, object]) -> NormalizationResult:
     return normalize_lines(paragraphs, style_guide, source_prefix="docx")
 
 
-def normalize_pptx_slides(slides: List[str], style_guide: Dict[str, object]) -> NormalizationResult:
+def normalize_pptx_slides(slides: list[str], style_guide: dict[str, object]) -> NormalizationResult:
     return normalize_lines(slides, style_guide, source_prefix="pptx")

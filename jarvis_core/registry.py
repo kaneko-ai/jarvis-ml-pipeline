@@ -9,9 +9,10 @@ runtime.
 from __future__ import annotations
 
 import importlib
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, Optional
+from typing import Any
 
 from .config_loader import load_and_merge
 
@@ -22,7 +23,7 @@ class AgentDefinition:
     category: str
     entrypoint: str
     description: str | None = None
-    capabilities: List[str] | None = None
+    capabilities: list[str] | None = None
 
     def load_class(self):
         module_name, _, cls_name = self.entrypoint.partition(":")
@@ -44,10 +45,10 @@ class AgentRegistry:
         self._categories = dict(categories)
 
     @classmethod
-    def from_file(cls, path: str | Path, overrides: Mapping[str, Any] | None = None) -> "AgentRegistry":
+    def from_file(cls, path: str | Path, overrides: Mapping[str, Any] | None = None) -> AgentRegistry:
         config = load_and_merge(path, overrides)
         raw_agents = config.get("agents", {})
-        agent_defs: Dict[str, AgentDefinition] = {}
+        agent_defs: dict[str, AgentDefinition] = {}
         for name, data in raw_agents.items():
             agent_defs[name] = AgentDefinition(
                 name=name,
@@ -59,14 +60,14 @@ class AgentRegistry:
         categories = config.get("categories", {})
         return cls(agent_defs, categories)
 
-    def get_agent(self, name: str) -> Optional[AgentDefinition]:
+    def get_agent(self, name: str) -> AgentDefinition | None:
         return self._agents.get(name)
 
-    def get_agents_for_category(self, category: str) -> List[AgentDefinition]:
+    def get_agents_for_category(self, category: str) -> list[AgentDefinition]:
         agent_names: Iterable[str] = self._categories.get(category, {}).get("agents", [])
         return [self._agents[name] for name in agent_names if name in self._agents]
 
-    def get_default_agent_for_category(self, category: str) -> Optional[AgentDefinition]:
+    def get_default_agent_for_category(self, category: str) -> AgentDefinition | None:
         category_cfg = self._categories.get(category)
         if not category_cfg:
             return None

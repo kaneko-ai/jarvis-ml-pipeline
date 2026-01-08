@@ -4,33 +4,31 @@ Per RP-377, implements A/B testing for experiments.
 """
 from __future__ import annotations
 
+import hashlib
 import json
-import random
-from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-import hashlib
 
 
 @dataclass
 class Experiment:
     """An A/B experiment definition."""
-    
+
     experiment_id: str
     name: str
-    variants: List[str]
-    traffic_split: Dict[str, float]  # variant -> percentage
+    variants: list[str]
+    traffic_split: dict[str, float]  # variant -> percentage
     start_date: str
-    end_date: Optional[str]
+    end_date: str | None
     status: str  # draft, running, completed
-    metrics: List[str]
+    metrics: list[str]
 
 
 @dataclass
 class ExperimentResult:
     """Results from an experiment."""
-    
+
     experiment_id: str
     variant: str
     metric: str
@@ -47,21 +45,21 @@ class ABTestingFramework:
     - Traffic splitting
     - Statistical tests
     """
-    
+
     def __init__(
         self,
         experiments_dir: str = "experiments",
     ):
         self.experiments_dir = Path(experiments_dir)
         self.experiments_dir.mkdir(parents=True, exist_ok=True)
-        self._experiments: Dict[str, Experiment] = {}
-    
+        self._experiments: dict[str, Experiment] = {}
+
     def create_experiment(
         self,
         name: str,
-        variants: List[str],
-        traffic_split: Optional[Dict[str, float]] = None,
-        metrics: Optional[List[str]] = None,
+        variants: list[str],
+        traffic_split: dict[str, float] | None = None,
+        metrics: list[str] | None = None,
     ) -> Experiment:
         """Create a new experiment.
         
@@ -75,12 +73,12 @@ class ABTestingFramework:
             Created experiment.
         """
         exp_id = f"exp_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        
+
         # Default equal split
         if traffic_split is None:
             split = 1.0 / len(variants)
-            traffic_split = {v: split for v in variants}
-        
+            traffic_split = dict.fromkeys(variants, split)
+
         experiment = Experiment(
             experiment_id=exp_id,
             name=name,
@@ -91,12 +89,12 @@ class ABTestingFramework:
             status="draft",
             metrics=metrics or ["success_rate"],
         )
-        
+
         self._experiments[exp_id] = experiment
         self._save_experiment(experiment)
-        
+
         return experiment
-    
+
     def assign_variant(
         self,
         experiment_id: str,
@@ -114,20 +112,20 @@ class ABTestingFramework:
         experiment = self._experiments.get(experiment_id)
         if not experiment or experiment.status != "running":
             return experiment.variants[0] if experiment else "control"
-        
+
         # Deterministic assignment based on hash
         hash_input = f"{experiment_id}:{user_id}"
         hash_val = int(hashlib.md5(hash_input.encode()).hexdigest(), 16)
         bucket = (hash_val % 10000) / 10000.0
-        
+
         cumulative = 0.0
         for variant, split in experiment.traffic_split.items():
             cumulative += split
             if bucket < cumulative:
                 return variant
-        
+
         return experiment.variants[-1]
-    
+
     def record_metric(
         self,
         experiment_id: str,
@@ -145,7 +143,7 @@ class ABTestingFramework:
         """
         log_path = self.experiments_dir / experiment_id / "metrics.jsonl"
         log_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         with open(log_path, "a") as f:
             f.write(json.dumps({
                 "timestamp": datetime.utcnow().isoformat() + "Z",
@@ -153,11 +151,11 @@ class ABTestingFramework:
                 "metric": metric,
                 "value": value,
             }) + "\n")
-    
+
     def analyze_experiment(
         self,
         experiment_id: str,
-    ) -> List[ExperimentResult]:
+    ) -> list[ExperimentResult]:
         """Analyze experiment results.
         
         Args:
@@ -169,24 +167,24 @@ class ABTestingFramework:
         log_path = self.experiments_dir / experiment_id / "metrics.jsonl"
         if not log_path.exists():
             return []
-        
+
         # Load metrics
-        data: Dict[str, Dict[str, List[float]]] = {}
-        
+        data: dict[str, dict[str, list[float]]] = {}
+
         with open(log_path) as f:
             for line in f:
                 entry = json.loads(line)
                 variant = entry["variant"]
                 metric = entry["metric"]
                 value = entry["value"]
-                
+
                 if variant not in data:
                     data[variant] = {}
                 if metric not in data[variant]:
                     data[variant][metric] = []
-                
+
                 data[variant][metric].append(value)
-        
+
         # Calculate results
         results = []
         for variant, metrics in data.items():
@@ -200,10 +198,10 @@ class ABTestingFramework:
                         sample_size=len(values),
                         confidence=self._calculate_confidence(values),
                     ))
-        
+
         return results
-    
-    def _calculate_confidence(self, values: List[float]) -> float:
+
+    def _calculate_confidence(self, values: list[float]) -> float:
         """Calculate confidence in metric."""
         if len(values) < 30:
             return 0.5
@@ -211,12 +209,12 @@ class ABTestingFramework:
             return 0.7
         else:
             return 0.9
-    
+
     def _save_experiment(self, experiment: Experiment) -> None:
         """Save experiment to disk."""
         exp_dir = self.experiments_dir / experiment.experiment_id
         exp_dir.mkdir(parents=True, exist_ok=True)
-        
+
         with open(exp_dir / "config.json", "w") as f:
             json.dump({
                 "experiment_id": experiment.experiment_id,
@@ -228,13 +226,13 @@ class ABTestingFramework:
                 "status": experiment.status,
                 "metrics": experiment.metrics,
             }, f, indent=2)
-    
+
     def start_experiment(self, experiment_id: str) -> None:
         """Start an experiment."""
         if experiment_id in self._experiments:
             self._experiments[experiment_id].status = "running"
             self._save_experiment(self._experiments[experiment_id])
-    
+
     def stop_experiment(self, experiment_id: str) -> None:
         """Stop an experiment."""
         if experiment_id in self._experiments:

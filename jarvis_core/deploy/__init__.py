@@ -1,17 +1,17 @@
 """Deploy package for JARVIS."""
 from .canary import (
-    CanaryDeploymentManager,
     CanaryConfig,
-    DeploymentVersion,
+    CanaryDeploymentManager,
     DeploymentResult,
-    DeploymentStrategy,
     DeploymentStatus,
+    DeploymentStrategy,
+    DeploymentVersion,
     get_deployment_manager,
 )
 from .cloud_run import (
-    CloudRunDeployer,
-    CloudRunConfig,
     CloudRegion,
+    CloudRunConfig,
+    CloudRunDeployer,
     get_cloud_run_deployer,
 )
 

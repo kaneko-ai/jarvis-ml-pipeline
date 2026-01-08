@@ -4,31 +4,32 @@ Per RP-400, implements distributed processing with Ray.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import List, Dict, Any, Optional, Callable
 import time
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
 class WorkerInfo:
     """Information about a worker."""
-    
+
     worker_id: str
     status: str
     tasks_completed: int
-    current_task: Optional[str]
+    current_task: str | None
 
 
 @dataclass
 class DistributedTask:
     """A distributed task."""
-    
+
     task_id: str
     func_name: str
     args: tuple
     kwargs: dict
     status: str
-    result: Optional[Any]
+    result: Any | None
 
 
 class DistributedProcessor:
@@ -39,7 +40,7 @@ class DistributedProcessor:
     - Worker management
     - Load balancing
     """
-    
+
     def __init__(
         self,
         backend: str = "local",
@@ -47,10 +48,10 @@ class DistributedProcessor:
     ):
         self.backend = backend
         self.num_workers = num_workers
-        self._workers: Dict[str, WorkerInfo] = {}
-        self._tasks: Dict[str, DistributedTask] = {}
+        self._workers: dict[str, WorkerInfo] = {}
+        self._tasks: dict[str, DistributedTask] = {}
         self._ray = None
-    
+
     def initialize(self) -> bool:
         """Initialize distributed backend.
         
@@ -66,7 +67,7 @@ class DistributedProcessor:
                 return True
             except ImportError:
                 self.backend = "local"
-        
+
         # Create local workers
         for i in range(self.num_workers):
             worker_id = f"worker_{i}"
@@ -76,9 +77,9 @@ class DistributedProcessor:
                 tasks_completed=0,
                 current_task=None,
             )
-        
+
         return True
-    
+
     def submit(
         self,
         func: Callable,
@@ -96,7 +97,7 @@ class DistributedProcessor:
             Task ID.
         """
         task_id = f"task_{len(self._tasks)}_{int(time.time() * 1000)}"
-        
+
         task = DistributedTask(
             task_id=task_id,
             func_name=func.__name__,
@@ -105,9 +106,9 @@ class DistributedProcessor:
             status="pending",
             result=None,
         )
-        
+
         self._tasks[task_id] = task
-        
+
         if self.backend == "ray" and self._ray:
             remote_func = self._ray.remote(func)
             future = remote_func.remote(*args, **kwargs)
@@ -122,13 +123,13 @@ class DistributedProcessor:
             except Exception as e:
                 task.result = str(e)
                 task.status = "failed"
-        
+
         return task_id
-    
+
     def get_result(
         self,
         task_id: str,
-        timeout: Optional[float] = None,
+        timeout: float | None = None,
     ) -> Any:
         """Get task result.
         
@@ -142,7 +143,7 @@ class DistributedProcessor:
         task = self._tasks.get(task_id)
         if not task:
             raise ValueError(f"Unknown task: {task_id}")
-        
+
         if self.backend == "ray" and self._ray:
             if task.status == "running":
                 try:
@@ -152,14 +153,14 @@ class DistributedProcessor:
                 except Exception as e:
                     task.result = str(e)
                     task.status = "failed"
-        
+
         return task.result
-    
+
     def map(
         self,
         func: Callable,
-        items: List[Any],
-    ) -> List[Any]:
+        items: list[Any],
+    ) -> list[Any]:
         """Map function over items in parallel.
         
         Args:
@@ -176,7 +177,7 @@ class DistributedProcessor:
         else:
             # Local sequential
             return [func(item) for item in items]
-    
+
     def shutdown(self) -> None:
         """Shutdown distributed backend."""
         if self.backend == "ray" and self._ray:
@@ -184,15 +185,15 @@ class DistributedProcessor:
                 self._ray.shutdown()
             except Exception:
                 pass
-    
-    def get_workers(self) -> List[WorkerInfo]:
+
+    def get_workers(self) -> list[WorkerInfo]:
         """Get worker information.
         
         Returns:
             List of workers.
         """
         return list(self._workers.values())
-    
+
     def get_task_status(self, task_id: str) -> str:
         """Get task status.
         

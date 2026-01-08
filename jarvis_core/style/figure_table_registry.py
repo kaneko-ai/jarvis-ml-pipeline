@@ -1,9 +1,8 @@
 """Figure/Table registry for placeholder and reference validation."""
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Dict, List
 import re
+from dataclasses import dataclass
 
 
 @dataclass
@@ -20,7 +19,7 @@ class RegistryIssue:
     fig_id: str
 
 
-def scan_text(text: str) -> Dict[str, List[Dict[str, object]]]:
+def scan_text(text: str) -> dict[str, list[dict[str, object]]]:
     placeholder_pattern = re.compile(r"\[\[FIGURE_PLACEHOLDER:(FIG\d+)\]\]")
     table_pattern = re.compile(r"\[\[TABLE_PLACEHOLDER:(TABLE\d+)\]\]")
     ref_pattern = re.compile(r"\b(Fig\.?|Figure)\s*(\d+)")
@@ -31,8 +30,8 @@ def scan_text(text: str) -> Dict[str, List[Dict[str, object]]]:
     refs = [f"FIG{num}" for _, num in ref_pattern.findall(text)]
     table_refs = [f"TABLE{num}" for _, num in table_ref_pattern.findall(text)]
 
-    figures: List[FigureEntry] = []
-    issues: List[RegistryIssue] = []
+    figures: list[FigureEntry] = []
+    issues: list[RegistryIssue] = []
 
     seen = set()
     for fig_id in placeholders:
@@ -76,7 +75,7 @@ def scan_text(text: str) -> Dict[str, List[Dict[str, object]]]:
                 )
             )
 
-    table_entries: List[FigureEntry] = []
+    table_entries: list[FigureEntry] = []
     table_seen = set()
     for table_id in table_placeholders:
         if table_id in table_seen:

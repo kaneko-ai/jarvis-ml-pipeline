@@ -8,7 +8,6 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Optional
 
 from .metrics_truth import TruthMetrics, calculate_truth_metrics
 
@@ -20,9 +19,9 @@ class RegressionResult:
     run_id: str
     timestamp: datetime
     metrics: TruthMetrics
-    baseline_metrics: Optional[TruthMetrics]
+    baseline_metrics: TruthMetrics | None
     is_regression: bool
-    regression_reasons: List[str]
+    regression_reasons: list[str]
     metadata: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
@@ -38,9 +37,9 @@ class RegressionResult:
 
 
 def run_regression(
-    predictions: List[Dict],
-    baseline_path: Optional[str] = None,
-    thresholds: Dict[str, float] = None,
+    predictions: list[dict],
+    baseline_path: str | None = None,
+    thresholds: dict[str, float] = None,
 ) -> RegressionResult:
     """Run regression test.
 
@@ -64,7 +63,7 @@ def run_regression(
     # Load baseline if exists
     baseline = None
     if baseline_path and Path(baseline_path).exists():
-        with open(baseline_path, "r", encoding="utf-8") as f:
+        with open(baseline_path, encoding="utf-8") as f:
             data = json.load(f)
             baseline = TruthMetrics(
                 unsupported_fact_rate=data.get("unsupported_fact_rate", 0),

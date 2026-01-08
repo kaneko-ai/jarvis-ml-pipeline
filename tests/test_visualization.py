@@ -1,22 +1,23 @@
 """Comprehensive tests for visualization module."""
 import pytest
+
 from jarvis_core.visualization.advanced import (
-    SankeyGenerator,
-    ForceGraphGenerator,
     BubbleChartGenerator,
+    ForceGraphGenerator,
+    SankeyGenerator,
     TreemapGenerator,
     TrendPredictor,
-    get_sankey_generator,
-    get_force_graph_generator,
     get_bubble_chart_generator,
+    get_force_graph_generator,
+    get_sankey_generator,
     get_treemap_generator,
-    get_trend_predictor
+    get_trend_predictor,
 )
 
 
 class TestSankeyGenerator:
     """Test Sankey diagram generator."""
-    
+
     def test_generate_citation_flow(self):
         papers = [
             {"pmid": "1", "title": "Paper 1", "references": ["2"]},
@@ -27,7 +28,7 @@ class TestSankeyGenerator:
         assert "nodes" in result
         assert "links" in result
         assert len(result["nodes"]) == 2
-    
+
     def test_generate_topic_flow(self):
         categories = {
             "AI": [{"year": 2024}, {"year": 2023}],
@@ -40,7 +41,7 @@ class TestSankeyGenerator:
 
 class TestForceGraphGenerator:
     """Test force graph generator."""
-    
+
     def test_generate_author_network(self):
         papers = [
             {"authors": "Smith J, Johnson A"},
@@ -50,7 +51,7 @@ class TestForceGraphGenerator:
         result = fg.generate_author_network(papers)
         assert len(result["nodes"]) == 3
         assert len(result["links"]) >= 1
-    
+
     def test_generate_citation_network(self):
         papers = [{"pmid": "1", "title": "Test", "citation_count": 10}]
         fg = ForceGraphGenerator()
@@ -60,7 +61,7 @@ class TestForceGraphGenerator:
 
 class TestBubbleChartGenerator:
     """Test bubble chart generator."""
-    
+
     def test_generate_impact_chart(self):
         papers = [
             {"pmid": "1", "title": "Test", "year": 2024, "citation_count": 50}
@@ -75,7 +76,7 @@ class TestBubbleChartGenerator:
 
 class TestTreemapGenerator:
     """Test treemap generator."""
-    
+
     def test_generate_category_treemap(self):
         papers = [
             {"category": "AI", "subcategory": "ML"},
@@ -85,7 +86,7 @@ class TestTreemapGenerator:
         result = tm.generate_category_treemap(papers)
         assert "name" in result
         assert "children" in result
-    
+
     def test_generate_journal_treemap(self):
         papers = [
             {"journal": "Nature"},
@@ -99,7 +100,7 @@ class TestTreemapGenerator:
 
 class TestTrendPredictor:
     """Test trend predictor."""
-    
+
     def test_predict_trend_increasing(self):
         tp = TrendPredictor()
         tp.add_data("AI", 2020, 100)
@@ -108,7 +109,7 @@ class TestTrendPredictor:
         result = tp.predict_trend("AI")
         assert result["trend"] == "increasing"
         assert "predictions" in result
-    
+
     def test_predict_trend_decreasing(self):
         tp = TrendPredictor()
         tp.add_data("old_tech", 2020, 200)
@@ -116,7 +117,7 @@ class TestTrendPredictor:
         tp.add_data("old_tech", 2022, 100)
         result = tp.predict_trend("old_tech")
         assert result["trend"] == "decreasing"
-    
+
     def test_get_hot_topics(self):
         tp = TrendPredictor()
         tp.add_data("AI", 2020, 100)
@@ -129,19 +130,19 @@ class TestTrendPredictor:
 
 class TestFactoryFunctions:
     """Test factory functions."""
-    
+
     def test_get_sankey_generator(self):
         assert isinstance(get_sankey_generator(), SankeyGenerator)
-    
+
     def test_get_force_graph_generator(self):
         assert isinstance(get_force_graph_generator(), ForceGraphGenerator)
-    
+
     def test_get_bubble_chart_generator(self):
         assert isinstance(get_bubble_chart_generator(), BubbleChartGenerator)
-    
+
     def test_get_treemap_generator(self):
         assert isinstance(get_treemap_generator(), TreemapGenerator)
-    
+
     def test_get_trend_predictor(self):
         assert isinstance(get_trend_predictor(), TrendPredictor)
 

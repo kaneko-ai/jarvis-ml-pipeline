@@ -5,7 +5,6 @@ Per V4-P13, this provides discoverability for 128+ modules.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Dict, Optional
 
 
 @dataclass
@@ -21,7 +20,7 @@ class ModuleInfo:
 
 
 # Module registry
-_MODULES: Dict[str, ModuleInfo] = {}
+_MODULES: dict[str, ModuleInfo] = {}
 
 
 def register_module(
@@ -43,22 +42,22 @@ def register_module(
     )
 
 
-def get_module(name: str) -> Optional[ModuleInfo]:
+def get_module(name: str) -> ModuleInfo | None:
     """Get module info by name."""
     return _MODULES.get(name)
 
 
-def list_modules() -> List[str]:
+def list_modules() -> list[str]:
     """List all module names."""
     return list(_MODULES.keys())
 
 
-def list_by_category(category: str) -> List[str]:
+def list_by_category(category: str) -> list[str]:
     """List modules by category."""
     return [name for name, info in _MODULES.items() if info.category == category]
 
 
-def get_categories() -> List[str]:
+def get_categories() -> list[str]:
     """Get all categories."""
     return list(set(info.category for info in _MODULES.values()))
 

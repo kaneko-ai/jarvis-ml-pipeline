@@ -12,12 +12,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Literal, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Literal
 
 from .agents import Citation
 
 if TYPE_CHECKING:
-    from .claim import ClaimSet
+    pass
 
 
 @dataclass
@@ -40,10 +40,10 @@ class EvidenceQAResult:
 
     answer: str
     status: Literal["success", "partial", "fail"]
-    citations: List[Citation]
-    inputs: List[str]
+    citations: list[Citation]
+    inputs: list[str]
     query: str
-    chunks_used: List[str] = field(default_factory=list)
+    chunks_used: list[str] = field(default_factory=list)
     claims: Any = None  # ClaimSet, but avoiding import for initialization
     meta: dict = field(default_factory=dict)
 
@@ -83,7 +83,7 @@ class EvidenceQAResult:
         return result
 
     @classmethod
-    def from_dict(cls, data: dict) -> "EvidenceQAResult":
+    def from_dict(cls, data: dict) -> EvidenceQAResult:
         """Create from dictionary."""
         from .claim import ClaimSet
 

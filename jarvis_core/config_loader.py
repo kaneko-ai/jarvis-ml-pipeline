@@ -8,8 +8,9 @@ for forward compatibility with environment variable overrides.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Dict, Mapping
+from typing import Any
 
 try:
     import yaml
@@ -19,7 +20,7 @@ except ImportError:
     yaml = None
 
 
-def load_yaml_config(path: str | Path) -> Dict[str, Any]:
+def load_yaml_config(path: str | Path) -> dict[str, Any]:
     """Load a YAML configuration file into a dictionary.
 
     Args:
@@ -35,7 +36,7 @@ def load_yaml_config(path: str | Path) -> Dict[str, Any]:
         return yaml.safe_load(f) or {}
 
 
-def merge_overrides(base: Mapping[str, Any], overrides: Mapping[str, Any] | None) -> Dict[str, Any]:
+def merge_overrides(base: Mapping[str, Any], overrides: Mapping[str, Any] | None) -> dict[str, Any]:
     """Recursively merge ``overrides`` into ``base``.
 
     Shallow values in ``overrides`` replace those in ``base``; nested mappings
@@ -45,7 +46,7 @@ def merge_overrides(base: Mapping[str, Any], overrides: Mapping[str, Any] | None
     if overrides is None:
         return dict(base)
 
-    merged: Dict[str, Any] = dict(base)
+    merged: dict[str, Any] = dict(base)
     for key, value in overrides.items():
         if key in merged and isinstance(merged[key], Mapping) and isinstance(value, Mapping):
             merged[key] = merge_overrides(merged[key], value)
@@ -54,7 +55,7 @@ def merge_overrides(base: Mapping[str, Any], overrides: Mapping[str, Any] | None
     return merged
 
 
-def load_and_merge(path: str | Path, overrides: Mapping[str, Any] | None = None) -> Dict[str, Any]:
+def load_and_merge(path: str | Path, overrides: Mapping[str, Any] | None = None) -> dict[str, Any]:
     """Convenience wrapper to load a YAML file and apply overrides."""
 
     base = load_yaml_config(path)

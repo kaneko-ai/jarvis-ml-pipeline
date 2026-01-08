@@ -2,22 +2,22 @@
 JARVIS Ranking Tests
 """
 
-import pytest
-from tempfile import TemporaryDirectory
-from pathlib import Path
 import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+import pytest
 
 from jarvis_core.ranking import (
-    RankingItem,
     HeuristicRanker,
+    RankingItem,
     log_ranking,
-    RankingLogger,
 )
 
 
 class TestRankingItem:
     """RankingItem tests."""
-    
+
     def test_create_item(self):
         """アイテムを作成できること."""
         item = RankingItem(
@@ -27,7 +27,7 @@ class TestRankingItem:
         )
         assert item.item_id == "item1"
         assert item.get_feature("relevance") == 0.9
-    
+
     def test_get_feature_default(self):
         """存在しない特徴量はデフォルト値を返すこと."""
         item = RankingItem(item_id="item1", item_type="paper")
@@ -36,58 +36,58 @@ class TestRankingItem:
 
 class TestHeuristicRanker:
     """HeuristicRanker tests."""
-    
+
     def test_rank_by_relevance(self):
         """relevanceでランキングできること."""
         ranker = HeuristicRanker()
-        
+
         items = [
             RankingItem("a", "paper", {"relevance": 0.5}),
             RankingItem("b", "paper", {"relevance": 0.9}),
             RankingItem("c", "paper", {"relevance": 0.7}),
         ]
-        
+
         ranked = ranker.rank(items, {})
-        
+
         assert ranked[0].item_id == "b"
         assert ranked[1].item_id == "c"
         assert ranked[2].item_id == "a"
-    
+
     def test_custom_weights(self):
         """カスタム重みでランキングできること."""
         ranker = HeuristicRanker(weights={"priority": 1.0})
-        
+
         items = [
             RankingItem("a", "task", {"priority": 1}),
             RankingItem("b", "task", {"priority": 3}),
         ]
-        
+
         ranked = ranker.rank(items, {})
         assert ranked[0].item_id == "b"
 
 
 class TestRankingLogger:
     """RankingLogger tests."""
-    
+
     def test_log_ranking(self):
         """ログを出力できること."""
         with TemporaryDirectory() as tmpdir:
             log_path = f"{tmpdir}/ranking.jsonl"
-            
+
             items = [
                 RankingItem("a", "paper", {"relevance": 0.9}),
                 RankingItem("b", "paper", {"relevance": 0.5}),
             ]
-            
+
             log_ranking(log_path, "task1", "retrieval", items, ["a", "b"])
-            
+
             # ログが書き込まれていること
             log_file = Path(log_path)
             assert log_file.exists()
-            
-            with open(log_path, 'r') as f:
+
+            with open(log_path) as f:
                 record = json.loads(f.readline())
-            
+
             assert record["task_id"] == "task1"
             assert record["stage"] == "retrieval"
             assert len(record["items"]) == 2

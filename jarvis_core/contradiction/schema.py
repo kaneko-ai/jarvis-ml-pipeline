@@ -8,12 +8,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class ContradictionType(Enum):
     """Types of contradictions between claims."""
-    
+
     DIRECT = "direct"           # A says X, B says not X
     QUANTITATIVE = "quantitative"  # Different numeric values
     TEMPORAL = "temporal"       # Different time periods/results
@@ -26,28 +26,28 @@ class ContradictionType(Enum):
 @dataclass
 class Claim:
     """A scientific claim extracted from a paper."""
-    
+
     claim_id: str
     text: str
     paper_id: str
-    
+
     # Normalized form for comparison
-    normalized_text: Optional[str] = None
-    
+    normalized_text: str | None = None
+
     # Optional metadata
-    section: Optional[str] = None
+    section: str | None = None
     confidence: float = 1.0
-    
+
     # Semantic components (PICO-like)
-    subject: Optional[str] = None      # What is being studied
-    predicate: Optional[str] = None    # Relationship/action
-    object: Optional[str] = None       # Effect/outcome
-    qualifier: Optional[str] = None    # Conditions/modifiers
-    
+    subject: str | None = None      # What is being studied
+    predicate: str | None = None    # Relationship/action
+    object: str | None = None       # Effect/outcome
+    qualifier: str | None = None    # Conditions/modifiers
+
     # Embedding for similarity comparison
-    embedding: Optional[List[float]] = None
-    
-    def to_dict(self) -> Dict[str, Any]:
+    embedding: list[float] | None = None
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "claim_id": self.claim_id,
@@ -66,12 +66,12 @@ class Claim:
 @dataclass
 class ClaimPair:
     """A pair of claims to compare for contradiction."""
-    
+
     claim_a: Claim
     claim_b: Claim
     similarity_score: float = 0.0
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "claim_a": self.claim_a.to_dict(),
@@ -83,20 +83,20 @@ class ClaimPair:
 @dataclass
 class ContradictionResult:
     """Result of contradiction detection."""
-    
+
     claim_pair: ClaimPair
     contradiction_type: ContradictionType
     confidence: float
-    
+
     # Explanation of the contradiction
     explanation: str = ""
-    
+
     # Evidence supporting the detection
-    evidence: List[str] = field(default_factory=list)
-    
+    evidence: list[str] = field(default_factory=list)
+
     # Detailed scores
-    scores: Dict[str, float] = field(default_factory=dict)
-    
+    scores: dict[str, float] = field(default_factory=dict)
+
     @property
     def is_contradictory(self) -> bool:
         """Check if claims contradict."""
@@ -104,8 +104,8 @@ class ContradictionResult:
             ContradictionType.NONE,
             ContradictionType.UNCERTAIN,
         ]
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "claim_pair": self.claim_pair.to_dict(),

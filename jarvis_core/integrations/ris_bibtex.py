@@ -9,17 +9,17 @@ import json
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass
 class Reference:
     """A bibliographic reference."""
-    
+
     id: str
     title: str
-    authors: List[str] = field(default_factory=list)
-    year: Optional[int] = None
+    authors: list[str] = field(default_factory=list)
+    year: int | None = None
     journal: str = ""
     volume: str = ""
     issue: str = ""
@@ -27,10 +27,10 @@ class Reference:
     doi: str = ""
     pmid: str = ""
     abstract: str = ""
-    keywords: List[str] = field(default_factory=list)
+    keywords: list[str] = field(default_factory=list)
     url: str = ""
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "id": self.id,
@@ -51,7 +51,7 @@ class Reference:
 
 class RISParser:
     """Parse RIS format files."""
-    
+
     TAG_MAP = {
         "TY": "type",
         "TI": "title",
@@ -72,8 +72,8 @@ class RISParser:
         "UR": "url",
         "AN": "pmid",
     }
-    
-    def parse(self, content: str) -> List[Reference]:
+
+    def parse(self, content: str) -> list[Reference]:
         """Parse RIS content.
         
         Args:
@@ -84,17 +84,17 @@ class RISParser:
         """
         references = []
         current = {}
-        
+
         for line in content.split("\n"):
             line = line.strip()
             if not line:
                 continue
-            
+
             match = re.match(r"^([A-Z0-9]{2})\s+-\s+(.*)$", line)
             if match:
                 tag, value = match.groups()
                 field_name = self.TAG_MAP.get(tag)
-                
+
                 if tag == "ER":  # End of record
                     if current:
                         ref = self._build_reference(current, len(references) + 1)
@@ -106,29 +106,29 @@ class RISParser:
                     current.setdefault("keywords", []).append(value)
                 elif field_name:
                     current[field_name] = value
-        
+
         # Handle last record if no ER tag
         if current:
             ref = self._build_reference(current, len(references) + 1)
             references.append(ref)
-        
+
         return references
-    
-    def _build_reference(self, data: Dict, index: int) -> Reference:
+
+    def _build_reference(self, data: dict, index: int) -> Reference:
         """Build Reference from parsed data."""
         pages = ""
         if data.get("start_page"):
             pages = data["start_page"]
             if data.get("end_page"):
                 pages += f"-{data['end_page']}"
-        
+
         year = None
         if data.get("year"):
             try:
                 year = int(data["year"][:4])
             except (ValueError, TypeError):
                 pass
-        
+
         return Reference(
             id=f"ris_{index}",
             title=data.get("title", ""),
@@ -148,8 +148,8 @@ class RISParser:
 
 class BibTeXParser:
     """Parse BibTeX format files."""
-    
-    def parse(self, content: str) -> List[Reference]:
+
+    def parse(self, content: str) -> list[Reference]:
         """Parse BibTeX content.
         
         Args:
@@ -159,50 +159,50 @@ class BibTeXParser:
             List of Reference objects
         """
         references = []
-        
+
         # Simple regex-based parsing
         pattern = r"@(\w+)\s*\{\s*([^,]+)\s*,([^@]*)\}"
-        
+
         for match in re.finditer(pattern, content, re.DOTALL):
             entry_type, cite_key, fields_str = match.groups()
             fields = self._parse_fields(fields_str)
-            
+
             ref = self._build_reference(cite_key.strip(), fields)
             references.append(ref)
-        
+
         return references
-    
-    def _parse_fields(self, fields_str: str) -> Dict[str, str]:
+
+    def _parse_fields(self, fields_str: str) -> dict[str, str]:
         """Parse BibTeX fields."""
         fields = {}
-        
+
         # Match field = {value} or field = "value"
         pattern = r'(\w+)\s*=\s*[\{"]([^}"]*)[\}"]'
-        
+
         for match in re.finditer(pattern, fields_str):
             key, value = match.groups()
             fields[key.lower()] = value.strip()
-        
+
         return fields
-    
-    def _build_reference(self, cite_key: str, fields: Dict) -> Reference:
+
+    def _build_reference(self, cite_key: str, fields: dict) -> Reference:
         """Build Reference from parsed fields."""
         authors = []
         if fields.get("author"):
             # Split on " and "
             authors = [a.strip() for a in fields["author"].split(" and ")]
-        
+
         year = None
         if fields.get("year"):
             try:
                 year = int(fields["year"])
             except ValueError:
                 pass
-        
+
         keywords = []
         if fields.get("keywords"):
             keywords = [k.strip() for k in fields["keywords"].split(",")]
-        
+
         return Reference(
             id=cite_key,
             title=fields.get("title", ""),
@@ -222,8 +222,8 @@ class BibTeXParser:
 
 class RISExporter:
     """Export to RIS format."""
-    
-    def export(self, references: List[Reference]) -> str:
+
+    def export(self, references: list[Reference]) -> str:
         """Export references to RIS format.
         
         Args:
@@ -233,14 +233,14 @@ class RISExporter:
             RIS formatted string
         """
         lines = []
-        
+
         for ref in references:
             lines.append("TY  - JOUR")
             lines.append(f"TI  - {ref.title}")
-            
+
             for author in ref.authors:
                 lines.append(f"AU  - {author}")
-            
+
             if ref.year:
                 lines.append(f"PY  - {ref.year}")
             if ref.journal:
@@ -266,17 +266,17 @@ class RISExporter:
                 lines.append(f"KW  - {kw}")
             if ref.url:
                 lines.append(f"UR  - {ref.url}")
-            
+
             lines.append("ER  - ")
             lines.append("")
-        
+
         return "\n".join(lines)
 
 
 class BibTeXExporter:
     """Export to BibTeX format."""
-    
-    def export(self, references: List[Reference]) -> str:
+
+    def export(self, references: list[Reference]) -> str:
         """Export references to BibTeX format.
         
         Args:
@@ -286,17 +286,17 @@ class BibTeXExporter:
             BibTeX formatted string
         """
         entries = []
-        
+
         for ref in references:
             cite_key = self._generate_cite_key(ref)
-            
+
             lines = [f"@article{{{cite_key},"]
             lines.append(f"  title = {{{ref.title}}},")
-            
+
             if ref.authors:
                 authors_str = " and ".join(ref.authors)
                 lines.append(f"  author = {{{authors_str}}},")
-            
+
             if ref.year:
                 lines.append(f"  year = {{{ref.year}}},")
             if ref.journal:
@@ -315,12 +315,12 @@ class BibTeXExporter:
                 lines.append(f"  abstract = {{{abstract}}},")
             if ref.url:
                 lines.append(f"  url = {{{ref.url}}},")
-            
+
             lines.append("}")
             entries.append("\n".join(lines))
-        
+
         return "\n\n".join(entries)
-    
+
     def _generate_cite_key(self, ref: Reference) -> str:
         """Generate a citation key."""
         author_part = ""
@@ -332,16 +332,16 @@ class BibTeXExporter:
             else:
                 author_part = first_author.split()[-1]
             author_part = re.sub(r"[^a-zA-Z]", "", author_part).lower()
-        
+
         year_part = str(ref.year) if ref.year else ""
-        
+
         return f"{author_part}{year_part}" or ref.id
 
 
 def import_references(
     input_path: Path,
     format: str,
-) -> List[Reference]:
+) -> list[Reference]:
     """Import references from file.
     
     Args:
@@ -352,19 +352,19 @@ def import_references(
         List of Reference objects
     """
     content = input_path.read_text(encoding="utf-8")
-    
+
     if format == "ris":
         parser = RISParser()
     elif format == "bibtex":
         parser = BibTeXParser()
     else:
         raise ValueError(f"Unsupported import format: {format}")
-    
+
     return parser.parse(content)
 
 
 def export_references(
-    references: List[Reference],
+    references: list[Reference],
     output_path: Path,
     format: str,
 ) -> None:
@@ -381,12 +381,12 @@ def export_references(
         exporter = BibTeXExporter()
     else:
         raise ValueError(f"Unsupported export format: {format}")
-    
+
     content = exporter.export(references)
     output_path.write_text(content, encoding="utf-8")
 
 
-def references_to_jsonl(references: List[Reference], output_path: Path) -> None:
+def references_to_jsonl(references: list[Reference], output_path: Path) -> None:
     """Save references as JSONL.
     
     Args:
@@ -398,7 +398,7 @@ def references_to_jsonl(references: List[Reference], output_path: Path) -> None:
             f.write(json.dumps(ref.to_dict(), ensure_ascii=False) + "\n")
 
 
-def jsonl_to_references(input_path: Path) -> List[Reference]:
+def jsonl_to_references(input_path: Path) -> list[Reference]:
     """Load references from JSONL.
     
     Args:
@@ -408,7 +408,7 @@ def jsonl_to_references(input_path: Path) -> List[Reference]:
         List of Reference objects
     """
     references = []
-    with open(input_path, "r", encoding="utf-8") as f:
+    with open(input_path, encoding="utf-8") as f:
         for line in f:
             if line.strip():
                 data = json.loads(line)

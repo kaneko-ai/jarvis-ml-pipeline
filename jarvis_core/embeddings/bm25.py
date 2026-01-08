@@ -11,7 +11,6 @@ import logging
 import pickle
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +18,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class BM25Config:
     """BM25 algorithm configuration."""
-    
+
     k1: float = 1.5  # Term saturation parameter
     b: float = 0.75  # Length normalization parameter
 
@@ -39,18 +38,18 @@ class BM25Index:
         >>> print(results)
         [('doc1', 0.85), ('doc2', 0.32)]
     """
-    
+
     config: BM25Config = field(default_factory=BM25Config)
-    _corpus: List[str] = field(default_factory=list)
-    _tokenized_corpus: List[List[str]] = field(default_factory=list)
-    _doc_ids: List[str] = field(default_factory=list)
+    _corpus: list[str] = field(default_factory=list)
+    _tokenized_corpus: list[list[str]] = field(default_factory=list)
+    _doc_ids: list[str] = field(default_factory=list)
     _bm25: object = field(default=None)
     _initialized: bool = field(default=False)
-    
+
     def build(
         self,
-        corpus: List[str],
-        ids: Optional[List[str]] = None,
+        corpus: list[str],
+        ids: list[str] | None = None,
     ) -> None:
         """Build the BM25 index from a corpus.
         
@@ -61,22 +60,22 @@ class BM25Index:
         if not corpus:
             logger.warning("Empty corpus provided to BM25Index.build()")
             return
-        
+
         self._corpus = corpus
         self._doc_ids = ids if ids else [str(i) for i in range(len(corpus))]
-        
+
         if len(self._doc_ids) != len(corpus):
             raise ValueError(
                 f"IDs count ({len(self._doc_ids)}) must match corpus count ({len(corpus)})"
             )
-        
+
         # Tokenize corpus
         self._tokenized_corpus = [self._tokenize(doc) for doc in corpus]
-        
+
         # Build BM25 index
         try:
             from rank_bm25 import BM25Okapi
-            
+
             self._bm25 = BM25Okapi(
                 self._tokenized_corpus,
                 k1=self.config.k1,
@@ -90,22 +89,22 @@ class BM25Index:
                 "Install with: pip install rank-bm25"
             )
             self._bm25 = None
-    
-    def _tokenize(self, text: str) -> List[str]:
+
+    def _tokenize(self, text: str) -> list[str]:
         """Simple tokenization with lowercasing and punctuation removal."""
         import re
-        
+
         # Lowercase and remove punctuation
         text = text.lower()
         text = re.sub(r"[^\w\s]", " ", text)
         tokens = text.split()
-        
+
         # Remove very short tokens
         tokens = [t for t in tokens if len(t) > 1]
-        
+
         return tokens
-    
-    def search(self, query: str, top_k: int = 10) -> List[Tuple[str, float]]:
+
+    def search(self, query: str, top_k: int = 10) -> list[tuple[str, float]]:
         """Search the index with a query.
         
         Args:
@@ -118,27 +117,27 @@ class BM25Index:
         if not self._initialized or self._bm25 is None:
             logger.warning("BM25Index not initialized. Call build() first.")
             return []
-        
+
         if not query.strip():
             return []
-        
+
         tokenized_query = self._tokenize(query)
         if not tokenized_query:
             return []
-        
+
         scores = self._bm25.get_scores(tokenized_query)
-        
+
         # Get top-k indices
         scored_indices = [(i, float(s)) for i, s in enumerate(scores)]
         scored_indices.sort(key=lambda x: x[1], reverse=True)
-        
+
         results = []
         for idx, score in scored_indices[:top_k]:
             if score > 0:
                 results.append((self._doc_ids[idx], score))
-        
+
         return results
-    
+
     def save(self, path: Path) -> None:
         """Save the index to disk.
         
@@ -147,7 +146,7 @@ class BM25Index:
         """
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Save metadata as JSON
         metadata = {
             "config": {
@@ -157,25 +156,25 @@ class BM25Index:
             "doc_ids": self._doc_ids,
             "doc_count": len(self._corpus),
         }
-        
+
         metadata_path = path.with_suffix(".json")
         with open(metadata_path, "w", encoding="utf-8") as f:
             json.dump(metadata, f, indent=2)
-        
+
         # Save the BM25 object and corpus as pickle
         data = {
             "corpus": self._corpus,
             "tokenized_corpus": self._tokenized_corpus,
             "bm25": self._bm25,
         }
-        
+
         with open(path, "wb") as f:
             pickle.dump(data, f)
-        
+
         logger.info(f"BM25Index saved to {path}")
-    
+
     @classmethod
-    def load(cls, path: Path) -> "BM25Index":
+    def load(cls, path: Path) -> BM25Index:
         """Load an index from disk.
         
         Args:
@@ -185,32 +184,32 @@ class BM25Index:
             Loaded BM25Index
         """
         path = Path(path)
-        
+
         # Load metadata
         metadata_path = path.with_suffix(".json")
         if metadata_path.exists():
-            with open(metadata_path, "r", encoding="utf-8") as f:
+            with open(metadata_path, encoding="utf-8") as f:
                 metadata = json.load(f)
             config = BM25Config(**metadata.get("config", {}))
             doc_ids = metadata.get("doc_ids", [])
         else:
             config = BM25Config()
             doc_ids = []
-        
+
         # Load the BM25 object and corpus
         with open(path, "rb") as f:
             data = pickle.load(f)
-        
+
         index = cls(config=config)
         index._corpus = data.get("corpus", [])
         index._tokenized_corpus = data.get("tokenized_corpus", [])
         index._bm25 = data.get("bm25")
         index._doc_ids = doc_ids if doc_ids else [str(i) for i in range(len(index._corpus))]
         index._initialized = index._bm25 is not None
-        
+
         logger.info(f"BM25Index loaded from {path}")
         return index
-    
+
     def add_document(self, doc_id: str, text: str) -> None:
         """Add a single document to the index (rebuilds index).
         
@@ -227,16 +226,16 @@ class BM25Index:
         else:
             self._corpus.append(text)
             self._doc_ids.append(doc_id)
-        
+
         # Rebuild index
         self.build(self._corpus, self._doc_ids)
-    
+
     @property
     def doc_count(self) -> int:
         """Get the number of documents in the index."""
         return len(self._corpus)
-    
-    def get_document(self, doc_id: str) -> Optional[str]:
+
+    def get_document(self, doc_id: str) -> str | None:
         """Get a document by ID.
         
         Args:

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import List, TypedDict
+from typing import TypedDict
 
 from .sources import SourceDocument
 
@@ -25,7 +25,7 @@ class PageContent(TypedDict):
     text: str
 
 
-def extract_pdf_pages(pdf_path: str | Path) -> List[PageContent]:
+def extract_pdf_pages(pdf_path: str | Path) -> list[PageContent]:
     """Extract text from each page of a PDF.
 
     Uses PyMuPDF (fitz) for extraction. Each page is extracted
@@ -54,7 +54,7 @@ def extract_pdf_pages(pdf_path: str | Path) -> List[PageContent]:
     if not path.exists():
         raise FileNotFoundError(f"PDF file not found: {pdf_path}")
 
-    pages: List[PageContent] = []
+    pages: list[PageContent] = []
 
     try:
         doc = fitz.open(str(path))
@@ -90,7 +90,7 @@ def extract_pdf_pages(pdf_path: str | Path) -> List[PageContent]:
 def load_pdf_as_documents(
     pdf_path: str | Path,
     normalize_path: bool = True,
-) -> List[SourceDocument]:
+) -> list[SourceDocument]:
     """Load a PDF as a list of SourceDocuments (one per page).
 
     Each page becomes a separate SourceDocument for fine-grained
@@ -108,7 +108,7 @@ def load_pdf_as_documents(
         path = path.resolve()
 
     pages = extract_pdf_pages(path)
-    documents: List[SourceDocument] = []
+    documents: list[SourceDocument] = []
 
     for page_content in pages:
         page_num = page_content["page"]
@@ -134,9 +134,9 @@ def load_pdf_as_documents(
 
 def ingest_pdf(
     pdf_path: str | Path,
-    store: "EvidenceStore",
-    context: "ExecutionContext | None" = None,
-) -> List["ChunkResult"]:
+    store: EvidenceStore,
+    context: ExecutionContext | None = None,
+) -> list[ChunkResult]:
     """Convenience function to ingest a PDF into EvidenceStore.
 
     This is the recommended way to add PDF content to EvidenceStore.
@@ -150,11 +150,10 @@ def ingest_pdf(
     Returns:
         List of all ChunkResults from the PDF.
     """
-    from .evidence import EvidenceStore
-    from .sources import ChunkResult, ExecutionContext, ingest
+    from .sources import ChunkResult, ingest
 
     documents = load_pdf_as_documents(pdf_path)
-    all_results: List[ChunkResult] = []
+    all_results: list[ChunkResult] = []
 
     for doc in documents:
         # Preview includes page info

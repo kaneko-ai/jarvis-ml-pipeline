@@ -10,11 +10,10 @@ Per RP14, this enables generating academic reference lists
 from __future__ import annotations
 
 import re
-import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List, Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from .agents import Citation
@@ -44,11 +43,11 @@ class Reference:
     source_type: Literal["pdf", "url", "local"]
     locator: str
     title: str | None = None
-    authors: List[str] = field(default_factory=list)
+    authors: list[str] = field(default_factory=list)
     year: int | None = None
-    pages: List[int] = field(default_factory=list)
+    pages: list[int] = field(default_factory=list)
     accessed_at: datetime = field(default_factory=datetime.now)
-    chunk_ids: List[str] = field(default_factory=list)
+    chunk_ids: list[str] = field(default_factory=list)
     # RP22: Extended metadata from resolvers
     doi: str | None = None
     pmid: str | None = None
@@ -64,7 +63,7 @@ class Reference:
             return f"p. {pages[0]}"
 
         # Group consecutive pages
-        ranges: List[str] = []
+        ranges: list[str] = []
         start = pages[0]
         end = pages[0]
 
@@ -119,7 +118,7 @@ class Reference:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "Reference":
+    def from_dict(cls, data: dict) -> Reference:
         """Create from dictionary."""
         accessed_at = data.get("accessed_at")
         if isinstance(accessed_at, str):
@@ -178,9 +177,9 @@ def _parse_locator(locator: str) -> tuple[str, str | None, int | None]:
 
 
 def extract_references(
-    citations: List["Citation"],
-    store: "EvidenceStore" | None = None,
-) -> List[Reference]:
+    citations: list[Citation],
+    store: EvidenceStore | None = None,
+) -> list[Reference]:
     """Extract and normalize references from citations.
 
     Multiple citations from the same source are consolidated
@@ -231,11 +230,11 @@ def extract_references(
 
 
 def resolve_references(
-    refs: List[Reference],
+    refs: list[Reference],
     use_crossref: bool = True,
     use_pubmed: bool = True,
     timeout: float = 5.0,
-) -> List[Reference]:
+) -> list[Reference]:
     """Resolve and enrich references with metadata from external APIs.
 
     Per RP22, this queries CrossRef and PubMed to fill in

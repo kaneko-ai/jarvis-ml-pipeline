@@ -3,9 +3,8 @@
 Per RP-18, this test ensures telemetry is ALWAYS generated.
 If this test fails, the PR is blocked.
 """
-import sys
 import json
-import tempfile
+import sys
 from pathlib import Path
 
 import pytest
@@ -24,7 +23,7 @@ class TestTelemetryRequired:
     def test_run_task_generates_events_jsonl(self, tmp_path, monkeypatch):
         """run_task MUST generate events.jsonl with required keys."""
         import json
-        from pathlib import Path
+
         from jarvis_core.telemetry import JsonlTelemetryLogger
 
         # Test logger directly to avoid LLM dependency
@@ -55,7 +54,7 @@ class TestTelemetryRequired:
         assert events_file.stat().st_size > 0, "events.jsonl is empty"
 
         # Verify required keys in first line
-        with open(events_file, "r", encoding="utf-8") as f:
+        with open(events_file, encoding="utf-8") as f:
             first_line = f.readline()
 
         event = json.loads(first_line)
@@ -89,7 +88,7 @@ class TestTelemetryRequired:
         events_file = tmp_path / "test_run_001" / "events.jsonl"
         assert events_file.exists(), "Logger did not create events.jsonl"
 
-        with open(events_file, "r", encoding="utf-8") as f:
+        with open(events_file, encoding="utf-8") as f:
             event = json.loads(f.readline())
 
         assert event["event"] == "RUN_START"

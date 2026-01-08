@@ -5,10 +5,11 @@ Per V4.2 Sprint 2, this provides DAG-based task execution with dependency resolu
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Dict, Callable, Any, Optional, Set
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Any
 
 
 class TaskState(Enum):
@@ -30,13 +31,13 @@ class TaskNode:
     fn: Callable
     args: tuple = field(default_factory=tuple)
     kwargs: dict = field(default_factory=dict)
-    dependencies: List[str] = field(default_factory=list)
+    dependencies: list[str] = field(default_factory=list)
     state: TaskState = TaskState.PENDING
     result: Any = None
-    error: Optional[str] = None
-    cache_key: Optional[str] = None
+    error: str | None = None
+    cache_key: str | None = None
 
-    def compute_cache_key(self, dep_results: Dict[str, Any]) -> str:
+    def compute_cache_key(self, dep_results: dict[str, Any]) -> str:
         """Compute deterministic cache key."""
         # Include task name, args, and dependency results
         key_parts = [
@@ -56,10 +57,10 @@ class TaskGraph:
     """DAG-based task execution with parallelization."""
 
     def __init__(self, max_workers: int = 4):
-        self.nodes: Dict[str, TaskNode] = {}
+        self.nodes: dict[str, TaskNode] = {}
         self.max_workers = max_workers
-        self.results: Dict[str, Any] = {}
-        self._cache: Dict[str, Any] = {}
+        self.results: dict[str, Any] = {}
+        self._cache: dict[str, Any] = {}
 
     def add_task(
         self,
@@ -68,7 +69,7 @@ class TaskGraph:
         fn: Callable,
         args: tuple = (),
         kwargs: dict = None,
-        dependencies: List[str] = None,
+        dependencies: list[str] = None,
     ) -> TaskNode:
         """Add a task to the graph."""
         node = TaskNode(
@@ -82,7 +83,7 @@ class TaskGraph:
         self.nodes[task_id] = node
         return node
 
-    def get_ready_tasks(self) -> List[str]:
+    def get_ready_tasks(self) -> list[str]:
         """Get tasks whose dependencies are all completed."""
         ready = []
         for task_id, node in self.nodes.items():
@@ -102,7 +103,7 @@ class TaskGraph:
 
     def execute_task(self, task_id: str) -> Any:
         """Execute a single task."""
-        from ..perf.trace_spans import start_span, end_span
+        from ..perf.trace_spans import end_span, start_span
 
         node = self.nodes[task_id]
         node.state = TaskState.RUNNING
@@ -144,7 +145,7 @@ class TaskGraph:
             end_span(span_id)
             raise
 
-    def execute(self, parallel: bool = True) -> Dict[str, Any]:
+    def execute(self, parallel: bool = True) -> dict[str, Any]:
         """Execute all tasks respecting dependencies.
 
         Args:
@@ -158,7 +159,7 @@ class TaskGraph:
         else:
             return self._execute_sequential()
 
-    def _execute_sequential(self) -> Dict[str, Any]:
+    def _execute_sequential(self) -> dict[str, Any]:
         """Execute tasks sequentially."""
         while True:
             ready = self.get_ready_tasks()
@@ -173,7 +174,7 @@ class TaskGraph:
 
         return self.results
 
-    def _execute_parallel(self) -> Dict[str, Any]:
+    def _execute_parallel(self) -> dict[str, Any]:
         """Execute tasks in parallel."""
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             while True:
@@ -194,11 +195,11 @@ class TaskGraph:
 
         return self.results
 
-    def set_cache(self, cache: Dict[str, Any]) -> None:
+    def set_cache(self, cache: dict[str, Any]) -> None:
         """Set external cache."""
         self._cache = cache
 
-    def get_execution_order(self) -> List[str]:
+    def get_execution_order(self) -> list[str]:
         """Get topological order of tasks."""
         visited = set()
         order = []

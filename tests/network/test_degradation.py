@@ -1,9 +1,11 @@
 import pytest
+
 from jarvis_core.network.degradation import (
     DegradationLevel,
     DegradationManager,
-    get_degradation_manager
+    get_degradation_manager,
 )
+
 
 @pytest.fixture
 def manager():
@@ -22,10 +24,10 @@ def test_manager_level_change(manager):
     events = []
     def listener(old, new):
         events.append((old, new))
-    
+
     manager.add_listener(listener)
     manager.set_level(DegradationLevel.OFFLINE)
-    
+
     assert manager.get_level() == DegradationLevel.OFFLINE
     assert len(events) == 1
     assert events[0] == (DegradationLevel.FULL, DegradationLevel.OFFLINE)

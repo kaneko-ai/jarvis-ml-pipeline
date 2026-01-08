@@ -1,8 +1,7 @@
 """Decision probability estimation model."""
 from __future__ import annotations
 
-from typing import Dict, List
-
+from .planner import build_kill_criteria, build_mvp_plan
 from .schema import (
     Assumption,
     DecisionComparison,
@@ -14,12 +13,11 @@ from .schema import (
     SensitivityItem,
 )
 from .simulator import simulate_option
-from .planner import build_mvp_plan, build_kill_criteria
 
 
-def evaluate_options(options: List[Option], assumptions: List[Assumption]) -> DecisionComparison:
+def evaluate_options(options: list[Option], assumptions: list[Assumption]) -> DecisionComparison:
     """Evaluate options and return comparison results."""
-    results: List[DecisionResult] = []
+    results: list[DecisionResult] = []
 
     for option in options:
         simulation = simulate_option(option, assumptions)

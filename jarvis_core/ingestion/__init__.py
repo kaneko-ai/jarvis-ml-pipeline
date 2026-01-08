@@ -1,12 +1,12 @@
 """Ingestion package."""
 from .pipeline import (
+    BibTeXParser,
+    ExtractedPaper,
     IngestionPipeline,
     IngestionResult,
-    ExtractedPaper,
-    TextChunk,
     PDFExtractor,
+    TextChunk,
     TextChunker,
-    BibTeXParser,
     ingest_files,
 )
 

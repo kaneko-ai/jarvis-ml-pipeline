@@ -5,7 +5,7 @@ Per V4-D01, this sorts items by risk score for review prioritization.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..artifacts.schema import ArtifactBase
@@ -19,7 +19,7 @@ class TriageResult:
     item_type: str  # fact, inference, recommendation
     content: str
     risk_score: float
-    risk_reasons: List[str]
+    risk_reasons: list[str]
 
     def to_dict(self) -> dict:
         return {
@@ -34,7 +34,7 @@ class TriageResult:
 def calculate_risk_score(
     item: dict,
     item_type: str,
-) -> tuple[float, List[str]]:
+) -> tuple[float, list[str]]:
     """Calculate risk score for an item.
 
     Args:
@@ -71,9 +71,9 @@ def calculate_risk_score(
 
 
 def triage_by_risk(
-    artifact: "ArtifactBase",
+    artifact: ArtifactBase,
     top_n: int = 10,
-) -> List[TriageResult]:
+) -> list[TriageResult]:
     """Triage artifact items by risk.
 
     Args:
@@ -121,7 +121,7 @@ def triage_by_risk(
     return results[:top_n]
 
 
-def generate_triage_report(results: List[TriageResult]) -> str:
+def generate_triage_report(results: list[TriageResult]) -> str:
     """Generate markdown triage report."""
     lines = [
         "# Triage Report",

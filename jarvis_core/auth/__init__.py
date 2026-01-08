@@ -1,7 +1,7 @@
 """Auth package for JARVIS."""
 from .api_key import (
-    APIKeyManager,
     APIKey,
+    APIKeyManager,
     AuthResult,
     get_api_key_manager,
     require_api_key,

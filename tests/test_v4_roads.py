@@ -13,8 +13,13 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from jarvis_core.paper_vector import (
-    PaperVector, MetadataVector, ConceptVector, MethodVector,
-    TemporalVector, ImpactVector, BiologicalAxisVector,
+    BiologicalAxisVector,
+    ConceptVector,
+    ImpactVector,
+    MetadataVector,
+    MethodVector,
+    PaperVector,
+    TemporalVector,
 )
 
 
@@ -123,8 +128,8 @@ class TestTruthEnforce:
     """V4-T01 tests."""
 
     def test_enforce_fact_evidence(self):
+        from jarvis_core.artifacts.schema import EvidenceRef, Fact
         from jarvis_core.truth.enforce import enforce_fact_evidence
-        from jarvis_core.artifacts.schema import Fact, EvidenceRef
 
         ref = EvidenceRef(chunk_id="c1", source_locator="pdf:1")
         facts = [
@@ -139,8 +144,8 @@ class TestTruthAlignment:
     """V4-T02 tests."""
 
     def test_alignment_check(self):
+        from jarvis_core.artifacts.schema import EvidenceRef, Fact
         from jarvis_core.truth.alignment import check_alignment_v2
-        from jarvis_core.artifacts.schema import Fact, EvidenceRef
 
         ref = EvidenceRef(chunk_id="c1", source_locator="pdf:1", text_snippet="CD73 is expressed in tumors")
         facts = [Fact(statement="CD73 expression in cancer", evidence_refs=[ref])]
@@ -161,8 +166,8 @@ class TestTruthContradiction:
     """V4-T04 tests."""
 
     def test_detect_contradictions(self):
+        from jarvis_core.artifacts.schema import EvidenceRef, Fact
         from jarvis_core.truth.contradiction import detect_contradictions
-        from jarvis_core.artifacts.schema import Fact, EvidenceRef
 
         ref = EvidenceRef(chunk_id="c1", source_locator="pdf:1")
         facts = [

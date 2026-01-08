@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List
 
 from jarvis_core.time.schema import TimeSchema
 
@@ -14,10 +13,10 @@ class PlanTimeAssessment:
     delay_risk: bool
     delay_months: int
     delay_cost: float
-    notes: List[str]
+    notes: list[str]
 
 
-def assess_plan_time(plan: Dict[str, float], time_schema: TimeSchema) -> PlanTimeAssessment:
+def assess_plan_time(plan: dict[str, float], time_schema: TimeSchema) -> PlanTimeAssessment:
     """Assess plan hours against available research time.
 
     Expects plan to include `research_hours_week` and optional `additional_hours_week`.
@@ -28,7 +27,7 @@ def assess_plan_time(plan: Dict[str, float], time_schema: TimeSchema) -> PlanTim
     research_block = time_schema.variable.get("research")
     available = research_block.target if research_block else 0.0
     delay_risk = required > available
-    notes: List[str] = []
+    notes: list[str] = []
     if delay_risk:
         notes.append("研究計画の必要時間が可処分時間を超過しています（推測です）")
     delay_months = int(plan.get("delay_months", 0)) if delay_risk else 0

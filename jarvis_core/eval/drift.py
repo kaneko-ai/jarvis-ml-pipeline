@@ -7,7 +7,6 @@ from __future__ import annotations
 import math
 from collections import Counter
 from dataclasses import dataclass
-from typing import Dict, List, Optional
 
 
 @dataclass
@@ -18,13 +17,13 @@ class DriftResult:
     baseline_run_id: str
     kl_divergence: float
     js_divergence: float
-    top_gains: List[tuple]  # (entity, delta)
-    top_losses: List[tuple]  # (entity, delta)
+    top_gains: list[tuple]  # (entity, delta)
+    top_losses: list[tuple]  # (entity, delta)
     drifted: bool
     threshold: float
 
 
-def entity_distribution(entities: List[str]) -> Dict[str, float]:
+def entity_distribution(entities: list[str]) -> dict[str, float]:
     """Convert entity list to probability distribution."""
     if not entities:
         return {}
@@ -35,7 +34,7 @@ def entity_distribution(entities: List[str]) -> Dict[str, float]:
     return {entity: count / total for entity, count in counts.items()}
 
 
-def kl_divergence(p: Dict[str, float], q: Dict[str, float]) -> float:
+def kl_divergence(p: dict[str, float], q: dict[str, float]) -> float:
     """Calculate KL divergence D(P || Q).
 
     Note: Smooths Q to avoid division by zero.
@@ -56,7 +55,7 @@ def kl_divergence(p: Dict[str, float], q: Dict[str, float]) -> float:
     return max(0.0, divergence)
 
 
-def js_divergence(p: Dict[str, float], q: Dict[str, float]) -> float:
+def js_divergence(p: dict[str, float], q: dict[str, float]) -> float:
     """Calculate Jensen-Shannon divergence.
 
     Symmetric and bounded [0, 1].
@@ -75,8 +74,8 @@ def js_divergence(p: Dict[str, float], q: Dict[str, float]) -> float:
 
 
 def detect_drift(
-    current_entities: List[str],
-    baseline_entities: List[str],
+    current_entities: list[str],
+    baseline_entities: list[str],
     current_run_id: str = "current",
     baseline_run_id: str = "baseline",
     threshold: float = 0.1,

@@ -7,7 +7,6 @@ Per JARVIS_COMPLETION_INSTRUCTION Task 2.2.2
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Optional
 
 from jarvis_core.citation.stance_classifier import CitationStance
 
@@ -22,7 +21,7 @@ class InfluenceScore:
     mention_count: int
     influence_score: float
     controversy_score: float
-    
+
     def to_dict(self):
         return {
             "paper_id": self.paper_id,
@@ -37,7 +36,7 @@ class InfluenceScore:
 
 class InfluenceCalculator:
     """Calculates paper influence based on citation stances."""
-    
+
     def __init__(self, citation_graph=None):
         """Initialize calculator.
         
@@ -45,11 +44,11 @@ class InfluenceCalculator:
             citation_graph: Optional CitationGraph instance
         """
         self._graph = citation_graph
-    
+
     def calculate(
         self,
         paper_id: str,
-        citations: Optional[List] = None,
+        citations: list | None = None,
     ) -> InfluenceScore:
         """Calculate influence score for a paper.
         
@@ -62,7 +61,7 @@ class InfluenceCalculator:
         """
         if citations is None and self._graph:
             citations = self._graph.get_citations(paper_id)
-        
+
         if not citations:
             return InfluenceScore(
                 paper_id=paper_id,
@@ -73,22 +72,22 @@ class InfluenceCalculator:
                 influence_score=0.0,
                 controversy_score=0.0,
             )
-        
+
         support = sum(1 for c in citations if getattr(c, 'stance', None) == CitationStance.SUPPORT)
         contrast = sum(1 for c in citations if getattr(c, 'stance', None) == CitationStance.CONTRAST)
         mention = sum(1 for c in citations if getattr(c, 'stance', None) == CitationStance.MENTION)
-        
+
         total = len(citations)
-        
+
         # Influence score: citations * (support_rate + 0.5 * contrast_rate)
         support_rate = support / total if total > 0 else 0
         contrast_rate = contrast / total if total > 0 else 0
-        
+
         influence = total * (support_rate + 0.5 * contrast_rate)
-        
+
         # Controversy score: proportion of contrasting citations
         controversy = contrast_rate
-        
+
         return InfluenceScore(
             paper_id=paper_id,
             total_citations=total,
@@ -98,13 +97,13 @@ class InfluenceCalculator:
             influence_score=influence,
             controversy_score=controversy,
         )
-    
+
     def rank_papers(
         self,
-        paper_ids: List[str],
+        paper_ids: list[str],
         citations_map: dict = None,
         by: str = "influence"
-    ) -> List[InfluenceScore]:
+    ) -> list[InfluenceScore]:
         """Rank papers by influence or controversy.
         
         Args:
@@ -120,12 +119,12 @@ class InfluenceCalculator:
             self.calculate(pid, citations_map.get(pid, []))
             for pid in paper_ids
         ]
-        
+
         if by == "influence":
             return sorted(scores, key=lambda x: x.influence_score, reverse=True)
         elif by == "controversy":
             return sorted(scores, key=lambda x: x.controversy_score, reverse=True)
         elif by == "citations":
             return sorted(scores, key=lambda x: x.total_citations, reverse=True)
-        
+
         return scores

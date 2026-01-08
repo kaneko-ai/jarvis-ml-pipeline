@@ -1,7 +1,7 @@
 """Filtering helpers for retrieval results."""
 from __future__ import annotations
 
-from typing import Dict, Iterable, List
+from collections.abc import Iterable
 
 from jarvis_core.retrieval.schema import Chunk
 
@@ -12,13 +12,13 @@ def _value_in(value, allowed):
     return value in allowed
 
 
-def _has_any(values: Iterable[str], allowed: List[str]) -> bool:
+def _has_any(values: Iterable[str], allowed: list[str]) -> bool:
     if not allowed:
         return True
     return any(value in allowed for value in values)
 
 
-def apply_filters(chunks: Iterable[Chunk], filters: Dict) -> List[Chunk]:
+def apply_filters(chunks: Iterable[Chunk], filters: dict) -> list[Chunk]:
     if not filters:
         return list(chunks)
     year_from = filters.get("year_from")

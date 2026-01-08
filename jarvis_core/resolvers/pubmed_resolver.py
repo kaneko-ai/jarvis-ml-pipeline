@@ -7,12 +7,12 @@ Per RP22, this enriches Reference with PMID, title, authors, year.
 """
 from __future__ import annotations
 
+import json
 import logging
 import re
 import urllib.request
-import json
 from dataclasses import dataclass
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..reference import Reference
@@ -30,7 +30,7 @@ class PubMedResult:
 
     pmid: str | None = None
     title: str | None = None
-    authors: List[str] | None = None
+    authors: list[str] | None = None
     year: int | None = None
     journal: str | None = None
     doi: str | None = None
@@ -105,7 +105,7 @@ def search_pubmed(query: str, timeout: float = 5.0) -> PubMedResult:
     return result
 
 
-def resolve_pubmed(ref: "Reference", timeout: float = 5.0) -> "Reference":
+def resolve_pubmed(ref: Reference, timeout: float = 5.0) -> Reference:
     """Resolve Reference metadata using PubMed.
 
     Attempts to enrich the Reference with PMID, title, authors, year.

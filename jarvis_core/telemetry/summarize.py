@@ -6,9 +6,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from typing import List, Dict, Optional
 from pathlib import Path
-from collections import Counter
 
 
 @dataclass
@@ -24,8 +22,8 @@ class RunSummary:
     claims_generated: int
     citations_added: int
     duration_seconds: float
-    top_failures: List[dict]
-    warnings: List[str]
+    top_failures: list[dict]
+    warnings: list[str]
 
 
 def summarize_events(events_path: str) -> RunSummary:
@@ -42,7 +40,7 @@ def summarize_events(events_path: str) -> RunSummary:
         raise FileNotFoundError(f"Events file not found: {events_path}")
 
     events = []
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         for line in f:
             if line.strip():
                 events.append(json.loads(line))

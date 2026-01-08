@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 def utc_now_iso() -> str:
@@ -18,14 +18,14 @@ def stable_hash(value: str) -> str:
 
 @dataclass
 class Provenance:
-    run_id: Optional[str] = None
-    pmid: Optional[str] = None
-    doi: Optional[str] = None
-    section: Optional[str] = None
-    locator: Optional[str] = None
-    file_path: Optional[str] = None
+    run_id: str | None = None
+    pmid: str | None = None
+    doi: str | None = None
+    section: str | None = None
+    locator: str | None = None
+    file_path: str | None = None
 
-    def to_dict(self) -> Dict[str, Optional[str]]:
+    def to_dict(self) -> dict[str, str | None]:
         return {
             "run_id": self.run_id,
             "pmid": self.pmid,
@@ -38,15 +38,15 @@ class Provenance:
 
 @dataclass
 class ChunkMeta:
-    year: Optional[int] = None
-    journal: Optional[str] = None
-    tier: Optional[str] = None
-    score: Optional[float] = None
-    oa: Optional[str] = None
-    topics: List[str] = field(default_factory=list)
-    lang: Optional[str] = None
+    year: int | None = None
+    journal: str | None = None
+    tier: str | None = None
+    score: float | None = None
+    oa: str | None = None
+    topics: list[str] = field(default_factory=list)
+    lang: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "year": self.year,
             "journal": self.journal,
@@ -69,7 +69,7 @@ class Chunk:
     meta: ChunkMeta
     updated_at: str
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "doc_id": self.doc_id,
             "chunk_id": self.chunk_id,
@@ -87,9 +87,9 @@ class SearchResult:
     chunk: Chunk
     score: float
     snippet: str
-    jump_link: Dict[str, str]
+    jump_link: dict[str, str]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "doc_id": self.chunk.doc_id,
             "chunk_id": self.chunk.chunk_id,

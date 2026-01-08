@@ -4,7 +4,7 @@ Per Issue Ω-4, this optimizes lab resource allocation.
 """
 from __future__ import annotations
 
-from typing import List, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -24,8 +24,8 @@ LAB_RESOURCES = {
 
 def optimize_lab_resources(
     hypothesis: str,
-    vectors: List["PaperVector"],
-    available_resources: List[str] | None = None,
+    vectors: list[PaperVector],
+    available_resources: list[str] | None = None,
 ) -> dict:
     """Optimize lab resource allocation for a hypothesis.
 
@@ -95,8 +95,8 @@ def optimize_lab_resources(
 
 def _find_missing_resources(
     methods: set,
-    available: List[str] | None,
-) -> List[str]:
+    available: list[str] | None,
+) -> list[str]:
     """Find resources needed but not available."""
     if available is None:
         return []

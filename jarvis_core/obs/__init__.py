@@ -6,7 +6,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict
 
-
 OBS_DIR = Path("data/obs")
 OBS_DIR.mkdir(parents=True, exist_ok=True)
 EVENTS_PATH = OBS_DIR / "events.jsonl"
@@ -16,7 +15,7 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def record_event(event_type: str, payload: Dict[str, Any]) -> None:
+def record_event(event_type: str, payload: dict[str, Any]) -> None:
     event = {"timestamp": _now(), "type": event_type, **payload}
     with open(EVENTS_PATH, "a", encoding="utf-8") as f:
         f.write(json.dumps(event, ensure_ascii=False) + "\n")

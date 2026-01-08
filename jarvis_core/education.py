@@ -4,14 +4,14 @@ Per RP36, this translates knowledge to different education levels.
 """
 from __future__ import annotations
 
-from typing import Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def translate_for_level(
-    paper: "PaperVector",
+    paper: PaperVector,
     level: Literal["highschool", "undergrad", "grad"],
 ) -> str:
     """Translate paper content for different education levels.
@@ -65,7 +65,7 @@ def _highschool_translation(concepts: list, bio) -> str:
     return "\n".join(lines)
 
 
-def _undergrad_translation(concepts: list, bio, paper: "PaperVector") -> str:
+def _undergrad_translation(concepts: list, bio, paper: PaperVector) -> str:
     """Undergraduate level explanation."""
     lines = [
         "【学部生向け説明】",
@@ -99,7 +99,7 @@ def _undergrad_translation(concepts: list, bio, paper: "PaperVector") -> str:
     return "\n".join(lines)
 
 
-def _grad_translation(paper: "PaperVector") -> str:
+def _grad_translation(paper: PaperVector) -> str:
     """Graduate level explanation."""
     lines = [
         "【大学院生向け説明】",

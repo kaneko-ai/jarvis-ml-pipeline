@@ -1,7 +1,7 @@
 """Assign heuristic quality tags to claims."""
 from __future__ import annotations
 
-from typing import Mapping
+from collections.abc import Mapping
 
 
 def assign_quality_tags(claim: Mapping) -> dict:

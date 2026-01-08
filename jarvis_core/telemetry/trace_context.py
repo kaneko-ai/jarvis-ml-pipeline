@@ -4,11 +4,10 @@ Per RP-143, provides mandatory trace context for all tool events.
 """
 from __future__ import annotations
 
-import uuid
 import threading
-from dataclasses import dataclass
-from typing import Optional
+import uuid
 from contextvars import ContextVar
+from dataclasses import dataclass
 
 
 @dataclass
@@ -18,10 +17,10 @@ class TraceContext:
     run_id: str
     trace_id: str
     step_id: int
-    parent_step_id: Optional[int] = None
-    tool_name: Optional[str] = None
+    parent_step_id: int | None = None
+    tool_name: str | None = None
 
-    def with_step(self, step_id: int) -> "TraceContext":
+    def with_step(self, step_id: int) -> TraceContext:
         """Create new context with incremented step."""
         return TraceContext(
             run_id=self.run_id,
@@ -31,7 +30,7 @@ class TraceContext:
             tool_name=self.tool_name,
         )
 
-    def with_tool(self, tool_name: str) -> "TraceContext":
+    def with_tool(self, tool_name: str) -> TraceContext:
         """Create new context for a tool call."""
         return TraceContext(
             run_id=self.run_id,
@@ -51,7 +50,7 @@ class TraceContext:
         }
 
     @classmethod
-    def create(cls, run_id: Optional[str] = None) -> "TraceContext":
+    def create(cls, run_id: str | None = None) -> TraceContext:
         """Create new trace context."""
         return cls(
             run_id=run_id or str(uuid.uuid4()),
@@ -61,12 +60,12 @@ class TraceContext:
 
 
 # Context variable for current trace
-_current_context: ContextVar[Optional[TraceContext]] = ContextVar(
+_current_context: ContextVar[TraceContext | None] = ContextVar(
     "trace_context", default=None
 )
 
 
-def get_current_context() -> Optional[TraceContext]:
+def get_current_context() -> TraceContext | None:
     """Get current trace context."""
     return _current_context.get()
 
@@ -90,7 +89,7 @@ def require_context() -> TraceContext:
 class TraceContextManager:
     """Manager for trace context lifecycle."""
 
-    def __init__(self, run_id: Optional[str] = None):
+    def __init__(self, run_id: str | None = None):
         self.context = TraceContext.create(run_id)
         self._step_counter = 0
         self._lock = threading.Lock()

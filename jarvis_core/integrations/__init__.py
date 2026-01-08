@@ -8,23 +8,23 @@ Provides exporters for:
 - Slack (RP-533)
 - PagerDuty (RP-534)
 """
-from .obsidian_sync import sync_to_obsidian, ObsidianSync
-from .watch import watch_manifest, ManifestWatcher
-from .slack import (
-    SlackClient,
-    SlackMessage,
-    MessageType,
-    get_slack_client,
-    notify_slack,
-)
+from .obsidian_sync import ObsidianSync, sync_to_obsidian
 from .pagerduty import (
+    EventAction,
     PagerDutyClient,
     PagerDutyEvent,
     Severity,
-    EventAction,
     get_pagerduty_client,
     page,
 )
+from .slack import (
+    MessageType,
+    SlackClient,
+    SlackMessage,
+    get_slack_client,
+    notify_slack,
+)
+from .watch import ManifestWatcher, watch_manifest
 
 __all__ = [
     "sync_to_obsidian",

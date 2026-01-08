@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -43,12 +43,12 @@ class DecisionItem:
     decision: str          # accept | reject
     pattern: DecisionPattern
     reason: str            # 判断理由
-    outcome: Optional[str] = None  # 結果（後日評価）
-    outcome_status: Optional[str] = None  # success | neutral | failure
+    outcome: str | None = None  # 結果（後日評価）
+    outcome_status: str | None = None  # success | neutral | failure
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
-    def to_dict(self) -> Dict[str, Any]:
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
         """辞書に変換."""
         return {
             "decision_id": self.decision_id,
@@ -61,9 +61,9 @@ class DecisionItem:
             "timestamp": self.timestamp,
             "metadata": self.metadata,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "DecisionItem":
+    def from_dict(cls, data: dict[str, Any]) -> DecisionItem:
         """辞書から生成."""
         return cls(
             decision_id=data["decision_id"],
@@ -83,7 +83,7 @@ class DecisionStore:
     
     過去のDecisionを保存・検索。
     """
-    
+
     def __init__(self, storage_path: str = "data/decisions"):
         """
         初期化.
@@ -93,54 +93,54 @@ class DecisionStore:
         """
         self.storage_path = Path(storage_path)
         self.storage_path.mkdir(parents=True, exist_ok=True)
-        self._decisions: List[DecisionItem] = []
+        self._decisions: list[DecisionItem] = []
         self._load()
-    
+
     def _load(self) -> None:
         """ストレージから読み込み."""
         decisions_file = self.storage_path / "decisions.jsonl"
         if not decisions_file.exists():
             return
-        
-        with open(decisions_file, 'r', encoding='utf-8') as f:
+
+        with open(decisions_file, encoding='utf-8') as f:
             for line in f:
                 if line.strip():
                     self._decisions.append(DecisionItem.from_dict(json.loads(line)))
-        
+
         logger.info(f"Loaded {len(self._decisions)} decisions")
-    
+
     def _save(self) -> None:
         """ストレージに保存."""
         decisions_file = self.storage_path / "decisions.jsonl"
         with open(decisions_file, 'w', encoding='utf-8') as f:
             for d in self._decisions:
                 f.write(json.dumps(d.to_dict(), ensure_ascii=False) + "\n")
-    
+
     def add(self, decision: DecisionItem) -> None:
         """判断を追加."""
         self._decisions.append(decision)
         self._save()
         logger.info(f"Added decision: {decision.decision_id}")
-    
-    def get(self, decision_id: str) -> Optional[DecisionItem]:
+
+    def get(self, decision_id: str) -> DecisionItem | None:
         """IDで取得."""
         for d in self._decisions:
             if d.decision_id == decision_id:
                 return d
         return None
-    
-    def list_all(self) -> List[DecisionItem]:
+
+    def list_all(self) -> list[DecisionItem]:
         """全件取得."""
         return self._decisions.copy()
-    
-    def filter_by_pattern(self, pattern: DecisionPattern) -> List[DecisionItem]:
+
+    def filter_by_pattern(self, pattern: DecisionPattern) -> list[DecisionItem]:
         """パターンでフィルタ."""
         return [d for d in self._decisions if d.pattern == pattern]
-    
-    def filter_by_decision(self, decision: str) -> List[DecisionItem]:
+
+    def filter_by_decision(self, decision: str) -> list[DecisionItem]:
         """accept/rejectでフィルタ."""
         return [d for d in self._decisions if d.decision == decision]
-    
+
     def update_outcome(
         self,
         decision_id: str,

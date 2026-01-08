@@ -1,4 +1,3 @@
-from pathlib import Path
 
 import pytest
 
@@ -9,6 +8,7 @@ def client(tmp_path, monkeypatch):
     pytest.importorskip("fastapi.testclient")
 
     from fastapi.testclient import TestClient
+
     from jarvis_web import app as app_module
     from jarvis_web.routes import kb as kb_routes
     from jarvis_web.routes import packs as packs_routes

@@ -1,19 +1,20 @@
 """Align claims to evidence chunks."""
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from difflib import SequenceMatcher
-from typing import Any, Dict, Iterable, List
+from typing import Any
 
 
 @dataclass
 class EvidenceCandidate:
     chunk_id: str
-    locator: Dict[str, Any]
+    locator: dict[str, Any]
     quote: str
     score: float
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "chunk_id": self.chunk_id,
             "locator": self.locator,
@@ -22,8 +23,8 @@ class EvidenceCandidate:
         }
 
 
-def align_claim_to_chunks(claim_text: str, chunks: Iterable[Dict[str, Any]], top_k: int = 3) -> List[EvidenceCandidate]:
-    candidates: List[EvidenceCandidate] = []
+def align_claim_to_chunks(claim_text: str, chunks: Iterable[dict[str, Any]], top_k: int = 3) -> list[EvidenceCandidate]:
+    candidates: list[EvidenceCandidate] = []
     for chunk in chunks:
         text = (chunk.get("text") or "").strip()
         if not text:

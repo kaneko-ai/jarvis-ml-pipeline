@@ -1,7 +1,5 @@
 """Tests for Zotero Integration."""
 
-import pytest
-from unittest.mock import MagicMock, patch
 from jarvis_core.integrations.zotero import ZoteroClient, ZoteroConfig
 
 
@@ -11,7 +9,7 @@ def test_zotero_config():
         user_id="12345",
         library_type="user",
     )
-    
+
     assert config.api_key == "test_key"
     assert config.user_id == "12345"
     assert config.library_type == "user"
@@ -20,21 +18,21 @@ def test_zotero_config():
 def test_zotero_library_url_user():
     config = ZoteroConfig(api_key="key", user_id="123", library_type="user")
     client = ZoteroClient(config)
-    
+
     assert "/users/123" in client._get_library_url()
 
 
 def test_zotero_library_url_group():
     config = ZoteroConfig(api_key="key", user_id="456", library_type="group")
     client = ZoteroClient(config)
-    
+
     assert "/groups/456" in client._get_library_url()
 
 
 def test_item_to_paper_conversion():
     config = ZoteroConfig(api_key="key", user_id="123")
     client = ZoteroClient(config)
-    
+
     zotero_item = {
         "key": "ABC123",
         "data": {
@@ -49,9 +47,9 @@ def test_item_to_paper_conversion():
             "publicationTitle": "Test Journal",
         }
     }
-    
+
     paper = client.item_to_paper(zotero_item)
-    
+
     assert paper["id"] == "ABC123"
     assert paper["title"] == "Test Paper"
     assert "Smith" in paper["authors"]
@@ -62,7 +60,7 @@ def test_item_to_paper_conversion():
 def test_paper_to_item_conversion():
     config = ZoteroConfig(api_key="key", user_id="123")
     client = ZoteroClient(config)
-    
+
     paper = {
         "title": "My Paper",
         "authors": ["John Doe", "Jane Smith"],
@@ -71,9 +69,9 @@ def test_paper_to_item_conversion():
         "year": 2024,
         "journal": "Science Journal",
     }
-    
+
     item = client.paper_to_item(paper)
-    
+
     assert item["itemType"] == "journalArticle"
     assert item["title"] == "My Paper"
     assert len(item["creators"]) == 2

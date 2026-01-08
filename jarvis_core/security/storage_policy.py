@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Dict, Any
+from typing import Any
 
 
 class StorageRule(Enum):
@@ -23,7 +23,7 @@ class StoragePolicy:
     """Policy for storing sensitive data."""
 
     # Default rules by PII type
-    pii_rules: Dict[str, StorageRule] = field(default_factory=lambda: {
+    pii_rules: dict[str, StorageRule] = field(default_factory=lambda: {
         "email": StorageRule.REDACT,
         "phone": StorageRule.REDACT,
         "ssn": StorageRule.DENY,
@@ -33,7 +33,7 @@ class StoragePolicy:
     })
 
     # Fields to always redact
-    redact_fields: List[str] = field(default_factory=lambda: [
+    redact_fields: list[str] = field(default_factory=lambda: [
         "api_key", "password", "token", "secret",
     ])
 
@@ -55,8 +55,8 @@ class PolicyCheckResult:
     """Result of policy check."""
 
     compliant: bool
-    violations: List[str]
-    actions_taken: List[str]
+    violations: list[str]
+    actions_taken: list[str]
 
 
 def check_storage_policy(

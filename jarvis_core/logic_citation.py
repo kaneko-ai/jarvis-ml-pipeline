@@ -4,14 +4,14 @@ Per Research OS v3.0 specification.
 """
 from __future__ import annotations
 
-from typing import List, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 # Ψ-11: Argument Map Generator
-def generate_argument_map(claims: List[str]) -> dict:
+def generate_argument_map(claims: list[str]) -> dict:
     """Generate argument structure graph.
 
     Args:
@@ -35,8 +35,8 @@ def generate_argument_map(claims: List[str]) -> dict:
 
 # Ψ-12: Scientific Controversy Tracker
 def track_controversies(
-    vectors: List["PaperVector"],
-) -> List[dict]:
+    vectors: list[PaperVector],
+) -> list[dict]:
     """Track scientific controversies in a field.
 
     Args:
@@ -68,7 +68,7 @@ def track_controversies(
 # Ψ-13: Claim Confidence Index
 def calculate_claim_confidence(
     claim: str,
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
 ) -> dict:
     """Calculate confidence index for a claim.
 
@@ -104,7 +104,7 @@ def calculate_claim_confidence(
 
 # Ψ-14: Citation Power Index
 def calculate_citation_power(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
 ) -> dict:
     """Calculate citation power index.
 
@@ -134,7 +134,7 @@ def calculate_citation_power(
 
 # Ψ-15: Paper Longevity Predictor
 def predict_paper_longevity(
-    vector: "PaperVector",
+    vector: PaperVector,
 ) -> dict:
     """Predict how long a paper will remain relevant.
 

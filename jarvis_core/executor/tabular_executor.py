@@ -10,7 +10,7 @@ import logging
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -25,16 +25,16 @@ class TabularTaskExecutor:
     
     データ内容の理解はtabular pipeline側の責務。
     """
-    
-    def __init__(self, python_path: Optional[str] = None):
+
+    def __init__(self, python_path: str | None = None):
         """初期化."""
         self.python_path = python_path or sys.executable
-    
+
     def execute(
         self,
         config_path: str,
         timeout: int = 600,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         タスクを実行.
         
@@ -50,9 +50,9 @@ class TabularTaskExecutor:
             "-m", "cli.tabular_run",
             "--config", config_path,
         ]
-        
+
         logger.info(f"Executing: {' '.join(cmd)}")
-        
+
         try:
             result = subprocess.run(
                 cmd,
@@ -61,9 +61,9 @@ class TabularTaskExecutor:
                 timeout=timeout,
                 cwd=str(Path(__file__).parent.parent),
             )
-            
+
             success = result.returncode == 0
-            
+
             return {
                 "success": success,
                 "returncode": result.returncode,
@@ -71,7 +71,7 @@ class TabularTaskExecutor:
                 "stderr": result.stderr,
                 "config_path": config_path,
             }
-        
+
         except subprocess.TimeoutExpired:
             logger.error(f"Task timed out after {timeout}s")
             return {
@@ -81,7 +81,7 @@ class TabularTaskExecutor:
                 "stderr": f"Timeout after {timeout}s",
                 "config_path": config_path,
             }
-        
+
         except Exception as e:
             logger.error(f"Task failed: {e}")
             return {
@@ -91,7 +91,7 @@ class TabularTaskExecutor:
                 "stderr": str(e),
                 "config_path": config_path,
             }
-    
+
     def list_runs(self, runs_dir: str = "runs") -> list:
         """実行履歴を一覧."""
         runs = sorted(Path(runs_dir).glob("*"))

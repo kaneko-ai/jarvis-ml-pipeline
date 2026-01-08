@@ -9,13 +9,10 @@ Phase Loop 1: 壊れない一本道（Golden Path）の検証
 """
 from __future__ import annotations
 
-import json
 import pytest
-from pathlib import Path
-from unittest.mock import patch, MagicMock
 
+from jarvis_core.eval.quality_gate import FailCodes, QualityGateVerifier
 from jarvis_core.storage import RunStore
-from jarvis_core.eval.quality_gate import QualityGateVerifier, FailCodes
 
 
 class TestArtifactContract:
@@ -40,11 +37,11 @@ class TestArtifactContract:
         """全成果物が存在する場合、契約違反なし."""
         run_id = "test-run-001"
         store = RunStore(run_id, base_dir=str(tmp_path))
-        
+
         # 全10ファイル作成
         for artifact in RunStore.REQUIRED_ARTIFACTS:
             (store.run_dir / artifact).write_text("{}" if artifact.endswith('.json') else "")
-        
+
         missing = store.validate_contract()
         assert missing == []
 
@@ -52,10 +49,10 @@ class TestArtifactContract:
         """成果物が欠損している場合、契約違反を検出."""
         run_id = "test-run-002"
         store = RunStore(run_id, base_dir=str(tmp_path))
-        
+
         # result.jsonのみ作成
         (store.run_dir / "result.json").write_text("{}")
-        
+
         missing = store.validate_contract()
         assert len(missing) == 9  # 10 - 1 = 9ファイル欠損
         assert "input.json" in missing
@@ -65,7 +62,7 @@ class TestArtifactContract:
         """get_summary()に契約検証結果が含まれる."""
         run_id = "test-run-003"
         store = RunStore(run_id, base_dir=str(tmp_path))
-        
+
         summary = store.get_summary()
         assert "contract_valid" in summary
         assert "missing_artifacts" in summary
@@ -97,7 +94,7 @@ class TestSuccessCondition:
             citations=[],
         )
         assert result.gate_passed is False
-        
+
         # fail_reasonsに CITATION_MISSING が含まれる
         codes = [r.code for r in result.fail_reasons]
         assert FailCodes.CITATION_MISSING in codes
@@ -115,7 +112,7 @@ class TestSuccessCondition:
             }],
         )
         assert result.gate_passed is False
-        
+
         codes = [r.code for r in result.fail_reasons]
         assert FailCodes.LOCATOR_MISSING in codes
 
@@ -126,9 +123,9 @@ class TestSuccessCondition:
             answer="Test",
             citations=[],
         )
-        
+
         eval_summary = result.to_eval_summary("test-run-id")
-        
+
         assert "run_id" in eval_summary
         assert "status" in eval_summary
         assert "gate_passed" in eval_summary
@@ -161,7 +158,7 @@ class TestFailReasonCodes:
                 "locator": {"section": "Results", "paragraph": 1},
             }],
         )
-        
+
         # 断定の危険は警告レベル（gate_passedには影響しない可能性）
         codes = [r.code for r in result.fail_reasons]
         assert FailCodes.ASSERTION_DANGER in codes
@@ -174,10 +171,10 @@ class TestRunStoreSaveLoad:
         """run_config.jsonの保存と読み込み."""
         store = RunStore("test-run", base_dir=str(tmp_path))
         config = {"run_id": "test-run", "seed": 42, "model": "gpt-4"}
-        
+
         store.save_config(config)
         loaded = store.load_config()
-        
+
         assert loaded == config
 
     def test_save_and_load_result(self, tmp_path):
@@ -188,10 +185,10 @@ class TestRunStoreSaveLoad:
             "status": "success",
             "answer": "Test answer",
         }
-        
+
         store.save_result(result)
         loaded = store.load_result()
-        
+
         assert loaded == result
 
     def test_save_and_load_eval(self, tmp_path):
@@ -202,10 +199,10 @@ class TestRunStoreSaveLoad:
             "gate_passed": True,
             "fail_reasons": [],
         }
-        
+
         store.save_eval(eval_data)
         loaded = store.load_eval()
-        
+
         assert loaded == eval_data
 
 

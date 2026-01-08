@@ -2,8 +2,9 @@
 
 Core tests for RP-305, RP-322, RP-385, RP-439, etc.
 """
-import pytest
 from datetime import datetime
+
+import pytest
 
 pytestmark = pytest.mark.core
 
@@ -75,7 +76,6 @@ class TestDashboardAPI:
 
     def test_get_stats(self):
         """Should get dashboard stats."""
-        import sys
         # Skip if FastAPI causes issues
         try:
             from jarvis_web.dashboard import DashboardAPI

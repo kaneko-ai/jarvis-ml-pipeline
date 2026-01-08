@@ -5,31 +5,29 @@ Tests Ω-1 to Ω-10 modules.
 import sys
 from pathlib import Path
 
-import pytest
-
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from jarvis_core.paper_vector import (
-    PaperVector,
-    MetadataVector,
-    ConceptVector,
-    MethodVector,
-    BiologicalAxisVector,
-    TemporalVector,
-    ImpactVector,
-)
-from jarvis_core.autonomous_loop import run_autonomous_research_loop, get_intervention_summary
-from jarvis_core.cross_field import find_cross_field_opportunities
-from jarvis_core.failure_simulator import simulate_failure_tree, get_critical_failure_path
-from jarvis_core.living_review import generate_living_review, update_living_review
-from jarvis_core.knowledge_graph import build_knowledge_graph
-from jarvis_core.grant_optimizer import optimize_grant_proposal, suggest_grant_improvements
-from jarvis_core.reviewer_persona import generate_reviewer_feedback, generate_all_reviewer_feedback
-from jarvis_core.lab_optimizer import optimize_lab_resources
+from jarvis_core.autonomous_loop import get_intervention_summary, run_autonomous_research_loop
 from jarvis_core.career_planner import plan_career_strategy
+from jarvis_core.cross_field import find_cross_field_opportunities
+from jarvis_core.failure_simulator import simulate_failure_tree
+from jarvis_core.grant_optimizer import optimize_grant_proposal, suggest_grant_improvements
+from jarvis_core.knowledge_graph import build_knowledge_graph
+from jarvis_core.lab_optimizer import optimize_lab_resources
+from jarvis_core.living_review import generate_living_review, update_living_review
+from jarvis_core.paper_vector import (
+    BiologicalAxisVector,
+    ConceptVector,
+    ImpactVector,
+    MetadataVector,
+    MethodVector,
+    PaperVector,
+    TemporalVector,
+)
 from jarvis_core.pi_support import evaluate_research_themes, generate_pi_summary
+from jarvis_core.reviewer_persona import generate_all_reviewer_feedback, generate_reviewer_feedback
 
 
 def _create_test_vectors():

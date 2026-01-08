@@ -3,8 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, Optional
-
+from typing import Any
 
 VALID_SOURCES = {"email", "comment", "diff"}
 VALID_REVIEWERS = {"kato_prof", "suzuki_sensei", "office", "unknown"}
@@ -30,7 +29,7 @@ class FeedbackLocation:
     type: str
     index: int
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {"type": self.type, "index": self.index}
 
 
@@ -50,9 +49,9 @@ class FeedbackEntry:
     resolved: bool
     resolution_type: str
     notes: str = ""
-    raw: Dict[str, Any] = field(default_factory=dict)
+    raw: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "feedback_id": self.feedback_id,
             "source": self.source,
@@ -70,13 +69,13 @@ class FeedbackEntry:
         }
 
 
-def _normalize_date(value: Optional[str]) -> str:
+def _normalize_date(value: str | None) -> str:
     if value:
         return value
     return datetime.now().strftime("%Y-%m-%d")
 
 
-def normalize_feedback(data: Dict[str, Any]) -> FeedbackEntry:
+def normalize_feedback(data: dict[str, Any]) -> FeedbackEntry:
     """Normalize raw feedback into schema.
 
     Args:

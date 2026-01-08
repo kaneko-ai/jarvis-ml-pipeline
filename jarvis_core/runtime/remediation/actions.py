@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -14,7 +14,7 @@ class ActionResult:
     """Result of applying a remediation action."""
 
     success: bool
-    config_changes: Dict[str, Any]
+    config_changes: dict[str, Any]
     message: str
 
 
@@ -31,7 +31,7 @@ class RemediationAction(ABC):
     description: str
 
     @abstractmethod
-    def apply(self, config: Dict[str, Any], state: Dict[str, Any]) -> ActionResult:
+    def apply(self, config: dict[str, Any], state: dict[str, Any]) -> ActionResult:
         """Apply the remediation action.
 
         Args:
@@ -43,7 +43,7 @@ class RemediationAction(ABC):
         """
         pass
 
-    def can_apply(self, config: Dict[str, Any], state: Dict[str, Any]) -> bool:
+    def can_apply(self, config: dict[str, Any], state: dict[str, Any]) -> bool:
         """Check if this action can be applied."""
         return True
 
@@ -56,7 +56,7 @@ class SwitchFetchAdapter(RemediationAction):
 
     ADAPTER_ORDER = ["local", "pmc", "unpaywall", "html_fallback"]
 
-    def apply(self, config: Dict[str, Any], state: Dict[str, Any]) -> ActionResult:
+    def apply(self, config: dict[str, Any], state: dict[str, Any]) -> ActionResult:
         current = config.get("fetch_adapter", "local")
         try:
             idx = self.ADAPTER_ORDER.index(current)
@@ -85,7 +85,7 @@ class IncreaseTopK(RemediationAction):
 
     MAX_TOP_K = 50
 
-    def apply(self, config: Dict[str, Any], state: Dict[str, Any]) -> ActionResult:
+    def apply(self, config: dict[str, Any], state: dict[str, Any]) -> ActionResult:
         current_k = config.get("top_k", 10)
         new_k = min(current_k + 5, self.MAX_TOP_K)
 
@@ -109,7 +109,7 @@ class TightenMMR(RemediationAction):
     action_id = "TIGHTEN_MMR"
     description = "Tighten MMR lambda to reduce redundant chunks"
 
-    def apply(self, config: Dict[str, Any], state: Dict[str, Any]) -> ActionResult:
+    def apply(self, config: dict[str, Any], state: dict[str, Any]) -> ActionResult:
         current_lambda = config.get("mmr_lambda", 0.5)
         new_lambda = min(current_lambda + 0.1, 0.9)
 
@@ -133,7 +133,7 @@ class CitationFirstPrompt(RemediationAction):
     action_id = "CITATION_FIRST_PROMPT"
     description = "Switch to citation-first generation prompt"
 
-    def apply(self, config: Dict[str, Any], state: Dict[str, Any]) -> ActionResult:
+    def apply(self, config: dict[str, Any], state: dict[str, Any]) -> ActionResult:
         if config.get("prompt_strategy") == "citation_first":
             return ActionResult(
                 success=False,
@@ -154,7 +154,7 @@ class BudgetRebalance(RemediationAction):
     action_id = "BUDGET_REBALANCE"
     description = "Rebalance budget: prioritize retrieval, shorten generation"
 
-    def apply(self, config: Dict[str, Any], state: Dict[str, Any]) -> ActionResult:
+    def apply(self, config: dict[str, Any], state: dict[str, Any]) -> ActionResult:
         current_max_tokens = config.get("max_generation_tokens", 2000)
         new_max_tokens = max(500, current_max_tokens // 2)
 
@@ -174,7 +174,7 @@ class ModelRouterSafeSwitch(RemediationAction):
     action_id = "MODEL_ROUTER_SAFE_SWITCH"
     description = "Switch to fallback model (lighter or rule-based)"
 
-    def apply(self, config: Dict[str, Any], state: Dict[str, Any]) -> ActionResult:
+    def apply(self, config: dict[str, Any], state: dict[str, Any]) -> ActionResult:
         current = config.get("model_provider", "gemini")
 
         fallback_order = {

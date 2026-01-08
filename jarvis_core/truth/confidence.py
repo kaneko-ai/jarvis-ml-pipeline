@@ -5,7 +5,6 @@ Per V4-T05, this standardizes confidence values across modules.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict
 
 
 @dataclass
@@ -95,7 +94,7 @@ def format_confidence_for_display(value: float) -> str:
 class ConfidenceRegistry:
     """Registry for module-specific confidence calibrations."""
 
-    _calibrations: Dict[str, float] = {}
+    _calibrations: dict[str, float] = {}
 
     @classmethod
     def register(cls, module: str, baseline: float) -> None:

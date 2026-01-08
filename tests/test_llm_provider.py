@@ -1,9 +1,9 @@
 """Unit tests for LLM provider switching."""
-from pathlib import Path
+import os
 import sys
 import types
+from pathlib import Path
 from unittest.mock import MagicMock, patch
-import os
 
 # Stub google modules before importing LLM
 google_stub = types.ModuleType("google")

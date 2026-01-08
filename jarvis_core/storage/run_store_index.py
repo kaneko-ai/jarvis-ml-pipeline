@@ -4,12 +4,9 @@ Per RP-147, provides indexed run storage for queries.
 """
 from __future__ import annotations
 
-import json
 import sqlite3
 from dataclasses import dataclass
-from typing import List, Optional, Dict
 from pathlib import Path
-from datetime import datetime
 
 
 @dataclass
@@ -74,7 +71,7 @@ class RunStoreIndex:
         conn.commit()
         conn.close()
 
-    def get(self, run_id: str) -> Optional[RunRecord]:
+    def get(self, run_id: str) -> RunRecord | None:
         """Get a run by ID."""
         conn = sqlite3.connect(str(self.db_path))
         cur = conn.execute(
@@ -87,7 +84,7 @@ class RunStoreIndex:
             return RunRecord(*row)
         return None
 
-    def list_recent(self, limit: int = 10) -> List[RunRecord]:
+    def list_recent(self, limit: int = 10) -> list[RunRecord]:
         """List recent runs."""
         conn = sqlite3.connect(str(self.db_path))
         cur = conn.execute(
@@ -98,7 +95,7 @@ class RunStoreIndex:
         conn.close()
         return [RunRecord(*row) for row in rows]
 
-    def list_by_status(self, status: str, limit: int = 100) -> List[RunRecord]:
+    def list_by_status(self, status: str, limit: int = 100) -> list[RunRecord]:
         """List runs by status."""
         conn = sqlite3.connect(str(self.db_path))
         cur = conn.execute(
@@ -109,7 +106,7 @@ class RunStoreIndex:
         conn.close()
         return [RunRecord(*row) for row in rows]
 
-    def count_by_status(self) -> Dict[str, int]:
+    def count_by_status(self) -> dict[str, int]:
         """Count runs by status."""
         conn = sqlite3.connect(str(self.db_path))
         cur = conn.execute(
@@ -121,11 +118,11 @@ class RunStoreIndex:
 
     def search(
         self,
-        status: Optional[str] = None,
-        category: Optional[str] = None,
-        since: Optional[str] = None,
+        status: str | None = None,
+        category: str | None = None,
+        since: str | None = None,
         limit: int = 100,
-    ) -> List[RunRecord]:
+    ) -> list[RunRecord]:
         """Search runs with filters."""
         conditions = []
         params = []

@@ -12,7 +12,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 
 class ConsistencyLevel(Enum):
@@ -35,14 +35,14 @@ class EffectDirection(Enum):
 class PICOElement:
     """PICO要素."""
     description: str
-    keywords: List[str] = field(default_factory=list)
-    provenance: Optional[Dict[str, Any]] = None
-    
-    def extract_keywords(self) -> List[str]:
+    keywords: list[str] = field(default_factory=list)
+    provenance: dict[str, Any] | None = None
+
+    def extract_keywords(self) -> list[str]:
         """キーワードを抽出."""
         if self.keywords:
             return self.keywords
-        
+
         # 簡易キーワード抽出
         text = self.description.lower()
         # 単語分割
@@ -55,11 +55,11 @@ class PICOElement:
 @dataclass
 class PICOProfile:
     """PICOプロファイル."""
-    population: Optional[PICOElement] = None
-    intervention: Optional[PICOElement] = None
-    comparator: Optional[PICOElement] = None
-    outcome: Optional[PICOElement] = None
-    
+    population: PICOElement | None = None
+    intervention: PICOElement | None = None
+    comparator: PICOElement | None = None
+    outcome: PICOElement | None = None
+
     def is_complete(self) -> bool:
         """必須要素が揃っているか."""
         return all([
@@ -67,8 +67,8 @@ class PICOProfile:
             self.intervention and self.intervention.description,
             self.outcome and self.outcome.description
         ])
-    
-    def missing_elements(self) -> List[str]:
+
+    def missing_elements(self) -> list[str]:
         """欠損要素のリスト."""
         missing = []
         if not self.population or not self.population.description:
@@ -85,9 +85,9 @@ class ConsistencyResult:
     """整合性チェック結果."""
     level: ConsistencyLevel
     score: float  # 0.0 - 1.0
-    details: Dict[str, Any] = field(default_factory=dict)
-    issues: List[str] = field(default_factory=list)
-    
+    details: dict[str, Any] = field(default_factory=dict)
+    issues: list[str] = field(default_factory=list)
+
     @property
     def passed(self) -> bool:
         """ゲート通過判定."""
@@ -96,7 +96,7 @@ class ConsistencyResult:
 
 class PICOConsistencyChecker:
     """PICO整合性チェッカー."""
-    
+
     def __init__(self, strict_mode: bool = False):
         """
         初期化.
@@ -105,10 +105,10 @@ class PICOConsistencyChecker:
             strict_mode: 厳格モード（PARTIAL=不合格）
         """
         self.strict_mode = strict_mode
-    
+
     def check_population_consistency(
-        self, 
-        claim_population: PICOElement, 
+        self,
+        claim_population: PICOElement,
         evidence_population: PICOElement
     ) -> ConsistencyResult:
         """
@@ -123,26 +123,26 @@ class PICOConsistencyChecker:
         """
         claim_kw = set(claim_population.extract_keywords())
         evidence_kw = set(evidence_population.extract_keywords())
-        
+
         if not claim_kw or not evidence_kw:
             return ConsistencyResult(
                 level=ConsistencyLevel.UNKNOWN,
                 score=0.5,
                 issues=["Insufficient keywords for comparison"]
             )
-        
+
         # Jaccard類似度
         intersection = claim_kw & evidence_kw
         union = claim_kw | evidence_kw
         jaccard = len(intersection) / len(union) if union else 0
-        
+
         if jaccard >= 0.5:
             level = ConsistencyLevel.CONSISTENT
         elif jaccard >= 0.2:
             level = ConsistencyLevel.PARTIAL
         else:
             level = ConsistencyLevel.INCONSISTENT
-        
+
         return ConsistencyResult(
             level=level,
             score=jaccard,
@@ -153,7 +153,7 @@ class PICOConsistencyChecker:
                 "jaccard": jaccard
             }
         )
-    
+
     def check_intervention_consistency(
         self,
         claim_intervention: PICOElement,
@@ -161,7 +161,7 @@ class PICOConsistencyChecker:
     ) -> ConsistencyResult:
         """Intervention一致チェック."""
         return self.check_population_consistency(claim_intervention, evidence_intervention)
-    
+
     def check_outcome_consistency(
         self,
         claim_outcome: PICOElement,
@@ -169,7 +169,7 @@ class PICOConsistencyChecker:
     ) -> ConsistencyResult:
         """Outcome一致チェック."""
         return self.check_population_consistency(claim_outcome, evidence_outcome)
-    
+
     def check_effect_direction(
         self,
         claim_direction: EffectDirection,
@@ -191,20 +191,20 @@ class PICOConsistencyChecker:
                 score=0.5,
                 issues=["Effect direction unknown"]
             )
-        
+
         if claim_direction == evidence_direction:
             return ConsistencyResult(
                 level=ConsistencyLevel.CONSISTENT,
                 score=1.0,
                 details={"direction": claim_direction.value}
             )
-        
+
         return ConsistencyResult(
             level=ConsistencyLevel.INCONSISTENT,
             score=0.0,
             issues=[f"Direction mismatch: claim={claim_direction.value}, evidence={evidence_direction.value}"]
         )
-    
+
     def check_numeric_consistency(
         self,
         claim_value: float,
@@ -230,9 +230,9 @@ class PICOConsistencyChecker:
                 score=0.0,
                 issues=["Division by zero in comparison"]
             )
-        
+
         relative_diff = abs(claim_value - evidence_value) / abs(evidence_value)
-        
+
         if relative_diff <= tolerance:
             return ConsistencyResult(
                 level=ConsistencyLevel.CONSISTENT,
@@ -252,7 +252,7 @@ class PICOConsistencyChecker:
                 score=0.0,
                 issues=[f"Large numeric difference: claim={claim_value}, evidence={evidence_value}"]
             )
-    
+
     def check_full_pico_consistency(
         self,
         claim_pico: PICOProfile,
@@ -270,7 +270,7 @@ class PICOConsistencyChecker:
         """
         results = []
         issues = []
-        
+
         # Population
         if claim_pico.population and evidence_pico.population:
             pop_result = self.check_population_consistency(
@@ -278,7 +278,7 @@ class PICOConsistencyChecker:
             )
             results.append(("population", pop_result))
             issues.extend(pop_result.issues)
-        
+
         # Intervention
         if claim_pico.intervention and evidence_pico.intervention:
             int_result = self.check_intervention_consistency(
@@ -286,7 +286,7 @@ class PICOConsistencyChecker:
             )
             results.append(("intervention", int_result))
             issues.extend(int_result.issues)
-        
+
         # Comparator（オプション）
         if claim_pico.comparator and evidence_pico.comparator:
             comp_result = self.check_population_consistency(
@@ -294,7 +294,7 @@ class PICOConsistencyChecker:
             )
             results.append(("comparator", comp_result))
             issues.extend(comp_result.issues)
-        
+
         # Outcome
         if claim_pico.outcome and evidence_pico.outcome:
             out_result = self.check_outcome_consistency(
@@ -302,32 +302,32 @@ class PICOConsistencyChecker:
             )
             results.append(("outcome", out_result))
             issues.extend(out_result.issues)
-        
+
         if not results:
             return ConsistencyResult(
                 level=ConsistencyLevel.UNKNOWN,
                 score=0.0,
                 issues=["No PICO elements to compare"]
             )
-        
+
         # 総合スコア（加重平均）
         weights = {"population": 0.3, "intervention": 0.3, "outcome": 0.3, "comparator": 0.1}
         total_weight = sum(weights.get(name, 0.25) for name, _ in results)
         avg_score = sum(
-            weights.get(name, 0.25) * r.score 
+            weights.get(name, 0.25) * r.score
             for name, r in results
         ) / total_weight if total_weight > 0 else 0
-        
+
         # 総合レベル判定
         inconsistent_count = sum(1 for _, r in results if r.level == ConsistencyLevel.INCONSISTENT)
-        
+
         if inconsistent_count == 0 and avg_score >= 0.6:
             level = ConsistencyLevel.CONSISTENT
         elif inconsistent_count <= 1 and avg_score >= 0.3:
             level = ConsistencyLevel.PARTIAL
         else:
             level = ConsistencyLevel.INCONSISTENT
-        
+
         return ConsistencyResult(
             level=level,
             score=avg_score,
@@ -339,10 +339,10 @@ class PICOConsistencyChecker:
 
 
 def check_pico_gate(
-    claim_pico: Dict[str, Any],
-    evidence_pico: Dict[str, Any],
+    claim_pico: dict[str, Any],
+    evidence_pico: dict[str, Any],
     strict: bool = False
-) -> Tuple[bool, ConsistencyResult]:
+) -> tuple[bool, ConsistencyResult]:
     """
     PICOゲート関数（便利関数）.
     
@@ -354,7 +354,7 @@ def check_pico_gate(
     Returns:
         (passed, result)
     """
-    def to_profile(data: Dict[str, Any]) -> PICOProfile:
+    def to_profile(data: dict[str, Any]) -> PICOProfile:
         profile = PICOProfile()
         if data.get("population"):
             profile.population = PICOElement(description=data["population"].get("description", ""))
@@ -365,16 +365,16 @@ def check_pico_gate(
         if data.get("outcome"):
             profile.outcome = PICOElement(description=data["outcome"].get("description", ""))
         return profile
-    
+
     checker = PICOConsistencyChecker(strict_mode=strict)
     claim_profile = to_profile(claim_pico)
     evidence_profile = to_profile(evidence_pico)
-    
+
     result = checker.check_full_pico_consistency(claim_profile, evidence_profile)
-    
+
     if strict:
         passed = result.level == ConsistencyLevel.CONSISTENT
     else:
         passed = result.passed
-    
+
     return passed, result

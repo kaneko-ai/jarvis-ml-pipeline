@@ -2,10 +2,13 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, List
+from typing import Any
 
+from ..export.docx_builder import build_docx_from_markdown
+from ..export.pptx_builder import build_pptx_from_slides
 from .citation_formatter import EvidenceLocator
 from .outline_builder import (
     ClaimDatum,
@@ -14,10 +17,7 @@ from .outline_builder import (
     build_thesis_draft_sections,
     build_thesis_outline_sections,
 )
-from ..export.docx_builder import build_docx_from_markdown
-from ..export.pptx_builder import build_pptx_from_slides
 from .utils import load_overview
-
 
 TEMPLATE_VERSION = "p5-v1"
 
@@ -29,12 +29,12 @@ def _now() -> str:
 def _safe_read_json(path: Path) -> dict:
     if not path.exists():
         return {}
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
 
-def _normalize_evidence(item: Dict[str, Any]) -> EvidenceLocator:
+def _normalize_evidence(item: dict[str, Any]) -> EvidenceLocator:
     return EvidenceLocator(
         paper_id=str(item.get("paper_id") or item.get("paper") or "unknown"),
         chunk_id=str(item.get("chunk_id") or item.get("chunk") or "unknown"),
@@ -45,10 +45,10 @@ def _normalize_evidence(item: Dict[str, Any]) -> EvidenceLocator:
     )
 
 
-def _extract_evidence(raw: Any) -> List[EvidenceLocator]:
+def _extract_evidence(raw: Any) -> list[EvidenceLocator]:
     if not raw:
         return []
-    evidence_items: List[EvidenceLocator] = []
+    evidence_items: list[EvidenceLocator] = []
     if isinstance(raw, list):
         for entry in raw:
             if isinstance(entry, dict):
@@ -80,13 +80,13 @@ def _extract_evidence(raw: Any) -> List[EvidenceLocator]:
     return evidence_items
 
 
-def load_claims(run_dir: Path) -> List[ClaimDatum]:
+def load_claims(run_dir: Path) -> list[ClaimDatum]:
     claims_dir = run_dir / "claims"
     claim_files = sorted(claims_dir.glob("*.claims.jsonl")) if claims_dir.exists() else []
-    claims: List[ClaimDatum] = []
+    claims: list[ClaimDatum] = []
 
     for path in claim_files:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             for line in f:
                 if not line.strip():
                     continue
@@ -110,9 +110,9 @@ def load_claims(run_dir: Path) -> List[ClaimDatum]:
     return claims
 
 
-def _load_references(run_dir: Path, claims: Iterable[ClaimDatum]) -> List[str]:
+def _load_references(run_dir: Path, claims: Iterable[ClaimDatum]) -> list[str]:
     research_rank_path = run_dir / "research_rank.json"
-    references: List[str] = []
+    references: list[str] = []
     if research_rank_path.exists():
         try:
             data = _safe_read_json(research_rank_path)
@@ -132,7 +132,7 @@ def _load_references(run_dir: Path, claims: Iterable[ClaimDatum]) -> List[str]:
 
 
 def _sections_to_markdown(sections: Iterable[Section]) -> str:
-    lines: List[str] = []
+    lines: list[str] = []
     for section in sections:
         lines.append(f"## {section.title}")
         lines.append("")
@@ -152,20 +152,20 @@ def _build_metadata_header(run_id: str) -> str:
     )
 
 
-def generate_markdown_research_plan(run_dir: Path, claims: List[ClaimDatum]) -> str:
+def generate_markdown_research_plan(run_dir: Path, claims: list[ClaimDatum]) -> str:
     overview_text = load_overview(run_dir)
     references = _load_references(run_dir, claims)
     sections = build_research_plan_sections(claims, overview_text, references)
     return "# Research Plan Draft\n\n" + _build_metadata_header(run_dir.name) + _sections_to_markdown(sections)
 
 
-def generate_markdown_thesis_outline(run_dir: Path, claims: List[ClaimDatum]) -> str:
+def generate_markdown_thesis_outline(run_dir: Path, claims: list[ClaimDatum]) -> str:
     references = _load_references(run_dir, claims)
     sections = build_thesis_outline_sections(claims, references)
     return "# Thesis Outline\n\n" + _build_metadata_header(run_dir.name) + _sections_to_markdown(sections)
 
 
-def generate_markdown_thesis_draft(run_dir: Path, claims: List[ClaimDatum]) -> str:
+def generate_markdown_thesis_draft(run_dir: Path, claims: list[ClaimDatum]) -> str:
     references = _load_references(run_dir, claims)
     sections = build_thesis_draft_sections(claims, references)
     return "# Thesis Draft\n\n" + _build_metadata_header(run_dir.name) + _sections_to_markdown(sections)
@@ -190,7 +190,7 @@ def _write_readme(run_dir: Path) -> None:
     _write_text(readme_path, content)
 
 
-def _update_manifest(run_dir: Path, outputs: List[str]) -> None:
+def _update_manifest(run_dir: Path, outputs: list[str]) -> None:
     manifest_path = run_dir / "manifest.json"
     if not manifest_path.exists():
         return
@@ -202,7 +202,7 @@ def _update_manifest(run_dir: Path, outputs: List[str]) -> None:
         json.dump(manifest, f, ensure_ascii=False, indent=2)
 
 
-def generate_writing_outputs(run_id: str, outputs: Dict[str, bool]) -> Dict[str, Any]:
+def generate_writing_outputs(run_id: str, outputs: dict[str, bool]) -> dict[str, Any]:
     run_dir = Path("data/runs") / run_id
     if not run_dir.exists():
         raise FileNotFoundError(f"Run directory not found: {run_dir}")
@@ -211,7 +211,7 @@ def generate_writing_outputs(run_id: str, outputs: Dict[str, bool]) -> Dict[str,
     writing_dir = run_dir / "writing"
     writing_dir.mkdir(parents=True, exist_ok=True)
 
-    generated: List[str] = []
+    generated: list[str] = []
 
     if outputs.get("research_plan"):
         research_md = generate_markdown_research_plan(run_dir, claims)

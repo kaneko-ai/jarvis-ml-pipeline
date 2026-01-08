@@ -1,17 +1,13 @@
 """JARVIS Advanced Features - Phase 6-10 Features (201-300)
 All features are FREE - no paid APIs required.
 """
-import re
+import hashlib
+import json
 import math
 import random
-import json
-from typing import Dict, List, Optional, Tuple, Any, Callable
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+import re
 from collections import defaultdict
-from enum import Enum
-import hashlib
-
+from datetime import datetime, timedelta
 
 # ============================================
 # PHASE 6: ADVANCED ANALYTICS (201-220)
@@ -19,8 +15,8 @@ import hashlib
 
 class MetaAnalysisBot:
     """Automated meta-analysis (201)."""
-    
-    def run_meta_analysis(self, studies: List[Dict]) -> Dict:
+
+    def run_meta_analysis(self, studies: list[dict]) -> dict:
         """Run simple meta-analysis.
         
         Args:
@@ -31,27 +27,27 @@ class MetaAnalysisBot:
         """
         if not studies:
             return {"error": "No studies provided"}
-        
+
         # Calculate weighted average effect size
         total_weight = 0
         weighted_sum = 0
-        
+
         for study in studies:
             effect = study.get("effect_size", 0)
             n = study.get("sample_size", 1)
             weight = n  # Simple weighting by sample size
-            
+
             weighted_sum += effect * weight
             total_weight += weight
-        
+
         pooled_effect = weighted_sum / total_weight if total_weight > 0 else 0
-        
+
         # Calculate heterogeneity (simplified I²)
-        q_stat = sum((s.get("effect_size", 0) - pooled_effect) ** 2 * s.get("sample_size", 1) 
+        q_stat = sum((s.get("effect_size", 0) - pooled_effect) ** 2 * s.get("sample_size", 1)
                     for s in studies)
         df = len(studies) - 1
         i_squared = max(0, (q_stat - df) / q_stat * 100) if q_stat > 0 else 0
-        
+
         return {
             "pooled_effect_size": round(pooled_effect, 3),
             "n_studies": len(studies),
@@ -63,22 +59,22 @@ class MetaAnalysisBot:
 
 class SystematicReviewAgent:
     """Systematic review support (202)."""
-    
+
     PRISMA_STAGES = ["identification", "screening", "eligibility", "included"]
-    
+
     def __init__(self):
-        self.papers: Dict[str, Dict] = {}
-    
-    def add_paper(self, paper_id: str, paper: Dict, stage: str = "identification"):
+        self.papers: dict[str, dict] = {}
+
+    def add_paper(self, paper_id: str, paper: dict, stage: str = "identification"):
         """Add paper to review."""
         self.papers[paper_id] = {**paper, "stage": stage, "excluded_reason": None}
-    
+
     def exclude_paper(self, paper_id: str, reason: str):
         """Exclude paper with reason."""
         if paper_id in self.papers:
             self.papers[paper_id]["stage"] = "excluded"
             self.papers[paper_id]["excluded_reason"] = reason
-    
+
     def advance_stage(self, paper_id: str):
         """Advance paper to next stage."""
         if paper_id in self.papers:
@@ -86,28 +82,28 @@ class SystematicReviewAgent:
             idx = self.PRISMA_STAGES.index(current) if current in self.PRISMA_STAGES else 0
             if idx < len(self.PRISMA_STAGES) - 1:
                 self.papers[paper_id]["stage"] = self.PRISMA_STAGES[idx + 1]
-    
-    def get_prisma_flow(self) -> Dict:
+
+    def get_prisma_flow(self) -> dict:
         """Get PRISMA flow diagram data."""
-        counts = {stage: 0 for stage in self.PRISMA_STAGES}
+        counts = dict.fromkeys(self.PRISMA_STAGES, 0)
         counts["excluded"] = 0
-        
+
         for paper in self.papers.values():
             stage = paper["stage"]
             if stage in counts:
                 counts[stage] += 1
-        
+
         return counts
 
 
 class NetworkMetaAnalysis:
     """Network meta-analysis (203)."""
-    
-    def build_network(self, comparisons: List[Dict]) -> Dict:
+
+    def build_network(self, comparisons: list[dict]) -> dict:
         """Build comparison network."""
         nodes = set()
         edges = []
-        
+
         for comp in comparisons:
             nodes.add(comp["treatment_a"])
             nodes.add(comp["treatment_b"])
@@ -117,23 +113,23 @@ class NetworkMetaAnalysis:
                 "n_studies": comp.get("n_studies", 1),
                 "effect": comp.get("effect_size", 0)
             })
-        
+
         return {"nodes": list(nodes), "edges": edges, "n_comparisons": len(edges)}
 
 
 class BayesianStatsEngine:
     """Bayesian statistics (204)."""
-    
-    def update_belief(self, prior_mean: float, prior_std: float, 
-                     data_mean: float, data_std: float, n: int) -> Dict:
+
+    def update_belief(self, prior_mean: float, prior_std: float,
+                     data_mean: float, data_std: float, n: int) -> dict:
         """Update belief with new data (conjugate normal-normal)."""
         prior_precision = 1 / (prior_std ** 2)
         data_precision = n / (data_std ** 2)
-        
+
         posterior_precision = prior_precision + data_precision
         posterior_mean = (prior_precision * prior_mean + data_precision * data_mean) / posterior_precision
         posterior_std = (1 / posterior_precision) ** 0.5
-        
+
         return {
             "posterior_mean": round(posterior_mean, 3),
             "posterior_std": round(posterior_std, 3),
@@ -146,21 +142,21 @@ class BayesianStatsEngine:
 
 class CausalInferenceAgent:
     """Causal inference analysis (205)."""
-    
-    def estimate_ate(self, treatment: List[float], control: List[float]) -> Dict:
+
+    def estimate_ate(self, treatment: list[float], control: list[float]) -> dict:
         """Estimate Average Treatment Effect."""
         if not treatment or not control:
             return {"error": "Need both treatment and control data"}
-        
+
         mean_t = sum(treatment) / len(treatment)
         mean_c = sum(control) / len(control)
         ate = mean_t - mean_c
-        
+
         # Simple standard error
         var_t = sum((x - mean_t) ** 2 for x in treatment) / len(treatment)
         var_c = sum((x - mean_c) ** 2 for x in control) / len(control)
         se = ((var_t / len(treatment)) + (var_c / len(control))) ** 0.5
-        
+
         return {
             "ate": round(ate, 3),
             "standard_error": round(se, 3),
@@ -171,39 +167,39 @@ class CausalInferenceAgent:
 
 class TimeSeriesAnalyzer:
     """Time series analysis (206)."""
-    
-    def decompose(self, data: List[float], period: int = 12) -> Dict:
+
+    def decompose(self, data: list[float], period: int = 12) -> dict:
         """Decompose time series into components."""
         n = len(data)
-        
+
         # Trend (moving average)
         trend = []
         for i in range(n):
             start = max(0, i - period // 2)
             end = min(n, i + period // 2 + 1)
             trend.append(sum(data[start:end]) / (end - start))
-        
+
         # Detrended
         detrended = [data[i] - trend[i] for i in range(n)]
-        
+
         # Seasonal (simplified)
         seasonal = [detrended[i % period] if i < period else 0 for i in range(n)]
-        
+
         # Residual
         residual = [data[i] - trend[i] - seasonal[i] for i in range(n)]
-        
+
         return {
             "trend": trend,
             "seasonal": seasonal,
             "residual": residual,
             "period": period
         }
-    
-    def forecast(self, data: List[float], steps: int = 5) -> List[float]:
+
+    def forecast(self, data: list[float], steps: int = 5) -> list[float]:
         """Simple forecasting."""
         if len(data) < 2:
             return [data[-1] if data else 0] * steps
-        
+
         # Linear extrapolation
         slope = (data[-1] - data[-2])
         return [data[-1] + slope * (i + 1) for i in range(steps)]
@@ -211,26 +207,26 @@ class TimeSeriesAnalyzer:
 
 class SurvivalAnalysisBot:
     """Survival analysis (207)."""
-    
-    def kaplan_meier(self, times: List[float], events: List[bool]) -> Dict:
+
+    def kaplan_meier(self, times: list[float], events: list[bool]) -> dict:
         """Calculate Kaplan-Meier survival curve."""
         if len(times) != len(events):
             return {"error": "Length mismatch"}
-        
+
         # Sort by time
         data = sorted(zip(times, events))
-        
+
         n = len(data)
         n_at_risk = n
         survival_prob = 1.0
         curve = [(0, 1.0)]
-        
+
         for t, event in data:
             if event:
                 survival_prob *= (n_at_risk - 1) / n_at_risk
                 curve.append((t, survival_prob))
             n_at_risk -= 1
-        
+
         return {
             "curve": curve,
             "median_survival": next((t for t, s in curve if s < 0.5), None),
@@ -241,74 +237,74 @@ class SurvivalAnalysisBot:
 
 class MissingDataHandler:
     """Handle missing data (208)."""
-    
-    def impute_mean(self, data: List[Optional[float]]) -> List[float]:
+
+    def impute_mean(self, data: list[float | None]) -> list[float]:
         """Impute missing values with mean."""
         valid = [x for x in data if x is not None]
         mean = sum(valid) / len(valid) if valid else 0
         return [x if x is not None else mean for x in data]
-    
-    def detect_missing_pattern(self, data: Dict[str, List]) -> Dict:
+
+    def detect_missing_pattern(self, data: dict[str, list]) -> dict:
         """Detect missing data patterns."""
         n_rows = max(len(v) for v in data.values()) if data else 0
         patterns = defaultdict(int)
-        
+
         for i in range(n_rows):
-            pattern = tuple(1 if i < len(data[k]) and data[k][i] is not None else 0 
+            pattern = tuple(1 if i < len(data[k]) and data[k][i] is not None else 0
                           for k in sorted(data.keys()))
             patterns[pattern] += 1
-        
+
         return {"n_patterns": len(patterns), "patterns": dict(patterns)}
 
 
 class PowerAnalysisCalculator:
     """Power analysis (209)."""
-    
-    def calculate_sample_size(self, effect_size: float, alpha: float = 0.05, 
+
+    def calculate_sample_size(self, effect_size: float, alpha: float = 0.05,
                              power: float = 0.8, design: str = "two_sample") -> int:
         """Calculate required sample size."""
         z_alpha = 1.96 if alpha == 0.05 else 2.58 if alpha == 0.01 else 1.65
         z_beta = 0.84 if power == 0.8 else 1.28 if power == 0.9 else 0.52
-        
+
         if design == "two_sample":
             n = 2 * ((z_alpha + z_beta) / effect_size) ** 2
         else:
             n = ((z_alpha + z_beta) / effect_size) ** 2
-        
+
         return int(math.ceil(n))
 
 
 class EffectSizeEstimator:
     """Estimate effect sizes (210)."""
-    
-    def cohens_d(self, group1: List[float], group2: List[float]) -> float:
+
+    def cohens_d(self, group1: list[float], group2: list[float]) -> float:
         """Calculate Cohen's d."""
         mean1 = sum(group1) / len(group1)
         mean2 = sum(group2) / len(group2)
-        
+
         var1 = sum((x - mean1) ** 2 for x in group1) / len(group1)
         var2 = sum((x - mean2) ** 2 for x in group2) / len(group2)
-        
+
         pooled_std = ((var1 + var2) / 2) ** 0.5
-        
+
         return (mean1 - mean2) / pooled_std if pooled_std > 0 else 0
 
 
 class PublicationBiasDetector:
     """Detect publication bias (211)."""
-    
-    def egger_test(self, effect_sizes: List[float], standard_errors: List[float]) -> Dict:
+
+    def egger_test(self, effect_sizes: list[float], standard_errors: list[float]) -> dict:
         """Simplified Egger's test for funnel plot asymmetry."""
         if len(effect_sizes) != len(standard_errors):
             return {"error": "Length mismatch"}
-        
+
         # Calculate precision
         precisions = [1/se for se in standard_errors if se > 0]
-        
+
         # Simple correlation check
         mean_effect = sum(effect_sizes) / len(effect_sizes)
         mean_precision = sum(precisions) / len(precisions)
-        
+
         return {
             "asymmetry_detected": abs(mean_effect) > 0.5,  # Simplified
             "mean_effect": round(mean_effect, 3),
@@ -318,19 +314,19 @@ class PublicationBiasDetector:
 
 class HeterogeneityAnalyzer:
     """Analyze heterogeneity (212)."""
-    
-    def calculate_i_squared(self, effect_sizes: List[float], variances: List[float]) -> Dict:
+
+    def calculate_i_squared(self, effect_sizes: list[float], variances: list[float]) -> dict:
         """Calculate I² statistic."""
         if not effect_sizes:
             return {"i_squared": 0}
-        
+
         weights = [1/v if v > 0 else 1 for v in variances]
         weighted_mean = sum(e * w for e, w in zip(effect_sizes, weights)) / sum(weights)
-        
+
         q = sum(w * (e - weighted_mean) ** 2 for e, w in zip(effect_sizes, weights))
         df = len(effect_sizes) - 1
         i2 = max(0, (q - df) / q * 100) if q > 0 else 0
-        
+
         return {
             "i_squared": round(i2, 1),
             "interpretation": "low" if i2 < 25 else "moderate" if i2 < 75 else "high",
@@ -341,54 +337,54 @@ class HeterogeneityAnalyzer:
 
 # 213-220: Additional analytics features
 class SensitivityAnalysisBot:
-    def run(self, base_result: float, variations: Dict) -> Dict:
+    def run(self, base_result: float, variations: dict) -> dict:
         results = {k: base_result * (1 + v * 0.1) for k, v in variations.items()}
         return {"base": base_result, "sensitivity": results}
 
 
 class SubgroupAnalyzer:
-    def analyze(self, data: Dict[str, List[float]]) -> Dict:
-        return {group: {"mean": sum(vals)/len(vals), "n": len(vals)} 
+    def analyze(self, data: dict[str, list[float]]) -> dict:
+        return {group: {"mean": sum(vals)/len(vals), "n": len(vals)}
                 for group, vals in data.items() if vals}
 
 
 class RegressionWizard:
-    def linear_regression(self, x: List[float], y: List[float]) -> Dict:
+    def linear_regression(self, x: list[float], y: list[float]) -> dict:
         n = len(x)
         sum_x, sum_y = sum(x), sum(y)
         sum_xy = sum(xi * yi for xi, yi in zip(x, y))
         sum_x2 = sum(xi ** 2 for xi in x)
-        
+
         slope = (n * sum_xy - sum_x * sum_y) / (n * sum_x2 - sum_x ** 2)
         intercept = (sum_y - slope * sum_x) / n
-        
+
         return {"slope": round(slope, 4), "intercept": round(intercept, 4)}
 
 
 class MLPipelineBuilder:
-    def create_pipeline(self, steps: List[str]) -> Dict:
+    def create_pipeline(self, steps: list[str]) -> dict:
         return {"steps": steps, "status": "ready"}
 
 
 class FeatureSelectionAgent:
-    def select_features(self, feature_names: List[str], importances: List[float], threshold: float = 0.1) -> List[str]:
+    def select_features(self, feature_names: list[str], importances: list[float], threshold: float = 0.1) -> list[str]:
         return [f for f, i in zip(feature_names, importances) if i >= threshold]
 
 
 class ModelComparisonTool:
-    def compare(self, models: Dict[str, float]) -> Dict:
+    def compare(self, models: dict[str, float]) -> dict:
         best = max(models.items(), key=lambda x: x[1])
         return {"best_model": best[0], "best_score": best[1], "rankings": sorted(models.items(), key=lambda x: x[1], reverse=True)}
 
 
 class CrossValidationManager:
-    def cross_validate(self, n_folds: int = 5) -> Dict:
+    def cross_validate(self, n_folds: int = 5) -> dict:
         scores = [random.uniform(0.7, 0.9) for _ in range(n_folds)]
         return {"scores": scores, "mean": sum(scores)/len(scores), "std": (sum((s - sum(scores)/len(scores))**2 for s in scores)/len(scores))**0.5}
 
 
 class ExplainableAIReporter:
-    def generate_report(self, model_name: str, feature_importances: Dict) -> str:
+    def generate_report(self, model_name: str, feature_importances: dict) -> str:
         report = f"# Model Explanation: {model_name}\n\n## Feature Importances\n\n"
         for feature, importance in sorted(feature_importances.items(), key=lambda x: x[1], reverse=True):
             report += f"- {feature}: {importance:.3f}\n"
@@ -401,8 +397,8 @@ class ExplainableAIReporter:
 
 class MoleculeViewer3D:
     """3D molecule viewer (221)."""
-    
-    def generate_3dmol_config(self, pdb_data: str, style: str = "cartoon") -> Dict:
+
+    def generate_3dmol_config(self, pdb_data: str, style: str = "cartoon") -> dict:
         """Generate 3Dmol.js configuration."""
         return {
             "data": pdb_data,
@@ -415,8 +411,8 @@ class MoleculeViewer3D:
 
 class PathwayMapBuilder:
     """Interactive pathway maps (222)."""
-    
-    def build_pathway(self, nodes: List[Dict], edges: List[Dict]) -> Dict:
+
+    def build_pathway(self, nodes: list[dict], edges: list[dict]) -> dict:
         """Build pathway visualization data."""
         return {
             "nodes": [{"id": n["id"], "label": n.get("label", n["id"]), "type": n.get("type", "gene")} for n in nodes],
@@ -427,8 +423,8 @@ class PathwayMapBuilder:
 
 class ChromosomeBrowser:
     """Chromosome browser (223)."""
-    
-    def get_region(self, chromosome: str, start: int, end: int) -> Dict:
+
+    def get_region(self, chromosome: str, start: int, end: int) -> dict:
         """Get chromosome region data."""
         return {
             "chromosome": chromosome,
@@ -441,8 +437,8 @@ class ChromosomeBrowser:
 
 class PhylogeneticTreeViewer:
     """Phylogenetic tree viewer (224)."""
-    
-    def parse_newick(self, newick: str) -> Dict:
+
+    def parse_newick(self, newick: str) -> dict:
         """Parse Newick format tree."""
         # Simplified parser
         return {
@@ -454,9 +450,9 @@ class PhylogeneticTreeViewer:
 
 class AdvancedHeatmapGenerator:
     """Advanced heatmaps (225)."""
-    
-    def generate(self, data: List[List[float]], row_labels: List[str] = None, 
-                col_labels: List[str] = None) -> Dict:
+
+    def generate(self, data: list[list[float]], row_labels: list[str] = None,
+                col_labels: list[str] = None) -> dict:
         """Generate heatmap configuration."""
         return {
             "data": data,
@@ -470,9 +466,9 @@ class AdvancedHeatmapGenerator:
 
 class VolcanoPlotBuilder:
     """Volcano plots (226)."""
-    
-    def build(self, log2_fc: List[float], neg_log_pvalue: List[float], 
-              gene_names: List[str] = None) -> Dict:
+
+    def build(self, log2_fc: list[float], neg_log_pvalue: list[float],
+              gene_names: list[str] = None) -> dict:
         """Build volcano plot data."""
         significant = []
         for i, (fc, pval) in enumerate(zip(log2_fc, neg_log_pvalue)):
@@ -482,7 +478,7 @@ class VolcanoPlotBuilder:
                     "log2_fc": fc,
                     "neg_log_pvalue": pval
                 })
-        
+
         return {
             "x": log2_fc,
             "y": neg_log_pvalue,
@@ -493,9 +489,9 @@ class VolcanoPlotBuilder:
 
 class ManhattanPlotGenerator:
     """Manhattan plots for GWAS (227)."""
-    
-    def build(self, positions: List[int], chromosomes: List[int], 
-              neg_log_pvalues: List[float]) -> Dict:
+
+    def build(self, positions: list[int], chromosomes: list[int],
+              neg_log_pvalues: list[float]) -> dict:
         """Build Manhattan plot data."""
         return {
             "positions": positions,
@@ -508,8 +504,8 @@ class ManhattanPlotGenerator:
 
 class DimensionReductionVisualizer:
     """PCA/UMAP visualization (228)."""
-    
-    def simple_pca(self, data: List[List[float]], n_components: int = 2) -> Dict:
+
+    def simple_pca(self, data: list[list[float]], n_components: int = 2) -> dict:
         """Simple PCA (placeholder - use sklearn in production)."""
         # Return random projection for demo
         n_samples = len(data)
@@ -522,8 +518,8 @@ class DimensionReductionVisualizer:
 
 class NetworkGraphBuilder:
     """Network graphs (229)."""
-    
-    def build_network(self, nodes: List[str], edges: List[Tuple[str, str, float]]) -> Dict:
+
+    def build_network(self, nodes: list[str], edges: list[tuple[str, str, float]]) -> dict:
         """Build network graph data."""
         return {
             "nodes": [{"id": n, "label": n} for n in nodes],
@@ -534,8 +530,8 @@ class NetworkGraphBuilder:
 
 class CircosPlotGenerator:
     """Circos plots (230)."""
-    
-    def build(self, chromosomes: List[Dict], links: List[Dict]) -> Dict:
+
+    def build(self, chromosomes: list[dict], links: list[dict]) -> dict:
         """Build Circos plot configuration."""
         return {
             "ideogram": chromosomes,
@@ -546,52 +542,52 @@ class CircosPlotGenerator:
 
 # 231-240: Additional visualization features
 class SunburstChart:
-    def build(self, data: Dict) -> Dict:
+    def build(self, data: dict) -> dict:
         return {"type": "sunburst", "data": data}
 
 
 class AlluvialDiagram:
-    def build(self, flows: List[Dict]) -> Dict:
+    def build(self, flows: list[dict]) -> dict:
         return {"type": "alluvial", "flows": flows}
 
 
 class DotPlotGenerator:
-    def build(self, x: List[float], y: List[float], size: List[float]) -> Dict:
+    def build(self, x: list[float], y: list[float], size: list[float]) -> dict:
         return {"x": x, "y": y, "size": size}
 
 
 class RidgePlotBuilder:
-    def build(self, groups: Dict[str, List[float]]) -> Dict:
+    def build(self, groups: dict[str, list[float]]) -> dict:
         return {"type": "ridge", "groups": groups}
 
 
 class BoxPlotComparator:
-    def compare(self, groups: Dict[str, List[float]]) -> Dict:
+    def compare(self, groups: dict[str, list[float]]) -> dict:
         return {name: {"median": sorted(vals)[len(vals)//2], "n": len(vals)} for name, vals in groups.items()}
 
 
 class ViolinPlotGenerator:
-    def build(self, groups: Dict[str, List[float]]) -> Dict:
+    def build(self, groups: dict[str, list[float]]) -> dict:
         return {"type": "violin", "groups": groups}
 
 
 class AnimatedTimeline:
-    def build(self, events: List[Dict]) -> Dict:
+    def build(self, events: list[dict]) -> dict:
         return {"type": "timeline", "events": sorted(events, key=lambda x: x.get("date", ""))}
 
 
 class ARDataVisualization:
-    def generate_ar_config(self, data: Dict) -> Dict:
+    def generate_ar_config(self, data: dict) -> dict:
         return {"ar_enabled": True, "data": data, "anchor": "horizontal"}
 
 
 class VRLabEnvironment:
-    def create_environment(self, lab_layout: Dict) -> Dict:
+    def create_environment(self, lab_layout: dict) -> dict:
         return {"vr_enabled": True, "layout": lab_layout}
 
 
 class HolographicDisplay:
-    def generate_hologram(self, data_3d: Dict) -> Dict:
+    def generate_hologram(self, data_3d: dict) -> dict:
         return {"holographic": True, "data": data_3d}
 
 
@@ -601,27 +597,27 @@ class HolographicDisplay:
 
 class HIPAAComplianceChecker:
     """HIPAA compliance (241)."""
-    
+
     PHI_PATTERNS = [
         r'\b\d{3}-\d{2}-\d{4}\b',  # SSN
         r'\b[A-Z]{2}\d{6,8}\b',    # Medical record numbers
         r'\b\d{3}[- ]?\d{3}[- ]?\d{4}\b'  # Phone
     ]
-    
-    def check(self, text: str) -> Dict:
+
+    def check(self, text: str) -> dict:
         """Check for PHI."""
         issues = []
         for pattern in self.PHI_PATTERNS:
             if re.search(pattern, text):
                 issues.append(f"Potential PHI: {pattern}")
-        
+
         return {"compliant": len(issues) == 0, "issues": issues}
 
 
 class GDPRDataHandler:
     """GDPR compliance (242)."""
-    
-    def anonymize(self, data: Dict, fields: List[str]) -> Dict:
+
+    def anonymize(self, data: dict, fields: list[str]) -> dict:
         """Anonymize specified fields."""
         result = data.copy()
         for field in fields:
@@ -632,8 +628,8 @@ class GDPRDataHandler:
 
 class DataAnonymizer:
     """Data anonymization (243)."""
-    
-    def k_anonymize(self, records: List[Dict], quasi_identifiers: List[str], k: int = 5) -> List[Dict]:
+
+    def k_anonymize(self, records: list[dict], quasi_identifiers: list[str], k: int = 5) -> list[dict]:
         """Simple k-anonymization."""
         # Generalize quasi-identifiers
         anonymized = []
@@ -648,11 +644,11 @@ class DataAnonymizer:
 
 class AuditTrailManager:
     """Audit trail (244)."""
-    
+
     def __init__(self):
-        self.trail: List[Dict] = []
-    
-    def log(self, action: str, user: str, resource: str, details: Dict = None):
+        self.trail: list[dict] = []
+
+    def log(self, action: str, user: str, resource: str, details: dict = None):
         """Log audit event."""
         self.trail.append({
             "timestamp": datetime.now().isoformat(),
@@ -662,27 +658,27 @@ class AuditTrailManager:
             "details": details,
             "hash": hashlib.sha256(f"{action}{user}{resource}".encode()).hexdigest()[:16]
         })
-    
-    def export(self) -> List[Dict]:
+
+    def export(self) -> list[dict]:
         """Export audit trail."""
         return self.trail
 
 
 class AccessControlManager:
     """Access control (245)."""
-    
+
     def __init__(self):
-        self.roles: Dict[str, List[str]] = {}
-        self.user_roles: Dict[str, str] = {}
-    
-    def define_role(self, role: str, permissions: List[str]):
+        self.roles: dict[str, list[str]] = {}
+        self.user_roles: dict[str, str] = {}
+
+    def define_role(self, role: str, permissions: list[str]):
         """Define role."""
         self.roles[role] = permissions
-    
+
     def assign_role(self, user: str, role: str):
         """Assign role to user."""
         self.user_roles[user] = role
-    
+
     def check_permission(self, user: str, permission: str) -> bool:
         """Check if user has permission."""
         role = self.user_roles.get(user)
@@ -693,13 +689,13 @@ class AccessControlManager:
 
 class EncryptionManager:
     """Data encryption (246)."""
-    
+
     def encrypt(self, data: str, key: str) -> str:
         """Simple XOR encryption (use AES in production)."""
         key_bytes = key.encode() * (len(data) // len(key) + 1)
         encrypted = bytes(ord(d) ^ ord(k) for d, k in zip(data, key_bytes))
         return encrypted.hex()
-    
+
     def decrypt(self, encrypted_hex: str, key: str) -> str:
         """Decrypt."""
         encrypted = bytes.fromhex(encrypted_hex)
@@ -717,39 +713,39 @@ class DataRetentionPolicy:
 
 class ConsentManager:
     def __init__(self):
-        self.consents: Dict[str, Dict] = {}
-    
-    def record_consent(self, user_id: str, purposes: List[str]):
+        self.consents: dict[str, dict] = {}
+
+    def record_consent(self, user_id: str, purposes: list[str]):
         self.consents[user_id] = {"purposes": purposes, "timestamp": datetime.now().isoformat()}
 
 
 class DataExportController:
-    def export_user_data(self, user_id: str, data: Dict) -> Dict:
+    def export_user_data(self, user_id: str, data: dict) -> dict:
         return {"user_id": user_id, "data": data, "exported_at": datetime.now().isoformat()}
 
 
 class BreachDetection:
-    def detect_anomaly(self, login_location: str, usual_locations: List[str]) -> bool:
+    def detect_anomaly(self, login_location: str, usual_locations: list[str]) -> bool:
         return login_location not in usual_locations
 
 
 class SecureCollaboration:
-    def share_securely(self, resource: str, recipient: str, expiry_hours: int = 24) -> Dict:
+    def share_securely(self, resource: str, recipient: str, expiry_hours: int = 24) -> dict:
         return {"resource": resource, "recipient": recipient, "expires": (datetime.now() + timedelta(hours=expiry_hours)).isoformat()}
 
 
 class ZeroTrustArchitecture:
-    def verify_request(self, user: str, device: str, location: str) -> Dict:
+    def verify_request(self, user: str, device: str, location: str) -> dict:
         return {"verified": True, "risk_score": random.uniform(0, 1)}
 
 
 class APISecurityScanner:
-    def scan(self, endpoint: str) -> Dict:
+    def scan(self, endpoint: str) -> dict:
         return {"endpoint": endpoint, "vulnerabilities": [], "score": 0.95}
 
 
 class VulnerabilityDetector:
-    def scan_dependencies(self, dependencies: List[str]) -> List[Dict]:
+    def scan_dependencies(self, dependencies: list[str]) -> list[dict]:
         return [{"package": d, "status": "secure"} for d in dependencies]
 
 
@@ -765,7 +761,7 @@ class DataClassification:
 
 
 class PrivacyImpactAssessment:
-    def assess(self, project: Dict) -> Dict:
+    def assess(self, project: dict) -> dict:
         return {"risk_level": "medium", "mitigations": ["Anonymize data", "Limit access"]}
 
 
@@ -776,12 +772,12 @@ class SecureFileSharing:
 
 
 class IdentityFederation:
-    def verify_token(self, token: str, provider: str) -> Dict:
+    def verify_token(self, token: str, provider: str) -> dict:
         return {"valid": True, "provider": provider, "user": "user@example.com"}
 
 
 class SecurityTrainingBot:
-    def get_quiz(self, topic: str) -> List[Dict]:
+    def get_quiz(self, topic: str) -> list[dict]:
         return [{"question": f"Security question about {topic}", "options": ["A", "B", "C"], "answer": "A"}]
 
 
@@ -791,15 +787,15 @@ class SecurityTrainingBot:
 
 class MobileAppConfig:
     """Mobile app configuration (261-262)."""
-    
-    def get_ios_config(self) -> Dict:
+
+    def get_ios_config(self) -> dict:
         return {
             "bundle_id": "ai.jarvis.research",
             "min_ios_version": "15.0",
             "features": ["offline", "push", "widgets"]
         }
-    
-    def get_android_config(self) -> Dict:
+
+    def get_android_config(self) -> dict:
         return {
             "package_name": "ai.jarvis.research",
             "min_sdk": 26,
@@ -809,8 +805,8 @@ class MobileAppConfig:
 
 class WatchIntegration:
     """Apple Watch integration (263)."""
-    
-    def get_complications(self) -> List[Dict]:
+
+    def get_complications(self) -> list[dict]:
         return [
             {"type": "small", "data": "citation_count"},
             {"type": "large", "data": "daily_papers"}
@@ -819,8 +815,8 @@ class WatchIntegration:
 
 class SiriShortcuts:
     """Siri shortcuts (264)."""
-    
-    def get_shortcuts(self) -> List[Dict]:
+
+    def get_shortcuts(self) -> list[dict]:
         return [
             {"phrase": "Search JARVIS for", "action": "search"},
             {"phrase": "Show my papers", "action": "list_papers"},
@@ -830,8 +826,8 @@ class SiriShortcuts:
 
 class GoogleAssistant:
     """Google Assistant integration (265)."""
-    
-    def get_intents(self) -> List[Dict]:
+
+    def get_intents(self) -> list[dict]:
         return [
             {"intent": "search_papers", "utterances": ["search for papers about", "find research on"]},
             {"intent": "get_summary", "utterances": ["summarize this paper", "what is this paper about"]}
@@ -840,27 +836,27 @@ class GoogleAssistant:
 
 class OfflineModePro:
     """Advanced offline mode (266)."""
-    
+
     def __init__(self):
-        self.cached_data: Dict[str, Dict] = {}
-    
-    def cache_for_offline(self, key: str, data: Dict):
+        self.cached_data: dict[str, dict] = {}
+
+    def cache_for_offline(self, key: str, data: dict):
         """Cache data for offline use."""
         self.cached_data[key] = {
             "data": data,
             "cached_at": datetime.now().isoformat(),
             "size_bytes": len(json.dumps(data))
         }
-    
-    def get_cached(self, key: str) -> Optional[Dict]:
+
+    def get_cached(self, key: str) -> dict | None:
         """Get cached data."""
         return self.cached_data.get(key, {}).get("data")
 
 
 class BackgroundSync:
     """Background sync (267)."""
-    
-    def get_sync_config(self) -> Dict:
+
+    def get_sync_config(self) -> dict:
         return {
             "sync_interval_minutes": 15,
             "wifi_only": True,
@@ -870,8 +866,8 @@ class BackgroundSync:
 
 class PushNotificationsPro:
     """Advanced push notifications (268)."""
-    
-    def create_notification(self, title: str, body: str, category: str) -> Dict:
+
+    def create_notification(self, title: str, body: str, category: str) -> dict:
         return {
             "title": title,
             "body": body,
@@ -882,22 +878,22 @@ class PushNotificationsPro:
 
 # 269-280: Additional mobile features
 class WidgetSupport:
-    def get_widgets(self) -> List[Dict]:
+    def get_widgets(self) -> list[dict]:
         return [{"size": "small", "type": "stats"}, {"size": "medium", "type": "papers"}]
 
 
 class HandoffSupport:
-    def create_user_activity(self, activity_type: str, data: Dict) -> Dict:
+    def create_user_activity(self, activity_type: str, data: dict) -> dict:
         return {"type": activity_type, "data": data}
 
 
 class ARKitIntegration:
-    def create_ar_experience(self, model_data: Dict) -> Dict:
+    def create_ar_experience(self, model_data: dict) -> dict:
         return {"ar_type": "molecule_visualization", "data": model_data}
 
 
 class DocumentScanner:
-    def process_scan(self, image_path: str) -> Dict:
+    def process_scan(self, image_path: str) -> dict:
         return {"path": image_path, "text_extracted": "Sample text from scan"}
 
 
@@ -907,7 +903,7 @@ class VoiceMemoTranscription:
 
 
 class GestureControls:
-    def get_gestures(self) -> Dict:
+    def get_gestures(self) -> dict:
         return {"swipe_left": "next", "swipe_right": "previous", "pinch": "zoom"}
 
 
@@ -917,27 +913,27 @@ class BiometricAuth:
 
 
 class EdgeComputing:
-    def run_model_locally(self, model_name: str, input_data: Dict) -> Dict:
+    def run_model_locally(self, model_name: str, input_data: dict) -> dict:
         return {"model": model_name, "result": "local_inference_result"}
 
 
 class NetworkOptimization5G:
-    def get_config(self) -> Dict:
+    def get_config(self) -> dict:
         return {"prefer_5g": True, "low_latency_mode": True}
 
 
 class BatteryOptimization:
-    def get_power_profile(self) -> Dict:
+    def get_power_profile(self) -> dict:
         return {"background_refresh": "minimal", "location_accuracy": "reduced"}
 
 
 class CrossPlatformSync:
-    def sync_state(self, state: Dict) -> Dict:
+    def sync_state(self, state: dict) -> dict:
         return {"synced": True, "timestamp": datetime.now().isoformat()}
 
 
 class TabletUI:
-    def get_layout(self) -> Dict:
+    def get_layout(self) -> dict:
         return {"sidebar": True, "split_view": True, "columns": 2}
 
 
@@ -947,11 +943,11 @@ class TabletUI:
 
 class TeamWorkspace:
     """Team workspaces (281)."""
-    
+
     def __init__(self):
-        self.workspaces: Dict[str, Dict] = {}
-    
-    def create_workspace(self, name: str, members: List[str]) -> Dict:
+        self.workspaces: dict[str, dict] = {}
+
+    def create_workspace(self, name: str, members: list[str]) -> dict:
         """Create team workspace."""
         ws_id = hashlib.md5(name.encode()).hexdigest()[:8]
         self.workspaces[ws_id] = {
@@ -964,36 +960,36 @@ class TeamWorkspace:
 
 class RoleBasedAccess:
     """Role-based access control (282)."""
-    
+
     ROLES = {
         "admin": ["read", "write", "delete", "manage"],
         "editor": ["read", "write"],
         "viewer": ["read"]
     }
-    
-    def get_permissions(self, role: str) -> List[str]:
+
+    def get_permissions(self, role: str) -> list[str]:
         """Get permissions for role."""
         return self.ROLES.get(role, [])
 
 
 class ProjectTemplates:
     """Project templates (283)."""
-    
+
     TEMPLATES = {
         "literature_review": ["search", "screen", "extract", "synthesize"],
         "meta_analysis": ["search", "extract", "analyze", "report"],
         "experiment": ["design", "execute", "analyze", "publish"]
     }
-    
-    def get_template(self, template_type: str) -> List[str]:
+
+    def get_template(self, template_type: str) -> list[str]:
         """Get project template."""
         return self.TEMPLATES.get(template_type, [])
 
 
 class ResourceSharing:
     """Resource sharing (284)."""
-    
-    def share(self, resource_id: str, users: List[str], permission: str = "view") -> Dict:
+
+    def share(self, resource_id: str, users: list[str], permission: str = "view") -> dict:
         """Share resource."""
         return {
             "resource_id": resource_id,
@@ -1005,10 +1001,10 @@ class ResourceSharing:
 
 class ActivityFeed:
     """Activity feed (285)."""
-    
+
     def __init__(self):
-        self.activities: List[Dict] = []
-    
+        self.activities: list[dict] = []
+
     def add_activity(self, user: str, action: str, target: str):
         """Add activity."""
         self.activities.append({
@@ -1017,24 +1013,24 @@ class ActivityFeed:
             "target": target,
             "timestamp": datetime.now().isoformat()
         })
-    
-    def get_feed(self, limit: int = 20) -> List[Dict]:
+
+    def get_feed(self, limit: int = 20) -> list[dict]:
         """Get recent activities."""
         return self.activities[-limit:]
 
 
 class MentionsComments:
     """@Mentions and comments (286)."""
-    
-    def parse_mentions(self, text: str) -> List[str]:
+
+    def parse_mentions(self, text: str) -> list[str]:
         """Extract @mentions."""
         return re.findall(r'@(\w+)', text)
 
 
 class RealTimeCollaboration:
     """Real-time collaboration (287)."""
-    
-    def create_session(self, document_id: str, users: List[str]) -> Dict:
+
+    def create_session(self, document_id: str, users: list[str]) -> dict:
         """Create collaboration session."""
         return {
             "session_id": hashlib.md5(f"{document_id}{time.time()}".encode()).hexdigest()[:8],
@@ -1045,10 +1041,10 @@ class RealTimeCollaboration:
 
 class VersionHistory:
     """Version history (288)."""
-    
+
     def __init__(self):
-        self.versions: Dict[str, List[Dict]] = {}
-    
+        self.versions: dict[str, list[dict]] = {}
+
     def save_version(self, doc_id: str, content: str, author: str):
         """Save version."""
         if doc_id not in self.versions:
@@ -1063,37 +1059,37 @@ class VersionHistory:
 
 # 289-300: Additional enterprise features
 class NotificationCenter:
-    def send(self, user: str, message: str, type: str = "info") -> Dict:
+    def send(self, user: str, message: str, type: str = "info") -> dict:
         return {"user": user, "message": message, "type": type, "sent": True}
 
 
 class TeamAnalytics:
-    def get_metrics(self, team_id: str) -> Dict:
+    def get_metrics(self, team_id: str) -> dict:
         return {"papers_read": 150, "annotations": 320, "collaborations": 12}
 
 
 class BillingManagement:
-    def get_usage(self, account_id: str) -> Dict:
+    def get_usage(self, account_id: str) -> dict:
         return {"api_calls": 5000, "storage_gb": 2.5, "cost": 0}  # FREE
 
 
 class SSOIntegration:
-    def verify_sso(self, provider: str, token: str) -> Dict:
+    def verify_sso(self, provider: str, token: str) -> dict:
         return {"valid": True, "user": "user@example.com"}
 
 
 class AdminDashboard:
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         return {"total_users": 100, "active_today": 45, "storage_used_gb": 50}
 
 
 class UsageReports:
-    def generate(self, period: str = "monthly") -> Dict:
+    def generate(self, period: str = "monthly") -> dict:
         return {"period": period, "api_calls": 15000, "unique_users": 50}
 
 
 class CustomBranding:
-    def apply_theme(self, colors: Dict) -> Dict:
+    def apply_theme(self, colors: dict) -> dict:
         return {"applied": True, "colors": colors}
 
 
@@ -1103,22 +1099,22 @@ class APIAccessManagement:
 
 
 class WhiteLabelOption:
-    def configure(self, brand_name: str, logo_url: str) -> Dict:
+    def configure(self, brand_name: str, logo_url: str) -> dict:
         return {"brand": brand_name, "logo": logo_url}
 
 
 class EnterpriseSupport:
-    def get_support_options(self) -> Dict:
+    def get_support_options(self) -> dict:
         return {"email": True, "chat": True, "phone": False, "sla_hours": 24}
 
 
 class TrainingOnboarding:
-    def get_training_modules(self) -> List[Dict]:
+    def get_training_modules(self) -> list[dict]:
         return [{"module": "Getting Started", "duration_min": 15}, {"module": "Advanced Features", "duration_min": 30}]
 
 
 class CustomIntegrations:
-    def create_integration(self, name: str, config: Dict) -> Dict:
+    def create_integration(self, name: str, config: dict) -> dict:
         return {"name": name, "config": config, "status": "active"}
 
 
@@ -1147,12 +1143,12 @@ if __name__ == "__main__":
         {"effect_size": 0.4, "sample_size": 80}
     ])
     print(f"  Pooled effect: {result['pooled_effect_size']}")
-    
+
     print("\n=== HIPAA Checker Demo ===")
     hc = HIPAAComplianceChecker()
     check = hc.check("Patient SSN: 123-45-6789")
     print(f"  Compliant: {check['compliant']}, Issues: {len(check['issues'])}")
-    
+
     print("\n=== Team Workspace Demo ===")
     tw = TeamWorkspace()
     ws = tw.create_workspace("Research Team", ["alice", "bob"])

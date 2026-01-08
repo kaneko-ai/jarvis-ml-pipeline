@@ -9,12 +9,11 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..result import EvidenceQAResult
-    from ..claim import ClaimSet
     from ..reference import Reference
+    from ..result import EvidenceQAResult
 
 
 def _safe_filename(s: str, max_length: int = 40) -> str:
@@ -33,8 +32,8 @@ def _to_wikilink(text: str) -> str:
 
 
 def export_obsidian(
-    result: "EvidenceQAResult",
-    references: List["Reference"],
+    result: EvidenceQAResult,
+    references: list[Reference],
     out_dir: str,
 ) -> str:
     """Export Evidence Bundle as Obsidian vault structure.
@@ -107,7 +106,7 @@ def export_obsidian(
 def _generate_claim_note(
     claim,
     index: int,
-    references: List["Reference"],
+    references: list[Reference],
     source_files: dict[str, str],
     query_filename: str,
 ) -> str:
@@ -149,7 +148,7 @@ def _generate_claim_note(
     return "\n".join(lines)
 
 
-def _generate_source_note(ref: "Reference", result: "EvidenceQAResult") -> str:
+def _generate_source_note(ref: Reference, result: EvidenceQAResult) -> str:
     """Generate a source note."""
     lines = [
         f"# {ref.get_display_locator()}",
@@ -193,8 +192,8 @@ def _generate_source_note(ref: "Reference", result: "EvidenceQAResult") -> str:
 
 
 def _generate_query_note(
-    result: "EvidenceQAResult",
-    references: List["Reference"],
+    result: EvidenceQAResult,
+    references: list[Reference],
     claim_files: dict[str, str],
     source_files: dict[str, str],
 ) -> str:
@@ -242,7 +241,7 @@ def _generate_query_note(
     return "\n".join(lines)
 
 
-def _generate_main_index(result: "EvidenceQAResult", query_filename: str) -> str:
+def _generate_main_index(result: EvidenceQAResult, query_filename: str) -> str:
     """Generate the main index file."""
     lines = [
         "# Research Vault",

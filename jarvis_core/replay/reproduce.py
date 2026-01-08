@@ -5,7 +5,6 @@ Per V4-B04, this replays execution from manifest and reports differences.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional
 from enum import Enum
 
 
@@ -30,8 +29,8 @@ class ReplayResult:
     original_run_id: str
     replay_run_id: str
     is_identical: bool
-    diff_reasons: List[DiffReason]
-    output_diff: Dict[str, str]
+    diff_reasons: list[DiffReason]
+    output_diff: dict[str, str]
     metadata: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
@@ -60,8 +59,9 @@ def replay_from_manifest(
     Returns:
         ReplayResult with diff analysis.
     """
-    from ..provenance.manifest_v2 import ManifestV2, compare_manifests
     from datetime import datetime
+
+    from ..provenance.manifest_v2 import ManifestV2, compare_manifests
 
     # Load original manifest
     original = ManifestV2.load(manifest_path)

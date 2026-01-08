@@ -4,12 +4,12 @@ Per RP-116, persists BM25 index with IndexRegistry.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import pickle
-import hashlib
-from pathlib import Path
 from dataclasses import dataclass
-from typing import Optional, List, Dict, Any
+from pathlib import Path
+from typing import Any
 
 
 @dataclass
@@ -18,7 +18,7 @@ class IndexMetadata:
 
     index_id: str
     index_type: str
-    build_params: Dict[str, Any]
+    build_params: dict[str, Any]
     inputs_hash: str
     doc_count: int
     created_at: str
@@ -75,7 +75,7 @@ class BM25IndexStore:
 
         return str(index_path)
 
-    def load(self, index_id: str) -> tuple[Any, Optional[IndexMetadata]]:
+    def load(self, index_id: str) -> tuple[Any, IndexMetadata | None]:
         """Load index from disk.
 
         Args:
@@ -95,7 +95,7 @@ class BM25IndexStore:
 
         metadata = None
         if meta_path.exists():
-            with open(meta_path, "r", encoding="utf-8") as f:
+            with open(meta_path, encoding="utf-8") as f:
                 meta_dict = json.load(f)
                 metadata = IndexMetadata(**meta_dict)
 
@@ -105,16 +105,16 @@ class BM25IndexStore:
         """Check if index exists."""
         return self._index_path(index_id).exists()
 
-    def get_metadata(self, index_id: str) -> Optional[IndexMetadata]:
+    def get_metadata(self, index_id: str) -> IndexMetadata | None:
         """Get metadata for an index."""
         meta_path = self._meta_path(index_id)
         if not meta_path.exists():
             return None
 
-        with open(meta_path, "r", encoding="utf-8") as f:
+        with open(meta_path, encoding="utf-8") as f:
             return IndexMetadata(**json.load(f))
 
-    def list_indices(self) -> List[str]:
+    def list_indices(self) -> list[str]:
         """List all stored indices."""
         return [p.stem for p in self.storage_dir.glob("*.pkl")]
 
@@ -133,7 +133,7 @@ class BM25IndexStore:
         return deleted
 
 
-def compute_inputs_hash(doc_ids: List[str]) -> str:
+def compute_inputs_hash(doc_ids: list[str]) -> str:
     """Compute hash of input document IDs for cache invalidation."""
     sorted_ids = sorted(doc_ids)
     content = "\n".join(sorted_ids)

@@ -4,8 +4,8 @@ Per RP-127, automatically adds citations when min threshold not met.
 """
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import List, Callable, Optional
 from enum import Enum
 
 
@@ -25,7 +25,7 @@ class CitationLoopResult:
     attempts: int
     initial_citations: int
     final_citations: int
-    added_citations: List[str]
+    added_citations: list[str]
 
 
 @dataclass
@@ -39,9 +39,9 @@ class CitationCheckResult:
 
 
 def check_citations(
-    claims: List[dict],
+    claims: list[dict],
     min_citations: int = 1,
-) -> List[CitationCheckResult]:
+) -> list[CitationCheckResult]:
     """Check which claims need more citations.
 
     Args:
@@ -69,8 +69,8 @@ def check_citations(
 
 
 def run_citation_loop(
-    claims: List[dict],
-    retrieve_fn: Callable[[str], List[dict]],
+    claims: list[dict],
+    retrieve_fn: Callable[[str], list[dict]],
     min_citations: int = 1,
     max_attempts: int = 3,
 ) -> CitationLoopResult:

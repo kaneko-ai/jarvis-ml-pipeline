@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import List, Optional
 
 from .base import EmbedProvider, ProviderConfig
 
@@ -62,18 +61,18 @@ class LocalEmbedProvider(EmbedProvider):
     - allenai/specter2: Scientific papers (768d)
     - all-mpnet-base-v2: High quality (768d)
     """
-    
+
     def __init__(
         self,
-        config: Optional[ProviderConfig] = None,
-        model: Optional[EmbeddingModel] = None,
+        config: ProviderConfig | None = None,
+        model: EmbeddingModel | None = None,
     ):
         if config is None:
             from .base import ProviderConfig, ProviderType
             config = ProviderConfig(provider_type=ProviderType.LOCAL)
-        
+
         super().__init__(config)
-        
+
         # Determine model
         if model:
             self._model_enum = model
@@ -81,40 +80,40 @@ class LocalEmbedProvider(EmbedProvider):
         else:
             self._model_name = config.model or EmbeddingModel.MINILM.value
             self._model_enum = self._get_model_enum(self._model_name)
-        
+
         self._model = None
         self._dimension = MODEL_CONFIG.get(
             self._model_enum,
             {"dimension": 384}
         )["dimension"]
-    
+
     def _get_model_enum(self, model_name: str) -> EmbeddingModel:
         """Get model enum from name."""
         for model in EmbeddingModel:
             if model.value == model_name:
                 return model
         return EmbeddingModel.MINILM
-    
+
     @classmethod
-    def for_scientific(cls) -> "LocalEmbedProvider":
+    def for_scientific(cls) -> LocalEmbedProvider:
         """Create provider optimized for scientific papers."""
         return cls(model=EmbeddingModel.SPECTER2)
-    
+
     @classmethod
-    def for_multilingual(cls) -> "LocalEmbedProvider":
+    def for_multilingual(cls) -> LocalEmbedProvider:
         """Create provider for multilingual content."""
         return cls(model=EmbeddingModel.MINILM_MULTILINGUAL)
-    
+
     @classmethod
-    def for_general(cls) -> "LocalEmbedProvider":
+    def for_general(cls) -> LocalEmbedProvider:
         """Create general-purpose provider (fast)."""
         return cls(model=EmbeddingModel.MINILM)
-    
+
     def initialize(self) -> None:
         """初期化."""
         if self._initialized:
             return
-        
+
         try:
             from sentence_transformers import SentenceTransformer
             self._model = SentenceTransformer(self._model_name)
@@ -126,9 +125,9 @@ class LocalEmbedProvider(EmbedProvider):
         except ImportError:
             logger.warning("sentence-transformers not installed, using mock")
             self._model = None
-        
+
         self._initialized = True
-    
+
     def is_available(self) -> bool:
         """利用可能かどうか."""
         try:
@@ -136,39 +135,39 @@ class LocalEmbedProvider(EmbedProvider):
             return True
         except ImportError:
             return False
-    
-    def embed(self, text: str) -> List[float]:
+
+    def embed(self, text: str) -> list[float]:
         """単一テキストをベクトル化."""
         if not self._initialized:
             self.initialize()
-        
+
         if self._model is None:
             return [0.0] * self._dimension
-        
+
         embedding = self._model.encode(text, convert_to_numpy=True)
         return embedding.tolist()
-    
-    def embed_batch(self, texts: List[str]) -> List[List[float]]:
+
+    def embed_batch(self, texts: list[str]) -> list[list[float]]:
         """複数テキストをベクトル化."""
         if not self._initialized:
             self.initialize()
-        
+
         if self._model is None:
             return [[0.0] * self._dimension for _ in texts]
-        
+
         embeddings = self._model.encode(texts, convert_to_numpy=True)
         return [e.tolist() for e in embeddings]
-    
+
     @property
     def dimension(self) -> int:
         """ベクトル次元数."""
         return self._dimension
-    
+
     @property
     def model_name(self) -> str:
         """Current model name."""
         return self._model_name
-    
+
     @property
     def model_info(self) -> dict:
         """Get model configuration info."""

@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class RepairAction(Enum):
@@ -43,10 +43,10 @@ class RepairAction(Enum):
 class RepairStep:
     """修復ステップ."""
     action: RepairAction
-    params: Dict[str, Any] = field(default_factory=dict)
+    params: dict[str, Any] = field(default_factory=dict)
     priority: int = 1  # 1=高, 3=低
     reason: str = ""
-    
+
     def to_dict(self) -> dict:
         return {
             "action": self.action.value,
@@ -60,11 +60,11 @@ class RepairStep:
 class RepairPlan:
     """修復計画."""
     fail_code: str
-    steps: List[RepairStep] = field(default_factory=list)
+    steps: list[RepairStep] = field(default_factory=list)
     max_retries: int = 3
     should_refuse: bool = False
     refuse_reason: str = ""
-    
+
     def to_dict(self) -> dict:
         return {
             "fail_code": self.fail_code,
@@ -76,7 +76,7 @@ class RepairPlan:
 
 
 # 処方箋定義: fail_code -> 修復ステップリスト
-REMEDY_CATALOG: Dict[str, List[RepairStep]] = {
+REMEDY_CATALOG: dict[str, list[RepairStep]] = {
     "CITATION_MISSING": [
         RepairStep(
             action=RepairAction.EXPAND_QUERY,
@@ -190,36 +190,36 @@ REMEDY_CATALOG: Dict[str, List[RepairStep]] = {
 
 class RepairPlanner:
     """修復計画立案器."""
-    
+
     def __init__(
         self,
-        history_file: Optional[Path] = None,
+        history_file: Path | None = None,
         max_retries_per_code: int = 3,
     ):
         self.history_file = history_file or Path("logs/repair_history.jsonl")
         self.max_retries_per_code = max_retries_per_code
-        self._history: List[Dict[str, Any]] = []
+        self._history: list[dict[str, Any]] = []
         self._load_history()
-    
+
     def _load_history(self) -> None:
         """修復履歴を読み込み."""
         if self.history_file.exists():
             try:
-                with open(self.history_file, "r", encoding="utf-8") as f:
+                with open(self.history_file, encoding="utf-8") as f:
                     self._history = [json.loads(line) for line in f if line.strip()]
             except Exception:
                 self._history = []
-    
+
     def _save_history_entry(self, entry: dict) -> None:
         """履歴エントリを追加."""
         self.history_file.parent.mkdir(parents=True, exist_ok=True)
         with open(self.history_file, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
         self._history.append(entry)
-    
+
     def plan(
         self,
-        fail_reasons: List[Dict[str, Any]],
+        fail_reasons: list[dict[str, Any]],
         run_id: str,
         attempt: int = 1,
     ) -> RepairPlan:
@@ -235,16 +235,16 @@ class RepairPlanner:
         """
         if not fail_reasons:
             return RepairPlan(fail_code="UNKNOWN", should_refuse=True, refuse_reason="No fail reasons provided")
-        
+
         # 主要な失敗コードを特定
         primary_code = fail_reasons[0].get("code", "UNKNOWN")
-        
+
         # 同一コードの過去試行回数をチェック
         past_attempts = sum(
-            1 for h in self._history 
+            1 for h in self._history
             if h.get("run_id") == run_id and h.get("fail_code") == primary_code
         )
-        
+
         if past_attempts >= self.max_retries_per_code:
             # リトライ上限到達 → 拒否
             return RepairPlan(
@@ -252,10 +252,10 @@ class RepairPlanner:
                 should_refuse=True,
                 refuse_reason=f"Maximum retries ({self.max_retries_per_code}) reached for {primary_code}",
             )
-        
+
         # 処方箋カタログから取得
         steps = REMEDY_CATALOG.get(primary_code, [])
-        
+
         if not steps:
             # 未知のコード → 拒否
             return RepairPlan(
@@ -263,22 +263,22 @@ class RepairPlanner:
                 should_refuse=True,
                 refuse_reason=f"No remedy available for {primary_code}",
             )
-        
+
         # 優先度順にソート
         sorted_steps = sorted(steps, key=lambda s: s.priority)
-        
+
         # 計画作成
         plan = RepairPlan(
             fail_code=primary_code,
             steps=sorted_steps,
             max_retries=self.max_retries_per_code - past_attempts,
         )
-        
+
         # REFUSE_ANSWERが最初のステップならshould_refuse=True
         if sorted_steps and sorted_steps[0].action == RepairAction.REFUSE_ANSWER:
             plan.should_refuse = True
             plan.refuse_reason = sorted_steps[0].reason
-        
+
         # 履歴記録
         self._save_history_entry({
             "run_id": run_id,
@@ -287,14 +287,14 @@ class RepairPlanner:
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "plan": plan.to_dict(),
         })
-        
+
         return plan
-    
+
     def should_refuse(self, plan: RepairPlan) -> bool:
         """計画が回答拒否を示しているか."""
         return plan.should_refuse
-    
-    def get_next_action(self, plan: RepairPlan, step_index: int = 0) -> Optional[RepairStep]:
+
+    def get_next_action(self, plan: RepairPlan, step_index: int = 0) -> RepairStep | None:
         """次の修復アクションを取得."""
         if step_index >= len(plan.steps):
             return None

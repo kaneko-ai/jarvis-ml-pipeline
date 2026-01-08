@@ -12,12 +12,12 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-import os
-from dataclasses import dataclass, field, asdict
+from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class WebhookConfig:
     webhook_id: str
     url: str
     secret: str
-    events: List[WebhookEvent]
+    events: list[WebhookEvent]
     enabled: bool = True
     retry_count: int = 3
     timeout_sec: int = 30
@@ -51,9 +51,9 @@ class WebhookPayload:
     event: WebhookEvent
     run_id: str
     timestamp: str
-    data: Dict[str, Any]
+    data: dict[str, Any]
     signature: str = ""
-    
+
     def compute_signature(self, secret: str) -> str:
         """署名を計算."""
         payload = json.dumps({
@@ -71,7 +71,7 @@ class WebhookPayload:
 
 class WebhookManager:
     """Webhookマネージャー."""
-    
+
     def __init__(self, config_path: str = "configs/webhooks.json"):
         """
         初期化.
@@ -80,17 +80,17 @@ class WebhookManager:
             config_path: 設定ファイルパス
         """
         self.config_path = Path(config_path)
-        self._webhooks: Dict[str, WebhookConfig] = {}
+        self._webhooks: dict[str, WebhookConfig] = {}
         self._load_config()
-    
+
     def _load_config(self):
         """設定を読み込み."""
         if not self.config_path.exists():
             return
-        
-        with open(self.config_path, 'r', encoding='utf-8') as f:
+
+        with open(self.config_path, encoding='utf-8') as f:
             data = json.load(f)
-        
+
         for wh in data.get("webhooks", []):
             config = WebhookConfig(
                 webhook_id=wh["webhook_id"],
@@ -100,18 +100,18 @@ class WebhookManager:
                 enabled=wh.get("enabled", True)
             )
             self._webhooks[config.webhook_id] = config
-    
+
     def register_webhook(self, config: WebhookConfig):
         """Webhookを登録."""
         self._webhooks[config.webhook_id] = config
         logger.info(f"Webhook registered: {config.webhook_id}")
-    
+
     def trigger(
         self,
         event: WebhookEvent,
         run_id: str,
-        data: Dict[str, Any]
-    ) -> List[str]:
+        data: dict[str, Any]
+    ) -> list[str]:
         """
         Webhookをトリガー.
         
@@ -124,25 +124,25 @@ class WebhookManager:
             トリガーされたWebhook IDリスト
         """
         triggered = []
-        
+
         payload = WebhookPayload(
             event=event,
             run_id=run_id,
             timestamp=datetime.now().isoformat(),
             data=data
         )
-        
+
         for webhook_id, config in self._webhooks.items():
             if not config.enabled:
                 continue
-            
+
             if event not in config.events:
                 continue
-            
+
             # 実際の実装ではHTTP POSTを送信
             logger.info(f"Webhook triggered: {webhook_id} for event {event.value}")
             triggered.append(webhook_id)
-        
+
         return triggered
 
 
@@ -152,18 +152,18 @@ class PluginAPISpec:
     method: str  # GET, POST, etc.
     path: str
     description: str
-    request_schema: Optional[Dict[str, Any]] = None
-    response_schema: Optional[Dict[str, Any]] = None
+    request_schema: dict[str, Any] | None = None
+    response_schema: dict[str, Any] | None = None
 
 
 class PluginAPIRegistry:
     """プラグインAPIレジストリ."""
-    
+
     def __init__(self):
         """初期化."""
-        self._handlers: Dict[str, Callable] = {}
-        self._specs: List[PluginAPISpec] = []
-    
+        self._handlers: dict[str, Callable] = {}
+        self._specs: list[PluginAPISpec] = []
+
     def register(
         self,
         method: str,
@@ -188,13 +188,13 @@ class PluginAPIRegistry:
             description=description
         ))
         logger.info(f"Plugin API registered: {key}")
-    
-    def get_handler(self, method: str, path: str) -> Optional[Callable]:
+
+    def get_handler(self, method: str, path: str) -> Callable | None:
         """ハンドラーを取得."""
         key = f"{method.upper()}:{path}"
         return self._handlers.get(key)
-    
-    def get_openapi_spec(self) -> Dict[str, Any]:
+
+    def get_openapi_spec(self) -> dict[str, Any]:
         """OpenAPI仕様を取得."""
         return {
             "openapi": "3.0.0",
@@ -216,16 +216,16 @@ class PluginAPIRegistry:
 
 class ExternalServiceConnector:
     """外部サービスコネクター."""
-    
+
     def __init__(self):
         """初期化."""
-        self._connections: Dict[str, Dict[str, Any]] = {}
-    
+        self._connections: dict[str, dict[str, Any]] = {}
+
     def register_service(
         self,
         service_id: str,
         service_type: str,
-        config: Dict[str, Any]
+        config: dict[str, Any]
     ):
         """
         サービスを登録.
@@ -241,20 +241,20 @@ class ExternalServiceConnector:
             "status": "registered"
         }
         logger.info(f"External service registered: {service_id} ({service_type})")
-    
-    def get_service(self, service_id: str) -> Optional[Dict[str, Any]]:
+
+    def get_service(self, service_id: str) -> dict[str, Any] | None:
         """サービスを取得."""
         return self._connections.get(service_id)
-    
-    def list_services(self) -> List[str]:
+
+    def list_services(self) -> list[str]:
         """登録済みサービスをリスト."""
         return list(self._connections.keys())
 
 
 # グローバルインスタンス
-_webhook_manager: Optional[WebhookManager] = None
-_api_registry: Optional[PluginAPIRegistry] = None
-_service_connector: Optional[ExternalServiceConnector] = None
+_webhook_manager: WebhookManager | None = None
+_api_registry: PluginAPIRegistry | None = None
+_service_connector: ExternalServiceConnector | None = None
 
 
 def get_webhook_manager() -> WebhookManager:

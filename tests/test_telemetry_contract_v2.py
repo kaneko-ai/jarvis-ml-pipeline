@@ -2,10 +2,9 @@
 
 Per RP-145, validates telemetry event order and required fields.
 """
-import pytest
 import json
-import tempfile
-from pathlib import Path
+
+import pytest
 
 # Legacy due to TelemetryEvent API differences
 pytestmark = pytest.mark.legacy
@@ -16,8 +15,8 @@ class TestTelemetryContractV2:
 
     def test_run_events_order(self, tmp_path):
         """RUN_START must come before RUN_END."""
-        from jarvis_core.telemetry.schema import TelemetryEvent
         from jarvis_core.telemetry.logger import JsonlTelemetryLogger
+        from jarvis_core.telemetry.schema import TelemetryEvent
 
         run_id = "test_order"
         logger = JsonlTelemetryLogger(run_id, str(tmp_path))
@@ -57,8 +56,8 @@ class TestTelemetryContractV2:
 
     def test_run_error_logged_on_exception(self, tmp_path):
         """RUN_ERROR must be logged when exception occurs."""
-        from jarvis_core.telemetry.schema import TelemetryEvent
         from jarvis_core.telemetry.logger import JsonlTelemetryLogger
+        from jarvis_core.telemetry.schema import TelemetryEvent
 
         run_id = "test_error"
         logger = JsonlTelemetryLogger(run_id, str(tmp_path))
@@ -90,8 +89,8 @@ class TestTelemetryContractV2:
 
     def test_required_fields_present(self, tmp_path):
         """All events must have run_id, event, timestamp."""
-        from jarvis_core.telemetry.schema import TelemetryEvent
         from jarvis_core.telemetry.logger import JsonlTelemetryLogger
+        from jarvis_core.telemetry.schema import TelemetryEvent
 
         run_id = "test_fields"
         logger = JsonlTelemetryLogger(run_id, str(tmp_path))
@@ -114,8 +113,8 @@ class TestTelemetryContractV2:
 
     def test_trace_id_propagation(self, tmp_path):
         """trace_id should be consistent within a run."""
-        from jarvis_core.telemetry.schema import TelemetryEvent
         from jarvis_core.telemetry.logger import JsonlTelemetryLogger
+        from jarvis_core.telemetry.schema import TelemetryEvent
 
         run_id = "test_trace"
         logger = JsonlTelemetryLogger(run_id, str(tmp_path))

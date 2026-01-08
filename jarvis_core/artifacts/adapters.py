@@ -5,19 +5,17 @@ without breaking backward compatibility.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from .schema import (
     ArtifactBase,
-    Fact,
     Inference,
-    Recommendation,
-    EvidenceRef,
     Provenance,
+    Recommendation,
 )
 
 if TYPE_CHECKING:
-    from ..paper_vector import PaperVector
+    pass
 
 
 def adapt_gap_analysis(result: dict) -> ArtifactBase:

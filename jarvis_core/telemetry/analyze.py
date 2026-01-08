@@ -5,10 +5,9 @@ Per PR-69, provides failure analysis and step statistics.
 from __future__ import annotations
 
 import json
-from pathlib import Path
-from typing import List, Dict, Any, Optional
-from dataclasses import dataclass, field
 from collections import defaultdict
+from dataclasses import dataclass
+from pathlib import Path
 
 
 @dataclass
@@ -38,8 +37,8 @@ class FailureRecord:
     event: str
     error_type: str
     error_message: str
-    step_id: Optional[int] = None
-    tool: Optional[str] = None
+    step_id: int | None = None
+    tool: str | None = None
 
 
 @dataclass
@@ -48,15 +47,15 @@ class RunAnalysis:
 
     run_id: str
     total_events: int
-    step_stats: Dict[str, StepStats]
-    top_failures: List[FailureRecord]
-    timeline: List[str]
+    step_stats: dict[str, StepStats]
+    top_failures: list[FailureRecord]
+    timeline: list[str]
 
 
 def analyze_events(events_file: Path) -> RunAnalysis:
     """Analyze events from a JSONL file."""
     events = []
-    with open(events_file, "r", encoding="utf-8") as f:
+    with open(events_file, encoding="utf-8") as f:
         for line in f:
             if line.strip():
                 events.append(json.loads(line))
@@ -64,9 +63,9 @@ def analyze_events(events_file: Path) -> RunAnalysis:
     run_id = events[0].get("run_id", "unknown") if events else "unknown"
 
     # Step stats
-    stats: Dict[str, StepStats] = defaultdict(lambda: StepStats(step_type=""))
-    failures: List[FailureRecord] = []
-    timeline: List[str] = []
+    stats: dict[str, StepStats] = defaultdict(lambda: StepStats(step_type=""))
+    failures: list[FailureRecord] = []
+    timeline: list[str] = []
 
     for event in events:
         evt = event.get("event", "")
@@ -98,7 +97,7 @@ def analyze_events(events_file: Path) -> RunAnalysis:
             stats[evt_type].success_count += 1
 
     # Sort failures by frequency
-    failure_counts: Dict[str, int] = defaultdict(int)
+    failure_counts: dict[str, int] = defaultdict(int)
     for f in failures:
         key = f"{f.event}:{f.error_type}"
         failure_counts[key] += 1

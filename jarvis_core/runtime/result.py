@@ -5,9 +5,8 @@ Per PR-95, provides unified result handling across all layers.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Generic, TypeVar, Optional, List, Union
 from enum import Enum
-
+from typing import Generic, TypeVar
 
 T = TypeVar("T")
 
@@ -27,12 +26,12 @@ class ErrorRecord:
 
     error_type: str
     message: str
-    step_id: Optional[int] = None
-    tool: Optional[str] = None
+    step_id: int | None = None
+    tool: str | None = None
     recoverable: bool = False
 
     @classmethod
-    def from_exception(cls, exc: Exception, **kwargs) -> "ErrorRecord":
+    def from_exception(cls, exc: Exception, **kwargs) -> ErrorRecord:
         return cls(
             error_type=type(exc).__name__,
             message=str(exc),
@@ -58,9 +57,9 @@ class Result(Generic[T]):
     """
 
     status: ResultStatus
-    value: Optional[T] = None
-    error: Optional[ErrorRecord] = None
-    warnings: List[str] = field(default_factory=list)
+    value: T | None = None
+    error: ErrorRecord | None = None
+    warnings: list[str] = field(default_factory=list)
 
     @property
     def is_success(self) -> bool:
@@ -75,7 +74,7 @@ class Result(Generic[T]):
         return self.status == ResultStatus.FAILED
 
     @classmethod
-    def success(cls, value: T, warnings: Optional[List[str]] = None) -> "Result[T]":
+    def success(cls, value: T, warnings: list[str] | None = None) -> Result[T]:
         return cls(
             status=ResultStatus.SUCCESS,
             value=value,
@@ -83,7 +82,7 @@ class Result(Generic[T]):
         )
 
     @classmethod
-    def partial(cls, value: T, warnings: Optional[List[str]] = None) -> "Result[T]":
+    def partial(cls, value: T, warnings: list[str] | None = None) -> Result[T]:
         return cls(
             status=ResultStatus.PARTIAL,
             value=value,
@@ -91,7 +90,7 @@ class Result(Generic[T]):
         )
 
     @classmethod
-    def fail(cls, error: Union[ErrorRecord, Exception, str]) -> "Result[T]":
+    def fail(cls, error: ErrorRecord | Exception | str) -> Result[T]:
         if isinstance(error, ErrorRecord):
             err = error
         elif isinstance(error, Exception):
@@ -105,7 +104,7 @@ class Result(Generic[T]):
         )
 
     @classmethod
-    def retry(cls, error: ErrorRecord) -> "Result[T]":
+    def retry(cls, error: ErrorRecord) -> Result[T]:
         return cls(
             status=ResultStatus.RETRY,
             error=error,

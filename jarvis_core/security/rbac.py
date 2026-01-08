@@ -5,13 +5,12 @@ Per RP-418, implements role-based access control.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Set, Dict, Optional
 from enum import Enum
 
 
 class Permission(Enum):
     """Available permissions."""
-    
+
     READ = "read"
     WRITE = "write"
     DELETE = "delete"
@@ -27,22 +26,22 @@ class Permission(Enum):
 @dataclass
 class Role:
     """A role with permissions."""
-    
+
     role_id: str
     name: str
-    permissions: Set[Permission]
+    permissions: set[Permission]
     description: str = ""
 
 
 @dataclass
 class User:
     """A user with roles."""
-    
+
     user_id: str
     username: str
-    roles: List[str]
+    roles: list[str]
     is_active: bool = True
-    metadata: Dict = field(default_factory=dict)
+    metadata: dict = field(default_factory=dict)
 
 
 # Default roles
@@ -84,16 +83,16 @@ class RBAC:
     - Resource permissions
     - Admin UI
     """
-    
+
     def __init__(self):
-        self._roles: Dict[str, Role] = dict(DEFAULT_ROLES)
-        self._users: Dict[str, User] = {}
-    
+        self._roles: dict[str, Role] = dict(DEFAULT_ROLES)
+        self._users: dict[str, User] = {}
+
     def create_role(
         self,
         role_id: str,
         name: str,
-        permissions: List[Permission],
+        permissions: list[Permission],
         description: str = "",
     ) -> Role:
         """Create a new role.
@@ -115,8 +114,8 @@ class RBAC:
         )
         self._roles[role_id] = role
         return role
-    
-    def get_role(self, role_id: str) -> Optional[Role]:
+
+    def get_role(self, role_id: str) -> Role | None:
         """Get a role by ID.
         
         Args:
@@ -126,12 +125,12 @@ class RBAC:
             Role or None.
         """
         return self._roles.get(role_id)
-    
+
     def create_user(
         self,
         user_id: str,
         username: str,
-        roles: List[str],
+        roles: list[str],
     ) -> User:
         """Create a new user.
         
@@ -150,8 +149,8 @@ class RBAC:
         )
         self._users[user_id] = user
         return user
-    
-    def get_user(self, user_id: str) -> Optional[User]:
+
+    def get_user(self, user_id: str) -> User | None:
         """Get a user by ID.
         
         Args:
@@ -161,7 +160,7 @@ class RBAC:
             User or None.
         """
         return self._users.get(user_id)
-    
+
     def assign_role(self, user_id: str, role_id: str) -> bool:
         """Assign a role to a user.
         
@@ -174,14 +173,14 @@ class RBAC:
         """
         user = self._users.get(user_id)
         role = self._roles.get(role_id)
-        
+
         if user and role:
             if role_id not in user.roles:
                 user.roles.append(role_id)
             return True
-        
+
         return False
-    
+
     def remove_role(self, user_id: str, role_id: str) -> bool:
         """Remove a role from a user.
         
@@ -193,14 +192,14 @@ class RBAC:
             True if removed.
         """
         user = self._users.get(user_id)
-        
+
         if user and role_id in user.roles:
             user.roles.remove(role_id)
             return True
-        
+
         return False
-    
-    def get_user_permissions(self, user_id: str) -> Set[Permission]:
+
+    def get_user_permissions(self, user_id: str) -> set[Permission]:
         """Get all permissions for a user.
         
         Args:
@@ -212,15 +211,15 @@ class RBAC:
         user = self._users.get(user_id)
         if not user or not user.is_active:
             return set()
-        
+
         permissions = set()
         for role_id in user.roles:
             role = self._roles.get(role_id)
             if role:
                 permissions.update(role.permissions)
-        
+
         return permissions
-    
+
     def check_permission(
         self,
         user_id: str,
@@ -237,7 +236,7 @@ class RBAC:
         """
         permissions = self.get_user_permissions(user_id)
         return permission in permissions
-    
+
     def require_permission(
         self,
         user_id: str,

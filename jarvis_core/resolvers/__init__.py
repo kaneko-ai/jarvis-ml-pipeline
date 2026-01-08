@@ -4,8 +4,8 @@ Provides resolvers for:
 - CrossRef (DOI lookup)
 - PubMed (PMID lookup)
 """
-from .crossref_resolver import resolve_crossref, CrossRefResult
-from .pubmed_resolver import resolve_pubmed, PubMedResult
+from .crossref_resolver import CrossRefResult, resolve_crossref
+from .pubmed_resolver import PubMedResult, resolve_pubmed
 
 __all__ = [
     "resolve_crossref",

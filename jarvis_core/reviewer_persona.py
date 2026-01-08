@@ -4,14 +4,14 @@ Per Issue Ω-3, this generates virtual reviewer feedback.
 """
 from __future__ import annotations
 
-from typing import List, Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def generate_reviewer_feedback(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     persona: Literal["strict", "innovative", "conservative"] = "strict",
 ) -> dict:
     """Generate virtual reviewer feedback based on persona.
@@ -111,7 +111,7 @@ def generate_reviewer_feedback(
     }
 
 
-def generate_all_reviewer_feedback(vectors: List["PaperVector"]) -> List[dict]:
+def generate_all_reviewer_feedback(vectors: list[PaperVector]) -> list[dict]:
     """Generate feedback from all three reviewer personas."""
     return [
         generate_reviewer_feedback(vectors, "strict"),

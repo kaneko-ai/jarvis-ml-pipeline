@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Any
 
 
 class TaskCategory(str, Enum):
@@ -59,11 +59,11 @@ class Task:
     title: str
     category: TaskCategory
     user_goal: str = ""
-    inputs: Dict[str, Any] = field(default_factory=dict)
-    constraints: Dict[str, Any] = field(default_factory=dict)
+    inputs: dict[str, Any] = field(default_factory=dict)
+    constraints: dict[str, Any] = field(default_factory=dict)
     priority: TaskPriority = TaskPriority.NORMAL
     status: TaskStatus = TaskStatus.PENDING
-    history: List[Any] = field(default_factory=list)
+    history: list[Any] = field(default_factory=list)
 
     # --- Backward compatibility properties ---
     @property

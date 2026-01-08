@@ -3,27 +3,32 @@ from __future__ import annotations
 
 import json
 from collections import Counter, defaultdict
+from collections.abc import Iterable
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any
 
-from .templates import TEMPLATE_VERSION, format_frontmatter, format_run_overview_header, format_section
-
+from .templates import (
+    TEMPLATE_VERSION,
+    format_frontmatter,
+    format_run_overview_header,
+    format_section,
+)
 
 DEFAULT_OA_STATUS = "unknown"
 
 
-def _load_json(path: Path) -> Dict[str, Any]:
+def _load_json(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
-def _load_jsonl(path: Path) -> List[Dict[str, Any]]:
+def _load_jsonl(path: Path) -> list[dict[str, Any]]:
     if not path.exists():
         return []
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return [json.loads(line) for line in f if line.strip()]
 
 
@@ -37,7 +42,7 @@ def _slug(text: str, max_len: int = 48) -> str:
     return cleaned[:max_len] or "untitled"
 
 
-def _extract_locator(locator: Dict[str, Any]) -> Tuple[str, Optional[int], Optional[int], Optional[str]]:
+def _extract_locator(locator: dict[str, Any]) -> tuple[str, int | None, int | None, str | None]:
     section = locator.get("section") or locator.get("Section") or "Unknown"
     paragraph = locator.get("paragraph_index")
     if paragraph is None:
@@ -49,7 +54,7 @@ def _extract_locator(locator: Dict[str, Any]) -> Tuple[str, Optional[int], Optio
     return section, paragraph, sentence, chunk_id
 
 
-def _format_locator(locator: Dict[str, Any]) -> str:
+def _format_locator(locator: dict[str, Any]) -> str:
     section, paragraph, sentence, chunk_id = _extract_locator(locator)
     paragraph_text = paragraph if paragraph is not None else "?"
     sentence_text = sentence if sentence is not None else "?"
@@ -75,7 +80,7 @@ def _ensure_length(text: str, min_len: int, max_len: int) -> str:
     return text
 
 
-def _build_tldr(paper: Dict[str, Any], claims: List[Dict[str, Any]]) -> str:
+def _build_tldr(paper: dict[str, Any], claims: list[dict[str, Any]]) -> str:
     title = paper.get("title", "")
     claim_texts = [c.get("claim_text", "") for c in claims if c.get("claim_text")]
     claim_summary = " / ".join(claim_texts[:2])
@@ -86,34 +91,34 @@ def _build_tldr(paper: Dict[str, Any], claims: List[Dict[str, Any]]) -> str:
     return _ensure_length(base, 200, 300)
 
 
-def _build_snapshot(section_name: str, paper: Dict[str, Any], fallback: str) -> str:
+def _build_snapshot(section_name: str, paper: dict[str, Any], fallback: str) -> str:
     value = paper.get(section_name)
     if isinstance(value, str) and value.strip():
         return value.strip()[:500]
     return fallback
 
 
-def _build_limitations(paper: Dict[str, Any]) -> str:
+def _build_limitations(paper: dict[str, Any]) -> str:
     author_limitations = paper.get("limitations")
     if author_limitations:
         return f"著者の限界: {author_limitations}\n\n注意: サンプルサイズや解析条件の再確認が必要。"
     return "著者の限界: 記載が限定的。\n\n注意: 原文の条件設定と対象集団の妥当性を再確認する。"
 
 
-def _build_why_it_matters(paper: Dict[str, Any]) -> str:
+def _build_why_it_matters(paper: dict[str, Any]) -> str:
     domain = paper.get("domain") or "研究テーマ"
     return f"{domain}における仮説検証や次の実験設計に直結するため、重要な背景知識として活用できる。"
 
 
-def _group_by_key(items: Iterable[Dict[str, Any]], key: str) -> Dict[str, List[Dict[str, Any]]]:
-    grouped: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+def _group_by_key(items: Iterable[dict[str, Any]], key: str) -> dict[str, list[dict[str, Any]]]:
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for item in items:
         grouped[item.get(key, "unknown")].append(item)
     return grouped
 
 
-def _score_from_scores(scores: Dict[str, Any]) -> Dict[str, float]:
-    ranking_scores: Dict[str, float] = {}
+def _score_from_scores(scores: dict[str, Any]) -> dict[str, float]:
+    ranking_scores: dict[str, float] = {}
     rankings = scores.get("rankings")
     if isinstance(rankings, list) and rankings:
         for entry in rankings:
@@ -137,10 +142,10 @@ def _score_from_scores(scores: Dict[str, Any]) -> Dict[str, float]:
 
 
 def _compute_rankings(
-    papers: List[Dict[str, Any]],
-    claims: List[Dict[str, Any]],
-    scores: Dict[str, Any],
-) -> List[Dict[str, Any]]:
+    papers: list[dict[str, Any]],
+    claims: list[dict[str, Any]],
+    scores: dict[str, Any],
+) -> list[dict[str, Any]]:
     score_map = _score_from_scores(scores)
     if not score_map:
         claim_counts = Counter(c.get("paper_id", "unknown") for c in claims)
@@ -154,7 +159,7 @@ def _compute_rankings(
     return results
 
 
-def _assign_tiers(rankings: List[Dict[str, Any]]) -> Dict[str, str]:
+def _assign_tiers(rankings: list[dict[str, Any]]) -> dict[str, str]:
     total = len(rankings)
     if total == 0:
         return {}
@@ -175,8 +180,8 @@ def _assign_tiers(rankings: List[Dict[str, Any]]) -> Dict[str, str]:
 
 
 def _build_evidence_map(
-    claims: List[Dict[str, Any]],
-    evidence_by_claim: Dict[str, List[Dict[str, Any]]],
+    claims: list[dict[str, Any]],
+    evidence_by_claim: dict[str, list[dict[str, Any]]],
 ) -> str:
     lines = []
     for claim in claims:
@@ -199,8 +204,8 @@ def _build_evidence_map(
 
 
 def _build_key_claims(
-    claims: List[Dict[str, Any]],
-    evidence_by_claim: Dict[str, List[Dict[str, Any]]],
+    claims: list[dict[str, Any]],
+    evidence_by_claim: dict[str, list[dict[str, Any]]],
 ) -> str:
     paragraphs = []
     for claim in claims:
@@ -223,7 +228,7 @@ def generate_notes(
     run_id: str,
     source_runs_dir: Path = Path("logs/runs"),
     output_base_dir: Path = Path("data/runs"),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Generate Obsidian notes for a run.
 
     Returns metadata about generated outputs.
@@ -343,7 +348,7 @@ def generate_notes(
     tier_s = [entry for entry in rankings if tiers.get(entry["paper_id"]) == "S"]
     tier_a = [entry for entry in rankings if tiers.get(entry["paper_id"]) == "A"]
 
-    def _build_tier_list(entries: List[Dict[str, Any]]) -> str:
+    def _build_tier_list(entries: list[dict[str, Any]]) -> str:
         lines = []
         for entry in entries:
             paper_id = entry["paper_id"]

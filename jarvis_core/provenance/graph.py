@@ -8,7 +8,6 @@ import json
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import List, Dict, Optional
 
 
 class NodeType(Enum):
@@ -29,10 +28,10 @@ class ProvenanceNode:
 
     node_id: str
     node_type: NodeType
-    content_hash: Optional[str] = None
+    content_hash: str | None = None
     content_preview: str = ""
     metadata: dict = field(default_factory=dict)
-    parents: List[str] = field(default_factory=list)
+    parents: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -49,8 +48,8 @@ class ProvenanceGraph:
     """DAG for tracking provenance."""
 
     def __init__(self):
-        self.nodes: Dict[str, ProvenanceNode] = {}
-        self.edges: List[tuple] = []
+        self.nodes: dict[str, ProvenanceNode] = {}
+        self.edges: list[tuple] = []
 
     def add_node(
         self,
@@ -77,7 +76,7 @@ class ProvenanceGraph:
             self.nodes[to_id].parents.append(from_id)
         self.edges.append((from_id, to_id, relation))
 
-    def get_ancestors(self, node_id: str) -> List[str]:
+    def get_ancestors(self, node_id: str) -> list[str]:
         """Get all ancestors of a node."""
         if node_id not in self.nodes:
             return []
@@ -95,7 +94,7 @@ class ProvenanceGraph:
 
         return list(ancestors)
 
-    def get_path_to_source(self, node_id: str) -> List[str]:
+    def get_path_to_source(self, node_id: str) -> list[str]:
         """Get path from node to source."""
         if node_id not in self.nodes:
             return []
@@ -123,10 +122,10 @@ class ProvenanceGraph:
             json.dump(self.to_dict(), f, indent=2, ensure_ascii=False)
 
     @classmethod
-    def load(cls, path: str) -> "ProvenanceGraph":
+    def load(cls, path: str) -> ProvenanceGraph:
         """Load graph from JSON."""
         graph = cls()
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
 
         for node_id, node_data in data.get("nodes", {}).items():

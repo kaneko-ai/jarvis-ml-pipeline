@@ -2,14 +2,14 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field, validator
 
 
 class ScheduleQuery(BaseModel):
-    keywords: List[str] = Field(default_factory=list)
-    mesh: List[str] = Field(default_factory=list)
+    keywords: list[str] = Field(default_factory=list)
+    mesh: list[str] = Field(default_factory=list)
     date_range_days: int = 30
     oa_only: bool = True
     oa_policy: str = "strict"
@@ -47,7 +47,7 @@ class ScheduleModel(BaseModel):
     query: ScheduleQuery
     outputs: ScheduleOutputs = Field(default_factory=ScheduleOutputs)
     limits: ScheduleLimits = Field(default_factory=ScheduleLimits)
-    tags: List[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
     created_at: str
     updated_at: str
     degraded: bool = False
@@ -58,13 +58,13 @@ class ScheduleRun(BaseModel):
     schedule_id: str
     status: str
     idempotency_key: str
-    payload: Dict[str, Any]
+    payload: dict[str, Any]
     attempts: int = 0
     created_at: str
     updated_at: str
-    next_retry_at: Optional[str] = None
-    error: Optional[str] = None
-    job_id: Optional[str] = None
+    next_retry_at: str | None = None
+    error: str | None = None
+    job_id: str | None = None
 
 
 REQUIRED_FIELDS = {"name", "rrule", "query"}
@@ -74,7 +74,7 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def normalize_schedule_payload(payload: Dict[str, Any], schedule_id: str, existing: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+def normalize_schedule_payload(payload: dict[str, Any], schedule_id: str, existing: dict[str, Any] | None = None) -> dict[str, Any]:
     data = {**(existing or {}), **payload}
     data.setdefault("schedule_id", schedule_id)
     data.setdefault("enabled", True)
@@ -108,7 +108,7 @@ def normalize_schedule_payload(payload: Dict[str, Any], schedule_id: str, existi
     return model.dict()
 
 
-def validate_required_fields(payload: Dict[str, Any]) -> None:
+def validate_required_fields(payload: dict[str, Any]) -> None:
     missing = [field for field in REQUIRED_FIELDS if not payload.get(field)]
     if missing:
         raise ValueError(f"missing required fields: {', '.join(missing)}")

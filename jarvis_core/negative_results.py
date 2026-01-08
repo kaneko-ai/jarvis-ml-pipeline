@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Dict
 
 
 @dataclass
@@ -37,12 +36,12 @@ class NegativeResultsVault:
     """Storage for negative results."""
 
     def __init__(self):
-        self.results: List[NegativeResult] = []
+        self.results: list[NegativeResult] = []
 
     def add(self, result: NegativeResult) -> None:
         self.results.append(result)
 
-    def find_similar_failures(self, hypothesis: str) -> List[NegativeResult]:
+    def find_similar_failures(self, hypothesis: str) -> list[NegativeResult]:
         """Find similar past failures."""
         hypothesis_lower = hypothesis.lower()
         return [
@@ -50,14 +49,14 @@ class NegativeResultsVault:
             if any(word in r.hypothesis.lower() for word in hypothesis_lower.split()[:3])
         ]
 
-    def get_failure_patterns(self) -> Dict[str, int]:
+    def get_failure_patterns(self) -> dict[str, int]:
         """Get failure type distribution."""
         patterns = {}
         for r in self.results:
             patterns[r.failure_type] = patterns.get(r.failure_type, 0) + 1
         return patterns
 
-    def suggest_reuse(self, new_hypothesis: str) -> List[dict]:
+    def suggest_reuse(self, new_hypothesis: str) -> list[dict]:
         """Suggest ways to reuse negative results."""
         similar = self.find_similar_failures(new_hypothesis)
         suggestions = []
@@ -73,7 +72,7 @@ class NegativeResultsVault:
         return suggestions
 
 
-def analyze_negative_results(results: List[NegativeResult]) -> dict:
+def analyze_negative_results(results: list[NegativeResult]) -> dict:
     """Analyze patterns in negative results."""
     if not results:
         return {"patterns": {}, "total": 0}

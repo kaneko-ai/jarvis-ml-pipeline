@@ -4,15 +4,15 @@ Per RP43, this generates year x concept heatmaps.
 """
 from __future__ import annotations
 
-from typing import List, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def build_concept_heatmap(
-    vectors: List["PaperVector"],
-) -> Dict[str, Dict[str, float]]:
+    vectors: list[PaperVector],
+) -> dict[str, dict[str, float]]:
     """Build concept heatmap by year.
 
     Args:
@@ -55,9 +55,9 @@ def build_concept_heatmap(
 
 
 def get_trending_concepts(
-    heatmap: Dict[str, Dict[str, float]],
+    heatmap: dict[str, dict[str, float]],
     top_k: int = 5,
-) -> List[dict]:
+) -> list[dict]:
     """Get trending concepts from heatmap.
 
     Args:

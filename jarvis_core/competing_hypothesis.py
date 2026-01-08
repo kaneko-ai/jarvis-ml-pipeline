@@ -4,7 +4,7 @@ Per RP40, this generates alternative hypotheses for phenomena.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 
 def generate_competing_hypotheses(
     phenomenon: str,
-    vectors: List["PaperVector"],
-) -> List[dict]:
+    vectors: list[PaperVector],
+) -> list[dict]:
     """Generate competing hypotheses for a phenomenon.
 
     Args:

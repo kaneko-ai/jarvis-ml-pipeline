@@ -13,13 +13,12 @@ AG-API原則:
 from __future__ import annotations
 
 import hashlib
-import json
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from typing import Any
 
-from .sla import SLATier, SLAMonitor, RateLimiter, AbuseDetector
+from .sla import AbuseDetector, RateLimiter, SLAMonitor, SLATier
 
 logger = logging.getLogger(__name__)
 
@@ -29,18 +28,18 @@ class APIRequest:
     """APIリクエスト."""
     task_goal: str
     task_category: str = "generic"
-    options: Optional[Dict[str, Any]] = None
-    api_key: Optional[str] = None
+    options: dict[str, Any] | None = None
+    api_key: str | None = None
 
 
 @dataclass
 class APIResponse:
     """APIレスポンス."""
     success: bool
-    data: Dict[str, Any]
-    error: Optional[str] = None
-    
-    def to_dict(self) -> Dict[str, Any]:
+    data: dict[str, Any]
+    error: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
         result = {
             "success": self.success,
             "data": self.data,
@@ -63,13 +62,13 @@ class ExternalAPIHandler:
     - Verify bypass API
     - ログ直接操作API
     """
-    
+
     def __init__(self, tier: SLATier = SLATier.TIER_0):
         self.tier = tier
         self.sla_monitor = SLAMonitor(tier)
         self.rate_limiter = RateLimiter(tier)
         self.abuse_detector = AbuseDetector()
-    
+
     def post_run(self, request: APIRequest) -> APIResponse:
         """POST /run - タスク実行.
         
@@ -82,7 +81,7 @@ class ExternalAPIHandler:
         """
         # SLAメトリクス開始
         metrics = self.sla_monitor.start_request()
-        
+
         # レート制限チェック
         allowed, reason = self.rate_limiter.check_rate_limit()
         if not allowed:
@@ -91,7 +90,7 @@ class ExternalAPIHandler:
                 data={},
                 error=reason,
             )
-        
+
         # Abuseチェック
         input_hash = hashlib.md5(request.task_goal.encode()).hexdigest()
         is_abuse, abuse_reason = self.abuse_detector.check_abuse(input_hash)
@@ -101,18 +100,17 @@ class ExternalAPIHandler:
                 data={"status": "blocked"},
                 error=abuse_reason,
             )
-        
+
         # run_id発行（実際の実行は非同期）
-        from jarvis_core.app import run_task
         import uuid
-        
+
         run_id = str(uuid.uuid4())
-        
+
         # レコード
         self.rate_limiter.record_request()
         self.rate_limiter.record_run()
         self.sla_monitor.record_run_id_issued(metrics)
-        
+
         # SLA違反チェック
         if metrics.sla_violated:
             # 違反時も正常レスポンスは返すが、statusをdegradedに
@@ -125,7 +123,7 @@ class ExternalAPIHandler:
                     "warning": metrics.violation_reason,
                 },
             )
-        
+
         return APIResponse(
             success=True,
             data={
@@ -134,7 +132,7 @@ class ExternalAPIHandler:
                 "sla_tier": self.tier.value,
             },
         )
-    
+
     def get_run(self, run_id: str) -> APIResponse:
         """GET /runs/{run_id} - 結果取得.
         
@@ -148,19 +146,19 @@ class ExternalAPIHandler:
         - raw evidence
         """
         from jarvis_core.storage import RunStore
-        
+
         store = RunStore(run_id)
-        
+
         if not store.run_dir.exists():
             return APIResponse(
                 success=False,
                 data={},
                 error=f"Run not found: {run_id}",
             )
-        
+
         result = store.load_result()
         eval_summary = store.load_eval()
-        
+
         if not result:
             return APIResponse(
                 success=True,
@@ -169,20 +167,20 @@ class ExternalAPIHandler:
                     "status": "running",
                 },
             )
-        
+
         # 最小限の情報のみ返す
         response_data = {
             "run_id": run_id,
             "status": result.get("status", "unknown"),
             "gate_passed": eval_summary.get("gate_passed") if eval_summary else None,
         }
-        
+
         # 成功時のみ簡潔なサマリーを追加
         if result.get("status") == "success":
             answer = result.get("answer", "")
             response_data["summary"] = answer[:200] + "..." if len(answer) > 200 else answer
             response_data["citation_count"] = len(result.get("citations", []))
-        
+
         # 失敗時はfail_reasonsを追加
         if result.get("status") == "failed" and eval_summary:
             fail_reasons = eval_summary.get("fail_reasons", [])
@@ -190,16 +188,16 @@ class ExternalAPIHandler:
                 {"code": r.get("code"), "msg": r.get("msg")}
                 for r in fail_reasons[:3]  # 最大3つ
             ]
-        
+
         return APIResponse(
             success=True,
             data=response_data,
         )
-    
+
     def get_health(self) -> APIResponse:
         """GET /health - ヘルスチェック."""
         availability = self.sla_monitor.calculate_availability()
-        
+
         return APIResponse(
             success=True,
             data={

@@ -9,11 +9,11 @@ Per V4-A03, this calculates truth-related metrics:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .goldset_schema import GoldsetEntry, GoldsetLabel
     from ..artifacts.schema import ArtifactBase
+    from .goldset_schema import GoldsetEntry
 
 
 @dataclass
@@ -34,7 +34,7 @@ class TruthMetrics:
     unsupported: int
 
     # Flags
-    flags: List[str]
+    flags: list[str]
 
     def to_dict(self) -> dict:
         return {
@@ -56,8 +56,8 @@ class TruthMetrics:
 
 
 def calculate_truth_metrics(
-    predictions: List[Dict],
-    goldset: List["GoldsetEntry"] = None,
+    predictions: list[dict],
+    goldset: list[GoldsetEntry] = None,
 ) -> TruthMetrics:
     """Calculate truth metrics.
 
@@ -142,7 +142,7 @@ def calculate_truth_metrics(
     )
 
 
-def calculate_artifact_metrics(artifact: "ArtifactBase") -> TruthMetrics:
+def calculate_artifact_metrics(artifact: ArtifactBase) -> TruthMetrics:
     """Calculate metrics from an artifact."""
     predictions = []
 

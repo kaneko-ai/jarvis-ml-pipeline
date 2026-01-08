@@ -1,10 +1,9 @@
 """Decision Intelligence schema definitions."""
 from __future__ import annotations
 
-from typing import List, Optional, Literal
+from typing import Literal
 
 from pydantic import BaseModel, Field, validator
-
 
 DISCLAIMER_TEXT = "仮定に依存する（推測です）"
 
@@ -60,7 +59,7 @@ class Assumption(BaseModel):
     name: str
     distribution: Distribution
     rationale: str = Field(..., min_length=1)
-    applies_to: Optional[str] = None
+    applies_to: str | None = None
 
 
 class Constraints(BaseModel):
@@ -75,8 +74,8 @@ class Constraints(BaseModel):
 class Dependencies(BaseModel):
     """Dependencies for an option."""
 
-    must_learn: List[str] = []
-    must_access: List[str] = []
+    must_learn: list[str] = []
+    must_access: list[str] = []
 
 
 class RiskFactorInput(BaseModel):
@@ -85,7 +84,7 @@ class RiskFactorInput(BaseModel):
     name: str
     score: RationaleValue
     weight: RationaleValue
-    rationale: Optional[str] = None
+    rationale: str | None = None
 
 
 class Option(BaseModel):
@@ -98,23 +97,23 @@ class Option(BaseModel):
     time_horizon_months: RationaleValue
     constraints: Constraints
     dependencies: Dependencies
-    risk_factors: Optional[List[RiskFactorInput]] = None
+    risk_factors: list[RiskFactorInput] | None = None
 
 
 class UserConstraints(BaseModel):
     """User-level constraints for decision simulation."""
 
-    max_weekly_hours: Optional[RationaleValue] = None
-    preferred_budget_level: Optional[str] = None
-    notes: Optional[str] = None
+    max_weekly_hours: RationaleValue | None = None
+    preferred_budget_level: str | None = None
+    notes: str | None = None
 
 
 class DecisionInput(BaseModel):
     """Input payload for decision simulation."""
 
-    options: List[Option]
-    assumptions: List[Assumption]
-    user_constraints: Optional[UserConstraints] = None
+    options: list[Option]
+    assumptions: list[Assumption]
+    user_constraints: UserConstraints | None = None
 
 
 class ProbabilityRange(BaseModel):
@@ -157,15 +156,15 @@ class DecisionResult(BaseModel):
     label: str
     success_probability: ProbabilityRange
     expected_outputs: ExpectedOutputs
-    top_risks: List[RiskContribution]
-    sensitivity: List[SensitivityItem]
+    top_risks: list[RiskContribution]
+    sensitivity: list[SensitivityItem]
     mvp_plan: dict
-    kill_criteria: List[str]
+    kill_criteria: list[str]
     disclaimer: str = DISCLAIMER_TEXT
 
 
 class DecisionComparison(BaseModel):
     """Comparison response."""
 
-    results: List[DecisionResult]
+    results: list[DecisionResult]
     disclaimer: str = DISCLAIMER_TEXT

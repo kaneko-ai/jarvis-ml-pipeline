@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -19,12 +19,12 @@ class ReviewOutput:
     summary_short: str  # 300字
     summary_long: str  # 1000字
     summary_beginner: str  # 初心者向け
-    key_findings: List[str]
+    key_findings: list[str]
     methodology_summary: str
-    limitations: List[str]
-    future_directions: List[str]
-    
-    def to_dict(self) -> Dict[str, Any]:
+    limitations: list[str]
+    future_directions: list[str]
+
+    def to_dict(self) -> dict[str, Any]:
         return {
             "summary_short": self.summary_short,
             "summary_long": self.summary_long,
@@ -34,7 +34,7 @@ class ReviewOutput:
             "limitations": self.limitations,
             "future_directions": self.future_directions,
         }
-    
+
     def to_markdown(self) -> str:
         """Markdown形式で出力."""
         lines = [
@@ -53,7 +53,7 @@ class ReviewOutput:
         ]
         for finding in self.key_findings:
             lines.append(f"- {finding}")
-        
+
         lines.extend([
             "",
             "## Methodology",
@@ -63,14 +63,14 @@ class ReviewOutput:
         ])
         for limitation in self.limitations:
             lines.append(f"- {limitation}")
-        
+
         lines.extend([
             "",
             "## Future Directions",
         ])
         for direction in self.future_directions:
             lines.append(f"- {direction}")
-        
+
         return "\n".join(lines)
 
 
@@ -79,7 +79,7 @@ class ReviewGenerator:
     
     論文群から多粒度レビューを生成
     """
-    
+
     SUMMARY_PROMPT_SHORT = """
 以下の論文情報から、300字以内の要約を作成してください。
 重要なポイントのみを簡潔にまとめてください。
@@ -101,15 +101,15 @@ class ReviewGenerator:
 
 {content}
 """
-    
+
     def __init__(self, llm_client=None):
         """初期化."""
         self.llm_client = llm_client
-    
+
     def generate_review(
         self,
-        papers: List[Dict[str, Any]],
-        claims: List[Dict[str, Any]],
+        papers: list[dict[str, Any]],
+        claims: list[dict[str, Any]],
     ) -> ReviewOutput:
         """レビューを生成.
         
@@ -122,38 +122,38 @@ class ReviewGenerator:
         """
         # コンテンツを構築
         content = self._build_content(papers, claims)
-        
+
         if self.llm_client:
             return self._generate_with_llm(content, papers, claims)
         else:
             return self._generate_rule_based(content, papers, claims)
-    
+
     def _build_content(
         self,
-        papers: List[Dict[str, Any]],
-        claims: List[Dict[str, Any]],
+        papers: list[dict[str, Any]],
+        claims: list[dict[str, Any]],
     ) -> str:
         """レビュー用コンテンツを構築."""
         lines = []
-        
+
         for paper in papers[:5]:
             lines.append(f"Title: {paper.get('title', 'Unknown')}")
             lines.append(f"Year: {paper.get('year', 'Unknown')}")
             lines.append(f"Abstract: {paper.get('abstract', '')[:500]}")
             lines.append("")
-        
+
         if claims:
             lines.append("Key Claims:")
             for claim in claims[:10]:
                 lines.append(f"- {claim.get('claim_text', '')}")
-        
+
         return "\n".join(lines)
-    
+
     def _generate_with_llm(
         self,
         content: str,
-        papers: List[Dict[str, Any]],
-        claims: List[Dict[str, Any]],
+        papers: list[dict[str, Any]],
+        claims: list[dict[str, Any]],
     ) -> ReviewOutput:
         """LLMで生成."""
         try:
@@ -166,7 +166,7 @@ class ReviewGenerator:
             summary_beginner = self.llm_client.generate(
                 self.SUMMARY_PROMPT_BEGINNER.format(content=content)
             )
-            
+
             return ReviewOutput(
                 summary_short=summary_short,
                 summary_long=summary_long,
@@ -176,34 +176,34 @@ class ReviewGenerator:
                 limitations=["Sample size", "Study design"],
                 future_directions=["Further research needed"],
             )
-        
+
         except Exception as e:
             logger.error(f"LLM generation failed: {e}")
             return self._generate_rule_based(content, papers, claims)
-    
+
     def _generate_rule_based(
         self,
         content: str,
-        papers: List[Dict[str, Any]],
-        claims: List[Dict[str, Any]],
+        papers: list[dict[str, Any]],
+        claims: list[dict[str, Any]],
     ) -> ReviewOutput:
         """ルールベースで生成."""
         # 論文タイトルから要約を生成
         titles = [p.get("title", "") for p in papers[:3]]
-        
+
         summary_short = f"This review covers {len(papers)} papers. " + \
                         f"Key topics include: {', '.join(titles[:2])}."
-        
+
         summary_long = f"This comprehensive review analyzes {len(papers)} papers " + \
-                       f"related to the research topic. " + \
+                       "related to the research topic. " + \
                        f"The studies include: {'; '.join(titles)}. " + \
                        f"A total of {len(claims)} key claims were identified."
-        
+
         summary_beginner = "This research looks at important scientific questions. " + \
                           "Scientists studied these topics to help us understand better."
-        
+
         key_findings = [c.get("claim_text", "")[:100] for c in claims[:5]]
-        
+
         return ReviewOutput(
             summary_short=summary_short[:300],
             summary_long=summary_long[:1000],

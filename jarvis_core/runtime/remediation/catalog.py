@@ -4,8 +4,7 @@ Per RP-185, provides registry for remediation actions.
 """
 from __future__ import annotations
 
-from typing import Dict, Optional, List
-from .actions import RemediationAction, BUILTIN_ACTIONS
+from .actions import BUILTIN_ACTIONS, RemediationAction
 
 
 class DuplicateActionError(Exception):
@@ -17,7 +16,7 @@ class ActionCatalog:
     """Registry for remediation actions."""
 
     def __init__(self):
-        self._actions: Dict[str, RemediationAction] = {}
+        self._actions: dict[str, RemediationAction] = {}
         self._register_builtins()
 
     def _register_builtins(self):
@@ -40,11 +39,11 @@ class ActionCatalog:
             )
         self._actions[action.action_id] = action
 
-    def get(self, action_id: str) -> Optional[RemediationAction]:
+    def get(self, action_id: str) -> RemediationAction | None:
         """Get action by ID."""
         return self._actions.get(action_id)
 
-    def list_actions(self) -> List[str]:
+    def list_actions(self) -> list[str]:
         """List all registered action IDs."""
         return list(self._actions.keys())
 
@@ -54,7 +53,7 @@ class ActionCatalog:
 
 
 # Global catalog
-_catalog: Optional[ActionCatalog] = None
+_catalog: ActionCatalog | None = None
 
 
 def get_catalog() -> ActionCatalog:
@@ -65,6 +64,6 @@ def get_catalog() -> ActionCatalog:
     return _catalog
 
 
-def get_action(action_id: str) -> Optional[RemediationAction]:
+def get_action(action_id: str) -> RemediationAction | None:
     """Get action from global catalog."""
     return get_catalog().get(action_id)

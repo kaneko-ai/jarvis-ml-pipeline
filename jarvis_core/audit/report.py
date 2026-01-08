@@ -4,8 +4,8 @@ Per V4-D2, this generates audit reports for artifacts.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import List, TYPE_CHECKING
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..artifacts.schema import ArtifactBase
@@ -20,9 +20,9 @@ class AuditReport:
     inference_count: int
     recommendation_count: int
     evidence_coverage: float  # Percentage of facts with evidence
-    weaknesses: List[str]
+    weaknesses: list[str]
     truth_distribution: dict
-    validation_issues: List[str]
+    validation_issues: list[str]
 
     def to_dict(self) -> dict:
         return {
@@ -66,7 +66,7 @@ class AuditReport:
         return "\n".join(lines)
 
 
-def generate_audit_report(artifact: "ArtifactBase") -> AuditReport:
+def generate_audit_report(artifact: ArtifactBase) -> AuditReport:
     """Generate audit report for an artifact.
 
     Args:
@@ -124,7 +124,7 @@ def generate_audit_report(artifact: "ArtifactBase") -> AuditReport:
     )
 
 
-def generate_bundle_audit(artifacts: List["ArtifactBase"]) -> str:
+def generate_bundle_audit(artifacts: list[ArtifactBase]) -> str:
     """Generate audit report for multiple artifacts."""
     lines = ["# Bundle Audit Report", ""]
 

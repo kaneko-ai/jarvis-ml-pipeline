@@ -9,7 +9,6 @@ Per RP8, this provides clean text extraction for EvidenceStore ingestion.
 from __future__ import annotations
 
 import re
-from typing import Optional
 
 try:
     from bs4 import BeautifulSoup
@@ -34,7 +33,7 @@ REMOVE_TAGS = [
 ]
 
 
-def extract_title(html: str) -> Optional[str]:
+def extract_title(html: str) -> str | None:
     """Extract the page title from HTML.
 
     Args:

@@ -9,22 +9,20 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional
 
+from jarvis_core.evidence.llm_classifier import LLMBasedClassifier, LLMConfig
+from jarvis_core.evidence.rule_classifier import RuleBasedClassifier
 from jarvis_core.evidence.schema import (
     EvidenceGrade,
     EvidenceLevel,
-    StudyType,
 )
-from jarvis_core.evidence.rule_classifier import RuleBasedClassifier
-from jarvis_core.evidence.llm_classifier import LLMBasedClassifier, LLMConfig
 
 logger = logging.getLogger(__name__)
 
 
 class EnsembleStrategy(Enum):
     """Strategy for combining classifier results."""
-    
+
     WEIGHTED_AVERAGE = "weighted_average"
     VOTING = "voting"
     CONFIDENCE_BASED = "confidence_based"
@@ -35,7 +33,7 @@ class EnsembleStrategy(Enum):
 @dataclass
 class EnsembleConfig:
     """Configuration for ensemble classifier."""
-    
+
     strategy: EnsembleStrategy = EnsembleStrategy.WEIGHTED_AVERAGE
     rule_weight: float = 0.4
     llm_weight: float = 0.6
@@ -63,11 +61,11 @@ class EnsembleClassifier:
         >>> print(grade.level)
         EvidenceLevel.LEVEL_1B
     """
-    
+
     def __init__(
         self,
-        config: Optional[EnsembleConfig] = None,
-        llm_config: Optional[LLMConfig] = None,
+        config: EnsembleConfig | None = None,
+        llm_config: LLMConfig | None = None,
     ):
         """Initialize the ensemble classifier.
         
@@ -76,14 +74,14 @@ class EnsembleClassifier:
             llm_config: LLM configuration
         """
         self._config = config or EnsembleConfig()
-        
+
         self._rule_classifier = RuleBasedClassifier()
         self._llm_classifier = (
             LLMBasedClassifier(llm_config)
             if self._config.use_llm
             else None
         )
-    
+
     def classify(
         self,
         title: str = "",
@@ -102,7 +100,7 @@ class EnsembleClassifier:
         """
         # Get rule-based classification
         rule_grade = self._rule_classifier.classify(title, abstract, full_text)
-        
+
         # Get LLM classification if enabled
         llm_grade = None
         if self._llm_classifier:
@@ -110,28 +108,28 @@ class EnsembleClassifier:
                 llm_grade = self._llm_classifier.classify(title, abstract, full_text)
             except Exception as e:
                 logger.warning(f"LLM classification failed: {e}")
-        
+
         # Combine results based on strategy
         return self._combine_results(rule_grade, llm_grade)
-    
+
     def _combine_results(
         self,
         rule_grade: EvidenceGrade,
-        llm_grade: Optional[EvidenceGrade],
+        llm_grade: EvidenceGrade | None,
     ) -> EvidenceGrade:
         """Combine classifier results based on strategy."""
         strategy = self._config.strategy
-        
+
         # Handle missing LLM result
         if llm_grade is None or llm_grade.level == EvidenceLevel.UNKNOWN:
             rule_grade.classifier_source = "ensemble_rule_only"
             return rule_grade
-        
+
         # Handle missing rule result
         if rule_grade.level == EvidenceLevel.UNKNOWN:
             llm_grade.classifier_source = "ensemble_llm_only"
             return llm_grade
-        
+
         if strategy == EnsembleStrategy.RULE_FIRST:
             return self._rule_first(rule_grade, llm_grade)
         elif strategy == EnsembleStrategy.LLM_FIRST:
@@ -142,7 +140,7 @@ class EnsembleClassifier:
             return self._confidence_based(rule_grade, llm_grade)
         else:
             return self._weighted_average(rule_grade, llm_grade)
-    
+
     def _weighted_average(
         self,
         rule_grade: EvidenceGrade,
@@ -151,28 +149,28 @@ class EnsembleClassifier:
         """Weighted average strategy."""
         rule_weight = self._config.rule_weight
         llm_weight = self._config.llm_weight
-        
+
         # Normalize weights
         total = rule_weight + llm_weight
         rule_weight /= total
         llm_weight /= total
-        
+
         # Calculate weighted confidence
         rule_score = rule_grade.confidence * rule_weight
         llm_score = llm_grade.confidence * llm_weight
-        
+
         # Choose level with higher weighted score
         if rule_score >= llm_score:
             base_grade = rule_grade
         else:
             base_grade = llm_grade
-        
+
         # Combine confidence
         combined_confidence = (
             rule_grade.confidence * rule_weight +
             llm_grade.confidence * llm_weight
         )
-        
+
         return EvidenceGrade(
             level=base_grade.level,
             study_type=base_grade.study_type,
@@ -186,7 +184,7 @@ class EnsembleClassifier:
                 "llm_level": llm_grade.level.value,
             },
         )
-    
+
     def _voting(
         self,
         rule_grade: EvidenceGrade,
@@ -208,7 +206,7 @@ class EnsembleClassifier:
                 result = rule_grade
             else:
                 result = llm_grade
-            
+
             # Reduce confidence due to disagreement
             result.confidence *= 0.7
             result.classifier_source = "ensemble_disagreement"
@@ -217,7 +215,7 @@ class EnsembleClassifier:
                 f"llm={llm_grade.level.value}"
             )
             return result
-    
+
     def _confidence_based(
         self,
         rule_grade: EvidenceGrade,
@@ -230,9 +228,9 @@ class EnsembleClassifier:
         else:
             result = llm_grade
             result.classifier_source = "ensemble_llm_higher"
-        
+
         return result
-    
+
     def _rule_first(
         self,
         rule_grade: EvidenceGrade,
@@ -240,14 +238,14 @@ class EnsembleClassifier:
     ) -> EvidenceGrade:
         """Rule-first with LLM fallback."""
         threshold = self._config.confidence_threshold
-        
+
         if rule_grade.confidence >= threshold:
             rule_grade.classifier_source = "ensemble_rule_primary"
             return rule_grade
         else:
             llm_grade.classifier_source = "ensemble_llm_fallback"
             return llm_grade
-    
+
     def _llm_first(
         self,
         rule_grade: EvidenceGrade,
@@ -255,7 +253,7 @@ class EnsembleClassifier:
     ) -> EvidenceGrade:
         """LLM-first with rule fallback."""
         threshold = self._config.confidence_threshold
-        
+
         if llm_grade.confidence >= threshold:
             llm_grade.classifier_source = "ensemble_llm_primary"
             return llm_grade
@@ -299,6 +297,6 @@ def grade_evidence(
         strategy=strategy,
         use_llm=use_llm,
     )
-    
+
     classifier = EnsembleClassifier(config=config)
     return classifier.classify(title, abstract, full_text)

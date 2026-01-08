@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Optional
 
 from jarvis_core.prisma.schema import PRISMAData
 
@@ -114,7 +113,7 @@ class PRISMAGenerator:
         >>> data = PRISMAData(records_from_databases=1000, ...)
         >>> mermaid_code = generator.to_mermaid(data)
     """
-    
+
     def to_mermaid(self, data: PRISMAData) -> str:
         """Generate Mermaid flowchart code.
         
@@ -125,14 +124,14 @@ class PRISMAGenerator:
             Mermaid diagram code
         """
         data.calculate_totals()
-        
+
         after_dup = (
             data.records_from_databases +
             data.records_from_registers +
             data.records_from_other_sources -
             data.duplicates_removed
         )
-        
+
         return MERMAID_TEMPLATE.format(
             db_records=data.records_from_databases,
             reg_records=data.records_from_registers,
@@ -147,7 +146,7 @@ class PRISMAGenerator:
             included=data.studies_included,
             reports=data.reports_included,
         )
-    
+
     def to_svg(self, data: PRISMAData) -> str:
         """Generate SVG diagram.
         
@@ -158,13 +157,13 @@ class PRISMAGenerator:
             SVG code
         """
         data.calculate_totals()
-        
+
         total_records = (
             data.records_from_databases +
             data.records_from_registers +
             data.records_from_other_sources
         )
-        
+
         return SVG_TEMPLATE.format(
             total_records=total_records,
             duplicates=data.duplicates_removed,
@@ -174,7 +173,7 @@ class PRISMAGenerator:
             excluded_eligibility=data.reports_excluded,
             included=data.studies_included,
         )
-    
+
     def to_text(self, data: PRISMAData) -> str:
         """Generate text representation.
         
@@ -185,7 +184,7 @@ class PRISMAGenerator:
             Text summary
         """
         data.calculate_totals()
-        
+
         lines = [
             "PRISMA 2020 Flow Diagram",
             "=" * 40,
@@ -210,14 +209,14 @@ class PRISMAGenerator:
             f"  Studies included: {data.studies_included}",
             f"  Reports included: {data.reports_included}",
         ]
-        
+
         if data.exclusion_reasons:
             lines.extend(["", "EXCLUSION REASONS"])
             for reason in data.exclusion_reasons:
                 lines.append(f"  {reason.reason}: {reason.count}")
-        
+
         return "\n".join(lines)
-    
+
     def save(
         self,
         data: PRISMAData,
@@ -233,14 +232,14 @@ class PRISMAGenerator:
         """
         output_path = Path(output_path)
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         if format == "svg":
             content = self.to_svg(data)
         elif format == "mermaid":
             content = self.to_mermaid(data)
         else:
             content = self.to_text(data)
-        
+
         output_path.write_text(content, encoding="utf-8")
         logger.info(f"PRISMA diagram saved to: {output_path}")
 
@@ -261,7 +260,7 @@ def generate_prisma_flow(
         Diagram code/content
     """
     generator = PRISMAGenerator()
-    
+
     if format == "svg":
         return generator.to_svg(data)
     elif format == "text":

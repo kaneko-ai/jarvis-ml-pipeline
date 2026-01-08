@@ -5,10 +5,8 @@ Per RP13, these tests verify:
 - Claim parsing from agent response
 - ClaimSet operations
 """
-from pathlib import Path
 import sys
-
-import pytest
+from pathlib import Path
 
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]

@@ -5,10 +5,10 @@ Extends RP-533 with interactive bot functionality.
 from __future__ import annotations
 
 import os
-import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any, Callable
 from enum import Enum
+from typing import Any
 
 
 class CommandType(Enum):
@@ -24,19 +24,19 @@ class CommandType(Enum):
 class BotCommand:
     """A bot command."""
     command_type: CommandType
-    args: List[str]
+    args: list[str]
     user_id: str
     channel_id: str
-    thread_ts: Optional[str] = None
+    thread_ts: str | None = None
 
 
 @dataclass
 class BotResponse:
     """Bot response."""
     text: str
-    blocks: List[Dict[str, Any]] = field(default_factory=list)
-    attachments: List[Dict[str, Any]] = field(default_factory=list)
-    thread_ts: Optional[str] = None
+    blocks: list[dict[str, Any]] = field(default_factory=list)
+    attachments: list[dict[str, Any]] = field(default_factory=list)
+    thread_ts: str | None = None
 
 
 class JarvisSlackBot:
@@ -49,25 +49,25 @@ class JarvisSlackBot:
     - /jarvis report - Generate report
     - /jarvis help - Show help
     """
-    
+
     COMMAND_PREFIX = "/jarvis"
-    
+
     def __init__(
         self,
-        token: Optional[str] = None,
-        signing_secret: Optional[str] = None,
+        token: str | None = None,
+        signing_secret: str | None = None,
     ):
         self.token = token or os.getenv("SLACK_BOT_TOKEN", "")
         self.signing_secret = signing_secret or os.getenv("SLACK_SIGNING_SECRET", "")
         self._enabled = bool(self.token)
-        self._handlers: Dict[CommandType, Callable] = {}
+        self._handlers: dict[CommandType, Callable] = {}
         self._register_default_handlers()
-    
+
     def is_enabled(self) -> bool:
         """Check if bot is enabled."""
         return self._enabled
-    
-    def parse_command(self, text: str, user_id: str, channel_id: str) -> Optional[BotCommand]:
+
+    def parse_command(self, text: str, user_id: str, channel_id: str) -> BotCommand | None:
         """Parse a command from text.
         
         Args:
@@ -79,11 +79,11 @@ class JarvisSlackBot:
             Parsed command or None.
         """
         text = text.strip()
-        
+
         # Remove prefix if present
         if text.startswith(self.COMMAND_PREFIX):
             text = text[len(self.COMMAND_PREFIX):].strip()
-        
+
         if not text:
             return BotCommand(
                 command_type=CommandType.HELP,
@@ -91,11 +91,11 @@ class JarvisSlackBot:
                 user_id=user_id,
                 channel_id=channel_id,
             )
-        
+
         parts = text.split(maxsplit=1)
         cmd = parts[0].lower()
         args = parts[1].split() if len(parts) > 1 else []
-        
+
         command_map = {
             "search": CommandType.SEARCH,
             "s": CommandType.SEARCH,
@@ -108,20 +108,20 @@ class JarvisSlackBot:
             "help": CommandType.HELP,
             "h": CommandType.HELP,
         }
-        
+
         command_type = command_map.get(cmd, CommandType.HELP)
-        
+
         # For search and analyze, keep the rest as a single arg
         if command_type in (CommandType.SEARCH, CommandType.ANALYZE) and len(parts) > 1:
             args = [parts[1]]
-        
+
         return BotCommand(
             command_type=command_type,
             args=args,
             user_id=user_id,
             channel_id=channel_id,
         )
-    
+
     def handle_command(self, command: BotCommand) -> BotResponse:
         """Handle a bot command.
         
@@ -133,7 +133,7 @@ class JarvisSlackBot:
         """
         handler = self._handlers.get(command.command_type, self._handle_help)
         return handler(command)
-    
+
     def register_handler(
         self,
         command_type: CommandType,
@@ -146,7 +146,7 @@ class JarvisSlackBot:
             handler: Handler function.
         """
         self._handlers[command_type] = handler
-    
+
     def _register_default_handlers(self) -> None:
         """Register default command handlers."""
         self._handlers = {
@@ -156,16 +156,16 @@ class JarvisSlackBot:
             CommandType.REPORT: self._handle_report,
             CommandType.HELP: self._handle_help,
         }
-    
+
     def _handle_search(self, command: BotCommand) -> BotResponse:
         """Handle search command."""
         if not command.args:
             return BotResponse(
                 text="❓ Usage: `/jarvis search <query>`\nExample: `/jarvis search COVID-19 treatment`"
             )
-        
+
         query = command.args[0]
-        
+
         # Simulate search
         return BotResponse(
             text=f"🔍 Searching for: *{query}*",
@@ -201,7 +201,7 @@ class JarvisSlackBot:
                 }
             ]
         )
-    
+
     def _handle_status(self, command: BotCommand) -> BotResponse:
         """Handle status command."""
         return BotResponse(
@@ -229,16 +229,16 @@ class JarvisSlackBot:
                 }
             ]
         )
-    
+
     def _handle_analyze(self, command: BotCommand) -> BotResponse:
         """Handle analyze command."""
         if not command.args:
             return BotResponse(
                 text="❓ Usage: `/jarvis analyze <topic>`"
             )
-        
+
         topic = command.args[0]
-        
+
         return BotResponse(
             text=f"🔬 Analyzing: *{topic}*",
             blocks=[
@@ -251,7 +251,7 @@ class JarvisSlackBot:
                 }
             ]
         )
-    
+
     def _handle_report(self, command: BotCommand) -> BotResponse:
         """Handle report command."""
         return BotResponse(
@@ -272,7 +272,7 @@ class JarvisSlackBot:
                 }
             ]
         )
-    
+
     def _handle_help(self, command: BotCommand) -> BotResponse:
         """Handle help command."""
         return BotResponse(
@@ -316,7 +316,7 @@ class JarvisSlackBot:
 
 
 # Global bot instance
-_jarvis_bot: Optional[JarvisSlackBot] = None
+_jarvis_bot: JarvisSlackBot | None = None
 
 
 def get_jarvis_bot() -> JarvisSlackBot:

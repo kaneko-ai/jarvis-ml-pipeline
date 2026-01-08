@@ -3,7 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
+
 
 class QueueItemStatus(Enum):
     """Status of a sync queue item."""
@@ -18,16 +19,16 @@ class QueueItem:
     """An item in the sync queue."""
     id: str  # Renamed from item_id to match instructions/preference or keep simple? Kept 'id' as per instruction
     operation: str
-    params: Dict[str, Any] # Renamed from payload to match instruction
+    params: dict[str, Any] # Renamed from payload to match instruction
     status: QueueItemStatus = QueueItemStatus.PENDING
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
     retry_count: int = 0
     max_retries: int = 3
-    error: Optional[str] = None # Renamed from error_message
-    result: Optional[Dict[str, Any]] = None
+    error: str | None = None # Renamed from error_message
+    result: dict[str, Any] | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "operation": self.operation,
@@ -42,7 +43,7 @@ class QueueItem:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "QueueItem":
+    def from_dict(cls, data: dict[str, Any]) -> QueueItem:
         return cls(
             id=data["id"],
             operation=data["operation"],

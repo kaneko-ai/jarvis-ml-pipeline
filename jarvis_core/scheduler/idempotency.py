@@ -4,8 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 from datetime import datetime, timedelta
-from typing import Any, Dict
-
+from typing import Any
 from zoneinfo import ZoneInfo
 
 
@@ -24,12 +23,12 @@ def _period_start(now: datetime, freq: str) -> datetime:
     return now.replace(hour=0, minute=0, second=0, microsecond=0)
 
 
-def query_fingerprint(query: Dict[str, Any]) -> str:
+def query_fingerprint(query: dict[str, Any]) -> str:
     payload = json.dumps(query, sort_keys=True, ensure_ascii=False)
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
-def idempotency_key(schedule: Dict[str, Any], now: datetime) -> str:
+def idempotency_key(schedule: dict[str, Any], now: datetime) -> str:
     freq = _parse_freq(schedule.get("rrule", ""))
     tz_name = schedule.get("timezone", "UTC")
     try:

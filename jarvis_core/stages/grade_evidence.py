@@ -5,30 +5,30 @@ Detects unsupported claims and assigns evidence strength grades.
 
 Output: Updates evidence.jsonl with strength ratings
 """
-from typing import Any, Dict, List
 import logging
+from typing import Any
 
 from jarvis_core.pipelines.stage_registry import register_stage
 
 logger = logging.getLogger(__name__)
 
 
-def calculate_evidence_strength(evidence: Dict, claim: Dict) -> str:
+def calculate_evidence_strength(evidence: dict, claim: dict) -> str:
     """Calculate evidence strength based on multiple factors.
     
     Returns: "Strong" | "Medium" | "Weak" | "None"
     """
     # Simple heuristic for Phase 2 bootstrap
     # In production, this would use LLM or ML model
-    
+
     quote_len = len(evidence.get("quote_span", ""))
-    
+
     # Check if evidence is from the same paper as claim
     same_paper = evidence.get("paper_id") == claim.get("source_paper_id")
-    
+
     # Check role
     role = evidence.get("evidence_role", "Direct")
-    
+
     # Grading logic
     if role == "Direct" and same_paper and quote_len > 100:
         return "Strong"
@@ -43,9 +43,9 @@ def calculate_evidence_strength(evidence: Dict, claim: Dict) -> str:
 
 
 @register_stage("quality_gate.evidence_grading", "Evidence強度評価")
-def grade_evidence(claims: List[Dict], evidence_list: List[Dict], **kwargs) -> Dict[str, Any]:
+def grade_evidence(claims: list[dict], evidence_list: list[dict], **kwargs) -> dict[str, Any]:
     """Grade all evidence and calculate support rates."""
-    
+
     # Build evidence map: claim_id -> [evidence]
     evidence_by_claim = {}
     for ev in evidence_list:
@@ -53,19 +53,19 @@ def grade_evidence(claims: List[Dict], evidence_list: List[Dict], **kwargs) -> D
         if claim_id not in evidence_by_claim:
             evidence_by_claim[claim_id] = []
         evidence_by_claim[claim_id].append(ev)
-    
+
     # Grade each claim's evidence
     unsupported_claims = []
     weakly_supported = []
-    
+
     for claim in claims:
         claim_id = claim["claim_id"]
         evidences = evidence_by_claim.get(claim_id, [])
-        
+
         if not evidences:
             unsupported_claims.append(claim)
             continue
-        
+
         # Calculate aggregate strength
         strengths = []
         for ev in evidences:
@@ -73,21 +73,21 @@ def grade_evidence(claims: List[Dict], evidence_list: List[Dict], **kwargs) -> D
             strength = calculate_evidence_strength(ev, claim)
             ev["evidence_strength"] = strength  # Update in-place
             strengths.append(strength)
-        
+
         # Check if at least one Strong or two Medium
         has_strong = "Strong" in strengths
         medium_count = strengths.count("Medium")
-        
+
         if not has_strong and medium_count < 2:
             weakly_supported.append(claim)
-    
+
     # Calculate metrics
     total_claims = len(claims)
     supported_claims = total_claims - len(unsupported_claims)
     support_rate = supported_claims / total_claims if total_claims > 0 else 0.0
-    
+
     logger.info(f"Evidence grading: {supported_claims}/{total_claims} claims supported (rate={support_rate:.2f})")
-    
+
     return {
         "evidence": evidence_list,
         "support_rate": support_rate,

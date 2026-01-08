@@ -3,8 +3,8 @@
 Tests V4-A through V4-E modules.
 """
 import sys
-from pathlib import Path
 import tempfile
+from pathlib import Path
 
 import pytest
 
@@ -12,46 +12,43 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from jarvis_core.paper_vector import (
-    PaperVector,
-    MetadataVector,
-    ConceptVector,
-    MethodVector,
-    TemporalVector,
-    ImpactVector,
-)
-from jarvis_core.artifacts.schema import (
-    ArtifactBase,
-    Fact,
-    Inference,
-    Recommendation,
-    EvidenceRef,
-    Provenance,
-    create_artifact,
-)
 from jarvis_core.artifacts.adapters import (
     adapt_gap_analysis,
     adapt_to_artifact,
 )
+from jarvis_core.artifacts.schema import (
+    ArtifactBase,
+    EvidenceRef,
+    Fact,
+    Inference,
+    create_artifact,
+)
+from jarvis_core.audit.report import generate_audit_report
+from jarvis_core.bundle_v2 import BundleV2, create_bundle_v2
+from jarvis_core.paper_vector import (
+    ConceptVector,
+    ImpactVector,
+    MetadataVector,
+    MethodVector,
+    PaperVector,
+    TemporalVector,
+)
 from jarvis_core.scoring.registry import (
     ScoreRegistry,
-    normalize_score,
     get_score_info,
+    normalize_score,
     validate_score_names,
 )
 from jarvis_core.truth_validation.claim_fact import (
     ClaimFactChecker,
-    check_claim_fact_alignment,
     enforce_evidence_ref,
 )
-from jarvis_core.audit.report import generate_audit_report, AuditReport
 from jarvis_core.workflows.canonical import (
     run_literature_to_plan,
     run_plan_to_grant,
     run_plan_to_paper,
     run_plan_to_talk,
 )
-from jarvis_core.bundle_v2 import BundleV2, create_bundle_v2
 
 
 def _create_test_vectors():

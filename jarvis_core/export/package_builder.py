@@ -5,13 +5,13 @@ import json
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 
 def build_finance_package(
     report_md: str,
     report_html: str,
-    data: Dict[str, Any],
+    data: dict[str, Any],
     output_path: Path | None = None,
 ) -> Path:
     """Build a zip package with finance reports and raw data."""

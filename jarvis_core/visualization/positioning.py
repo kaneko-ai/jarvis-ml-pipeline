@@ -4,13 +4,13 @@ Per RP31, this projects papers to interpretable 3D space.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..paper_vector import PaperVector
 
 
-def project_to_3d(paper: "PaperVector") -> tuple[float, float, float]:
+def project_to_3d(paper: PaperVector) -> tuple[float, float, float]:
     """Project paper to 3D space using BiologicalAxisVector.
 
     Axes (fixed):
@@ -28,8 +28,8 @@ def project_to_3d(paper: "PaperVector") -> tuple[float, float, float]:
 
 
 def project_all_to_3d(
-    papers: List["PaperVector"],
-) -> List[dict]:
+    papers: list[PaperVector],
+) -> list[dict]:
     """Project all papers to 3D space with metadata.
 
     Args:
@@ -53,7 +53,7 @@ def project_all_to_3d(
     return results
 
 
-def get_position_description(paper: "PaperVector") -> str:
+def get_position_description(paper: PaperVector) -> str:
     """Get human-readable position description.
 
     Args:

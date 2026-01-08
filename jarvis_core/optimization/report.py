@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Dict
 
 from jarvis_core.finance.scenarios import ScenarioResult
 from jarvis_core.optimization.solver import ScenarioEvaluation
@@ -20,8 +19,8 @@ def _scenario_line(evaluation: ScenarioEvaluation) -> str:
 
 
 def generate_markdown(
-    scenarios: Dict[str, ScenarioResult],
-    evaluations: Dict[str, ScenarioEvaluation],
+    scenarios: dict[str, ScenarioResult],
+    evaluations: dict[str, ScenarioEvaluation],
 ) -> str:
     lines = [
         "# P10 Resource Optimization Report",
@@ -50,8 +49,8 @@ def generate_markdown(
 
 
 def generate_html(
-    scenarios: Dict[str, ScenarioResult],
-    evaluations: Dict[str, ScenarioEvaluation],
+    scenarios: dict[str, ScenarioResult],
+    evaluations: dict[str, ScenarioEvaluation],
 ) -> str:
     sections = [
         "<h1>P10 Resource Optimization Report</h1>",

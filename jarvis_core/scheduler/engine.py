@@ -2,15 +2,13 @@
 from __future__ import annotations
 
 from datetime import datetime, time, timedelta, timezone
-from typing import Any, Dict, List, Optional
-
+from typing import Any
 from zoneinfo import ZoneInfo
-
 
 MIN_RUN_GAP_SECONDS = 60
 
 
-def _parse_datetime(value: Optional[str]) -> Optional[datetime]:
+def _parse_datetime(value: str | None) -> datetime | None:
     if not value:
         return None
     try:
@@ -19,7 +17,7 @@ def _parse_datetime(value: Optional[str]) -> Optional[datetime]:
         return None
 
 
-def _parse_rrule(rrule_text: str) -> Dict[str, str]:
+def _parse_rrule(rrule_text: str) -> dict[str, str]:
     parts = {}
     for chunk in rrule_text.split(";"):
         if "=" in chunk:
@@ -28,14 +26,14 @@ def _parse_rrule(rrule_text: str) -> Dict[str, str]:
     return parts
 
 
-def _schedule_time(parts: Dict[str, str]) -> time:
+def _schedule_time(parts: dict[str, str]) -> time:
     hour = int(parts.get("BYHOUR", 0))
     minute = int(parts.get("BYMINUTE", 0))
     second = int(parts.get("BYSECOND", 0))
     return time(hour=hour, minute=minute, second=second)
 
 
-def _tzinfo(schedule: Dict[str, Any]) -> timezone:
+def _tzinfo(schedule: dict[str, Any]) -> timezone:
     tz_name = schedule.get("timezone", "UTC")
     try:
         return ZoneInfo(tz_name)
@@ -43,7 +41,7 @@ def _tzinfo(schedule: Dict[str, Any]) -> timezone:
         return timezone.utc
 
 
-def next_run_at(schedule: Dict[str, Any], now: Optional[datetime] = None) -> Optional[str]:
+def next_run_at(schedule: dict[str, Any], now: datetime | None = None) -> str | None:
     now = now or datetime.now(timezone.utc)
     parts = _parse_rrule(schedule.get("rrule", ""))
     freq = parts.get("FREQ")
@@ -86,7 +84,7 @@ def next_run_at(schedule: Dict[str, Any], now: Optional[datetime] = None) -> Opt
     return None
 
 
-def is_due(schedule: Dict[str, Any], now: datetime, last_run_at: Optional[str]) -> bool:
+def is_due(schedule: dict[str, Any], now: datetime, last_run_at: str | None) -> bool:
     if not schedule.get("enabled", True):
         return False
     if schedule.get("degraded"):
@@ -141,9 +139,9 @@ def is_due(schedule: Dict[str, Any], now: datetime, last_run_at: Optional[str]) 
     return True
 
 
-def due_schedules(schedules: List[Dict[str, Any]], now: Optional[datetime] = None) -> List[Dict[str, Any]]:
+def due_schedules(schedules: list[dict[str, Any]], now: datetime | None = None) -> list[dict[str, Any]]:
     now = now or datetime.now(timezone.utc)
-    due: List[Dict[str, Any]] = []
+    due: list[dict[str, Any]] = []
     for schedule in schedules:
         if is_due(schedule, now, schedule.get("last_run_at")):
             due.append(schedule)

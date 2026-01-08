@@ -5,11 +5,11 @@ CLI > YAML > ENV > default
 """
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Optional
-import json
+from typing import Any
 
 
 @dataclass
@@ -34,11 +34,11 @@ class Config:
     max_retries: int = 3
 
     # Determinism
-    seed: Optional[int] = None
+    seed: int | None = None
 
     # Source tracking
     source: str = "default"  # default, env, yaml, cli
-    _overrides: Dict[str, str] = field(default_factory=dict)
+    _overrides: dict[str, str] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return {
@@ -100,7 +100,7 @@ def load_from_yaml(path: str, base: Config) -> Config:
 
     # Simple YAML parsing (key: value per line)
     overrides = {}
-    with open(yaml_path, "r", encoding="utf-8") as f:
+    with open(yaml_path, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line or line.startswith("#"):
@@ -131,7 +131,7 @@ def load_from_yaml(path: str, base: Config) -> Config:
     return base
 
 
-def load_from_cli(args: Dict[str, Any], base: Config) -> Config:
+def load_from_cli(args: dict[str, Any], base: Config) -> Config:
     """Load configuration from CLI arguments."""
     overrides = {}
     for key, value in args.items():
@@ -147,8 +147,8 @@ def load_from_cli(args: Dict[str, Any], base: Config) -> Config:
 
 
 def load_config(
-    yaml_path: Optional[str] = None,
-    cli_args: Optional[Dict[str, Any]] = None,
+    yaml_path: str | None = None,
+    cli_args: dict[str, Any] | None = None,
 ) -> Config:
     """Load configuration with priority: CLI > YAML > ENV > default.
 

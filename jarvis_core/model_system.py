@@ -4,7 +4,7 @@ Per RP46, this suggests experimental model systems.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -41,7 +41,7 @@ CONCEPT_MODELS = {
 
 def suggest_model_system(
     hypothesis: str,
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
 ) -> dict:
     """Suggest model systems for hypothesis testing.
 

@@ -1,7 +1,7 @@
 """Citation formatting helpers."""
 from __future__ import annotations
 
-from typing import Iterable, Mapping
+from collections.abc import Iterable, Mapping
 
 
 def format_evidence_items(evidence: Iterable[Mapping]) -> str:

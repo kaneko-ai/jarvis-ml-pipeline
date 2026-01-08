@@ -8,8 +8,6 @@ RIS format reference: https://en.wikipedia.org/wiki/RIS_(file_format)
 """
 from __future__ import annotations
 
-from typing import List
-
 from .reference import Reference
 
 
@@ -73,7 +71,7 @@ def format_ris_entry(ref: Reference) -> str:
     return "\n".join(lines)
 
 
-def export_ris(refs: List[Reference]) -> str:
+def export_ris(refs: list[Reference]) -> str:
     """Export references to RIS format.
 
     RIS is supported by:

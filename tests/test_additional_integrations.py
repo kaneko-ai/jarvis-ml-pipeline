@@ -1,29 +1,28 @@
 """Tests for additional integrations module."""
 import pytest
+
 from jarvis_core.integrations.additional import (
-    ZoteroConfig,
-    ZoteroClient,
+    Annotation,
+    AnnotationManager,
+    DashboardManager,
+    DiscordConfig,
+    FullScreenManager,
     GoogleDriveConfig,
     GoogleDriveExporter,
-    DiscordConfig,
-    DiscordBot,
     ObsidianExporter,
-    DashboardManager,
-    Widget,
     SplitViewManager,
-    FullScreenManager,
-    AnnotationManager,
-    Annotation,
     ThreeDAnimationConfig,
-    get_obsidian_exporter,
+    Widget,
+    ZoteroConfig,
+    get_annotation_manager,
     get_dashboard_manager,
-    get_annotation_manager
+    get_obsidian_exporter,
 )
 
 
 class TestZoteroClient:
     """Test Zotero integration."""
-    
+
     def test_config(self):
         config = ZoteroConfig(api_key="test", user_id="123")
         assert config.api_key == "test"
@@ -32,11 +31,11 @@ class TestZoteroClient:
 
 class TestGoogleDriveExporter:
     """Test Google Drive integration."""
-    
+
     def test_config(self):
         config = GoogleDriveConfig(access_token="token123")
         assert config.access_token == "token123"
-    
+
     def test_export_papers(self):
         config = GoogleDriveConfig(access_token="token")
         exporter = GoogleDriveExporter(config)
@@ -46,7 +45,7 @@ class TestGoogleDriveExporter:
 
 class TestDiscordBot:
     """Test Discord integration."""
-    
+
     def test_config(self):
         config = DiscordConfig(bot_token="token", channel_id="123")
         assert config.bot_token == "token"
@@ -54,7 +53,7 @@ class TestDiscordBot:
 
 class TestObsidianExporter:
     """Test Obsidian export."""
-    
+
     def test_paper_to_markdown(self):
         exporter = ObsidianExporter()
         paper = {
@@ -69,7 +68,7 @@ class TestObsidianExporter:
         assert "Smith J" in md
         assert "2024" in md
         assert "Nature" in md
-    
+
     def test_export_paper_filename(self):
         exporter = ObsidianExporter()
         paper = {"title": "Test Paper Title"}
@@ -79,25 +78,25 @@ class TestObsidianExporter:
 
 class TestDashboardManager:
     """Test dashboard manager."""
-    
+
     def test_add_widget(self):
         dm = DashboardManager()
         widget = Widget("w1", "stats", "Stats", {"x": 0, "y": 0, "w": 2, "h": 2}, {})
         dm.add_widget(widget)
         assert len(dm.widgets) == 1
-    
+
     def test_remove_widget(self):
         dm = DashboardManager()
         widget = Widget("w1", "stats", "Stats", {}, {})
         dm.add_widget(widget)
         dm.remove_widget("w1")
         assert len(dm.widgets) == 0
-    
+
     def test_get_default_layout(self):
         dm = DashboardManager()
         layout = dm.get_default_layout()
         assert len(layout) > 0
-    
+
     def test_save_load_layout(self):
         dm = DashboardManager()
         widget = Widget("w1", "stats", "Stats", {}, {})
@@ -110,19 +109,19 @@ class TestDashboardManager:
 
 class TestSplitViewManager:
     """Test split view manager."""
-    
+
     def test_set_layout_vertical(self):
         svm = SplitViewManager()
         svm.set_layout("vertical")
         assert "left" in svm.panes
         assert "right" in svm.panes
-    
+
     def test_set_layout_horizontal(self):
         svm = SplitViewManager()
         svm.set_layout("horizontal")
         assert "top" in svm.panes
         assert "bottom" in svm.panes
-    
+
     def test_set_layout_quad(self):
         svm = SplitViewManager()
         svm.set_layout("quad")
@@ -131,7 +130,7 @@ class TestSplitViewManager:
 
 class TestFullScreenManager:
     """Test fullscreen manager."""
-    
+
     def test_toggle(self):
         fsm = FullScreenManager()
         result = fsm.toggle()
@@ -142,7 +141,7 @@ class TestFullScreenManager:
 
 class TestAnnotationManager:
     """Test annotation manager."""
-    
+
     def test_add_annotation(self):
         am = AnnotationManager()
         ann = Annotation(
@@ -155,21 +154,21 @@ class TestAnnotationManager:
         )
         ann_id = am.add_annotation("paper1", ann)
         assert ann_id.startswith("ann_")
-    
+
     def test_get_annotations(self):
         am = AnnotationManager()
         ann = Annotation("", "p1", "text", "yellow", 1, {})
         am.add_annotation("p1", ann)
         anns = am.get_annotations("p1")
         assert len(anns) == 1
-    
+
     def test_delete_annotation(self):
         am = AnnotationManager()
         ann = Annotation("", "p1", "text", "yellow", 1, {})
         am.add_annotation("p1", ann)
         am.delete_annotation("p1", "ann_0")
         assert len(am.get_annotations("p1")) == 0
-    
+
     def test_export_annotations(self):
         am = AnnotationManager()
         ann = Annotation("", "p1", "text", "yellow", 1, {})
@@ -180,7 +179,7 @@ class TestAnnotationManager:
 
 class TestThreeDAnimationConfig:
     """Test 3D animation config."""
-    
+
     def test_generate_config(self):
         config = ThreeDAnimationConfig()
         result = config.generate_config()
@@ -190,13 +189,13 @@ class TestThreeDAnimationConfig:
 
 class TestFactoryFunctions:
     """Test factory functions."""
-    
+
     def test_get_obsidian_exporter(self):
         assert isinstance(get_obsidian_exporter(), ObsidianExporter)
-    
+
     def test_get_dashboard_manager(self):
         assert isinstance(get_dashboard_manager(), DashboardManager)
-    
+
     def test_get_annotation_manager(self):
         assert isinstance(get_annotation_manager(), AnnotationManager)
 

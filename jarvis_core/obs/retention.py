@@ -4,11 +4,10 @@ from __future__ import annotations
 import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from jarvis_core.obs.logger import SYSTEM_LOG_PATH, get_logger
 from jarvis_core.obs.metrics import METRICS_PATH
-
 
 RETENTION_CONFIG = {
     "run_events_days": 30,
@@ -18,7 +17,7 @@ RETENTION_CONFIG = {
 }
 
 
-def _parse_ts(payload: Dict[str, Any]) -> Optional[datetime]:
+def _parse_ts(payload: dict[str, Any]) -> datetime | None:
     ts = payload.get("ts") or payload.get("timestamp")
     if not ts:
         return None
@@ -34,7 +33,7 @@ def _prune_jsonl(path: Path, days: int) -> int:
     cutoff = datetime.now(timezone.utc) - timedelta(days=days)
     kept_lines = []
     removed = 0
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         for line in f:
             if not line.strip():
                 continue
@@ -53,7 +52,7 @@ def _prune_jsonl(path: Path, days: int) -> int:
     return removed
 
 
-def run_retention() -> Dict[str, int]:
+def run_retention() -> dict[str, int]:
     removed = {
         "run_events": 0,
         "system_log": 0,

@@ -4,14 +4,14 @@ Per Ψ-8, this detects research culture risks.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def detect_lab_culture_risk(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
 ) -> dict:
     """Detect lab culture risks from research patterns.
 

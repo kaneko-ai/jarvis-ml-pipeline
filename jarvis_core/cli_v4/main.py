@@ -7,10 +7,9 @@ from __future__ import annotations
 
 import argparse
 import sys
-from pathlib import Path
-from typing import List, Optional
 
-from ..config import load_config, Config
+from ..bundle_v2 import create_bundle_v2
+from ..config import Config, load_config
 from ..errors import JarvisError, ValidationError
 from ..workflows import (
     run_literature_to_plan,
@@ -18,8 +17,6 @@ from ..workflows import (
     run_plan_to_paper,
     run_plan_to_talk,
 )
-from ..bundle_v2 import create_bundle_v2
-
 
 WORKFLOWS = {
     "literature_to_plan": "PDF/URL → Research Plan",
@@ -90,11 +87,11 @@ def create_parser() -> argparse.ArgumentParser:
 
 def run_workflow(
     workflow: str,
-    inputs: List[str] = None,
+    inputs: list[str] = None,
     query: str = "",
-    concepts: List[str] = None,
+    concepts: list[str] = None,
     output_dir: str = "output",
-    config: Optional[Config] = None,
+    config: Config | None = None,
 ) -> dict:
     """Execute a workflow.
 
@@ -110,8 +107,12 @@ def run_workflow(
         Execution result dict.
     """
     from ..paper_vector import (
-        PaperVector, MetadataVector, ConceptVector, MethodVector,
-        TemporalVector, ImpactVector,
+        ConceptVector,
+        ImpactVector,
+        MetadataVector,
+        MethodVector,
+        PaperVector,
+        TemporalVector,
     )
 
     inputs = inputs or []
@@ -121,7 +122,7 @@ def run_workflow(
     vectors = []
     for i, inp in enumerate(inputs):
         # Extract concepts from filename/path
-        inp_concepts = {c: 0.5 for c in concepts[:3]} if concepts else {"research": 0.5}
+        inp_concepts = dict.fromkeys(concepts[:3], 0.5) if concepts else {"research": 0.5}
         vectors.append(PaperVector(
             paper_id=f"paper_{i}",
             source_locator=inp,
@@ -183,7 +184,7 @@ def list_resources(resource: str) -> None:
         print("  deep: Comprehensive analysis with multiple inputs")
 
 
-def cli_main(args: List[str] = None) -> int:
+def cli_main(args: list[str] = None) -> int:
     """Main CLI entry point.
 
     Args:

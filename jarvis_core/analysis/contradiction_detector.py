@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +22,8 @@ class Contradiction:
     confidence: float
     explanation: str
     severity: str  # "high", "medium", "low"
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         return {
             "evidence_pair": [self.evidence_id_1, self.evidence_id_2],
             "claim_id": self.claim_id,
@@ -42,7 +42,7 @@ class ContradictionDetector:
     2. Semantic: opposing meaning in similar contexts
     3. Statistical: conflicting numerical claims
     """
-    
+
     # Antonym pairs for semantic contradiction
     ANTONYMS = [
         ("increase", "decrease"),
@@ -58,27 +58,27 @@ class ContradictionDetector:
         ("safe", "unsafe"),
         ("found", "not found"),
     ]
-    
+
     def detect_stance_contradictions(
         self,
-        stance_results: List[Dict],
-    ) -> List[Contradiction]:
+        stance_results: list[dict],
+    ) -> list[Contradiction]:
         """Detect contradictions based on stance analysis."""
         contradictions = []
-        
+
         # Group by claim
-        by_claim: Dict[str, List[Dict]] = {}
+        by_claim: dict[str, list[dict]] = {}
         for sr in stance_results:
             claim_id = sr.get("claim_id", "")
             if claim_id not in by_claim:
                 by_claim[claim_id] = []
             by_claim[claim_id].append(sr)
-        
+
         # Find contradictions within each claim
         for claim_id, evidences in by_claim.items():
             supports = [e for e in evidences if e.get("stance") == "supports"]
             contradicts = [e for e in evidences if e.get("stance") == "contradicts"]
-            
+
             # Each support-contradict pair is a potential contradiction
             for sup in supports:
                 for con in contradicts:
@@ -91,23 +91,23 @@ class ContradictionDetector:
                         explanation="Evidence items have opposing stances",
                         severity="high" if min(sup.get("confidence", 0), con.get("confidence", 0)) > 0.7 else "medium",
                     ))
-        
+
         return contradictions
-    
+
     def detect_semantic_contradictions(
         self,
-        evidence_texts: List[Tuple[str, str, str]],  # (evidence_id, claim_id, text)
-    ) -> List[Contradiction]:
+        evidence_texts: list[tuple[str, str, str]],  # (evidence_id, claim_id, text)
+    ) -> list[Contradiction]:
         """Detect contradictions based on antonym usage."""
         contradictions = []
-        
+
         # Group by claim
-        by_claim: Dict[str, List[Tuple[str, str]]] = {}
+        by_claim: dict[str, list[tuple[str, str]]] = {}
         for ev_id, claim_id, text in evidence_texts:
             if claim_id not in by_claim:
                 by_claim[claim_id] = []
             by_claim[claim_id].append((ev_id, text.lower()))
-        
+
         # Check for antonym pairs
         for claim_id, evidences in by_claim.items():
             for i, (ev_id_1, text_1) in enumerate(evidences):
@@ -123,10 +123,10 @@ class ContradictionDetector:
                             explanation=f"Antonyms found: {antonyms_found}",
                             severity="medium",
                         ))
-        
+
         return contradictions
-    
-    def _find_antonyms(self, text_1: str, text_2: str) -> List[Tuple[str, str]]:
+
+    def _find_antonyms(self, text_1: str, text_2: str) -> list[tuple[str, str]]:
         """Find antonym pairs between texts."""
         found = []
         for word_1, word_2 in self.ANTONYMS:
@@ -135,25 +135,25 @@ class ContradictionDetector:
             elif word_2 in text_1 and word_1 in text_2:
                 found.append((word_2, word_1))
         return found
-    
+
     def detect_all(
         self,
-        claims: List[Dict],
-        evidence_list: List[Dict],
-        stance_results: Optional[List[Dict]] = None,
-    ) -> Tuple[List[Contradiction], Dict[str, Any]]:
+        claims: list[dict],
+        evidence_list: list[dict],
+        stance_results: list[dict] | None = None,
+    ) -> tuple[list[Contradiction], dict[str, Any]]:
         """Run all contradiction detection methods.
         
         Returns:
             Tuple of (contradictions, summary_stats).
         """
-        all_contradictions: List[Contradiction] = []
-        
+        all_contradictions: list[Contradiction] = []
+
         # Stance-based
         if stance_results:
             stance_contradictions = self.detect_stance_contradictions(stance_results)
             all_contradictions.extend(stance_contradictions)
-        
+
         # Semantic
         evidence_texts = [
             (
@@ -165,16 +165,16 @@ class ContradictionDetector:
         ]
         semantic_contradictions = self.detect_semantic_contradictions(evidence_texts)
         all_contradictions.extend(semantic_contradictions)
-        
+
         # Deduplicate
-        seen: Set[Tuple[str, str]] = set()
+        seen: set[tuple[str, str]] = set()
         unique = []
         for c in all_contradictions:
             pair = tuple(sorted([c.evidence_id_1, c.evidence_id_2]))
             if pair not in seen:
                 seen.add(pair)
                 unique.append(c)
-        
+
         # Statistics
         stats = {
             "total_contradictions": len(unique),
@@ -185,15 +185,15 @@ class ContradictionDetector:
             },
             "claims_with_contradictions": len(set(c.claim_id for c in unique)),
         }
-        
+
         return unique, stats
 
 
 def detect_contradictions(
-    claims: List[Dict],
-    evidence_list: List[Dict],
-    stance_results: Optional[List[Dict]] = None,
-) -> Tuple[List[Contradiction], Dict[str, Any]]:
+    claims: list[dict],
+    evidence_list: list[dict],
+    stance_results: list[dict] | None = None,
+) -> tuple[list[Contradiction], dict[str, Any]]:
     """Convenience function for contradiction detection.
     
     Args:

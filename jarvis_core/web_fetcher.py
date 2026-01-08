@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Tuple
 
 import requests
 
@@ -46,7 +45,7 @@ def fetch_url(
     url: str,
     timeout_sec: int = 15,
     user_agent: str = DEFAULT_USER_AGENT,
-) -> Tuple[str, FetchMeta]:
+) -> tuple[str, FetchMeta]:
     """Fetch HTML content from a URL.
 
     Args:
@@ -110,7 +109,7 @@ def load_url_as_document(
     url: str,
     html: str | None = None,
     meta: FetchMeta | None = None,
-) -> "SourceDocument":
+) -> SourceDocument:
     """Load a URL as a SourceDocument.
 
     Args:
@@ -153,9 +152,9 @@ def load_url_as_document(
 
 def ingest_url(
     url: str,
-    store: "EvidenceStore",
-    context: "ExecutionContext | None" = None,
-) -> "list[ChunkResult]":
+    store: EvidenceStore,
+    context: ExecutionContext | None = None,
+) -> list[ChunkResult]:
     """Convenience function to ingest a URL into EvidenceStore.
 
     This handles both HTML and PDF URLs:
@@ -173,7 +172,7 @@ def ingest_url(
     Raises:
         FetchError: If fetch fails (non-PDF, non-HTML).
     """
-    from .sources import ChunkResult, ExecutionContext, ingest
+    from .sources import ingest
 
     # Fetch the URL
     html, meta = fetch_url(url)

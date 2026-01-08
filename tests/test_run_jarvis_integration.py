@@ -1,7 +1,7 @@
 """Integration tests for run_jarvis() with ExecutionEngine."""
-from pathlib import Path
 import sys
 import types
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 # Stub google modules before importing jarvis_core
@@ -30,7 +30,7 @@ if str(ROOT) not in sys.path:
 from jarvis_core import run_jarvis  # noqa: E402
 from jarvis_core.executor import ExecutionEngine  # noqa: E402
 from jarvis_core.planner import Planner  # noqa: E402
-from jarvis_core.task import Task, TaskCategory, TaskPriority, TaskStatus  # noqa: E402
+from jarvis_core.task import Task, TaskCategory  # noqa: E402
 
 
 class DummyPlanner(Planner):
@@ -63,7 +63,7 @@ def test_run_jarvis_uses_execution_engine():
     # Mock run_task to return a mock result object
     mock_result = MagicMock()
     mock_result.answer = "mocked answer"
-    
+
     with patch("jarvis_core.app.run_task", return_value=mock_result):
         result = run_jarvis("test goal")
         assert result == "mocked answer"
@@ -87,17 +87,17 @@ def test_run_jarvis_returns_string():
 def test_run_jarvis_with_category():
     """Verify category argument is passed to run_task correctly."""
     captured_dict = None
-    
+
     def capture_run_task(task_dict, run_config_dict):
         nonlocal captured_dict
         captured_dict = task_dict
         mock_result = MagicMock()
         mock_result.answer = "answer"
         return mock_result
-    
+
     with patch("jarvis_core.app.run_task", side_effect=capture_run_task):
         run_jarvis("thesis goal", category="thesis")
-        
+
         assert captured_dict is not None
         assert captured_dict["category"] == "thesis"
 
@@ -105,17 +105,17 @@ def test_run_jarvis_with_category():
 def test_run_jarvis_with_invalid_category_defaults_to_generic():
     """Verify invalid category is passed through to run_task."""
     captured_dict = None
-    
+
     def capture_run_task(task_dict, run_config_dict):
         nonlocal captured_dict
         captured_dict = task_dict
         mock_result = MagicMock()
         mock_result.answer = "answer"
         return mock_result
-    
+
     with patch("jarvis_core.app.run_task", side_effect=capture_run_task):
         run_jarvis("some goal", category="invalid_category")
-        
+
         assert captured_dict is not None
         # Invalid category is passed as-is; run_task handles validation
         assert captured_dict["category"] == "invalid_category"

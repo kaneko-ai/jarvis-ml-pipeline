@@ -4,8 +4,7 @@ Per RP-15, forces answer generation to be claim-first with citations.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field, asdict
-from typing import List, Optional
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 
 
@@ -21,7 +20,7 @@ class Claim:
     claim_id: str
     text: str
     claim_type: ClaimType
-    citations: List[str]  # chunk_ids
+    citations: list[str]  # chunk_ids
     confidence: float = 1.0
 
     def to_dict(self) -> dict:
@@ -34,14 +33,14 @@ class Claim:
 class ClaimSet:
     """Collection of claims with gaps tracking."""
 
-    claims: List[Claim] = field(default_factory=list)
+    claims: list[Claim] = field(default_factory=list)
     notes: str = ""
-    gaps: List[str] = field(default_factory=list)  # Unsupported areas
+    gaps: list[str] = field(default_factory=list)  # Unsupported areas
 
     def add_claim(
         self,
         text: str,
-        citations: List[str],
+        citations: list[str],
         claim_type: ClaimType = ClaimType.FACT,
         confidence: float = 1.0,
     ) -> Claim:
@@ -98,7 +97,7 @@ class ClaimSet:
         return "\n".join(lines)
 
     @classmethod
-    def from_dict(cls, data: dict) -> "ClaimSet":
+    def from_dict(cls, data: dict) -> ClaimSet:
         """Create from dict."""
         claims = []
         for c in data.get("claims", []):

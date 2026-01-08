@@ -10,7 +10,7 @@ import logging
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from jarvis_core.citation.context_extractor import CitationContext
 
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class CitationStance(Enum):
     """Citation stance towards the cited work."""
-    
+
     SUPPORT = "support"      # Cites to support/confirm
     CONTRAST = "contrast"    # Cites to contrast/critique
     MENTION = "mention"      # Neutral mention/background
@@ -31,17 +31,17 @@ class CitationStance(Enum):
 @dataclass
 class StanceResult:
     """Result of stance classification."""
-    
+
     stance: CitationStance
     confidence: float
     evidence: str = ""  # Key phrases that led to the classification
-    scores: Dict[str, float] = None  # Raw scores for all stances
-    
+    scores: dict[str, float] = None  # Raw scores for all stances
+
     def __post_init__(self):
         if self.scores is None:
             self.scores = {}
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "stance": self.stance.value,
@@ -100,7 +100,7 @@ class StanceClassifier:
         >>> print(result.stance)
         CitationStance.SUPPORT
     """
-    
+
     def __init__(self, use_llm: bool = False):
         """Initialize the classifier.
         
@@ -108,7 +108,7 @@ class StanceClassifier:
             use_llm: Whether to use LLM for classification (not yet implemented)
         """
         self._use_llm = use_llm
-        
+
         self._stance_patterns = {
             CitationStance.SUPPORT: SUPPORT_PATTERNS,
             CitationStance.CONTRAST: CONTRAST_PATTERNS,
@@ -116,7 +116,7 @@ class StanceClassifier:
             CitationStance.COMPARE: COMPARE_PATTERNS,
             CitationStance.MENTION: MENTION_PATTERNS,
         }
-        
+
         # Weights for stance importance
         self._stance_weights = {
             CitationStance.CONTRAST: 1.5,  # Contrast is often more explicit
@@ -125,7 +125,7 @@ class StanceClassifier:
             CitationStance.COMPARE: 1.0,
             CitationStance.MENTION: 0.8,  # Mention is a fallback
         }
-    
+
     def classify(self, context: CitationContext) -> StanceResult:
         """Classify citation stance from context.
         
@@ -138,7 +138,7 @@ class StanceClassifier:
         # Use full context for better classification
         text = context.get_full_context()
         return self.classify_text(text)
-    
+
     def classify_text(self, text: str) -> StanceResult:
         """Classify citation stance from text.
         
@@ -153,24 +153,24 @@ class StanceClassifier:
                 stance=CitationStance.UNKNOWN,
                 confidence=0.0,
             )
-        
+
         # Calculate scores for each stance
-        scores: Dict[CitationStance, float] = {}
-        evidence: Dict[CitationStance, List[str]] = {}
-        
+        scores: dict[CitationStance, float] = {}
+        evidence: dict[CitationStance, list[str]] = {}
+
         for stance, patterns in self._stance_patterns.items():
             score = 0.0
             matched_phrases = []
-            
+
             for pattern in patterns:
                 matches = pattern.findall(text)
                 if matches:
                     score += len(matches) * self._stance_weights.get(stance, 1.0)
                     matched_phrases.extend(matches)
-            
+
             scores[stance] = score
             evidence[stance] = matched_phrases[:3]  # Keep top 3 phrases
-        
+
         # Determine best stance
         if not any(scores.values()):
             return StanceResult(
@@ -179,29 +179,29 @@ class StanceClassifier:
                 evidence="No explicit stance indicators",
                 scores={s.value: v for s, v in scores.items()},
             )
-        
+
         # Get stance with highest score
         best_stance = max(scores, key=scores.get)
         best_score = scores[best_stance]
-        
+
         # Calculate confidence (normalize by total)
         total_score = sum(scores.values())
         confidence = best_score / total_score if total_score > 0 else 0.0
-        
+
         # Build evidence string
         evidence_str = ", ".join(evidence.get(best_stance, []))
-        
+
         return StanceResult(
             stance=best_stance,
             confidence=min(1.0, confidence),
             evidence=evidence_str,
             scores={s.value: v for s, v in scores.items()},
         )
-    
+
     def classify_batch(
         self,
-        contexts: List[CitationContext],
-    ) -> List[StanceResult]:
+        contexts: list[CitationContext],
+    ) -> list[StanceResult]:
         """Classify multiple citation contexts.
         
         Args:

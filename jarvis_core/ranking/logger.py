@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .base import RankingItem
 
@@ -18,9 +18,9 @@ def log_ranking(
     path: str,
     task_id: str,
     stage: str,
-    items: List[RankingItem],
-    chosen_order: List[str],
-    extra: Optional[Dict[str, Any]] = None
+    items: list[RankingItem],
+    chosen_order: list[str],
+    extra: dict[str, Any] | None = None
 ) -> None:
     """
     ランキング結果をログ出力.
@@ -37,7 +37,7 @@ def log_ranking(
     """
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
-    
+
     rec = {
         "ts": datetime.now(timezone.utc).isoformat(),
         "task_id": task_id,
@@ -54,14 +54,14 @@ def log_ranking(
         "chosen_order": chosen_order,
         "extra": extra or {},
     }
-    
+
     with p.open("a", encoding="utf-8") as f:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
 
 class RankingLogger:
     """ランキングロガー."""
-    
+
     def __init__(self, log_path: str = "logs/ranking.jsonl"):
         """
         初期化.
@@ -70,14 +70,14 @@ class RankingLogger:
             log_path: ログファイルパス
         """
         self.log_path = log_path
-    
+
     def log(
         self,
         task_id: str,
         stage: str,
-        items: List[RankingItem],
-        chosen_order: List[str],
-        extra: Optional[Dict[str, Any]] = None
+        items: list[RankingItem],
+        chosen_order: list[str],
+        extra: dict[str, Any] | None = None
     ) -> None:
         """ランキングをログ."""
         log_ranking(

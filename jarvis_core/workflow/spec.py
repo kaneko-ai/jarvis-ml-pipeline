@@ -9,12 +9,12 @@ PDF知見統合: データ構造
 
 from __future__ import annotations
 
-import json
-import yaml
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
+
+import yaml
 
 
 class Mode(Enum):
@@ -44,15 +44,15 @@ class StepSpec:
     """
     step_id: str
     action: str  # tool | router | planner | evaluator
-    tool: Optional[str] = None
-    config: Dict[str, Any] = field(default_factory=dict)
+    tool: str | None = None
+    config: dict[str, Any] = field(default_factory=dict)
     requires_approval: bool = False  # HITL時に承認が必要か
     retry_policy: RetryPolicy = field(default_factory=RetryPolicy)
     timeout_sec: int = 120
-    depends_on: List[str] = field(default_factory=list)
-    
+    depends_on: list[str] = field(default_factory=list)
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "StepSpec":
+    def from_dict(cls, data: dict[str, Any]) -> StepSpec:
         """辞書から生成."""
         retry_data = data.get("retry_policy", {})
         return cls(
@@ -81,8 +81,8 @@ class FitnessWeights:
     reproducibility: float = 0.2  # 再現性
     cost: float = 0.1         # 推論コスト
     latency: float = 0.1      # 時間
-    
-    def to_dict(self) -> Dict[str, float]:
+
+    def to_dict(self) -> dict[str, float]:
         """辞書に変換."""
         return {
             "correctness": self.correctness,
@@ -91,9 +91,9 @@ class FitnessWeights:
             "cost": self.cost,
             "latency": self.latency,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "FitnessWeights":
+    def from_dict(cls, data: dict[str, Any]) -> FitnessWeights:
         """辞書から生成."""
         return cls(
             correctness=data.get("correctness", 0.4),
@@ -114,9 +114,9 @@ class Budgets:
     max_cost: float = 10.0
     max_iters: int = 10
     n_samples: int = 3  # Repeated Sampling のデフォルト
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Budgets":
+    def from_dict(cls, data: dict[str, Any]) -> Budgets:
         """辞書から生成."""
         return cls(
             max_tokens=data.get("max_tokens", 100000),
@@ -136,26 +136,26 @@ class WorkflowSpec:
     workflow_id: str
     mode: Mode
     objective: str
-    steps: List[StepSpec]
+    steps: list[StepSpec]
     fitness: FitnessWeights = field(default_factory=FitnessWeights)
     budgets: Budgets = field(default_factory=Budgets)
     artifacts_dir: str = "artifacts"
-    goldset: Optional[str] = None
-    
+    goldset: str | None = None
+
     @classmethod
-    def from_yaml(cls, path: Path) -> "WorkflowSpec":
+    def from_yaml(cls, path: Path) -> WorkflowSpec:
         """YAMLファイルから読み込み."""
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, encoding='utf-8') as f:
             data = yaml.safe_load(f)
         return cls.from_dict(data)
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "WorkflowSpec":
+    def from_dict(cls, data: dict[str, Any]) -> WorkflowSpec:
         """辞書から生成."""
         steps = [StepSpec.from_dict(s) for s in data.get("steps", [])]
         fitness = FitnessWeights.from_dict(data.get("fitness", {}))
         budgets = Budgets.from_dict(data.get("budgets", {}))
-        
+
         return cls(
             workflow_id=data["workflow_id"],
             mode=Mode(data.get("mode", "step")),
@@ -166,8 +166,8 @@ class WorkflowSpec:
             artifacts_dir=data.get("artifacts", {}).get("output_dir", "artifacts"),
             goldset=data.get("goldset"),
         )
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """辞書に変換."""
         return {
             "workflow_id": self.workflow_id,

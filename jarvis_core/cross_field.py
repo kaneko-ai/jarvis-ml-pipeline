@@ -4,16 +4,16 @@ Per Issue Ω-5, this detects cross-field innovation opportunities.
 """
 from __future__ import annotations
 
-from typing import List, Set, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def find_cross_field_opportunities(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     min_concept_overlap: float = 0.1,
-) -> List[dict]:
+) -> list[dict]:
     """Find cross-field innovation opportunities.
 
     Identifies concept combinations rarely seen together.
@@ -85,7 +85,7 @@ def find_cross_field_opportunities(
     return opportunities[:10]
 
 
-def _analyze_why_not_combined(c1: str, c2: str, vectors: List["PaperVector"]) -> str:
+def _analyze_why_not_combined(c1: str, c2: str, vectors: list[PaperVector]) -> str:
     """Analyze why two concepts are rarely combined."""
     # Simple heuristics
     c1_immune = False
@@ -125,8 +125,8 @@ def _analyze_why_not_combined(c1: str, c2: str, vectors: List["PaperVector"]) ->
 
 def suggest_bridge_experiments(
     opportunity: dict,
-    vectors: List["PaperVector"],
-) -> List[str]:
+    vectors: list[PaperVector],
+) -> list[str]:
     """Suggest experiments to bridge two fields."""
     c1, c2 = opportunity["concepts"]
 

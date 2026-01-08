@@ -1,7 +1,7 @@
 """Index package for incremental processing."""
-from .pipeline import IndexPipeline, PipelineStage
-from .incremental_state import IncrementalState, DocumentState
 from .dedup import DedupFilter, dedupe_chunks
+from .incremental_state import DocumentState, IncrementalState
+from .pipeline import IndexPipeline, PipelineStage
 
 __all__ = [
     "IndexPipeline",

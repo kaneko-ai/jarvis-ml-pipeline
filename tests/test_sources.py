@@ -3,8 +3,8 @@
 Per RP6, this tests the "standard entry point" for populating
 EvidenceStore with real content.
 """
-from pathlib import Path
 import sys
+from pathlib import Path
 
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,10 +13,10 @@ if str(ROOT) not in sys.path:
 
 from jarvis_core.evidence import EvidenceStore
 from jarvis_core.sources import (
-    SourceDocument,
     Chunker,
     ChunkResult,
     ExecutionContext,
+    SourceDocument,
     ingest,
 )
 

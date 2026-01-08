@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from collections import Counter
 from datetime import datetime
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 
 def normalize_doi(doi: str) -> str:
@@ -14,7 +14,7 @@ def normalize_title(title: str) -> str:
     return " ".join("".join(ch.lower() if ch.isalnum() else " " for ch in title).split())
 
 
-def normalize_record(paper: Dict[str, Any]) -> Dict[str, Any]:
+def normalize_record(paper: dict[str, Any]) -> dict[str, Any]:
     normalized = dict(paper)
     normalized["title"] = (paper.get("title") or "").strip()
     normalized["abstract"] = (paper.get("abstract") or "").strip()
@@ -25,18 +25,18 @@ def normalize_record(paper: Dict[str, Any]) -> Dict[str, Any]:
     return normalized
 
 
-def audit_records(papers: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+def audit_records(papers: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     current_year = datetime.utcnow().year
     normalized = [normalize_record(p) for p in papers]
 
-    doi_titles: Dict[str, set] = {}
+    doi_titles: dict[str, set] = {}
     for paper in normalized:
         doi = paper.get("doi")
         if doi:
             doi_titles.setdefault(doi, set()).add(normalize_title(paper.get("title") or ""))
 
     for paper in normalized:
-        flags: List[str] = []
+        flags: list[str] = []
         if not paper.get("doi"):
             flags.append("missing_doi")
         if not paper.get("pmid"):
@@ -68,7 +68,7 @@ def audit_records(papers: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], D
     return normalized, summary
 
 
-def _build_summary(papers: List[Dict[str, Any]]) -> Dict[str, Any]:
+def _build_summary(papers: list[dict[str, Any]]) -> dict[str, Any]:
     total = len(papers) or 1
     missing_counts = Counter()
     conflict_count = 0

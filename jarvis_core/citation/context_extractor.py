@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -17,19 +17,19 @@ logger = logging.getLogger(__name__)
 @dataclass
 class CitationContext:
     """Context around a citation."""
-    
+
     citing_paper_id: str
     cited_paper_id: str
     citation_text: str  # The actual citing sentence
     context_before: str = ""  # Sentences before the citation
     context_after: str = ""   # Sentences after the citation
-    section: Optional[str] = None  # Section where citation appears
+    section: str | None = None  # Section where citation appears
     position: int = 0  # Position in document (sentence index)
-    
+
     # Additional metadata
-    citation_marker: Optional[str] = None  # e.g., "[1]", "(Smith et al., 2020)"
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
+    citation_marker: str | None = None  # e.g., "[1]", "(Smith et al., 2020)"
+    metadata: dict[str, Any] = field(default_factory=dict)
+
     def get_full_context(self) -> str:
         """Get full context including before and after."""
         parts = []
@@ -39,8 +39,8 @@ class CitationContext:
         if self.context_after:
             parts.append(self.context_after)
         return " ".join(parts)
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "citing_paper_id": self.citing_paper_id,
@@ -82,11 +82,11 @@ class CitationExtractor:
         >>> print(contexts[0].cited_paper_id)
         'cited_paper_B'
     """
-    
+
     def __init__(
         self,
         context_window: int = 1,  # Number of sentences before/after
-        patterns: Optional[List[re.Pattern]] = None,
+        patterns: list[re.Pattern] | None = None,
     ):
         """Initialize the extractor.
         
@@ -97,13 +97,13 @@ class CitationExtractor:
         self._context_window = context_window
         self._patterns = patterns or CITATION_PATTERNS
         self._sentence_pattern = re.compile(r'(?<=[.!?])\s+(?=[A-Z])')
-    
+
     def extract(
         self,
         text: str,
         paper_id: str,
-        reference_map: Optional[Dict[str, str]] = None,
-    ) -> List[CitationContext]:
+        reference_map: dict[str, str] | None = None,
+    ) -> list[CitationContext]:
         """Extract citation contexts from text.
         
         Args:
@@ -116,30 +116,30 @@ class CitationExtractor:
         """
         if not text:
             return []
-        
+
         reference_map = reference_map or {}
-        
+
         # Split into sentences
         sentences = self._split_sentences(text)
-        
+
         # Find citations in each sentence
         contexts = []
-        
+
         for i, sentence in enumerate(sentences):
             # Find all citations in this sentence
             citations = self._find_citations(sentence)
-            
+
             for marker, citation_text in citations:
                 # Resolve cited paper ID
                 cited_id = self._resolve_citation(marker, reference_map)
-                
+
                 # Get context
                 context_before = self._get_context(sentences, i, -self._context_window)
                 context_after = self._get_context(sentences, i, self._context_window)
-                
+
                 # Detect section
                 section = self._detect_section(text, i, sentences)
-                
+
                 contexts.append(CitationContext(
                     citing_paper_id=paper_id,
                     cited_paper_id=cited_id,
@@ -150,51 +150,51 @@ class CitationExtractor:
                     position=i,
                     citation_marker=marker,
                 ))
-        
+
         return contexts
-    
-    def _split_sentences(self, text: str) -> List[str]:
+
+    def _split_sentences(self, text: str) -> list[str]:
         """Split text into sentences."""
         # Simple sentence splitting
         sentences = self._sentence_pattern.split(text)
         return [s.strip() for s in sentences if s.strip()]
-    
-    def _find_citations(self, sentence: str) -> List[Tuple[str, str]]:
+
+    def _find_citations(self, sentence: str) -> list[tuple[str, str]]:
         """Find citations in a sentence.
         
         Returns list of (marker, full_match) tuples.
         """
         citations = []
-        
+
         for pattern in self._patterns:
             for match in pattern.finditer(sentence):
                 marker = match.group(1) if match.lastindex else match.group(0)
                 citations.append((marker, match.group(0)))
-        
+
         return citations
-    
+
     def _resolve_citation(
         self,
         marker: str,
-        reference_map: Dict[str, str],
+        reference_map: dict[str, str],
     ) -> str:
         """Resolve citation marker to paper ID."""
         # Try exact match first
         if marker in reference_map:
             return reference_map[marker]
-        
+
         # Try numeric extraction
         numbers = re.findall(r'\d+', marker)
         for num in numbers:
             if num in reference_map:
                 return reference_map[num]
-        
+
         # Return marker as-is if not resolved
         return f"ref:{marker}"
-    
+
     def _get_context(
         self,
-        sentences: List[str],
+        sentences: list[str],
         current_idx: int,
         window: int,
     ) -> str:
@@ -207,16 +207,16 @@ class CitationExtractor:
             # Before context
             start = max(0, current_idx + window)
             end = current_idx
-        
+
         context_sentences = sentences[start:end]
         return " ".join(context_sentences)
-    
+
     def _detect_section(
         self,
         text: str,
         position: int,
-        sentences: List[str],
-    ) -> Optional[str]:
+        sentences: list[str],
+    ) -> str | None:
         """Detect the section where the citation appears."""
         # Look for section headers before this position
         section_patterns = [
@@ -227,14 +227,14 @@ class CitationExtractor:
             (r'\b(Conclusion|Summary)\b', "Conclusion"),
             (r'\b(Related\s+Work|Literature\s+Review)\b', "Related Work"),
         ]
-        
+
         # Get text before current position
         text_before = " ".join(sentences[:position])
-        
+
         # Find the last matching section
         last_section = None
         last_pos = -1
-        
+
         for pattern, section_name in section_patterns:
             matches = list(re.finditer(pattern, text_before, re.IGNORECASE))
             if matches:
@@ -242,16 +242,16 @@ class CitationExtractor:
                 if match.start() > last_pos:
                     last_pos = match.start()
                     last_section = section_name
-        
+
         return last_section
 
 
 def extract_citation_contexts(
     text: str,
     paper_id: str,
-    reference_map: Optional[Dict[str, str]] = None,
+    reference_map: dict[str, str] | None = None,
     context_window: int = 1,
-) -> List[CitationContext]:
+) -> list[CitationContext]:
     """Extract citation contexts from text.
     
     Convenience function for quick extraction.

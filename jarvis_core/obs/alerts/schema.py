@@ -2,10 +2,9 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, asdict, field
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List
-
+from typing import Any
 
 ALERT_RULES_PATH = Path("data/ops/alert_rules.json")
 
@@ -15,15 +14,15 @@ class AlertRule:
     rule_id: str
     enabled: bool
     severity: str
-    condition: Dict[str, Any]
+    condition: dict[str, Any]
     cooldown_minutes: int
-    notify: List[str] = field(default_factory=list)
+    notify: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
-def default_rules() -> List[AlertRule]:
+def default_rules() -> list[AlertRule]:
     return [
         AlertRule(
             rule_id="cron_missing",
@@ -68,17 +67,17 @@ def default_rules() -> List[AlertRule]:
     ]
 
 
-def load_rules() -> List[AlertRule]:
+def load_rules() -> list[AlertRule]:
     if not ALERT_RULES_PATH.exists():
         rules = default_rules()
         save_rules(rules)
         return rules
-    with open(ALERT_RULES_PATH, "r", encoding="utf-8") as f:
+    with open(ALERT_RULES_PATH, encoding="utf-8") as f:
         payload = json.load(f)
     return [AlertRule(**rule) for rule in payload.get("rules", [])]
 
 
-def save_rules(rules: List[AlertRule]) -> None:
+def save_rules(rules: list[AlertRule]) -> None:
     ALERT_RULES_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(ALERT_RULES_PATH, "w", encoding="utf-8") as f:
         json.dump({"rules": [rule.to_dict() for rule in rules]}, f, ensure_ascii=False, indent=2)

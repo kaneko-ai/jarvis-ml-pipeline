@@ -1,6 +1,6 @@
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
-import zipfile
 
 from jarvis_core.kb.weekly_pack import generate_weekly_pack
 

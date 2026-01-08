@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -19,12 +19,12 @@ logger = logging.getLogger(__name__)
 class ExtractionResult:
     """抽出結果."""
     text: str
-    pages: List[Tuple[int, str]] = field(default_factory=list)
+    pages: list[tuple[int, str]] = field(default_factory=list)
     method: str = ""
-    warnings: List[str] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    warnings: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
     success: bool = True
-    
+
     def to_dict(self) -> dict:
         return {
             "text_length": len(self.text),
@@ -40,7 +40,7 @@ class RobustPDFExtractor:
     
     複数のバックエンドを試行し、最良の結果を返す。
     """
-    
+
     def __init__(
         self,
         enable_ocr: bool = False,
@@ -49,38 +49,38 @@ class RobustPDFExtractor:
         self.enable_ocr = enable_ocr
         self.min_text_length = min_text_length
         self._backends = self._detect_backends()
-    
-    def _detect_backends(self) -> List[str]:
+
+    def _detect_backends(self) -> list[str]:
         """利用可能なバックエンドを検出."""
         backends = []
-        
+
         try:
             import fitz  # PyMuPDF
             backends.append("pymupdf")
         except ImportError:
             pass
-        
+
         try:
             import pdfplumber
             backends.append("pdfplumber")
         except ImportError:
             pass
-        
+
         try:
             import pypdf
             backends.append("pypdf")
         except ImportError:
             pass
-        
+
         if self.enable_ocr:
             try:
                 import pytesseract
                 backends.append("ocr")
             except ImportError:
                 pass
-        
+
         return backends
-    
+
     def extract(self, filepath: Path) -> ExtractionResult:
         """PDFからテキストを抽出.
         
@@ -92,9 +92,9 @@ class RobustPDFExtractor:
                 success=False,
                 warnings=[f"File not found: {filepath}"],
             )
-        
+
         results = []
-        
+
         for backend in self._backends:
             try:
                 result = self._extract_with_backend(filepath, backend)
@@ -109,20 +109,20 @@ class RobustPDFExtractor:
                     success=False,
                     warnings=[str(e)],
                 ))
-        
+
         # 最良の結果を返す
         if results:
             best = max(results, key=lambda r: len(r.text))
             if len(best.text) > 0:
                 best.warnings.append("Partial extraction")
                 return best
-        
+
         return ExtractionResult(
             text="",
             success=False,
             warnings=["All extraction methods failed"],
         )
-    
+
     def _extract_with_backend(self, filepath: Path, backend: str) -> ExtractionResult:
         """特定のバックエンドで抽出."""
         if backend == "pymupdf":
@@ -135,25 +135,25 @@ class RobustPDFExtractor:
             return self._extract_ocr(filepath)
         else:
             raise ValueError(f"Unknown backend: {backend}")
-    
+
     def _extract_pymupdf(self, filepath: Path) -> ExtractionResult:
         """PyMuPDFで抽出."""
         import fitz
-        
+
         pages = []
         all_text = []
         metadata = {}
-        
+
         doc = fitz.open(filepath)
         metadata = dict(doc.metadata) if doc.metadata else {}
-        
+
         for i, page in enumerate(doc):
             text = page.get_text("text")
             pages.append((i + 1, text))
             all_text.append(text)
-        
+
         doc.close()
-        
+
         return ExtractionResult(
             text="\n\n".join(all_text),
             pages=pages,
@@ -161,72 +161,73 @@ class RobustPDFExtractor:
             metadata=metadata,
             success=True,
         )
-    
+
     def _extract_pdfplumber(self, filepath: Path) -> ExtractionResult:
         """pdfplumberで抽出."""
         import pdfplumber
-        
+
         pages = []
         all_text = []
-        
+
         with pdfplumber.open(filepath) as pdf:
             for i, page in enumerate(pdf.pages):
                 text = page.extract_text() or ""
                 pages.append((i + 1, text))
                 all_text.append(text)
-        
+
         return ExtractionResult(
             text="\n\n".join(all_text),
             pages=pages,
             method="pdfplumber",
             success=True,
         )
-    
+
     def _extract_pypdf(self, filepath: Path) -> ExtractionResult:
         """pypdfで抽出."""
         from pypdf import PdfReader
-        
+
         pages = []
         all_text = []
-        
+
         reader = PdfReader(filepath)
-        
+
         for i, page in enumerate(reader.pages):
             text = page.extract_text() or ""
             pages.append((i + 1, text))
             all_text.append(text)
-        
+
         return ExtractionResult(
             text="\n\n".join(all_text),
             pages=pages,
             method="pypdf",
             success=True,
         )
-    
+
     def _extract_ocr(self, filepath: Path) -> ExtractionResult:
         """OCRで抽出."""
+        import io
+
         import fitz
         import pytesseract
         from PIL import Image
-        import io
-        
+
         pages = []
         all_text = []
-        
+
         doc = fitz.open(filepath)
-        
+
         for i, page in enumerate(doc):
             # ページを画像に変換
             pix = page.get_pixmap(dpi=300)
             img = Image.open(io.BytesIO(pix.tobytes("png")))
-            
+
             # OCR
             text = pytesseract.image_to_string(img, lang="eng")
             pages.append((i + 1, text))
             all_text.append(text)
-        
+
         doc.close()
-        
+
         return ExtractionResult(
             text="\n\n".join(all_text),
             pages=pages,

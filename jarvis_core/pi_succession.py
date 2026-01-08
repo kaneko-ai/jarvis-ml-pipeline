@@ -4,14 +4,14 @@ Per Ψ-9, this plans lab succession strategy.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def plan_pi_succession(
-    current_vectors: List["PaperVector"],
+    current_vectors: list[PaperVector],
     lab_age_years: int = 10,
 ) -> dict:
     """Plan PI succession and future theme map.

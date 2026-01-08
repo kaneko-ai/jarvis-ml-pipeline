@@ -2,15 +2,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from .agents import (
+    AgentResult,
     ESEditAgent,
     JobAssistantAgent,
     MiscAgent,
     PaperFetcherAgent,
     ThesisAgent,
-    AgentResult,
 )
 from .llm import LLMClient
 from .registry import AgentRegistry
@@ -21,7 +21,7 @@ from .task import Task, TaskCategory
 class RoutePlan:
     task_type: str
     agent_name: str
-    meta: Dict[str, Any]
+    meta: dict[str, Any]
 
 
 class Router:

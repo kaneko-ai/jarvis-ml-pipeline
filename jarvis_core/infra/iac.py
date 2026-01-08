@@ -6,14 +6,14 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional
-from pathlib import Path
 from enum import Enum
+from pathlib import Path
+from typing import Any
 
 
 class ResourceState(Enum):
     """Resource states."""
-    
+
     PENDING = "pending"
     CREATING = "creating"
     CREATED = "created"
@@ -26,24 +26,24 @@ class ResourceState(Enum):
 @dataclass
 class Resource:
     """An infrastructure resource."""
-    
+
     resource_id: str
     resource_type: str
     name: str
-    properties: Dict[str, Any]
+    properties: dict[str, Any]
     state: ResourceState = ResourceState.PENDING
-    outputs: Dict[str, Any] = field(default_factory=dict)
-    dependencies: List[str] = field(default_factory=list)
+    outputs: dict[str, Any] = field(default_factory=dict)
+    dependencies: list[str] = field(default_factory=list)
 
 
 @dataclass
 class Plan:
     """An execution plan."""
-    
-    to_create: List[Resource]
-    to_update: List[Resource]
-    to_delete: List[Resource]
-    no_change: List[Resource]
+
+    to_create: list[Resource]
+    to_update: list[Resource]
+    to_delete: list[Resource]
+    no_change: list[Resource]
 
 
 class StateManager:
@@ -54,12 +54,12 @@ class StateManager:
     - Drift detection
     - Locking
     """
-    
+
     def __init__(self, state_path: str = "infra/state.json"):
         self.state_path = Path(state_path)
-        self._state: Dict[str, Resource] = {}
+        self._state: dict[str, Resource] = {}
         self._load_state()
-    
+
     def _load_state(self) -> None:
         """Load state from file."""
         if self.state_path.exists():
@@ -74,11 +74,11 @@ class StateManager:
                         state=ResourceState(res_data["state"]),
                         outputs=res_data.get("outputs", {}),
                     )
-    
+
     def _save_state(self) -> None:
         """Save state to file."""
         self.state_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         data = {
             "resources": {
                 res_id: {
@@ -91,26 +91,26 @@ class StateManager:
                 for res_id, res in self._state.items()
             }
         }
-        
+
         with open(self.state_path, "w") as f:
             json.dump(data, f, indent=2)
-    
-    def get_resource(self, resource_id: str) -> Optional[Resource]:
+
+    def get_resource(self, resource_id: str) -> Resource | None:
         """Get resource by ID."""
         return self._state.get(resource_id)
-    
+
     def set_resource(self, resource: Resource) -> None:
         """Set resource in state."""
         self._state[resource.resource_id] = resource
         self._save_state()
-    
+
     def delete_resource(self, resource_id: str) -> None:
         """Delete resource from state."""
         if resource_id in self._state:
             del self._state[resource_id]
             self._save_state()
-    
-    def list_resources(self) -> List[Resource]:
+
+    def list_resources(self) -> list[Resource]:
         """List all resources."""
         return list(self._state.values())
 
@@ -123,14 +123,14 @@ class InfrastructureManager:
     - Plan and apply
     - Drift detection
     """
-    
+
     def __init__(
         self,
-        state_manager: Optional[StateManager] = None,
+        state_manager: StateManager | None = None,
     ):
         self.state = state_manager or StateManager()
-        self._providers: Dict[str, Any] = {}
-    
+        self._providers: dict[str, Any] = {}
+
     def register_provider(
         self,
         resource_type: str,
@@ -143,10 +143,10 @@ class InfrastructureManager:
             provider: Provider instance.
         """
         self._providers[resource_type] = provider
-    
+
     def plan(
         self,
-        desired: List[Resource],
+        desired: list[Resource],
     ) -> Plan:
         """Create an execution plan.
         
@@ -158,12 +158,12 @@ class InfrastructureManager:
         """
         current = {r.resource_id: r for r in self.state.list_resources()}
         desired_map = {r.resource_id: r for r in desired}
-        
+
         to_create = []
         to_update = []
         to_delete = []
         no_change = []
-        
+
         # Check for creates and updates
         for res_id, res in desired_map.items():
             if res_id not in current:
@@ -172,20 +172,20 @@ class InfrastructureManager:
                 to_update.append(res)
             else:
                 no_change.append(res)
-        
+
         # Check for deletes
         for res_id in current:
             if res_id not in desired_map:
                 to_delete.append(current[res_id])
-        
+
         return Plan(
             to_create=to_create,
             to_update=to_update,
             to_delete=to_delete,
             no_change=no_change,
         )
-    
-    def apply(self, plan: Plan) -> Dict[str, Any]:
+
+    def apply(self, plan: Plan) -> dict[str, Any]:
         """Apply an execution plan.
         
         Args:
@@ -200,18 +200,18 @@ class InfrastructureManager:
             "deleted": [],
             "errors": [],
         }
-        
+
         # Create resources
         for res in plan.to_create:
             try:
                 res.state = ResourceState.CREATING
                 self.state.set_resource(res)
-                
+
                 provider = self._providers.get(res.resource_type)
                 if provider:
                     outputs = provider.create(res)
                     res.outputs = outputs or {}
-                
+
                 res.state = ResourceState.CREATED
                 self.state.set_resource(res)
                 results["created"].append(res.resource_id)
@@ -222,18 +222,18 @@ class InfrastructureManager:
                     "resource": res.resource_id,
                     "error": str(e),
                 })
-        
+
         # Update resources
         for res in plan.to_update:
             try:
                 res.state = ResourceState.UPDATING
                 self.state.set_resource(res)
-                
+
                 provider = self._providers.get(res.resource_type)
                 if provider:
                     outputs = provider.update(res)
                     res.outputs = outputs or {}
-                
+
                 res.state = ResourceState.CREATED
                 self.state.set_resource(res)
                 results["updated"].append(res.resource_id)
@@ -244,17 +244,17 @@ class InfrastructureManager:
                     "resource": res.resource_id,
                     "error": str(e),
                 })
-        
+
         # Delete resources
         for res in plan.to_delete:
             try:
                 res.state = ResourceState.DELETING
                 self.state.set_resource(res)
-                
+
                 provider = self._providers.get(res.resource_type)
                 if provider:
                     provider.delete(res)
-                
+
                 self.state.delete_resource(res.resource_id)
                 results["deleted"].append(res.resource_id)
             except Exception as e:
@@ -264,17 +264,17 @@ class InfrastructureManager:
                     "resource": res.resource_id,
                     "error": str(e),
                 })
-        
+
         return results
-    
-    def detect_drift(self) -> List[Dict[str, Any]]:
+
+    def detect_drift(self) -> list[dict[str, Any]]:
         """Detect configuration drift.
         
         Returns:
             List of drifted resources.
         """
         drifts = []
-        
+
         for res in self.state.list_resources():
             provider = self._providers.get(res.resource_type)
             if provider and hasattr(provider, "get_current"):
@@ -288,5 +288,5 @@ class InfrastructureManager:
                         })
                 except Exception:
                     pass
-        
+
         return drifts

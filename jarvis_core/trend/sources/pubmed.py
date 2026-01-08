@@ -7,25 +7,24 @@ PubMed からのトレンド収集（Cell/Nature/Science含む）
 from __future__ import annotations
 
 import logging
-from typing import List
 
-from . import TrendSource, TrendItem
+from . import TrendItem, TrendSource
 
 logger = logging.getLogger(__name__)
 
 
 class PubMedSource(TrendSource):
     """PubMedトレンドソース."""
-    
+
     @property
     def name(self) -> str:
         return "pubmed"
-    
+
     def fetch(
         self,
-        queries: List[str],
+        queries: list[str],
         max_results: int = 50
-    ) -> List[TrendItem]:
+    ) -> list[TrendItem]:
         """
         PubMedからトレンドを取得.
         
@@ -35,21 +34,21 @@ class PubMedSource(TrendSource):
         - メタデータ + 要旨 + BibTeXまでは可
         """
         items = []
-        
+
         for query in queries:
             try:
                 fetched = self._search_pubmed(query, max_results // len(queries))
                 items.extend(fetched)
             except Exception as e:
                 logger.error(f"PubMed search failed for '{query}': {e}")
-        
+
         return items
-    
-    def _search_pubmed(self, query: str, max_results: int) -> List[TrendItem]:
+
+    def _search_pubmed(self, query: str, max_results: int) -> list[TrendItem]:
         """PubMed E-utilitiesで検索."""
         # プレースホルダー（既存のjarvis_tools/pubmed/を使用可能）
         logger.info(f"PubMed search: {query}, max={max_results}")
-        
+
         # モック結果
         return [
             TrendItem(
@@ -62,7 +61,7 @@ class PubMedSource(TrendSource):
             )
             for i in range(min(3, max_results))
         ]
-    
+
     def is_available(self) -> bool:
         """利用可能かどうか."""
         return True

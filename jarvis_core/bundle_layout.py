@@ -5,8 +5,6 @@ Per V4-P04, this defines and validates output directory structure.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List
-
 
 # Required files in Bundle v2
 REQUIRED_FILES = [
@@ -28,7 +26,7 @@ class BundleLayout:
     def __init__(self, path: str):
         self.path = Path(path)
 
-    def validate(self) -> tuple[bool, List[str]]:
+    def validate(self) -> tuple[bool, list[str]]:
         """Validate bundle layout.
 
         Returns:
@@ -67,7 +65,7 @@ class BundleLayout:
         return structure
 
 
-def validate_bundle_layout(path: str) -> tuple[bool, List[str]]:
+def validate_bundle_layout(path: str) -> tuple[bool, list[str]]:
     """Validate bundle layout at path."""
     layout = BundleLayout(path)
     return layout.validate()

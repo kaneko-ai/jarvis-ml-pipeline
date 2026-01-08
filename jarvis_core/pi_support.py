@@ -4,15 +4,15 @@ Per Issue Ω-10, this supports PI-level research decisions.
 """
 from __future__ import annotations
 
-from typing import List, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def evaluate_research_themes(
-    theme_vectors: Dict[str, List["PaperVector"]],
-) -> List[dict]:
+    theme_vectors: dict[str, list[PaperVector]],
+) -> list[dict]:
     """Evaluate multiple research themes for continue/stop decision.
 
     Args:
@@ -33,7 +33,7 @@ def evaluate_research_themes(
     return evaluations
 
 
-def _evaluate_single_theme(theme: str, vectors: List["PaperVector"]) -> dict:
+def _evaluate_single_theme(theme: str, vectors: list[PaperVector]) -> dict:
     """Evaluate a single research theme."""
     if not vectors:
         return {
@@ -89,7 +89,7 @@ def _evaluate_single_theme(theme: str, vectors: List["PaperVector"]) -> dict:
     }
 
 
-def generate_pi_summary(evaluations: List[dict]) -> str:
+def generate_pi_summary(evaluations: list[dict]) -> str:
     """Generate PI-level summary of all themes."""
     lines = ["# 研究テーマ評価サマリー", ""]
 

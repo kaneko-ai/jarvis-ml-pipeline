@@ -12,14 +12,15 @@ from __future__ import annotations
 import json
 import logging
 import time
-from dataclasses import dataclass, field, asdict
+import uuid
+from collections.abc import Callable
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
-import uuid
+from typing import Any
 
-from .spec import WorkflowSpec, StepSpec, Mode
+from .spec import Mode, StepSpec, WorkflowSpec
 
 logger = logging.getLogger(__name__)
 
@@ -41,13 +42,13 @@ class StepResult:
     step_id: str
     status: StepStatus
     output: Any = None
-    error: Optional[str] = None
+    error: str | None = None
     cost: float = 0.0
     latency_sec: float = 0.0
-    evidence: List[str] = field(default_factory=list)
+    evidence: list[str] = field(default_factory=list)
     attempts: int = 1
-    started_at: Optional[str] = None
-    completed_at: Optional[str] = None
+    started_at: str | None = None
+    completed_at: str | None = None
 
 
 @dataclass
@@ -60,14 +61,14 @@ class WorkflowState:
     workflow_id: str
     mode: Mode
     current_step_index: int = 0
-    step_results: List[StepResult] = field(default_factory=list)
+    step_results: list[StepResult] = field(default_factory=list)
     total_cost: float = 0.0
     total_latency_sec: float = 0.0
     started_at: str = field(default_factory=lambda: datetime.now().isoformat())
-    completed_at: Optional[str] = None
+    completed_at: str | None = None
     status: str = "running"  # running | completed | failed | paused
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """辞書に変換."""
         return {
             "run_id": self.run_id,
@@ -92,23 +93,23 @@ class WorkflowState:
             "completed_at": self.completed_at,
             "status": self.status,
         }
-    
+
     def save(self, logs_dir: Path):
         """状態を保存."""
         run_dir = logs_dir / "runs" / self.run_id
         run_dir.mkdir(parents=True, exist_ok=True)
-        
+
         state_file = run_dir / "workflow_state.json"
         with open(state_file, 'w', encoding='utf-8') as f:
             json.dump(self.to_dict(), f, ensure_ascii=False, indent=2)
-    
+
     @classmethod
-    def load(cls, logs_dir: Path, run_id: str) -> "WorkflowState":
+    def load(cls, logs_dir: Path, run_id: str) -> WorkflowState:
         """状態を読み込み."""
         state_file = logs_dir / "runs" / run_id / "workflow_state.json"
-        with open(state_file, 'r', encoding='utf-8') as f:
+        with open(state_file, encoding='utf-8') as f:
             data = json.load(f)
-        
+
         state = cls(
             run_id=data["run_id"],
             workflow_id=data["workflow_id"],
@@ -120,7 +121,7 @@ class WorkflowState:
             completed_at=data.get("completed_at"),
             status=data["status"],
         )
-        
+
         for r in data.get("step_results", []):
             state.step_results.append(StepResult(
                 step_id=r["step_id"],
@@ -131,7 +132,7 @@ class WorkflowState:
                 latency_sec=r.get("latency_sec", 0),
                 attempts=r.get("attempts", 1),
             ))
-        
+
         return state
 
 
@@ -141,12 +142,12 @@ class WorkflowRunner:
     Step mode MVP: step単位で順次実行。
     失敗時はstep単位で再試行。
     """
-    
+
     def __init__(
-        self, 
+        self,
         spec: WorkflowSpec,
         logs_dir: str = "logs",
-        step_handlers: Optional[Dict[str, Callable]] = None
+        step_handlers: dict[str, Callable] | None = None
     ):
         """
         初期化.
@@ -159,9 +160,9 @@ class WorkflowRunner:
         self.spec = spec
         self.logs_dir = Path(logs_dir)
         self.step_handlers = step_handlers or {}
-        self._state: Optional[WorkflowState] = None
-    
-    def run(self, run_id: Optional[str] = None) -> WorkflowState:
+        self._state: WorkflowState | None = None
+
+    def run(self, run_id: str | None = None) -> WorkflowState:
         """
         ワークフローを実行.
         
@@ -179,9 +180,9 @@ class WorkflowRunner:
                 workflow_id=self.spec.workflow_id,
                 mode=self.spec.mode,
             )
-        
+
         logger.info(f"Running workflow {self.spec.workflow_id} in {self.spec.mode.value} mode")
-        
+
         try:
             self._execute_steps()
             self._state.status = "completed"
@@ -189,10 +190,10 @@ class WorkflowRunner:
         except Exception as e:
             self._state.status = "failed"
             logger.error(f"Workflow failed: {e}")
-        
+
         self._state.save(self.logs_dir)
         return self._state
-    
+
     def _try_resume(self, run_id: str) -> bool:
         """再開を試みる."""
         try:
@@ -200,12 +201,12 @@ class WorkflowRunner:
             return True
         except FileNotFoundError:
             return False
-    
+
     def _execute_steps(self):
         """ステップを順次実行."""
         while self._state.current_step_index < len(self.spec.steps):
             step = self.spec.steps[self._state.current_step_index]
-            
+
             # HITL: 承認待ちチェック
             if self.spec.mode == Mode.HITL and step.requires_approval:
                 result = self._wait_for_approval(step)
@@ -213,35 +214,35 @@ class WorkflowRunner:
                     raise RuntimeError(f"Step {step.step_id} rejected")
             else:
                 result = self._execute_step(step)
-            
+
             self._state.step_results.append(result)
             self._state.total_cost += result.cost
             self._state.total_latency_sec += result.latency_sec
-            
+
             if result.status == StepStatus.FAILED:
                 raise RuntimeError(f"Step {step.step_id} failed: {result.error}")
-            
+
             self._state.current_step_index += 1
             self._state.save(self.logs_dir)
-    
+
     def _execute_step(self, step: StepSpec) -> StepResult:
         """単一ステップを実行."""
         started_at = datetime.now().isoformat()
         start_time = time.time()
-        
+
         handler = self.step_handlers.get(step.action)
         if not handler:
             handler = self._default_handler
-        
+
         attempts = 0
         last_error = None
-        
+
         while attempts < step.retry_policy.max_attempts:
             attempts += 1
             try:
                 output = handler(step)
                 elapsed = time.time() - start_time
-                
+
                 return StepResult(
                     step_id=step.step_id,
                     status=StepStatus.COMPLETED,
@@ -256,7 +257,7 @@ class WorkflowRunner:
                 logger.warning(f"Step {step.step_id} attempt {attempts} failed: {e}")
                 if attempts < step.retry_policy.max_attempts:
                     time.sleep(step.retry_policy.backoff_sec)
-        
+
         return StepResult(
             step_id=step.step_id,
             status=StepStatus.FAILED,
@@ -265,17 +266,17 @@ class WorkflowRunner:
             started_at=started_at,
             completed_at=datetime.now().isoformat(),
         )
-    
+
     def _wait_for_approval(self, step: StepSpec) -> StepResult:
         """承認待ち（HITL mode）."""
         logger.info(f"Step {step.step_id} waiting for approval")
-        
+
         # MVP: 自動承認（本番では外部入力を待つ）
         return StepResult(
             step_id=step.step_id,
             status=StepStatus.APPROVED,
         )
-    
+
     def _default_handler(self, step: StepSpec) -> Any:
         """デフォルトハンドラー."""
         logger.info(f"Executing step {step.step_id} with action {step.action}")

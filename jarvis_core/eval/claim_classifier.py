@@ -7,7 +7,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Tuple
 
 
 class ClaimLabel(Enum):
@@ -65,7 +64,7 @@ class ClassificationResult:
     claim_text: str
     label: ClaimLabel
     confidence: float
-    matched_patterns: List[str]
+    matched_patterns: list[str]
     reason: str
 
 
@@ -136,7 +135,7 @@ def classify_claim_rule_based(claim_text: str) -> ClassificationResult:
         )
 
 
-def classify_claims(claims: List[str]) -> List[ClassificationResult]:
+def classify_claims(claims: list[str]) -> list[ClassificationResult]:
     """Classify multiple claims.
 
     Args:
@@ -148,7 +147,7 @@ def classify_claims(claims: List[str]) -> List[ClassificationResult]:
     return [classify_claim_rule_based(claim) for claim in claims]
 
 
-def partition_claims(claims: List[str]) -> Tuple[List[str], List[str], List[str]]:
+def partition_claims(claims: list[str]) -> tuple[list[str], list[str], list[str]]:
     """Partition claims into facts, interpretations, and unknown.
 
     Returns:

@@ -5,7 +5,6 @@ Per RP-125, ranks papers with explainable features.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Dict, Optional
 from datetime import datetime
 
 
@@ -28,7 +27,7 @@ class PaperScore:
     paper_id: str
     total_score: float
     features: PaperFeatures
-    feature_contributions: Dict[str, float]
+    feature_contributions: dict[str, float]
     rank: int = 0
 
 
@@ -51,7 +50,7 @@ STUDY_TYPE_SCORES = {
 }
 
 
-def compute_recency(year: Optional[int], current_year: int = None) -> float:
+def compute_recency(year: int | None, current_year: int = None) -> float:
     """Compute recency score (0-1)."""
     if year is None:
         return 0.5
@@ -83,8 +82,8 @@ def compute_citation_density(
 
 
 def compute_entity_coverage(
-    found_entities: List[str],
-    query_entities: List[str],
+    found_entities: list[str],
+    query_entities: list[str],
 ) -> float:
     """Compute entity coverage score."""
     if not query_entities:
@@ -101,7 +100,7 @@ def compute_entity_coverage(
 
 def score_paper(
     features: PaperFeatures,
-    weights: Optional[Dict[str, float]] = None,
+    weights: dict[str, float] | None = None,
 ) -> PaperScore:
     """Score a paper based on features.
 
@@ -152,9 +151,9 @@ def score_paper(
 
 
 def rank_papers(
-    papers: List[PaperFeatures],
-    weights: Optional[Dict[str, float]] = None,
-) -> List[PaperScore]:
+    papers: list[PaperFeatures],
+    weights: dict[str, float] | None = None,
+) -> list[PaperScore]:
     """Rank papers by score.
 
     Args:

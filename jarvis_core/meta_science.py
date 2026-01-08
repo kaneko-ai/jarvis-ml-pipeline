@@ -4,7 +4,7 @@ Per Research OS v3.0 specification.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 # Ψ-26: Field Saturation Collapse Predictor
 def predict_field_collapse(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     concept: str,
 ) -> dict:
     """Predict field saturation and potential collapse.
@@ -65,7 +65,7 @@ def predict_field_collapse(
 
 # Ψ-27: Journal Power Shift Tracker
 def track_journal_power_shift(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
 ) -> dict:
     """Track journal influence changes.
 
@@ -107,7 +107,7 @@ def track_journal_power_shift(
 
 # Ψ-28: Citation Cartel Detector
 def detect_citation_cartel(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
 ) -> dict:
     """Detect unhealthy citation patterns.
 
@@ -143,7 +143,7 @@ def detect_citation_cartel(
 
 # Ψ-29: Meta-Science Observatory
 def observe_meta_science(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
 ) -> dict:
     """Observe academic system metrics.
 
@@ -181,8 +181,8 @@ def observe_meta_science(
 
 # Ψ-30: Research OS Self-Evolution Engine
 def suggest_self_evolution(
-    vectors: List["PaperVector"],
-    current_features: List[str],
+    vectors: list[PaperVector],
+    current_features: list[str],
 ) -> dict:
     """Suggest next features for Research OS.
 

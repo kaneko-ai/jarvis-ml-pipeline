@@ -13,9 +13,8 @@ import math
 import re
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional
 
-from .evidence import EvidenceStore, Chunk
+from .evidence import EvidenceStore
 from .sources import ChunkResult
 
 
@@ -24,11 +23,11 @@ class TokenizedDoc:
     """A tokenized document for indexing."""
 
     chunk_id: str
-    tokens: List[str]
-    term_freq: Dict[str, int] = field(default_factory=dict)
+    tokens: list[str]
+    term_freq: dict[str, int] = field(default_factory=dict)
 
 
-def tokenize(text: str) -> List[str]:
+def tokenize(text: str) -> list[str]:
     """Simple tokenizer for both English and Japanese text.
 
     Args:
@@ -72,17 +71,17 @@ class BM25Retriever:
         self.k1 = k1
         self.b = b
 
-        self._docs: List[TokenizedDoc] = []
+        self._docs: list[TokenizedDoc] = []
         self._doc_count: int = 0
         self._avg_doc_len: float = 0.0
-        self._doc_freq: Dict[str, int] = {}  # term -> number of docs containing it
-        self._chunk_results: Dict[str, ChunkResult] = {}  # chunk_id -> ChunkResult
+        self._doc_freq: dict[str, int] = {}  # term -> number of docs containing it
+        self._chunk_results: dict[str, ChunkResult] = {}  # chunk_id -> ChunkResult
 
     def build(
         self,
-        chunks: List[ChunkResult],
+        chunks: list[ChunkResult],
         store: EvidenceStore,
-    ) -> "BM25Retriever":
+    ) -> BM25Retriever:
         """Build the index from chunks.
 
         Args:
@@ -129,7 +128,7 @@ class BM25Retriever:
         self,
         query: str,
         k: int = 8,
-    ) -> List[ChunkResult]:
+    ) -> list[ChunkResult]:
         """Search for relevant chunks.
 
         Args:
@@ -146,7 +145,7 @@ class BM25Retriever:
         if not query_tokens:
             return []
 
-        scores: List[tuple[str, float]] = []
+        scores: list[tuple[str, float]] = []
 
         for doc in self._docs:
             score = self._score_document(query_tokens, doc)
@@ -157,7 +156,7 @@ class BM25Retriever:
         scores.sort(key=lambda x: x[1], reverse=True)
 
         # Return top K
-        results: List[ChunkResult] = []
+        results: list[ChunkResult] = []
         for chunk_id, _ in scores[:k]:
             if chunk_id in self._chunk_results:
                 results.append(self._chunk_results[chunk_id])
@@ -166,7 +165,7 @@ class BM25Retriever:
 
     def _score_document(
         self,
-        query_tokens: List[str],
+        query_tokens: list[str],
         doc: TokenizedDoc,
     ) -> float:
         """Calculate BM25 score for a document.
@@ -210,10 +209,10 @@ class BM25Retriever:
 
 
 def create_retriever(
-    chunks: List[ChunkResult],
+    chunks: list[ChunkResult],
     store: EvidenceStore,
     min_chunks_for_retrieval: int = 20,
-) -> Optional[BM25Retriever]:
+) -> BM25Retriever | None:
     """Create a retriever if there are enough chunks.
 
     Args:
@@ -232,11 +231,11 @@ def create_retriever(
 
 def get_relevant_chunks(
     query: str,
-    chunks: List[ChunkResult],
+    chunks: list[ChunkResult],
     store: EvidenceStore,
     k: int = 8,
     min_chunks_for_retrieval: int = 20,
-) -> List[ChunkResult]:
+) -> list[ChunkResult]:
     """Get relevant chunks for a query (convenience function).
 
     If there are few chunks, returns all of them.

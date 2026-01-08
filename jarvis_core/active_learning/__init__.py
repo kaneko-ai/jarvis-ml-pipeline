@@ -10,14 +10,14 @@ from jarvis_core.active_learning.engine import (
     ALState,
 )
 from jarvis_core.active_learning.query import (
+    DiversitySampling,
     QueryStrategy,
     UncertaintySampling,
-    DiversitySampling,
 )
 from jarvis_core.active_learning.stopping import (
-    StoppingCriterion,
-    RecallStoppingCriterion,
     BudgetStoppingCriterion,
+    RecallStoppingCriterion,
+    StoppingCriterion,
 )
 
 __all__ = [

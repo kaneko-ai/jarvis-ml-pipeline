@@ -5,7 +5,6 @@ Per V4.2 Sprint 3, this estimates execution cost from span measurements.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, Optional
 
 
 @dataclass
@@ -20,7 +19,7 @@ class CostModel:
     compute_cost_per_second: float = 0.0001
 
     # Stage cost multipliers
-    stage_multipliers: Dict[str, float] = field(default_factory=lambda: {
+    stage_multipliers: dict[str, float] = field(default_factory=lambda: {
         "extraction": 1.0,
         "indexing": 0.5,
         "retrieval:stage1": 0.1,
@@ -51,8 +50,8 @@ class CostModel:
 
     def estimate_from_spans(
         self,
-        span_stats: Dict[str, dict],
-    ) -> Dict[str, float]:
+        span_stats: dict[str, dict],
+    ) -> dict[str, float]:
         """Estimate costs from span statistics."""
         costs = {}
         total = 0.0
@@ -68,7 +67,7 @@ class CostModel:
 
 
 def estimate_cost(
-    span_stats: Dict[str, dict],
+    span_stats: dict[str, dict],
     tokens_used: int = 0,
     model: CostModel = None,
 ) -> float:

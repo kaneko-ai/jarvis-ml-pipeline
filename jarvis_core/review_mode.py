@@ -11,7 +11,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List, Literal
 
 from .result import EvidenceQAResult
 
@@ -28,9 +27,9 @@ class ReviewResult:
         end_time: When processing ended.
     """
 
-    queries: List[str]
-    results: List[EvidenceQAResult]
-    inputs: List[str]
+    queries: list[str]
+    results: list[EvidenceQAResult]
+    inputs: list[str]
     start_time: datetime = field(default_factory=datetime.now)
     end_time: datetime | None = None
 
@@ -53,8 +52,8 @@ class ReviewResult:
 
 
 def run_review_mode(
-    queries: List[str],
-    inputs: List[str],
+    queries: list[str],
+    inputs: list[str],
     category: str = "generic",
 ) -> ReviewResult:
     """Run multi-query review mode.
@@ -70,7 +69,7 @@ def run_review_mode(
     Returns:
         ReviewResult with all answers.
     """
-    from .evidence_qa import run_evidence_qa_result, get_evidence_store_for_bundle
+    from .evidence_qa import run_evidence_qa_result
 
     start_time = datetime.now()
     results = []
@@ -119,8 +118,6 @@ def export_review_bundle(
     """
     import json
 
-    from .bundle import export_evidence_bundle
-    from .evidence_qa import get_evidence_store_for_bundle
 
     out_path = Path(out_dir)
     review_dir = out_path / "review"

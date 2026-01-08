@@ -12,9 +12,8 @@ Key properties:
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Dict
 import uuid
+from dataclasses import dataclass
 
 
 @dataclass
@@ -48,7 +47,7 @@ class EvidenceStore:
     """
 
     def __init__(self) -> None:
-        self._chunks: Dict[str, Chunk] = {}
+        self._chunks: dict[str, Chunk] = {}
 
     def add_chunk(self, source: str, locator: str, text: str) -> str:
         """Register a new evidence chunk.

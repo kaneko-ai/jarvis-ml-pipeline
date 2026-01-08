@@ -1,9 +1,13 @@
 Metadata-Version: 2.4
 Name: jarvis-research-os
-Version: 5.1.0
-Summary: JARVIS Research OS - AI-Powered Systematic Literature Review Assistant with Evidence Grading, Citation Analysis, and Contradiction Detection
+Version: 5.2.0
+Summary: JARVIS Research OS - AI-Powered Systematic Literature Review Assistant
 Author-email: JARVIS Team <jarvis@kaneko-ai.dev>
 License: MIT
+Project-URL: Homepage, https://github.com/kaneko-ai/jarvis-ml-pipeline
+Project-URL: Documentation, https://github.com/kaneko-ai/jarvis-ml-pipeline/docs
+Project-URL: Repository, https://github.com/kaneko-ai/jarvis-ml-pipeline
+Project-URL: Issues, https://github.com/kaneko-ai/jarvis-ml-pipeline/issues
 Keywords: systematic-review,literature-review,evidence-grading,citation-analysis,PRISMA,active-learning,research-assistant,AI
 Classifier: Development Status :: 4 - Beta
 Classifier: Intended Audience :: Science/Research
@@ -20,11 +24,16 @@ Requires-Python: >=3.10
 Description-Content-Type: text/markdown
 Requires-Dist: requests>=2.28.0
 Requires-Dist: pyyaml>=6.0
-Requires-Dist: lightgbm>=4.0.0
-Requires-Dist: numpy>=1.24.0
+Provides-Extra: ml
+Requires-Dist: lightgbm>=4.0.0; extra == "ml"
+Requires-Dist: numpy>=1.24.0; extra == "ml"
+Requires-Dist: scikit-learn>=1.3.0; extra == "ml"
 Provides-Extra: pdf
 Requires-Dist: pymupdf>=1.22.0; extra == "pdf"
 Requires-Dist: pypdf2>=3.0; extra == "pdf"
+Requires-Dist: python-docx>=0.8.11; extra == "pdf"
+Requires-Dist: python-pptx>=0.6.21; extra == "pdf"
+Requires-Dist: reportlab>=4.0; extra == "pdf"
 Provides-Extra: llm
 Requires-Dist: google-generativeai>=0.3.0; extra == "llm"
 Requires-Dist: llama-cpp-python>=0.2.0; extra == "llm"
@@ -36,11 +45,15 @@ Requires-Dist: fastapi>=0.100.0; extra == "web"
 Requires-Dist: uvicorn>=0.22.0; extra == "web"
 Provides-Extra: dev
 Requires-Dist: pytest>=7.0; extra == "dev"
-Requires-Dist: pytest-cov; extra == "dev"
-Requires-Dist: black; extra == "dev"
-Requires-Dist: ruff; extra == "dev"
+Requires-Dist: pytest-cov>=4.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21.0; extra == "dev"
+Requires-Dist: black>=23.0; extra == "dev"
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+Requires-Dist: mypy>=1.0; extra == "dev"
+Requires-Dist: safety>=2.3.0; extra == "dev"
+Requires-Dist: bandit>=1.7.0; extra == "dev"
 Provides-Extra: all
-Requires-Dist: jarvis-research-os[embedding,llm,pdf,web]; extra == "all"
+Requires-Dist: jarvis-research-os[embedding,llm,ml,pdf,web]; extra == "all"
 
 # JARVIS Research OS
 

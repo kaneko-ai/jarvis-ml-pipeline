@@ -7,13 +7,12 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, List
 
 
 def run_live_eval(
-    queries: List[str],
+    queries: list[str],
     output_dir: str = "reports/live",
-    date: Optional[str] = None,
+    date: str | None = None,
 ) -> dict:
     """Run a live evaluation session.
 

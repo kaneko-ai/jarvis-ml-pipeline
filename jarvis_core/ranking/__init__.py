@@ -1,8 +1,8 @@
 """Ranking package."""
-from .ranker import Ranker, RankingWeights, RankedItem, RankingResult, rank_papers
 from .base import RankingItem
 from .heuristics import HeuristicRanker
-from .logger import log_ranking, RankingLogger
+from .logger import RankingLogger, log_ranking
+from .ranker import RankedItem, Ranker, RankingResult, RankingWeights, rank_papers
 
 __all__ = [
     "Ranker",

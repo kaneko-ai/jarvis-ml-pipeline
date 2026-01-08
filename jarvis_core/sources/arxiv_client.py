@@ -11,7 +11,6 @@ import time
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, List, Optional
 from urllib.parse import quote_plus
 
 import requests
@@ -31,21 +30,21 @@ ARXIV_NS = "{http://arxiv.org/schemas/atom}"
 @dataclass
 class ArxivPaper:
     """Represents an arXiv paper."""
-    
+
     arxiv_id: str
     title: str
     abstract: str
-    authors: List[str]
-    published: Optional[datetime] = None
-    updated: Optional[datetime] = None
-    categories: List[str] = field(default_factory=list)
-    primary_category: Optional[str] = None
-    doi: Optional[str] = None
-    journal_ref: Optional[str] = None
-    pdf_url: Optional[str] = None
-    abs_url: Optional[str] = None
-    
-    def to_dict(self) -> Dict:
+    authors: list[str]
+    published: datetime | None = None
+    updated: datetime | None = None
+    categories: list[str] = field(default_factory=list)
+    primary_category: str | None = None
+    doi: str | None = None
+    journal_ref: str | None = None
+    pdf_url: str | None = None
+    abs_url: str | None = None
+
+    def to_dict(self) -> dict:
         """Convert to dictionary."""
         return {
             "arxiv_id": self.arxiv_id,
@@ -75,7 +74,7 @@ class ArxivClient:
         >>> for paper in papers:
         ...     print(paper.title)
     """
-    
+
     def __init__(
         self,
         timeout: float = 30.0,
@@ -89,8 +88,8 @@ class ArxivClient:
         """
         self._timeout = timeout
         self._rate_limit_delay = rate_limit_delay
-        self._last_request_time: Optional[float] = None
-    
+        self._last_request_time: float | None = None
+
     def _wait_for_rate_limit(self) -> None:
         """Wait if necessary to respect rate limit."""
         if self._last_request_time is not None:
@@ -98,7 +97,7 @@ class ArxivClient:
             if elapsed < self._rate_limit_delay:
                 time.sleep(self._rate_limit_delay - elapsed)
         self._last_request_time = time.time()
-    
+
     def search(
         self,
         query: str,
@@ -106,7 +105,7 @@ class ArxivClient:
         start: int = 0,
         sort_by: str = "relevance",
         sort_order: str = "descending",
-    ) -> List[ArxivPaper]:
+    ) -> list[ArxivPaper]:
         """Search for papers on arXiv.
         
         Args:
@@ -120,7 +119,7 @@ class ArxivClient:
             List of ArxivPaper objects
         """
         self._wait_for_rate_limit()
-        
+
         # Build query URL
         params = {
             "search_query": f"all:{quote_plus(query)}",
@@ -129,20 +128,20 @@ class ArxivClient:
             "sortBy": sort_by,
             "sortOrder": sort_order,
         }
-        
+
         url = f"{ARXIV_BASE_URL}?{'&'.join(f'{k}={v}' for k, v in params.items())}"
-        
+
         try:
             response = requests.get(url, timeout=self._timeout)
             response.raise_for_status()
-            
+
             return self._parse_response(response.text)
-            
+
         except requests.RequestException as e:
             logger.error(f"arXiv API request failed: {e}")
             return []
-    
-    def get_paper(self, arxiv_id: str) -> Optional[ArxivPaper]:
+
+    def get_paper(self, arxiv_id: str) -> ArxivPaper | None:
         """Get a specific paper by arXiv ID.
         
         Args:
@@ -152,29 +151,29 @@ class ArxivClient:
             ArxivPaper or None if not found
         """
         self._wait_for_rate_limit()
-        
+
         # Clean the ID
         arxiv_id = arxiv_id.replace("arXiv:", "").strip()
-        
+
         url = f"{ARXIV_BASE_URL}?id_list={arxiv_id}"
-        
+
         try:
             response = requests.get(url, timeout=self._timeout)
             response.raise_for_status()
-            
+
             papers = self._parse_response(response.text)
             return papers[0] if papers else None
-            
+
         except requests.RequestException as e:
             logger.error(f"arXiv API request failed for {arxiv_id}: {e}")
             return None
-    
+
     def search_by_category(
         self,
         category: str,
-        query: Optional[str] = None,
+        query: str | None = None,
         max_results: int = 10,
-    ) -> List[ArxivPaper]:
+    ) -> list[ArxivPaper]:
         """Search within a specific arXiv category.
         
         Args:
@@ -189,92 +188,92 @@ class ArxivClient:
             full_query = f"cat:{category} AND all:{query}"
         else:
             full_query = f"cat:{category}"
-        
+
         return self.search(full_query, max_results=max_results)
-    
-    def _parse_response(self, xml_content: str) -> List[ArxivPaper]:
+
+    def _parse_response(self, xml_content: str) -> list[ArxivPaper]:
         """Parse arXiv API XML response."""
         papers = []
-        
+
         try:
             root = ET.fromstring(xml_content)
-            
+
             for entry in root.findall(f"{ATOM_NS}entry"):
                 paper = self._parse_entry(entry)
                 if paper:
                     papers.append(paper)
-                    
+
         except ET.ParseError as e:
             logger.error(f"Failed to parse arXiv response: {e}")
-        
+
         return papers
-    
-    def _parse_entry(self, entry: ET.Element) -> Optional[ArxivPaper]:
+
+    def _parse_entry(self, entry: ET.Element) -> ArxivPaper | None:
         """Parse a single entry element."""
         try:
             # Extract ID
             id_elem = entry.find(f"{ATOM_NS}id")
             if id_elem is None or id_elem.text is None:
                 return None
-            
+
             # Extract arXiv ID from URL
             full_id = id_elem.text
             arxiv_id = full_id.split("/abs/")[-1] if "/abs/" in full_id else full_id.split("/")[-1]
-            
+
             # Remove version suffix for clean ID
             base_id = arxiv_id.split("v")[0] if "v" in arxiv_id else arxiv_id
-            
+
             # Title
             title_elem = entry.find(f"{ATOM_NS}title")
             title = title_elem.text.strip().replace("\n", " ") if title_elem is not None and title_elem.text else ""
-            
+
             # Abstract
             summary_elem = entry.find(f"{ATOM_NS}summary")
             abstract = summary_elem.text.strip() if summary_elem is not None and summary_elem.text else ""
-            
+
             # Authors
             authors = []
             for author in entry.findall(f"{ATOM_NS}author"):
                 name_elem = author.find(f"{ATOM_NS}name")
                 if name_elem is not None and name_elem.text:
                     authors.append(name_elem.text)
-            
+
             # Dates
             published = None
             published_elem = entry.find(f"{ATOM_NS}published")
             if published_elem is not None and published_elem.text:
                 published = datetime.fromisoformat(published_elem.text.replace("Z", "+00:00"))
-            
+
             updated = None
             updated_elem = entry.find(f"{ATOM_NS}updated")
             if updated_elem is not None and updated_elem.text:
                 updated = datetime.fromisoformat(updated_elem.text.replace("Z", "+00:00"))
-            
+
             # Categories
             categories = []
             primary_category = None
-            
+
             for category in entry.findall(f"{ATOM_NS}category"):
                 term = category.get("term")
                 if term:
                     categories.append(term)
-            
+
             primary_cat = entry.find(f"{ARXIV_NS}primary_category")
             if primary_cat is not None:
                 primary_category = primary_cat.get("term")
-            
+
             # DOI
             doi = None
             doi_elem = entry.find(f"{ARXIV_NS}doi")
             if doi_elem is not None and doi_elem.text:
                 doi = doi_elem.text
-            
+
             # Journal reference
             journal_ref = None
             journal_elem = entry.find(f"{ARXIV_NS}journal_ref")
             if journal_elem is not None and journal_elem.text:
                 journal_ref = journal_elem.text
-            
+
             return ArxivPaper(
                 arxiv_id=arxiv_id,
                 title=title,
@@ -289,11 +288,11 @@ class ArxivClient:
                 pdf_url=f"{ARXIV_PDF_BASE}/{base_id}.pdf",
                 abs_url=f"{ARXIV_ABS_BASE}/{base_id}",
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to parse arXiv entry: {e}")
             return None
-    
+
     def download_pdf(self, arxiv_id: str, output_path: str) -> bool:
         """Download PDF for an arXiv paper.
         
@@ -305,23 +304,23 @@ class ArxivClient:
             True if download successful
         """
         self._wait_for_rate_limit()
-        
+
         # Clean the ID
         arxiv_id = arxiv_id.replace("arXiv:", "").strip()
         base_id = arxiv_id.split("v")[0] if "v" in arxiv_id else arxiv_id
-        
+
         pdf_url = f"{ARXIV_PDF_BASE}/{base_id}.pdf"
-        
+
         try:
             response = requests.get(pdf_url, timeout=60.0, allow_redirects=True)
             response.raise_for_status()
-            
+
             with open(output_path, "wb") as f:
                 f.write(response.content)
-            
+
             logger.info(f"Downloaded PDF: {arxiv_id} -> {output_path}")
             return True
-            
+
         except requests.RequestException as e:
             logger.error(f"Failed to download PDF for {arxiv_id}: {e}")
             return False

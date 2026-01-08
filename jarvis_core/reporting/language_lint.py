@@ -3,17 +3,18 @@
 Checks report text for forbidden language patterns and enforces
 hedging requirements based on uncertainty levels.
 """
-from pathlib import Path
-from typing import List, Dict, Any
-import yaml
 import logging
+from pathlib import Path
+from typing import Any
+
+import yaml
 
 logger = logging.getLogger(__name__)
 
 
 class LanguageLinter:
     """Lint report language for quality violations."""
-    
+
     def __init__(self, rules_path: Path = None):
         """Initialize linter with language rules.
         
@@ -22,11 +23,11 @@ class LanguageLinter:
         """
         if rules_path is None:
             rules_path = Path(__file__).parent.parent.parent / "docs" / "LANGUAGE_RULES.yaml"
-        
-        with open(rules_path, "r", encoding="utf-8") as f:
+
+        with open(rules_path, encoding="utf-8") as f:
             self.rules = yaml.safe_load(f)
-    
-    def lint_text(self, text: str) -> List[Dict[str, Any]]:
+
+    def lint_text(self, text: str) -> list[dict[str, Any]]:
         """Lint text for language violations.
         
         Args:
@@ -37,7 +38,7 @@ class LanguageLinter:
         """
         violations = []
         text_lower = text.lower()
-        
+
         # Check forbidden terms (English)
         forbidden = self.rules.get("forbidden", [])
         for term in forbidden:
@@ -48,7 +49,7 @@ class LanguageLinter:
                     "term": term,
                     "message": f"Forbidden causal term: '{term}'"
                 })
-        
+
         # Check forbidden terms (Japanese)
         forbidden_ja = self.rules.get("forbidden_ja", [])
         for term in forbidden_ja:
@@ -59,14 +60,14 @@ class LanguageLinter:
                     "term": term,
                     "message": f"禁止された断定表現: '{term}'"
                 })
-        
+
         return violations
-    
+
     def check_hedging_required(
         self,
         text: str,
         uncertainty_label: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Check if hedging is required and present.
         
         Args:
@@ -77,24 +78,24 @@ class LanguageLinter:
             List of violation dicts
         """
         violations = []
-        
+
         # If uncertainty is high, hedging is required
         if uncertainty_label in ["要注意", "推測"]:
             hedging_terms = self.rules.get("conditional_required", []) + \
                            self.rules.get("conditional_required_ja", [])
-            
+
             has_hedging = any(term in text.lower() for term in hedging_terms)
-            
+
             if not has_hedging:
                 violations.append({
                     "code": "HEDGING_REQUIRED",
                     "severity": "warning",
                     "message": f"Uncertainty={uncertainty_label} requires hedging language"
                 })
-        
+
         return violations
-    
-    def lint_report(self, report_path: Path) -> List[Dict[str, Any]]:
+
+    def lint_report(self, report_path: Path) -> list[dict[str, Any]]:
         """Lint an entire report file.
         
         Args:
@@ -103,13 +104,13 @@ class LanguageLinter:
         Returns:
             List of all violations
         """
-        with open(report_path, "r", encoding="utf-8") as f:
+        with open(report_path, encoding="utf-8") as f:
             report_text = f.read()
-        
+
         violations = self.lint_text(report_text)
-        
+
         logger.info(f"Report lint: {len(violations)} violations found")
-        
+
         return violations
 
 
@@ -124,9 +125,9 @@ def lint_report_fail_on_error(report_path: Path) -> bool:
     """
     linter = LanguageLinter()
     violations = linter.lint_report(report_path)
-    
+
     errors = [v for v in violations if v["severity"] == "error"]
-    
+
     if errors:
         print(f"LANGUAGE LINT FAILED: {len(errors)} errors")
         for error in errors:

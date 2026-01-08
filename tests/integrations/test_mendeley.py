@@ -1,7 +1,5 @@
 """Tests for Mendeley Integration."""
 
-import pytest
-from unittest.mock import MagicMock, patch
 from jarvis_core.integrations.mendeley import MendeleyClient, MendeleyConfig
 
 
@@ -13,7 +11,7 @@ def test_mendeley_config():
 def test_document_to_paper_conversion():
     config = MendeleyConfig(access_token="token")
     client = MendeleyClient(config)
-    
+
     mendeley_doc = {
         "id": "doc123",
         "title": "Test Document",
@@ -26,9 +24,9 @@ def test_document_to_paper_conversion():
         "year": 2023,
         "source": "Test Journal",
     }
-    
+
     paper = client.document_to_paper(mendeley_doc)
-    
+
     assert paper["id"] == "doc123"
     assert paper["title"] == "Test Document"
     assert len(paper["authors"]) == 2
@@ -39,7 +37,7 @@ def test_document_to_paper_conversion():
 def test_paper_to_document_conversion():
     config = MendeleyConfig(access_token="token")
     client = MendeleyClient(config)
-    
+
     paper = {
         "title": "My Paper",
         "authors": ["John Smith", "Jane Doe"],
@@ -48,9 +46,9 @@ def test_paper_to_document_conversion():
         "year": 2024,
         "journal": "Science Journal",
     }
-    
+
     doc = client.paper_to_document(paper)
-    
+
     assert doc["type"] == "journal"
     assert doc["title"] == "My Paper"
     assert len(doc["authors"]) == 2

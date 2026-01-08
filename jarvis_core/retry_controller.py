@@ -8,9 +8,10 @@ Phase Loop 3: 半自律（自動改善）
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ class RetryAction(Enum):
 
 
 # fail_reason → action マップ（コード固定・例外禁止）
-FAIL_ACTION_MAP: Dict[str, RetryAction] = {
+FAIL_ACTION_MAP: dict[str, RetryAction] = {
     "CITATION_MISSING": RetryAction.RE_SEARCH,
     "EVIDENCE_WEAK": RetryAction.RE_EXTRACT,
     "LOCATOR_MISSING": RetryAction.RE_EXTRACT,
@@ -45,7 +46,7 @@ class RetryAttempt:
     attempt_number: int
     fail_reason: str
     action_taken: RetryAction
-    changes_made: Dict[str, Any]
+    changes_made: dict[str, Any]
     result: str  # "improved", "unchanged", "degraded"
 
 
@@ -53,7 +54,7 @@ class RetryAttempt:
 class RetryResult:
     """Retry結果."""
     success: bool
-    attempts: List[RetryAttempt] = field(default_factory=list)
+    attempts: list[RetryAttempt] = field(default_factory=list)
     final_status: str = "failed"
     max_retries_reached: bool = False
 
@@ -66,14 +67,14 @@ class RetryController:
     - 回数上限あり
     - 変更点をログ化
     """
-    
+
     # 最大再試行回数（固定）
     MAX_RETRIES = 3
-    
+
     def __init__(
         self,
         max_retries: int = MAX_RETRIES,
-        action_handlers: Optional[Dict[RetryAction, Callable]] = None,
+        action_handlers: dict[RetryAction, Callable] | None = None,
     ):
         """初期化.
         
@@ -83,8 +84,8 @@ class RetryController:
         """
         self.max_retries = max_retries
         self.action_handlers = action_handlers or {}
-        self.attempts: List[RetryAttempt] = []
-    
+        self.attempts: list[RetryAttempt] = []
+
     def get_action_for_fail_reason(self, fail_reason: str) -> RetryAction:
         """fail_reasonに対応するアクションを取得.
         
@@ -95,8 +96,8 @@ class RetryController:
             対応するRetryAction
         """
         return FAIL_ACTION_MAP.get(fail_reason, RetryAction.NONE)
-    
-    def should_retry(self, fail_reasons: List[str]) -> bool:
+
+    def should_retry(self, fail_reasons: list[str]) -> bool:
         """再試行すべきかを判定.
         
         Args:
@@ -107,19 +108,19 @@ class RetryController:
         """
         if len(self.attempts) >= self.max_retries:
             return False
-        
+
         # 再試行可能なfail_reasonが1つでもあるか
         for reason in fail_reasons:
             action = self.get_action_for_fail_reason(reason)
             if action != RetryAction.NONE:
                 return True
-        
+
         return False
-    
+
     def execute_retry(
         self,
-        fail_reasons: List[str],
-        context: Dict[str, Any],
+        fail_reasons: list[str],
+        context: dict[str, Any],
     ) -> RetryAttempt:
         """再試行を実行.
         
@@ -131,17 +132,17 @@ class RetryController:
             RetryAttempt
         """
         attempt_number = len(self.attempts) + 1
-        
+
         # 最初のactionable fail_reasonを使用
         target_reason = None
         action = RetryAction.NONE
-        
+
         for reason in fail_reasons:
             action = self.get_action_for_fail_reason(reason)
             if action != RetryAction.NONE:
                 target_reason = reason
                 break
-        
+
         if action == RetryAction.NONE:
             logger.warning(f"No actionable retry for {fail_reasons}")
             return RetryAttempt(
@@ -151,11 +152,11 @@ class RetryController:
                 changes_made={},
                 result="unchanged",
             )
-        
+
         # ハンドラーを実行
         changes_made = {}
         result = "unchanged"
-        
+
         handler = self.action_handlers.get(action)
         if handler:
             try:
@@ -166,7 +167,7 @@ class RetryController:
                 result = "degraded"
         else:
             logger.warning(f"No handler for action {action}")
-        
+
         attempt = RetryAttempt(
             attempt_number=attempt_number,
             fail_reason=target_reason or "UNKNOWN",
@@ -174,17 +175,17 @@ class RetryController:
             changes_made=changes_made,
             result=result,
         )
-        
+
         self.attempts.append(attempt)
-        
+
         # ログ出力
         logger.info(
             f"Retry attempt {attempt_number}: "
             f"{target_reason} → {action.value} → {result}"
         )
-        
+
         return attempt
-    
+
     def get_result(self, final_success: bool) -> RetryResult:
         """最終結果を取得.
         
@@ -200,8 +201,8 @@ class RetryController:
             final_status="success" if final_success else "failed",
             max_retries_reached=len(self.attempts) >= self.max_retries,
         )
-    
-    def log_summary(self) -> Dict[str, Any]:
+
+    def log_summary(self) -> dict[str, Any]:
         """再試行のサマリーをログ用に生成."""
         return {
             "total_attempts": len(self.attempts),

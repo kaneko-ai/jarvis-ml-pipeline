@@ -6,11 +6,10 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Set
+from typing import Any
 
-from ..failure_signal import FailureSignal, FailureCode
+from ..failure_signal import FailureCode, FailureSignal
 from .catalog import get_action
-
 
 # Default repair rules (RP-199: can be overridden by JSON)
 DEFAULT_RULES = {
@@ -34,7 +33,7 @@ class RepairPlanner:
     - Supports JSON-driven rule configuration (RP-199)
     """
 
-    def __init__(self, rules_path: Optional[str] = None):
+    def __init__(self, rules_path: str | None = None):
         self._rules = dict(DEFAULT_RULES)
 
         # Load custom rules if provided (RP-199)
@@ -45,17 +44,17 @@ class RepairPlanner:
         """Load rules from JSON file."""
         path = Path(rules_path)
         if path.exists():
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 custom_rules = json.load(f)
                 for code, actions in custom_rules.items():
                     self._rules[code] = actions
 
     def plan(
         self,
-        signals: List[FailureSignal],
-        state: Dict[str, Any],
-        run_config: Dict[str, Any],
-    ) -> List[str]:
+        signals: list[FailureSignal],
+        state: dict[str, Any],
+        run_config: dict[str, Any],
+    ) -> list[str]:
         """Plan repair actions for given signals.
 
         Args:
@@ -70,9 +69,9 @@ class RepairPlanner:
             return []
 
         # Get action history to avoid repetition
-        history: List[str] = state.get("action_history", [])
+        history: list[str] = state.get("action_history", [])
         last_action = history[-1] if history else None
-        recent_actions: Set[str] = set(history[-3:]) if history else set()
+        recent_actions: set[str] = set(history[-3:]) if history else set()
 
         # Allowed actions from policy
         allowed = set(run_config.get("repair_policy", {}).get("allowed_actions", []))
@@ -111,16 +110,16 @@ class RepairPlanner:
 
         return planned
 
-    def get_rules(self) -> Dict[str, List[str]]:
+    def get_rules(self) -> dict[str, list[str]]:
         """Get current rules."""
         return dict(self._rules)
 
 
 # Global planner
-_planner: Optional[RepairPlanner] = None
+_planner: RepairPlanner | None = None
 
 
-def get_planner(rules_path: Optional[str] = None) -> RepairPlanner:
+def get_planner(rules_path: str | None = None) -> RepairPlanner:
     """Get global planner."""
     global _planner
     if _planner is None:
@@ -129,9 +128,9 @@ def get_planner(rules_path: Optional[str] = None) -> RepairPlanner:
 
 
 def plan_repair(
-    signals: List[FailureSignal],
-    state: Dict[str, Any],
-    run_config: Dict[str, Any],
-) -> List[str]:
+    signals: list[FailureSignal],
+    state: dict[str, Any],
+    run_config: dict[str, Any],
+) -> list[str]:
     """Plan repair using global planner."""
     return get_planner().plan(signals, state, run_config)

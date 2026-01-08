@@ -4,7 +4,7 @@ Per Issue Ω-7, this simulates research failure branches.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 def simulate_failure_tree(
     hypothesis: str,
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     max_depth: int = 3,
 ) -> dict:
     """Simulate failure branching tree for a hypothesis.
@@ -46,10 +46,10 @@ def simulate_failure_tree(
 
 def _generate_failure_branches(
     hypothesis: str,
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     depth: int,
     max_depth: int,
-) -> List[dict]:
+) -> list[dict]:
     """Generate failure branches recursively."""
     if depth >= max_depth:
         return []
@@ -102,7 +102,7 @@ def _generate_failure_branches(
     return branches
 
 
-def _count_branches(branches: List[dict]) -> int:
+def _count_branches(branches: list[dict]) -> int:
     """Count total branches in tree."""
     count = len(branches)
     for b in branches:
@@ -110,7 +110,7 @@ def _count_branches(branches: List[dict]) -> int:
     return count
 
 
-def _suggest_mitigations(branches: List[dict]) -> List[str]:
+def _suggest_mitigations(branches: list[dict]) -> list[str]:
     """Suggest mitigation strategies."""
     mitigations = []
 
@@ -127,7 +127,7 @@ def _suggest_mitigations(branches: List[dict]) -> List[str]:
     return list(set(mitigations))
 
 
-def get_critical_failure_path(tree: dict) -> List[str]:
+def get_critical_failure_path(tree: dict) -> list[str]:
     """Get the most likely failure path."""
     path = []
     branches = tree.get("branches", [])

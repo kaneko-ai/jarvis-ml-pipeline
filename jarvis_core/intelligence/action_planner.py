@@ -14,7 +14,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -43,8 +43,8 @@ class ActionItem:
     executor_reason: str    # なぜその人がやるか
     priority: int = 3       # 1-5
     estimated_effort: str = ""  # 見積もり時間
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """辞書に変換."""
         return {
             "action": self.action_type.value,
@@ -61,14 +61,14 @@ class ActionItem:
 class ActionPlan:
     """行動計画."""
     topic: str
-    read_items: List[ActionItem] = field(default_factory=list)
-    build_items: List[ActionItem] = field(default_factory=list)
-    ignore_items: List[ActionItem] = field(default_factory=list)
-    
+    read_items: list[ActionItem] = field(default_factory=list)
+    build_items: list[ActionItem] = field(default_factory=list)
+    ignore_items: list[ActionItem] = field(default_factory=list)
+
     def to_markdown(self) -> str:
         """Markdown形式で出力."""
         lines = [f"# Action Plan: {self.topic}\n"]
-        
+
         if self.read_items:
             lines.append("## READ (読む)\n")
             for item in self.read_items:
@@ -76,7 +76,7 @@ class ActionPlan:
                 lines.append(f"  - 理由: {item.reason}")
                 lines.append(f"  - 担当: {item.executor.value} ({item.executor_reason})")
                 lines.append("")
-        
+
         if self.build_items:
             lines.append("## BUILD (作る)\n")
             for item in self.build_items:
@@ -86,14 +86,14 @@ class ActionPlan:
                 if item.estimated_effort:
                     lines.append(f"  - 見積もり: {item.estimated_effort}")
                 lines.append("")
-        
+
         if self.ignore_items:
             lines.append("## IGNORE (捨てる)\n")
             for item in self.ignore_items:
                 lines.append(f"- **{item.target}**")
                 lines.append(f"  - 理由: {item.reason}")
                 lines.append("")
-        
+
         return "\n".join(lines)
 
 
@@ -106,12 +106,12 @@ class ActionPlanner:
     - 何を捨ててよいか
     を理由付きで提示。
     """
-    
+
     def plan(
         self,
         topic: str,
-        candidates: List[Dict[str, Any]],
-        context: Optional[str] = None
+        candidates: list[dict[str, Any]],
+        context: str | None = None
     ) -> ActionPlan:
         """
         行動計画を作成.
@@ -125,38 +125,38 @@ class ActionPlanner:
             ActionPlan
         """
         plan = ActionPlan(topic=topic)
-        
+
         for c in candidates:
             action, item = self._classify_candidate(c)
-            
+
             if action == ActionType.READ:
                 plan.read_items.append(item)
             elif action == ActionType.BUILD:
                 plan.build_items.append(item)
             else:
                 plan.ignore_items.append(item)
-        
+
         # 優先度でソート
         plan.read_items.sort(key=lambda x: x.priority, reverse=True)
         plan.build_items.sort(key=lambda x: x.priority, reverse=True)
-        
+
         logger.info(f"Created action plan for {topic}: "
                    f"READ={len(plan.read_items)}, "
                    f"BUILD={len(plan.build_items)}, "
                    f"IGNORE={len(plan.ignore_items)}")
-        
+
         return plan
-    
+
     def _classify_candidate(
         self,
-        candidate: Dict[str, Any]
+        candidate: dict[str, Any]
     ) -> tuple[ActionType, ActionItem]:
         """候補を分類."""
         title = candidate.get("title", "Unknown")
         c_type = candidate.get("type", "paper")
         relevance = candidate.get("relevance", 3)
         evidence = candidate.get("evidence", 3)
-        
+
         # 分類ルール
         if relevance < 2:
             action = ActionType.IGNORE
@@ -178,7 +178,7 @@ class ActionPlanner:
             reason = "情報収集のため"
             executor = Executor.BOTH
             executor_reason = "AIが要約、人間が判断"
-        
+
         item = ActionItem(
             action_type=action,
             target=title,
@@ -187,15 +187,15 @@ class ActionPlanner:
             executor_reason=executor_reason,
             priority=relevance,
         )
-        
+
         return action, item
-    
+
     def quick_plan(
         self,
         topic: str,
-        top_papers: List[str],
-        implementation_ideas: List[str],
-        low_priority: List[str]
+        top_papers: list[str],
+        implementation_ideas: list[str],
+        low_priority: list[str]
     ) -> ActionPlan:
         """
         簡易行動計画を作成.
@@ -210,7 +210,7 @@ class ActionPlanner:
             ActionPlan
         """
         plan = ActionPlan(topic=topic)
-        
+
         for paper in top_papers:
             plan.read_items.append(ActionItem(
                 action_type=ActionType.READ,
@@ -220,7 +220,7 @@ class ActionPlanner:
                 executor_reason="理解は人間が行う",
                 priority=5,
             ))
-        
+
         for idea in implementation_ideas:
             plan.build_items.append(ActionItem(
                 action_type=ActionType.BUILD,
@@ -230,7 +230,7 @@ class ActionPlanner:
                 executor_reason="コード生成はAI",
                 priority=4,
             ))
-        
+
         for item in low_priority:
             plan.ignore_items.append(ActionItem(
                 action_type=ActionType.IGNORE,
@@ -240,5 +240,5 @@ class ActionPlanner:
                 executor_reason="自動除外",
                 priority=1,
             ))
-        
+
         return plan

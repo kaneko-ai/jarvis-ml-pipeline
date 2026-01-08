@@ -70,6 +70,7 @@ class TestTelemetryLogger:
 
     def test_required_fields_present(self):
         import json
+
         from jarvis_core.telemetry import JsonlTelemetryLogger
 
         with tempfile.TemporaryDirectory() as tmpdir:

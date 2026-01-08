@@ -4,7 +4,7 @@ Per Research OS v3.0 specification.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 # Ψ-21: Burnout Risk Monitor
 def monitor_burnout_risk(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     hours_per_week: float = 50,
     months_at_pace: int = 12,
 ) -> dict:
@@ -53,8 +53,8 @@ def monitor_burnout_risk(
 
 # Ψ-22: Skill Gap Evolution Tracker
 def track_skill_gap(
-    vectors: List["PaperVector"],
-    target_skills: List[str],
+    vectors: list[PaperVector],
+    target_skills: list[str],
 ) -> dict:
     """Track skill gaps over time.
 
@@ -95,7 +95,7 @@ def track_skill_gap(
 
 # Ψ-23: Mentorship Matching Engine
 def suggest_mentor_profile(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     career_goal: str = "pi",
 ) -> dict:
     """Suggest ideal mentor profile.
@@ -138,7 +138,7 @@ def suggest_mentor_profile(
 
 # Ψ-24: International Mobility Planner
 def plan_international_mobility(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     target_region: str = "us",
 ) -> dict:
     """Plan international research mobility.
@@ -174,7 +174,7 @@ def plan_international_mobility(
 
 # Ψ-25: Reputation Trajectory Simulator
 def simulate_reputation_trajectory(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     years_ahead: int = 5,
 ) -> dict:
     """Simulate reputation trajectory.

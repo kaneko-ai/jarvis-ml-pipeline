@@ -7,13 +7,13 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any
 from enum import Enum
+from typing import Any
 
 
 class Severity(Enum):
     """PagerDuty alert severity."""
-    
+
     CRITICAL = "critical"
     ERROR = "error"
     WARNING = "warning"
@@ -22,7 +22,7 @@ class Severity(Enum):
 
 class EventAction(Enum):
     """PagerDuty event action."""
-    
+
     TRIGGER = "trigger"
     ACKNOWLEDGE = "acknowledge"
     RESOLVE = "resolve"
@@ -31,14 +31,14 @@ class EventAction(Enum):
 @dataclass
 class PagerDutyEvent:
     """A PagerDuty event."""
-    
+
     summary: str
     severity: Severity
     source: str
-    dedup_key: Optional[str] = None
-    custom_details: Dict[str, Any] = field(default_factory=dict)
-    links: List[Dict[str, str]] = field(default_factory=list)
-    images: List[Dict[str, str]] = field(default_factory=list)
+    dedup_key: str | None = None
+    custom_details: dict[str, Any] = field(default_factory=dict)
+    links: list[dict[str, str]] = field(default_factory=list)
+    images: list[dict[str, str]] = field(default_factory=list)
 
 
 class PagerDutyClient:
@@ -50,31 +50,31 @@ class PagerDutyClient:
     - Link to runbooks
     - Custom severity mapping
     """
-    
+
     EVENTS_URL = "https://events.pagerduty.com/v2/enqueue"
-    
+
     def __init__(
         self,
-        routing_key: Optional[str] = None,
+        routing_key: str | None = None,
         service_name: str = "jarvis",
     ):
         self.routing_key = routing_key or os.getenv("PAGERDUTY_ROUTING_KEY", "")
         self.service_name = service_name
         self._enabled = bool(self.routing_key)
-    
+
     def is_enabled(self) -> bool:
         """Check if PagerDuty is configured."""
         return self._enabled
-    
+
     def trigger(
         self,
         summary: str,
         severity: Severity = Severity.ERROR,
-        source: Optional[str] = None,
-        dedup_key: Optional[str] = None,
-        custom_details: Optional[Dict[str, Any]] = None,
-        runbook_url: Optional[str] = None,
-    ) -> Optional[Dict[str, Any]]:
+        source: str | None = None,
+        dedup_key: str | None = None,
+        custom_details: dict[str, Any] | None = None,
+        runbook_url: str | None = None,
+    ) -> dict[str, Any] | None:
         """Trigger a PagerDuty alert.
         
         Args:
@@ -90,14 +90,14 @@ class PagerDutyClient:
         """
         if not self._enabled:
             return None
-        
+
         links = []
         if runbook_url:
             links.append({
                 "href": runbook_url,
                 "text": "Runbook",
             })
-        
+
         payload = self._build_payload(
             action=EventAction.TRIGGER,
             summary=summary,
@@ -107,13 +107,13 @@ class PagerDutyClient:
             custom_details=custom_details or {},
             links=links,
         )
-        
+
         return self._send(payload)
-    
+
     def acknowledge(
         self,
         dedup_key: str,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Acknowledge an incident.
         
         Args:
@@ -124,19 +124,19 @@ class PagerDutyClient:
         """
         if not self._enabled:
             return None
-        
+
         payload = {
             "routing_key": self.routing_key,
             "dedup_key": dedup_key,
             "event_action": EventAction.ACKNOWLEDGE.value,
         }
-        
+
         return self._send(payload)
-    
+
     def resolve(
         self,
         dedup_key: str,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Resolve an incident.
         
         Args:
@@ -147,23 +147,23 @@ class PagerDutyClient:
         """
         if not self._enabled:
             return None
-        
+
         payload = {
             "routing_key": self.routing_key,
             "dedup_key": dedup_key,
             "event_action": EventAction.RESOLVE.value,
         }
-        
+
         return self._send(payload)
-    
+
     def trigger_alert(
         self,
         alert_name: str,
         description: str,
         severity: str = "error",
-        labels: Optional[Dict[str, str]] = None,
-        annotations: Optional[Dict[str, str]] = None,
-    ) -> Optional[Dict[str, Any]]:
+        labels: dict[str, str] | None = None,
+        annotations: dict[str, str] | None = None,
+    ) -> dict[str, Any] | None:
         """Trigger alert with Prometheus-style labels.
         
         Args:
@@ -177,21 +177,21 @@ class PagerDutyClient:
             API response.
         """
         sev = self._parse_severity(severity)
-        
+
         custom_details = {
             "alert_name": alert_name,
             "labels": labels or {},
             "annotations": annotations or {},
         }
-        
+
         dedup_key = f"{self.service_name}-{alert_name}"
         if labels:
             dedup_key += f"-{'-'.join(f'{k}={v}' for k, v in sorted(labels.items()))}"
-        
+
         runbook_url = None
         if annotations and "runbook_url" in annotations:
             runbook_url = annotations["runbook_url"]
-        
+
         return self.trigger(
             summary=f"[{alert_name}] {description}",
             severity=sev,
@@ -199,17 +199,17 @@ class PagerDutyClient:
             custom_details=custom_details,
             runbook_url=runbook_url,
         )
-    
+
     def _build_payload(
         self,
         action: EventAction,
         summary: str,
         severity: Severity,
         source: str,
-        dedup_key: Optional[str],
-        custom_details: Dict[str, Any],
-        links: List[Dict[str, str]],
-    ) -> Dict[str, Any]:
+        dedup_key: str | None,
+        custom_details: dict[str, Any],
+        links: list[dict[str, str]],
+    ) -> dict[str, Any]:
         """Build PagerDuty event payload."""
         payload = {
             "routing_key": self.routing_key,
@@ -223,12 +223,12 @@ class PagerDutyClient:
                 "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime()),
             },
         }
-        
+
         if links:
             payload["links"] = links
-        
+
         return payload
-    
+
     def _parse_severity(self, severity: str) -> Severity:
         """Parse severity string to enum."""
         mapping = {
@@ -238,8 +238,8 @@ class PagerDutyClient:
             "info": Severity.INFO,
         }
         return mapping.get(severity.lower(), Severity.ERROR)
-    
-    def _send(self, payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+
+    def _send(self, payload: dict[str, Any]) -> dict[str, Any] | None:
         """Send event to PagerDuty.
         
         Args:
@@ -258,7 +258,7 @@ class PagerDutyClient:
 
 
 # Global client
-_pagerduty_client: Optional[PagerDutyClient] = None
+_pagerduty_client: PagerDutyClient | None = None
 
 
 def get_pagerduty_client() -> PagerDutyClient:
@@ -273,6 +273,6 @@ def page(
     summary: str,
     severity: Severity = Severity.ERROR,
     **kwargs,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """Quick paging helper."""
     return get_pagerduty_client().trigger(summary, severity, **kwargs)

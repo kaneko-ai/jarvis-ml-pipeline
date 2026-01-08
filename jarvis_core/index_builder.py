@@ -7,18 +7,17 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, List
 
 from .storage import IndexRegistry
 from .telemetry import init_logger
 
 
 def build_index(
-    query: Optional[str] = None,
+    query: str | None = None,
     source: str = "pubmed",
     output_dir: str = "data/index",
     max_papers: int = 50,
-    local_pdf_dir: Optional[str] = None,
+    local_pdf_dir: str | None = None,
 ) -> dict:
     """Build search index from papers.
 

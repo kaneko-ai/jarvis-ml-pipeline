@@ -5,31 +5,29 @@ Tests all PaperVector-based analysis engines.
 import sys
 from pathlib import Path
 
-import pytest
-
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from jarvis_core.comparison import compare_papers
+from jarvis_core.education import translate_for_level
+from jarvis_core.hypothesis import generate_hypotheses
+from jarvis_core.journal_targeting import suggest_journals
+from jarvis_core.memory_utils import find_related, get_memory_stats, search_memory
 from jarvis_core.paper_vector import (
-    PaperVector,
-    MetadataVector,
-    ConceptVector,
-    MethodVector,
     BiologicalAxisVector,
-    TemporalVector,
+    ConceptVector,
     ImpactVector,
+    MetadataVector,
+    MethodVector,
+    PaperVector,
+    TemporalVector,
 )
 from jarvis_core.recommendation import recommend_papers
-from jarvis_core.comparison import compare_papers
-from jarvis_core.visualization.positioning import project_to_3d, get_position_description
-from jarvis_core.hypothesis import generate_hypotheses
-from jarvis_core.timeline import build_timeline, summarize_evolution
-from jarvis_core.journal_targeting import suggest_journals
 from jarvis_core.rehearsal import generate_rehearsal
-from jarvis_core.education import translate_for_level
-from jarvis_core.memory_utils import search_memory, find_related, get_memory_stats
+from jarvis_core.timeline import build_timeline, summarize_evolution
+from jarvis_core.visualization.positioning import get_position_description, project_to_3d
 
 
 def _create_test_vectors():

@@ -4,7 +4,7 @@ Per Ψ-5, this evaluates clinical translation readiness.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -22,7 +22,7 @@ TRANSLATION_LEVELS = {
 
 
 def assess_clinical_readiness(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
 ) -> dict:
     """Assess clinical translation readiness.
 

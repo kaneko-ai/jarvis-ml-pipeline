@@ -4,12 +4,11 @@ Implements API key validation and management.
 """
 from __future__ import annotations
 
-import os
 import hashlib
 import hmac
+import os
 import time
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set
 from functools import wraps
 
 
@@ -20,8 +19,8 @@ class APIKey:
     key_hash: str
     name: str
     created_at: float
-    expires_at: Optional[float] = None
-    scopes: Set[str] = field(default_factory=set)
+    expires_at: float | None = None
+    scopes: set[str] = field(default_factory=set)
     rate_limit: int = 1000  # requests per hour
     enabled: bool = True
 
@@ -30,9 +29,9 @@ class APIKey:
 class AuthResult:
     """Authentication result."""
     success: bool
-    key_id: Optional[str] = None
-    error: Optional[str] = None
-    scopes: Set[str] = field(default_factory=set)
+    key_id: str | None = None
+    error: str | None = None
+    scopes: set[str] = field(default_factory=set)
 
 
 class APIKeyManager:
@@ -44,17 +43,17 @@ class APIKeyManager:
     - Scope-based access control
     - Rate limiting
     """
-    
-    def __init__(self, secret: Optional[str] = None):
+
+    def __init__(self, secret: str | None = None):
         self.secret = secret or os.getenv("API_SECRET", "jarvis-default-secret")
-        self._keys: Dict[str, APIKey] = {}
-        self._usage: Dict[str, List[float]] = {}  # key_id -> timestamps
-    
+        self._keys: dict[str, APIKey] = {}
+        self._usage: dict[str, list[float]] = {}  # key_id -> timestamps
+
     def generate_key(
         self,
         name: str,
-        scopes: Optional[Set[str]] = None,
-        expires_days: Optional[int] = None,
+        scopes: set[str] | None = None,
+        expires_days: int | None = None,
         rate_limit: int = 1000,
     ) -> str:
         """Generate a new API key.
@@ -69,17 +68,17 @@ class APIKeyManager:
             The generated API key.
         """
         import secrets
-        
+
         # Generate key
         raw_key = secrets.token_urlsafe(32)
         key_id = secrets.token_hex(8)
         key_hash = self._hash_key(raw_key)
-        
+
         # Calculate expiration
         expires_at = None
         if expires_days:
             expires_at = time.time() + (expires_days * 86400)
-        
+
         # Store key metadata
         self._keys[key_id] = APIKey(
             key_id=key_id,
@@ -91,14 +90,14 @@ class APIKeyManager:
             rate_limit=rate_limit,
             enabled=True,
         )
-        
+
         # Return full key (only time it's visible)
         return f"{key_id}.{raw_key}"
-    
+
     def validate(
         self,
         api_key: str,
-        required_scope: Optional[str] = None,
+        required_scope: str | None = None,
     ) -> AuthResult:
         """Validate an API key.
         
@@ -111,31 +110,31 @@ class APIKeyManager:
         """
         if not api_key:
             return AuthResult(success=False, error="No API key provided")
-        
+
         # Parse key
         parts = api_key.split(".", 1)
         if len(parts) != 2:
             return AuthResult(success=False, error="Invalid key format")
-        
+
         key_id, raw_key = parts
-        
+
         # Find key
         key_meta = self._keys.get(key_id)
         if not key_meta:
             return AuthResult(success=False, error="Key not found")
-        
+
         # Check if enabled
         if not key_meta.enabled:
             return AuthResult(success=False, error="Key is disabled")
-        
+
         # Check expiration
         if key_meta.expires_at and time.time() > key_meta.expires_at:
             return AuthResult(success=False, error="Key has expired")
-        
+
         # Verify hash
         if not self._verify_key(raw_key, key_meta.key_hash):
             return AuthResult(success=False, error="Invalid key")
-        
+
         # Check scope
         if required_scope and required_scope not in key_meta.scopes:
             return AuthResult(
@@ -143,7 +142,7 @@ class APIKeyManager:
                 error=f"Missing required scope: {required_scope}",
                 key_id=key_id,
             )
-        
+
         # Check rate limit
         if not self._check_rate_limit(key_id, key_meta.rate_limit):
             return AuthResult(
@@ -151,16 +150,16 @@ class APIKeyManager:
                 error="Rate limit exceeded",
                 key_id=key_id,
             )
-        
+
         # Record usage
         self._record_usage(key_id)
-        
+
         return AuthResult(
             success=True,
             key_id=key_id,
             scopes=key_meta.scopes,
         )
-    
+
     def revoke(self, key_id: str) -> bool:
         """Revoke an API key.
         
@@ -174,8 +173,8 @@ class APIKeyManager:
             self._keys[key_id].enabled = False
             return True
         return False
-    
-    def list_keys(self) -> List[Dict]:
+
+    def list_keys(self) -> list[dict]:
         """List all API keys (metadata only)."""
         return [
             {
@@ -188,35 +187,35 @@ class APIKeyManager:
             }
             for k in self._keys.values()
         ]
-    
+
     def _hash_key(self, raw_key: str) -> str:
         """Hash an API key."""
         return hashlib.sha256(
             f"{self.secret}:{raw_key}".encode()
         ).hexdigest()
-    
+
     def _verify_key(self, raw_key: str, stored_hash: str) -> bool:
         """Verify a key against stored hash."""
         computed = self._hash_key(raw_key)
         return hmac.compare_digest(computed, stored_hash)
-    
+
     def _check_rate_limit(self, key_id: str, limit: int) -> bool:
         """Check if key is within rate limit."""
         now = time.time()
         hour_ago = now - 3600
-        
+
         usage = self._usage.get(key_id, [])
         recent = [t for t in usage if t > hour_ago]
-        
+
         return len(recent) < limit
-    
+
     def _record_usage(self, key_id: str) -> None:
         """Record API key usage."""
         if key_id not in self._usage:
             self._usage[key_id] = []
-        
+
         self._usage[key_id].append(time.time())
-        
+
         # Cleanup old entries
         hour_ago = time.time() - 3600
         self._usage[key_id] = [
@@ -225,7 +224,7 @@ class APIKeyManager:
 
 
 # Global manager
-_api_key_manager: Optional[APIKeyManager] = None
+_api_key_manager: APIKeyManager | None = None
 
 
 def get_api_key_manager() -> APIKeyManager:
@@ -236,17 +235,17 @@ def get_api_key_manager() -> APIKeyManager:
     return _api_key_manager
 
 
-def require_api_key(scope: Optional[str] = None):
+def require_api_key(scope: str | None = None):
     """Decorator to require API key authentication."""
     def decorator(func):
         @wraps(func)
         def wrapper(*args, api_key: str = "", **kwargs):
             manager = get_api_key_manager()
             result = manager.validate(api_key, scope)
-            
+
             if not result.success:
                 raise PermissionError(result.error)
-            
+
             return func(*args, **kwargs)
         return wrapper
     return decorator

@@ -11,14 +11,14 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..result import EvidenceQAResult
 
 
 def save_run(
-    result: "EvidenceQAResult",
+    result: EvidenceQAResult,
     out_dir: str,
 ) -> str:
     """Save a run for later comparison.
@@ -68,7 +68,7 @@ def save_run(
 def load_run(run_dir: str) -> dict:
     """Load a saved run."""
     run_path = Path(run_dir) / "run.json"
-    with open(run_path, "r", encoding="utf-8") as f:
+    with open(run_path, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -143,7 +143,7 @@ def diff_runs(run_a_dir: str, run_b_dir: str) -> str:
         if claims_a[cid]["text"] != claims_b[cid]["text"]:
             modified += 1
 
-    lines.append(f"### Summary")
+    lines.append("### Summary")
     lines.append(f"- Added: {len(added)}")
     lines.append(f"- Removed: {len(removed)}")
     lines.append(f"- Modified: {modified}")

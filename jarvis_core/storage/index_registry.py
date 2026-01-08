@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 
 class IndexRegistry:
@@ -23,14 +22,14 @@ class IndexRegistry:
         self.manifest_path = self.base_dir / "index_manifest.json"
         self.base_dir.mkdir(parents=True, exist_ok=True)
 
-    def get_manifest(self) -> Optional[dict]:
+    def get_manifest(self) -> dict | None:
         """Get current manifest."""
         if self.manifest_path.exists():
-            with open(self.manifest_path, "r", encoding="utf-8") as f:
+            with open(self.manifest_path, encoding="utf-8") as f:
                 return json.load(f)
         return None
 
-    def get_current_version(self) -> Optional[str]:
+    def get_current_version(self) -> str | None:
         """Get current index version."""
         manifest = self.get_manifest()
         return manifest.get("current_version") if manifest else None
@@ -40,7 +39,7 @@ class IndexRegistry:
         version: str,
         source: str,
         doc_count: int,
-        build_args: Optional[dict] = None,
+        build_args: dict | None = None,
     ) -> dict:
         """Register a new index version.
 
@@ -72,7 +71,7 @@ class IndexRegistry:
 
         return manifest
 
-    def get_version_info(self, version: str) -> Optional[dict]:
+    def get_version_info(self, version: str) -> dict | None:
         """Get info for a specific version."""
         manifest = self.get_manifest()
         if manifest:

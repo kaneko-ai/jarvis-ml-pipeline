@@ -9,13 +9,12 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
 
 from jarvis_core.evidence.schema import (
     EvidenceGrade,
     EvidenceLevel,
-    StudyType,
     PICOExtraction,
+    StudyType,
 )
 
 logger = logging.getLogger(__name__)
@@ -74,7 +73,7 @@ JSONのみを出力してください。"""
 @dataclass
 class LLMConfig:
     """Configuration for LLM classifier."""
-    
+
     model: str = "llama3.2"
     temperature: float = 0.1
     max_tokens: int = 500
@@ -95,8 +94,8 @@ class LLMBasedClassifier:
         >>> print(grade.level)
         EvidenceLevel.LEVEL_1B
     """
-    
-    def __init__(self, config: Optional[LLMConfig] = None):
+
+    def __init__(self, config: LLMConfig | None = None):
         """Initialize the classifier.
         
         Args:
@@ -105,20 +104,20 @@ class LLMBasedClassifier:
         self._config = config or LLMConfig()
         self._llm = None
         self._initialized = False
-    
+
     def _initialize(self) -> bool:
         """Initialize LLM connection."""
         if self._initialized:
             return self._llm is not None
-        
+
         try:
             from jarvis_core.llm.ollama_adapter import OllamaBackend
-            
+
             self._llm = OllamaBackend(model=self._config.model)
             self._initialized = True
             logger.info(f"LLM classifier initialized with model: {self._config.model}")
             return True
-            
+
         except ImportError:
             logger.warning("Ollama backend not available for LLM classification")
             self._initialized = True
@@ -127,7 +126,7 @@ class LLMBasedClassifier:
             logger.error(f"Failed to initialize LLM: {e}")
             self._initialized = True
             return False
-    
+
     def classify(
         self,
         title: str = "",
@@ -152,16 +151,16 @@ class LLMBasedClassifier:
                 confidence=0.0,
                 classifier_source="llm_unavailable",
             )
-        
+
         if not title and not abstract:
             return EvidenceGrade.unknown()
-        
+
         # Build prompt
         prompt = CLASSIFICATION_PROMPT.format(
             title=title or "（タイトルなし）",
             abstract=abstract or "（抄録なし）",
         )
-        
+
         try:
             # Call LLM
             response = self._llm.generate(
@@ -169,10 +168,10 @@ class LLMBasedClassifier:
                 temperature=self._config.temperature,
                 max_tokens=self._config.max_tokens,
             )
-            
+
             # Parse response
             return self._parse_response(response)
-            
+
         except Exception as e:
             logger.error(f"LLM classification failed: {e}")
             return EvidenceGrade(
@@ -181,7 +180,7 @@ class LLMBasedClassifier:
                 confidence=0.0,
                 classifier_source="llm_error",
             )
-    
+
     def _parse_response(self, response: str) -> EvidenceGrade:
         """Parse LLM response into EvidenceGrade."""
         try:
@@ -190,21 +189,21 @@ class LLMBasedClassifier:
             if not json_match:
                 logger.warning("No JSON found in LLM response")
                 return EvidenceGrade.unknown()
-            
+
             data = json.loads(json_match)
-            
+
             # Parse evidence level
             level_str = str(data.get("evidence_level", "unknown")).lower()
             level = self._parse_evidence_level(level_str)
-            
+
             # Parse study type
             study_type_str = str(data.get("study_type", "unknown")).lower()
             study_type = self._parse_study_type(study_type_str)
-            
+
             # Parse confidence
             confidence = float(data.get("confidence", 0)) / 100.0
             confidence = max(0.0, min(1.0, confidence))
-            
+
             return EvidenceGrade(
                 level=level,
                 study_type=study_type,
@@ -212,31 +211,31 @@ class LLMBasedClassifier:
                 classifier_source="llm",
                 quality_notes=[data.get("reasoning", "")] if data.get("reasoning") else [],
             )
-            
+
         except json.JSONDecodeError as e:
             logger.warning(f"Failed to parse LLM response as JSON: {e}")
             return EvidenceGrade.unknown()
         except Exception as e:
             logger.error(f"Error parsing LLM response: {e}")
             return EvidenceGrade.unknown()
-    
-    def _extract_json(self, text: str) -> Optional[str]:
+
+    def _extract_json(self, text: str) -> str | None:
         """Extract JSON object from text."""
         import re
-        
+
         # Try to find JSON object
         patterns = [
             re.compile(r'\{[^{}]*\}', re.DOTALL),
             re.compile(r'```json\s*(\{[^{}]*\})\s*```', re.DOTALL),
         ]
-        
+
         for pattern in patterns:
             match = pattern.search(text)
             if match:
                 return match.group(1) if match.lastindex else match.group(0)
-        
+
         return None
-    
+
     def _parse_evidence_level(self, level_str: str) -> EvidenceLevel:
         """Parse evidence level string."""
         level_map = {
@@ -252,11 +251,11 @@ class LLMBasedClassifier:
             "5": EvidenceLevel.LEVEL_5,
         }
         return level_map.get(level_str.strip(), EvidenceLevel.UNKNOWN)
-    
+
     def _parse_study_type(self, type_str: str) -> StudyType:
         """Parse study type string."""
         type_str = type_str.lower()
-        
+
         # Map common names to StudyType
         if "systematic" in type_str and "review" in type_str:
             return StudyType.SYSTEMATIC_REVIEW
@@ -280,9 +279,9 @@ class LLMBasedClassifier:
             return StudyType.GUIDELINE
         if "review" in type_str:
             return StudyType.NARRATIVE_REVIEW
-        
+
         return StudyType.UNKNOWN
-    
+
     def extract_pico(self, abstract: str) -> PICOExtraction:
         """Extract PICO components using LLM.
         
@@ -294,29 +293,29 @@ class LLMBasedClassifier:
         """
         if not self._initialize() or not abstract:
             return PICOExtraction()
-        
+
         prompt = PICO_EXTRACTION_PROMPT.format(abstract=abstract)
-        
+
         try:
             response = self._llm.generate(
                 prompt,
                 temperature=0.1,
                 max_tokens=400,
             )
-            
+
             json_match = self._extract_json(response)
             if not json_match:
                 return PICOExtraction()
-            
+
             data = json.loads(json_match)
-            
+
             return PICOExtraction(
                 population=data.get("population"),
                 intervention=data.get("intervention"),
                 comparator=data.get("comparator"),
                 outcome=data.get("outcome"),
             )
-            
+
         except Exception as e:
             logger.error(f"PICO extraction failed: {e}")
             return PICOExtraction()

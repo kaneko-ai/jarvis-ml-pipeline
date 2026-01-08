@@ -4,13 +4,11 @@ Per PR-67, ensures deterministic random behavior.
 """
 from __future__ import annotations
 
-import random
 import hashlib
+import random
 import warnings
-from typing import Optional
 
-
-_enforced_seed: Optional[int] = None
+_enforced_seed: int | None = None
 
 
 def enforce_seed(seed: int) -> None:
@@ -29,7 +27,7 @@ def enforce_seed(seed: int) -> None:
         pass
 
 
-def get_enforced_seed() -> Optional[int]:
+def get_enforced_seed() -> int | None:
     """Get the currently enforced seed."""
     return _enforced_seed
 

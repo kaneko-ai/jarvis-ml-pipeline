@@ -8,7 +8,7 @@ Per RP16, this enables "research → presentation" in one pipeline.
 from __future__ import annotations
 
 import json
-from typing import List, Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from .claim import ClaimSet
@@ -31,8 +31,8 @@ def _get_source_display(locator: str) -> str:
 
 
 def export_claims_markdown(
-    claims: "ClaimSet",
-    references: List["Reference"] | None = None,
+    claims: ClaimSet,
+    references: list[Reference] | None = None,
 ) -> str:
     """Export ClaimSet to Markdown format.
 
@@ -79,8 +79,8 @@ def export_claims_markdown(
 
 
 def export_claims_json(
-    claims: "ClaimSet",
-    references: List["Reference"] | None = None,
+    claims: ClaimSet,
+    references: list[Reference] | None = None,
 ) -> str:
     """Export ClaimSet to JSON format.
 
@@ -121,8 +121,8 @@ def export_claims_json(
 
 
 def export_claims_pptx_outline(
-    claims: "ClaimSet",
-    references: List["Reference"] | None = None,
+    claims: ClaimSet,
+    references: list[Reference] | None = None,
     title: str = "Research Findings",
 ) -> str:
     """Export ClaimSet as PPTX outline (text format).
@@ -139,7 +139,7 @@ def export_claims_pptx_outline(
         Text-based slide outline.
     """
     # Build reference mapping
-    chunk_to_ref: dict[str, "Reference"] = {}
+    chunk_to_ref: dict[str, Reference] = {}
     if references:
         for ref in references:
             for cid in ref.chunk_ids:
@@ -205,9 +205,9 @@ def export_claims_pptx_outline(
 
 
 def export_claims(
-    claims: "ClaimSet",
+    claims: ClaimSet,
     format: Literal["markdown", "json", "pptx_outline"] = "markdown",
-    references: List["Reference"] | None = None,
+    references: list[Reference] | None = None,
     title: str = "Research Findings",
 ) -> str:
     """Export ClaimSet to the specified format.

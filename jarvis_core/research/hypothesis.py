@@ -5,31 +5,31 @@ Per RP-440, assists with research hypothesis generation.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Dict, Any, Optional
+from typing import Any
 
 
 @dataclass
 class ResearchGap:
     """An identified research gap."""
-    
+
     gap_id: str
     description: str
     category: str
-    supporting_evidence: List[str]
+    supporting_evidence: list[str]
     confidence: float
 
 
 @dataclass
 class Hypothesis:
     """A generated hypothesis."""
-    
+
     hypothesis_id: str
     statement: str
     rationale: str
     testability_score: float
     novelty_score: float
-    related_gaps: List[str]
-    suggested_methods: List[str]
+    related_gaps: list[str]
+    suggested_methods: list[str]
 
 
 class HypothesisGenerator:
@@ -40,7 +40,7 @@ class HypothesisGenerator:
     - Hypothesis candidate generation
     - Verification method suggestions
     """
-    
+
     def __init__(
         self,
         llm_generator=None,
@@ -48,12 +48,12 @@ class HypothesisGenerator:
     ):
         self.llm = llm_generator
         self.kb = knowledge_base
-    
+
     def find_gaps(
         self,
         topic: str,
-        papers: List[Dict[str, Any]],
-    ) -> List[ResearchGap]:
+        papers: list[dict[str, Any]],
+    ) -> list[ResearchGap]:
         """Find research gaps in literature.
         
         Args:
@@ -64,11 +64,11 @@ class HypothesisGenerator:
             List of identified gaps.
         """
         gaps = []
-        
+
         # Analyze paper coverage
         covered_aspects = self._extract_covered_aspects(papers)
         expected_aspects = self._get_expected_aspects(topic)
-        
+
         # Find uncovered aspects
         for i, aspect in enumerate(expected_aspects):
             if aspect.lower() not in [a.lower() for a in covered_aspects]:
@@ -79,7 +79,7 @@ class HypothesisGenerator:
                     supporting_evidence=[],
                     confidence=0.7,
                 ))
-        
+
         # Find contradictions
         contradictions = self._find_contradictions(papers)
         for i, contradiction in enumerate(contradictions):
@@ -90,27 +90,27 @@ class HypothesisGenerator:
                 supporting_evidence=[],
                 confidence=0.8,
             ))
-        
+
         return gaps
-    
+
     def _extract_covered_aspects(
         self,
-        papers: List[Dict[str, Any]],
-    ) -> List[str]:
+        papers: list[dict[str, Any]],
+    ) -> list[str]:
         """Extract aspects covered in papers."""
         aspects = []
-        
+
         for paper in papers:
             title = paper.get("title", "")
             abstract = paper.get("abstract", "")
-            
+
             # Simple keyword extraction
             keywords = paper.get("keywords", [])
             aspects.extend(keywords)
-        
+
         return list(set(aspects))
-    
-    def _get_expected_aspects(self, topic: str) -> List[str]:
+
+    def _get_expected_aspects(self, topic: str) -> list[str]:
         """Get expected aspects for a topic."""
         # General research aspects
         general = [
@@ -123,22 +123,22 @@ class HypothesisGenerator:
             "patient stratification",
             "combination therapy",
         ]
-        
+
         return general
-    
+
     def _find_contradictions(
         self,
-        papers: List[Dict[str, Any]],
-    ) -> List[str]:
+        papers: list[dict[str, Any]],
+    ) -> list[str]:
         """Find contradictions between papers."""
         # Placeholder - would use NLI model
         return []
-    
+
     def generate_hypotheses(
         self,
-        gaps: List[ResearchGap],
-        context: Optional[Dict[str, Any]] = None,
-    ) -> List[Hypothesis]:
+        gaps: list[ResearchGap],
+        context: dict[str, Any] | None = None,
+    ) -> list[Hypothesis]:
         """Generate hypotheses from gaps.
         
         Args:
@@ -149,19 +149,19 @@ class HypothesisGenerator:
             Generated hypotheses.
         """
         hypotheses = []
-        
+
         for i, gap in enumerate(gaps):
             hypothesis = self._generate_from_gap(gap, i)
             hypotheses.append(hypothesis)
-        
+
         # Rank by novelty and testability
         hypotheses.sort(
             key=lambda h: h.novelty_score * h.testability_score,
             reverse=True,
         )
-        
+
         return hypotheses
-    
+
     def _generate_from_gap(
         self,
         gap: ResearchGap,
@@ -177,7 +177,7 @@ class HypothesisGenerator:
         else:
             statement = f"Exploring {gap.description}"
             methods = ["exploratory study"]
-        
+
         return Hypothesis(
             hypothesis_id=f"hyp_{index}",
             statement=statement,
@@ -187,12 +187,12 @@ class HypothesisGenerator:
             related_gaps=[gap.gap_id],
             suggested_methods=methods,
         )
-    
+
     def evaluate_hypothesis(
         self,
         hypothesis: Hypothesis,
-        existing_literature: List[Dict[str, Any]],
-    ) -> Dict[str, float]:
+        existing_literature: list[dict[str, Any]],
+    ) -> dict[str, float]:
         """Evaluate a hypothesis.
         
         Args:

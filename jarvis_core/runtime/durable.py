@@ -5,11 +5,10 @@ Per RP-154, provides checkpoint/resume for long-running tasks.
 from __future__ import annotations
 
 import json
-import time
-from dataclasses import dataclass, asdict
-from typing import Optional, Dict, Any, List
-from pathlib import Path
+from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
+from typing import Any
 
 
 class CheckpointStage(Enum):
@@ -32,9 +31,9 @@ class Checkpoint:
     stage: CheckpointStage
     step_id: int
     timestamp: str
-    data: Dict[str, Any]
-    completed_items: List[str]
-    pending_items: List[str]
+    data: dict[str, Any]
+    completed_items: list[str]
+    pending_items: list[str]
 
 
 class DurableRunner:
@@ -51,9 +50,9 @@ class DurableRunner:
     def save_checkpoint(
         self,
         stage: CheckpointStage,
-        data: Dict[str, Any],
-        completed: List[str] = None,
-        pending: List[str] = None,
+        data: dict[str, Any],
+        completed: list[str] = None,
+        pending: list[str] = None,
     ) -> None:
         """Save a checkpoint.
 
@@ -89,12 +88,12 @@ class DurableRunner:
                 "pending_items": checkpoint.pending_items,
             }, f, indent=2)
 
-    def load_checkpoint(self) -> Optional[Checkpoint]:
+    def load_checkpoint(self) -> Checkpoint | None:
         """Load existing checkpoint if any."""
         if not self._checkpoint_path.exists():
             return None
 
-        with open(self._checkpoint_path, "r", encoding="utf-8") as f:
+        with open(self._checkpoint_path, encoding="utf-8") as f:
             data = json.load(f)
 
         return Checkpoint(
@@ -111,7 +110,7 @@ class DurableRunner:
         """Check if this run can be resumed."""
         return self._checkpoint_path.exists()
 
-    def resume_from(self) -> Optional[CheckpointStage]:
+    def resume_from(self) -> CheckpointStage | None:
         """Get stage to resume from."""
         checkpoint = self.load_checkpoint()
         if checkpoint:
@@ -123,14 +122,14 @@ class DurableRunner:
         if self._checkpoint_path.exists():
             self._checkpoint_path.unlink()
 
-    def get_completed_items(self) -> List[str]:
+    def get_completed_items(self) -> list[str]:
         """Get list of completed item IDs from checkpoint."""
         checkpoint = self.load_checkpoint()
         if checkpoint:
             return checkpoint.completed_items
         return []
 
-    def get_pending_items(self) -> List[str]:
+    def get_pending_items(self) -> list[str]:
         """Get list of pending item IDs from checkpoint."""
         checkpoint = self.load_checkpoint()
         if checkpoint:

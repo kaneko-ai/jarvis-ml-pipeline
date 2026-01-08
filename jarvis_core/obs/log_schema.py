@@ -3,8 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional
-
+from typing import Any
 
 LEVELS = {"DEBUG", "INFO", "WARN", "ERROR"}
 EVENTS = {"step_start", "step_end", "progress", "warning", "error", "info"}
@@ -27,10 +26,10 @@ class LogEvent:
     step: str
     event: str
     message: str
-    data: Dict[str, Any] = field(default_factory=dict)
-    err: Optional[Dict[str, str]] = None
+    data: dict[str, Any] = field(default_factory=dict)
+    err: dict[str, str] | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         payload = {
             "ts": self.ts,
             "level": self.level,
@@ -56,9 +55,9 @@ def build_log_event(
     step: str,
     event: str,
     message: str,
-    data: Optional[Dict[str, Any]] = None,
-    err: Optional[Dict[str, str]] = None,
-    ts: Optional[str] = None,
+    data: dict[str, Any] | None = None,
+    err: dict[str, str] | None = None,
+    ts: str | None = None,
 ) -> LogEvent:
     """Create a structured log event with defaults."""
     normalized_level = level.upper()

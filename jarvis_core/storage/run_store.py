@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, List, Optional
 
 
 class RunStore:
@@ -101,7 +100,7 @@ class RunStore:
     @property
     def cost_report_file(self) -> Path:
         return self.run_dir / "cost_report.json"
-    
+
     @property
     def features_file(self) -> Path:
         return self.run_dir / "features.jsonl"
@@ -172,7 +171,7 @@ class RunStore:
         """Save cost report (Phase 2 optional)."""
         with open(self.cost_report_file, "w", encoding="utf-8") as f:
             json.dump(cost_report, f, indent=2, ensure_ascii=False)
-    
+
     def save_features(self, features: list) -> None:
         """Save rubric features as JSONL (Phase 2)."""
         with open(self.features_file, "w", encoding="utf-8") as f:
@@ -180,24 +179,24 @@ class RunStore:
                 f.write(json.dumps(feature, ensure_ascii=False) + "\n")
 
     # === Load Methods ===
-    def load_config(self) -> Optional[dict]:
+    def load_config(self) -> dict | None:
         """Load run configuration."""
         if self.config_file.exists():
-            with open(self.config_file, "r", encoding="utf-8") as f:
+            with open(self.config_file, encoding="utf-8") as f:
                 return json.load(f)
         return None
 
-    def load_result(self) -> Optional[dict]:
+    def load_result(self) -> dict | None:
         """Load run result."""
         if self.result_file.exists():
-            with open(self.result_file, "r", encoding="utf-8") as f:
+            with open(self.result_file, encoding="utf-8") as f:
                 return json.load(f)
         return None
 
-    def load_eval(self) -> Optional[dict]:
+    def load_eval(self) -> dict | None:
         """Load evaluation summary."""
         if self.eval_file.exists():
-            with open(self.eval_file, "r", encoding="utf-8") as f:
+            with open(self.eval_file, encoding="utf-8") as f:
                 return json.load(f)
         return None
 
@@ -205,46 +204,46 @@ class RunStore:
         """Load papers."""
         if not self.papers_file.exists():
             return []
-        with open(self.papers_file, "r", encoding="utf-8") as f:
+        with open(self.papers_file, encoding="utf-8") as f:
             return [json.loads(line) for line in f if line.strip()]
 
     def load_claims(self) -> list:
         """Load claims."""
         if not self.claims_file.exists():
             return []
-        with open(self.claims_file, "r", encoding="utf-8") as f:
+        with open(self.claims_file, encoding="utf-8") as f:
             return [json.loads(line) for line in f if line.strip()]
 
     def load_evidence(self) -> list:
         """Load evidence."""
         if not self.evidence_file.exists():
             return []
-        with open(self.evidence_file, "r", encoding="utf-8") as f:
+        with open(self.evidence_file, encoding="utf-8") as f:
             return [json.loads(line) for line in f if line.strip()]
 
     def load_warnings(self) -> list:
         """Load warnings."""
         if not self.warnings_file.exists():
             return []
-        with open(self.warnings_file, "r", encoding="utf-8") as f:
+        with open(self.warnings_file, encoding="utf-8") as f:
             return [json.loads(line) for line in f if line.strip()]
 
-    def load_cost_report(self) -> Optional[dict]:
+    def load_cost_report(self) -> dict | None:
         """Load cost report (Phase 2 optional)."""
         if self.cost_report_file.exists():
-            with open(self.cost_report_file, "r", encoding="utf-8") as f:
+            with open(self.cost_report_file, encoding="utf-8") as f:
                 return json.load(f)
         return None
-    
+
     def load_features(self) -> list:
         """Load rubric features (Phase 2)."""
         if not self.features_file.exists():
             return []
-        with open(self.features_file, "r", encoding="utf-8") as f:
+        with open(self.features_file, encoding="utf-8") as f:
             return [json.loads(line) for line in f if line.strip()]
 
     # === Validation ===
-    def validate_contract(self, is_failure: bool = False) -> List[str]:
+    def validate_contract(self, is_failure: bool = False) -> list[str]:
         """成果物契約の違反をチェック (per MASTER_SPEC v1.2).
 
         Args:
@@ -299,7 +298,7 @@ class RunStore:
         return [d.name for d in sorted(base.iterdir(), key=lambda p: p.stat().st_mtime, reverse=True)]
 
     @classmethod
-    def get_latest(cls, base_dir: str = "logs/runs") -> Optional["RunStore"]:
+    def get_latest(cls, base_dir: str = "logs/runs") -> RunStore | None:
         """Get the most recent run."""
         runs = cls.list_runs(base_dir)
         if runs:

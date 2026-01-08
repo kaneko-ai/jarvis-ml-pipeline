@@ -5,18 +5,18 @@ Each workflow is a complete pipeline from input to artifact output.
 """
 from __future__ import annotations
 
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-from ..artifacts.schema import ArtifactBase, Provenance, Inference, Recommendation
 from ..artifacts.adapters import adapt_to_artifact
+from ..artifacts.schema import ArtifactBase, Inference, Provenance, Recommendation
 
 if TYPE_CHECKING:
     from ..paper_vector import PaperVector
 
 
 def run_literature_to_plan(
-    vectors: List["PaperVector"],
-    focus_concepts: List[str],
+    vectors: list[PaperVector],
+    focus_concepts: list[str],
     goal: str = "research",
 ) -> ArtifactBase:
     """Workflow 1: Literature → Research Plan.
@@ -31,9 +31,9 @@ def run_literature_to_plan(
     Returns:
         PlanArtifact with research plan.
     """
+    from ..feasibility import score_feasibility
     from ..gap_analysis import score_research_gaps
     from ..hypothesis import generate_hypotheses
-    from ..feasibility import score_feasibility
 
     if not vectors:
         return ArtifactBase(
@@ -112,8 +112,8 @@ def run_literature_to_plan(
 
 def run_plan_to_grant(
     plan_artifact: ArtifactBase,
-    vectors: List["PaperVector"],
-    grant_keywords: List[str],
+    vectors: list[PaperVector],
+    grant_keywords: list[str],
 ) -> ArtifactBase:
     """Workflow 2: Research Plan → Grant Proposal.
 
@@ -145,7 +145,7 @@ def run_plan_to_grant(
 
 def run_plan_to_paper(
     plan_artifact: ArtifactBase,
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
 ) -> ArtifactBase:
     """Workflow 3: Research Plan → Paper Structure.
 
@@ -158,8 +158,8 @@ def run_plan_to_paper(
     Returns:
         Paper structure artifact.
     """
-    from ..sigma_modules import plan_figures
     from ..lambda_modules import check_figure_claim_consistency
+    from ..sigma_modules import plan_figures
 
     figures = plan_figures(vectors)
     claims = [inf.statement for inf in plan_artifact.inferences]
@@ -202,7 +202,7 @@ def run_plan_to_paper(
 
 def run_plan_to_talk(
     plan_artifact: ArtifactBase,
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     duration_minutes: int = 15,
 ) -> ArtifactBase:
     """Workflow 4: Research Plan → Presentation.

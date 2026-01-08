@@ -1,8 +1,5 @@
 """JARVIS AI Features Module - Phase 2 Features (12-20)"""
-import json
 import re
-from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass
 from collections import Counter
 
 
@@ -11,11 +8,11 @@ from collections import Counter
 # ============================================
 class RelatedPapersFinder:
     """Find related papers using keyword similarity."""
-    
-    def __init__(self, papers: List[Dict] = None):
+
+    def __init__(self, papers: list[dict] = None):
         self.papers = papers or []
-    
-    def find_related(self, paper: Dict, top_n: int = 5) -> List[Dict]:
+
+    def find_related(self, paper: dict, top_n: int = 5) -> list[dict]:
         """Find related papers by keyword overlap.
         
         Args:
@@ -26,20 +23,20 @@ class RelatedPapersFinder:
             List of related papers with scores
         """
         source_keywords = self._extract_keywords(paper.get("title", "") + " " + paper.get("abstract", ""))
-        
+
         results = []
         for p in self.papers:
             if p.get("pmid") == paper.get("pmid"):
                 continue
-            
+
             p_keywords = self._extract_keywords(p.get("title", "") + " " + p.get("abstract", ""))
             score = len(source_keywords & p_keywords) / max(len(source_keywords | p_keywords), 1)
-            
+
             if score > 0:
                 results.append({**p, "similarity_score": round(score * 100, 2)})
-        
+
         return sorted(results, key=lambda x: x["similarity_score"], reverse=True)[:top_n]
-    
+
     def _extract_keywords(self, text: str) -> set:
         """Extract keywords from text."""
         words = re.findall(r'\b[a-zA-Z]{4,}\b', text.lower())
@@ -52,11 +49,11 @@ class RelatedPapersFinder:
 # ============================================
 class PaperQA:
     """Simple Q&A system for papers."""
-    
+
     def __init__(self):
         self.context = ""
-    
-    def set_context(self, paper: Dict):
+
+    def set_context(self, paper: dict):
         """Set paper context for Q&A."""
         self.context = f"""
 Title: {paper.get('title', '')}
@@ -65,7 +62,7 @@ Abstract: {paper.get('abstract', '')}
 Journal: {paper.get('journal', '')}
 Year: {paper.get('year', '')}
 """
-    
+
     def answer(self, question: str) -> str:
         """Answer a question about the paper.
         
@@ -76,25 +73,25 @@ Year: {paper.get('year', '')}
             Answer string
         """
         q_lower = question.lower()
-        
+
         # Simple rule-based QA
         if "author" in q_lower or "who wrote" in q_lower:
             match = re.search(r'Authors: (.+)', self.context)
             return f"The authors are: {match.group(1)}" if match else "Authors not found."
-        
+
         if "year" in q_lower or "when" in q_lower or "published" in q_lower:
             match = re.search(r'Year: (\d+)', self.context)
             return f"Published in {match.group(1)}" if match else "Publication year not found."
-        
+
         if "journal" in q_lower or "where" in q_lower:
             match = re.search(r'Journal: (.+)', self.context)
             return f"Published in {match.group(1)}" if match else "Journal not found."
-        
+
         if "about" in q_lower or "topic" in q_lower or "summary" in q_lower:
             match = re.search(r'Abstract: (.+?)(?:\n|$)', self.context, re.DOTALL)
             abstract = match.group(1)[:200] if match else "No abstract available"
             return f"This paper is about: {abstract}..."
-        
+
         return "I can answer questions about authors, publication year, journal, and topic. Try asking 'Who wrote this?' or 'What is this about?'"
 
 
@@ -103,7 +100,7 @@ Year: {paper.get('year', '')}
 # ============================================
 class PaperTranslator:
     """Simple translation support using dictionary lookup."""
-    
+
     # Basic medical terms JP-EN dictionary
     TRANSLATIONS = {
         'en_to_ja': {
@@ -129,8 +126,8 @@ class PaperTranslator:
             'deep learning': '深層学習'
         }
     }
-    
-    def translate_keywords(self, text: str, target_lang: str = 'ja') -> Dict[str, str]:
+
+    def translate_keywords(self, text: str, target_lang: str = 'ja') -> dict[str, str]:
         """Translate keywords in text.
         
         Args:
@@ -142,14 +139,14 @@ class PaperTranslator:
         """
         translations = {}
         text_lower = text.lower()
-        
+
         if target_lang == 'ja':
             for en, ja in self.TRANSLATIONS['en_to_ja'].items():
                 if en in text_lower:
                     translations[en] = ja
-        
+
         return translations
-    
+
     def add_translations(self, text: str) -> str:
         """Add parenthetical translations to text.
         
@@ -161,11 +158,11 @@ class PaperTranslator:
         """
         translations = self.translate_keywords(text)
         result = text
-        
+
         for en, ja in translations.items():
             pattern = re.compile(re.escape(en), re.IGNORECASE)
             result = pattern.sub(f"{en} ({ja})", result, count=1)
-        
+
         return result
 
 
@@ -174,7 +171,7 @@ class PaperTranslator:
 # ============================================
 class AutoTagger:
     """Automatically tag papers based on content."""
-    
+
     TAG_RULES = {
         'AI': ['machine learning', 'deep learning', 'neural network', 'AI', 'artificial intelligence', 'algorithm', 'model'],
         'Clinical': ['clinical', 'patient', 'trial', 'treatment', 'therapy', 'diagnosis', 'hospital'],
@@ -185,8 +182,8 @@ class AutoTagger:
         'Drug Discovery': ['drug', 'pharmaceutical', 'compound', 'molecule', 'target'],
         'Immunology': ['immune', 'antibody', 'immunotherapy', 'T-cell', 'inflammation']
     }
-    
-    def get_tags(self, text: str) -> List[str]:
+
+    def get_tags(self, text: str) -> list[str]:
         """Get tags for text.
         
         Args:
@@ -197,14 +194,14 @@ class AutoTagger:
         """
         tags = []
         text_lower = text.lower()
-        
+
         for tag, keywords in self.TAG_RULES.items():
             if any(kw.lower() in text_lower for kw in keywords):
                 tags.append(tag)
-        
+
         return tags if tags else ['General']
-    
-    def tag_paper(self, paper: Dict) -> Dict:
+
+    def tag_paper(self, paper: dict) -> dict:
         """Add tags to paper.
         
         Args:
@@ -223,7 +220,7 @@ class AutoTagger:
 # ============================================
 class SimilarityCalculator:
     """Calculate similarity between papers."""
-    
+
     def jaccard_similarity(self, text1: str, text2: str) -> float:
         """Calculate Jaccard similarity.
         
@@ -236,13 +233,13 @@ class SimilarityCalculator:
         """
         words1 = set(re.findall(r'\b\w{3,}\b', text1.lower()))
         words2 = set(re.findall(r'\b\w{3,}\b', text2.lower()))
-        
+
         intersection = len(words1 & words2)
         union = len(words1 | words2)
-        
+
         return intersection / union if union > 0 else 0
-    
-    def compare_papers(self, paper1: Dict, paper2: Dict) -> Dict:
+
+    def compare_papers(self, paper1: dict, paper2: dict) -> dict:
         """Compare two papers.
         
         Args:
@@ -254,9 +251,9 @@ class SimilarityCalculator:
         """
         text1 = f"{paper1.get('title', '')} {paper1.get('abstract', '')}"
         text2 = f"{paper2.get('title', '')} {paper2.get('abstract', '')}"
-        
+
         similarity = self.jaccard_similarity(text1, text2)
-        
+
         return {
             "paper1": paper1.get("title", "Unknown")[:50],
             "paper2": paper2.get("title", "Unknown")[:50],
@@ -270,7 +267,7 @@ class SimilarityCalculator:
 # ============================================
 class KeywordExtractor:
     """Extract keywords from text using TF-IDF-like scoring."""
-    
+
     STOPWORDS = {
         'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
         'of', 'with', 'by', 'from', 'as', 'is', 'was', 'are', 'were', 'been',
@@ -285,8 +282,8 @@ class KeywordExtractor:
         'having', 'using', 'used', 'based', 'results', 'study', 'studies',
         'analysis', 'method', 'methods', 'data', 'paper', 'research'
     }
-    
-    def extract(self, text: str, top_n: int = 10) -> List[Tuple[str, int]]:
+
+    def extract(self, text: str, top_n: int = 10) -> list[tuple[str, int]]:
         """Extract top keywords.
         
         Args:
@@ -298,7 +295,7 @@ class KeywordExtractor:
         """
         words = re.findall(r'\b[a-zA-Z]{3,}\b', text.lower())
         filtered = [w for w in words if w not in self.STOPWORDS]
-        
+
         counter = Counter(filtered)
         first_positions = {}
         for index, word in enumerate(filtered):
@@ -310,8 +307,8 @@ class KeywordExtractor:
             key=lambda item: (-item[1], first_positions[item[0]], item[0])
         )
         return sorted_keywords[:top_n]
-    
-    def extract_phrases(self, text: str, top_n: int = 5) -> List[str]:
+
+    def extract_phrases(self, text: str, top_n: int = 5) -> list[str]:
         """Extract key phrases (bigrams).
         
         Args:
@@ -323,10 +320,10 @@ class KeywordExtractor:
         """
         words = re.findall(r'\b[a-zA-Z]{3,}\b', text.lower())
         filtered = [w for w in words if w not in self.STOPWORDS]
-        
+
         bigrams = [f"{filtered[i]} {filtered[i+1]}" for i in range(len(filtered)-1)]
         counter = Counter(bigrams)
-        
+
         return [phrase for phrase, _ in counter.most_common(top_n)]
 
 
@@ -335,21 +332,21 @@ class KeywordExtractor:
 # ============================================
 class SentimentAnalyzer:
     """Simple sentiment analysis for research papers."""
-    
+
     POSITIVE_WORDS = {
         'significant', 'improved', 'effective', 'successful', 'promising',
         'novel', 'innovative', 'breakthrough', 'advancement', 'better',
         'enhanced', 'excellent', 'optimal', 'remarkable', 'substantial',
         'important', 'valuable', 'beneficial', 'positive', 'strong'
     }
-    
+
     NEGATIVE_WORDS = {
         'failed', 'limited', 'insufficient', 'poor', 'weak', 'negative',
         'worse', 'declined', 'decreased', 'problematic', 'challenging',
         'difficult', 'complicated', 'unclear', 'uncertain', 'controversial'
     }
-    
-    def analyze(self, text: str) -> Dict:
+
+    def analyze(self, text: str) -> dict:
         """Analyze sentiment of text.
         
         Args:
@@ -359,10 +356,10 @@ class SentimentAnalyzer:
             Sentiment analysis result
         """
         words = set(re.findall(r'\b\w+\b', text.lower()))
-        
+
         positive_count = len(words & self.POSITIVE_WORDS)
         negative_count = len(words & self.NEGATIVE_WORDS)
-        
+
         total = positive_count + negative_count
         if total == 0:
             sentiment = "Neutral"
@@ -375,7 +372,7 @@ class SentimentAnalyzer:
                 sentiment = "Negative"
             else:
                 sentiment = "Mixed"
-        
+
         return {
             "sentiment": sentiment,
             "score": round(score, 2),
@@ -389,8 +386,8 @@ class SentimentAnalyzer:
 # ============================================
 class CitationGenerator:
     """Generate citations in various formats."""
-    
-    def generate(self, paper: Dict, format: str = 'apa') -> str:
+
+    def generate(self, paper: dict, format: str = 'apa') -> str:
         """Generate citation.
         
         Args:
@@ -406,16 +403,16 @@ class CitationGenerator:
         journal = paper.get('journal', 'Unknown Journal')
         doi = paper.get('doi', '')
         pmid = paper.get('pmid', '')
-        
+
         if format == 'apa':
             citation = f"{authors} ({year}). {title}. {journal}."
             if doi:
                 citation += f" https://doi.org/{doi}"
             return citation
-        
+
         elif format == 'mla':
             return f'{authors}. "{title}." {journal}, {year}.'
-        
+
         elif format == 'bibtex':
             key = re.sub(r'[^a-zA-Z0-9]', '', authors.split(',')[0].split()[0] if authors else 'unknown') + str(year)
             return f"""@article{{{key},
@@ -425,13 +422,13 @@ class CitationGenerator:
   year={{{year}}},
   pmid={{{pmid}}}
 }}"""
-        
+
         elif format == 'chicago':
             return f"{authors}. \"{title}.\" {journal} ({year})."
-        
+
         return f"{authors}. {title}. {journal}, {year}."
-    
-    def generate_all(self, paper: Dict) -> Dict[str, str]:
+
+    def generate_all(self, paper: dict) -> dict[str, str]:
         """Generate citations in all formats.
         
         Args:
@@ -479,21 +476,21 @@ if __name__ == "__main__":
         "abstract": "This significant study presents a novel machine learning model for predicting treatment outcomes in COVID-19 patients with promising results.",
         "pmid": "39123456"
     }
-    
+
     print("=== Auto-Tagging ===")
     tagger = AutoTagger()
     print(f"Tags: {tagger.get_tags(paper['title'] + ' ' + paper['abstract'])}")
-    
+
     print("\n=== Keyword Extraction ===")
     extractor = KeywordExtractor()
     keywords = extractor.extract(paper['title'] + ' ' + paper['abstract'], 5)
     print(f"Keywords: {keywords}")
-    
+
     print("\n=== Sentiment Analysis ===")
     analyzer = SentimentAnalyzer()
     sentiment = analyzer.analyze(paper['abstract'])
     print(f"Sentiment: {sentiment}")
-    
+
     print("\n=== Citation Generation ===")
     generator = CitationGenerator()
     print(f"APA: {generator.generate(paper, 'apa')}")

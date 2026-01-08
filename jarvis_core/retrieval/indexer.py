@@ -2,10 +2,10 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
 
 from jarvis_core.retrieval.bm25_store import BM25Store
 from jarvis_core.retrieval.chunker import Chunker
@@ -19,10 +19,10 @@ class IndexManifest:
     created_at: str
     embedding_model: str
     chunks: int
-    indexed_runs: List[str]
-    kb_indexed_at: Optional[str]
+    indexed_runs: list[str]
+    kb_indexed_at: str | None
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "created_at": self.created_at,
             "embedding_model": self.embedding_model,
@@ -39,7 +39,7 @@ class RetrievalIndexer:
         kb_dir: Path | str = Path("data/kb/notes"),
         runs_dir: Path | str = Path("data/runs"),
         legacy_runs_dir: Path | str = Path("logs/runs"),
-        embedding_provider: Optional[EmbeddingProvider] = None,
+        embedding_provider: EmbeddingProvider | None = None,
     ):
         self.index_dir = Path(index_dir)
         self.kb_dir = Path(kb_dir)
@@ -52,10 +52,10 @@ class RetrievalIndexer:
         self.manifest_path = self.index_dir / "manifest.json"
         self.chunker = Chunker()
 
-    def _load_manifest(self) -> Optional[IndexManifest]:
+    def _load_manifest(self) -> IndexManifest | None:
         if not self.manifest_path.exists():
             return None
-        with open(self.manifest_path, "r", encoding="utf-8") as f:
+        with open(self.manifest_path, encoding="utf-8") as f:
             payload = json.load(f)
         return IndexManifest(
             created_at=payload.get("created_at", ""),
@@ -70,7 +70,7 @@ class RetrievalIndexer:
         with open(self.manifest_path, "w", encoding="utf-8") as f:
             json.dump(manifest.to_dict(), f, ensure_ascii=False, indent=2)
 
-    def _kb_updated_at(self) -> Optional[str]:
+    def _kb_updated_at(self) -> str | None:
         if not self.kb_dir.exists():
             return None
         latest = None
@@ -80,7 +80,7 @@ class RetrievalIndexer:
                 latest = ts
         return latest.isoformat() if latest else None
 
-    def _iter_runs(self) -> List[Path]:
+    def _iter_runs(self) -> list[Path]:
         run_dirs = []
         if self.runs_dir.exists():
             run_dirs.extend([d for d in self.runs_dir.iterdir() if d.is_dir()])
@@ -89,8 +89,8 @@ class RetrievalIndexer:
             run_dirs.extend([d for d in legacy if d.name not in {r.name for r in run_dirs}])
         return run_dirs
 
-    def _load_kb_documents(self) -> List[Dict]:
-        documents: List[Dict] = []
+    def _load_kb_documents(self) -> list[dict]:
+        documents: list[dict] = []
         topics_dir = self.kb_dir / "topics"
         papers_dir = self.kb_dir / "papers"
         for folder, source_type, prefix in [
@@ -116,8 +116,8 @@ class RetrievalIndexer:
                 )
         return documents
 
-    def _load_run_documents(self, run_dir: Path) -> List[Dict]:
-        documents: List[Dict] = []
+    def _load_run_documents(self, run_dir: Path) -> list[dict]:
+        documents: list[dict] = []
         run_id = run_dir.name
         report_path = run_dir / "report.md"
         if report_path.exists():
@@ -211,8 +211,8 @@ class RetrievalIndexer:
                 )
         return documents
 
-    def _load_all_documents(self, run_ids: Optional[Iterable[str]] = None, include_kb: bool = True) -> List[Dict]:
-        documents: List[Dict] = []
+    def _load_all_documents(self, run_ids: Iterable[str] | None = None, include_kb: bool = True) -> list[dict]:
+        documents: list[dict] = []
         if include_kb:
             documents.extend(self._load_kb_documents())
         runs = self._iter_runs()
@@ -233,7 +233,7 @@ class RetrievalIndexer:
         if not self.chunks_path.exists():
             return set()
         existing = set()
-        with open(self.chunks_path, "r", encoding="utf-8") as f:
+        with open(self.chunks_path, encoding="utf-8") as f:
             for line in f:
                 if not line.strip():
                     continue
@@ -301,8 +301,8 @@ class RetrievalIndexer:
         self._save_manifest(manifest)
         return manifest
 
-    def _documents_to_chunks(self, documents: List[Dict]) -> List[Chunk]:
-        chunks: List[Chunk] = []
+    def _documents_to_chunks(self, documents: list[dict]) -> list[Chunk]:
+        chunks: list[Chunk] = []
         for doc in documents:
             for chunk in self.chunker.create_chunks(
                 doc_id=doc["doc_id"],
@@ -317,7 +317,7 @@ class RetrievalIndexer:
                     chunks.append(chunk)
         return chunks
 
-    def _build_indexes(self, chunks: List[Chunk], vector_store: VectorStore, bm25: BM25Store) -> None:
+    def _build_indexes(self, chunks: list[Chunk], vector_store: VectorStore, bm25: BM25Store) -> None:
         if not chunks:
             return
         texts = [chunk.text for chunk in chunks]
@@ -334,4 +334,4 @@ class RetrievalIndexer:
 def stable_id(run_id: str, text: str) -> str:
     import hashlib
 
-    return hashlib.sha1(f"{run_id}|{text}".encode("utf-8")).hexdigest()[:12]
+    return hashlib.sha1(f"{run_id}|{text}".encode()).hexdigest()[:12]

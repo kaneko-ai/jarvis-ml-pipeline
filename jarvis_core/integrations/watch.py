@@ -6,9 +6,9 @@ from __future__ import annotations
 
 import json
 import time
-from pathlib import Path
-from typing import List, Dict, Callable, Optional
+from collections.abc import Callable
 from dataclasses import dataclass
+from pathlib import Path
 
 
 @dataclass
@@ -38,13 +38,13 @@ class ManifestWatcher:
 
     def __init__(self, manifest_path: str):
         self.manifest_path = Path(manifest_path)
-        self.entries: List[ManifestEntry] = []
+        self.entries: list[ManifestEntry] = []
         self._load()
 
     def _load(self):
         """Load manifest from file."""
         if self.manifest_path.exists():
-            with open(self.manifest_path, "r", encoding="utf-8") as f:
+            with open(self.manifest_path, encoding="utf-8") as f:
                 data = json.load(f)
                 self.entries = [
                     ManifestEntry(**e) for e in data.get("entries", [])
@@ -70,7 +70,7 @@ class ManifestWatcher:
         self.entries.append(entry)
         self._save()
 
-    def get_pending(self) -> List[ManifestEntry]:
+    def get_pending(self) -> list[ManifestEntry]:
         """Get pending entries."""
         return [e for e in self.entries if e.status == "pending"]
 
@@ -148,7 +148,7 @@ def watch_manifest(
         time.sleep(interval_seconds)
 
 
-def create_manifest(entries: List[Dict], output_path: str) -> None:
+def create_manifest(entries: list[dict], output_path: str) -> None:
     """Create a new manifest file.
 
     Args:

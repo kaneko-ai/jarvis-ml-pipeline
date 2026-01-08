@@ -1,12 +1,12 @@
 """Plugins package."""
 from .manager import (
+    VALID_TYPES,
+    PluginError,
     PluginManager,
     PluginManifest,
-    PluginError,
-    PluginValidationError,
     PluginProtocol,
+    PluginValidationError,
     get_plugin_manager,
-    VALID_TYPES,
 )
 
 __all__ = [

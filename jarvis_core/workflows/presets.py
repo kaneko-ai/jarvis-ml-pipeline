@@ -5,7 +5,6 @@ Per V4-P03, this provides preset configurations.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Optional
 
 
 @dataclass
@@ -71,12 +70,12 @@ PRESETS = {
 }
 
 
-def get_preset(name: str) -> Optional[WorkflowPreset]:
+def get_preset(name: str) -> WorkflowPreset | None:
     """Get preset by name."""
     return PRESETS.get(name)
 
 
-def list_presets() -> List[str]:
+def list_presets() -> list[str]:
     """List available preset names."""
     return list(PRESETS.keys())
 

@@ -18,31 +18,31 @@ class TrendItem:
     title: str
     source: str
     url: str
-    published_date: Optional[str] = None
-    abstract: Optional[str] = None
-    authors: List[str] = field(default_factory=list)
-    keywords: List[str] = field(default_factory=list)
-    bibtex: Optional[str] = None
-    pdf_url: Optional[str] = None
+    published_date: str | None = None
+    abstract: str | None = None
+    authors: list[str] = field(default_factory=list)
+    keywords: list[str] = field(default_factory=list)
+    bibtex: str | None = None
+    pdf_url: str | None = None
     is_oa: bool = False
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class TrendSource(ABC):
     """トレンドソース基底クラス."""
-    
+
     @property
     @abstractmethod
     def name(self) -> str:
         """ソース名."""
         pass
-    
+
     @abstractmethod
     def fetch(
         self,
-        queries: List[str],
+        queries: list[str],
         max_results: int = 50
-    ) -> List[TrendItem]:
+    ) -> list[TrendItem]:
         """
         トレンドを取得.
         
@@ -54,7 +54,7 @@ class TrendSource(ABC):
             TrendItemリスト
         """
         pass
-    
+
     @abstractmethod
     def is_available(self) -> bool:
         """利用可能かどうか."""

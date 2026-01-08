@@ -2,17 +2,17 @@
 
 Actively searches for disconfirming evidence to prevent confirmation bias.
 """
-from typing import Dict, List, Any
 import logging
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
 def find_counter_evidence(
-    claim: Dict[str, Any],
-    papers: List[Dict],
+    claim: dict[str, Any],
+    papers: list[dict],
     **kwargs
-) -> List[Dict]:
+) -> list[dict]:
     """Find evidence that refutes or contradicts a claim.
     
     Args:
@@ -26,14 +26,14 @@ def find_counter_evidence(
     counter_evidence = []
     claim_id = claim.get("claim_id", "")
     claim_text = claim.get("claim_text", "")
-    
+
     # Simple heuristic: look for negation patterns
     # In production, use LLM with "find contradicting evidence" prompt
-    
+
     for paper in papers[:5]:  # Limit search
         paper_id = paper.get("paper_id", "")
         abstract = paper.get("abstract", "").lower()
-        
+
         # Look for contradiction keywords
         contradiction_patterns = [
             "however",
@@ -43,14 +43,14 @@ def find_counter_evidence(
             "no evidence",
             "failed to show"
         ]
-        
+
         has_contradiction = any(pattern in abstract for pattern in contradiction_patterns)
-        
+
         if has_contradiction:
             # Mock counter evidence
             import uuid
             evidence_id = f"counter_ev_{uuid.uuid4().hex[:12]}"
-            
+
             counter_ev = {
                 "evidence_id": evidence_id,
                 "claim_id": claim_id,
@@ -60,18 +60,18 @@ def find_counter_evidence(
                 "locator": {"page": 1, "paragraph": 1},
                 "evidence_strength": "Medium",
             }
-            
+
             counter_evidence.append(counter_ev)
-    
+
     logger.info(f"Found {len(counter_evidence)} counter-evidence for claim {claim_id}")
-    
+
     return counter_evidence
 
 
 def merge_supporting_and_refuting(
-    supporting: List[Dict],
-    refuting: List[Dict]
-) -> Dict[str, Any]:
+    supporting: list[dict],
+    refuting: list[dict]
+) -> dict[str, Any]:
     """Merge supporting and refuting evidence for balanced view.
     
     Args:
@@ -83,7 +83,7 @@ def merge_supporting_and_refuting(
     """
     support_count = len(supporting)
     refute_count = len(refuting)
-    
+
     if refute_count == 0:
         conclusion_type = "supported"
         synthesis = f"Supported by {support_count} evidence"
@@ -93,7 +93,7 @@ def merge_supporting_and_refuting(
     else:
         conclusion_type = "conflicting"
         synthesis = f"Conflicting evidence: {support_count} support vs {refute_count} refute"
-    
+
     return {
         "conclusion_type": conclusion_type,
         "synthesis": synthesis,

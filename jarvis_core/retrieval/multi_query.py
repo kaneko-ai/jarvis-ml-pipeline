@@ -4,14 +4,15 @@ Per RP-309, generates query variations for coverage.
 """
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import List, Dict, Any, Callable, Optional
+from typing import Any
 
 
 @dataclass
 class FusedResult:
     """Result from multi-query fusion."""
-    
+
     chunk_id: str
     text: str
     fused_score: float
@@ -27,18 +28,18 @@ class MultiQueryFusion:
     - Searches each variation
     - Fuses results using RRF
     """
-    
+
     def __init__(
         self,
         num_variations: int = 3,
         rrf_k: int = 60,
-        generator: Optional[Callable[[str], List[str]]] = None,
+        generator: Callable[[str], list[str]] | None = None,
     ):
         self.num_variations = num_variations
         self.rrf_k = rrf_k
         self.generator = generator
-    
-    def generate_variations(self, query: str) -> List[str]:
+
+    def generate_variations(self, query: str) -> list[str]:
         """Generate query variations.
         
         Args:
@@ -49,13 +50,13 @@ class MultiQueryFusion:
         """
         if self.generator:
             return self.generator(query)
-        
+
         return self._template_variations(query)
-    
-    def _template_variations(self, query: str) -> List[str]:
+
+    def _template_variations(self, query: str) -> list[str]:
         """Generate variations using templates."""
         variations = [query]
-        
+
         # Rephrasing templates
         templates = [
             f"Research on {query}",
@@ -64,16 +65,16 @@ class MultiQueryFusion:
             f"Role of {query} in disease",
             f"{query} therapeutic implications",
         ]
-        
+
         for template in templates[:self.num_variations - 1]:
             variations.append(template)
-        
+
         return variations
-    
+
     def reciprocal_rank_fusion(
         self,
-        result_sets: List[List[Dict[str, Any]]],
-    ) -> List[FusedResult]:
+        result_sets: list[list[dict[str, Any]]],
+    ) -> list[FusedResult]:
         """Fuse multiple result sets using RRF.
         
         Args:
@@ -82,23 +83,23 @@ class MultiQueryFusion:
         Returns:
             Fused results sorted by RRF score.
         """
-        scores: Dict[str, float] = {}
-        hits: Dict[str, int] = {}
-        chunks: Dict[str, Dict[str, Any]] = {}
-        
+        scores: dict[str, float] = {}
+        hits: dict[str, int] = {}
+        chunks: dict[str, dict[str, Any]] = {}
+
         for results in result_sets:
             for rank, result in enumerate(results):
                 chunk_id = result.get("chunk_id", str(id(result)))
-                
+
                 # RRF score contribution
                 rrf_score = 1.0 / (self.rrf_k + rank + 1)
                 scores[chunk_id] = scores.get(chunk_id, 0) + rrf_score
                 hits[chunk_id] = hits.get(chunk_id, 0) + 1
-                
+
                 # Store chunk info
                 if chunk_id not in chunks:
                     chunks[chunk_id] = result
-        
+
         # Build fused results
         fused = []
         for chunk_id, score in scores.items():
@@ -110,19 +111,19 @@ class MultiQueryFusion:
                 query_hits=hits[chunk_id],
                 metadata=chunk.get("metadata", {}),
             ))
-        
+
         # Sort by fused score
         fused.sort(key=lambda x: x.fused_score, reverse=True)
-        
+
         return fused
-    
+
     def search(
         self,
         query: str,
-        retriever: Callable[[str, int], List[Dict[str, Any]]],
+        retriever: Callable[[str, int], list[dict[str, Any]]],
         top_k: int = 10,
         per_query_k: int = 20,
-    ) -> List[FusedResult]:
+    ) -> list[FusedResult]:
         """Multi-query search with fusion.
         
         Args:
@@ -136,14 +137,14 @@ class MultiQueryFusion:
         """
         # Generate variations
         variations = self.generate_variations(query)
-        
+
         # Search each variation
         result_sets = []
         for var in variations:
             results = retriever(var, per_query_k)
             result_sets.append(results)
-        
+
         # Fuse results
         fused = self.reciprocal_rank_fusion(result_sets)
-        
+
         return fused[:top_k]

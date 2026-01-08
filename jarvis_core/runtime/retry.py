@@ -4,11 +4,11 @@ Per PR-96, provides systematic retry with backoff.
 """
 from __future__ import annotations
 
-import time
 import random
-from typing import Callable, TypeVar, Optional, List
+import time
+from collections.abc import Callable
 from dataclasses import dataclass
-
+from typing import TypeVar
 
 T = TypeVar("T")
 
@@ -30,10 +30,10 @@ class RetryResult:
     """Result of a retry operation."""
 
     success: bool
-    value: Optional[any] = None
+    value: any | None = None
     attempts: int = 0
-    last_error: Optional[Exception] = None
-    errors: List[str] = None
+    last_error: Exception | None = None
+    errors: list[str] = None
 
     def __post_init__(self):
         if self.errors is None:
@@ -56,8 +56,8 @@ def calculate_backoff(
 
 def with_retry(
     fn: Callable[[], T],
-    policy: Optional[RetryPolicy] = None,
-    on_retry: Optional[Callable[[int, Exception], None]] = None,
+    policy: RetryPolicy | None = None,
+    on_retry: Callable[[int, Exception], None] | None = None,
 ) -> RetryResult:
     """Execute function with retry.
 
@@ -122,7 +122,7 @@ class CircuitBreakerRetry:
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
         self.failure_count = 0
-        self.last_failure_time: Optional[float] = None
+        self.last_failure_time: float | None = None
         self._is_open = False
 
     @property

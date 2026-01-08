@@ -2,8 +2,8 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable, List, Optional
 
 from .schema import FeedbackEntry, normalize_feedback
 
@@ -24,10 +24,10 @@ class FeedbackHistoryStore:
             for entry in entries:
                 f.write(json.dumps(entry.to_dict(), ensure_ascii=False) + "\n")
 
-    def list_entries(self, limit: Optional[int] = None) -> List[FeedbackEntry]:
+    def list_entries(self, limit: int | None = None) -> list[FeedbackEntry]:
         if not self.path.exists():
             return []
-        with open(self.path, "r", encoding="utf-8") as f:
+        with open(self.path, encoding="utf-8") as f:
             lines = [line for line in f if line.strip()]
         if limit:
             lines = lines[-limit:]

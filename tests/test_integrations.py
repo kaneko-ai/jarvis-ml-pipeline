@@ -7,9 +7,9 @@ Per RP19, these tests verify:
 - Bundle includes all integration files
 """
 import json
+import sys
 import tempfile
 from pathlib import Path
-import sys
 
 import pytest
 
@@ -22,10 +22,10 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from jarvis_core.claim import ClaimSet
-from jarvis_core.reference import Reference
 from jarvis_core.integrations.notebooklm import export_notebooklm
-from jarvis_core.integrations.obsidian import export_obsidian, _safe_filename
 from jarvis_core.integrations.notion import export_notion
+from jarvis_core.integrations.obsidian import _safe_filename, export_obsidian
+from jarvis_core.reference import Reference
 
 
 class TestNotebookLM:
@@ -213,9 +213,9 @@ class TestBundleIntegrations:
     def test_bundle_includes_notebooklm(self):
         """Bundle should include notebooklm.md."""
         from jarvis_core.agents import Citation
+        from jarvis_core.bundle import export_evidence_bundle
         from jarvis_core.evidence import EvidenceStore
         from jarvis_core.result import EvidenceQAResult
-        from jarvis_core.bundle import export_evidence_bundle
 
         store = EvidenceStore()
         chunk_id = store.add_chunk("pdf", "pdf:test.pdf", "Content")
@@ -236,9 +236,9 @@ class TestBundleIntegrations:
     def test_bundle_includes_obsidian(self):
         """Bundle should include obsidian directory."""
         from jarvis_core.agents import Citation
+        from jarvis_core.bundle import export_evidence_bundle
         from jarvis_core.evidence import EvidenceStore
         from jarvis_core.result import EvidenceQAResult
-        from jarvis_core.bundle import export_evidence_bundle
 
         store = EvidenceStore()
         chunk_id = store.add_chunk("pdf", "pdf:test.pdf", "Content")
@@ -260,9 +260,9 @@ class TestBundleIntegrations:
     def test_bundle_includes_notion(self):
         """Bundle should include notion.json."""
         from jarvis_core.agents import Citation
+        from jarvis_core.bundle import export_evidence_bundle
         from jarvis_core.evidence import EvidenceStore
         from jarvis_core.result import EvidenceQAResult
-        from jarvis_core.bundle import export_evidence_bundle
 
         store = EvidenceStore()
         chunk_id = store.add_chunk("pdf", "pdf:test.pdf", "Content")

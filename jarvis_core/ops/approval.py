@@ -2,11 +2,10 @@
 
 Manages human approval workflow for research outputs before external sharing.
 """
-from pathlib import Path
-from typing import Optional
-import json
 import datetime
+import json
 import logging
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -37,14 +36,14 @@ def write_approval(
         "timestamp": datetime.datetime.now().isoformat(),
         "notes": notes
     }
-    
+
     approval_path = run_dir / "approval.json"
-    
+
     with open(approval_path, "w", encoding="utf-8") as f:
         json.dump(approval, f, indent=2, ensure_ascii=False)
-    
+
     logger.info(f"Approval {'granted' if approved else 'revoked'} by {approver}")
-    
+
     return approval_path
 
 
@@ -58,13 +57,13 @@ def check_approval(run_dir: Path) -> bool:
         True if approved
     """
     approval_path = run_dir / "approval.json"
-    
+
     if not approval_path.exists():
         return False
-    
-    with open(approval_path, "r", encoding="utf-8") as f:
+
+    with open(approval_path, encoding="utf-8") as f:
         approval = json.load(f)
-    
+
     return approval.get("approved", False)
 
 

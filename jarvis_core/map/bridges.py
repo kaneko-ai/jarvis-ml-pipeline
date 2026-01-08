@@ -4,17 +4,17 @@ Per V4-M02, this finds papers that connect clusters.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..paper_vector import PaperVector
 
 
 def find_bridge_papers(
-    cluster1: List["PaperVector"],
-    cluster2: List["PaperVector"],
-    all_papers: List["PaperVector"],
-) -> List[dict]:
+    cluster1: list[PaperVector],
+    cluster2: list[PaperVector],
+    all_papers: list[PaperVector],
+) -> list[dict]:
     """Find papers that bridge two clusters.
 
     Args:

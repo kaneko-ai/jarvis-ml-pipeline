@@ -7,13 +7,13 @@ Per RP22, this enriches Reference with DOI, title, authors, year.
 """
 from __future__ import annotations
 
+import json
 import logging
 import re
-import urllib.request
 import urllib.parse
-import json
+import urllib.request
 from dataclasses import dataclass
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..reference import Reference
@@ -30,7 +30,7 @@ class CrossRefResult:
 
     doi: str | None = None
     title: str | None = None
-    authors: List[str] | None = None
+    authors: list[str] | None = None
     year: int | None = None
     journal: str | None = None
     url: str | None = None
@@ -124,7 +124,7 @@ def search_crossref(query: str, timeout: float = 5.0) -> CrossRefResult:
     return result
 
 
-def resolve_crossref(ref: "Reference", timeout: float = 5.0) -> "Reference":
+def resolve_crossref(ref: Reference, timeout: float = 5.0) -> Reference:
     """Resolve Reference metadata using CrossRef.
 
     Attempts to enrich the Reference with DOI, title, authors, year.

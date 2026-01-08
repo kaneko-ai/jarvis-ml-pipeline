@@ -10,10 +10,11 @@ import io
 import logging
 import pstats
 import time
+from collections.abc import Callable
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -21,15 +22,15 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ProfileResult:
     """Result of a profiling session."""
-    
+
     name: str
     elapsed_time: float
     calls: int = 0
     memory_used_mb: float = 0.0
     cpu_percent: float = 0.0
-    details: Dict[str, Any] = field(default_factory=dict)
-    
-    def to_dict(self) -> Dict[str, Any]:
+    details: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "name": self.name,
@@ -43,19 +44,19 @@ class ProfileResult:
 
 class Profiler:
     """Performance profiler for JARVIS operations."""
-    
+
     def __init__(self):
-        self._results: List[ProfileResult] = []
+        self._results: list[ProfileResult] = []
         self._enabled = True
-    
+
     def enable(self) -> None:
         """Enable profiling."""
         self._enabled = True
-    
+
     def disable(self) -> None:
         """Disable profiling."""
         self._enabled = False
-    
+
     @contextmanager
     def profile(self, name: str):
         """Context manager for profiling a code block.
@@ -69,9 +70,9 @@ class Profiler:
         if not self._enabled:
             yield ProfileResult(name=name, elapsed_time=0)
             return
-        
+
         start_time = time.perf_counter()
-        
+
         # Try to get memory usage
         memory_before = 0.0
         try:
@@ -80,15 +81,15 @@ class Profiler:
             memory_before = process.memory_info().rss / (1024 * 1024)
         except ImportError:
             pass
-        
+
         result = ProfileResult(name=name, elapsed_time=0)
-        
+
         try:
             yield result
         finally:
             elapsed = time.perf_counter() - start_time
             result.elapsed_time = elapsed
-            
+
             # Get memory after
             try:
                 import psutil
@@ -97,10 +98,10 @@ class Profiler:
                 result.memory_used_mb = memory_after - memory_before
             except ImportError:
                 pass
-            
+
             self._results.append(result)
             logger.debug(f"Profile [{name}]: {elapsed*1000:.2f}ms")
-    
+
     def profile_function(self, func: Callable) -> Callable:
         """Decorator to profile a function.
         
@@ -115,24 +116,24 @@ class Profiler:
             with self.profile(func.__name__):
                 return func(*args, **kwargs)
         return wrapper
-    
-    def get_results(self) -> List[ProfileResult]:
+
+    def get_results(self) -> list[ProfileResult]:
         """Get all profiling results."""
         return self._results.copy()
-    
-    def get_summary(self) -> Dict[str, Any]:
+
+    def get_summary(self) -> dict[str, Any]:
         """Get a summary of profiling results."""
         if not self._results:
             return {"total_time_ms": 0, "operations": []}
-        
+
         total_time = sum(r.elapsed_time for r in self._results)
-        
+
         return {
             "total_time_ms": total_time * 1000,
             "operation_count": len(self._results),
             "operations": [r.to_dict() for r in self._results],
         }
-    
+
     def clear(self) -> None:
         """Clear all results."""
         self._results.clear()
@@ -140,15 +141,15 @@ class Profiler:
 
 class CPUProfiler:
     """CPU profiler using cProfile."""
-    
+
     def __init__(self):
-        self._profiler: Optional[cProfile.Profile] = None
-    
+        self._profiler: cProfile.Profile | None = None
+
     def start(self) -> None:
         """Start CPU profiling."""
         self._profiler = cProfile.Profile()
         self._profiler.enable()
-    
+
     def stop(self) -> str:
         """Stop CPU profiling and return stats.
         
@@ -157,16 +158,16 @@ class CPUProfiler:
         """
         if not self._profiler:
             return ""
-        
+
         self._profiler.disable()
-        
+
         stream = io.StringIO()
         stats = pstats.Stats(self._profiler, stream=stream)
         stats.sort_stats("cumulative")
         stats.print_stats(20)  # Top 20 functions
-        
+
         return stream.getvalue()
-    
+
     @contextmanager
     def profile(self):
         """Context manager for CPU profiling.
@@ -184,19 +185,19 @@ class CPUProfiler:
 
 class BenchmarkRunner:
     """Run benchmarks for performance testing."""
-    
+
     def __init__(self):
-        self._benchmarks: Dict[str, Callable] = {}
-    
+        self._benchmarks: dict[str, Callable] = {}
+
     def register(self, name: str, func: Callable) -> None:
         """Register a benchmark function."""
         self._benchmarks[name] = func
-    
+
     def run(
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
         iterations: int = 10,
-    ) -> Dict[str, Dict[str, float]]:
+    ) -> dict[str, dict[str, float]]:
         """Run benchmarks.
         
         Args:
@@ -211,25 +212,25 @@ class BenchmarkRunner:
             if name
             else self._benchmarks
         )
-        
+
         results = {}
-        
+
         for bench_name, func in benchmarks.items():
             times = []
-            
+
             for _ in range(iterations):
                 start = time.perf_counter()
                 func()
                 elapsed = time.perf_counter() - start
                 times.append(elapsed)
-            
+
             results[bench_name] = {
                 "mean_ms": (sum(times) / len(times)) * 1000,
                 "min_ms": min(times) * 1000,
                 "max_ms": max(times) * 1000,
                 "iterations": iterations,
             }
-        
+
         return results
 
 

@@ -8,7 +8,6 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Optional
 
 
 @dataclass
@@ -21,11 +20,11 @@ class ManifestV2:
 
     # Query info
     query: str = ""
-    concepts: List[str] = field(default_factory=list)
+    concepts: list[str] = field(default_factory=list)
 
     # Inputs
-    input_hashes: List[str] = field(default_factory=list)
-    input_sources: List[str] = field(default_factory=list)
+    input_hashes: list[str] = field(default_factory=list)
+    input_sources: list[str] = field(default_factory=list)
 
     # Tool versions
     jarvis_version: str = "4.1"
@@ -34,11 +33,11 @@ class ManifestV2:
     extractor_version: str = ""
 
     # Parameters
-    thresholds: Dict[str, float] = field(default_factory=dict)
+    thresholds: dict[str, float] = field(default_factory=dict)
     config_hash: str = ""
 
     # Outputs
-    output_hashes: List[str] = field(default_factory=list)
+    output_hashes: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -58,7 +57,7 @@ class ManifestV2:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "ManifestV2":
+    def from_dict(cls, data: dict) -> ManifestV2:
         return cls(
             run_id=data["run_id"],
             created_at=datetime.fromisoformat(data["created_at"]),
@@ -82,16 +81,16 @@ class ManifestV2:
             json.dump(self.to_dict(), f, indent=2, ensure_ascii=False)
 
     @classmethod
-    def load(cls, path: str) -> "ManifestV2":
+    def load(cls, path: str) -> ManifestV2:
         """Load manifest from JSON."""
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return cls.from_dict(json.load(f))
 
 
 def create_manifest(
     query: str = "",
-    concepts: List[str] = None,
-    inputs: List[str] = None,
+    concepts: list[str] = None,
+    inputs: list[str] = None,
     config: dict = None,
 ) -> ManifestV2:
     """Create a new manifest.
@@ -129,7 +128,7 @@ def create_manifest(
     return manifest
 
 
-def compare_manifests(m1: ManifestV2, m2: ManifestV2) -> Dict[str, str]:
+def compare_manifests(m1: ManifestV2, m2: ManifestV2) -> dict[str, str]:
     """Compare two manifests and return differences.
 
     Args:
@@ -148,7 +147,7 @@ def compare_manifests(m1: ManifestV2, m2: ManifestV2) -> Dict[str, str]:
         diffs["llm_model"] = f"Model changed: {m1.llm_model} → {m2.llm_model}"
 
     if m1.thresholds != m2.thresholds:
-        diffs["thresholds"] = f"Thresholds changed"
+        diffs["thresholds"] = "Thresholds changed"
 
     if m1.config_hash != m2.config_hash:
         diffs["config"] = "Configuration changed"

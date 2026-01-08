@@ -5,11 +5,10 @@ import json
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 from jarvis_core.scheduler.schema import normalize_schedule_payload, validate_required_fields
-
 
 SCHEDULES_DIR = Path("data/schedules")
 RUNS_DIR = SCHEDULES_DIR / "runs"
@@ -36,7 +35,7 @@ def _history_path(schedule_id: str) -> Path:
     return RUNS_DIR / f"{schedule_id}.jsonl"
 
 
-def _write_json_atomic(path: Path, data: Dict[str, Any]) -> None:
+def _write_json_atomic(path: Path, data: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temp_path = path.with_suffix(".tmp")
     with open(temp_path, "w", encoding="utf-8") as f:
@@ -44,32 +43,32 @@ def _write_json_atomic(path: Path, data: Dict[str, Any]) -> None:
     temp_path.replace(path)
 
 
-def _load_json(path: Path) -> Dict[str, Any]:
+def _load_json(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
     except Exception:
         return {}
 
 
-def list_schedules() -> List[Dict[str, Any]]:
-    schedules: List[Dict[str, Any]] = []
+def list_schedules() -> list[dict[str, Any]]:
+    schedules: list[dict[str, Any]] = []
     with _index_lock:
         for path in sorted(SCHEDULES_DIR.glob("SCH_*.json")):
             schedules.append(_load_json(path))
     return schedules
 
 
-def get_schedule(schedule_id: str) -> Optional[Dict[str, Any]]:
+def get_schedule(schedule_id: str) -> dict[str, Any] | None:
     path = _schedule_path(schedule_id)
     if not path.exists():
         return None
     return _load_json(path)
 
 
-def save_schedule(payload: Dict[str, Any], schedule_id: Optional[str] = None) -> Dict[str, Any]:
+def save_schedule(payload: dict[str, Any], schedule_id: str | None = None) -> dict[str, Any]:
     validate_required_fields(payload)
     schedule_id = schedule_id or payload.get("schedule_id") or f"SCH_{uuid4().hex[:8]}"
     existing = get_schedule(schedule_id)
@@ -79,7 +78,7 @@ def save_schedule(payload: Dict[str, Any], schedule_id: Optional[str] = None) ->
     return schedule
 
 
-def update_schedule(schedule_id: str, patch: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def update_schedule(schedule_id: str, patch: dict[str, Any]) -> dict[str, Any] | None:
     existing = get_schedule(schedule_id)
     if not existing:
         return None
@@ -90,7 +89,7 @@ def update_schedule(schedule_id: str, patch: Dict[str, Any]) -> Optional[Dict[st
     return schedule
 
 
-def create_run(schedule_id: str, idempotency_key: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+def create_run(schedule_id: str, idempotency_key: str, payload: dict[str, Any]) -> dict[str, Any]:
     run_id = f"run_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:6]}"
     run = {
         "run_id": run_id,
@@ -113,14 +112,14 @@ def create_run(schedule_id: str, idempotency_key: str, payload: Dict[str, Any]) 
     return run
 
 
-def read_run(run_id: str) -> Optional[Dict[str, Any]]:
+def read_run(run_id: str) -> dict[str, Any] | None:
     path = _run_path(run_id)
     if not path.exists():
         return None
     return _load_json(path)
 
 
-def update_run(run_id: str, **changes: Any) -> Optional[Dict[str, Any]]:
+def update_run(run_id: str, **changes: Any) -> dict[str, Any] | None:
     run = read_run(run_id)
     if not run:
         return None
@@ -131,12 +130,12 @@ def update_run(run_id: str, **changes: Any) -> Optional[Dict[str, Any]]:
     return run
 
 
-def list_runs(schedule_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+def list_runs(schedule_id: str, limit: int = 50) -> list[dict[str, Any]]:
     history_path = _history_path(schedule_id)
     if not history_path.exists():
         return []
-    entries: List[Dict[str, Any]] = []
-    with open(history_path, "r", encoding="utf-8") as f:
+    entries: list[dict[str, Any]] = []
+    with open(history_path, encoding="utf-8") as f:
         lines = [line for line in f if line.strip()]
     for line in lines[-limit:]:
         entry = json.loads(line)
@@ -146,8 +145,8 @@ def list_runs(schedule_id: str, limit: int = 50) -> List[Dict[str, Any]]:
     return entries
 
 
-def list_all_runs(limit: int = 50, statuses: Optional[List[str]] = None) -> List[Dict[str, Any]]:
-    runs: List[Dict[str, Any]] = []
+def list_all_runs(limit: int = 50, statuses: list[str] | None = None) -> list[dict[str, Any]]:
+    runs: list[dict[str, Any]] = []
     paths = sorted(RUNS_DIR.glob("run_*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
     for path in paths[:limit]:
         run = _load_json(path)
@@ -157,11 +156,11 @@ def list_all_runs(limit: int = 50, statuses: Optional[List[str]] = None) -> List
     return runs
 
 
-def find_run_by_idempotency(schedule_id: str, idempotency_key: str) -> Optional[Dict[str, Any]]:
+def find_run_by_idempotency(schedule_id: str, idempotency_key: str) -> dict[str, Any] | None:
     history_path = _history_path(schedule_id)
     if not history_path.exists():
         return None
-    with open(history_path, "r", encoding="utf-8") as f:
+    with open(history_path, encoding="utf-8") as f:
         for line in f:
             if not line.strip():
                 continue
@@ -171,9 +170,9 @@ def find_run_by_idempotency(schedule_id: str, idempotency_key: str) -> Optional[
     return None
 
 
-def list_due_retries(now: Optional[datetime] = None) -> List[Dict[str, Any]]:
+def list_due_retries(now: datetime | None = None) -> list[dict[str, Any]]:
     now = now or datetime.now(timezone.utc)
-    due: List[Dict[str, Any]] = []
+    due: list[dict[str, Any]] = []
     with _runs_lock:
         for path in RUNS_DIR.glob("run_*.json"):
             run = _load_json(path)
@@ -191,7 +190,7 @@ def list_due_retries(now: Optional[datetime] = None) -> List[Dict[str, Any]]:
     return due
 
 
-def update_schedule_status(schedule_id: str, status: str, error: Optional[str] = None) -> None:
+def update_schedule_status(schedule_id: str, status: str, error: str | None = None) -> None:
     schedule = get_schedule(schedule_id)
     if not schedule:
         return

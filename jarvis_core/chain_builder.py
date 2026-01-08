@@ -5,13 +5,13 @@ Per RP38, this builds research chains from claims to experiments.
 from __future__ import annotations
 
 import re
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
-def _extract_keywords(text: str) -> List[str]:
+def _extract_keywords(text: str) -> list[str]:
     """Extract keywords from text."""
     # Simple keyword extraction
     words = re.findall(r"\b[A-Z][a-z]+(?:[A-Z][a-z]+)*\b|\b[A-Z]{2,}\b", text)
@@ -19,9 +19,9 @@ def _extract_keywords(text: str) -> List[str]:
 
 
 def _find_related_papers(
-    keywords: List[str],
-    vectors: List["PaperVector"],
-) -> List[str]:
+    keywords: list[str],
+    vectors: list[PaperVector],
+) -> list[str]:
     """Find papers related to keywords."""
     related = []
     for v in vectors:
@@ -35,9 +35,9 @@ def _find_related_papers(
 
 
 def _suggest_methods(
-    keywords: List[str],
-    vectors: List["PaperVector"],
-) -> List[str]:
+    keywords: list[str],
+    vectors: list[PaperVector],
+) -> list[str]:
     """Suggest experimental methods based on related papers."""
     all_methods = {}
     for v in vectors:
@@ -55,9 +55,9 @@ def _suggest_methods(
 
 
 def build_research_chain(
-    claims: List[str],
-    vectors: List["PaperVector"],
-) -> List[dict]:
+    claims: list[str],
+    vectors: list[PaperVector],
+) -> list[dict]:
     """Build claim-hypothesis-experiment chains.
 
     Args:

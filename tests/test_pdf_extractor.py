@@ -2,8 +2,8 @@
 
 Per RP7, this tests the PDF→pages→SourceDocument→EvidenceStore pipeline.
 """
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -15,11 +15,10 @@ if str(ROOT) not in sys.path:
 from jarvis_core.evidence import EvidenceStore
 from jarvis_core.pdf_extractor import (
     extract_pdf_pages,
-    load_pdf_as_documents,
     ingest_pdf,
+    load_pdf_as_documents,
 )
 from jarvis_core.sources import ExecutionContext, ingest
-
 
 SAMPLE_PDF = ROOT / "tests" / "fixtures" / "sample.pdf"
 

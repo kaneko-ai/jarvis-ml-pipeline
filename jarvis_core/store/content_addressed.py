@@ -7,12 +7,11 @@ from __future__ import annotations
 
 import hashlib
 import json
-from pathlib import Path
-from typing import Optional, Union
 from dataclasses import dataclass
+from pathlib import Path
 
 
-def compute_hash(content: Union[str, bytes]) -> str:
+def compute_hash(content: str | bytes) -> str:
     """Compute SHA-256 hash of content.
 
     Args:
@@ -26,7 +25,7 @@ def compute_hash(content: Union[str, bytes]) -> str:
     return hashlib.sha256(content).hexdigest()
 
 
-def verify_hash(content: Union[str, bytes], expected_hash: str) -> bool:
+def verify_hash(content: str | bytes, expected_hash: str) -> bool:
     """Verify content against expected hash.
 
     Args:
@@ -74,7 +73,7 @@ class ContentAddressedStore:
         """Initialize store directories."""
         self.objects_path.mkdir(parents=True, exist_ok=True)
         if self.index_path.exists():
-            with open(self.index_path, "r", encoding="utf-8") as f:
+            with open(self.index_path, encoding="utf-8") as f:
                 self.index = json.load(f)
 
     def _save_index(self):
@@ -89,7 +88,7 @@ class ContentAddressedStore:
 
     def store(
         self,
-        content: Union[str, bytes],
+        content: str | bytes,
         content_type: str = "text",
         metadata: dict = None,
     ) -> str:
@@ -135,7 +134,7 @@ class ContentAddressedStore:
 
         return hash
 
-    def retrieve(self, hash: str) -> Optional[str]:
+    def retrieve(self, hash: str) -> str | None:
         """Retrieve content by hash.
 
         Args:
@@ -157,7 +156,7 @@ class ContentAddressedStore:
         """Check if hash exists in store."""
         return hash in self.index
 
-    def get_metadata(self, hash: str) -> Optional[dict]:
+    def get_metadata(self, hash: str) -> dict | None:
         """Get metadata for stored object."""
         if hash not in self.index:
             return None

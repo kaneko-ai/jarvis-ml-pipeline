@@ -5,9 +5,6 @@ Uses BM25 + optional embedding distance.
 """
 from __future__ import annotations
 
-from typing import List, Tuple
-import math
-
 
 def bm25_score(
     query: str,
@@ -107,9 +104,9 @@ def score_relevance(
 
 def filter_by_relevance(
     query: str,
-    evidences: List[Tuple[str, str]],  # (id, text) pairs
+    evidences: list[tuple[str, str]],  # (id, text) pairs
     min_score: float = 0.3,
-) -> List[Tuple[str, float]]:
+) -> list[tuple[str, float]]:
     """Filter evidences by relevance.
 
     Args:

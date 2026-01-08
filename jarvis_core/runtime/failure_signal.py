@@ -4,9 +4,9 @@ Per RP-184, normalizes failures for repair logic input.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
-from typing import Dict, Any, Optional, List
+from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 
 class FailureCode(str, Enum):
@@ -68,13 +68,13 @@ class FailureSignal:
     code: FailureCode
     message: str
     stage: FailureStage
-    metadata: Dict[str, Any] = None
+    metadata: dict[str, Any] = None
 
     def __post_init__(self):
         if self.metadata is None:
             self.metadata = {}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "code": self.code.value if isinstance(self.code, FailureCode) else self.code,
@@ -84,7 +84,7 @@ class FailureSignal:
         }
 
     @classmethod
-    def from_exception(cls, exc: Exception, stage: FailureStage = FailureStage.UNKNOWN) -> "FailureSignal":
+    def from_exception(cls, exc: Exception, stage: FailureStage = FailureStage.UNKNOWN) -> FailureSignal:
         """Create from exception."""
         exc_type = type(exc).__name__
 
@@ -106,7 +106,7 @@ class FailureSignal:
         )
 
     @classmethod
-    def from_result_error(cls, error_type: str, message: str, stage: str = "unknown") -> "FailureSignal":
+    def from_result_error(cls, error_type: str, message: str, stage: str = "unknown") -> FailureSignal:
         """Create from Result error."""
         # Map error types to codes
         code_map = {
@@ -134,7 +134,7 @@ class FailureSignal:
         )
 
 
-def extract_failure_signals(result: Any) -> List[FailureSignal]:
+def extract_failure_signals(result: Any) -> list[FailureSignal]:
     """Extract failure signals from a Result object.
 
     Per RP-184, this provides signals for repair logic.

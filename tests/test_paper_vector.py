@@ -8,10 +8,9 @@ Tests must verify:
 - Year x Concept filter API
 """
 import json
+import sys
 import tempfile
 from pathlib import Path
-from datetime import datetime
-import sys
 
 import pytest
 
@@ -24,23 +23,20 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from jarvis_core.paper_vector import (
-    PaperVector,
-    MetadataVector,
-    ConceptVector,
-    MethodVector,
+    VECTOR_SCHEMA_VERSION,
     BiologicalAxisVector,
-    TemporalVector,
+    ConceptVector,
     ImpactVector,
-    EmbeddingVector,
-    generate_paper_id,
+    MetadataVector,
+    PaperVector,
     extract_concepts_from_text,
     extract_methods_from_text,
     extract_paper_vector_from_result,
-    filter_by_year,
     filter_by_concept,
+    filter_by_year,
     filter_by_year_and_concept,
+    generate_paper_id,
     load_all_vectors,
-    VECTOR_SCHEMA_VERSION,
 )
 from jarvis_core.result import EvidenceQAResult
 

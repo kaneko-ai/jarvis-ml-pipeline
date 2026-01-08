@@ -4,16 +4,16 @@ Per RP32, this detects gaps in literature and proposes hypotheses.
 """
 from __future__ import annotations
 
-from typing import List, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def _find_concept_gaps(
-    vectors: List["PaperVector"],
-    focus_concepts: List[str],
-) -> Dict[str, Dict[str, float]]:
+    vectors: list[PaperVector],
+    focus_concepts: list[str],
+) -> dict[str, dict[str, float]]:
     """Find which axes are understudied for each concept."""
     gaps = {}
 
@@ -42,9 +42,9 @@ def _find_concept_gaps(
 
 
 def generate_hypotheses(
-    vectors: List["PaperVector"],
-    focus_concepts: List[str],
-) -> List[dict]:
+    vectors: list[PaperVector],
+    focus_concepts: list[str],
+) -> list[dict]:
     """Generate research hypotheses based on literature gaps.
 
     Args:

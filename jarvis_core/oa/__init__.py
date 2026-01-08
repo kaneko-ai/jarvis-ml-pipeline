@@ -1,4 +1,4 @@
 """Open access utilities."""
-from .oa_resolver import OAResolver, OAEvidence
+from .oa_resolver import OAEvidence, OAResolver
 
 __all__ = ["OAResolver", "OAEvidence"]

@@ -1,8 +1,8 @@
 """Research package."""
 from .hypothesis import (
-    ResearchGap,
     Hypothesis,
     HypothesisGenerator,
+    ResearchGap,
 )
 
 __all__ = [

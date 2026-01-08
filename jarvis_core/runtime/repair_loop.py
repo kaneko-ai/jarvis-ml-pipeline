@@ -5,14 +5,15 @@ Per RP-187, implements the retry-until-success loop.
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import List, Dict, Any, Optional, Callable
 from enum import Enum
+from typing import Any
 
-from .repair_policy import RepairPolicy
 from .failure_signal import FailureSignal, extract_failure_signals
 from .remediation import get_action
 from .remediation.planner import plan_repair
+from .repair_policy import RepairPolicy
 
 
 class StopReason(Enum):
@@ -34,8 +35,8 @@ class RepairLoopResult:
     final_result: Any
     stop_reason: StopReason
     attempts: int
-    action_history: List[str]
-    failure_signals_history: List[List[FailureSignal]]
+    action_history: list[str]
+    failure_signals_history: list[list[FailureSignal]]
     total_time_seconds: float
 
 
@@ -51,7 +52,7 @@ class RepairLoop:
     def __init__(
         self,
         policy: RepairPolicy,
-        run_fn: Callable[[Dict[str, Any]], Any],
+        run_fn: Callable[[dict[str, Any]], Any],
         quality_fn: Callable[[Any], bool],
     ):
         """Initialize repair loop.
@@ -65,7 +66,7 @@ class RepairLoop:
         self.run_fn = run_fn
         self.quality_fn = quality_fn
 
-    def run(self, initial_config: Dict[str, Any]) -> RepairLoopResult:
+    def run(self, initial_config: dict[str, Any]) -> RepairLoopResult:
         """Execute the repair loop.
 
         Args:
@@ -78,11 +79,11 @@ class RepairLoop:
         config = dict(initial_config)
         config["repair_policy"] = self.policy.to_dict()
 
-        action_history: List[str] = []
-        signals_history: List[List[FailureSignal]] = []
+        action_history: list[str] = []
+        signals_history: list[list[FailureSignal]] = []
         tool_calls = 0
         consecutive_no_improvement = 0
-        last_failure_codes: Optional[set] = None
+        last_failure_codes: set | None = None
 
         for attempt in range(1, self.policy.max_attempts + 1):
             # Check wall time

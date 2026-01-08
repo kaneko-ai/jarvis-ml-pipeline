@@ -5,7 +5,6 @@ Per RP-29, adds fact/inference separation and evidence density metrics.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List
 
 from ..artifacts import ClaimSet, ClaimType
 

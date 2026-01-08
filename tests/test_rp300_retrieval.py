@@ -37,7 +37,7 @@ class TestQueryUnderstanding:
 
     def test_classify_mechanism_query(self):
         """Should classify mechanism queries."""
-        from jarvis_core.retrieval.query_understanding import QueryUnderstanding, QueryType
+        from jarvis_core.retrieval.query_understanding import QueryType, QueryUnderstanding
 
         qu = QueryUnderstanding()
         result = qu.parse("How does CD73 regulate adenosine?")

@@ -5,16 +5,16 @@ Per RP-525, implements feature flag management.
 from __future__ import annotations
 
 import hashlib
-import time
 import threading
+import time
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any, Set
 from enum import Enum
+from typing import Any
 
 
 class RolloutStrategy(Enum):
     """Feature rollout strategies."""
-    
+
     ALL = "all"
     NONE = "none"
     PERCENTAGE = "percentage"
@@ -25,15 +25,15 @@ class RolloutStrategy(Enum):
 @dataclass
 class FeatureFlag:
     """A feature flag."""
-    
+
     name: str
     description: str
     enabled: bool = False
     strategy: RolloutStrategy = RolloutStrategy.NONE
     percentage: float = 0.0
-    user_list: Set[str] = field(default_factory=set)
-    groups: Set[str] = field(default_factory=set)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    user_list: set[str] = field(default_factory=set)
+    groups: set[str] = field(default_factory=set)
+    metadata: dict[str, Any] = field(default_factory=dict)
     created_at: float = field(default_factory=time.time)
     updated_at: float = field(default_factory=time.time)
 
@@ -47,12 +47,12 @@ class FeatureFlagManager:
     - A/B experiments
     - User targeting
     """
-    
+
     def __init__(self):
-        self._flags: Dict[str, FeatureFlag] = {}
+        self._flags: dict[str, FeatureFlag] = {}
         self._lock = threading.RLock()
-        self._decision_cache: Dict[str, Dict[str, bool]] = {}
-    
+        self._decision_cache: dict[str, dict[str, bool]] = {}
+
     def create_flag(
         self,
         name: str,
@@ -80,14 +80,14 @@ class FeatureFlagManager:
             strategy=strategy,
             percentage=percentage,
         )
-        
+
         with self._lock:
             self._flags[name] = flag
             self._decision_cache[name] = {}
-        
+
         return flag
-    
-    def get_flag(self, name: str) -> Optional[FeatureFlag]:
+
+    def get_flag(self, name: str) -> FeatureFlag | None:
         """Get a feature flag.
         
         Args:
@@ -97,12 +97,12 @@ class FeatureFlagManager:
             FeatureFlag or None.
         """
         return self._flags.get(name)
-    
+
     def is_enabled(
         self,
         flag_name: str,
-        user_id: Optional[str] = None,
-        groups: Optional[List[str]] = None,
+        user_id: str | None = None,
+        groups: list[str] | None = None,
         default: bool = False,
     ) -> bool:
         """Check if flag is enabled for user.
@@ -117,36 +117,36 @@ class FeatureFlagManager:
             True if enabled.
         """
         flag = self._flags.get(flag_name)
-        
+
         if not flag:
             return default
-        
+
         if not flag.enabled:
             return False
-        
+
         # Check cache for user
         if user_id:
             cached = self._decision_cache.get(flag_name, {}).get(user_id)
             if cached is not None:
                 return cached
-        
+
         # Evaluate strategy
         result = self._evaluate_strategy(flag, user_id, groups or [])
-        
+
         # Cache result
         if user_id:
             with self._lock:
                 if flag_name not in self._decision_cache:
                     self._decision_cache[flag_name] = {}
                 self._decision_cache[flag_name][user_id] = result
-        
+
         return result
-    
+
     def _evaluate_strategy(
         self,
         flag: FeatureFlag,
-        user_id: Optional[str],
-        groups: List[str],
+        user_id: str | None,
+        groups: list[str],
     ) -> bool:
         """Evaluate rollout strategy.
         
@@ -159,32 +159,32 @@ class FeatureFlagManager:
             True if enabled.
         """
         strategy = flag.strategy
-        
+
         if strategy == RolloutStrategy.ALL:
             return True
-        
+
         if strategy == RolloutStrategy.NONE:
             return False
-        
+
         if strategy == RolloutStrategy.USER_LIST:
             return user_id in flag.user_list if user_id else False
-        
+
         if strategy == RolloutStrategy.GROUP:
             return bool(set(groups) & flag.groups)
-        
+
         if strategy == RolloutStrategy.PERCENTAGE:
             if not user_id:
                 return False
-            
+
             # Deterministic hash-based bucketing
             hash_input = f"{flag.name}:{user_id}"
             hash_value = int(hashlib.md5(hash_input.encode()).hexdigest(), 16)
             bucket = (hash_value % 100) / 100.0
-            
+
             return bucket < flag.percentage
-        
+
         return False
-    
+
     def enable_flag(self, flag_name: str) -> None:
         """Enable a flag globally.
         
@@ -197,7 +197,7 @@ class FeatureFlagManager:
                 self._flags[flag_name].strategy = RolloutStrategy.ALL
                 self._flags[flag_name].updated_at = time.time()
                 self._decision_cache[flag_name] = {}
-    
+
     def disable_flag(self, flag_name: str) -> None:
         """Disable a flag (kill switch).
         
@@ -209,7 +209,7 @@ class FeatureFlagManager:
                 self._flags[flag_name].enabled = False
                 self._flags[flag_name].updated_at = time.time()
                 self._decision_cache[flag_name] = {}
-    
+
     def set_percentage(
         self,
         flag_name: str,
@@ -228,11 +228,11 @@ class FeatureFlagManager:
                 self._flags[flag_name].enabled = True
                 self._flags[flag_name].updated_at = time.time()
                 self._decision_cache[flag_name] = {}
-    
+
     def add_users(
         self,
         flag_name: str,
-        user_ids: List[str],
+        user_ids: list[str],
     ) -> None:
         """Add users to flag.
         
@@ -246,8 +246,8 @@ class FeatureFlagManager:
                 self._flags[flag_name].strategy = RolloutStrategy.USER_LIST
                 self._flags[flag_name].enabled = True
                 self._flags[flag_name].updated_at = time.time()
-    
-    def list_flags(self) -> List[FeatureFlag]:
+
+    def list_flags(self) -> list[FeatureFlag]:
         """List all flags.
         
         Returns:
@@ -257,7 +257,7 @@ class FeatureFlagManager:
 
 
 # Global instance
-_feature_flags: Optional[FeatureFlagManager] = None
+_feature_flags: FeatureFlagManager | None = None
 
 
 def get_feature_flags() -> FeatureFlagManager:

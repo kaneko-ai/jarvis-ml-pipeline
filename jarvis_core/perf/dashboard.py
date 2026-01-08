@@ -8,7 +8,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -24,28 +24,28 @@ class DashboardData:
 
     # Performance
     total_duration_ms: float = 0.0
-    span_stats: Dict[str, dict] = field(default_factory=dict)
-    top_slow_stages: List[dict] = field(default_factory=list)
+    span_stats: dict[str, dict] = field(default_factory=dict)
+    top_slow_stages: list[dict] = field(default_factory=list)
 
     # Cost breakdown
-    cost_breakdown: Dict[str, float] = field(default_factory=dict)
+    cost_breakdown: dict[str, float] = field(default_factory=dict)
     total_cost: float = 0.0
 
     # Cache statistics
     cache_hit_rate: float = 0.0
-    cache_stats: Dict[str, int] = field(default_factory=dict)
+    cache_stats: dict[str, int] = field(default_factory=dict)
 
     # Quality metrics
-    truth_metrics: Dict[str, float] = field(default_factory=dict)
+    truth_metrics: dict[str, float] = field(default_factory=dict)
     regression_status: str = "unknown"
 
     # SLO status
     slo_status: str = "passed"
-    slo_violations: List[str] = field(default_factory=list)
+    slo_violations: list[str] = field(default_factory=list)
 
     # Budget status
     budget_usage_percent: float = 0.0
-    budget_breakdown: Dict[str, float] = field(default_factory=dict)
+    budget_breakdown: dict[str, float] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         """Convert to fixed-schema dict."""
@@ -223,7 +223,7 @@ class Scorecard:
     timestamp: datetime
     gates_passed: int
     gates_failed: int
-    gates: List[dict]
+    gates: list[dict]
 
     def save(self, path: str) -> None:
         """Save scorecard."""

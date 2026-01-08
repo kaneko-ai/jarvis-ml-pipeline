@@ -4,8 +4,9 @@ Per DEC-006: ネットワーク不要でE2Eを検証するテスト。
 固定コーパスを使用し、10ファイル契約への準拠を確認。
 """
 import json
-import pytest
 from pathlib import Path
+
+import pytest
 
 # Test fixture paths
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
@@ -21,7 +22,7 @@ class TestOfflineCorpus:
 
     def test_corpus_structure(self):
         """コーパスが正しい構造を持つ。"""
-        with open(OFFLINE_CORPUS, "r", encoding="utf-8") as f:
+        with open(OFFLINE_CORPUS, encoding="utf-8") as f:
             corpus = json.load(f)
 
         assert "papers" in corpus, "Corpus must have 'papers' key"
@@ -34,7 +35,7 @@ class TestOfflineCorpus:
 
     def test_corpus_has_sections(self):
         """論文にセクション情報が含まれる。"""
-        with open(OFFLINE_CORPUS, "r", encoding="utf-8") as f:
+        with open(OFFLINE_CORPUS, encoding="utf-8") as f:
             corpus = json.load(f)
 
         papers_with_sections = [p for p in corpus["papers"] if p.get("sections")]
@@ -57,7 +58,7 @@ class TestOfflinePipeline:
         if not pipeline_path.exists():
             pytest.skip("Offline pipeline not found")
 
-        with open(pipeline_path, "r", encoding="utf-8") as f:
+        with open(pipeline_path, encoding="utf-8") as f:
             config = yaml.safe_load(f)
 
         assert config.get("pipeline") == "e2e_offline"
@@ -111,7 +112,6 @@ class TestE2EOfflineSmoke:
     @pytest.mark.skip(reason="Requires full pipeline implementation")
     def test_offline_e2e_produces_bundle(self, tmp_path):
         """オフラインE2Eがbundleを生成する。"""
-        from jarvis_core.storage import RunStore
 
         # This test would run the full pipeline with offline corpus
         # and verify that 10 files are produced

@@ -5,19 +5,17 @@ Per RP15, these tests verify:
 - RIS export (Zotero/EndNote compatible)
 - Bundle includes .bib/.ris files
 """
+import sys
 import tempfile
 from pathlib import Path
-import sys
-
-import pytest
 
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from jarvis_core.bibtex_utils import _escape_bibtex, export_bibtex, format_bibtex_entry
 from jarvis_core.reference import Reference
-from jarvis_core.bibtex_utils import export_bibtex, format_bibtex_entry, _escape_bibtex
 from jarvis_core.ris import export_ris, format_ris_entry
 
 
@@ -136,9 +134,9 @@ class TestBundleBibliography:
     def test_bundle_includes_bib(self):
         """Bundle should include references.bib."""
         from jarvis_core.agents import Citation
+        from jarvis_core.bundle import export_evidence_bundle
         from jarvis_core.evidence import EvidenceStore
         from jarvis_core.result import EvidenceQAResult
-        from jarvis_core.bundle import export_evidence_bundle
 
         store = EvidenceStore()
         chunk_id = store.add_chunk("pdf", "pdf:test.pdf#page:1", "Content")
@@ -165,9 +163,9 @@ class TestBundleBibliography:
     def test_bundle_includes_ris(self):
         """Bundle should include references.ris."""
         from jarvis_core.agents import Citation
+        from jarvis_core.bundle import export_evidence_bundle
         from jarvis_core.evidence import EvidenceStore
         from jarvis_core.result import EvidenceQAResult
-        from jarvis_core.bundle import export_evidence_bundle
 
         store = EvidenceStore()
         chunk_id = store.add_chunk("pdf", "pdf:test.pdf#page:1", "Content")

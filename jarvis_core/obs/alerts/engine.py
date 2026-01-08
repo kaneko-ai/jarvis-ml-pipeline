@@ -6,11 +6,10 @@ import os
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from jarvis_core.obs import metrics
 from jarvis_core.obs.alerts.schema import AlertRule, load_rules, save_rules
-
 
 ALERT_STATE_PATH = Path("data/ops/alert_state.json")
 
@@ -19,7 +18,7 @@ def _now() -> datetime:
     return datetime.now(timezone.utc)
 
 
-def _parse_ts(value: Optional[str]) -> Optional[datetime]:
+def _parse_ts(value: str | None) -> datetime | None:
     if not value:
         return None
     try:
@@ -28,52 +27,52 @@ def _parse_ts(value: Optional[str]) -> Optional[datetime]:
         return None
 
 
-def _load_state() -> Dict[str, Any]:
+def _load_state() -> dict[str, Any]:
     if not ALERT_STATE_PATH.exists():
         return {"last_sent": {}}
-    with open(ALERT_STATE_PATH, "r", encoding="utf-8") as f:
+    with open(ALERT_STATE_PATH, encoding="utf-8") as f:
         return json.load(f)
 
 
-def _save_state(state: Dict[str, Any]) -> None:
+def _save_state(state: dict[str, Any]) -> None:
     ALERT_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(ALERT_STATE_PATH, "w", encoding="utf-8") as f:
         json.dump(state, f, ensure_ascii=False, indent=2)
 
 
-def _cooldown_ok(rule: AlertRule, state: Dict[str, Any]) -> bool:
+def _cooldown_ok(rule: AlertRule, state: dict[str, Any]) -> bool:
     last_sent = _parse_ts(state.get("last_sent", {}).get(rule.rule_id))
     if not last_sent:
         return True
     return _now() - last_sent >= timedelta(minutes=rule.cooldown_minutes)
 
 
-def _record_sent(rule: AlertRule, state: Dict[str, Any]) -> None:
+def _record_sent(rule: AlertRule, state: dict[str, Any]) -> None:
     state.setdefault("last_sent", {})[rule.rule_id] = _now().isoformat()
 
 
-def _load_jobs() -> List[Dict[str, Any]]:
+def _load_jobs() -> list[dict[str, Any]]:
     jobs_dir = Path("data/jobs")
     if not jobs_dir.exists():
         return []
     jobs = []
     for path in jobs_dir.glob("job_*.json"):
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 jobs.append(json.load(f))
         except json.JSONDecodeError:
             continue
     return jobs
 
 
-def _send_webhook(url: str, payload: Dict[str, Any]) -> None:
+def _send_webhook(url: str, payload: dict[str, Any]) -> None:
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=10) as response:
         response.read()
 
 
-def _dispatch_notifications(rule: AlertRule, payload: Dict[str, Any]) -> List[str]:
+def _dispatch_notifications(rule: AlertRule, payload: dict[str, Any]) -> list[str]:
     sent = []
     for target in rule.notify:
         if target.startswith("webhook:"):
@@ -84,7 +83,7 @@ def _dispatch_notifications(rule: AlertRule, payload: Dict[str, Any]) -> List[st
     return sent
 
 
-def _make_payload(rule: AlertRule, title: str, message: str, context: Dict[str, Any]) -> Dict[str, Any]:
+def _make_payload(rule: AlertRule, title: str, message: str, context: dict[str, Any]) -> dict[str, Any]:
     return {
         "ts": datetime.now(timezone.utc).isoformat(),
         "severity": rule.severity,
@@ -95,7 +94,7 @@ def _make_payload(rule: AlertRule, title: str, message: str, context: Dict[str, 
     }
 
 
-def evaluate_rules(rules: Optional[List[AlertRule]] = None) -> List[Dict[str, Any]]:
+def evaluate_rules(rules: list[AlertRule] | None = None) -> list[dict[str, Any]]:
     rules = rules or load_rules()
     state = _load_state()
     sent_alerts = []
@@ -192,13 +191,13 @@ def evaluate_rules(rules: Optional[List[AlertRule]] = None) -> List[Dict[str, An
     return sent_alerts
 
 
-def update_rules(rules_payload: List[Dict[str, Any]]) -> List[AlertRule]:
+def update_rules(rules_payload: list[dict[str, Any]]) -> list[AlertRule]:
     rules = [AlertRule(**rule) for rule in rules_payload]
     save_rules(rules)
     return rules
 
 
-def send_test_alert() -> Dict[str, Any]:
+def send_test_alert() -> dict[str, Any]:
     rule = AlertRule(
         rule_id="test_alert",
         enabled=True,

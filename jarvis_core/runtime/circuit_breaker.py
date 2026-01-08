@@ -5,10 +5,11 @@ Per V4.2 Sprint 2, this provides fault tolerance with partial result preservatio
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Callable, Any, Optional, List
 from datetime import datetime
+from enum import Enum
+from typing import Any
 
 
 class CircuitState(Enum):
@@ -39,7 +40,7 @@ class RetryPolicy:
     base_delay: float = 1.0
     max_delay: float = 60.0
     exponential_base: float = 2.0
-    retryable_reasons: List[FailureReason] = field(
+    retryable_reasons: list[FailureReason] = field(
         default_factory=lambda: [FailureReason.NETWORK, FailureReason.TIMEOUT]
     )
 
@@ -63,8 +64,8 @@ class CircuitBreaker:
     recovery_timeout: float = 30.0
     state: CircuitState = CircuitState.CLOSED
     failure_count: int = 0
-    last_failure_time: Optional[datetime] = None
-    partial_results: List[Any] = field(default_factory=list)
+    last_failure_time: datetime | None = None
+    partial_results: list[Any] = field(default_factory=list)
 
     def record_success(self) -> None:
         """Record successful call."""
@@ -99,7 +100,7 @@ class CircuitBreaker:
         """Save partial result for recovery."""
         self.partial_results.append(result)
 
-    def get_partial_results(self) -> List[Any]:
+    def get_partial_results(self) -> list[Any]:
         """Get accumulated partial results."""
         return self.partial_results
 
@@ -181,8 +182,8 @@ class RecoveryResult:
     """Result after recovery attempt."""
 
     success: bool
-    partial_results: List[Any]
-    failure_reason: Optional[FailureReason]
+    partial_results: list[Any]
+    failure_reason: FailureReason | None
     attempts: int
     error_message: str = ""
 

@@ -12,7 +12,7 @@ class TestRepairPlannerPriority:
 
     def test_fetch_failure_actions(self):
         """FETCH_PDF_FAILED should plan SWITCH_FETCH_ADAPTER first."""
-        from jarvis_core.runtime.failure_signal import FailureSignal, FailureCode, FailureStage
+        from jarvis_core.runtime.failure_signal import FailureCode, FailureSignal, FailureStage
         from jarvis_core.runtime.remediation.planner import RepairPlanner
 
         planner = RepairPlanner()
@@ -34,7 +34,7 @@ class TestRepairPlannerPriority:
 
     def test_citation_failure_actions(self):
         """CITATION_GATE_FAILED should plan in order."""
-        from jarvis_core.runtime.failure_signal import FailureSignal, FailureCode, FailureStage
+        from jarvis_core.runtime.failure_signal import FailureCode, FailureSignal, FailureStage
         from jarvis_core.runtime.remediation.planner import RepairPlanner
 
         planner = RepairPlanner()
@@ -55,7 +55,7 @@ class TestRepairPlannerPriority:
 
     def test_no_consecutive_same_action(self):
         """Same action should not be applied consecutively."""
-        from jarvis_core.runtime.failure_signal import FailureSignal, FailureCode, FailureStage
+        from jarvis_core.runtime.failure_signal import FailureCode, FailureSignal, FailureStage
         from jarvis_core.runtime.remediation.planner import RepairPlanner
 
         planner = RepairPlanner()
@@ -81,7 +81,7 @@ class TestRepairPlannerPriority:
 
     def test_deterministic_output(self):
         """Same signals should always produce same actions."""
-        from jarvis_core.runtime.failure_signal import FailureSignal, FailureCode, FailureStage
+        from jarvis_core.runtime.failure_signal import FailureCode, FailureSignal, FailureStage
         from jarvis_core.runtime.remediation.planner import RepairPlanner
 
         planner = RepairPlanner()
