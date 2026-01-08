@@ -1,2655 +1,3471 @@
-# JARVIS Research OS 完遂指示書
-## antigravity向け実行計画書 v1.0
+# JARVIS-ML-Pipeline A+〜S評価達成のための厳密指示書
 
-> **Authority**: INSTRUCTION (実行レベル)  
-> **Repository**: https://github.com/kaneko-ai/jarvis-ml-pipeline  
-> **Created**: 2026-01-07  
-> **Target**: 120/100点 (1200/1000) 達成  
-> **Estimated Duration**: 8週間 (40営業日)
+**対象リポジトリ**: `https://github.com/kaneko-ai/jarvis-ml-pipeline`
+**目標スコア**: 100点以上（A+〜S評価）
+**現在スコア**: 78/100点（B+）
+**必要改善ポイント**: +22点以上
 
 ---
 
 ## 目次
 
-1. [実行前提条件](#1-実行前提条件)
-2. [スキルフレームワーク活用ガイド](#2-スキルフレームワーク活用ガイド)
-3. [Phase 1: オフラインモード完成](#3-phase-1-オフラインモード完成-80点)
-4. [Phase 2: 埋め込み・検索完成](#4-phase-2-埋め込み検索完成-46点)
-5. [Phase 3: 差別化機能完成](#5-phase-3-差別化機能完成-100点)
-6. [Phase 4: エコシステム完成](#6-phase-4-エコシステム完成-96点)
-7. [検証・品質保証](#7-検証品質保証)
-8. [完了判定基準](#8-完了判定基準)
+1. [Phase 1: 緊急対応（テスト欠落修正）](#phase-1-緊急対応テスト欠落修正)
+2. [Phase 2: ドキュメント整備](#phase-2-ドキュメント整備)
+3. [Phase 3: CI/CD強化](#phase-3-cicd強化)
+4. [Phase 4: コード品質向上](#phase-4-コード品質向上)
+5. [Phase 5: 機能拡張・高度化](#phase-5-機能拡張高度化)
+6. [Phase 6: セキュリティ・本番対応](#phase-6-セキュリティ本番対応)
+7. [検証チェックリスト](#検証チェックリスト)
 
 ---
 
-## 1. 実行前提条件
+## Phase 1: 緊急対応（テスト欠落修正）
 
-### 1.1 環境セットアップ
+### 1.1 `tests/test_prisma.py` の作成 【+2点】
+
+```python
+"""Tests for the PRISMA Diagram Generation Module.
+
+Per JARVIS_COMPLETION_PLAN_v3 Task 2.4
+"""
+
+import pytest
+from pathlib import Path
+import tempfile
+
+
+class TestPRISMASchema:
+    """Tests for PRISMA schema."""
+
+    def test_prisma_stage_enum(self):
+        """Test PRISMAStage enum values."""
+        from jarvis_core.prisma.schema import PRISMAStage
+        
+        assert PRISMAStage.IDENTIFICATION.value == "identification"
+        assert PRISMAStage.SCREENING.value == "screening"
+        assert PRISMAStage.ELIGIBILITY.value == "eligibility"
+        assert PRISMAStage.INCLUDED.value == "included"
+
+    def test_exclusion_reason_dataclass(self):
+        """Test ExclusionReason dataclass."""
+        from jarvis_core.prisma.schema import ExclusionReason
+        
+        reason = ExclusionReason(
+            reason="Duplicate publication",
+            count=15,
+            stage="screening"
+        )
+        
+        assert reason.reason == "Duplicate publication"
+        assert reason.count == 15
+        assert reason.stage == "screening"
+
+    def test_prisma_data_initialization(self):
+        """Test PRISMAData dataclass initialization."""
+        from jarvis_core.prisma.schema import PRISMAData, ExclusionReason
+        
+        data = PRISMAData(
+            identification_database=1000,
+            identification_other=50,
+            duplicates_removed=200,
+            records_screened=850,
+            records_excluded_screening=500,
+            full_text_assessed=350,
+            full_text_excluded=100,
+            studies_included=250,
+            exclusion_reasons=[
+                ExclusionReason("Not relevant", 300, "screening"),
+                ExclusionReason("No full text", 50, "eligibility"),
+            ]
+        )
+        
+        assert data.identification_database == 1000
+        assert data.studies_included == 250
+        assert len(data.exclusion_reasons) == 2
+
+    def test_prisma_data_validation(self):
+        """Test PRISMAData validation logic."""
+        from jarvis_core.prisma.schema import PRISMAData
+        
+        data = PRISMAData(
+            identification_database=100,
+            identification_other=0,
+            duplicates_removed=10,
+            records_screened=90,
+            records_excluded_screening=40,
+            full_text_assessed=50,
+            full_text_excluded=20,
+            studies_included=30,
+        )
+        
+        # Validate flow consistency
+        total_identified = data.identification_database + data.identification_other
+        after_duplicates = total_identified - data.duplicates_removed
+        assert after_duplicates == data.records_screened
+        
+        after_screening = data.records_screened - data.records_excluded_screening
+        assert after_screening == data.full_text_assessed
+        
+        after_eligibility = data.full_text_assessed - data.full_text_excluded
+        assert after_eligibility == data.studies_included
+
+    def test_prisma_data_to_dict(self):
+        """Test PRISMAData serialization."""
+        from jarvis_core.prisma.schema import PRISMAData
+        
+        data = PRISMAData(
+            identification_database=500,
+            identification_other=25,
+            duplicates_removed=75,
+            records_screened=450,
+            records_excluded_screening=200,
+            full_text_assessed=250,
+            full_text_excluded=50,
+            studies_included=200,
+        )
+        
+        result = data.to_dict()
+        
+        assert result["identification_database"] == 500
+        assert result["studies_included"] == 200
+        assert "exclusion_reasons" in result
+
+    def test_prisma_data_from_dict(self):
+        """Test PRISMAData deserialization."""
+        from jarvis_core.prisma.schema import PRISMAData
+        
+        input_dict = {
+            "identification_database": 300,
+            "identification_other": 10,
+            "duplicates_removed": 30,
+            "records_screened": 280,
+            "records_excluded_screening": 100,
+            "full_text_assessed": 180,
+            "full_text_excluded": 30,
+            "studies_included": 150,
+        }
+        
+        data = PRISMAData.from_dict(input_dict)
+        
+        assert data.identification_database == 300
+        assert data.studies_included == 150
+
+
+class TestPRISMAGenerator:
+    """Tests for PRISMA diagram generator."""
+
+    def test_generator_initialization(self):
+        """Test PRISMAGenerator initialization."""
+        from jarvis_core.prisma.generator import PRISMAGenerator
+        
+        generator = PRISMAGenerator()
+        assert generator is not None
+
+    def test_generate_mermaid_basic(self):
+        """Test basic Mermaid diagram generation."""
+        from jarvis_core.prisma.generator import PRISMAGenerator
+        from jarvis_core.prisma.schema import PRISMAData
+        
+        generator = PRISMAGenerator()
+        data = PRISMAData(
+            identification_database=1000,
+            identification_other=50,
+            duplicates_removed=200,
+            records_screened=850,
+            records_excluded_screening=500,
+            full_text_assessed=350,
+            full_text_excluded=100,
+            studies_included=250,
+        )
+        
+        mermaid = generator.generate_mermaid(data)
+        
+        assert "flowchart TD" in mermaid or "graph TD" in mermaid
+        assert "1000" in mermaid  # identification_database
+        assert "250" in mermaid  # studies_included
+        assert "Identification" in mermaid or "identification" in mermaid.lower()
+
+    def test_generate_mermaid_with_exclusion_reasons(self):
+        """Test Mermaid diagram with exclusion reasons."""
+        from jarvis_core.prisma.generator import PRISMAGenerator
+        from jarvis_core.prisma.schema import PRISMAData, ExclusionReason
+        
+        generator = PRISMAGenerator()
+        data = PRISMAData(
+            identification_database=500,
+            identification_other=0,
+            duplicates_removed=50,
+            records_screened=450,
+            records_excluded_screening=200,
+            full_text_assessed=250,
+            full_text_excluded=100,
+            studies_included=150,
+            exclusion_reasons=[
+                ExclusionReason("Not RCT", 50, "eligibility"),
+                ExclusionReason("Wrong population", 30, "eligibility"),
+                ExclusionReason("No outcome data", 20, "eligibility"),
+            ]
+        )
+        
+        mermaid = generator.generate_mermaid(data)
+        
+        assert "Not RCT" in mermaid or "50" in mermaid
+        assert "150" in mermaid  # studies_included
+
+    def test_generate_svg(self):
+        """Test SVG diagram generation."""
+        from jarvis_core.prisma.generator import PRISMAGenerator
+        from jarvis_core.prisma.schema import PRISMAData
+        
+        generator = PRISMAGenerator()
+        data = PRISMAData(
+            identification_database=100,
+            identification_other=10,
+            duplicates_removed=20,
+            records_screened=90,
+            records_excluded_screening=40,
+            full_text_assessed=50,
+            full_text_excluded=10,
+            studies_included=40,
+        )
+        
+        svg = generator.generate_svg(data)
+        
+        assert svg.startswith("<svg") or svg.startswith("<?xml")
+        assert "</svg>" in svg
+        assert "100" in svg or "40" in svg
+
+    def test_generate_svg_file_output(self):
+        """Test SVG file output."""
+        from jarvis_core.prisma.generator import PRISMAGenerator
+        from jarvis_core.prisma.schema import PRISMAData
+        
+        generator = PRISMAGenerator()
+        data = PRISMAData(
+            identification_database=100,
+            identification_other=0,
+            duplicates_removed=10,
+            records_screened=90,
+            records_excluded_screening=30,
+            full_text_assessed=60,
+            full_text_excluded=10,
+            studies_included=50,
+        )
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "prisma_flow.svg"
+            generator.generate_svg(data, output_path=output_path)
+            
+            assert output_path.exists()
+            content = output_path.read_text()
+            assert "<svg" in content or "<?xml" in content
+
+    def test_generate_html_interactive(self):
+        """Test interactive HTML diagram generation."""
+        from jarvis_core.prisma.generator import PRISMAGenerator
+        from jarvis_core.prisma.schema import PRISMAData
+        
+        generator = PRISMAGenerator()
+        data = PRISMAData(
+            identification_database=200,
+            identification_other=20,
+            duplicates_removed=40,
+            records_screened=180,
+            records_excluded_screening=80,
+            full_text_assessed=100,
+            full_text_excluded=30,
+            studies_included=70,
+        )
+        
+        html = generator.generate_html(data)
+        
+        assert "<html" in html.lower() or "<!doctype" in html.lower()
+        assert "mermaid" in html.lower() or "svg" in html.lower()
+
+
+class TestGeneratePrismaFlowFunction:
+    """Tests for convenience function."""
+
+    def test_generate_prisma_flow_mermaid(self):
+        """Test generate_prisma_flow with Mermaid output."""
+        from jarvis_core.prisma import generate_prisma_flow
+        from jarvis_core.prisma.schema import PRISMAData
+        
+        data = PRISMAData(
+            identification_database=500,
+            identification_other=50,
+            duplicates_removed=100,
+            records_screened=450,
+            records_excluded_screening=200,
+            full_text_assessed=250,
+            full_text_excluded=75,
+            studies_included=175,
+        )
+        
+        result = generate_prisma_flow(data, format="mermaid")
+        
+        assert "flowchart" in result.lower() or "graph" in result.lower()
+
+    def test_generate_prisma_flow_svg(self):
+        """Test generate_prisma_flow with SVG output."""
+        from jarvis_core.prisma import generate_prisma_flow
+        from jarvis_core.prisma.schema import PRISMAData
+        
+        data = PRISMAData(
+            identification_database=100,
+            identification_other=0,
+            duplicates_removed=10,
+            records_screened=90,
+            records_excluded_screening=30,
+            full_text_assessed=60,
+            full_text_excluded=10,
+            studies_included=50,
+        )
+        
+        result = generate_prisma_flow(data, format="svg")
+        
+        assert "<svg" in result or "<?xml" in result
+
+    def test_generate_prisma_flow_from_dict(self):
+        """Test generate_prisma_flow from dictionary input."""
+        from jarvis_core.prisma import generate_prisma_flow
+        
+        data_dict = {
+            "identification_database": 250,
+            "identification_other": 25,
+            "duplicates_removed": 50,
+            "records_screened": 225,
+            "records_excluded_screening": 100,
+            "full_text_assessed": 125,
+            "full_text_excluded": 25,
+            "studies_included": 100,
+        }
+        
+        result = generate_prisma_flow(data_dict, format="mermaid")
+        
+        assert "250" in result or "100" in result
+
+
+class TestPRISMA2020Compliance:
+    """Tests for PRISMA 2020 statement compliance."""
+
+    def test_prisma_2020_required_items(self):
+        """Test that all PRISMA 2020 required items are supported."""
+        from jarvis_core.prisma.schema import PRISMAData
+        
+        # PRISMA 2020 requires these flow diagram elements
+        required_attributes = [
+            "identification_database",
+            "identification_other",
+            "duplicates_removed",
+            "records_screened",
+            "records_excluded_screening",
+            "full_text_assessed",
+            "full_text_excluded",
+            "studies_included",
+        ]
+        
+        data = PRISMAData(
+            identification_database=0,
+            identification_other=0,
+            duplicates_removed=0,
+            records_screened=0,
+            records_excluded_screening=0,
+            full_text_assessed=0,
+            full_text_excluded=0,
+            studies_included=0,
+        )
+        
+        for attr in required_attributes:
+            assert hasattr(data, attr), f"Missing PRISMA 2020 required attribute: {attr}"
+
+    def test_multiple_database_sources(self):
+        """Test support for multiple database sources."""
+        from jarvis_core.prisma.schema import PRISMAData
+        
+        # PRISMA 2020 supports multiple database sources
+        data = PRISMAData(
+            identification_database=1000,
+            identification_other=200,
+            identification_registers=50,  # Optional: clinical trial registers
+            duplicates_removed=150,
+            records_screened=1100,
+            records_excluded_screening=600,
+            full_text_assessed=500,
+            full_text_excluded=100,
+            studies_included=400,
+            database_sources=["PubMed", "Embase", "Cochrane"],
+        )
+        
+        assert data.identification_database + data.identification_other >= data.records_screened + data.duplicates_removed
+
+
+class TestModuleImports:
+    """Test module imports."""
+
+    def test_main_imports(self):
+        """Test main module imports."""
+        from jarvis_core.prisma import (
+            PRISMAData,
+            PRISMAStage,
+            ExclusionReason,
+            PRISMAGenerator,
+            generate_prisma_flow,
+        )
+        
+        assert PRISMAData is not None
+        assert PRISMAStage is not None
+        assert ExclusionReason is not None
+        assert PRISMAGenerator is not None
+        assert generate_prisma_flow is not None
+
+    def test_schema_imports(self):
+        """Test schema module imports."""
+        from jarvis_core.prisma.schema import (
+            PRISMAData,
+            PRISMAStage,
+            ExclusionReason,
+        )
+        
+        assert PRISMAData is not None
+        assert PRISMAStage is not None
+        assert ExclusionReason is not None
+
+    def test_generator_imports(self):
+        """Test generator module imports."""
+        from jarvis_core.prisma.generator import (
+            PRISMAGenerator,
+            generate_prisma_flow,
+        )
+        
+        assert PRISMAGenerator is not None
+        assert generate_prisma_flow is not None
+```
+
+---
+
+### 1.2 `tests/test_active_learning.py` の作成 【+2点】
+
+```python
+"""Tests for the Active Learning Module.
+
+Per JARVIS_COMPLETION_PLAN_v3 Task 2.5
+"""
+
+import pytest
+from unittest.mock import Mock, MagicMock
+import numpy as np
+
+
+class TestALConfig:
+    """Tests for Active Learning configuration."""
+
+    def test_config_default_values(self):
+        """Test ALConfig default values."""
+        from jarvis_core.active_learning import ALConfig
+        
+        config = ALConfig()
+        
+        assert config.batch_size > 0
+        assert config.initial_sample_size > 0
+        assert 0.0 <= config.uncertainty_threshold <= 1.0
+
+    def test_config_custom_values(self):
+        """Test ALConfig with custom values."""
+        from jarvis_core.active_learning import ALConfig
+        
+        config = ALConfig(
+            batch_size=20,
+            initial_sample_size=50,
+            uncertainty_threshold=0.6,
+            model_type="lightgbm",
+        )
+        
+        assert config.batch_size == 20
+        assert config.initial_sample_size == 50
+        assert config.uncertainty_threshold == 0.6
+        assert config.model_type == "lightgbm"
+
+    def test_config_validation(self):
+        """Test ALConfig validation."""
+        from jarvis_core.active_learning import ALConfig
+        
+        # Invalid batch_size should raise or be handled
+        with pytest.raises((ValueError, AssertionError)):
+            ALConfig(batch_size=0)
+        
+        with pytest.raises((ValueError, AssertionError)):
+            ALConfig(batch_size=-1)
+
+    def test_config_to_dict(self):
+        """Test ALConfig serialization."""
+        from jarvis_core.active_learning import ALConfig
+        
+        config = ALConfig(batch_size=15, initial_sample_size=30)
+        result = config.to_dict()
+        
+        assert result["batch_size"] == 15
+        assert result["initial_sample_size"] == 30
+
+
+class TestALState:
+    """Tests for Active Learning state management."""
+
+    def test_state_initialization(self):
+        """Test ALState initialization."""
+        from jarvis_core.active_learning import ALState
+        
+        state = ALState()
+        
+        assert state.iteration == 0
+        assert state.labeled_count == 0
+        assert state.unlabeled_count == 0
+        assert len(state.labeled_indices) == 0
+
+    def test_state_update(self):
+        """Test ALState update after labeling."""
+        from jarvis_core.active_learning import ALState
+        
+        state = ALState(unlabeled_count=100)
+        
+        state.add_labeled([0, 1, 2, 3, 4])
+        
+        assert state.labeled_count == 5
+        assert state.unlabeled_count == 95
+        assert state.iteration == 1
+        assert set(state.labeled_indices) == {0, 1, 2, 3, 4}
+
+    def test_state_metrics_tracking(self):
+        """Test ALState metrics tracking."""
+        from jarvis_core.active_learning import ALState
+        
+        state = ALState()
+        
+        state.record_metrics(
+            iteration=1,
+            precision=0.85,
+            recall=0.90,
+            f1=0.87,
+        )
+        
+        assert len(state.metrics_history) == 1
+        assert state.metrics_history[0]["precision"] == 0.85
+
+    def test_state_serialization(self):
+        """Test ALState serialization and deserialization."""
+        from jarvis_core.active_learning import ALState
+        
+        state = ALState(unlabeled_count=50)
+        state.add_labeled([1, 2, 3])
+        state.record_metrics(iteration=1, precision=0.8, recall=0.9, f1=0.85)
+        
+        state_dict = state.to_dict()
+        restored = ALState.from_dict(state_dict)
+        
+        assert restored.labeled_count == state.labeled_count
+        assert restored.iteration == state.iteration
+        assert len(restored.metrics_history) == 1
+
+
+class TestQueryStrategy:
+    """Tests for query strategies."""
+
+    def test_uncertainty_sampling_init(self):
+        """Test UncertaintySampling initialization."""
+        from jarvis_core.active_learning import UncertaintySampling
+        
+        strategy = UncertaintySampling()
+        assert strategy is not None
+
+    def test_uncertainty_sampling_select(self):
+        """Test UncertaintySampling selection."""
+        from jarvis_core.active_learning import UncertaintySampling
+        
+        strategy = UncertaintySampling()
+        
+        # Mock probabilities: higher uncertainty = closer to 0.5
+        probabilities = np.array([0.1, 0.5, 0.9, 0.45, 0.55, 0.2])
+        
+        selected = strategy.select(probabilities, n=3)
+        
+        assert len(selected) == 3
+        # Most uncertain samples (closest to 0.5) should be selected
+        assert 1 in selected  # prob = 0.5
+        assert 3 in selected  # prob = 0.45
+        assert 4 in selected  # prob = 0.55
+
+    def test_uncertainty_sampling_with_mask(self):
+        """Test UncertaintySampling with already labeled mask."""
+        from jarvis_core.active_learning import UncertaintySampling
+        
+        strategy = UncertaintySampling()
+        
+        probabilities = np.array([0.5, 0.5, 0.5, 0.5])
+        already_labeled = {0, 2}  # indices 0 and 2 are already labeled
+        
+        selected = strategy.select(probabilities, n=2, exclude=already_labeled)
+        
+        assert len(selected) == 2
+        assert 0 not in selected
+        assert 2 not in selected
+
+    def test_diversity_sampling_init(self):
+        """Test DiversitySampling initialization."""
+        from jarvis_core.active_learning import DiversitySampling
+        
+        strategy = DiversitySampling()
+        assert strategy is not None
+
+    def test_diversity_sampling_select(self):
+        """Test DiversitySampling selection."""
+        from jarvis_core.active_learning import DiversitySampling
+        
+        strategy = DiversitySampling()
+        
+        # Mock embeddings: 5 samples with 3 features
+        embeddings = np.array([
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [0.0, 0.0, 1.0],
+            [0.5, 0.5, 0.5],
+        ])
+        
+        selected = strategy.select(embeddings, n=3)
+        
+        assert len(selected) == 3
+        # Should select diverse samples (far apart in embedding space)
+
+    def test_hybrid_strategy(self):
+        """Test hybrid uncertainty + diversity strategy."""
+        from jarvis_core.active_learning import UncertaintySampling, DiversitySampling
+        from jarvis_core.active_learning.query import HybridStrategy
+        
+        strategy = HybridStrategy(
+            uncertainty_weight=0.7,
+            diversity_weight=0.3,
+        )
+        
+        probabilities = np.array([0.5, 0.3, 0.7, 0.45])
+        embeddings = np.array([
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [0.0, 1.0],
+            [1.0, 1.0],
+        ])
+        
+        selected = strategy.select(
+            probabilities=probabilities,
+            embeddings=embeddings,
+            n=2,
+        )
+        
+        assert len(selected) == 2
+
+
+class TestStoppingCriterion:
+    """Tests for stopping criteria."""
+
+    def test_recall_stopping_init(self):
+        """Test RecallStoppingCriterion initialization."""
+        from jarvis_core.active_learning import RecallStoppingCriterion
+        
+        criterion = RecallStoppingCriterion(target_recall=0.95)
+        assert criterion.target_recall == 0.95
+
+    def test_recall_stopping_not_met(self):
+        """Test RecallStoppingCriterion when not met."""
+        from jarvis_core.active_learning import RecallStoppingCriterion, ALState
+        
+        criterion = RecallStoppingCriterion(target_recall=0.95)
+        state = ALState()
+        state.record_metrics(iteration=1, recall=0.80)
+        
+        assert criterion.should_stop(state) == False
+
+    def test_recall_stopping_met(self):
+        """Test RecallStoppingCriterion when met."""
+        from jarvis_core.active_learning import RecallStoppingCriterion, ALState
+        
+        criterion = RecallStoppingCriterion(target_recall=0.95)
+        state = ALState()
+        state.record_metrics(iteration=1, recall=0.96)
+        
+        assert criterion.should_stop(state) == True
+
+    def test_budget_stopping_init(self):
+        """Test BudgetStoppingCriterion initialization."""
+        from jarvis_core.active_learning import BudgetStoppingCriterion
+        
+        criterion = BudgetStoppingCriterion(max_labels=100)
+        assert criterion.max_labels == 100
+
+    def test_budget_stopping_not_met(self):
+        """Test BudgetStoppingCriterion when not met."""
+        from jarvis_core.active_learning import BudgetStoppingCriterion, ALState
+        
+        criterion = BudgetStoppingCriterion(max_labels=100)
+        state = ALState()
+        state._labeled_count = 50
+        
+        assert criterion.should_stop(state) == False
+
+    def test_budget_stopping_met(self):
+        """Test BudgetStoppingCriterion when met."""
+        from jarvis_core.active_learning import BudgetStoppingCriterion, ALState
+        
+        criterion = BudgetStoppingCriterion(max_labels=100)
+        state = ALState()
+        state._labeled_count = 100
+        
+        assert criterion.should_stop(state) == True
+
+    def test_combined_stopping_criteria(self):
+        """Test combining multiple stopping criteria."""
+        from jarvis_core.active_learning import (
+            RecallStoppingCriterion,
+            BudgetStoppingCriterion,
+            ALState,
+        )
+        from jarvis_core.active_learning.stopping import CombinedStoppingCriterion
+        
+        recall_criterion = RecallStoppingCriterion(target_recall=0.95)
+        budget_criterion = BudgetStoppingCriterion(max_labels=100)
+        
+        combined = CombinedStoppingCriterion(
+            criteria=[recall_criterion, budget_criterion],
+            mode="any",  # Stop if ANY criterion is met
+        )
+        
+        state = ALState()
+        state._labeled_count = 50
+        state.record_metrics(iteration=1, recall=0.80)
+        
+        assert combined.should_stop(state) == False
+        
+        state.record_metrics(iteration=2, recall=0.96)
+        assert combined.should_stop(state) == True
+
+
+class TestActiveLearningEngine:
+    """Tests for Active Learning engine."""
+
+    def test_engine_initialization(self):
+        """Test ActiveLearningEngine initialization."""
+        from jarvis_core.active_learning import ActiveLearningEngine, ALConfig
+        
+        config = ALConfig(batch_size=10, initial_sample_size=20)
+        engine = ActiveLearningEngine(config=config)
+        
+        assert engine is not None
+        assert engine.config.batch_size == 10
+
+    def test_engine_initialize_with_data(self):
+        """Test engine initialization with data."""
+        from jarvis_core.active_learning import ActiveLearningEngine, ALConfig
+        
+        config = ALConfig(batch_size=5, initial_sample_size=10)
+        engine = ActiveLearningEngine(config=config)
+        
+        # Mock data: 100 papers with embeddings
+        embeddings = np.random.rand(100, 128)
+        paper_ids = [f"paper_{i}" for i in range(100)]
+        
+        engine.initialize(embeddings=embeddings, paper_ids=paper_ids)
+        
+        assert engine.state.unlabeled_count == 100
+        assert len(engine.paper_ids) == 100
+
+    def test_engine_get_initial_batch(self):
+        """Test getting initial batch for labeling."""
+        from jarvis_core.active_learning import ActiveLearningEngine, ALConfig
+        
+        config = ALConfig(batch_size=5, initial_sample_size=10)
+        engine = ActiveLearningEngine(config=config)
+        
+        embeddings = np.random.rand(50, 64)
+        paper_ids = [f"paper_{i}" for i in range(50)]
+        engine.initialize(embeddings=embeddings, paper_ids=paper_ids)
+        
+        initial_batch = engine.get_initial_batch()
+        
+        assert len(initial_batch) == 10  # initial_sample_size
+        assert all(pid in paper_ids for pid in initial_batch)
+
+    def test_engine_update_labels(self):
+        """Test updating labels."""
+        from jarvis_core.active_learning import ActiveLearningEngine, ALConfig
+        
+        config = ALConfig(batch_size=5, initial_sample_size=10)
+        engine = ActiveLearningEngine(config=config)
+        
+        embeddings = np.random.rand(50, 64)
+        paper_ids = [f"paper_{i}" for i in range(50)]
+        engine.initialize(embeddings=embeddings, paper_ids=paper_ids)
+        
+        initial_batch = engine.get_initial_batch()
+        
+        # Simulate labeling: 3 relevant, 7 not relevant
+        labels = {pid: (i < 3) for i, pid in enumerate(initial_batch)}
+        
+        engine.update_labels(labels)
+        
+        assert engine.state.labeled_count == 10
+        assert engine.state.iteration == 1
+
+    def test_engine_get_next_batch(self):
+        """Test getting next batch using active learning."""
+        from jarvis_core.active_learning import ActiveLearningEngine, ALConfig
+        
+        config = ALConfig(batch_size=5, initial_sample_size=10)
+        engine = ActiveLearningEngine(config=config)
+        
+        embeddings = np.random.rand(50, 64)
+        paper_ids = [f"paper_{i}" for i in range(50)]
+        engine.initialize(embeddings=embeddings, paper_ids=paper_ids)
+        
+        # Initial labeling
+        initial_batch = engine.get_initial_batch()
+        labels = {pid: (i % 2 == 0) for i, pid in enumerate(initial_batch)}
+        engine.update_labels(labels)
+        
+        # Get next batch
+        next_batch = engine.get_next_batch()
+        
+        assert len(next_batch) == 5  # batch_size
+        assert all(pid not in initial_batch for pid in next_batch)
+
+    def test_engine_train_model(self):
+        """Test model training."""
+        from jarvis_core.active_learning import ActiveLearningEngine, ALConfig
+        
+        config = ALConfig(batch_size=5, initial_sample_size=20, model_type="lightgbm")
+        engine = ActiveLearningEngine(config=config)
+        
+        embeddings = np.random.rand(100, 64)
+        paper_ids = [f"paper_{i}" for i in range(100)]
+        engine.initialize(embeddings=embeddings, paper_ids=paper_ids)
+        
+        # Initial labeling
+        initial_batch = engine.get_initial_batch()
+        labels = {pid: (i % 3 == 0) for i, pid in enumerate(initial_batch)}
+        engine.update_labels(labels)
+        
+        # Model should be trained
+        assert engine.model is not None
+
+    def test_engine_predict_relevance(self):
+        """Test relevance prediction."""
+        from jarvis_core.active_learning import ActiveLearningEngine, ALConfig
+        
+        config = ALConfig(batch_size=5, initial_sample_size=20)
+        engine = ActiveLearningEngine(config=config)
+        
+        embeddings = np.random.rand(100, 64)
+        paper_ids = [f"paper_{i}" for i in range(100)]
+        engine.initialize(embeddings=embeddings, paper_ids=paper_ids)
+        
+        # Initial labeling
+        initial_batch = engine.get_initial_batch()
+        labels = {pid: (i % 2 == 0) for i, pid in enumerate(initial_batch)}
+        engine.update_labels(labels)
+        
+        # Predict relevance for remaining papers
+        predictions = engine.predict_relevance()
+        
+        assert len(predictions) == 80  # 100 - 20 initial
+        assert all(0 <= p <= 1 for p in predictions.values())
+
+    def test_engine_stopping_check(self):
+        """Test stopping criterion check."""
+        from jarvis_core.active_learning import (
+            ActiveLearningEngine,
+            ALConfig,
+            BudgetStoppingCriterion,
+        )
+        
+        config = ALConfig(batch_size=10, initial_sample_size=20)
+        criterion = BudgetStoppingCriterion(max_labels=30)
+        engine = ActiveLearningEngine(config=config, stopping_criterion=criterion)
+        
+        embeddings = np.random.rand(100, 64)
+        paper_ids = [f"paper_{i}" for i in range(100)]
+        engine.initialize(embeddings=embeddings, paper_ids=paper_ids)
+        
+        # Initial labeling (20)
+        initial_batch = engine.get_initial_batch()
+        labels = {pid: True for pid in initial_batch}
+        engine.update_labels(labels)
+        
+        assert engine.should_stop() == False
+        
+        # Next batch (10 more = 30 total)
+        next_batch = engine.get_next_batch()
+        labels = {pid: True for pid in next_batch}
+        engine.update_labels(labels)
+        
+        assert engine.should_stop() == True
+
+    def test_engine_export_results(self):
+        """Test exporting screening results."""
+        from jarvis_core.active_learning import ActiveLearningEngine, ALConfig
+        
+        config = ALConfig(batch_size=5, initial_sample_size=10)
+        engine = ActiveLearningEngine(config=config)
+        
+        embeddings = np.random.rand(50, 64)
+        paper_ids = [f"paper_{i}" for i in range(50)]
+        engine.initialize(embeddings=embeddings, paper_ids=paper_ids)
+        
+        # Labeling
+        initial_batch = engine.get_initial_batch()
+        labels = {pid: (i < 5) for i, pid in enumerate(initial_batch)}
+        engine.update_labels(labels)
+        
+        results = engine.export_results()
+        
+        assert "labeled" in results
+        assert "predicted" in results
+        assert "metrics" in results
+        assert len(results["labeled"]) == 10
+
+
+class TestActiveLearningCLI:
+    """Tests for Active Learning CLI."""
+
+    def test_cli_entry_point_exists(self):
+        """Test CLI entry point is defined."""
+        from jarvis_core.active_learning import cli
+        
+        assert hasattr(cli, "cmd_screen")
+
+    def test_cli_help(self):
+        """Test CLI help message."""
+        import subprocess
+        
+        result = subprocess.run(
+            ["python", "-m", "jarvis_core.active_learning.cli", "--help"],
+            capture_output=True,
+            text=True,
+        )
+        
+        # Should not error, and should show help
+        assert result.returncode == 0 or "usage" in result.stdout.lower() or "help" in result.stderr.lower()
+
+
+class TestModuleImports:
+    """Test module imports."""
+
+    def test_main_imports(self):
+        """Test main module imports."""
+        from jarvis_core.active_learning import (
+            ActiveLearningEngine,
+            ALConfig,
+            ALState,
+            QueryStrategy,
+            UncertaintySampling,
+            DiversitySampling,
+            StoppingCriterion,
+            RecallStoppingCriterion,
+            BudgetStoppingCriterion,
+        )
+        
+        assert ActiveLearningEngine is not None
+        assert ALConfig is not None
+        assert ALState is not None
+        assert QueryStrategy is not None
+        assert UncertaintySampling is not None
+        assert DiversitySampling is not None
+        assert StoppingCriterion is not None
+        assert RecallStoppingCriterion is not None
+        assert BudgetStoppingCriterion is not None
+```
+
+---
+
+### 1.3 `tests/test_paper_scoring.py` の作成 【+1点】
+
+```python
+"""Tests for the Paper Scoring Module.
+
+Per JARVIS_COMPLETION_PLAN_v3 Sprint 19-20
+"""
+
+import pytest
+
+
+class TestScoringWeights:
+    """Tests for scoring weights configuration."""
+
+    def test_default_weights(self):
+        """Test default scoring weights."""
+        from jarvis_core.paper_scoring import ScoringWeights
+        
+        weights = ScoringWeights()
+        
+        assert weights.evidence_weight > 0
+        assert weights.citation_weight > 0
+        assert weights.recency_weight > 0
+        assert weights.source_weight > 0
+        
+        # Weights should sum to approximately 1.0
+        total = (
+            weights.evidence_weight +
+            weights.citation_weight +
+            weights.recency_weight +
+            weights.source_weight
+        )
+        assert 0.99 <= total <= 1.01
+
+    def test_custom_weights(self):
+        """Test custom scoring weights."""
+        from jarvis_core.paper_scoring import ScoringWeights
+        
+        weights = ScoringWeights(
+            evidence_weight=0.4,
+            citation_weight=0.3,
+            recency_weight=0.2,
+            source_weight=0.1,
+        )
+        
+        assert weights.evidence_weight == 0.4
+        assert weights.citation_weight == 0.3
+
+    def test_weights_normalization(self):
+        """Test weights auto-normalization."""
+        from jarvis_core.paper_scoring import ScoringWeights
+        
+        weights = ScoringWeights(
+            evidence_weight=4,
+            citation_weight=3,
+            recency_weight=2,
+            source_weight=1,
+            normalize=True,
+        )
+        
+        total = (
+            weights.evidence_weight +
+            weights.citation_weight +
+            weights.recency_weight +
+            weights.source_weight
+        )
+        assert 0.99 <= total <= 1.01
+
+
+class TestPaperScore:
+    """Tests for PaperScore dataclass."""
+
+    def test_paper_score_creation(self):
+        """Test PaperScore creation."""
+        from jarvis_core.paper_scoring import PaperScore
+        
+        score = PaperScore(
+            paper_id="paper_123",
+            overall_score=0.85,
+            evidence_score=0.90,
+            citation_score=0.80,
+            recency_score=0.75,
+            source_score=0.95,
+        )
+        
+        assert score.paper_id == "paper_123"
+        assert score.overall_score == 0.85
+
+    def test_paper_score_to_dict(self):
+        """Test PaperScore serialization."""
+        from jarvis_core.paper_scoring import PaperScore
+        
+        score = PaperScore(
+            paper_id="paper_456",
+            overall_score=0.72,
+            evidence_score=0.80,
+            citation_score=0.60,
+            recency_score=0.70,
+            source_score=0.85,
+        )
+        
+        result = score.to_dict()
+        
+        assert result["paper_id"] == "paper_456"
+        assert result["overall_score"] == 0.72
+        assert "evidence_score" in result
+
+    def test_paper_score_comparison(self):
+        """Test PaperScore comparison."""
+        from jarvis_core.paper_scoring import PaperScore
+        
+        score_a = PaperScore(paper_id="a", overall_score=0.80)
+        score_b = PaperScore(paper_id="b", overall_score=0.90)
+        
+        assert score_b > score_a
+        assert score_a < score_b
+
+
+class TestPaperScorer:
+    """Tests for PaperScorer class."""
+
+    def test_scorer_initialization(self):
+        """Test PaperScorer initialization."""
+        from jarvis_core.paper_scoring import PaperScorer
+        
+        scorer = PaperScorer()
+        assert scorer is not None
+
+    def test_scorer_with_custom_weights(self):
+        """Test PaperScorer with custom weights."""
+        from jarvis_core.paper_scoring import PaperScorer, ScoringWeights
+        
+        weights = ScoringWeights(
+            evidence_weight=0.5,
+            citation_weight=0.2,
+            recency_weight=0.2,
+            source_weight=0.1,
+        )
+        scorer = PaperScorer(weights=weights)
+        
+        assert scorer.weights.evidence_weight == 0.5
+
+    def test_score_paper_basic(self):
+        """Test basic paper scoring."""
+        from jarvis_core.paper_scoring import PaperScorer
+        from jarvis_core.evidence.schema import EvidenceGrade, EvidenceLevel, StudyType
+        
+        scorer = PaperScorer()
+        
+        paper = {
+            "paper_id": "test_001",
+            "title": "A randomized controlled trial",
+            "year": 2024,
+            "citation_count": 50,
+            "source": "pubmed",
+        }
+        
+        evidence_grade = EvidenceGrade(
+            level=EvidenceLevel.LEVEL_1B,
+            study_type=StudyType.RCT,
+            confidence=0.9,
+        )
+        
+        score = scorer.score(paper, evidence_grade=evidence_grade)
+        
+        assert score.paper_id == "test_001"
+        assert 0 <= score.overall_score <= 1
+        assert score.evidence_score > 0
+
+    def test_score_paper_high_evidence(self):
+        """Test scoring paper with high evidence level."""
+        from jarvis_core.paper_scoring import PaperScorer
+        from jarvis_core.evidence.schema import EvidenceGrade, EvidenceLevel, StudyType
+        
+        scorer = PaperScorer()
+        
+        paper = {
+            "paper_id": "meta_001",
+            "year": 2024,
+            "citation_count": 100,
+            "source": "cochrane",
+        }
+        
+        evidence_grade = EvidenceGrade(
+            level=EvidenceLevel.LEVEL_1A,
+            study_type=StudyType.SYSTEMATIC_REVIEW,
+            confidence=0.95,
+        )
+        
+        score = scorer.score(paper, evidence_grade=evidence_grade)
+        
+        # High evidence level should result in high evidence score
+        assert score.evidence_score >= 0.9
+
+    def test_score_paper_low_evidence(self):
+        """Test scoring paper with low evidence level."""
+        from jarvis_core.paper_scoring import PaperScorer
+        from jarvis_core.evidence.schema import EvidenceGrade, EvidenceLevel, StudyType
+        
+        scorer = PaperScorer()
+        
+        paper = {
+            "paper_id": "opinion_001",
+            "year": 2020,
+            "citation_count": 5,
+            "source": "preprint",
+        }
+        
+        evidence_grade = EvidenceGrade(
+            level=EvidenceLevel.LEVEL_5,
+            study_type=StudyType.EXPERT_OPINION,
+            confidence=0.6,
+        )
+        
+        score = scorer.score(paper, evidence_grade=evidence_grade)
+        
+        # Low evidence level should result in lower evidence score
+        assert score.evidence_score < 0.5
+
+    def test_recency_scoring(self):
+        """Test recency component of scoring."""
+        from jarvis_core.paper_scoring import PaperScorer
+        
+        scorer = PaperScorer()
+        
+        recent_paper = {"paper_id": "recent", "year": 2025}
+        old_paper = {"paper_id": "old", "year": 2010}
+        
+        recent_score = scorer.score(recent_paper)
+        old_score = scorer.score(old_paper)
+        
+        assert recent_score.recency_score > old_score.recency_score
+
+    def test_citation_scoring(self):
+        """Test citation component of scoring."""
+        from jarvis_core.paper_scoring import PaperScorer
+        
+        scorer = PaperScorer()
+        
+        highly_cited = {"paper_id": "popular", "citation_count": 500}
+        low_cited = {"paper_id": "new", "citation_count": 2}
+        
+        high_score = scorer.score(highly_cited)
+        low_score = scorer.score(low_cited)
+        
+        assert high_score.citation_score > low_score.citation_score
+
+    def test_source_scoring(self):
+        """Test source component of scoring."""
+        from jarvis_core.paper_scoring import PaperScorer
+        
+        scorer = PaperScorer()
+        
+        pubmed_paper = {"paper_id": "pm", "source": "pubmed"}
+        preprint_paper = {"paper_id": "pp", "source": "preprint"}
+        
+        pubmed_score = scorer.score(pubmed_paper)
+        preprint_score = scorer.score(preprint_paper)
+        
+        # Peer-reviewed source should score higher
+        assert pubmed_score.source_score >= preprint_score.source_score
+
+    def test_batch_scoring(self):
+        """Test batch paper scoring."""
+        from jarvis_core.paper_scoring import PaperScorer
+        
+        scorer = PaperScorer()
+        
+        papers = [
+            {"paper_id": f"paper_{i}", "year": 2020 + i, "citation_count": i * 10}
+            for i in range(10)
+        ]
+        
+        scores = scorer.score_batch(papers)
+        
+        assert len(scores) == 10
+        assert all(hasattr(s, "overall_score") for s in scores)
+
+
+class TestCalculatePaperScoreFunction:
+    """Tests for convenience function."""
+
+    def test_calculate_paper_score_basic(self):
+        """Test calculate_paper_score function."""
+        from jarvis_core.paper_scoring import calculate_paper_score
+        
+        paper = {
+            "paper_id": "func_test",
+            "year": 2023,
+            "citation_count": 25,
+        }
+        
+        score = calculate_paper_score(paper)
+        
+        assert score.paper_id == "func_test"
+        assert 0 <= score.overall_score <= 1
+
+    def test_calculate_paper_score_with_evidence(self):
+        """Test calculate_paper_score with evidence grade."""
+        from jarvis_core.paper_scoring import calculate_paper_score
+        from jarvis_core.evidence.schema import EvidenceGrade, EvidenceLevel, StudyType
+        
+        paper = {"paper_id": "with_evidence"}
+        evidence = EvidenceGrade(
+            level=EvidenceLevel.LEVEL_2B,
+            study_type=StudyType.COHORT_PROSPECTIVE,
+            confidence=0.8,
+        )
+        
+        score = calculate_paper_score(paper, evidence_grade=evidence)
+        
+        assert score.evidence_score > 0
+
+
+class TestModuleImports:
+    """Test module imports."""
+
+    def test_main_imports(self):
+        """Test main module imports."""
+        from jarvis_core.paper_scoring import (
+            PaperScore,
+            PaperScorer,
+            ScoringWeights,
+            calculate_paper_score,
+        )
+        
+        assert PaperScore is not None
+        assert PaperScorer is not None
+        assert ScoringWeights is not None
+        assert calculate_paper_score is not None
+```
+
+---
+
+### 1.4 `tests/test_hybrid_search.py` の作成 【+1点】
+
+```python
+"""Tests for the Hybrid Search Module.
+
+Per JARVIS_COMPLETION_PLAN_v3 Task 1.2
+"""
+
+import pytest
+import numpy as np
+
+
+class TestBM25Index:
+    """Tests for BM25 index."""
+
+    def test_bm25_initialization(self):
+        """Test BM25Index initialization."""
+        from jarvis_core.embeddings import BM25Index
+        
+        index = BM25Index()
+        assert index is not None
+
+    def test_bm25_add_documents(self):
+        """Test adding documents to BM25 index."""
+        from jarvis_core.embeddings import BM25Index
+        
+        index = BM25Index()
+        
+        documents = [
+            {"id": "1", "text": "machine learning for medical diagnosis"},
+            {"id": "2", "text": "deep learning neural networks"},
+            {"id": "3", "text": "clinical trial randomized controlled"},
+        ]
+        
+        index.add_documents(documents)
+        
+        assert index.document_count == 3
+
+    def test_bm25_search(self):
+        """Test BM25 search."""
+        from jarvis_core.embeddings import BM25Index
+        
+        index = BM25Index()
+        
+        documents = [
+            {"id": "1", "text": "machine learning for medical diagnosis"},
+            {"id": "2", "text": "deep learning neural networks image classification"},
+            {"id": "3", "text": "clinical trial randomized controlled study"},
+        ]
+        
+        index.add_documents(documents)
+        
+        results = index.search("machine learning", top_k=2)
+        
+        assert len(results) <= 2
+        assert results[0]["id"] == "1"  # Most relevant
+
+    def test_bm25_empty_query(self):
+        """Test BM25 with empty query."""
+        from jarvis_core.embeddings import BM25Index
+        
+        index = BM25Index()
+        index.add_documents([{"id": "1", "text": "test document"}])
+        
+        results = index.search("", top_k=5)
+        
+        assert len(results) == 0 or results[0]["score"] == 0
+
+
+class TestSentenceTransformerEmbedding:
+    """Tests for Sentence Transformer embeddings."""
+
+    def test_embedding_initialization(self):
+        """Test SentenceTransformerEmbedding initialization."""
+        from jarvis_core.embeddings import SentenceTransformerEmbedding
+        
+        embedder = SentenceTransformerEmbedding()
+        assert embedder is not None
+
+    def test_embed_single_text(self):
+        """Test embedding single text."""
+        from jarvis_core.embeddings import SentenceTransformerEmbedding
+        
+        embedder = SentenceTransformerEmbedding()
+        
+        embedding = embedder.embed("This is a test sentence.")
+        
+        assert isinstance(embedding, np.ndarray)
+        assert embedding.ndim == 1
+        assert len(embedding) > 0
+
+    def test_embed_batch(self):
+        """Test embedding batch of texts."""
+        from jarvis_core.embeddings import SentenceTransformerEmbedding
+        
+        embedder = SentenceTransformerEmbedding()
+        
+        texts = [
+            "First document about machine learning",
+            "Second document about clinical trials",
+            "Third document about data analysis",
+        ]
+        
+        embeddings = embedder.embed_batch(texts)
+        
+        assert isinstance(embeddings, np.ndarray)
+        assert embeddings.shape[0] == 3
+
+    def test_embedding_similarity(self):
+        """Test embedding similarity."""
+        from jarvis_core.embeddings import SentenceTransformerEmbedding
+        
+        embedder = SentenceTransformerEmbedding()
+        
+        emb1 = embedder.embed("machine learning")
+        emb2 = embedder.embed("artificial intelligence")
+        emb3 = embedder.embed("cooking recipes")
+        
+        # Cosine similarity
+        def cosine_sim(a, b):
+            return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+        
+        sim_related = cosine_sim(emb1, emb2)
+        sim_unrelated = cosine_sim(emb1, emb3)
+        
+        assert sim_related > sim_unrelated
+
+
+class TestHybridSearch:
+    """Tests for Hybrid Search."""
+
+    def test_hybrid_search_initialization(self):
+        """Test HybridSearch initialization."""
+        from jarvis_core.embeddings import HybridSearch
+        
+        search = HybridSearch()
+        assert search is not None
+
+    def test_hybrid_search_add_documents(self):
+        """Test adding documents to hybrid search."""
+        from jarvis_core.embeddings import HybridSearch
+        
+        search = HybridSearch()
+        
+        documents = [
+            {"id": "1", "text": "machine learning medical", "title": "ML in Medicine"},
+            {"id": "2", "text": "deep learning vision", "title": "Computer Vision"},
+        ]
+        
+        search.add_documents(documents)
+        
+        assert search.document_count == 2
+
+    def test_hybrid_search_query(self):
+        """Test hybrid search query."""
+        from jarvis_core.embeddings import HybridSearch
+        
+        search = HybridSearch()
+        
+        documents = [
+            {"id": "1", "text": "machine learning for medical diagnosis treatment"},
+            {"id": "2", "text": "deep learning computer vision image"},
+            {"id": "3", "text": "clinical trial drug efficacy randomized"},
+        ]
+        
+        search.add_documents(documents)
+        
+        results = search.search("machine learning medical", top_k=2)
+        
+        assert len(results) <= 2
+        assert results[0]["id"] == "1"
+
+    def test_hybrid_search_rrf_fusion(self):
+        """Test RRF fusion method."""
+        from jarvis_core.embeddings import HybridSearch, FusionMethod
+        
+        search = HybridSearch(fusion_method=FusionMethod.RRF)
+        
+        documents = [
+            {"id": "1", "text": "cancer treatment chemotherapy"},
+            {"id": "2", "text": "cancer diagnosis machine learning"},
+            {"id": "3", "text": "heart disease prevention"},
+        ]
+        
+        search.add_documents(documents)
+        
+        results = search.search("cancer machine learning", top_k=3)
+        
+        # Document 2 should rank high (matches both cancer and ML)
+        top_ids = [r["id"] for r in results[:2]]
+        assert "2" in top_ids
+
+    def test_hybrid_search_weights(self):
+        """Test hybrid search with custom weights."""
+        from jarvis_core.embeddings import HybridSearch
+        
+        # Emphasize BM25 (keyword matching)
+        search_bm25_heavy = HybridSearch(bm25_weight=0.8, embedding_weight=0.2)
+        
+        # Emphasize embeddings (semantic matching)
+        search_emb_heavy = HybridSearch(bm25_weight=0.2, embedding_weight=0.8)
+        
+        documents = [
+            {"id": "1", "text": "randomized controlled trial RCT"},
+            {"id": "2", "text": "experimental study with random assignment"},
+        ]
+        
+        search_bm25_heavy.add_documents(documents)
+        search_emb_heavy.add_documents(documents)
+        
+        # Query with exact keyword
+        results_bm25 = search_bm25_heavy.search("RCT", top_k=2)
+        results_emb = search_emb_heavy.search("RCT", top_k=2)
+        
+        # BM25-heavy should prefer exact match
+        assert results_bm25[0]["id"] == "1"
+
+
+class TestFusionMethod:
+    """Tests for fusion methods."""
+
+    def test_fusion_method_enum(self):
+        """Test FusionMethod enum."""
+        from jarvis_core.embeddings import FusionMethod
+        
+        assert FusionMethod.RRF.value == "rrf"
+        assert FusionMethod.LINEAR.value == "linear"
+        assert FusionMethod.WEIGHTED.value == "weighted"
+
+
+class TestSPECTER2:
+    """Tests for SPECTER2 scientific embeddings."""
+
+    def test_specter2_initialization(self):
+        """Test SPECTER2Embedding initialization."""
+        from jarvis_core.embeddings import SPECTER2Embedding
+        
+        embedder = SPECTER2Embedding()
+        assert embedder is not None
+
+    def test_specter2_embed(self):
+        """Test SPECTER2 embedding."""
+        from jarvis_core.embeddings import SPECTER2Embedding
+        
+        embedder = SPECTER2Embedding()
+        
+        embedding = embedder.embed(
+            title="A randomized controlled trial of aspirin",
+            abstract="Methods: We conducted a double-blind RCT..."
+        )
+        
+        assert isinstance(embedding, np.ndarray)
+        assert embedding.ndim == 1
+
+
+class TestGetEmbeddingModel:
+    """Tests for get_embedding_model factory."""
+
+    def test_get_general_model(self):
+        """Test getting general embedding model."""
+        from jarvis_core.embeddings import get_embedding_model
+        
+        model = get_embedding_model("general")
+        
+        assert model is not None
+
+    def test_get_scientific_model(self):
+        """Test getting scientific embedding model."""
+        from jarvis_core.embeddings import get_embedding_model
+        
+        model = get_embedding_model("scientific")
+        
+        assert model is not None
+
+
+class TestModuleImports:
+    """Test module imports."""
+
+    def test_main_imports(self):
+        """Test main module imports."""
+        from jarvis_core.embeddings import (
+            SentenceTransformerEmbedding,
+            get_default_embedding_model,
+            get_embedding_model,
+            BM25Index,
+            HybridSearch,
+            FusionMethod,
+            SPECTER2Embedding,
+        )
+        
+        assert SentenceTransformerEmbedding is not None
+        assert BM25Index is not None
+        assert HybridSearch is not None
+        assert FusionMethod is not None
+```
+
+---
+
+### 1.5 `tests/test_network_offline.py` の作成 【+1点】
+
+```python
+"""Tests for the Network/Offline Module.
+
+Per JARVIS_COMPLETION_PLAN_v3 Task 1.5
+"""
+
+import pytest
+from unittest.mock import Mock, patch
+
+
+class TestNetworkDetector:
+    """Tests for NetworkDetector."""
+
+    def test_detector_initialization(self):
+        """Test NetworkDetector initialization."""
+        from jarvis_core.network import NetworkDetector
+        
+        detector = NetworkDetector()
+        assert detector is not None
+
+    def test_is_online_when_connected(self):
+        """Test is_online returns True when connected."""
+        from jarvis_core.network import NetworkDetector
+        
+        detector = NetworkDetector()
+        
+        with patch("socket.create_connection") as mock_conn:
+            mock_conn.return_value = Mock()
+            
+            result = detector.is_online()
+            
+            assert result == True
+
+    def test_is_online_when_disconnected(self):
+        """Test is_online returns False when disconnected."""
+        from jarvis_core.network import NetworkDetector
+        import socket
+        
+        detector = NetworkDetector()
+        
+        with patch("socket.create_connection") as mock_conn:
+            mock_conn.side_effect = socket.timeout()
+            
+            result = detector.is_online()
+            
+            assert result == False
+
+    def test_get_network_status(self):
+        """Test get_network_status returns NetworkStatus."""
+        from jarvis_core.network import NetworkDetector, NetworkStatus
+        
+        detector = NetworkDetector()
+        
+        status = detector.get_status()
+        
+        assert isinstance(status, NetworkStatus)
+        assert hasattr(status, "is_online")
+        assert hasattr(status, "latency_ms")
+
+
+class TestNetworkStatus:
+    """Tests for NetworkStatus dataclass."""
+
+    def test_status_creation(self):
+        """Test NetworkStatus creation."""
+        from jarvis_core.network import NetworkStatus
+        
+        status = NetworkStatus(
+            is_online=True,
+            latency_ms=50.0,
+            last_check=1704067200.0,
+        )
+        
+        assert status.is_online == True
+        assert status.latency_ms == 50.0
+
+    def test_status_offline(self):
+        """Test NetworkStatus for offline state."""
+        from jarvis_core.network import NetworkStatus
+        
+        status = NetworkStatus(
+            is_online=False,
+            latency_ms=None,
+            last_check=1704067200.0,
+        )
+        
+        assert status.is_online == False
+        assert status.latency_ms is None
+
+
+class TestDegradationLevel:
+    """Tests for DegradationLevel enum."""
+
+    def test_degradation_levels(self):
+        """Test DegradationLevel enum values."""
+        from jarvis_core.network import DegradationLevel
+        
+        assert DegradationLevel.FULL.value == "full"
+        assert DegradationLevel.DEGRADED.value == "degraded"
+        assert DegradationLevel.OFFLINE.value == "offline"
+
+
+class TestDegradationManager:
+    """Tests for DegradationManager."""
+
+    def test_manager_initialization(self):
+        """Test DegradationManager initialization."""
+        from jarvis_core.network import DegradationManager
+        
+        manager = DegradationManager()
+        assert manager is not None
+
+    def test_get_current_level_online(self):
+        """Test get_current_level when online."""
+        from jarvis_core.network import DegradationManager, DegradationLevel
+        
+        manager = DegradationManager()
+        
+        with patch.object(manager, "_check_network", return_value=True):
+            level = manager.get_current_level()
+            
+            assert level == DegradationLevel.FULL
+
+    def test_get_current_level_offline(self):
+        """Test get_current_level when offline."""
+        from jarvis_core.network import DegradationManager, DegradationLevel
+        
+        manager = DegradationManager()
+        
+        with patch.object(manager, "_check_network", return_value=False):
+            level = manager.get_current_level()
+            
+            assert level == DegradationLevel.OFFLINE
+
+    def test_feature_availability_online(self):
+        """Test feature availability when online."""
+        from jarvis_core.network import DegradationManager, DegradationLevel
+        
+        manager = DegradationManager()
+        manager._current_level = DegradationLevel.FULL
+        
+        assert manager.is_feature_available("api_search") == True
+        assert manager.is_feature_available("local_search") == True
+
+    def test_feature_availability_offline(self):
+        """Test feature availability when offline."""
+        from jarvis_core.network import DegradationManager, DegradationLevel
+        
+        manager = DegradationManager()
+        manager._current_level = DegradationLevel.OFFLINE
+        
+        assert manager.is_feature_available("api_search") == False
+        assert manager.is_feature_available("local_search") == True
+
+
+class TestDegradationAwareDecorator:
+    """Tests for degradation_aware decorator."""
+
+    def test_decorator_online(self):
+        """Test decorator when online."""
+        from jarvis_core.network import degradation_aware
+        
+        @degradation_aware(feature="api_search")
+        def fetch_from_api():
+            return "api_result"
+        
+        with patch("jarvis_core.network.get_degradation_manager") as mock_mgr:
+            mock_mgr.return_value.is_feature_available.return_value = True
+            
+            result = fetch_from_api()
+            
+            assert result == "api_result"
+
+    def test_decorator_offline_raises(self):
+        """Test decorator raises OfflineError when offline."""
+        from jarvis_core.network import degradation_aware, OfflineError
+        
+        @degradation_aware(feature="api_search")
+        def fetch_from_api():
+            return "api_result"
+        
+        with patch("jarvis_core.network.get_degradation_manager") as mock_mgr:
+            mock_mgr.return_value.is_feature_available.return_value = False
+            
+            with pytest.raises(OfflineError):
+                fetch_from_api()
+
+    def test_decorator_with_fallback(self):
+        """Test decorator with fallback function."""
+        from jarvis_core.network import degradation_aware
+        
+        def fallback_func():
+            return "fallback_result"
+        
+        @degradation_aware(feature="api_search", fallback=fallback_func)
+        def fetch_from_api():
+            return "api_result"
+        
+        with patch("jarvis_core.network.get_degradation_manager") as mock_mgr:
+            mock_mgr.return_value.is_feature_available.return_value = False
+            
+            result = fetch_from_api()
+            
+            assert result == "fallback_result"
+
+
+class TestDegradationAwareWithQueue:
+    """Tests for degradation_aware_with_queue decorator."""
+
+    def test_queue_decorator_online(self):
+        """Test queue decorator when online."""
+        from jarvis_core.network import degradation_aware_with_queue
+        
+        @degradation_aware_with_queue(feature="api_sync")
+        def sync_data(data):
+            return f"synced:{data}"
+        
+        with patch("jarvis_core.network.get_degradation_manager") as mock_mgr:
+            mock_mgr.return_value.is_feature_available.return_value = True
+            
+            result = sync_data("test")
+            
+            assert result == "synced:test"
+
+    def test_queue_decorator_offline_queues(self):
+        """Test queue decorator queues operation when offline."""
+        from jarvis_core.network import degradation_aware_with_queue, OfflineQueuedError
+        
+        @degradation_aware_with_queue(feature="api_sync")
+        def sync_data(data):
+            return f"synced:{data}"
+        
+        with patch("jarvis_core.network.get_degradation_manager") as mock_mgr:
+            mock_mgr.return_value.is_feature_available.return_value = False
+            
+            with pytest.raises(OfflineQueuedError) as exc_info:
+                sync_data("test")
+            
+            assert exc_info.value.queued == True
+
+
+class TestConvenienceFunctions:
+    """Tests for convenience functions."""
+
+    def test_is_online_function(self):
+        """Test is_online convenience function."""
+        from jarvis_core.network import is_online
+        
+        result = is_online()
+        
+        assert isinstance(result, bool)
+
+    def test_get_network_status_function(self):
+        """Test get_network_status convenience function."""
+        from jarvis_core.network import get_network_status, NetworkStatus
+        
+        status = get_network_status()
+        
+        assert isinstance(status, NetworkStatus)
+
+    def test_get_degradation_manager_function(self):
+        """Test get_degradation_manager convenience function."""
+        from jarvis_core.network import get_degradation_manager, DegradationManager
+        
+        manager = get_degradation_manager()
+        
+        assert isinstance(manager, DegradationManager)
+
+    def test_get_degradation_manager_singleton(self):
+        """Test get_degradation_manager returns singleton."""
+        from jarvis_core.network import get_degradation_manager
+        
+        manager1 = get_degradation_manager()
+        manager2 = get_degradation_manager()
+        
+        assert manager1 is manager2
+
+
+class TestOfflineErrors:
+    """Tests for offline error classes."""
+
+    def test_offline_error(self):
+        """Test OfflineError exception."""
+        from jarvis_core.network import OfflineError
+        
+        error = OfflineError("Feature unavailable offline")
+        
+        assert str(error) == "Feature unavailable offline"
+        assert isinstance(error, Exception)
+
+    def test_offline_queued_error(self):
+        """Test OfflineQueuedError exception."""
+        from jarvis_core.network import OfflineQueuedError
+        
+        error = OfflineQueuedError("Operation queued", queue_id="q123")
+        
+        assert error.queued == True
+        assert error.queue_id == "q123"
+
+
+class TestModuleImports:
+    """Test module imports."""
+
+    def test_main_imports(self):
+        """Test main module imports."""
+        from jarvis_core.network import (
+            NetworkDetector,
+            NetworkStatus,
+            is_online,
+            get_network_status,
+            DegradationLevel,
+            DegradationManager,
+            get_degradation_manager,
+            degradation_aware,
+            degradation_aware_with_queue,
+            OfflineError,
+            OfflineQueuedError,
+        )
+        
+        assert NetworkDetector is not None
+        assert NetworkStatus is not None
+        assert is_online is not None
+        assert DegradationLevel is not None
+        assert DegradationManager is not None
+```
+
+---
+
+## Phase 2: ドキュメント整備
+
+### 2.1 `docs/api/README.md` の作成 【+1点】
+
+```markdown
+# JARVIS Research OS API Reference
+
+## Overview
+
+JARVIS Research OS provides both a Python API for programmatic access and a REST API for web integration.
+
+## Python API
+
+### Evidence Grading
+
+```python
+from jarvis_core.evidence import grade_evidence, EvidenceLevel
+
+grade = grade_evidence(
+    title="A randomized controlled trial of...",
+    abstract="Methods: We conducted a double-blind RCT...",
+    use_llm=False,
+)
+
+print(f"Level: {grade.level.value}")  # "1b"
+print(f"Type: {grade.study_type.value}")  # "randomized_controlled_trial"
+print(f"Confidence: {grade.confidence}")  # 0.85
+```
+
+### Citation Analysis
+
+```python
+from jarvis_core.citation import (
+    extract_citation_contexts,
+    classify_citation_stance,
+    CitationGraph,
+)
+
+# Extract citations from text
+contexts = extract_citation_contexts(
+    text="Previous work [1] showed significant results...",
+    paper_id="current_paper",
+    reference_map={"1": "cited_paper_id"},
+)
+
+# Classify stance
+for ctx in contexts:
+    stance = classify_citation_stance(ctx.get_full_context())
+    print(f"Stance: {stance.stance.value}")  # "support", "contrast", "mention"
+
+# Build citation graph
+graph = CitationGraph()
+graph.add_edge("paper_a", "paper_b", stance=CitationStance.SUPPORT)
+supporting = graph.get_supporting_citations("paper_b")
+```
+
+### Contradiction Detection
+
+```python
+from jarvis_core.contradiction import (
+    Claim,
+    ContradictionDetector,
+    detect_contradiction,
+)
+
+detector = ContradictionDetector()
+
+claim_a = Claim(claim_id="1", text="Drug X increases survival", paper_id="A")
+claim_b = Claim(claim_id="2", text="Drug X decreases survival", paper_id="B")
+
+result = detector.detect(claim_a, claim_b)
+print(f"Contradictory: {result.is_contradictory}")  # True
+print(f"Type: {result.contradiction_type.value}")  # "direct"
+```
+
+### PRISMA Diagram Generation
+
+```python
+from jarvis_core.prisma import PRISMAData, generate_prisma_flow
+
+data = PRISMAData(
+    identification_database=1000,
+    identification_other=50,
+    duplicates_removed=200,
+    records_screened=850,
+    records_excluded_screening=500,
+    full_text_assessed=350,
+    full_text_excluded=100,
+    studies_included=250,
+)
+
+# Generate Mermaid diagram
+mermaid = generate_prisma_flow(data, format="mermaid")
+
+# Generate SVG
+svg = generate_prisma_flow(data, format="svg")
+```
+
+### Active Learning
+
+```python
+from jarvis_core.active_learning import (
+    ActiveLearningEngine,
+    ALConfig,
+    UncertaintySampling,
+    BudgetStoppingCriterion,
+)
+
+config = ALConfig(batch_size=10, initial_sample_size=20)
+criterion = BudgetStoppingCriterion(max_labels=100)
+engine = ActiveLearningEngine(config=config, stopping_criterion=criterion)
+
+# Initialize with paper embeddings
+engine.initialize(embeddings=embeddings, paper_ids=paper_ids)
+
+# Get initial batch for manual labeling
+initial_batch = engine.get_initial_batch()
+
+# Update with labels
+labels = {pid: is_relevant for pid, is_relevant in user_labels.items()}
+engine.update_labels(labels)
+
+# Get next batch (active learning selects most informative)
+next_batch = engine.get_next_batch()
+
+# Check stopping
+if engine.should_stop():
+    results = engine.export_results()
+```
+
+### Hybrid Search
+
+```python
+from jarvis_core.embeddings import HybridSearch, FusionMethod
+
+search = HybridSearch(
+    fusion_method=FusionMethod.RRF,
+    bm25_weight=0.4,
+    embedding_weight=0.6,
+)
+
+search.add_documents([
+    {"id": "1", "text": "machine learning medical diagnosis"},
+    {"id": "2", "text": "clinical trial results"},
+])
+
+results = search.search("ML in medicine", top_k=10)
+```
+
+## REST API
+
+### Base URL
+
+```
+http://localhost:8000/api
+```
+
+### Authentication
 
 ```bash
-# リポジトリクローン
+curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8000/api/runs
+```
+
+### Endpoints
+
+#### Health Check
+
+```
+GET /api/health
+```
+
+#### List Runs
+
+```
+GET /api/runs?limit=20
+```
+
+#### Get Run Details
+
+```
+GET /api/runs/{run_id}
+```
+
+#### Start New Run
+
+```
+POST /api/runs
+Content-Type: application/json
+
+{
+  "query": "machine learning cancer diagnosis",
+  "max_papers": 50,
+  "config": {}
+}
+```
+
+#### Search Corpus
+
+```
+GET /api/search?q=query&top_k=20
+```
+
+#### Upload Files
+
+```
+POST /api/upload/pdf
+Content-Type: multipart/form-data
+
+files: [file1.pdf, file2.pdf]
+```
+
+#### Get KPIs
+
+```
+GET /api/kpi
+```
+
+### Response Format
+
+All responses follow this structure:
+
+```json
+{
+  "status": "success",
+  "data": { ... },
+  "errors": [],
+  "warnings": []
+}
+```
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| 400 | Bad Request |
+| 401 | Unauthorized |
+| 404 | Not Found |
+| 501 | Not Implemented |
+| 500 | Internal Server Error |
+
+## Rate Limits
+
+- Default: 100 requests/minute
+- Authenticated: 1000 requests/minute
+
+## Versioning
+
+API version is included in the path: `/api/v1/...`
+
+Current version: `v1`
+```
+
+---
+
+### 2.2 `CONTRIBUTING.md` の作成 【+1点】
+
+```markdown
+# Contributing to JARVIS Research OS
+
+Thank you for your interest in contributing to JARVIS Research OS!
+
+## Development Setup
+
+### Prerequisites
+
+- Python 3.10+
+- uv (recommended) or pip
+- Node.js 20+ (for dashboard development)
+
+### Installation
+
+```bash
+# Clone the repository
 git clone https://github.com/kaneko-ai/jarvis-ml-pipeline.git
 cd jarvis-ml-pipeline
 
-# 依存関係インストール
-uv sync --all-extras
+# Install with uv (recommended)
+uv sync
 
-# 開発用依存関係
-uv sync --group dev
-
-# Ollamaインストール確認
-ollama --version || echo "Ollamaをインストールしてください: https://ollama.com/"
-
-# モデルプル
-ollama pull llama3.2:8b
-ollama pull mistral:7b
+# Or with pip
+pip install -e ".[dev]"
 ```
 
-### 1.2 スキル参照パス
+### Running Tests
 
-```
-skills/
-├── BRAIN.md      # 要件定義
-├── SPEC.md       # 実装計画
-├── TDD.md        # テスト駆動開発
-├── ORCH.md       # オーケストレーション
-├── VERIFY.md     # 検証
-├── REVIEW.md     # レビュー
-├── FINISH.md     # 統合
-├── DBG.md        # デバッグ
-├── WORKTREE.md   # 並行作業
-└── PARA.md       # 並列実行
+```bash
+# All tests
+uv run pytest
+
+# With coverage
+uv run pytest --cov=jarvis_core --cov-report=html
+
+# Specific module
+uv run pytest tests/test_evidence_grading.py -v
 ```
 
-### 1.3 実行フロー標準
+### Code Style
 
-```
-各タスクの実行フロー:
-1. BRAIN → 要件確認（このドキュメントの該当セクション参照）
-2. SPEC → 2-5分タスクに分解済み（下記参照）
-3. WORKTREE → 隔離ブランチ作成
-4. ORCH → TDD + VERIFY でサブタスク実行
-5. REVIEW → 仕様適合 + 品質チェック
-6. FINISH → マージまたはPR作成
-```
+We use `black` for formatting and `ruff` for linting:
 
----
+```bash
+# Format
+uv run black jarvis_core tests
 
-## 2. スキルフレームワーク活用ガイド
+# Lint
+uv run ruff check jarvis_core tests
 
-### 2.1 本指示書の使い方
-
-```yaml
-指示書構造:
-  - 各Phaseは独立して実行可能
-  - 各タスクは SPEC.md 形式で2-5分粒度に分解済み
-  - 依存関係がある場合は明記
-  - 期待出力と検証コマンドを各タスクに記載
-
-実行パターン:
-  新機能開発: BRAIN(スキップ可) → SPEC(本書参照) → WORKTREE → ORCH(TDD+VERIFY) → REVIEW → FINISH
-  バグ修正: DBG → TDD → VERIFY → REVIEW → FINISH
-  並行作業: PARA で複数タスクを同時進行
+# Fix lint issues
+uv run ruff check --fix jarvis_core tests
 ```
 
-### 2.2 コミット規約
+## Pull Request Process
 
-```
-feat: 新機能追加
-fix: バグ修正
-refactor: リファクタリング
-test: テスト追加
-docs: ドキュメント更新
-chore: その他
+1. **Fork** the repository
+2. **Create a branch** from `main`:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+3. **Make changes** and add tests
+4. **Run tests** and ensure all pass
+5. **Format code** with black
+6. **Commit** with clear message:
+   ```
+   feat(module): Add new feature X
+   
+   - Detailed description
+   - Closes #123
+   ```
+7. **Push** and create Pull Request
 
-例: feat(offline): implement graceful degradation for network loss
-```
+## Commit Message Convention
 
----
+We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
-## 3. Phase 1: オフラインモード完成 (+80点)
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation only
+- `style`: Code style (formatting, etc.)
+- `refactor`: Code refactoring
+- `test`: Adding/updating tests
+- `chore`: Maintenance tasks
 
-### 3.1 概要
+## Code Standards
 
-| 項目 | 値 |
-|------|-----|
-| 目標スコア | +80点 |
-| 推定工数 | 10日 |
-| 優先度 | 🔴 最高 |
-| 依存関係 | network/detector.py (完了済み) |
+### Python
 
-### 3.2 タスク 1.5.1: グレースフルデグレード完成 (+15点)
+- Type hints required for all public functions
+- Docstrings in Google style
+- Maximum line length: 100 characters
+- Test coverage minimum: 80%
 
-#### 要件
+### Tests
 
-```yaml
-目的: ネットワーク切断時に機能を段階的に縮退させ、ユーザー体験を維持
-成功条件:
-  - オフライン時もローカルキャッシュからの検索が動作
-  - 外部API呼び出しが自動的にスキップされる
-  - ユーザーに縮退状態が明示される
-非目標:
-  - オフライン時の新規論文取得（オンライン復帰後に実行）
-```
+- One test file per module: `test_{module}.py`
+- Use pytest fixtures
+- Mock external dependencies
+- Include both positive and negative test cases
 
-#### サブタスク
+## Adding New Modules
 
-```
-□ 3.2.1 DegradationLevel Enum作成 (3分)
-  ファイル: jarvis_core/network/degradation.py
-  内容:
-    from enum import Enum
-    
-    class DegradationLevel(Enum):
-        FULL = "full"           # 全機能利用可能
-        LIMITED = "limited"     # 外部API無効、ローカルのみ
-        OFFLINE = "offline"     # 完全オフライン
-        CRITICAL = "critical"   # キャッシュも利用不可
-  検証: python -c "from jarvis_core.network.degradation import DegradationLevel; print(DegradationLevel.FULL)"
+1. Create module in `jarvis_core/{module_name}/`
+2. Add `__init__.py` with public exports
+3. Create test file `tests/test_{module_name}.py`
+4. Update `pyproject.toml` if new dependencies needed
+5. Add documentation in `docs/`
 
-□ 3.2.2 DegradationManager クラス作成 (5分)
-  ファイル: jarvis_core/network/degradation.py (追記)
-  内容:
-    @dataclass
-    class DegradationManager:
-        _current_level: DegradationLevel = DegradationLevel.FULL
-        _listeners: List[Callable] = field(default_factory=list)
-        
-        def get_level(self) -> DegradationLevel:
-            return self._current_level
-        
-        def set_level(self, level: DegradationLevel) -> None:
-            old_level = self._current_level
-            self._current_level = level
-            if old_level != level:
-                self._notify_listeners(old_level, level)
-        
-        def add_listener(self, callback: Callable[[DegradationLevel, DegradationLevel], None]) -> None:
-            self._listeners.append(callback)
-        
-        def _notify_listeners(self, old: DegradationLevel, new: DegradationLevel) -> None:
-            for listener in self._listeners:
-                listener(old, new)
-  検証: pytest tests/network/test_degradation.py -v
+## Reporting Issues
 
-□ 3.2.3 自動レベル判定ロジック実装 (5分)
-  ファイル: jarvis_core/network/degradation.py (追記)
-  内容:
-    def auto_detect_level(self) -> DegradationLevel:
-        from jarvis_core.network import is_online
-        from jarvis_core.cache import MultiLevelCache
-        
-        if is_online():
-            return DegradationLevel.FULL
-        
-        cache = MultiLevelCache()
-        if cache.get_stats().total_entries > 0:
-            return DegradationLevel.LIMITED
-        
-        return DegradationLevel.OFFLINE
-  検証: ネットワーク切断状態でテスト実行
+Please include:
 
-□ 3.2.4 APIクライアントラッパー作成 (5分)
-  ファイル: jarvis_core/network/api_wrapper.py
-  内容:
-    def degradation_aware(func):
-        """デコレータ: オフライン時はキャッシュフォールバック"""
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            manager = get_degradation_manager()
-            if manager.get_level() in (DegradationLevel.LIMITED, DegradationLevel.OFFLINE):
-                # キャッシュから取得を試行
-                cache_key = compute_cache_key(func.__name__, args, kwargs)
-                cached = get_cache().get(cache_key)
-                if cached:
-                    return cached
-                raise OfflineError(f"Offline mode: {func.__name__} unavailable")
-            return func(*args, **kwargs)
-        return wrapper
-  検証: pytest tests/network/test_api_wrapper.py -v
+- Python version
+- OS
+- Steps to reproduce
+- Expected vs actual behavior
+- Error messages/stack traces
 
-□ 3.2.5 既存APIクライアントにデコレータ適用 (5分)
-  ファイル: jarvis_core/sources/pubmed_client.py, semantic_scholar.py, etc.
-  変更:
-    @degradation_aware
-    def search(self, query: str, ...) -> List[Paper]:
-        ...
-  検証: オフラインモードで jarvis search "test" 実行
+## Code of Conduct
 
-□ 3.2.6 テスト作成 (5分)
-  ファイル: tests/network/test_degradation.py
-  内容:
-    - test_degradation_level_enum
-    - test_manager_level_change
-    - test_auto_detect_online
-    - test_auto_detect_offline
-    - test_api_wrapper_fallback
-  検証: pytest tests/network/test_degradation.py -v --cov
-```
+Be respectful, inclusive, and constructive.
 
-#### 期待成果物
+## License
 
-```
-jarvis_core/network/
-├── __init__.py (更新: DegradationLevel, DegradationManager export追加)
-├── detector.py (既存)
-├── degradation.py (新規)
-└── api_wrapper.py (新規)
-
-tests/network/
-├── test_detector.py (既存)
-├── test_degradation.py (新規)
-└── test_api_wrapper.py (新規)
+By contributing, you agree that your contributions will be licensed under the MIT License.
 ```
 
 ---
 
-### 3.3 タスク 1.5.2: --offlineフラグ実装 (+15点)
+### 2.3 `docs/user_guide.md` の作成 【+1点】
 
-#### 要件
+```markdown
+# JARVIS Research OS User Guide
+
+## Introduction
+
+JARVIS Research OS is an AI-powered research assistant for systematic literature reviews.
+
+## Quick Start
+
+### Installation
+
+```bash
+pip install jarvis-research-os
+```
+
+### Basic Usage
+
+```python
+from jarvis_core import run_jarvis
+
+result = run_jarvis(
+    goal="Systematic review of machine learning in cancer diagnosis",
+    category="paper_survey"
+)
+
+print(result)
+```
+
+## Core Features
+
+### 1. Evidence Grading
+
+Automatically classify research papers by evidence level (CEBM Oxford scale):
+
+- **Level 1a**: Systematic reviews of RCTs
+- **Level 1b**: Individual RCTs
+- **Level 2**: Cohort studies
+- **Level 3**: Case-control studies
+- **Level 4**: Case series
+- **Level 5**: Expert opinion
+
+### 2. Citation Analysis
+
+Analyze how papers cite each other:
+
+- **Support**: Citation agrees with findings
+- **Contrast**: Citation disagrees/contradicts
+- **Mention**: Neutral reference
+
+### 3. Contradiction Detection
+
+Identify conflicting claims across papers:
+
+- Direct contradictions (A vs not-A)
+- Quantitative contradictions (50% vs 5%)
+- Partial contradictions
+
+### 4. PRISMA Flow Diagrams
+
+Generate PRISMA 2020 compliant flow diagrams for systematic reviews.
+
+### 5. Active Learning
+
+Efficiently screen papers using uncertainty sampling to minimize manual labeling effort.
+
+## CLI Commands
+
+```bash
+# Search papers
+jarvis search "machine learning cancer"
+
+# Run full pipeline
+jarvis run --config pipeline.yaml
+
+# Generate PRISMA diagram
+jarvis prisma --output prisma.svg
+
+# Interactive screening
+jarvis-screen --input papers.jsonl
+```
+
+## Configuration
+
+Create `config.yaml`:
 
 ```yaml
-目的: CLIから明示的にオフラインモードを指定可能にする
-成功条件:
-  - jarvis --offline search "query" が動作
-  - jarvis --offline run が動作
-  - オフラインモードではネットワークアクセスを試行しない
+search:
+  sources:
+    - pubmed
+    - arxiv
+    - semantic_scholar
+  max_results: 100
+
+embeddings:
+  model: all-MiniLM-L6-v2
+  device: auto
+
+evidence:
+  use_llm: false
+  ensemble_strategy: weighted_average
+
+active_learning:
+  batch_size: 10
+  initial_sample: 20
+  stopping_recall: 0.95
+
+offline:
+  enabled: true
+  cache_dir: ~/.jarvis/cache
 ```
 
-#### サブタスク
+## Web Dashboard
 
-```
-□ 3.3.1 CLIにグローバルオプション追加 (3分)
-  ファイル: jarvis_cli.py
-  変更:
-    @click.option('--offline', is_flag=True, help='Run in offline mode (no network access)')
-    @click.pass_context
-    def cli(ctx, offline: bool):
-        ctx.ensure_object(dict)
-        ctx.obj['offline'] = offline
-        if offline:
-            from jarvis_core.network import DegradationManager, DegradationLevel
-            manager = DegradationManager()
-            manager.set_level(DegradationLevel.OFFLINE)
-  検証: jarvis --offline --help
+Start the web server:
 
-□ 3.3.2 searchコマンドにオフライン対応追加 (3分)
-  ファイル: jarvis_cli.py
-  変更:
-    @cli.command()
-    @click.pass_context
-    def search(ctx, query: str, ...):
-        offline = ctx.obj.get('offline', False)
-        if offline:
-            # ローカルインデックスのみ検索
-            results = local_search(query)
-        else:
-            results = unified_search(query)
-  検証: jarvis --offline search "machine learning"
-
-□ 3.3.3 runコマンドにオフライン対応追加 (3分)
-  ファイル: jarvis_cli.py
-  変更: 同様にofflineフラグをrun_taskに伝播
-  検証: jarvis --offline run --goal "test"
-
-□ 3.3.4 オフラインモード表示追加 (2分)
-  ファイル: jarvis_cli.py
-  変更:
-    if offline:
-        click.echo(click.style("🔌 Offline Mode: Using local cache only", fg='yellow'))
-  検証: jarvis --offline search "test" で黄色メッセージ表示
-
-□ 3.3.5 環境変数対応 (2分)
-  ファイル: jarvis_cli.py
-  変更:
-    offline = offline or os.getenv('JARVIS_OFFLINE', '').lower() == 'true'
-  検証: JARVIS_OFFLINE=true jarvis search "test"
-
-□ 3.3.6 テスト作成 (5分)
-  ファイル: tests/cli/test_offline_flag.py
-  内容:
-    - test_offline_flag_sets_degradation_level
-    - test_offline_search_uses_local_cache
-    - test_offline_env_var
-    - test_offline_mode_message_displayed
-  検証: pytest tests/cli/test_offline_flag.py -v
+```bash
+uvicorn jarvis_web.app:app --port 8000
 ```
 
-#### 期待成果物
+Access at: http://localhost:8000
 
+## Best Practices
+
+1. **Start with clear PICO**: Define Population, Intervention, Comparator, Outcome
+2. **Use multiple sources**: Don't rely on a single database
+3. **Review edge cases**: Check papers with low confidence scores
+4. **Export frequently**: Save progress in standard formats (RIS, BibTeX)
+
+## Troubleshooting
+
+### "Model not found" error
+
+```bash
+pip install sentence-transformers
 ```
-jarvis_cli.py (更新)
-tests/cli/test_offline_flag.py (新規)
+
+### Slow search performance
+
+Enable caching:
+
+```yaml
+offline:
+  enabled: true
+  cache_ttl: 86400
+```
+
+### Memory issues with large datasets
+
+Use batch processing:
+
+```python
+engine.process_batch(papers, batch_size=100)
+```
+
+## Support
+
+- GitHub Issues: https://github.com/kaneko-ai/jarvis-ml-pipeline/issues
+- Documentation: https://github.com/kaneko-ai/jarvis-ml-pipeline/docs
 ```
 
 ---
 
-### 3.4 タスク 1.5.3: 同期キュー実装 (+25点)
+## Phase 3: CI/CD強化
 
-#### 要件
+### 3.1 `.github/workflows/ci.yml` の更新 【+3点】
 
 ```yaml
-目的: オフライン時の操作をキューイングし、オンライン復帰時に実行
-成功条件:
-  - オフライン時のAPI呼び出しがキューに保存される
-  - キューはSQLiteに永続化される
-  - オンライン復帰時に自動実行される
-  - 重複リクエストは統合される
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: pip install uv
+      - name: Install dependencies
+        run: uv sync --dev
+      - name: Run ruff
+        run: uv run ruff check jarvis_core tests
+      - name: Run black check
+        run: uv run black --check jarvis_core tests
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install uv
+        run: pip install uv
+      - name: Install dependencies
+        run: uv sync --dev
+      - name: Run tests with coverage
+        run: |
+          uv run pytest \
+            --cov=jarvis_core \
+            --cov-report=xml \
+            --cov-report=html \
+            --cov-fail-under=80 \
+            -v
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          fail_ci_if_error: true
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python-version }}
+          path: htmlcov/
+
+  contract_and_unit:
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: pip install uv
+      - name: Install dependencies
+        run: uv sync --dev
+      - name: Generate api map
+        run: make api-map
+      - name: Contract tests
+        run: uv run pytest -q tests/test_api_map_vs_capabilities.py tests/test_front_adapter_contract.py
+
+  api_smoke:
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: pip install uv
+      - name: Install dependencies
+        run: uv sync --all-extras
+      - name: Start API server
+        run: |
+          uv run python -m uvicorn jarvis_web.app:app --port 8000 --log-level warning &
+          sleep 3
+      - name: API smoke tests
+        env:
+          API_BASE: http://localhost:8000
+        run: uv run pytest -q tests/smoke_api_v1.py
+
+  dashboard_e2e_mock:
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: pip install uv
+      - name: Install python dependencies
+        run: uv sync --all-extras
+      - name: Install node dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      - name: Start mock server and dashboard
+        run: |
+          uv run python -m uvicorn tests.mock_server.app:app --port 4010 --log-level warning &
+          python -m http.server 4173 -d dashboard &
+          sleep 3
+      - name: Dashboard E2E (mock)
+        env:
+          MOCK_API_BASE: http://localhost:4010
+          DASHBOARD_BASE_URL: http://localhost:4173
+        run: npx playwright test -c tests/e2e/playwright.config.ts
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: playwright-results
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install safety
+        run: pip install safety
+      - name: Check dependencies for vulnerabilities
+        run: safety check -r requirements.txt || true
+      - name: Run bandit security scan
+        run: |
+          pip install bandit
+          bandit -r jarvis_core -ll -ii
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [test, lint]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install build tools
+        run: pip install build twine
+      - name: Build package
+        run: python -m build
+      - name: Check package
+        run: twine check dist/*
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
 ```
 
-#### サブタスク
+---
+
+### 3.2 `codecov.yml` の作成 【+1点】
+
+```yaml
+codecov:
+  require_ci_to_pass: yes
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 2%
+    patch:
+      default:
+        target: 80%
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: no
+      macro: no
+
+comment:
+  layout: "reach,diff,flags,files,footer"
+  behavior: default
+  require_changes: no
+
+flags:
+  unittests:
+    paths:
+      - jarvis_core/
+    carryforward: true
+```
+
+---
+
+### 3.3 `pyproject.toml` 依存関係修正 【+2点】
+
+```toml
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jarvis-research-os"
+version = "5.2.0"
+description = "JARVIS Research OS - AI-Powered Systematic Literature Review Assistant"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "JARVIS Team", email = "jarvis@kaneko-ai.dev"}
+]
+keywords = [
+    "systematic-review",
+    "literature-review",
+    "evidence-grading",
+    "citation-analysis",
+    "PRISMA",
+    "active-learning",
+    "research-assistant",
+    "AI",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Healthcare Industry",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "requests>=2.28.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+ml = [
+    "lightgbm>=4.0.0",
+    "numpy>=1.24.0",
+    "scikit-learn>=1.3.0",
+]
+pdf = [
+    "pymupdf>=1.22.0",
+    "pypdf2>=3.0",
+    "python-docx>=0.8.11",
+    "python-pptx>=0.6.21",
+    "reportlab>=4.0",
+]
+llm = [
+    "google-generativeai>=0.3.0",
+    "llama-cpp-python>=0.2.0",
+]
+embedding = [
+    "sentence-transformers>=2.2.0",
+    "rank_bm25>=0.2.2",
+]
+web = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.22.0",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0",
+    "safety>=2.3.0",
+    "bandit>=1.7.0",
+]
+all = [
+    "jarvis-research-os[ml,pdf,llm,embedding,web]",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0",
+]
+
+[project.scripts]
+jarvis = "jarvis_cli:main"
+jarvis-screen = "jarvis_core.active_learning.cli:cmd_screen"
+
+[project.urls]
+Homepage = "https://github.com/kaneko-ai/jarvis-ml-pipeline"
+Documentation = "https://github.com/kaneko-ai/jarvis-ml-pipeline/docs"
+Repository = "https://github.com/kaneko-ai/jarvis-ml-pipeline"
+Issues = "https://github.com/kaneko-ai/jarvis-ml-pipeline/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["jarvis_core*", "jarvis_tools*", "jarvis_web*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["jarvis_core"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
+fail_under = 80
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I", "B", "C4", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.isort]
+known-first-party = ["jarvis_core", "jarvis_web", "jarvis_tools"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+```
+
+---
+
+### 3.4 `requirements.txt` の削除と `requirements-dev.txt` への置き換え 【+1点】
+
+**削除**: `requirements.txt`
+
+**新規作成**: `requirements-dev.txt`
 
 ```
-□ 3.4.1 SyncQueueスキーマ定義 (3分)
-  ファイル: jarvis_core/sync/schema.py
-  内容:
-    from dataclasses import dataclass
-    from datetime import datetime
-    from enum import Enum
-    from typing import Any, Dict, Optional
-    
-    class QueueItemStatus(Enum):
-        PENDING = "pending"
-        PROCESSING = "processing"
-        COMPLETED = "completed"
-        FAILED = "failed"
-    
-    @dataclass
-    class QueueItem:
-        id: str
-        operation: str  # "search", "fetch_paper", "fetch_citations"
-        params: Dict[str, Any]
-        status: QueueItemStatus = QueueItemStatus.PENDING
-        created_at: datetime = field(default_factory=datetime.utcnow)
-        processed_at: Optional[datetime] = None
-        error: Optional[str] = None
-        retry_count: int = 0
-        
-        def to_dict(self) -> Dict[str, Any]:
-            return {
-                "id": self.id,
-                "operation": self.operation,
-                "params": self.params,
-                "status": self.status.value,
-                "created_at": self.created_at.isoformat(),
-                "processed_at": self.processed_at.isoformat() if self.processed_at else None,
-                "error": self.error,
-                "retry_count": self.retry_count,
-            }
-  検証: python -c "from jarvis_core.sync.schema import QueueItem; print(QueueItem)"
+# Development dependencies (use pyproject.toml for production)
+# This file is for legacy compatibility only
 
-□ 3.4.2 SQLiteストレージ実装 (5分)
-  ファイル: jarvis_core/sync/storage.py
-  内容:
-    import sqlite3
-    from pathlib import Path
-    from typing import List, Optional
-    
-    class SyncQueueStorage:
-        def __init__(self, db_path: str = "~/.jarvis/sync_queue.db"):
-            self.db_path = Path(db_path).expanduser()
-            self.db_path.parent.mkdir(parents=True, exist_ok=True)
-            self._init_db()
-        
-        def _init_db(self) -> None:
-            with sqlite3.connect(self.db_path) as conn:
-                conn.execute('''
-                    CREATE TABLE IF NOT EXISTS sync_queue (
-                        id TEXT PRIMARY KEY,
-                        operation TEXT NOT NULL,
-                        params TEXT NOT NULL,
-                        status TEXT DEFAULT 'pending',
-                        created_at TEXT NOT NULL,
-                        processed_at TEXT,
-                        error TEXT,
-                        retry_count INTEGER DEFAULT 0
-                    )
-                ''')
-                conn.execute('CREATE INDEX IF NOT EXISTS idx_status ON sync_queue(status)')
-        
-        def add(self, item: QueueItem) -> None:
-            ...
-        
-        def get_pending(self, limit: int = 100) -> List[QueueItem]:
-            ...
-        
-        def update_status(self, item_id: str, status: QueueItemStatus, error: Optional[str] = None) -> None:
-            ...
-        
-        def remove_completed(self, older_than_days: int = 7) -> int:
-            ...
-  検証: pytest tests/sync/test_storage.py -v
+-e .[all,dev]
+```
 
-□ 3.4.3 SyncQueueManager実装 (5分)
-  ファイル: jarvis_core/sync/manager.py
-  内容:
-    class SyncQueueManager:
-        def __init__(self):
-            self.storage = SyncQueueStorage()
-            self._handlers: Dict[str, Callable] = {}
-        
-        def register_handler(self, operation: str, handler: Callable) -> None:
-            self._handlers[operation] = handler
-        
-        def enqueue(self, operation: str, params: Dict[str, Any]) -> str:
-            # 重複チェック
-            existing = self._find_duplicate(operation, params)
-            if existing:
-                return existing.id
-            
-            item = QueueItem(
-                id=str(uuid.uuid4()),
-                operation=operation,
-                params=params,
+---
+
+## Phase 4: コード品質向上
+
+### 4.1 型チェック用 `py.typed` マーカー追加 【+1点】
+
+**ファイル作成**: `jarvis_core/py.typed`
+
+```
+# PEP 561 marker file
+```
+
+---
+
+### 4.2 `jarvis_core/evidence/__init__.py` に英語description追加 【+1点】
+
+```python
+"""JARVIS Evidence Grading Module.
+
+Evidence grading and classification for systematic reviews.
+Per JARVIS_COMPLETION_PLAN_v3 Task 2.1
+"""
+
+from jarvis_core.evidence.schema import (
+    EvidenceLevel,
+    EvidenceGrade,
+    StudyType,
+)
+from jarvis_core.evidence.rule_classifier import RuleBasedClassifier
+from jarvis_core.evidence.llm_classifier import LLMBasedClassifier
+from jarvis_core.evidence.ensemble import EnsembleClassifier, grade_evidence
+
+# Add English descriptions
+EVIDENCE_LEVEL_DESCRIPTIONS_EN = {
+    "1a": "Systematic review of homogeneous RCTs",
+    "1b": "Individual RCT with narrow confidence interval",
+    "1c": "All or none study",
+    "2a": "Systematic review of homogeneous cohort studies",
+    "2b": "Individual cohort study",
+    "2c": "Outcomes research; ecological studies",
+    "3a": "Systematic review of homogeneous case-control studies",
+    "3b": "Individual case-control study",
+    "4": "Case series",
+    "5": "Expert opinion",
+    "unknown": "Unknown",
+}
+
+__all__ = [
+    "EvidenceLevel",
+    "EvidenceGrade",
+    "StudyType",
+    "RuleBasedClassifier",
+    "LLMBasedClassifier",
+    "EnsembleClassifier",
+    "grade_evidence",
+    "EVIDENCE_LEVEL_DESCRIPTIONS_EN",
+]
+```
+
+---
+
+## Phase 5: 機能拡張・高度化
+
+### 5.1 `jarvis_core/contradiction/semantic_detector.py` の作成 【+2点】
+
+```python
+"""Semantic Contradiction Detector.
+
+Uses embedding similarity for advanced contradiction detection.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import List, Optional, Tuple
+
+import numpy as np
+
+from jarvis_core.contradiction.schema import (
+    Claim,
+    ContradictionResult,
+    ContradictionType,
+)
+
+
+@dataclass
+class SemanticConfig:
+    """Configuration for semantic contradiction detection."""
+    
+    similarity_threshold: float = 0.7
+    contradiction_threshold: float = 0.3
+    use_negation_embedding: bool = True
+    model_name: str = "all-MiniLM-L6-v2"
+
+
+class SemanticContradictionDetector:
+    """Semantic contradiction detector using embeddings.
+    
+    Detects contradictions by:
+    1. Computing embedding similarity between claims
+    2. Checking if negated version of claim A is similar to claim B
+    3. Analyzing predicate-argument structure
+    """
+    
+    def __init__(self, config: Optional[SemanticConfig] = None):
+        self.config = config or SemanticConfig()
+        self._embedder = None
+    
+    @property
+    def embedder(self):
+        if self._embedder is None:
+            from jarvis_core.embeddings import SentenceTransformerEmbedding
+            self._embedder = SentenceTransformerEmbedding(
+                model_name=self.config.model_name
             )
-            self.storage.add(item)
-            return item.id
-        
-        def process_queue(self, max_items: int = 10) -> List[QueueItem]:
-            pending = self.storage.get_pending(limit=max_items)
-            results = []
-            
-            for item in pending:
-                handler = self._handlers.get(item.operation)
-                if not handler:
-                    self.storage.update_status(item.id, QueueItemStatus.FAILED, "No handler")
-                    continue
-                
-                try:
-                    self.storage.update_status(item.id, QueueItemStatus.PROCESSING)
-                    handler(**item.params)
-                    self.storage.update_status(item.id, QueueItemStatus.COMPLETED)
-                    item.status = QueueItemStatus.COMPLETED
-                except Exception as e:
-                    self.storage.update_status(item.id, QueueItemStatus.FAILED, str(e))
-                    item.error = str(e)
-                
-                results.append(item)
-            
-            return results
-        
-        def get_queue_status(self) -> Dict[str, int]:
-            ...
-  検証: pytest tests/sync/test_manager.py -v
-
-□ 3.4.4 デフォルトハンドラー登録 (3分)
-  ファイル: jarvis_core/sync/handlers.py
-  内容:
-    def register_default_handlers(manager: SyncQueueManager) -> None:
-        from jarvis_core.sources import UnifiedSourceClient
-        
-        client = UnifiedSourceClient()
-        
-        manager.register_handler("search", lambda query, **kwargs: client.search(query, **kwargs))
-        manager.register_handler("fetch_paper", lambda doi: client.get_by_doi(doi))
-        manager.register_handler("fetch_citations", lambda paper_id: client.get_citations(paper_id))
-  検証: python -c "from jarvis_core.sync.handlers import register_default_handlers"
-
-□ 3.4.5 APIラッパーにキューイング統合 (3分)
-  ファイル: jarvis_core/network/api_wrapper.py (更新)
-  変更:
-    def degradation_aware_with_queue(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            manager = get_degradation_manager()
-            if manager.get_level() in (DegradationLevel.LIMITED, DegradationLevel.OFFLINE):
-                # キャッシュ確認
-                cache_key = compute_cache_key(func.__name__, args, kwargs)
-                cached = get_cache().get(cache_key)
-                if cached:
-                    return cached
-                
-                # キューに追加
-                queue_manager = get_sync_queue_manager()
-                queue_id = queue_manager.enqueue(func.__name__, {"args": args, "kwargs": kwargs})
-                
-                raise OfflineQueuedError(f"Queued for sync: {queue_id}")
-            
-            return func(*args, **kwargs)
-        return wrapper
-  検証: オフライン状態でAPI呼び出し→キューに追加されることを確認
-
-□ 3.4.6 CLI同期コマンド追加 (3分)
-  ファイル: jarvis_cli.py
-  変更:
-    @cli.command()
-    def sync():
-        """Process pending sync queue items."""
-        from jarvis_core.sync import SyncQueueManager
-        from jarvis_core.network import is_online
-        
-        if not is_online():
-            click.echo(click.style("Cannot sync: offline", fg='red'))
-            return
-        
-        manager = SyncQueueManager()
-        results = manager.process_queue()
-        
-        completed = sum(1 for r in results if r.status == QueueItemStatus.COMPLETED)
-        failed = sum(1 for r in results if r.status == QueueItemStatus.FAILED)
-        
-        click.echo(f"Sync complete: {completed} succeeded, {failed} failed")
-  検証: jarvis sync
-
-□ 3.4.7 テスト作成 (5分)
-  ファイル: tests/sync/test_queue.py
-  内容:
-    - test_queue_item_creation
-    - test_storage_add_and_get
-    - test_duplicate_detection
-    - test_process_queue_success
-    - test_process_queue_failure_retry
-    - test_cleanup_old_items
-  検証: pytest tests/sync/ -v --cov
-```
-
-#### 期待成果物
-
-```
-jarvis_core/sync/
-├── __init__.py (新規)
-├── schema.py (新規)
-├── storage.py (新規)
-├── manager.py (新規)
-└── handlers.py (新規)
-
-tests/sync/
-├── test_schema.py (新規)
-├── test_storage.py (新規)
-├── test_manager.py (新規)
-└── test_queue.py (新規)
-```
-
----
-
-### 3.5 タスク 1.5.4: オンライン復帰同期 (+20点)
-
-#### 要件
-
-```yaml
-目的: ネットワーク復帰を検出し、キューを自動処理
-成功条件:
-  - ネットワーク復帰時に自動でキューを処理
-  - バックグラウンドで非同期実行
-  - 処理完了通知
-```
-
-#### サブタスク
-
-```
-□ 3.5.1 ネットワーク変更リスナー実装 (5分)
-  ファイル: jarvis_core/network/listener.py
-  内容:
-    import threading
-    import time
-    from typing import Callable, List
+        return self._embedder
     
-    class NetworkChangeListener:
-        def __init__(self, check_interval: float = 5.0):
-            self._check_interval = check_interval
-            self._callbacks: List[Callable[[bool], None]] = []
-            self._last_status: bool = True
-            self._running = False
-            self._thread: Optional[threading.Thread] = None
+    def detect(self, claim_a: Claim, claim_b: Claim) -> ContradictionResult:
+        """Detect contradiction between two claims using semantic analysis."""
+        # Get embeddings
+        emb_a = self.embedder.embed(claim_a.text)
+        emb_b = self.embedder.embed(claim_b.text)
         
-        def add_callback(self, callback: Callable[[bool], None]) -> None:
-            self._callbacks.append(callback)
+        # Compute similarity
+        similarity = self._cosine_similarity(emb_a, emb_b)
         
-        def start(self) -> None:
-            if self._running:
-                return
-            self._running = True
-            self._thread = threading.Thread(target=self._monitor_loop, daemon=True)
-            self._thread.start()
-        
-        def stop(self) -> None:
-            self._running = False
-            if self._thread:
-                self._thread.join(timeout=2.0)
-        
-        def _monitor_loop(self) -> None:
-            from jarvis_core.network import is_online
-            
-            while self._running:
-                current_status = is_online()
-                
-                if current_status != self._last_status:
-                    for callback in self._callbacks:
-                        try:
-                            callback(current_status)
-                        except Exception as e:
-                            logger.error(f"Callback error: {e}")
-                    
-                    self._last_status = current_status
-                
-                time.sleep(self._check_interval)
-  検証: pytest tests/network/test_listener.py -v
-
-□ 3.5.2 自動同期コールバック実装 (3分)
-  ファイル: jarvis_core/sync/auto_sync.py
-  内容:
-    def on_network_restored(is_online: bool) -> None:
-        if not is_online:
-            return
-        
-        logger.info("Network restored, starting queue sync...")
-        
-        manager = SyncQueueManager()
-        status = manager.get_queue_status()
-        
-        if status.get("pending", 0) == 0:
-            logger.info("No pending items to sync")
-            return
-        
-        # バックグラウンドで実行
-        thread = threading.Thread(
-            target=_background_sync,
-            args=(manager,),
-            daemon=True
-        )
-        thread.start()
-    
-    def _background_sync(manager: SyncQueueManager) -> None:
-        results = manager.process_queue(max_items=50)
-        completed = sum(1 for r in results if r.status == QueueItemStatus.COMPLETED)
-        logger.info(f"Background sync completed: {completed} items processed")
-  検証: ネットワーク切断→復帰で自動同期されることを確認
-
-□ 3.5.3 アプリケーション起動時にリスナー登録 (3分)
-  ファイル: jarvis_core/app.py
-  変更:
-    def init_app():
-        # ... 既存のinit ...
-        
-        # ネットワークリスナー開始
-        from jarvis_core.network.listener import NetworkChangeListener
-        from jarvis_core.sync.auto_sync import on_network_restored
-        
-        listener = NetworkChangeListener()
-        listener.add_callback(on_network_restored)
-        listener.start()
-        
-        return listener
-  検証: アプリ起動後にネットワーク変更を検出
-
-□ 3.5.4 同期進捗表示 (3分)
-  ファイル: jarvis_core/sync/progress.py
-  内容:
-    class SyncProgressReporter:
-        def __init__(self):
-            self._callbacks: List[Callable[[int, int], None]] = []
-        
-        def add_callback(self, callback: Callable[[int, int], None]) -> None:
-            self._callbacks.append(callback)
-        
-        def report(self, completed: int, total: int) -> None:
-            for callback in self._callbacks:
-                callback(completed, total)
-  検証: 同期中に進捗が報告されることを確認
-
-□ 3.5.5 CLI同期状態表示コマンド (3分)
-  ファイル: jarvis_cli.py
-  変更:
-    @cli.command()
-    def sync_status():
-        """Show sync queue status."""
-        from jarvis_core.sync import SyncQueueManager
-        
-        manager = SyncQueueManager()
-        status = manager.get_queue_status()
-        
-        click.echo("Sync Queue Status:")
-        click.echo(f"  Pending:    {status.get('pending', 0)}")
-        click.echo(f"  Processing: {status.get('processing', 0)}")
-        click.echo(f"  Completed:  {status.get('completed', 0)}")
-        click.echo(f"  Failed:     {status.get('failed', 0)}")
-  検証: jarvis sync-status
-
-□ 3.5.6 テスト作成 (3分)
-  ファイル: tests/sync/test_auto_sync.py
-  内容:
-    - test_network_listener_detects_change
-    - test_auto_sync_on_network_restored
-    - test_background_sync_thread
-    - test_progress_reporter
-  検証: pytest tests/sync/test_auto_sync.py -v
-```
-
-#### 期待成果物
-
-```
-jarvis_core/network/listener.py (新規)
-jarvis_core/sync/auto_sync.py (新規)
-jarvis_core/sync/progress.py (新規)
-tests/sync/test_auto_sync.py (新規)
-tests/network/test_listener.py (新規)
-```
-
----
-
-### 3.6 タスク 1.5.5: オフライン状態表示 (+5点)
-
-#### サブタスク
-
-```
-□ 3.6.1 状態バナー表示関数 (3分)
-  ファイル: jarvis_core/ui/status.py
-  内容:
-    from jarvis_core.network import DegradationLevel, get_degradation_manager
-    
-    def get_status_banner() -> str:
-        manager = get_degradation_manager()
-        level = manager.get_level()
-        
-        banners = {
-            DegradationLevel.FULL: "",
-            DegradationLevel.LIMITED: "⚠️  Limited Mode: External APIs unavailable",
-            DegradationLevel.OFFLINE: "🔌 Offline Mode: Using local cache only",
-            DegradationLevel.CRITICAL: "🚨 Critical: No cache available",
-        }
-        
-        return banners.get(level, "")
-  検証: python -c "from jarvis_core.ui.status import get_status_banner; print(get_status_banner())"
-
-□ 3.6.2 CLIに状態表示統合 (2分)
-  ファイル: jarvis_cli.py
-  変更: 各コマンド実行前にバナー表示
-  検証: オフライン時にjarvisコマンド実行でバナー表示
-```
-
----
-
-## 4. Phase 2: 埋め込み・検索完成 (+46点)
-
-### 4.1 概要
-
-| 項目 | 値 |
-|------|-----|
-| 目標スコア | +46点 |
-| 推定工数 | 8日 |
-| 優先度 | 🟠 高 |
-| 依存関係 | Phase 1完了推奨 |
-
-### 4.2 タスク 1.2.1: SPECTER2モデル追加 (+6点)
-
-#### サブタスク
-
-```
-□ 4.2.1 SPECTER2アダプタ作成 (5分)
-  ファイル: jarvis_core/embeddings/specter2.py
-  内容:
-    from sentence_transformers import SentenceTransformer
-    from typing import List
-    import numpy as np
-    
-    class SPECTER2Embedding:
-        """AllenAI SPECTER2 for scientific document embedding."""
-        
-        MODEL_NAME = "allenai/specter2"
-        
-        def __init__(self, device: str = "auto"):
-            self._model: Optional[SentenceTransformer] = None
-            self._device = device
-        
-        def _load_model(self) -> SentenceTransformer:
-            if self._model is None:
-                device = self._device
-                if device == "auto":
-                    import torch
-                    device = "cuda" if torch.cuda.is_available() else "cpu"
-                
-                self._model = SentenceTransformer(self.MODEL_NAME, device=device)
-            return self._model
-        
-        def embed(self, texts: List[str]) -> np.ndarray:
-            model = self._load_model()
-            return model.encode(texts, show_progress_bar=False)
-        
-        def embed_paper(self, title: str, abstract: str) -> np.ndarray:
-            """SPECTER2 recommended format: title + [SEP] + abstract"""
-            text = f"{title} [SEP] {abstract}"
-            return self.embed([text])[0]
-        
-        @property
-        def dimension(self) -> int:
-            return 768
-  検証: pytest tests/embeddings/test_specter2.py -v
-
-□ 4.2.2 モデル選択ロジック追加 (3分)
-  ファイル: jarvis_core/embeddings/__init__.py
-  変更:
-    from .specter2 import SPECTER2Embedding
-    
-    def get_embedding_model(model_type: str = "general") -> EmbeddingModel:
-        if model_type == "scientific":
-            return SPECTER2Embedding()
-        return SentenceTransformerEmbedding()
-  検証: python -c "from jarvis_core.embeddings import get_embedding_model; print(get_embedding_model('scientific'))"
-
-□ 4.2.3 設定ファイル対応 (2分)
-  ファイル: configs/embedding_config.yml
-  内容:
-    embedding:
-      default_model: "general"  # or "scientific"
-      models:
-        general:
-          name: "all-MiniLM-L6-v2"
-          dimension: 384
-        scientific:
-          name: "allenai/specter2"
-          dimension: 768
-  検証: 設定ファイル読み込み確認
-
-□ 4.2.4 テスト作成 (3分)
-  ファイル: tests/embeddings/test_specter2.py
-  内容:
-    - test_specter2_load
-    - test_specter2_embed_single
-    - test_specter2_embed_paper
-    - test_dimension
-  検証: pytest tests/embeddings/test_specter2.py -v
-```
-
----
-
-### 4.3 タスク 1.2.2: ハイブリッド検索完成 (+18点)
-
-#### サブタスク
-
-```
-□ 4.3.1 BM25インデックス完成 (5分)
-  ファイル: jarvis_core/embeddings/bm25.py
-  追加内容:
-    class BM25Index:
-        def __init__(self):
-            self._index: Optional[BM25Okapi] = None
-            self._documents: List[str] = []
-            self._doc_ids: List[str] = []
-        
-        def build(self, documents: List[str], doc_ids: List[str]) -> None:
-            from rank_bm25 import BM25Okapi
-            
-            tokenized = [self._tokenize(doc) for doc in documents]
-            self._index = BM25Okapi(tokenized)
-            self._documents = documents
-            self._doc_ids = doc_ids
-        
-        def search(self, query: str, top_k: int = 10) -> List[Tuple[str, float]]:
-            if self._index is None:
-                raise ValueError("Index not built")
-            
-            tokenized_query = self._tokenize(query)
-            scores = self._index.get_scores(tokenized_query)
-            
-            # Top-k取得
-            top_indices = np.argsort(scores)[::-1][:top_k]
-            return [(self._doc_ids[i], scores[i]) for i in top_indices]
-        
-        def _tokenize(self, text: str) -> List[str]:
-            # シンプルなトークナイズ（改善可能）
-            return text.lower().split()
-        
-        def save(self, path: str) -> None:
-            import pickle
-            with open(path, 'wb') as f:
-                pickle.dump({
-                    'documents': self._documents,
-                    'doc_ids': self._doc_ids,
-                }, f)
-        
-        def load(self, path: str) -> None:
-            import pickle
-            with open(path, 'rb') as f:
-                data = pickle.load(f)
-            self.build(data['documents'], data['doc_ids'])
-  検証: pytest tests/embeddings/test_bm25.py -v
-
-□ 4.3.2 Reciprocal Rank Fusion実装 (5分)
-  ファイル: jarvis_core/embeddings/hybrid.py
-  追加内容:
-    from enum import Enum
-    from typing import List, Tuple, Dict
-    
-    class FusionMethod(Enum):
-        RRF = "rrf"  # Reciprocal Rank Fusion
-        WEIGHTED = "weighted"
-        COMBSUM = "combsum"
-    
-    class HybridSearch:
-        def __init__(
-            self,
-            dense_model: SentenceTransformerEmbedding,
-            sparse_index: BM25Index,
-            fusion_method: FusionMethod = FusionMethod.RRF,
-            rrf_k: int = 60,
-            dense_weight: float = 0.5,
-        ):
-            self._dense = dense_model
-            self._sparse = sparse_index
-            self._fusion = fusion_method
-            self._rrf_k = rrf_k
-            self._dense_weight = dense_weight
-            self._doc_embeddings: Optional[np.ndarray] = None
-            self._doc_ids: List[str] = []
-        
-        def index(self, documents: List[str], doc_ids: List[str]) -> None:
-            # Dense embeddings
-            self._doc_embeddings = self._dense.embed(documents)
-            self._doc_ids = doc_ids
-            
-            # Sparse index
-            self._sparse.build(documents, doc_ids)
-        
-        def search(self, query: str, top_k: int = 10) -> List[Tuple[str, float]]:
-            # Dense search
-            query_embedding = self._dense.embed([query])[0]
-            dense_scores = self._cosine_similarity(query_embedding, self._doc_embeddings)
-            dense_results = self._rank_results(dense_scores)
-            
-            # Sparse search
-            sparse_results = self._sparse.search(query, top_k=top_k * 2)
-            
-            # Fusion
-            if self._fusion == FusionMethod.RRF:
-                return self._rrf_fusion(dense_results, sparse_results, top_k)
-            elif self._fusion == FusionMethod.WEIGHTED:
-                return self._weighted_fusion(dense_results, sparse_results, top_k)
-            else:
-                return self._combsum_fusion(dense_results, sparse_results, top_k)
-        
-        def _rrf_fusion(
-            self,
-            dense: List[Tuple[str, float]],
-            sparse: List[Tuple[str, float]],
-            top_k: int
-        ) -> List[Tuple[str, float]]:
-            scores: Dict[str, float] = {}
-            
-            for rank, (doc_id, _) in enumerate(dense):
-                scores[doc_id] = scores.get(doc_id, 0) + 1.0 / (self._rrf_k + rank + 1)
-            
-            for rank, (doc_id, _) in enumerate(sparse):
-                scores[doc_id] = scores.get(doc_id, 0) + 1.0 / (self._rrf_k + rank + 1)
-            
-            sorted_results = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-            return sorted_results[:top_k]
-        
-        def _cosine_similarity(self, query: np.ndarray, docs: np.ndarray) -> np.ndarray:
-            query_norm = query / np.linalg.norm(query)
-            docs_norm = docs / np.linalg.norm(docs, axis=1, keepdims=True)
-            return np.dot(docs_norm, query_norm)
-        
-        def _rank_results(self, scores: np.ndarray) -> List[Tuple[str, float]]:
-            indices = np.argsort(scores)[::-1]
-            return [(self._doc_ids[i], scores[i]) for i in indices]
-  検証: pytest tests/embeddings/test_hybrid.py -v
-
-□ 4.3.3 インデックス永続化 (3分)
-  ファイル: jarvis_core/embeddings/hybrid.py
-  追加:
-    def save(self, path: str) -> None:
-        import json
-        import numpy as np
-        
-        base_path = Path(path)
-        base_path.mkdir(parents=True, exist_ok=True)
-        
-        # Dense embeddings
-        np.save(base_path / "dense_embeddings.npy", self._doc_embeddings)
-        
-        # Doc IDs
-        with open(base_path / "doc_ids.json", 'w') as f:
-            json.dump(self._doc_ids, f)
-        
-        # Sparse index
-        self._sparse.save(str(base_path / "bm25_index.pkl"))
-    
-    def load(self, path: str) -> None:
-        base_path = Path(path)
-        
-        self._doc_embeddings = np.load(base_path / "dense_embeddings.npy")
-        
-        with open(base_path / "doc_ids.json", 'r') as f:
-            self._doc_ids = json.load(f)
-        
-        self._sparse.load(str(base_path / "bm25_index.pkl"))
-  検証: インデックスの保存と読み込みテスト
-
-□ 4.3.4 CLIにインデックス構築コマンド追加 (3分)
-  ファイル: jarvis_cli.py
-  追加:
-    @cli.command()
-    @click.argument('source_dir')
-    @click.option('--output', '-o', default='~/.jarvis/index')
-    def build_index(source_dir: str, output: str):
-        """Build hybrid search index from papers."""
-        from jarvis_core.embeddings import HybridSearch, get_embedding_model, BM25Index
-        
-        # 論文読み込み
-        papers = load_papers_from_dir(source_dir)
-        
-        # インデックス構築
-        hybrid = HybridSearch(
-            dense_model=get_embedding_model(),
-            sparse_index=BM25Index(),
-        )
-        
-        documents = [f"{p.title} {p.abstract}" for p in papers]
-        doc_ids = [p.id for p in papers]
-        
-        hybrid.index(documents, doc_ids)
-        hybrid.save(output)
-        
-        click.echo(f"Index built: {len(papers)} papers -> {output}")
-  検証: jarvis build-index ./papers -o ./index
-
-□ 4.3.5 テスト作成 (5分)
-  ファイル: tests/embeddings/test_hybrid.py
-  内容:
-    - test_hybrid_index_build
-    - test_hybrid_search_rrf
-    - test_hybrid_search_weighted
-    - test_hybrid_save_load
-    - test_fusion_method_comparison
-  検証: pytest tests/embeddings/test_hybrid.py -v --cov
-```
-
----
-
-### 4.4 タスク 1.2.3: ベクトルストア最適化 (+12点)
-
-#### サブタスク
-
-```
-□ 4.4.1 FAISSベクトルストア実装 (5分)
-  ファイル: jarvis_core/embeddings/vector_store.py
-  内容:
-    import faiss
-    import numpy as np
-    from typing import List, Tuple, Optional
-    
-    class FAISSVectorStore:
-        def __init__(self, dimension: int, index_type: str = "flat"):
-            self._dimension = dimension
-            self._index: Optional[faiss.Index] = None
-            self._doc_ids: List[str] = []
-            self._index_type = index_type
-        
-        def build(self, embeddings: np.ndarray, doc_ids: List[str]) -> None:
-            if self._index_type == "flat":
-                self._index = faiss.IndexFlatIP(self._dimension)
-            elif self._index_type == "ivf":
-                quantizer = faiss.IndexFlatIP(self._dimension)
-                nlist = min(100, len(doc_ids) // 10)
-                self._index = faiss.IndexIVFFlat(quantizer, self._dimension, nlist)
-                self._index.train(embeddings.astype(np.float32))
-            
-            # 正規化してから追加
-            normalized = embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)
-            self._index.add(normalized.astype(np.float32))
-            self._doc_ids = doc_ids
-        
-        def search(self, query_embedding: np.ndarray, top_k: int = 10) -> List[Tuple[str, float]]:
-            query_norm = query_embedding / np.linalg.norm(query_embedding)
-            query_norm = query_norm.reshape(1, -1).astype(np.float32)
-            
-            distances, indices = self._index.search(query_norm, top_k)
-            
-            results = []
-            for i, idx in enumerate(indices[0]):
-                if idx != -1:
-                    results.append((self._doc_ids[idx], float(distances[0][i])))
-            
-            return results
-        
-        def save(self, path: str) -> None:
-            faiss.write_index(self._index, f"{path}.faiss")
-            with open(f"{path}.ids", 'w') as f:
-                json.dump(self._doc_ids, f)
-        
-        def load(self, path: str) -> None:
-            self._index = faiss.read_index(f"{path}.faiss")
-            with open(f"{path}.ids", 'r') as f:
-                self._doc_ids = json.load(f)
-  検証: pytest tests/embeddings/test_vector_store.py -v
-
-□ 4.4.2 インクリメンタル追加サポート (3分)
-  ファイル: jarvis_core/embeddings/vector_store.py
-  追加:
-    def add(self, embeddings: np.ndarray, doc_ids: List[str]) -> None:
-        normalized = embeddings / np.linalg.norm(embeddings, axis=1, keepdims=True)
-        self._index.add(normalized.astype(np.float32))
-        self._doc_ids.extend(doc_ids)
-  検証: 追加後の検索テスト
-
-□ 4.4.3 HybridSearchにFAISS統合 (3分)
-  ファイル: jarvis_core/embeddings/hybrid.py
-  変更:
-    def __init__(self, ..., use_faiss: bool = True):
-        if use_faiss:
-            self._vector_store = FAISSVectorStore(dense_model.dimension)
-        else:
-            self._vector_store = None
-  検証: FAISS使用時の検索テスト
-
-□ 4.4.4 テスト作成 (3分)
-  ファイル: tests/embeddings/test_vector_store.py
-  検証: pytest tests/embeddings/test_vector_store.py -v
-```
-
----
-
-### 4.5 タスク 1.2.4: キャッシュ圧縮改善 (+10点)
-
-#### サブタスク
-
-```
-□ 4.5.1 圧縮オプション追加 (3分)
-  ファイル: jarvis_core/cache/multi_level.py
-  変更:
-    def __init__(self, ..., compression: str = "gzip"):
-        self._compression = compression
-    
-    def _compress(self, data: bytes) -> bytes:
-        if self._compression == "gzip":
-            import gzip
-            return gzip.compress(data)
-        elif self._compression == "lz4":
-            import lz4.frame
-            return lz4.frame.compress(data)
-        return data
-    
-    def _decompress(self, data: bytes) -> bytes:
-        if self._compression == "gzip":
-            import gzip
-            return gzip.decompress(data)
-        elif self._compression == "lz4":
-            import lz4.frame
-            return lz4.frame.decompress(data)
-        return data
-  検証: pytest tests/cache/test_compression.py -v
-
-□ 4.5.2 LRUキャッシュ改善 (3分)
-  ファイル: jarvis_core/cache/multi_level.py
-  変更:
-    from collections import OrderedDict
-    
-    class LRUCache:
-        def __init__(self, max_size: int = 1000):
-            self._cache = OrderedDict()
-            self._max_size = max_size
-        
-        def get(self, key: str) -> Optional[Any]:
-            if key in self._cache:
-                self._cache.move_to_end(key)
-                return self._cache[key]
-            return None
-        
-        def put(self, key: str, value: Any) -> None:
-            if key in self._cache:
-                self._cache.move_to_end(key)
-            else:
-                if len(self._cache) >= self._max_size:
-                    self._cache.popitem(last=False)
-            self._cache[key] = value
-  検証: pytest tests/cache/test_lru.py -v
-
-□ 4.5.3 キャッシュ統計機能強化 (2分)
-  ファイル: jarvis_core/cache/multi_level.py
-  追加:
-    def get_detailed_stats(self) -> Dict[str, Any]:
-        return {
-            "l1_hits": self._l1_hits,
-            "l2_hits": self._l2_hits,
-            "misses": self._misses,
-            "hit_rate": self._calculate_hit_rate(),
-            "l1_size": len(self._l1_cache),
-            "l2_size": self._get_l2_size(),
-            "compression_ratio": self._calculate_compression_ratio(),
-        }
-  検証: python -c "from jarvis_core.cache import MultiLevelCache; print(MultiLevelCache().get_detailed_stats())"
-
-□ 4.5.4 テスト作成 (2分)
-  ファイル: tests/cache/test_compression.py, tests/cache/test_lru.py
-  検証: pytest tests/cache/ -v --cov
-```
-
----
-
-## 5. Phase 3: 差別化機能完成 (+100点)
-
-### 5.1 概要
-
-| 項目 | 値 |
-|------|-----|
-| 目標スコア | +100点 |
-| 推定工数 | 12日 |
-| 優先度 | 🟡 中 |
-| 依存関係 | Phase 1, 2完了推奨 |
-
-### 5.2 タスク 2.1.1: アンサンブルグレーディング完成 (+12点)
-
-#### サブタスク
-
-```
-□ 5.2.1 重み最適化ロジック (5分)
-  ファイル: jarvis_core/evidence/ensemble.py
-  追加:
-    class EnsembleClassifier:
-        def __init__(
-            self,
-            rule_weight: float = 0.4,
-            llm_weight: float = 0.6,
-            use_confidence_weighting: bool = True,
-        ):
-            self._rule_classifier = RuleBasedClassifier()
-            self._llm_classifier = LLMBasedClassifier()
-            self._rule_weight = rule_weight
-            self._llm_weight = llm_weight
-            self._use_confidence = use_confidence_weighting
-        
-        def classify(self, title: str, abstract: str) -> EvidenceGrade:
-            rule_result = self._rule_classifier.classify(title, abstract)
-            llm_result = self._llm_classifier.classify(title, abstract)
-            
-            if self._use_confidence:
-                # 信頼度に基づく動的重み付け
-                total_confidence = rule_result.confidence + llm_result.confidence
-                rule_w = rule_result.confidence / total_confidence
-                llm_w = llm_result.confidence / total_confidence
-            else:
-                rule_w = self._rule_weight
-                llm_w = self._llm_weight
-            
-            # 加重平均でレベル決定
-            level_scores = self._calculate_level_scores(rule_result, llm_result, rule_w, llm_w)
-            best_level = max(level_scores, key=level_scores.get)
-            
-            return EvidenceGrade(
-                level=best_level,
-                confidence=level_scores[best_level],
-                reasoning=f"Rule: {rule_result.level.value}, LLM: {llm_result.level.value}",
-                method="ensemble",
-            )
-  検証: pytest tests/evidence/test_ensemble.py -v
-
-□ 5.2.2 バッチグレーディング最適化 (3分)
-  ファイル: jarvis_core/evidence/ensemble.py
-  追加:
-    def classify_batch(self, papers: List[Dict[str, str]]) -> List[EvidenceGrade]:
-        # ルールベースはバッチ処理
-        rule_results = [self._rule_classifier.classify(p['title'], p['abstract']) for p in papers]
-        
-        # LLMはバッチで効率化
-        llm_results = self._llm_classifier.classify_batch(papers)
-        
-        return [
-            self._combine_results(rule, llm)
-            for rule, llm in zip(rule_results, llm_results)
-        ]
-  検証: バッチ処理のパフォーマンステスト
-
-□ 5.2.3 テスト強化 (2分)
-  ファイル: tests/evidence/test_ensemble.py
-  検証: pytest tests/evidence/ -v --cov
-```
-
----
-
-### 5.3 タスク 2.1.2: 信頼度可視化 (+15点)
-
-#### サブタスク
-
-```
-□ 5.3.1 信頼度スコア詳細出力 (3分)
-  ファイル: jarvis_core/evidence/schema.py
-  追加:
-    @dataclass
-    class DetailedEvidenceGrade(EvidenceGrade):
-        rule_confidence: float = 0.0
-        llm_confidence: float = 0.0
-        level_probabilities: Dict[str, float] = field(default_factory=dict)
-        
-        def to_visualization_dict(self) -> Dict[str, Any]:
-            return {
-                "level": self.level.value,
-                "level_description": self.level.description,
-                "confidence": self.confidence,
-                "components": {
-                    "rule_based": self.rule_confidence,
-                    "llm_based": self.llm_confidence,
-                },
-                "probabilities": self.level_probabilities,
-            }
-  検証: python -c "from jarvis_core.evidence import DetailedEvidenceGrade"
-
-□ 5.3.2 Mermaidグラフ生成 (5分)
-  ファイル: jarvis_core/evidence/visualizer.py
-  内容:
-    class EvidenceVisualizer:
-        def generate_confidence_chart(self, grades: List[DetailedEvidenceGrade]) -> str:
-            """Mermaidパイチャート生成"""
-            level_counts = {}
-            for grade in grades:
-                level = grade.level.value
-                level_counts[level] = level_counts.get(level, 0) + 1
-            
-            mermaid = "pie title Evidence Level Distribution\n"
-            for level, count in level_counts.items():
-                mermaid += f'    "{level}" : {count}\n'
-            
-            return mermaid
-        
-        def generate_confidence_bar(self, grade: DetailedEvidenceGrade) -> str:
-            """単一グレードのバーチャート"""
-            probs = grade.level_probabilities
-            
-            mermaid = "xychart-beta\n"
-            mermaid += '    title "Level Probabilities"\n'
-            mermaid += f'    x-axis [{", ".join(probs.keys())}]\n'
-            mermaid += f'    y-axis "Probability" 0 --> 1\n'
-            mermaid += f'    bar [{", ".join(str(v) for v in probs.values())}]\n'
-            
-            return mermaid
-  検証: pytest tests/evidence/test_visualizer.py -v
-
-□ 5.3.3 CLI可視化コマンド (3分)
-  ファイル: jarvis_cli.py
-  追加:
-    @cli.command()
-    @click.argument('paper_file')
-    @click.option('--output', '-o', default='evidence_report.md')
-    def grade_evidence(paper_file: str, output: str):
-        """Grade evidence levels for papers and generate visualization."""
-        from jarvis_core.evidence import grade_evidence, EvidenceVisualizer
-        
-        papers = load_papers(paper_file)
-        grades = [grade_evidence(p['title'], p['abstract']) for p in papers]
-        
-        visualizer = EvidenceVisualizer()
-        
-        with open(output, 'w') as f:
-            f.write("# Evidence Grading Report\n\n")
-            f.write("## Distribution\n\n")
-            f.write("```mermaid\n")
-            f.write(visualizer.generate_confidence_chart(grades))
-            f.write("```\n\n")
-            
-            f.write("## Details\n\n")
-            for paper, grade in zip(papers, grades):
-                f.write(f"### {paper['title']}\n")
-                f.write(f"- Level: {grade.level.value}\n")
-                f.write(f"- Confidence: {grade.confidence:.2%}\n\n")
-        
-        click.echo(f"Report generated: {output}")
-  検証: jarvis grade-evidence papers.json -o report.md
-
-□ 5.3.4 テスト作成 (2分)
-  ファイル: tests/evidence/test_visualizer.py
-  検証: pytest tests/evidence/test_visualizer.py -v
-```
-
----
-
-### 5.4 タスク 2.2.1: Support/Contrast分類完成 (+20点)
-
-#### サブタスク
-
-```
-□ 5.4.1 スタンス分類器強化 (5分)
-  ファイル: jarvis_core/citation/stance_classifier.py
-  追加/変更:
-    class CitationStance(Enum):
-        SUPPORT = "support"
-        CONTRAST = "contrast"
-        MENTION = "mention"
-        COMPARE = "compare"
-        EXTEND = "extend"
-        BACKGROUND = "background"
-    
-    class StanceClassifier:
-        def __init__(self):
-            self._support_patterns = [
-                r"confirm", r"support", r"consistent with", r"in line with",
-                r"agree", r"corroborate", r"validate", r"reinforce",
-            ]
-            self._contrast_patterns = [
-                r"contradict", r"contrary to", r"inconsistent", r"disagree",
-                r"challenge", r"refute", r"oppose", r"conflict",
-            ]
-            self._compare_patterns = [
-                r"compared to", r"in contrast to", r"unlike", r"whereas",
-                r"however", r"although", r"while",
-            ]
-        
-        def classify(self, context: CitationContext) -> StanceClassificationResult:
-            text = context.get_full_context().lower()
-            
-            support_score = self._match_patterns(text, self._support_patterns)
-            contrast_score = self._match_patterns(text, self._contrast_patterns)
-            compare_score = self._match_patterns(text, self._compare_patterns)
-            
-            if contrast_score > support_score and contrast_score > compare_score:
-                stance = CitationStance.CONTRAST
-                confidence = min(contrast_score / 3, 1.0)
-            elif support_score > contrast_score and support_score > compare_score:
-                stance = CitationStance.SUPPORT
-                confidence = min(support_score / 3, 1.0)
-            elif compare_score > 0:
-                stance = CitationStance.COMPARE
-                confidence = min(compare_score / 3, 1.0)
-            else:
-                stance = CitationStance.MENTION
-                confidence = 0.5
-            
-            return StanceClassificationResult(
-                stance=stance,
-                confidence=confidence,
-                reasoning=f"Pattern scores: support={support_score}, contrast={contrast_score}",
+        # Check if claims are about the same topic (high similarity)
+        if similarity < self.config.similarity_threshold:
+            return ContradictionResult(
+                claim_a=claim_a,
+                claim_b=claim_b,
+                is_contradictory=False,
+                contradiction_type=ContradictionType.NONE,
+                confidence=1 - similarity,
+                scores={"semantic_similarity": similarity},
             )
         
-        def _match_patterns(self, text: str, patterns: List[str]) -> int:
-            return sum(1 for p in patterns if re.search(p, text))
-  検証: pytest tests/citation/test_stance_classifier.py -v
-
-□ 5.4.2 LLMベース分類器追加 (5分)
-  ファイル: jarvis_core/citation/llm_stance.py
-  内容:
-    class LLMStanceClassifier:
-        def __init__(self):
-            from jarvis_core.llm import get_router
-            self._router = get_router()
-        
-        def classify(self, context: CitationContext) -> StanceClassificationResult:
-            prompt = f"""Classify the citation stance in the following context.
-
-Context: {context.get_full_context()}
-
-Classify as one of:
-- SUPPORT: The citing paper agrees with or builds upon the cited work
-- CONTRAST: The citing paper disagrees or presents conflicting findings
-- MENTION: Neutral reference without strong agreement or disagreement
-- COMPARE: Comparing methodologies or results
-
-Respond with JSON: {{"stance": "...", "confidence": 0.0-1.0, "reasoning": "..."}}"""
+        # Check negation similarity
+        if self.config.use_negation_embedding:
+            negated_a = self._negate_claim(claim_a.text)
+            emb_neg_a = self.embedder.embed(negated_a)
+            neg_similarity = self._cosine_similarity(emb_neg_a, emb_b)
             
-            response = self._router.generate(prompt, max_tokens=200)
-            return self._parse_response(response)
-  検証: pytest tests/citation/test_llm_stance.py -v
-
-□ 5.4.3 アンサンブル分類器 (3分)
-  ファイル: jarvis_core/citation/stance_ensemble.py
-  内容:
-    class EnsembleStanceClassifier:
-        def __init__(self, rule_weight: float = 0.4, llm_weight: float = 0.6):
-            self._rule = StanceClassifier()
-            self._llm = LLMStanceClassifier()
-            self._rule_weight = rule_weight
-            self._llm_weight = llm_weight
-        
-        def classify(self, context: CitationContext) -> StanceClassificationResult:
-            rule_result = self._rule.classify(context)
-            llm_result = self._llm.classify(context)
-            
-            # 一致していれば高信頼
-            if rule_result.stance == llm_result.stance:
-                confidence = min((rule_result.confidence + llm_result.confidence) / 2 + 0.2, 1.0)
-                return StanceClassificationResult(
-                    stance=rule_result.stance,
-                    confidence=confidence,
-                    reasoning=f"Consensus: {rule_result.stance.value}",
+            if neg_similarity > self.config.similarity_threshold:
+                return ContradictionResult(
+                    claim_a=claim_a,
+                    claim_b=claim_b,
+                    is_contradictory=True,
+                    contradiction_type=ContradictionType.DIRECT,
+                    confidence=neg_similarity,
+                    scores={
+                        "semantic_similarity": similarity,
+                        "negation_similarity": neg_similarity,
+                    },
                 )
-            
-            # LLMを優先（ただしルールの信頼度が高ければルール）
-            if rule_result.confidence > 0.8:
-                return rule_result
-            return llm_result
-  検証: pytest tests/citation/test_stance_ensemble.py -v
-
-□ 5.4.4 テスト作成 (3分)
-  ファイル: tests/citation/test_stance_*.py
-  検証: pytest tests/citation/ -v --cov
-```
-
----
-
-### 5.5 タスク 2.2.2: 引用影響力スコア (+15点)
-
-#### サブタスク
-
-```
-□ 5.5.1 影響力計算ロジック (5分)
-  ファイル: jarvis_core/citation/influence.py
-  内容:
-    from dataclasses import dataclass
-    from typing import Dict, List
-    
-    @dataclass
-    class InfluenceScore:
-        paper_id: str
-        total_citations: int
-        support_count: int
-        contrast_count: int
-        mention_count: int
-        influence_score: float
-        controversy_score: float
-    
-    class InfluenceCalculator:
-        def __init__(self, citation_graph: CitationGraph):
-            self._graph = citation_graph
         
-        def calculate(self, paper_id: str) -> InfluenceScore:
-            citations = self._graph.get_citations(paper_id)
-            
-            support = sum(1 for c in citations if c.stance == CitationStance.SUPPORT)
-            contrast = sum(1 for c in citations if c.stance == CitationStance.CONTRAST)
-            mention = sum(1 for c in citations if c.stance == CitationStance.MENTION)
-            
-            total = len(citations)
-            
-            # 影響力スコア: 被引用数 * (支持率 + 0.5 * 対照率)
-            support_rate = support / total if total > 0 else 0
-            contrast_rate = contrast / total if total > 0 else 0
-            
-            influence = total * (support_rate + 0.5 * contrast_rate)
-            
-            # 議論性スコア: 対照引用の割合
-            controversy = contrast_rate
-            
-            return InfluenceScore(
-                paper_id=paper_id,
-                total_citations=total,
-                support_count=support,
-                contrast_count=contrast,
-                mention_count=mention,
-                influence_score=influence,
-                controversy_score=controversy,
+        # Check for partial contradiction using predicate analysis
+        partial_score = self._check_partial_contradiction(claim_a, claim_b)
+        
+        if partial_score > self.config.contradiction_threshold:
+            return ContradictionResult(
+                claim_a=claim_a,
+                claim_b=claim_b,
+                is_contradictory=True,
+                contradiction_type=ContradictionType.PARTIAL,
+                confidence=partial_score,
+                scores={
+                    "semantic_similarity": similarity,
+                    "partial_score": partial_score,
+                },
             )
-  検証: pytest tests/citation/test_influence.py -v
-
-□ 5.5.2 ランキング機能 (3分)
-  ファイル: jarvis_core/citation/influence.py
-  追加:
-    def rank_papers(self, paper_ids: List[str], by: str = "influence") -> List[InfluenceScore]:
-        scores = [self.calculate(pid) for pid in paper_ids]
         
-        if by == "influence":
-            return sorted(scores, key=lambda x: x.influence_score, reverse=True)
-        elif by == "controversy":
-            return sorted(scores, key=lambda x: x.controversy_score, reverse=True)
-        elif by == "citations":
-            return sorted(scores, key=lambda x: x.total_citations, reverse=True)
-        
-        return scores
-  検証: pytest tests/citation/test_influence.py::test_ranking -v
-
-□ 5.5.3 CLIコマンド追加 (2分)
-  ファイル: jarvis_cli.py
-  追加:
-    @cli.command()
-    @click.argument('paper_ids', nargs=-1)
-    @click.option('--by', default='influence', type=click.Choice(['influence', 'controversy', 'citations']))
-    def rank_influence(paper_ids: Tuple[str], by: str):
-        """Rank papers by influence score."""
-        ...
-  検証: jarvis rank-influence paper1 paper2 --by influence
-
-□ 5.5.4 テスト作成 (3分)
-  ファイル: tests/citation/test_influence.py
-  検証: pytest tests/citation/test_influence.py -v
-```
-
----
-
-### 5.6 タスク 2.3.1: 矛盾解決提案 (+20点)
-
-#### サブタスク
-
-```
-□ 5.6.1 解決提案スキーマ (3分)
-  ファイル: jarvis_core/contradiction/resolution.py
-  内容:
-    from dataclasses import dataclass
-    from enum import Enum
-    from typing import List, Optional
-    
-    class ResolutionStrategy(Enum):
-        METHODOLOGY = "methodology"  # 方法論の違い
-        POPULATION = "population"    # 対象集団の違い
-        TIMEFRAME = "timeframe"      # 時期の違い
-        MEASURE = "measure"          # 測定方法の違い
-        CONTEXT = "context"          # コンテキストの違い
-        UNKNOWN = "unknown"
-    
-    @dataclass
-    class ResolutionSuggestion:
-        strategy: ResolutionStrategy
-        explanation: str
-        confidence: float
-        evidence_for: List[str]
-        evidence_against: List[str]
-        recommended_action: str
-  検証: python -c "from jarvis_core.contradiction.resolution import ResolutionSuggestion"
-
-□ 5.6.2 解決提案生成器 (5分)
-  ファイル: jarvis_core/contradiction/resolver.py
-  内容:
-    class ContradictionResolver:
-        def __init__(self):
-            from jarvis_core.llm import get_router
-            self._router = get_router()
-        
-        def suggest_resolution(
-            self,
-            contradiction: ContradictionResult,
-            claim_a_context: str,
-            claim_b_context: str,
-        ) -> ResolutionSuggestion:
-            prompt = f"""Analyze the contradiction and suggest resolution:
-
-Claim A: {contradiction.claim_a.text}
-Context A: {claim_a_context}
-
-Claim B: {contradiction.claim_b.text}
-Context B: {claim_b_context}
-
-Contradiction Type: {contradiction.contradiction_type.value}
-
-Suggest how this contradiction might be resolved. Consider:
-1. Different methodologies
-2. Different study populations
-3. Different time periods
-4. Different measurement approaches
-5. Different contexts
-
-Respond with JSON:
-{{
-    "strategy": "methodology|population|timeframe|measure|context|unknown",
-    "explanation": "...",
-    "confidence": 0.0-1.0,
-    "evidence_for": ["..."],
-    "evidence_against": ["..."],
-    "recommended_action": "..."
-}}"""
-            
-            response = self._router.generate(prompt, max_tokens=500)
-            return self._parse_response(response)
-  検証: pytest tests/contradiction/test_resolver.py -v
-
-□ 5.6.3 ルールベース補助解決 (3分)
-  ファイル: jarvis_core/contradiction/resolver.py
-  追加:
-    def _rule_based_suggestion(self, contradiction: ContradictionResult) -> Optional[ResolutionStrategy]:
-        text_a = contradiction.claim_a.text.lower()
-        text_b = contradiction.claim_b.text.lower()
-        
-        # 数値の違い → 測定方法
-        if re.search(r'\d+%', text_a) and re.search(r'\d+%', text_b):
-            return ResolutionStrategy.MEASURE
-        
-        # 時間表現 → 時期
-        time_patterns = [r'\d{4}', r'year', r'month', r'recent']
-        if any(re.search(p, text_a) for p in time_patterns):
-            return ResolutionStrategy.TIMEFRAME
-        
-        # 集団表現 → 対象集団
-        population_patterns = [r'patients?', r'subjects?', r'participants?', r'adults?', r'children']
-        if any(re.search(p, text_a) for p in population_patterns):
-            return ResolutionStrategy.POPULATION
-        
-        return None
-  検証: ルールベース解決のテスト
-
-□ 5.6.4 矛盾レポート生成 (3分)
-  ファイル: jarvis_core/contradiction/report.py
-  内容:
-    class ContradictionReportGenerator:
-        def generate(self, contradictions: List[ContradictionResult], resolutions: List[ResolutionSuggestion]) -> str:
-            report = "# Contradiction Analysis Report\n\n"
-            
-            for i, (cont, res) in enumerate(zip(contradictions, resolutions)):
-                report += f"## Contradiction {i+1}\n\n"
-                report += f"**Claim A**: {cont.claim_a.text}\n"
-                report += f"**Claim B**: {cont.claim_b.text}\n"
-                report += f"**Type**: {cont.contradiction_type.value}\n\n"
-                
-                report += "### Resolution Suggestion\n\n"
-                report += f"**Strategy**: {res.strategy.value}\n"
-                report += f"**Explanation**: {res.explanation}\n"
-                report += f"**Confidence**: {res.confidence:.0%}\n"
-                report += f"**Recommended Action**: {res.recommended_action}\n\n"
-                report += "---\n\n"
-            
-            return report
-  検証: pytest tests/contradiction/test_report.py -v
-
-□ 5.6.5 テスト作成 (3分)
-  ファイル: tests/contradiction/test_resolver.py, test_report.py
-  検証: pytest tests/contradiction/ -v --cov
-```
-
----
-
-### 5.7 タスク 2.4.1: PRISMA完全準拠 (+12点)
-
-#### サブタスク
-
-```
-□ 5.7.1 PRISMA 2020スキーマ完全実装 (5分)
-  ファイル: jarvis_core/prisma/schema.py
-  追加:
-    @dataclass
-    class PRISMA2020Data:
-        """PRISMA 2020 compliant data structure."""
-        
-        # Identification
-        records_identified_databases: int = 0
-        records_identified_registers: int = 0
-        records_identified_other: int = 0
-        
-        # Deduplication
-        records_removed_duplicates: int = 0
-        records_removed_automation: int = 0
-        records_removed_other: int = 0
-        
-        # Screening
-        records_screened: int = 0
-        records_excluded_screening: int = 0
-        
-        # Eligibility
-        reports_sought_retrieval: int = 0
-        reports_not_retrieved: int = 0
-        reports_assessed_eligibility: int = 0
-        reports_excluded_eligibility: int = 0
-        exclusion_reasons: Dict[str, int] = field(default_factory=dict)
-        
-        # Included
-        studies_included_review: int = 0
-        reports_included_review: int = 0
-        
-        # New studies from other methods
-        records_identified_citation: int = 0
-        records_identified_websites: int = 0
-        records_identified_organisations: int = 0
-        reports_sought_citation: int = 0
-        reports_not_retrieved_citation: int = 0
-        reports_assessed_citation: int = 0
-        reports_excluded_citation: int = 0
-        
-        def validate(self) -> List[str]:
-            """Validate PRISMA data consistency."""
-            errors = []
-            
-            total_identified = (
-                self.records_identified_databases +
-                self.records_identified_registers +
-                self.records_identified_other
-            )
-            
-            total_removed = (
-                self.records_removed_duplicates +
-                self.records_removed_automation +
-                self.records_removed_other
-            )
-            
-            if self.records_screened > total_identified - total_removed:
-                errors.append("Screened records exceed available after deduplication")
-            
-            return errors
-  検証: pytest tests/prisma/test_schema.py -v
-
-□ 5.7.2 PRISMA 2020フローチャート生成 (5分)
-  ファイル: jarvis_core/prisma/generator.py
-  更新:
-    def generate_prisma_2020_flow(self, data: PRISMA2020Data) -> str:
-        """Generate PRISMA 2020 compliant flow diagram in Mermaid."""
-        
-        mermaid = """flowchart TD
-    subgraph identification["Identification"]
-        db["Records from databases<br>(n = {db})"]
-        reg["Records from registers<br>(n = {reg})"]
-        other["Records from other sources<br>(n = {other})"]
-    end
-    
-    subgraph screening["Screening"]
-        dup["Records removed before screening:<br>Duplicates (n = {dup})<br>Automation (n = {auto})<br>Other (n = {other_rm})"]
-        screened["Records screened<br>(n = {screened})"]
-        excluded_screen["Records excluded<br>(n = {excl_screen})"]
-    end
-    
-    subgraph eligibility["Eligibility"]
-        sought["Reports sought<br>(n = {sought})"]
-        not_retrieved["Reports not retrieved<br>(n = {not_ret})"]
-        assessed["Reports assessed<br>(n = {assessed})"]
-        excluded_elig["Reports excluded:<br>{exclusion_reasons}"]
-    end
-    
-    subgraph included["Included"]
-        studies["Studies in review<br>(n = {studies})"]
-        reports["Reports in review<br>(n = {reports})"]
-    end
-    
-    db --> dup
-    reg --> dup
-    other --> dup
-    dup --> screened
-    screened --> excluded_screen
-    screened --> sought
-    sought --> not_retrieved
-    sought --> assessed
-    assessed --> excluded_elig
-    assessed --> studies
-    studies --> reports
-""".format(
-            db=data.records_identified_databases,
-            reg=data.records_identified_registers,
-            other=data.records_identified_other,
-            dup=data.records_removed_duplicates,
-            auto=data.records_removed_automation,
-            other_rm=data.records_removed_other,
-            screened=data.records_screened,
-            excl_screen=data.records_excluded_screening,
-            sought=data.reports_sought_retrieval,
-            not_ret=data.reports_not_retrieved,
-            assessed=data.reports_assessed_eligibility,
-            exclusion_reasons=self._format_exclusion_reasons(data.exclusion_reasons),
-            studies=data.studies_included_review,
-            reports=data.reports_included_review,
+        return ContradictionResult(
+            claim_a=claim_a,
+            claim_b=claim_b,
+            is_contradictory=False,
+            contradiction_type=ContradictionType.NONE,
+            confidence=1 - similarity,
+            scores={"semantic_similarity": similarity},
         )
-        
-        return mermaid
-  検証: pytest tests/prisma/test_generator.py -v
-
-□ 5.7.3 テスト作成 (2分)
-  ファイル: tests/prisma/test_prisma_2020.py
-  検証: pytest tests/prisma/ -v --cov
-```
-
----
-
-## 6. Phase 4: エコシステム完成 (+96点)
-
-### 6.1 概要
-
-| 項目 | 値 |
-|------|-----|
-| 目標スコア | +96点 |
-| 推定工数 | 10日 |
-| 優先度 | 🟢 通常 |
-| 依存関係 | Phase 1-3完了推奨 |
-
-### 6.2 タスク 3.1.1: Zotero連携 (+25点)
-
-#### サブタスク
-
-```
-□ 6.2.1 Zotero APIクライアント (5分)
-  ファイル: jarvis_core/integrations/zotero.py
-  内容:
-    from dataclasses import dataclass
-    from typing import Any, Dict, List, Optional
-    import requests
     
-    @dataclass
-    class ZoteroConfig:
-        api_key: str
-        user_id: str
-        library_type: str = "user"  # "user" or "group"
+    def _cosine_similarity(self, a: np.ndarray, b: np.ndarray) -> float:
+        """Compute cosine similarity between two vectors."""
+        return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
     
-    class ZoteroClient:
-        BASE_URL = "https://api.zotero.org"
-        
-        def __init__(self, config: ZoteroConfig):
-            self._config = config
-            self._headers = {
-                "Zotero-API-Key": config.api_key,
-                "Zotero-API-Version": "3",
-            }
-        
-        def _get_library_url(self) -> str:
-            if self._config.library_type == "user":
-                return f"{self.BASE_URL}/users/{self._config.user_id}"
-            return f"{self.BASE_URL}/groups/{self._config.user_id}"
-        
-        def get_items(self, collection_key: Optional[str] = None, limit: int = 100) -> List[Dict]:
-            url = f"{self._get_library_url()}/items"
-            params = {"limit": limit, "format": "json"}
-            if collection_key:
-                params["collection"] = collection_key
-            
-            response = requests.get(url, headers=self._headers, params=params)
-            response.raise_for_status()
-            return response.json()
-        
-        def create_item(self, item_data: Dict[str, Any]) -> Dict:
-            url = f"{self._get_library_url()}/items"
-            response = requests.post(url, headers=self._headers, json=[item_data])
-            response.raise_for_status()
-            return response.json()
-        
-        def get_collections(self) -> List[Dict]:
-            url = f"{self._get_library_url()}/collections"
-            response = requests.get(url, headers=self._headers)
-            response.raise_for_status()
-            return response.json()
-        
-        def search(self, query: str, limit: int = 25) -> List[Dict]:
-            url = f"{self._get_library_url()}/items"
-            params = {"q": query, "limit": limit, "format": "json"}
-            response = requests.get(url, headers=self._headers, params=params)
-            response.raise_for_status()
-            return response.json()
-  検証: pytest tests/integrations/test_zotero.py -v
-
-□ 6.2.2 Zoteroプラグイン実装 (5分)
-  ファイル: jarvis_core/plugins/zotero_plugin.py
-  内容:
-    from jarvis_core.plugins import PluginProtocol, PluginManifest
-    from jarvis_core.integrations.zotero import ZoteroClient, ZoteroConfig
-    
-    class ZoteroPlugin(PluginProtocol):
-        @property
-        def manifest(self) -> PluginManifest:
-            return PluginManifest(
-                name="zotero",
-                version="1.0.0",
-                description="Zotero reference manager integration",
-                author="JARVIS Team",
-                plugin_type="integration",
-            )
-        
-        def initialize(self, config: Dict[str, Any]) -> None:
-            zotero_config = ZoteroConfig(
-                api_key=config["api_key"],
-                user_id=config["user_id"],
-                library_type=config.get("library_type", "user"),
-            )
-            self._client = ZoteroClient(zotero_config)
-        
-        def import_references(self, collection_key: Optional[str] = None) -> List[Dict]:
-            items = self._client.get_items(collection_key)
-            return [self._convert_to_paper(item) for item in items]
-        
-        def export_references(self, papers: List[Dict], collection_key: Optional[str] = None) -> int:
-            exported = 0
-            for paper in papers:
-                item_data = self._convert_to_zotero(paper)
-                self._client.create_item(item_data)
-                exported += 1
-            return exported
-        
-        def _convert_to_paper(self, zotero_item: Dict) -> Dict:
-            data = zotero_item.get("data", {})
-            return {
-                "id": zotero_item.get("key"),
-                "title": data.get("title", ""),
-                "authors": [c.get("lastName", "") for c in data.get("creators", [])],
-                "abstract": data.get("abstractNote", ""),
-                "doi": data.get("DOI"),
-                "year": data.get("date", "")[:4] if data.get("date") else None,
-                "source": "zotero",
-            }
-        
-        def _convert_to_zotero(self, paper: Dict) -> Dict:
-            return {
-                "itemType": "journalArticle",
-                "title": paper.get("title", ""),
-                "creators": [{"creatorType": "author", "lastName": a} for a in paper.get("authors", [])],
-                "abstractNote": paper.get("abstract", ""),
-                "DOI": paper.get("doi"),
-                "date": paper.get("year"),
-            }
-  検証: pytest tests/plugins/test_zotero_plugin.py -v
-
-□ 6.2.3 CLIコマンド追加 (3分)
-  ファイル: jarvis_cli.py
-  追加:
-    @cli.group()
-    def zotero():
-        """Zotero integration commands."""
-        pass
-    
-    @zotero.command()
-    @click.option('--collection', '-c', help='Zotero collection key')
-    @click.option('--output', '-o', default='papers.json')
-    def import_refs(collection: Optional[str], output: str):
-        """Import references from Zotero."""
-        from jarvis_core.plugins import get_plugin_manager
-        
-        manager = get_plugin_manager()
-        plugin = manager.get_plugin("zotero")
-        
-        papers = plugin.import_references(collection)
-        
-        with open(output, 'w') as f:
-            json.dump(papers, f, indent=2)
-        
-        click.echo(f"Imported {len(papers)} references to {output}")
-    
-    @zotero.command()
-    @click.argument('papers_file')
-    @click.option('--collection', '-c', help='Target Zotero collection')
-    def export_refs(papers_file: str, collection: Optional[str]):
-        """Export references to Zotero."""
-        from jarvis_core.plugins import get_plugin_manager
-        
-        with open(papers_file) as f:
-            papers = json.load(f)
-        
-        manager = get_plugin_manager()
-        plugin = manager.get_plugin("zotero")
-        
-        count = plugin.export_references(papers, collection)
-        click.echo(f"Exported {count} references to Zotero")
-  検証: jarvis zotero import --collection ABC123 -o papers.json
-
-□ 6.2.4 テスト作成 (3分)
-  ファイル: tests/integrations/test_zotero.py, tests/plugins/test_zotero_plugin.py
-  検証: pytest tests/integrations/test_zotero.py tests/plugins/test_zotero_plugin.py -v
-```
-
----
-
-### 6.3 タスク 3.1.2: Mendeley連携 (+20点)
-
-#### サブタスク
-
-```
-□ 6.3.1 Mendeley APIクライアント (5分)
-  ファイル: jarvis_core/integrations/mendeley.py
-  内容:
-    class MendeleyClient:
-        BASE_URL = "https://api.mendeley.com"
-        
-        def __init__(self, access_token: str):
-            self._token = access_token
-            self._headers = {
-                "Authorization": f"Bearer {access_token}",
-                "Accept": "application/vnd.mendeley-document.1+json",
-            }
-        
-        def get_documents(self, folder_id: Optional[str] = None, limit: int = 100) -> List[Dict]:
-            url = f"{self.BASE_URL}/documents"
-            params = {"limit": limit}
-            if folder_id:
-                params["folder_id"] = folder_id
-            
-            response = requests.get(url, headers=self._headers, params=params)
-            response.raise_for_status()
-            return response.json()
-        
-        def create_document(self, document: Dict) -> Dict:
-            url = f"{self.BASE_URL}/documents"
-            response = requests.post(url, headers=self._headers, json=document)
-            response.raise_for_status()
-            return response.json()
-        
-        def search(self, query: str, limit: int = 25) -> List[Dict]:
-            url = f"{self.BASE_URL}/search/catalog"
-            params = {"query": query, "limit": limit}
-            response = requests.get(url, headers=self._headers, params=params)
-            response.raise_for_status()
-            return response.json()
-  検証: pytest tests/integrations/test_mendeley.py -v
-
-□ 6.3.2 Mendeleyプラグイン実装 (5分)
-  ファイル: jarvis_core/plugins/mendeley_plugin.py
-  内容: Zoteroプラグインと同様の構造で実装
-  検証: pytest tests/plugins/test_mendeley_plugin.py -v
-
-□ 6.3.3 CLIコマンド追加 (3分)
-  ファイル: jarvis_cli.py
-  追加: zoteroと同様のmendeley グループコマンド
-  検証: jarvis mendeley import -o papers.json
-
-□ 6.3.4 テスト作成 (3分)
-  検証: pytest tests/integrations/test_mendeley.py -v
-```
-
----
-
-### 6.4 タスク 3.2.1: RIS/BibTeX完全出力 (+12点)
-
-#### サブタスク
-
-```
-□ 6.4.1 RISフォーマッタ完成 (3分)
-  ファイル: jarvis_core/export/ris.py
-  内容:
-    class RISExporter:
-        TYPE_MAP = {
-            "journal_article": "JOUR",
-            "conference_paper": "CONF",
-            "book": "BOOK",
-            "thesis": "THES",
-            "preprint": "UNPB",
+    def _negate_claim(self, text: str) -> str:
+        """Create negated version of claim text."""
+        # Simple negation patterns
+        negation_map = {
+            "increases": "decreases",
+            "decreases": "increases",
+            "improves": "worsens",
+            "worsens": "improves",
+            "effective": "ineffective",
+            "significant": "insignificant",
+            "positive": "negative",
+            "negative": "positive",
         }
         
-        def export(self, papers: List[Dict]) -> str:
-            lines = []
-            for paper in papers:
-                lines.extend(self._format_paper(paper))
-                lines.append("")  # Empty line between entries
-            return "\n".join(lines)
-        
-        def _format_paper(self, paper: Dict) -> List[str]:
-            lines = []
-            
-            paper_type = paper.get("type", "journal_article")
-            lines.append(f"TY  - {self.TYPE_MAP.get(paper_type, 'JOUR')}")
-            
-            if paper.get("title"):
-                lines.append(f"TI  - {paper['title']}")
-            
-            for author in paper.get("authors", []):
-                lines.append(f"AU  - {author}")
-            
-            if paper.get("year"):
-                lines.append(f"PY  - {paper['year']}")
-            
-            if paper.get("journal"):
-                lines.append(f"JO  - {paper['journal']}")
-            
-            if paper.get("volume"):
-                lines.append(f"VL  - {paper['volume']}")
-            
-            if paper.get("issue"):
-                lines.append(f"IS  - {paper['issue']}")
-            
-            if paper.get("pages"):
-                lines.append(f"SP  - {paper['pages']}")
-            
-            if paper.get("doi"):
-                lines.append(f"DO  - {paper['doi']}")
-            
-            if paper.get("abstract"):
-                lines.append(f"AB  - {paper['abstract']}")
-            
-            if paper.get("keywords"):
-                for kw in paper['keywords']:
-                    lines.append(f"KW  - {kw}")
-            
-            lines.append("ER  - ")
-            
-            return lines
-        
-        def export_to_file(self, papers: List[Dict], path: str) -> None:
-            with open(path, 'w', encoding='utf-8') as f:
-                f.write(self.export(papers))
-  検証: pytest tests/export/test_ris.py -v
-
-□ 6.4.2 BibTeXフォーマッタ完成 (3分)
-  ファイル: jarvis_core/export/bibtex.py
-  内容:
-    class BibTeXExporter:
-        def export(self, papers: List[Dict]) -> str:
-            entries = [self._format_paper(paper) for paper in papers]
-            return "\n\n".join(entries)
-        
-        def _format_paper(self, paper: Dict) -> str:
-            entry_type = self._get_entry_type(paper.get("type", "article"))
-            cite_key = self._generate_cite_key(paper)
-            
-            fields = []
-            
-            if paper.get("title"):
-                fields.append(f'  title = {{{paper["title"]}}}')
-            
-            if paper.get("authors"):
-                authors_str = " and ".join(paper["authors"])
-                fields.append(f'  author = {{{authors_str}}}')
-            
-            if paper.get("year"):
-                fields.append(f'  year = {{{paper["year"]}}}')
-            
-            if paper.get("journal"):
-                fields.append(f'  journal = {{{paper["journal"]}}}')
-            
-            if paper.get("volume"):
-                fields.append(f'  volume = {{{paper["volume"]}}}')
-            
-            if paper.get("pages"):
-                fields.append(f'  pages = {{{paper["pages"]}}}')
-            
-            if paper.get("doi"):
-                fields.append(f'  doi = {{{paper["doi"]}}}')
-            
-            if paper.get("abstract"):
-                abstract = paper["abstract"].replace("{", "\\{").replace("}", "\\}")
-                fields.append(f'  abstract = {{{abstract}}}')
-            
-            fields_str = ",\n".join(fields)
-            return f"@{entry_type}{{{cite_key},\n{fields_str}\n}}"
-        
-        def _get_entry_type(self, paper_type: str) -> str:
-            type_map = {
-                "journal_article": "article",
-                "conference_paper": "inproceedings",
-                "book": "book",
-                "thesis": "phdthesis",
-                "preprint": "misc",
-            }
-            return type_map.get(paper_type, "article")
-        
-        def _generate_cite_key(self, paper: Dict) -> str:
-            first_author = paper.get("authors", ["unknown"])[0].split()[-1].lower()
-            year = paper.get("year", "0000")
-            title_word = paper.get("title", "untitled").split()[0].lower()
-            return f"{first_author}{year}{title_word}"
-  検証: pytest tests/export/test_bibtex.py -v
-
-□ 6.4.3 統合エクスポーター (2分)
-  ファイル: jarvis_core/export/__init__.py
-  追加:
-    from .ris import RISExporter
-    from .bibtex import BibTeXExporter
-    
-    def export_papers(papers: List[Dict], format: str, path: str) -> None:
-        if format == "ris":
-            exporter = RISExporter()
-        elif format == "bibtex":
-            exporter = BibTeXExporter()
+        negated = text.lower()
+        for word, neg_word in negation_map.items():
+            if word in negated:
+                negated = negated.replace(word, neg_word)
+                break
         else:
-            raise ValueError(f"Unknown format: {format}")
+            # Add "not" if no specific negation found
+            negated = f"It is not the case that {text}"
         
-        exporter.export_to_file(papers, path)
-  検証: python -c "from jarvis_core.export import export_papers"
-
-□ 6.4.4 CLIコマンド追加 (2分)
-  ファイル: jarvis_cli.py
-  追加:
-    @cli.command()
-    @click.argument('papers_file')
-    @click.option('--format', '-f', type=click.Choice(['ris', 'bibtex', 'json']), default='bibtex')
-    @click.option('--output', '-o', required=True)
-    def export(papers_file: str, format: str, output: str):
-        """Export papers to various formats."""
-        from jarvis_core.export import export_papers
-        
-        with open(papers_file) as f:
-            papers = json.load(f)
-        
-        export_papers(papers, format, output)
-        click.echo(f"Exported {len(papers)} papers to {output}")
-  検証: jarvis export papers.json -f bibtex -o refs.bib
-
-□ 6.4.5 テスト作成 (2分)
-  ファイル: tests/export/test_ris.py, tests/export/test_bibtex.py
-  検証: pytest tests/export/ -v --cov
-```
-
----
-
-### 6.5 タスク 3.2.2: CLI完成 (+10点)
-
-#### サブタスク
-
-```
-□ 6.5.1 jarvis-screen改善 (3分)
-  ファイル: jarvis_core/active_learning/cli.py
-  追加:
-    - 進捗表示バー
-    - キーボードショートカット
-    - セッション保存/再開
-  検証: jarvis-screen papers.json
-
-□ 6.5.2 ヘルプメッセージ改善 (2分)
-  ファイル: jarvis_cli.py
-  変更: 全コマンドにexamplesと詳細helpを追加
-  検証: jarvis --help, jarvis search --help
-
-□ 6.5.3 バージョン・設定コマンド追加 (2分)
-  ファイル: jarvis_cli.py
-  追加:
-    @cli.command()
-    def version():
-        """Show version information."""
-        click.echo(f"JARVIS Research OS v{__version__}")
+        return negated
     
-    @cli.command()
-    def config():
-        """Show current configuration."""
-        from jarvis_core.config import get_config
-        config = get_config()
-        click.echo(yaml.dump(config, default_flow_style=False))
-  検証: jarvis version, jarvis config
-
-□ 6.5.4 テスト作成 (3分)
-  ファイル: tests/cli/test_commands.py
-  検証: pytest tests/cli/ -v --cov
-```
-
----
-
-### 6.6 タスク 3.2.3: ドキュメント完成 (+15点)
-
-#### サブタスク
-
-```
-□ 6.6.1 APIリファレンス自動生成 (3分)
-  ファイル: docs/api/README.md (自動生成)
-  方法:
-    pip install pdoc3
-    pdoc --html jarvis_core -o docs/api
-  検証: docs/api/ にHTMLが生成される
-
-□ 6.6.2 ユーザーガイド完成 (5分)
-  ファイル: docs/user_guide.md
-  内容:
-    - インストール手順
-    - クイックスタート
-    - CLI使用方法
-    - API使用例
-    - トラブルシューティング
-  検証: docs/user_guide.md が存在し内容が完全
-
-□ 6.6.3 開発者ガイド更新 (3分)
-  ファイル: docs/developer_guide.md
-  内容:
-    - アーキテクチャ概要
-    - モジュール説明
-    - プラグイン開発方法
-    - テスト方法
-    - コントリビューション方法
-  検証: docs/developer_guide.md 確認
-
-□ 6.6.4 README更新 (2分)
-  ファイル: README.md
-  追加:
-    - 全機能の説明
-    - バッジ更新
-    - クイックスタート例
-  検証: README.md の内容確認
-
-□ 6.6.5 CHANGELOG作成 (2分)
-  ファイル: CHANGELOG.md
-  内容: v1.0.0までの変更履歴
-  検証: CHANGELOG.md 確認
-```
-
----
-
-### 6.7 タスク 3.3.1: CORE API統合 (+15点)
-
-#### サブタスク
-
-```
-□ 6.7.1 CORE APIクライアント実装 (5分)
-  ファイル: jarvis_core/sources/core_client.py
-  内容:
-    class COREClient:
-        BASE_URL = "https://api.core.ac.uk/v3"
+    def _check_partial_contradiction(
+        self, claim_a: Claim, claim_b: Claim
+    ) -> float:
+        """Check for partial contradiction based on predicate analysis."""
+        from jarvis_core.contradiction import ClaimNormalizer
         
-        def __init__(self, api_key: str):
-            self._api_key = api_key
-            self._headers = {"Authorization": f"Bearer {api_key}"}
+        normalizer = ClaimNormalizer()
+        norm_a = normalizer.normalize(claim_a.text)
+        norm_b = normalizer.normalize(claim_b.text)
         
-        def search(self, query: str, limit: int = 10) -> List[Dict]:
-            url = f"{self.BASE_URL}/search/works"
-            params = {"q": query, "limit": limit}
-            response = requests.get(url, headers=self._headers, params=params)
-            response.raise_for_status()
-            return response.json().get("results", [])
+        # Check for opposite predicates
+        opposite_predicates = [
+            ("increase", "decrease"),
+            ("improve", "worsen"),
+            ("effective", "ineffective"),
+            ("benefit", "harm"),
+        ]
         
-        def get_work(self, core_id: str) -> Optional[Dict]:
-            url = f"{self.BASE_URL}/works/{core_id}"
-            response = requests.get(url, headers=self._headers)
-            if response.status_code == 404:
-                return None
-            response.raise_for_status()
-            return response.json()
+        for pred_a, pred_b in opposite_predicates:
+            if norm_a.predicate and norm_b.predicate:
+                if (pred_a in norm_a.predicate.lower() and 
+                    pred_b in norm_b.predicate.lower()):
+                    return 0.8
+                if (pred_b in norm_a.predicate.lower() and 
+                    pred_a in norm_b.predicate.lower()):
+                    return 0.8
         
-        def get_fulltext(self, core_id: str) -> Optional[str]:
-            work = self.get_work(core_id)
-            if work and work.get("fullText"):
-                return work["fullText"]
-            return None
-  検証: pytest tests/sources/test_core_client.py -v
+        return 0.0
+```
 
-□ 6.7.2 UnifiedSourceClientに統合 (3分)
-  ファイル: jarvis_core/sources/unified_client.py
-  変更:
-    from .core_client import COREClient
+---
+
+### 5.2 `jarvis_core/citation/stance_classifier.py` に詳細実装追加 【+2点】
+
+```python
+"""Citation Stance Classifier.
+
+Classifies citation stance as Support, Contrast, or Mention.
+Per JARVIS_COMPLETION_PLAN_v3 Task 2.2
+"""
+
+from __future__ import annotations
+
+import re
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Dict, List, Optional, Pattern
+
+
+class CitationStance(Enum):
+    """Citation stance types."""
     
-    class UnifiedSourceClient:
-        def __init__(self, ..., core_api_key: Optional[str] = None):
-            ...
-            if core_api_key:
-                self._core = COREClient(core_api_key)
-  検証: COREを含めた統合検索テスト
+    SUPPORT = "support"
+    CONTRAST = "contrast"
+    MENTION = "mention"
 
-□ 6.7.3 テスト作成 (2分)
-  ファイル: tests/sources/test_core_client.py
-  検証: pytest tests/sources/test_core_client.py -v
-```
 
----
-
-## 7. 検証・品質保証
-
-### 7.1 テスト実行チェックリスト
-
-```
-□ 全ユニットテスト合格
-  コマンド: pytest tests/ -v
-  基準: 100% pass
-
-□ 統合テスト合格
-  コマンド: pytest tests/integration/ -v
-  基準: 100% pass
-
-□ カバレッジ80%以上
-  コマンド: pytest --cov=jarvis_core --cov-report=html
-  基準: カバレッジ >= 80%
-
-□ 型チェック合格
-  コマンド: mypy jarvis_core/
-  基準: エラー 0
-
-□ リンター合格
-  コマンド: ruff check jarvis_core/
-  基準: エラー 0
-```
-
-### 7.2 E2Eテストシナリオ
-
-```
-□ シナリオ1: オフライン論文検索
-  手順:
-    1. jarvis --offline search "cancer treatment"
-    2. 検索結果がキャッシュから返される
-  期待: エラーなく結果表示
-
-□ シナリオ2: 証拠グレーディングパイプライン
-  手順:
-    1. jarvis search "RCT diabetes" -o papers.json
-    2. jarvis grade-evidence papers.json -o report.md
-  期待: レポートに全論文のグレードが含まれる
-
-□ シナリオ3: Zotero連携
-  手順:
-    1. jarvis zotero import -c COLLECTION_KEY -o zotero_papers.json
-    2. jarvis grade-evidence zotero_papers.json
-    3. jarvis zotero export graded_papers.json
-  期待: Zoteroに論文が追加される
-
-□ シナリオ4: PRISMA生成
-  手順:
-    1. jarvis run --goal "systematic review cancer immunotherapy"
-    2. jarvis prisma --output prisma.svg
-  期待: 有効なPRISMAフロー図が生成される
-
-□ シナリオ5: 矛盾検出と解決
-  手順:
-    1. jarvis detect-contradictions papers.json -o contradictions.json
-    2. jarvis resolve-contradictions contradictions.json -o resolutions.md
-  期待: 解決提案を含むレポート生成
-```
-
----
-
-## 8. 完了判定基準
-
-### 8.1 フェーズ別完了基準
-
-```yaml
-Phase 1 (オフラインモード):
-  criteria:
-    - DegradationManager実装完了
-    - --offlineフラグ動作確認
-    - SyncQueue実装完了
-    - 自動同期動作確認
-    - テストカバレッジ >= 80%
-  score_target: "+80点"
-
-Phase 2 (埋め込み・検索):
-  criteria:
-    - SPECTER2統合完了
-    - ハイブリッド検索RRF動作確認
-    - FAISSベクトルストア動作確認
-    - キャッシュ圧縮動作確認
-    - テストカバレッジ >= 80%
-  score_target: "+46点"
-
-Phase 3 (差別化機能):
-  criteria:
-    - アンサンブルグレーディング精度 >= 85%
-    - Support/Contrast分類精度 >= 80%
-    - 矛盾解決提案生成確認
-    - PRISMA 2020準拠確認
-    - テストカバレッジ >= 80%
-  score_target: "+100点"
-
-Phase 4 (エコシステム):
-  criteria:
-    - Zotero連携動作確認
-    - Mendeley連携動作確認
-    - RIS/BibTeX出力動作確認
-    - CLI全コマンド動作確認
-    - ドキュメント完備
-    - テストカバレッジ >= 80%
-  score_target: "+96点"
-```
-
-### 8.2 最終リリース基準
-
-```yaml
-release_criteria:
-  functional:
-    - 全Phase完了
-    - E2Eテスト全シナリオ合格
-    - ユーザードキュメント完備
+@dataclass
+class StanceResult:
+    """Result of stance classification."""
     
-  quality:
-    - テストカバレッジ >= 80%
-    - 型チェックエラー 0
-    - リンターエラー 0
-    - セキュリティ脆弱性 0
+    stance: CitationStance
+    confidence: float
+    evidence: str = ""
+    scores: Dict[str, float] = field(default_factory=dict)
     
-  performance:
-    - 検索レスポンス < 2秒 (キャッシュヒット時)
-    - グレーディング < 5秒/論文
-    - メモリ使用量 < 2GB (1000論文処理時)
+    def to_dict(self) -> dict:
+        return {
+            "stance": self.stance.value,
+            "confidence": self.confidence,
+            "evidence": self.evidence,
+            "scores": self.scores,
+        }
+
+
+class StanceClassifier:
+    """Rule-based stance classifier for citation contexts.
     
-  documentation:
-    - README.md 完備
-    - APIリファレンス 完備
-    - ユーザーガイド 完備
-    - CHANGELOG 完備
+    Uses pattern matching to identify support, contrast, or neutral mentions.
+    """
+    
+    def __init__(self):
+        self._support_patterns = self._build_support_patterns()
+        self._contrast_patterns = self._build_contrast_patterns()
+    
+    def _build_support_patterns(self) -> List[Pattern]:
+        """Build regex patterns for support indicators."""
+        patterns = [
+            r"\b(?:confirm|support|agree|consistent|corroborate|validate)\b",
+            r"\b(?:in\s+(?:line|agreement)\s+with)\b",
+            r"\b(?:as\s+(?:shown|demonstrated|reported)\s+by)\b",
+            r"\b(?:similar\s+(?:to|findings|results))\b",
+            r"\b(?:replicate[ds]?|reproduce[ds]?)\b",
+            r"\b(?:extend[s]?\s+(?:the\s+)?(?:work|findings))\b",
+            r"\b(?:build[s]?\s+(?:on|upon))\b",
+            r"\b(?:following|per)\b",
+        ]
+        return [re.compile(p, re.IGNORECASE) for p in patterns]
+    
+    def _build_contrast_patterns(self) -> List[Pattern]:
+        """Build regex patterns for contrast indicators."""
+        patterns = [
+            r"\b(?:contradict|conflict|disagree|inconsistent|oppose)\b",
+            r"\b(?:in\s+contrast\s+(?:to|with))\b",
+            r"\b(?:unlike|contrary\s+to|whereas)\b",
+            r"\b(?:however|but|although|despite)\b",
+            r"\b(?:different\s+(?:from|than|results))\b",
+            r"\b(?:challenge[s]?|question[s]?|dispute[s]?)\b",
+            r"\b(?:fail[s]?\s+to\s+(?:replicate|confirm))\b",
+            r"\b(?:refute[s]?|disprove[s]?)\b",
+            r"\b(?:not\s+(?:support|confirm|agree))\b",
+        ]
+        return [re.compile(p, re.IGNORECASE) for p in patterns]
+    
+    def classify(self, context: str) -> StanceResult:
+        """Classify citation stance from context text.
+        
+        Args:
+            context: Text surrounding the citation
+            
+        Returns:
+            StanceResult with stance, confidence, and evidence
+        """
+        if not context or not context.strip():
+            return StanceResult(
+                stance=CitationStance.MENTION,
+                confidence=0.5,
+                evidence="",
+            )
+        
+        # Count pattern matches
+        support_matches = []
+        contrast_matches = []
+        
+        for pattern in self._support_patterns:
+            matches = pattern.findall(context)
+            support_matches.extend(matches)
+        
+        for pattern in self._contrast_patterns:
+            matches = pattern.findall(context)
+            contrast_matches.extend(matches)
+        
+        support_score = len(support_matches)
+        contrast_score = len(contrast_matches)
+        
+        # Determine stance
+        if support_score > contrast_score and support_score > 0:
+            stance = CitationStance.SUPPORT
+            confidence = min(0.9, 0.5 + 0.1 * support_score)
+            evidence = ", ".join(support_matches[:3])
+        elif contrast_score > support_score and contrast_score > 0:
+            stance = CitationStance.CONTRAST
+            confidence = min(0.9, 0.5 + 0.1 * contrast_score)
+            evidence = ", ".join(contrast_matches[:3])
+        else:
+            stance = CitationStance.MENTION
+            confidence = 0.6
+            evidence = ""
+        
+        return StanceResult(
+            stance=stance,
+            confidence=confidence,
+            evidence=evidence,
+            scores={
+                "support_score": support_score,
+                "contrast_score": contrast_score,
+            },
+        )
+
+
+def classify_citation_stance(context: str) -> StanceResult:
+    """Convenience function to classify citation stance.
+    
+    Args:
+        context: Text surrounding the citation
+        
+    Returns:
+        StanceResult with classification
+    """
+    classifier = StanceClassifier()
+    return classifier.classify(context)
 ```
 
 ---
 
-## 付録A: ファイル作成チェックリスト
+## Phase 6: セキュリティ・本番対応
 
-```
-新規作成ファイル一覧:
+### 6.1 `jarvis_web/config.py` CORS設定改善 【+1点】
 
-Phase 1:
-□ jarvis_core/network/degradation.py
-□ jarvis_core/network/api_wrapper.py
-□ jarvis_core/network/listener.py
-□ jarvis_core/sync/__init__.py
-□ jarvis_core/sync/schema.py
-□ jarvis_core/sync/storage.py
-□ jarvis_core/sync/manager.py
-□ jarvis_core/sync/handlers.py
-□ jarvis_core/sync/auto_sync.py
-□ jarvis_core/sync/progress.py
-□ jarvis_core/ui/status.py
-□ tests/network/test_degradation.py
-□ tests/network/test_api_wrapper.py
-□ tests/network/test_listener.py
-□ tests/sync/test_*.py
-□ tests/cli/test_offline_flag.py
+```python
+"""Web application configuration.
 
-Phase 2:
-□ jarvis_core/embeddings/specter2.py
-□ jarvis_core/embeddings/vector_store.py
-□ tests/embeddings/test_specter2.py
-□ tests/embeddings/test_vector_store.py
-□ tests/embeddings/test_hybrid.py
-□ tests/cache/test_compression.py
-□ tests/cache/test_lru.py
+Provides environment-aware configuration for the JARVIS web API.
+"""
 
-Phase 3:
-□ jarvis_core/evidence/visualizer.py
-□ jarvis_core/citation/llm_stance.py
-□ jarvis_core/citation/stance_ensemble.py
-□ jarvis_core/citation/influence.py
-□ jarvis_core/contradiction/resolution.py
-□ jarvis_core/contradiction/resolver.py
-□ jarvis_core/contradiction/report.py
-□ tests/evidence/test_visualizer.py
-□ tests/citation/test_llm_stance.py
-□ tests/citation/test_influence.py
-□ tests/contradiction/test_resolver.py
-□ tests/contradiction/test_report.py
-□ tests/prisma/test_prisma_2020.py
+import os
+from typing import List, Optional
+from dataclasses import dataclass, field
 
-Phase 4:
-□ jarvis_core/integrations/zotero.py
-□ jarvis_core/integrations/mendeley.py
-□ jarvis_core/plugins/zotero_plugin.py
-□ jarvis_core/plugins/mendeley_plugin.py
-□ jarvis_core/export/ris.py
-□ jarvis_core/export/bibtex.py
-□ jarvis_core/sources/core_client.py
-□ tests/integrations/test_zotero.py
-□ tests/integrations/test_mendeley.py
-□ tests/plugins/test_zotero_plugin.py
-□ tests/plugins/test_mendeley_plugin.py
-□ tests/export/test_ris.py
-□ tests/export/test_bibtex.py
-□ tests/sources/test_core_client.py
-□ docs/api/README.md
-□ docs/user_guide.md
-□ docs/developer_guide.md
-□ CHANGELOG.md
+
+@dataclass
+class CORSConfig:
+    """CORS configuration."""
+    
+    allow_origins: List[str] = field(default_factory=list)
+    allow_credentials: bool = True
+    allow_methods: List[str] = field(default_factory=lambda: ["*"])
+    allow_headers: List[str] = field(default_factory=lambda: ["*"])
+    
+    @classmethod
+    def from_env(cls) -> "CORSConfig":
+        """Create CORS config from environment variables."""
+        env = os.getenv("JARVIS_ENV", "development")
+        
+        if env == "production":
+            # Production: restrict origins
+            origins_str = os.getenv("CORS_ORIGINS", "")
+            origins = [o.strip() for o in origins_str.split(",") if o.strip()]
+            if not origins:
+                origins = ["https://jarvis.kaneko-ai.dev"]
+            return cls(allow_origins=origins)
+        else:
+            # Development: allow all
+            return cls(allow_origins=["*"])
+
+
+@dataclass
+class RateLimitConfig:
+    """Rate limiting configuration."""
+    
+    requests_per_minute: int = 100
+    authenticated_rpm: int = 1000
+    burst_limit: int = 20
+    
+    @classmethod
+    def from_env(cls) -> "RateLimitConfig":
+        """Create rate limit config from environment."""
+        return cls(
+            requests_per_minute=int(os.getenv("RATE_LIMIT_RPM", "100")),
+            authenticated_rpm=int(os.getenv("RATE_LIMIT_AUTH_RPM", "1000")),
+            burst_limit=int(os.getenv("RATE_LIMIT_BURST", "20")),
+        )
+
+
+@dataclass
+class AppConfig:
+    """Application configuration."""
+    
+    env: str = "development"
+    debug: bool = False
+    cors: CORSConfig = field(default_factory=CORSConfig)
+    rate_limit: RateLimitConfig = field(default_factory=RateLimitConfig)
+    
+    @classmethod
+    def from_env(cls) -> "AppConfig":
+        """Create app config from environment."""
+        env = os.getenv("JARVIS_ENV", "development")
+        return cls(
+            env=env,
+            debug=env == "development",
+            cors=CORSConfig.from_env(),
+            rate_limit=RateLimitConfig.from_env(),
+        )
+
+
+# Global config instance
+_config: Optional[AppConfig] = None
+
+
+def get_config() -> AppConfig:
+    """Get application configuration (singleton)."""
+    global _config
+    if _config is None:
+        _config = AppConfig.from_env()
+    return _config
 ```
 
 ---
 
-## 付録B: スコアトラッキング
+### 6.2 `jarvis_web/app.py` CORS修正 【+1点】
 
-```
-開始時スコア: 878/1200 (73.2%)
+**修正箇所** (app.pyの該当部分を置き換え):
 
-Phase 1完了後: 958/1200 (79.8%) [+80]
-Phase 2完了後: 1004/1200 (83.7%) [+46]
-Phase 3完了後: 1104/1200 (92.0%) [+100]
-Phase 4完了後: 1200/1200 (100%) [+96] ✅
+```python
+# 以下の部分を修正
 
-最終目標: 120/100点 (1200/1000) 達成
+from jarvis_web.config import get_config
+
+# ...
+
+if FASTAPI_AVAILABLE:
+    from jarvis_web.auth import verify_api_token, verify_token
+    from jarvis_web.routes.research import router as research_router
+    # ... other imports ...
+
+    app = FastAPI(
+        title="JARVIS Research OS",
+        description="API for paper survey and knowledge synthesis",
+        version="5.2.0",
+        docs_url="/api/docs",
+        redoc_url="/api/redoc",
+        openapi_url="/api/openapi.json",
+    )
+
+    # Get CORS config from environment
+    config = get_config()
+    
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=config.cors.allow_origins,
+        allow_credentials=config.cors.allow_credentials,
+        allow_methods=config.cors.allow_methods,
+        allow_headers=config.cors.allow_headers,
+    )
+    
+    # ... rest of app setup ...
 ```
 
 ---
 
-**文書終了**
+## 検証チェックリスト
+
+### Phase 1: テスト欠落修正
+- [ ] `tests/test_prisma.py` が存在し、全テストがパス
+- [ ] `tests/test_active_learning.py` が存在し、全テストがパス
+- [ ] `tests/test_paper_scoring.py` が存在し、全テストがパス
+- [ ] `tests/test_hybrid_search.py` が存在し、全テストがパス
+- [ ] `tests/test_network_offline.py` が存在し、全テストがパス
+
+### Phase 2: ドキュメント
+- [ ] `docs/api/README.md` が存在し、全APIが文書化
+- [ ] `CONTRIBUTING.md` が存在
+- [ ] `docs/user_guide.md` が存在
+
+### Phase 3: CI/CD
+- [ ] GitHub Actions CIが全て緑
+- [ ] Python 3.10, 3.11, 3.12 マトリクスビルド成功
+- [ ] カバレッジ80%以上
+- [ ] Codecov連携動作
+- [ ] セキュリティスキャン (bandit, safety) パス
+
+### Phase 4: コード品質
+- [ ] `py.typed` マーカー存在
+- [ ] `black --check` パス
+- [ ] `ruff check` パス
+- [ ] mypy エラーなし（または最小限）
+
+### Phase 5: 機能拡張
+- [ ] `SemanticContradictionDetector` 実装完了
+- [ ] `StanceClassifier` 詳細実装完了
+
+### Phase 6: セキュリティ
+- [ ] CORS設定が環境変数で制御可能
+- [ ] OpenAPI/Swagger UI が `/api/docs` でアクセス可能
 
 ---
 
-> この指示書は JARVIS Research OS の skills/ フレームワークと併用して使用してください。
-> 各タスクは SPEC.md 形式で記述されており、ORCH.md によるサブエージェント実行に対応しています。
-> 完了後は VERIFY.md で検証し、FINISH.md でマージしてください。
+## 期待スコア
 
+| カテゴリ | 現在 | 追加 | 目標 |
+|----------|------|------|------|
+| テスト欠落修正 | 0 | +7 | 7 |
+| ドキュメント | 16 | +3 | 19 |
+| CI/CD | 12 | +7 | 19 |
+| コード品質 | 16 | +2 | 18 |
+| 機能拡張 | 0 | +4 | 4 |
+| セキュリティ | 0 | +2 | 2 |
+| **合計** | **78** | **+25** | **103** |
+
+**目標達成時評価: A+ (103/100)**
+
+---
+
+## 実行順序
+
+1. **最優先**: Phase 1 全テストファイル作成（CI失敗の原因になる）
+2. **高優先**: Phase 3 CI/CD強化（品質ゲート確立）
+3. **中優先**: Phase 2 ドキュメント整備
+4. **通常**: Phase 4, 5, 6 順次実行
