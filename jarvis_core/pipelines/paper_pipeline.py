@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class IndexMeta:
     """索引メタ情報（Step 45）."""
+
     index_id: str
     created_at: str
     source_path: str
@@ -43,6 +44,7 @@ class IndexMeta:
 @dataclass
 class PaperSource:
     """論文ソース記録（Step 46-47）."""
+
     paper_id: str
     title: str
     source: str  # pubmed, arxiv, local
@@ -65,7 +67,7 @@ class PaperSource:
 
 class PaperPipeline:
     """文献パイプライン.
-    
+
     Step 41-60: 工具化された文献処理
     """
 
@@ -95,7 +97,7 @@ class PaperPipeline:
         if not meta_path.exists():
             return None
 
-        with open(meta_path, encoding='utf-8') as f:
+        with open(meta_path, encoding="utf-8") as f:
             data = json.load(f)
 
         return IndexMeta(**data)
@@ -123,12 +125,12 @@ class PaperPipeline:
         )
 
         # 保存
-        with open(index_path / "meta.json", 'w', encoding='utf-8') as f:
+        with open(index_path / "meta.json", "w", encoding="utf-8") as f:
             json.dump(meta.to_dict(), f, indent=2, ensure_ascii=False)
 
-        with open(index_path / "chunks.jsonl", 'w', encoding='utf-8') as f:
+        with open(index_path / "chunks.jsonl", "w", encoding="utf-8") as f:
             for chunk in chunks:
-                f.write(json.dumps(chunk, ensure_ascii=False) + '\n')
+                f.write(json.dumps(chunk, ensure_ascii=False) + "\n")
 
         logger.info(f"Created index: {index_id} with {len(chunks)} chunks")
         return meta
@@ -140,10 +142,10 @@ class PaperPipeline:
         max_papers: int = 10,
     ) -> dict[str, Any]:
         """論文処理パイプライン.
-        
+
         Step 50-51: chunk→根拠→要約
         直接要約経路を閉じる
-        
+
         Returns:
             papers, claims, evidence, warnings
         """
@@ -152,10 +154,12 @@ class PaperPipeline:
         # Step 42: index必須チェック
         if self.require_index and index_id:
             if not self.check_index(index_id):
-                warnings.append({
-                    "code": "INDEX_MISSING",
-                    "msg": f"Index '{index_id}' not found. Creating new index.",
-                })
+                warnings.append(
+                    {
+                        "code": "INDEX_MISSING",
+                        "msg": f"Index '{index_id}' not found. Creating new index.",
+                    }
+                )
 
         if index_id:
             self.indexes_used.append(index_id)
@@ -185,12 +189,14 @@ class PaperPipeline:
         **kwargs,
     ) -> None:
         """論文ソースを記録（Step 47）."""
-        self.papers_used.append(PaperSource(
-            paper_id=paper_id,
-            title=title,
-            source=source,
-            **kwargs,
-        ))
+        self.papers_used.append(
+            PaperSource(
+                paper_id=paper_id,
+                title=title,
+                source=source,
+                **kwargs,
+            )
+        )
 
     def record_fetch_error(
         self,
@@ -199,12 +205,14 @@ class PaperPipeline:
         retry_count: int = 0,
     ) -> None:
         """取得エラーを記録（Step 49, 54）."""
-        self.fetch_errors.append({
-            "paper_id": paper_id,
-            "error": error,
-            "retry_count": retry_count,
-            "timestamp": datetime.now().isoformat(),
-        })
+        self.fetch_errors.append(
+            {
+                "paper_id": paper_id,
+                "error": error,
+                "retry_count": retry_count,
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
 
     def get_sources_summary(self) -> dict[str, Any]:
         """ソースサマリー（Step 56）."""

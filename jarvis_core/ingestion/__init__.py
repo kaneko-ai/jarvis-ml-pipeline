@@ -1,4 +1,5 @@
 """Ingestion package."""
+
 from .pipeline import (
     BibTeXParser,
     ExtractedPaper,

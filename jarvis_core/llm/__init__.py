@@ -2,6 +2,7 @@
 
 Local-First LLM infrastructure with Ollama, llama.cpp, and cloud fallback.
 """
+
 # Re-export from llm_utils for backwards compatibility
 # TODO(deprecate): Remove this compatibility layer after migration
 

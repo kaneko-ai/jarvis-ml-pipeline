@@ -2,6 +2,7 @@
 
 Tests for Task 3.1-3.2
 """
+
 from unittest.mock import patch
 
 
@@ -198,10 +199,13 @@ class TestZoteroIntegration:
         """Test ZoteroClient initialization."""
         from jarvis_core.plugins.zotero_integration import ZoteroClient
 
-        with patch.dict("os.environ", {
-            "ZOTERO_API_KEY": "test_key",
-            "ZOTERO_USER_ID": "12345",
-        }):
+        with patch.dict(
+            "os.environ",
+            {
+                "ZOTERO_API_KEY": "test_key",
+                "ZOTERO_USER_ID": "12345",
+            },
+        ):
             client = ZoteroClient()
             assert client.api_key == "test_key"
             assert client.user_id == "12345"

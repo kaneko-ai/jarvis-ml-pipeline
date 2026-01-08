@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class LogEntry:
     """ログエントリ."""
+
     run_id: str
     step_id: str
     score: float
@@ -30,6 +31,7 @@ class LogEntry:
 @dataclass
 class ScoreDiff:
     """スコア差分."""
+
     metric: str
     prev_best: float
     current: float
@@ -39,7 +41,7 @@ class ScoreDiff:
 
 class ContextPackager:
     """コンテキストパッケージャー.
-    
+
     LayerXの3課題対策:
     1. コンテキスト爆発 → 下位K%のログだけ渡す
     2. モグラ叩き → 差分表を生成
@@ -47,14 +49,11 @@ class ContextPackager:
     """
 
     def __init__(
-        self,
-        bottom_k_percent: float = 50.0,
-        max_entries: int = 10,
-        summary_max_chars: int = 500
+        self, bottom_k_percent: float = 50.0, max_entries: int = 10, summary_max_chars: int = 500
     ):
         """
         初期化.
-        
+
         Args:
             bottom_k_percent: 下位何%のログを取得するか
             max_entries: 最大エントリ数
@@ -79,7 +78,7 @@ class ContextPackager:
     def get_bottom_k_logs(self) -> list[LogEntry]:
         """
         下位K%のログを取得.
-        
+
         コンテキスト爆発対策: 全ログではなく下位のみ。
         """
         if not self._logs:
@@ -87,16 +86,14 @@ class ContextPackager:
 
         sorted_logs = sorted(self._logs, key=lambda x: x.score)
         k = max(1, int(len(sorted_logs) * self.bottom_k_percent / 100))
-        return sorted_logs[:min(k, self.max_entries)]
+        return sorted_logs[: min(k, self.max_entries)]
 
     def generate_score_diff(
-        self,
-        current_scores: dict[str, float],
-        prev_best_scores: dict[str, float] | None = None
+        self, current_scores: dict[str, float], prev_best_scores: dict[str, float] | None = None
     ) -> list[ScoreDiff]:
         """
         スコア差分表を生成.
-        
+
         モグラ叩き対策: 前回ベストとの差分を明示。
         """
         if prev_best_scores is None:
@@ -108,28 +105,26 @@ class ContextPackager:
             diff = current - prev
             is_regression = diff < 0
 
-            diffs.append(ScoreDiff(
-                metric=metric,
-                prev_best=prev,
-                current=current,
-                diff=diff,
-                is_regression=is_regression
-            ))
+            diffs.append(
+                ScoreDiff(
+                    metric=metric,
+                    prev_best=prev,
+                    current=current,
+                    diff=diff,
+                    is_regression=is_regression,
+                )
+            )
 
         return diffs
 
-    def detect_regression(
-        self,
-        current_score: float,
-        threshold: float = 0.0
-    ) -> bool:
+    def detect_regression(self, current_score: float, threshold: float = 0.0) -> bool:
         """
         回帰を検知.
-        
+
         Args:
             current_score: 現在のスコア
             threshold: 許容する劣化幅
-        
+
         Returns:
             回帰しているか
         """
@@ -139,13 +134,11 @@ class ContextPackager:
         return current_score < (self._best_score - threshold)
 
     def package_for_generator(
-        self,
-        current_scores: dict[str, float],
-        prev_best_scores: dict[str, float] | None = None
+        self, current_scores: dict[str, float], prev_best_scores: dict[str, float] | None = None
     ) -> dict[str, Any]:
         """
         Generatorに渡すコンテキストをパッケージング.
-        
+
         全ログではなく、下位ログ＋差分表のみ。
         """
         bottom_logs = self.get_bottom_k_logs()
@@ -160,7 +153,7 @@ class ContextPackager:
                     "run_id": log.run_id,
                     "step_id": log.step_id,
                     "score": log.score,
-                    "summary": log.output_summary[:self.summary_max_chars],
+                    "summary": log.output_summary[: self.summary_max_chars],
                     "error": log.error,
                 }
                 for log in bottom_logs

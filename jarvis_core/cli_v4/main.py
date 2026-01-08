@@ -3,6 +3,7 @@
 Per V4-P01, this provides a unified CLI entry point.
 `jarvis run <workflow>` is the single recommended entry.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -42,22 +43,26 @@ def create_parser() -> argparse.ArgumentParser:
         help="Workflow to run",
     )
     run_parser.add_argument(
-        "--inputs", "-i",
+        "--inputs",
+        "-i",
         nargs="+",
         help="Input files (PDF/URL)",
     )
     run_parser.add_argument(
-        "--query", "-q",
+        "--query",
+        "-q",
         help="Research query/focus",
     )
     run_parser.add_argument(
-        "--concepts", "-c",
+        "--concepts",
+        "-c",
         nargs="+",
         default=[],
         help="Focus concepts",
     )
     run_parser.add_argument(
-        "--out", "-o",
+        "--out",
+        "-o",
         default="output",
         help="Output directory (Bundle v2)",
     )
@@ -123,15 +128,17 @@ def run_workflow(
     for i, inp in enumerate(inputs):
         # Extract concepts from filename/path
         inp_concepts = dict.fromkeys(concepts[:3], 0.5) if concepts else {"research": 0.5}
-        vectors.append(PaperVector(
-            paper_id=f"paper_{i}",
-            source_locator=inp,
-            metadata=MetadataVector(year=2024),
-            concept=ConceptVector(concepts=inp_concepts),
-            method=MethodVector(methods={"analysis": 0.5}),
-            temporal=TemporalVector(novelty=0.5),
-            impact=ImpactVector(future_potential=0.5),
-        ))
+        vectors.append(
+            PaperVector(
+                paper_id=f"paper_{i}",
+                source_locator=inp,
+                metadata=MetadataVector(year=2024),
+                concept=ConceptVector(concepts=inp_concepts),
+                method=MethodVector(methods={"analysis": 0.5}),
+                temporal=TemporalVector(novelty=0.5),
+                impact=ImpactVector(future_potential=0.5),
+            )
+        )
 
     # If no inputs but query provided, create from query
     if not vectors and query:
@@ -172,6 +179,7 @@ def list_resources(resource: str) -> None:
             print(f"  {name}: {desc}")
     elif resource == "modules":
         from ..module_registry import list_modules
+
         modules = list_modules()
         print(f"Available modules ({len(modules)}):")
         for mod in modules[:20]:

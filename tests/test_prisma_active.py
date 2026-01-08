@@ -250,11 +250,13 @@ class TestActiveLearning:
         samples = [{"id": str(i), "text": f"Sample {i}"} for i in range(5)]
         learner = ActiveLearner(samples)
 
-        learner.submit_labels([
-            ("0", Label.INCLUDE, None),
-            ("1", Label.INCLUDE, None),
-            ("2", Label.EXCLUDE, None),
-        ])
+        learner.submit_labels(
+            [
+                ("0", Label.INCLUDE, None),
+                ("1", Label.INCLUDE, None),
+                ("2", Label.EXCLUDE, None),
+            ]
+        )
 
         included, excluded = learner.get_labeled_samples()
 

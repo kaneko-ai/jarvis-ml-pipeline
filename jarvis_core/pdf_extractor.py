@@ -7,6 +7,7 @@ This module provides:
 Per RP7, this creates the standard entry point for ingesting
 PDF documents (papers) into EvidenceStore.
 """
+
 from __future__ import annotations
 
 import logging
@@ -46,8 +47,7 @@ def extract_pdf_pages(pdf_path: str | Path) -> list[PageContent]:
         import fitz  # PyMuPDF
     except ImportError as e:
         raise ImportError(
-            "PyMuPDF is required for PDF extraction. "
-            "Install with: pip install pymupdf"
+            "PyMuPDF is required for PDF extraction. " "Install with: pip install pymupdf"
         ) from e
 
     path = Path(pdf_path)

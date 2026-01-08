@@ -2,6 +2,7 @@
 
 Per RP-146, generates human-readable run summaries from telemetry.
 """
+
 from __future__ import annotations
 
 import json
@@ -73,17 +74,21 @@ def summarize_events(events_path: str) -> RunSummary:
             status = event.get("status", "unknown")
         elif action == "RUN_ERROR":
             status = "failed"
-            failures.append({
-                "action": action,
-                "error": event.get("error_type", ""),
-                "message": event.get("message", "")[:100],
-            })
+            failures.append(
+                {
+                    "action": action,
+                    "error": event.get("error_type", ""),
+                    "message": event.get("message", "")[:100],
+                }
+            )
         elif action == "STEP_FAILED":
             failed_steps += 1
-            failures.append({
-                "step": event.get("step_id"),
-                "error": event.get("error", "")[:100],
-            })
+            failures.append(
+                {
+                    "step": event.get("step_id"),
+                    "error": event.get("error", "")[:100],
+                }
+            )
         elif "RETRY" in action:
             retry_count += 1
         elif action == "FETCH_RESULT":
@@ -101,6 +106,7 @@ def summarize_events(events_path: str) -> RunSummary:
     if start_time and end_time:
         try:
             from datetime import datetime
+
             start = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
             end = datetime.fromisoformat(end_time.replace("Z", "+00:00"))
             duration = (end - start).total_seconds()

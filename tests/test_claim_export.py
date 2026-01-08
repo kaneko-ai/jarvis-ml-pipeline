@@ -4,6 +4,7 @@ Per RP16, these tests verify:
 - Claim export to Markdown/JSON/PPTX outline
 - Bundle includes claims.md, claims.json, slides_outline.txt
 """
+
 import json
 import sys
 import tempfile
@@ -77,12 +78,14 @@ class TestClaimExportJSON:
         cs = ClaimSet()
         cs.add_new("Test.", ["chunk_abc"])
 
-        refs = [Reference(
-            id="R1",
-            source_type="pdf",
-            locator="pdf:test.pdf",
-            chunk_ids=["chunk_abc"],
-        )]
+        refs = [
+            Reference(
+                id="R1",
+                source_type="pdf",
+                locator="pdf:test.pdf",
+                chunk_ids=["chunk_abc"],
+            )
+        ]
 
         output = export_claims_json(cs, refs)
         data = json.loads(output)

@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 3, this selects optimal cost-quality tradeoffs.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -21,10 +22,12 @@ class ParetoChoice:
         """Check if this choice is dominated by another."""
         # Dominated if other is better or equal in both dimensions
         return (
-            other.estimated_cost <= self.estimated_cost and
-            other.estimated_quality >= self.estimated_quality and
-            (other.estimated_cost < self.estimated_cost or
-             other.estimated_quality > self.estimated_quality)
+            other.estimated_cost <= self.estimated_cost
+            and other.estimated_quality >= self.estimated_quality
+            and (
+                other.estimated_cost < self.estimated_cost
+                or other.estimated_quality > self.estimated_quality
+            )
         )
 
 
@@ -58,38 +61,46 @@ class ParetoPlanner:
         choices = []
 
         # Quick mode choices
-        choices.append(ParetoChoice(
-            choice_id="quick_bm25",
-            name="Quick BM25",
-            estimated_cost=0.1,
-            estimated_quality=estimate_quality("bm25_only", 50, 3, False, "quick"),
-            settings={"method": "bm25_only", "depth": "quick", "rerank": False},
-        ))
+        choices.append(
+            ParetoChoice(
+                choice_id="quick_bm25",
+                name="Quick BM25",
+                estimated_cost=0.1,
+                estimated_quality=estimate_quality("bm25_only", 50, 3, False, "quick"),
+                settings={"method": "bm25_only", "depth": "quick", "rerank": False},
+            )
+        )
 
-        choices.append(ParetoChoice(
-            choice_id="quick_hybrid",
-            name="Quick Hybrid",
-            estimated_cost=0.3,
-            estimated_quality=estimate_quality("hybrid", 100, 5, False, "quick"),
-            settings={"method": "hybrid", "depth": "quick", "rerank": False},
-        ))
+        choices.append(
+            ParetoChoice(
+                choice_id="quick_hybrid",
+                name="Quick Hybrid",
+                estimated_cost=0.3,
+                estimated_quality=estimate_quality("hybrid", 100, 5, False, "quick"),
+                settings={"method": "hybrid", "depth": "quick", "rerank": False},
+            )
+        )
 
         # Deep mode choices
-        choices.append(ParetoChoice(
-            choice_id="deep_hybrid",
-            name="Deep Hybrid",
-            estimated_cost=0.6,
-            estimated_quality=estimate_quality("hybrid", 100, 8, False, "deep"),
-            settings={"method": "hybrid", "depth": "deep", "rerank": False},
-        ))
+        choices.append(
+            ParetoChoice(
+                choice_id="deep_hybrid",
+                name="Deep Hybrid",
+                estimated_cost=0.6,
+                estimated_quality=estimate_quality("hybrid", 100, 8, False, "deep"),
+                settings={"method": "hybrid", "depth": "deep", "rerank": False},
+            )
+        )
 
-        choices.append(ParetoChoice(
-            choice_id="deep_hybrid_rerank",
-            name="Deep Hybrid + Rerank",
-            estimated_cost=1.0,
-            estimated_quality=estimate_quality("hybrid", 200, 10, True, "deep"),
-            settings={"method": "hybrid", "depth": "deep", "rerank": True},
-        ))
+        choices.append(
+            ParetoChoice(
+                choice_id="deep_hybrid_rerank",
+                name="Deep Hybrid + Rerank",
+                estimated_cost=1.0,
+                estimated_quality=estimate_quality("hybrid", 200, 10, True, "deep"),
+                settings={"method": "hybrid", "depth": "deep", "rerank": True},
+            )
+        )
 
         return choices
 
@@ -133,9 +144,9 @@ class ParetoPlanner:
 
         # Filter by budget and minimum quality
         feasible = [
-            c for c in frontier
-            if c.estimated_cost <= actual_budget and
-               c.estimated_quality >= self.min_quality
+            c
+            for c in frontier
+            if c.estimated_cost <= actual_budget and c.estimated_quality >= self.min_quality
         ]
 
         if not feasible:

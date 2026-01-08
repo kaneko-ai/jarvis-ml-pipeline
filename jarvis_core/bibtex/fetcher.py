@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class BibTeXEntry:
     """BibTeXエントリ."""
+
     key: str
     entry_type: str  # article, inproceedings, etc.
     title: str
@@ -33,7 +34,7 @@ class BibTeXEntry:
 
 class BibTeXFetcher:
     """BibTeX取得器.
-    
+
     絶対ルール:
     - 全件自動取得可（メタデータのみ）
     - PDF取得は別ルール（OAのみ）
@@ -42,7 +43,7 @@ class BibTeXFetcher:
     def __init__(self, master_bib_path: str = "data/papers/bibtex/master.bib"):
         """
         初期化.
-        
+
         Args:
             master_bib_path: master.bibのパス
         """
@@ -56,7 +57,7 @@ class BibTeXFetcher:
         if not self.master_bib_path.exists():
             return
 
-        with open(self.master_bib_path, encoding='utf-8') as f:
+        with open(self.master_bib_path, encoding="utf-8") as f:
             content = f.read()
 
         # 簡易パース（実際はbibtexparserを使用）
@@ -76,7 +77,7 @@ class BibTeXFetcher:
 }}"""
 
         return BibTeXEntry(
-            key=arxiv_id.replace(':', '_'),
+            key=arxiv_id.replace(":", "_"),
             entry_type="article",
             title="Mock arXiv paper",
             authors=["Author, First"],
@@ -90,7 +91,7 @@ class BibTeXFetcher:
         logger.info(f"Fetching BibTeX from DOI: {doi}")
 
         # プレースホルダー（実際はCrossref APIを使用）
-        key = re.sub(r'[^a-zA-Z0-9]', '_', doi)[:30]
+        key = re.sub(r"[^a-zA-Z0-9]", "_", doi)[:30]
         raw = f"""@article{{{key},
   title = {{Mock DOI paper}},
   author = {{Author, First}},
@@ -139,7 +140,7 @@ class BibTeXFetcher:
 
         self._entries[entry.key] = entry
 
-        with open(self.master_bib_path, 'a', encoding='utf-8') as f:
+        with open(self.master_bib_path, "a", encoding="utf-8") as f:
             f.write(f"\n{entry.raw}\n")
 
         logger.info(f"Added to master.bib: {entry.key}")

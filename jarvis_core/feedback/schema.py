@@ -1,4 +1,5 @@
 """Feedback schema definitions for P8 Feedback Intelligence."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

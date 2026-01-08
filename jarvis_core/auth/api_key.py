@@ -2,6 +2,7 @@
 
 Implements API key validation and management.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -15,6 +16,7 @@ from functools import wraps
 @dataclass
 class APIKey:
     """An API key."""
+
     key_id: str
     key_hash: str
     name: str
@@ -28,6 +30,7 @@ class APIKey:
 @dataclass
 class AuthResult:
     """Authentication result."""
+
     success: bool
     key_id: str | None = None
     error: str | None = None
@@ -36,7 +39,7 @@ class AuthResult:
 
 class APIKeyManager:
     """Manages API key authentication.
-    
+
     Features:
     - Key generation
     - Key validation
@@ -57,13 +60,13 @@ class APIKeyManager:
         rate_limit: int = 1000,
     ) -> str:
         """Generate a new API key.
-        
+
         Args:
             name: Key name/description.
             scopes: Allowed scopes.
             expires_days: Days until expiration.
             rate_limit: Requests per hour.
-            
+
         Returns:
             The generated API key.
         """
@@ -100,11 +103,11 @@ class APIKeyManager:
         required_scope: str | None = None,
     ) -> AuthResult:
         """Validate an API key.
-        
+
         Args:
             api_key: The API key to validate.
             required_scope: Required scope (optional).
-            
+
         Returns:
             Authentication result.
         """
@@ -162,10 +165,10 @@ class APIKeyManager:
 
     def revoke(self, key_id: str) -> bool:
         """Revoke an API key.
-        
+
         Args:
             key_id: Key ID to revoke.
-            
+
         Returns:
             True if revoked.
         """
@@ -190,9 +193,7 @@ class APIKeyManager:
 
     def _hash_key(self, raw_key: str) -> str:
         """Hash an API key."""
-        return hashlib.sha256(
-            f"{self.secret}:{raw_key}".encode()
-        ).hexdigest()
+        return hashlib.sha256(f"{self.secret}:{raw_key}".encode()).hexdigest()
 
     def _verify_key(self, raw_key: str, stored_hash: str) -> bool:
         """Verify a key against stored hash."""
@@ -218,9 +219,7 @@ class APIKeyManager:
 
         # Cleanup old entries
         hour_ago = time.time() - 3600
-        self._usage[key_id] = [
-            t for t in self._usage[key_id] if t > hour_ago
-        ]
+        self._usage[key_id] = [t for t in self._usage[key_id] if t > hour_ago]
 
 
 # Global manager
@@ -237,6 +236,7 @@ def get_api_key_manager() -> APIKeyManager:
 
 def require_api_key(scope: str | None = None):
     """Decorator to require API key authentication."""
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, api_key: str = "", **kwargs):
@@ -247,5 +247,7 @@ def require_api_key(scope: str | None = None):
                 raise PermissionError(result.error)
 
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator

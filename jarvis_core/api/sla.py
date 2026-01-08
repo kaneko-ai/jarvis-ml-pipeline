@@ -4,6 +4,7 @@ SLA-Tier 0 (Internal/Research): best-effort
 SLA-Tier 1 (Public/Free): 99.0% availability
 SLA-Tier 2 (Commercial): 99.9% availability
 """
+
 from __future__ import annotations
 
 import logging
@@ -17,19 +18,21 @@ logger = logging.getLogger(__name__)
 
 class SLATier(Enum):
     """SLAティア."""
-    TIER_0 = "internal"    # Internal/Research
-    TIER_1 = "public"      # Public/Free
+
+    TIER_0 = "internal"  # Internal/Research
+    TIER_1 = "public"  # Public/Free
     TIER_2 = "commercial"  # Commercial
 
 
 @dataclass
 class SLADefinition:
     """SLA定義."""
+
     tier: SLATier
     availability_target: float  # 0.0 - 1.0
-    p95_latency_ms: int        # run受付までのP95レイテンシ
-    completion_guarantee: str   # 完走保証レベル
-    retry_limit: int           # 最大リトライ回数
+    p95_latency_ms: int  # run受付までのP95レイテンシ
+    completion_guarantee: str  # 完走保証レベル
+    retry_limit: int  # 最大リトライ回数
 
 
 # SLA定義（固定）
@@ -37,21 +40,21 @@ SLA_DEFINITIONS: dict[SLATier, SLADefinition] = {
     SLATier.TIER_0: SLADefinition(
         tier=SLATier.TIER_0,
         availability_target=0.0,  # best-effort
-        p95_latency_ms=0,         # 制限なし
+        p95_latency_ms=0,  # 制限なし
         completion_guarantee="none",
         retry_limit=100,
     ),
     SLATier.TIER_1: SLADefinition(
         tier=SLATier.TIER_1,
         availability_target=0.99,  # 99.0%
-        p95_latency_ms=30000,      # 30秒
+        p95_latency_ms=30000,  # 30秒
         completion_guarantee="run_id_only",
         retry_limit=3,
     ),
     SLATier.TIER_2: SLADefinition(
         tier=SLATier.TIER_2,
         availability_target=0.999,  # 99.9%
-        p95_latency_ms=5000,        # 5秒
+        p95_latency_ms=5000,  # 5秒
         completion_guarantee="run_id_and_status",
         retry_limit=5,
     ),
@@ -61,6 +64,7 @@ SLA_DEFINITIONS: dict[SLATier, SLADefinition] = {
 @dataclass
 class SLAMetrics:
     """SLAメトリクス."""
+
     request_received_at: str
     run_id_issued_at: str | None = None
     status_updated_at: str | None = None
@@ -90,14 +94,16 @@ class SLAMonitor:
         metrics.run_id_issued_at = now.isoformat()
 
         # レイテンシ計算
-        received = datetime.fromisoformat(metrics.request_received_at.replace('Z', '+00:00'))
+        received = datetime.fromisoformat(metrics.request_received_at.replace("Z", "+00:00"))
         latency_ms = int((now - received).total_seconds() * 1000)
         metrics.latency_ms = latency_ms
 
         # SLA違反チェック
         if self.sla_def.p95_latency_ms > 0 and latency_ms > self.sla_def.p95_latency_ms:
             metrics.sla_violated = True
-            metrics.violation_reason = f"Latency {latency_ms}ms exceeds SLA {self.sla_def.p95_latency_ms}ms"
+            metrics.violation_reason = (
+                f"Latency {latency_ms}ms exceeds SLA {self.sla_def.p95_latency_ms}ms"
+            )
             logger.warning(f"SLA violation: {metrics.violation_reason}")
 
     def record_status_updated(self, metrics: SLAMetrics) -> None:
@@ -129,6 +135,7 @@ class SLAMonitor:
 @dataclass
 class RateLimitConfig:
     """レート制限設定."""
+
     requests_per_minute: int
     runs_per_day: int
     retry_limit: int
@@ -165,7 +172,7 @@ class RateLimiter:
 
     def check_rate_limit(self) -> tuple[bool, str | None]:
         """レート制限をチェック.
-        
+
         Returns:
             (許可されるか, 拒否理由)
         """
@@ -173,20 +180,14 @@ class RateLimiter:
 
         # 1分あたりのリクエスト数チェック
         minute_ago = now.timestamp() - 60
-        self._minute_requests = [
-            t for t in self._minute_requests
-            if t.timestamp() > minute_ago
-        ]
+        self._minute_requests = [t for t in self._minute_requests if t.timestamp() > minute_ago]
 
         if len(self._minute_requests) >= self.config.requests_per_minute:
             return False, f"Rate limit exceeded: {self.config.requests_per_minute} req/min"
 
         # 1日あたりのrun数チェック
         day_ago = now.timestamp() - 86400
-        self._day_runs = [
-            t for t in self._day_runs
-            if t.timestamp() > day_ago
-        ]
+        self._day_runs = [t for t in self._day_runs if t.timestamp() > day_ago]
 
         if len(self._day_runs) >= self.config.runs_per_day:
             return False, f"Daily limit exceeded: {self.config.runs_per_day} runs/day"
@@ -215,7 +216,7 @@ class AbuseDetector:
         is_failed: bool = False,
     ) -> tuple[bool, str | None]:
         """Abuseをチェック.
-        
+
         Returns:
             (Abuseか, 理由)
         """
@@ -223,8 +224,7 @@ class AbuseDetector:
 
         # 同一入力の高速連続実行チェック
         recent_same = [
-            t for h, t in self._recent_inputs
-            if h == input_hash and (now - t).total_seconds() < 10
+            t for h, t in self._recent_inputs if h == input_hash and (now - t).total_seconds() < 10
         ]
 
         if len(recent_same) >= 3:
@@ -240,8 +240,7 @@ class AbuseDetector:
         self._recent_inputs.append((input_hash, now))
         # 古いエントリを削除
         self._recent_inputs = [
-            (h, t) for h, t in self._recent_inputs
-            if (now - t).total_seconds() < 60
+            (h, t) for h, t in self._recent_inputs if (now - t).total_seconds() < 60
         ]
 
         return False, None

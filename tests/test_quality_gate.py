@@ -5,6 +5,7 @@ is the final arbiter of AgentResult status.
 
 Note: Citations are now validated against EvidenceStore.
 """
+
 import sys
 import types
 from pathlib import Path
@@ -72,7 +73,7 @@ def make_evidence_store_with_chunk() -> tuple[EvidenceStore, str]:
         locator="page:5",
         # Text that overlaps with typical test answers
         text="CD73 is expressed on regulatory T cells and affects adenosine signaling. "
-             "This is valid answer content for testing quality gates.",
+        "This is valid answer content for testing quality gates.",
     )
     return store, chunk_id
 
@@ -91,9 +92,7 @@ class TestQualityGateEmptyAnswer:
 
         assert len(executed) == 1
         assert executed[0].status == TaskStatus.FAILED
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         assert complete_event["agent_status"] == "fail"
         assert "empty_answer" in complete_event["quality_warnings"]
 
@@ -107,9 +106,7 @@ class TestQualityGateEmptyAnswer:
         executed = engine.run(task)
 
         assert executed[0].status == TaskStatus.FAILED
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         assert complete_event["agent_status"] == "fail"
 
 
@@ -119,9 +116,7 @@ class TestQualityGateNoCitations:
     def test_no_citations_returns_partial(self):
         """Verify answer without citations results in status=partial."""
         planner = DummyPlanner()
-        router = DummyRouter(
-            status="success", answer="This is a valid answer", citations=[]
-        )
+        router = DummyRouter(status="success", answer="This is a valid answer", citations=[])
         engine = ExecutionEngine(planner=planner, router=router)
 
         task = make_task()
@@ -130,9 +125,7 @@ class TestQualityGateNoCitations:
         assert len(executed) == 1
         # partial does not fail the task, but status is downgraded
         assert executed[0].status == TaskStatus.DONE
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         assert complete_event["agent_status"] == "partial"
         assert "no_valid_citations" in complete_event["quality_warnings"]
 
@@ -156,21 +149,19 @@ class TestQualityGateValidCitations:
             answer="CD73 is expressed on regulatory T cells.",
             citations=[citation],
         )
-        engine = ExecutionEngine(
-            planner=planner, router=router, evidence_store=store
-        )
+        engine = ExecutionEngine(planner=planner, router=router, evidence_store=store)
 
         task = make_task()
         executed = engine.run(task)
 
         assert len(executed) == 1
         assert executed[0].status == TaskStatus.DONE
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         assert complete_event["agent_status"] == "success"
-        assert complete_event["quality_warnings"] is None or \
-            len(complete_event["quality_warnings"]) == 0
+        assert (
+            complete_event["quality_warnings"] is None
+            or len(complete_event["quality_warnings"]) == 0
+        )
 
 
 class TestQualityGateInvalidCitations:
@@ -195,9 +186,7 @@ class TestQualityGateInvalidCitations:
         task = make_task()
         executed = engine.run(task)
 
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         assert complete_event["agent_status"] == "partial"
         assert any("chunk_id" in w for w in complete_event["quality_warnings"])
 
@@ -216,21 +205,14 @@ class TestQualityGateInvalidCitations:
             answer="This is a test answer",
             citations=[citation],
         )
-        engine = ExecutionEngine(
-            planner=planner, router=router, evidence_store=store
-        )
+        engine = ExecutionEngine(planner=planner, router=router, evidence_store=store)
 
         task = make_task()
         executed = engine.run(task)
 
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         assert complete_event["agent_status"] == "partial"
-        assert any(
-            "not_in_evidence_store" in w
-            for w in complete_event["quality_warnings"]
-        )
+        assert any("not_in_evidence_store" in w for w in complete_event["quality_warnings"])
 
     def test_mixed_valid_invalid_citations(self):
         """Verify mix of valid and invalid citations uses valid ones."""
@@ -254,16 +236,12 @@ class TestQualityGateInvalidCitations:
             answer="This is valid answer content for testing.",
             citations=[invalid_citation, valid_citation],
         )
-        engine = ExecutionEngine(
-            planner=planner, router=router, evidence_store=store
-        )
+        engine = ExecutionEngine(planner=planner, router=router, evidence_store=store)
 
         task = make_task()
         executed = engine.run(task)
 
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         # Should be success because we have at least one valid citation
         assert complete_event["agent_status"] == "success"
         # But should have warning about the invalid one
@@ -289,17 +267,12 @@ class TestAgentStatusOverride:
             answer="But this answer is valid content for testing.",
             citations=[citation],
         )
-        engine = ExecutionEngine(
-            planner=planner, router=router, evidence_store=store
-        )
+        engine = ExecutionEngine(planner=planner, router=router, evidence_store=store)
 
         task = make_task()
         executed = engine.run(task)
 
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         # Should be partial, not fail
         assert complete_event["agent_status"] == "partial"
         assert "agent_reported_fail_but_output_valid" in complete_event["quality_warnings"]
-

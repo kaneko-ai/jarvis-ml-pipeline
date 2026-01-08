@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 3, this enforces PII storage rules.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -12,10 +13,10 @@ from typing import Any
 class StorageRule(Enum):
     """Storage rules for sensitive data."""
 
-    ALLOW = "allow"           # Can store as-is
-    REDACT = "redact"         # Must redact before storing
-    HASH = "hash"             # Store hash only
-    DENY = "deny"             # Cannot store
+    ALLOW = "allow"  # Can store as-is
+    REDACT = "redact"  # Must redact before storing
+    HASH = "hash"  # Store hash only
+    DENY = "deny"  # Cannot store
 
 
 @dataclass
@@ -23,19 +24,26 @@ class StoragePolicy:
     """Policy for storing sensitive data."""
 
     # Default rules by PII type
-    pii_rules: dict[str, StorageRule] = field(default_factory=lambda: {
-        "email": StorageRule.REDACT,
-        "phone": StorageRule.REDACT,
-        "ssn": StorageRule.DENY,
-        "credit_card": StorageRule.DENY,
-        "name": StorageRule.ALLOW,
-        "ip_address": StorageRule.HASH,
-    })
+    pii_rules: dict[str, StorageRule] = field(
+        default_factory=lambda: {
+            "email": StorageRule.REDACT,
+            "phone": StorageRule.REDACT,
+            "ssn": StorageRule.DENY,
+            "credit_card": StorageRule.DENY,
+            "name": StorageRule.ALLOW,
+            "ip_address": StorageRule.HASH,
+        }
+    )
 
     # Fields to always redact
-    redact_fields: list[str] = field(default_factory=lambda: [
-        "api_key", "password", "token", "secret",
-    ])
+    redact_fields: list[str] = field(
+        default_factory=lambda: [
+            "api_key",
+            "password",
+            "token",
+            "secret",
+        ]
+    )
 
     # Whether to log redactions
     log_redactions: bool = True
@@ -93,13 +101,9 @@ def check_storage_policy(
             for match in matches:
                 rule = policy.get_rule(match.pii_type.value)
                 if rule == StorageRule.DENY:
-                    violations.append(
-                        f"PII ({match.pii_type.value}) not allowed: {full_path}"
-                    )
+                    violations.append(f"PII ({match.pii_type.value}) not allowed: {full_path}")
                 elif rule != StorageRule.ALLOW:
-                    actions.append(
-                        f"Should {rule.value} {match.pii_type.value} in {full_path}"
-                    )
+                    actions.append(f"Should {rule.value} {match.pii_type.value} in {full_path}")
 
         # Recurse into nested structures
         elif isinstance(value, dict):

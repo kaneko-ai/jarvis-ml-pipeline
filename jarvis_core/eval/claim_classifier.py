@@ -2,6 +2,7 @@
 
 Per RP-126, classifies claims as fact or interpretation.
 """
+
 from __future__ import annotations
 
 import re

@@ -2,6 +2,7 @@
 
 Per V4-C01, this provides workflow→module→stage measurement.
 """
+
 from __future__ import annotations
 
 import time

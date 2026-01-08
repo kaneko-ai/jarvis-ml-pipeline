@@ -27,7 +27,7 @@ class EnsembleStrategy(Enum):
     VOTING = "voting"
     CONFIDENCE_BASED = "confidence_based"
     RULE_FIRST = "rule_first"  # Use rule, fall back to LLM
-    LLM_FIRST = "llm_first"    # Use LLM, fall back to rule
+    LLM_FIRST = "llm_first"  # Use LLM, fall back to rule
 
 
 @dataclass
@@ -44,14 +44,14 @@ class EnsembleConfig:
 
 class EnsembleClassifier:
     """Ensemble classifier combining rule-based and LLM classifiers.
-    
+
     Supports multiple combination strategies:
     - WEIGHTED_AVERAGE: Weighted combination of confidence scores
     - VOTING: Majority vote (requires agreement)
     - CONFIDENCE_BASED: Use highest confidence result
     - RULE_FIRST: Use rule-based, fall back to LLM if low confidence
     - LLM_FIRST: Use LLM, fall back to rule-based if unavailable
-    
+
     Example:
         >>> classifier = EnsembleClassifier()
         >>> grade = classifier.classify(
@@ -68,7 +68,7 @@ class EnsembleClassifier:
         llm_config: LLMConfig | None = None,
     ):
         """Initialize the ensemble classifier.
-        
+
         Args:
             config: Ensemble configuration
             llm_config: LLM configuration
@@ -76,11 +76,7 @@ class EnsembleClassifier:
         self._config = config or EnsembleConfig()
 
         self._rule_classifier = RuleBasedClassifier()
-        self._llm_classifier = (
-            LLMBasedClassifier(llm_config)
-            if self._config.use_llm
-            else None
-        )
+        self._llm_classifier = LLMBasedClassifier(llm_config) if self._config.use_llm else None
 
     def classify(
         self,
@@ -89,12 +85,12 @@ class EnsembleClassifier:
         full_text: str = "",
     ) -> EvidenceGrade:
         """Classify evidence level using ensemble.
-        
+
         Args:
             title: Paper title
             abstract: Paper abstract
             full_text: Full paper text (optional)
-            
+
         Returns:
             EvidenceGrade with classification result
         """
@@ -167,8 +163,7 @@ class EnsembleClassifier:
 
         # Combine confidence
         combined_confidence = (
-            rule_grade.confidence * rule_weight +
-            llm_grade.confidence * llm_weight
+            rule_grade.confidence * rule_weight + llm_grade.confidence * llm_weight
         )
 
         return EvidenceGrade(
@@ -271,19 +266,19 @@ def grade_evidence(
     strategy: EnsembleStrategy = EnsembleStrategy.WEIGHTED_AVERAGE,
 ) -> EvidenceGrade:
     """Grade evidence level from paper text.
-    
+
     Convenience function for quick classification.
-    
+
     Args:
         title: Paper title
         abstract: Paper abstract
         full_text: Full paper text (optional)
         use_llm: Whether to use LLM classifier
         strategy: Ensemble strategy to use
-        
+
     Returns:
         EvidenceGrade with classification result
-        
+
     Example:
         >>> from jarvis_core.evidence import grade_evidence
         >>> grade = grade_evidence(

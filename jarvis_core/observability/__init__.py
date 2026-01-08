@@ -1,4 +1,5 @@
 """Observability package."""
+
 from .stack import (
     Logger,
     Metric,

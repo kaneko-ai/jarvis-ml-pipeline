@@ -1,4 +1,5 @@
 """Weekly learning pack generation."""
+
 from __future__ import annotations
 
 import json
@@ -55,7 +56,9 @@ def _note_updated_within(path: Path, start: datetime, end: datetime) -> bool:
     return start <= updated <= end
 
 
-def _collect_week_notes(kb_root: Path, start: datetime, end: datetime, topics: Iterable[str] | None = None) -> list[PackFile]:
+def _collect_week_notes(
+    kb_root: Path, start: datetime, end: datetime, topics: Iterable[str] | None = None
+) -> list[PackFile]:
     notes: list[PackFile] = []
     papers_dir = kb_root / "notes" / "papers"
     topics_dir = kb_root / "notes" / "topics"
@@ -116,7 +119,9 @@ def generate_weekly_pack(
 ) -> Path:
     now = now or datetime.now(timezone.utc)
     week_label = _iso_week_label(now)
-    week_start = datetime.fromisocalendar(now.isocalendar().year, now.isocalendar().week, 1).replace(tzinfo=timezone.utc)
+    week_start = datetime.fromisocalendar(
+        now.isocalendar().year, now.isocalendar().week, 1
+    ).replace(tzinfo=timezone.utc)
     week_end = week_start + timedelta(days=6, hours=23, minutes=59, seconds=59)
 
     pack_dir = packs_root / week_label
@@ -142,6 +147,8 @@ def generate_weekly_pack(
         "generated_at": now.isoformat(),
         "notes": [file.arcname for file in notes],
     }
-    (pack_dir / "metadata.json").write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8")
+    (pack_dir / "metadata.json").write_text(
+        json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
     return pack_path

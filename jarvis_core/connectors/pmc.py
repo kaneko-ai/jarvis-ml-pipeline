@@ -22,7 +22,7 @@ from xml.etree import ElementTree as ET
 class FulltextResult:
     """
     フルテキスト取得結果.
-    
+
     Attributes:
         pmcid: PMC ID
         title: タイトル
@@ -33,6 +33,7 @@ class FulltextResult:
         source: 取得元（pmc_xml, pmc_html, etc）
         error: エラーメッセージ
     """
+
     pmcid: str
     title: str = ""
     abstract: str = ""
@@ -46,7 +47,7 @@ class FulltextResult:
 class PMCConnector:
     """
     PMC Connector - フルテキスト取得.
-    
+
     PMC OA Serviceを使用してOpen Access論文のフルテキストを取得。
     """
 
@@ -75,9 +76,7 @@ class PMCConnector:
         """HTTP GETリクエスト."""
         self._rate_limit()
 
-        req = urllib.request.Request(url, headers={
-            "User-Agent": "JARVIS-ResearchOS/1.0"
-        })
+        req = urllib.request.Request(url, headers={"User-Agent": "JARVIS-ResearchOS/1.0"})
 
         try:
             with urllib.request.urlopen(req, timeout=timeout) as response:
@@ -88,19 +87,14 @@ class PMCConnector:
     def resolve_pmcid(self, pmid: str) -> str | None:
         """
         PMIDからPMCIDを解決.
-        
+
         Args:
             pmid: PubMed ID
-        
+
         Returns:
             PMCID（例: PMC1234567）またはNone
         """
-        params = {
-            "ids": pmid,
-            "idtype": "pmid",
-            "format": "json",
-            "email": self.email
-        }
+        params = {"ids": pmid, "idtype": "pmid", "format": "json", "email": self.email}
 
         if self.api_key:
             params["tool"] = "jarvis"
@@ -124,10 +118,10 @@ class PMCConnector:
     def fetch_fulltext(self, pmcid: str) -> FulltextResult:
         """
         PMCからフルテキストを取得.
-        
+
         Args:
             pmcid: PMC ID（例: PMC1234567）
-        
+
         Returns:
             FulltextResult
         """
@@ -149,12 +143,7 @@ class PMCConnector:
         # PMCIDから数字部分を抽出
         pmc_num = pmcid.replace("PMC", "")
 
-        params = {
-            "db": "pmc",
-            "id": pmc_num,
-            "retmode": "xml",
-            "email": self.email
-        }
+        params = {"db": "pmc", "id": pmc_num, "retmode": "xml", "email": self.email}
 
         if self.api_key:
             params["api_key"] = self.api_key
@@ -165,11 +154,7 @@ class PMCConnector:
             data = self._make_request(url)
             return self._parse_pmc_xml(pmcid, data)
         except Exception as e:
-            return FulltextResult(
-                pmcid=pmcid,
-                success=False,
-                error=f"PMC XML fetch failed: {e}"
-            )
+            return FulltextResult(pmcid=pmcid, success=False, error=f"PMC XML fetch failed: {e}")
 
     def _parse_pmc_xml(self, pmcid: str, xml_data: bytes) -> FulltextResult:
         """PMC XMLをパース."""
@@ -213,10 +198,7 @@ class PMCConnector:
 
                 if citation is not None:
                     ref_text = "".join(citation.itertext())
-                    references.append({
-                        "ref_id": ref_id,
-                        "raw": ref_text.strip()[:500]
-                    })
+                    references.append({"ref_id": ref_id, "raw": ref_text.strip()[:500]})
 
             return FulltextResult(
                 pmcid=pmcid,
@@ -225,22 +207,15 @@ class PMCConnector:
                 sections=sections,
                 references=references,
                 success=True,
-                source="pmc_xml"
+                source="pmc_xml",
             )
 
         except ET.ParseError as e:
-            return FulltextResult(
-                pmcid=pmcid,
-                success=False,
-                error=f"XML parse error: {e}"
-            )
+            return FulltextResult(pmcid=pmcid, success=False, error=f"XML parse error: {e}")
 
     def _fetch_via_oa_service(self, pmcid: str) -> FulltextResult:
         """OA Serviceでフルテキストを取得（フォールバック）."""
-        params = {
-            "id": pmcid,
-            "format": "tgz"
-        }
+        params = {"id": pmcid, "format": "tgz"}
 
         url = f"{self.PMC_OA_URL}?{urllib.parse.urlencode(params)}"
 
@@ -256,7 +231,7 @@ class PMCConnector:
                     pmcid=pmcid,
                     success=False,
                     source="oa_service",
-                    error=error.text or "OA not available"
+                    error=error.text or "OA not available",
                 )
 
             # 成功の場合はダウンロードURLを取得
@@ -267,44 +242,32 @@ class PMCConnector:
                     pmcid=pmcid,
                     success=True,
                     source="oa_service",
-                    sections={"download_url": href or ""}
+                    sections={"download_url": href or ""},
                 )
 
             return FulltextResult(
-                pmcid=pmcid,
-                success=False,
-                source="oa_service",
-                error="No download link found"
+                pmcid=pmcid, success=False, source="oa_service", error="No download link found"
             )
 
         except Exception as e:
-            return FulltextResult(
-                pmcid=pmcid,
-                success=False,
-                source="oa_service",
-                error=str(e)
-            )
+            return FulltextResult(pmcid=pmcid, success=False, source="oa_service", error=str(e))
 
     def fetch_fulltext_for_pmid(self, pmid: str) -> FulltextResult:
         """
         PMIDからフルテキストを取得.
-        
+
         PMCIDに解決してからフルテキストを取得。
-        
+
         Args:
             pmid: PubMed ID
-        
+
         Returns:
             FulltextResult
         """
         pmcid = self.resolve_pmcid(pmid)
 
         if not pmcid:
-            return FulltextResult(
-                pmcid="",
-                success=False,
-                error=f"No PMCID found for PMID {pmid}"
-            )
+            return FulltextResult(pmcid="", success=False, error=f"No PMCID found for PMID {pmid}")
 
         return self.fetch_fulltext(pmcid)
 

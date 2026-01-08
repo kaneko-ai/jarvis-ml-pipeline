@@ -2,6 +2,7 @@
 
 Tests for Task 1.3 (永続キャッシュ) and Task 1.5 (オフラインモード)
 """
+
 import os
 import time
 from unittest.mock import patch
@@ -117,6 +118,7 @@ class TestSQLiteCache:
         # Reset singleton for test
         import jarvis_core.cache.sqlite_cache as cache_module
         from jarvis_core.cache.sqlite_cache import get_cache
+
         cache_module._default_cache = None
 
         cache1 = get_cache()
@@ -228,6 +230,7 @@ class TestOfflineManager:
         """Test singleton pattern."""
         import jarvis_core.runtime.offline_manager as offline_module
         from jarvis_core.runtime.offline_manager import get_offline_manager
+
         offline_module._default_manager = None
 
         manager1 = get_offline_manager()

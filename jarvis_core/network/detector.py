@@ -67,10 +67,10 @@ DEFAULT_CHECK_ENDPOINTS = [
 
 class NetworkDetector:
     """Detects network connectivity status.
-    
+
     Supports checking multiple endpoints and determining overall network status.
     Uses caching to avoid excessive network checks.
-    
+
     Example:
         >>> detector = NetworkDetector()
         >>> if detector.is_online():
@@ -86,7 +86,7 @@ class NetworkDetector:
         cache_ttl_seconds: float = 30.0,
     ):
         """Initialize the network detector.
-        
+
         Args:
             check_endpoints: List of URLs to check for connectivity
             timeout_seconds: Timeout for each endpoint check
@@ -101,10 +101,10 @@ class NetworkDetector:
 
     def is_online(self, force_check: bool = False) -> bool:
         """Check if network is available.
-        
+
         Args:
             force_check: If True, bypass cache and check now
-            
+
         Returns:
             True if at least one endpoint is reachable
         """
@@ -113,10 +113,10 @@ class NetworkDetector:
 
     def is_offline(self, force_check: bool = False) -> bool:
         """Check if network is unavailable.
-        
+
         Args:
             force_check: If True, bypass cache and check now
-            
+
         Returns:
             True if all endpoints are unreachable
         """
@@ -124,10 +124,10 @@ class NetworkDetector:
 
     def get_status(self, force_check: bool = False) -> NetworkCheckResult:
         """Get detailed network status.
-        
+
         Args:
             force_check: If True, bypass cache and check now
-            
+
         Returns:
             NetworkCheckResult with detailed status information
         """
@@ -146,10 +146,10 @@ class NetworkDetector:
 
     def check_endpoint(self, url: str) -> EndpointStatus:
         """Check if a specific endpoint is reachable.
-        
+
         Args:
             url: URL to check
-            
+
         Returns:
             EndpointStatus with reachability information
         """
@@ -229,7 +229,9 @@ class NetworkDetector:
         else:
             status = NetworkStatus.OFFLINE
 
-        logger.info(f"Network status: {status.value} ({reachable_count}/{len(self._endpoints)} endpoints)")
+        logger.info(
+            f"Network status: {status.value} ({reachable_count}/{len(self._endpoints)} endpoints)"
+        )
 
         return NetworkCheckResult(
             status=status,
@@ -252,10 +254,10 @@ def get_detector() -> NetworkDetector:
 
 def is_online(force_check: bool = False) -> bool:
     """Check if network is available (convenience function).
-    
+
     Args:
         force_check: If True, bypass cache and check now
-        
+
     Returns:
         True if network is available
     """
@@ -264,10 +266,10 @@ def is_online(force_check: bool = False) -> bool:
 
 def get_network_status(force_check: bool = False) -> NetworkCheckResult:
     """Get detailed network status (convenience function).
-    
+
     Args:
         force_check: If True, bypass cache and check now
-        
+
     Returns:
         NetworkCheckResult with detailed status
     """

@@ -1,4 +1,5 @@
 """Metadata normalization and audit utilities."""
+
 from __future__ import annotations
 
 from collections import Counter

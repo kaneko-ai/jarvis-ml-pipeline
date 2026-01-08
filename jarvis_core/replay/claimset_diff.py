@@ -2,6 +2,7 @@
 
 Per RP-30, provides diff comparison for replay validation.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -72,11 +73,13 @@ def diff_claimsets(original: ClaimSet, new: ClaimSet) -> ClaimSetDiff:
     # Find removed and changed
     for key, orig_claim in orig_map.items():
         if key not in new_map:
-            removed.append(ClaimDiff(
-                claim_id=orig_claim.claim_id,
-                diff_type="removed",
-                original=orig_claim.text,
-            ))
+            removed.append(
+                ClaimDiff(
+                    claim_id=orig_claim.claim_id,
+                    diff_type="removed",
+                    original=orig_claim.text,
+                )
+            )
         else:
             new_claim = new_map[key]
             # Check if citations changed
@@ -90,24 +93,28 @@ def diff_claimsets(original: ClaimSet, new: ClaimSet) -> ClaimSetDiff:
                 for c in orig_cites - new_cites:
                     citation_diff.append(("removed", c))
 
-                changed.append(ClaimDiff(
-                    claim_id=orig_claim.claim_id,
-                    diff_type="changed",
-                    original=orig_claim.text,
-                    new=new_claim.text,
-                    citation_diff=citation_diff,
-                ))
+                changed.append(
+                    ClaimDiff(
+                        claim_id=orig_claim.claim_id,
+                        diff_type="changed",
+                        original=orig_claim.text,
+                        new=new_claim.text,
+                        citation_diff=citation_diff,
+                    )
+                )
             else:
                 unchanged += 1
 
     # Find added
     for key, new_claim in new_map.items():
         if key not in orig_map:
-            added.append(ClaimDiff(
-                claim_id=new_claim.claim_id,
-                diff_type="added",
-                new=new_claim.text,
-            ))
+            added.append(
+                ClaimDiff(
+                    claim_id=new_claim.claim_id,
+                    diff_type="added",
+                    new=new_claim.text,
+                )
+            )
 
     return ClaimSetDiff(
         added=added,

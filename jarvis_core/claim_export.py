@@ -5,6 +5,7 @@ This module provides:
 
 Per RP16, this enables "research → presentation" in one pipeline.
 """
+
 from __future__ import annotations
 
 import json
@@ -20,6 +21,7 @@ def _get_source_display(locator: str) -> str:
     if locator.startswith("pdf:"):
         # Extract filename
         import re
+
         match = re.search(r"pdf:(.+?)(?:#|$)", locator)
         if match:
             return f"PDF: {match.group(1)}"
@@ -103,13 +105,15 @@ def export_claims_json(
         claim_refs = list(set(chunk_to_ref.get(cid, "") for cid in claim.citations))
         claim_refs = [r for r in claim_refs if r]  # Remove empty
 
-        claims_data.append({
-            "id": claim.id,
-            "text": claim.text,
-            "valid": claim.valid,
-            "citations": claim.citations,
-            "references": claim_refs,
-        })
+        claims_data.append(
+            {
+                "id": claim.id,
+                "text": claim.text,
+                "valid": claim.valid,
+                "citations": claim.citations,
+                "references": claim_refs,
+            }
+        )
 
     output = {
         "claims": claims_data,

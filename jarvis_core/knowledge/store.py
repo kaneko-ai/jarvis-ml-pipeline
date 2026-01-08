@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class StoredClaim:
     """蓄積されたclaim."""
+
     claim_id: str
     paper_id: str
     claim_text: str
@@ -42,6 +43,7 @@ class StoredClaim:
 @dataclass
 class StoredEvidence:
     """蓄積されたevidence."""
+
     claim_id: str
     paper_id: str
     evidence_text: str
@@ -64,7 +66,7 @@ class StoredEvidence:
 
 class KnowledgeStore:
     """知識蓄積ストア.
-    
+
     Phase8: 過去のclaim/evidenceを蓄積し、再利用可能にする
     """
 
@@ -80,7 +82,7 @@ class KnowledgeStore:
         count = 0
         now = datetime.now().isoformat()
 
-        with open(self.claims_path, 'a', encoding='utf-8') as f:
+        with open(self.claims_path, "a", encoding="utf-8") as f:
             for claim in claims:
                 stored = StoredClaim(
                     claim_id=claim.get("claim_id", ""),
@@ -91,7 +93,7 @@ class KnowledgeStore:
                     run_id=run_id,
                     created_at=now,
                 )
-                f.write(json.dumps(stored.to_dict(), ensure_ascii=False) + '\n')
+                f.write(json.dumps(stored.to_dict(), ensure_ascii=False) + "\n")
                 count += 1
 
         logger.info(f"Added {count} claims to knowledge store")
@@ -102,7 +104,7 @@ class KnowledgeStore:
         count = 0
         now = datetime.now().isoformat()
 
-        with open(self.evidence_path, 'a', encoding='utf-8') as f:
+        with open(self.evidence_path, "a", encoding="utf-8") as f:
             for ev in evidence:
                 stored = StoredEvidence(
                     claim_id=ev.get("claim_id", ""),
@@ -113,7 +115,7 @@ class KnowledgeStore:
                     run_id=run_id,
                     created_at=now,
                 )
-                f.write(json.dumps(stored.to_dict(), ensure_ascii=False) + '\n')
+                f.write(json.dumps(stored.to_dict(), ensure_ascii=False) + "\n")
                 count += 1
 
         logger.info(f"Added {count} evidence to knowledge store")
@@ -127,7 +129,7 @@ class KnowledgeStore:
         results = []
         query_lower = query.lower()
 
-        with open(self.claims_path, encoding='utf-8') as f:
+        with open(self.claims_path, encoding="utf-8") as f:
             for line in f:
                 if line.strip():
                     claim = json.loads(line)
@@ -144,7 +146,7 @@ class KnowledgeStore:
             return []
 
         results = []
-        with open(self.evidence_path, encoding='utf-8') as f:
+        with open(self.evidence_path, encoding="utf-8") as f:
             for line in f:
                 if line.strip():
                     ev = json.loads(line)
@@ -159,11 +161,11 @@ class KnowledgeStore:
         evidence_count = 0
 
         if self.claims_path.exists():
-            with open(self.claims_path, encoding='utf-8') as f:
+            with open(self.claims_path, encoding="utf-8") as f:
                 claims_count = sum(1 for line in f if line.strip())
 
         if self.evidence_path.exists():
-            with open(self.evidence_path, encoding='utf-8') as f:
+            with open(self.evidence_path, encoding="utf-8") as f:
                 evidence_count = sum(1 for line in f if line.strip())
 
         return {

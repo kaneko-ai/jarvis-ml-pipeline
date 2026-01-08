@@ -14,12 +14,13 @@ def test_specter2_dimension():
 
 def test_specter2_embed_paper_format():
     # Test that embed_paper formats correctly
-    with patch('jarvis_core.embeddings.specter2.SPECTER2Embedding._load_model') as mock_load:
+    with patch("jarvis_core.embeddings.specter2.SPECTER2Embedding._load_model") as mock_load:
         mock_model = MagicMock()
         mock_model.encode.return_value = np.array([[0.1] * 768])
         mock_load.return_value = mock_model
 
         from jarvis_core.embeddings.specter2 import SPECTER2Embedding
+
         model = SPECTER2Embedding()
 
         result = model.embed_paper("Test Title", "Test Abstract")

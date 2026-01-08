@@ -2,6 +2,7 @@
 
 Per V4-I02, this provides manifest-based input management.
 """
+
 from __future__ import annotations
 
 import json
@@ -46,17 +47,19 @@ class ManifestWatcher:
         if self.manifest_path.exists():
             with open(self.manifest_path, encoding="utf-8") as f:
                 data = json.load(f)
-                self.entries = [
-                    ManifestEntry(**e) for e in data.get("entries", [])
-                ]
+                self.entries = [ManifestEntry(**e) for e in data.get("entries", [])]
 
     def _save(self):
         """Save manifest to file."""
         self.manifest_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.manifest_path, "w", encoding="utf-8") as f:
-            json.dump({
-                "entries": [e.to_dict() for e in self.entries],
-            }, f, indent=2)
+            json.dump(
+                {
+                    "entries": [e.to_dict() for e in self.entries],
+                },
+                f,
+                indent=2,
+            )
 
     def add_entry(self, path: str, entry_type: str = "pdf") -> None:
         """Add entry to manifest."""

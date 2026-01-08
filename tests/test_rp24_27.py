@@ -6,6 +6,7 @@ Per requirements:
 - RP26: Research Log / Diff
 - RP27: Collaborative Review (ReviewNote)
 """
+
 import sys
 import tempfile
 from datetime import datetime

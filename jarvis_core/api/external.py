@@ -10,6 +10,7 @@ AG-API原則:
 - GET /runs/{run_id}
 - GET /health
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -26,6 +27,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class APIRequest:
     """APIリクエスト."""
+
     task_goal: str
     task_category: str = "generic"
     options: dict[str, Any] | None = None
@@ -35,6 +37,7 @@ class APIRequest:
 @dataclass
 class APIResponse:
     """APIレスポンス."""
+
     success: bool
     data: dict[str, Any]
     error: str | None = None
@@ -51,12 +54,12 @@ class APIResponse:
 
 class ExternalAPIHandler:
     """外部API ハンドラー.
-    
+
     AG-API原則に従い、以下のみを提供:
     - POST /run → run_id を返すだけ
     - GET /runs/{run_id} → status を返すだけ
     - GET /health → ヘルスチェック
-    
+
     禁止:
     - 結果生成API
     - Verify bypass API
@@ -71,11 +74,11 @@ class ExternalAPIHandler:
 
     def post_run(self, request: APIRequest) -> APIResponse:
         """POST /run - タスク実行.
-        
+
         処理:
         1. 即時に run_id を発行
         2. 実行は非同期
-        
+
         Returns:
             run_id と初期status
         """
@@ -135,12 +138,12 @@ class ExternalAPIHandler:
 
     def get_run(self, run_id: str) -> APIResponse:
         """GET /runs/{run_id} - 結果取得.
-        
+
         出力（最小）:
         - status
         - gate_passed
         - summary（簡潔）
-        
+
         禁止:
         - 内部ログ全文
         - raw evidence
@@ -185,8 +188,7 @@ class ExternalAPIHandler:
         if result.get("status") == "failed" and eval_summary:
             fail_reasons = eval_summary.get("fail_reasons", [])
             response_data["fail_reasons"] = [
-                {"code": r.get("code"), "msg": r.get("msg")}
-                for r in fail_reasons[:3]  # 最大3つ
+                {"code": r.get("code"), "msg": r.get("msg")} for r in fail_reasons[:3]  # 最大3つ
             ]
 
         return APIResponse(

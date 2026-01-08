@@ -7,6 +7,7 @@ Tests that the system can detect:
 
 These are "smart" tests that check if JARVIS can avoid common pitfalls.
 """
+
 import json
 from pathlib import Path
 
@@ -91,7 +92,7 @@ class TestNoEvidenceDetection:
 @pytest.mark.skip(reason="Integration test - requires full pipeline implementation")
 class TestTrickSetEvaluation:
     """Integration test for trick set evaluation.
-    
+
     This would run the full pipeline against trick sets and verify behavior.
     Skipped for now as it requires complete pipeline integration.
     """

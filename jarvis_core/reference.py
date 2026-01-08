@@ -7,6 +7,7 @@ This module provides:
 Per RP14, this enables generating academic reference lists
 (Vancouver/APA) from evidence citations.
 """
+
 from __future__ import annotations
 
 import re

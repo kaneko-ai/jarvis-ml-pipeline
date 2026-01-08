@@ -5,7 +5,7 @@ from jarvis_core.sync.auto_sync import on_network_restored
 
 
 def test_on_network_restored_offline():
-    with patch('jarvis_core.sync.auto_sync.get_degradation_manager') as mock_get_manager:
+    with patch("jarvis_core.sync.auto_sync.get_degradation_manager") as mock_get_manager:
         mock_manager = MagicMock()
         mock_get_manager.return_value = mock_manager
 
@@ -13,9 +13,12 @@ def test_on_network_restored_offline():
 
         mock_manager.set_level.assert_called_with(DegradationLevel.OFFLINE)
 
+
 def test_on_network_restored_online_no_pending():
-    with patch('jarvis_core.sync.auto_sync.get_degradation_manager') as mock_get_manager, \
-         patch('jarvis_core.sync.auto_sync.SyncQueueManager') as mock_queue_manager_cls:
+    with (
+        patch("jarvis_core.sync.auto_sync.get_degradation_manager") as mock_get_manager,
+        patch("jarvis_core.sync.auto_sync.SyncQueueManager") as mock_queue_manager_cls,
+    ):
 
         mock_manager = MagicMock()
         mock_get_manager.return_value = mock_manager
@@ -29,10 +32,13 @@ def test_on_network_restored_online_no_pending():
         mock_manager.set_level.assert_called_with(DegradationLevel.FULL)
         mock_queue.process_queue.assert_not_called()
 
+
 def test_on_network_restored_online_with_pending():
-    with patch('jarvis_core.sync.auto_sync.get_degradation_manager') as mock_get_manager, \
-         patch('jarvis_core.sync.auto_sync.SyncQueueManager') as mock_queue_manager_cls, \
-         patch('threading.Thread') as mock_thread_cls:
+    with (
+        patch("jarvis_core.sync.auto_sync.get_degradation_manager") as mock_get_manager,
+        patch("jarvis_core.sync.auto_sync.SyncQueueManager") as mock_queue_manager_cls,
+        patch("threading.Thread") as mock_thread_cls,
+    ):
 
         mock_manager = MagicMock()
         mock_get_manager.return_value = mock_manager

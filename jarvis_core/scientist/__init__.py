@@ -1,4 +1,5 @@
 """JARVIS Scientist Module Exports"""
+
 from .coscientist import (
     CollaboratorNetworkBuilder,
     EthicsChecker,

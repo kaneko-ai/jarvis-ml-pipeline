@@ -2,6 +2,7 @@
 
 Per RP-147, provides indexed run storage for queries.
 """
+
 from __future__ import annotations
 
 import sqlite3
@@ -34,7 +35,8 @@ class RunStoreIndex:
     def _init_db(self):
         """Initialize database schema."""
         conn = sqlite3.connect(str(self.db_path))
-        conn.execute("""
+        conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS runs (
                 run_id TEXT PRIMARY KEY,
                 status TEXT,
@@ -45,7 +47,8 @@ class RunStoreIndex:
                 claims_count INTEGER,
                 duration_seconds REAL
             )
-        """)
+        """
+        )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_status ON runs(status)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_created ON runs(created_at)")
         conn.commit()
@@ -54,29 +57,30 @@ class RunStoreIndex:
     def add(self, record: RunRecord) -> None:
         """Add a run record."""
         conn = sqlite3.connect(str(self.db_path))
-        conn.execute("""
+        conn.execute(
+            """
             INSERT OR REPLACE INTO runs 
             (run_id, status, category, created_at, query, docs_count, claims_count, duration_seconds)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            record.run_id,
-            record.status,
-            record.category,
-            record.created_at,
-            record.query,
-            record.docs_count,
-            record.claims_count,
-            record.duration_seconds,
-        ))
+        """,
+            (
+                record.run_id,
+                record.status,
+                record.category,
+                record.created_at,
+                record.query,
+                record.docs_count,
+                record.claims_count,
+                record.duration_seconds,
+            ),
+        )
         conn.commit()
         conn.close()
 
     def get(self, run_id: str) -> RunRecord | None:
         """Get a run by ID."""
         conn = sqlite3.connect(str(self.db_path))
-        cur = conn.execute(
-            "SELECT * FROM runs WHERE run_id = ?", (run_id,)
-        )
+        cur = conn.execute("SELECT * FROM runs WHERE run_id = ?", (run_id,))
         row = cur.fetchone()
         conn.close()
 
@@ -109,9 +113,7 @@ class RunStoreIndex:
     def count_by_status(self) -> dict[str, int]:
         """Count runs by status."""
         conn = sqlite3.connect(str(self.db_path))
-        cur = conn.execute(
-            "SELECT status, COUNT(*) FROM runs GROUP BY status"
-        )
+        cur = conn.execute("SELECT status, COUNT(*) FROM runs GROUP BY status")
         result = {row[0]: row[1] for row in cur.fetchall()}
         conn.close()
         return result

@@ -3,6 +3,7 @@
 Per DEC-006: ネットワーク不要でE2Eを検証するテスト。
 固定コーパスを使用し、10ファイル契約への準拠を確認。
 """
+
 import json
 from pathlib import Path
 

@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 3, this routes queries to BM25/Dense/Both based on query characteristics.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -12,9 +13,9 @@ from typing import Any
 class RouteDecision(Enum):
     """Routing decisions."""
 
-    BM25_ONLY = "bm25_only"       # Keyword-focused query
-    DENSE_ONLY = "dense_only"     # Semantic query
-    HYBRID = "hybrid"             # Both methods
+    BM25_ONLY = "bm25_only"  # Keyword-focused query
+    DENSE_ONLY = "dense_only"  # Semantic query
+    HYBRID = "hybrid"  # Both methods
 
 
 @dataclass
@@ -44,15 +45,27 @@ class HybridRouter:
 
         # Check for technical terms
         technical_patterns = [
-            "cd73", "pd-1", "ctla-4", "mrna", "dna",
-            "gene", "protein", "pathway", "mechanism",
+            "cd73",
+            "pd-1",
+            "ctla-4",
+            "mrna",
+            "dna",
+            "gene",
+            "protein",
+            "pathway",
+            "mechanism",
         ]
         has_technical = any(p in query.lower() for p in technical_patterns)
 
         # Check for conceptual queries
         conceptual_patterns = [
-            "how", "why", "explain", "relationship",
-            "compare", "difference", "similar",
+            "how",
+            "why",
+            "explain",
+            "relationship",
+            "compare",
+            "difference",
+            "similar",
         ]
         is_conceptual = any(p in query.lower() for p in conceptual_patterns)
 

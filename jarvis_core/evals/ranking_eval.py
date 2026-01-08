@@ -2,6 +2,7 @@
 
 Evaluates Learning-to-Rank performance using NDCG and MAP metrics.
 """
+
 import json
 import logging
 from pathlib import Path
@@ -10,24 +11,22 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 
-def calculate_ndcg(
-    ranked_ids: list[str],
-    golden_ranks: dict[str, int],
-    k: int = 10
-) -> float:
+def calculate_ndcg(ranked_ids: list[str], golden_ranks: dict[str, int], k: int = 10) -> float:
     """Calculate Normalized Discounted Cumulative Gain at K.
-    
+
     Args:
         ranked_ids: List of paper IDs in predicted rank order
         golden_ranks: Dict mapping paper_id to ideal rank (1=best)
         k: Cutoff position
-        
+
     Returns:
         NDCG@K score (0-1)
     """
+
     def dcg(ranks: list[int], k: int) -> float:
         """Discounted Cumulative Gain."""
         import math
+
         dcg_sum = 0.0
         for i, rank in enumerate(ranks[:k]):
             # Relevance = inverse of rank (1/rank)
@@ -58,16 +57,13 @@ def calculate_ndcg(
     return ndcg
 
 
-def calculate_map(
-    ranked_ids: list[str],
-    relevant_ids: set
-) -> float:
+def calculate_map(ranked_ids: list[str], relevant_ids: set) -> float:
     """Calculate Mean Average Precision.
-    
+
     Args:
         ranked_ids: List of paper IDs in predicted rank order
         relevant_ids: Set of relevant paper IDs
-        
+
     Returns:
         MAP score (0-1)
     """
@@ -91,16 +87,13 @@ def calculate_map(
     return avg_precision
 
 
-def evaluate_ranking(
-    predictions_file: Path,
-    golden_file: Path
-) -> dict[str, Any]:
+def evaluate_ranking(predictions_file: Path, golden_file: Path) -> dict[str, Any]:
     """Evaluate ranking against golden set.
-    
+
     Args:
         predictions_file: Path to predicted scores.json
         golden_file: Path to golden ranking dataset
-        
+
     Returns:
         Dict with NDCG@10, MAP, etc.
     """
@@ -109,7 +102,10 @@ def evaluate_ranking(
         predictions = json.load(f)
 
     predicted_papers = predictions.get("papers", [])
-    ranked_ids = [p["paper_id"] for p in sorted(predicted_papers, key=lambda x: x.get("overall_score", 0), reverse=True)]
+    ranked_ids = [
+        p["paper_id"]
+        for p in sorted(predicted_papers, key=lambda x: x.get("overall_score", 0), reverse=True)
+    ]
 
     # Load golden set
     golden_ranks = {}
@@ -132,7 +128,7 @@ def evaluate_ranking(
         "ndcg@10": ndcg_10,
         "map": map_score,
         "golden_set_size": len(golden_ranks),
-        "predicted_set_size": len(ranked_ids)
+        "predicted_set_size": len(ranked_ids),
     }
 
 

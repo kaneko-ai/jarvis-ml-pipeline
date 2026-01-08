@@ -2,6 +2,7 @@
 
 Per RP-154, provides checkpoint/resume for long-running tasks.
 """
+
 from __future__ import annotations
 
 import json
@@ -78,15 +79,19 @@ class DurableRunner:
         self._step_id += 1
 
         with open(self._checkpoint_path, "w", encoding="utf-8") as f:
-            json.dump({
-                "run_id": checkpoint.run_id,
-                "stage": checkpoint.stage.value,
-                "step_id": checkpoint.step_id,
-                "timestamp": checkpoint.timestamp,
-                "data": checkpoint.data,
-                "completed_items": checkpoint.completed_items,
-                "pending_items": checkpoint.pending_items,
-            }, f, indent=2)
+            json.dump(
+                {
+                    "run_id": checkpoint.run_id,
+                    "stage": checkpoint.stage.value,
+                    "step_id": checkpoint.step_id,
+                    "timestamp": checkpoint.timestamp,
+                    "data": checkpoint.data,
+                    "completed_items": checkpoint.completed_items,
+                    "pending_items": checkpoint.pending_items,
+                },
+                f,
+                indent=2,
+            )
 
     def load_checkpoint(self) -> Checkpoint | None:
         """Load existing checkpoint if any."""

@@ -3,6 +3,7 @@
 Per JARVIS_COMPLETION_PLAN_v3 Sprint 23: メモリ使用量削減
 Provides memory optimization utilities.
 """
+
 from __future__ import annotations
 
 import gc
@@ -31,6 +32,7 @@ class MemoryStats:
         """Get current memory statistics."""
         try:
             import psutil
+
             mem = psutil.virtual_memory()
             return cls(
                 total_mb=mem.total / (1024 * 1024),
@@ -49,10 +51,10 @@ class MemoryStats:
 
 def get_object_size(obj: Any) -> int:
     """Get the size of an object in bytes.
-    
+
     Args:
         obj: Object to measure
-        
+
     Returns:
         Size in bytes
     """
@@ -79,10 +81,10 @@ def get_object_size(obj: Any) -> int:
 
 def format_size(size_bytes: int) -> str:
     """Format size in human-readable format.
-    
+
     Args:
         size_bytes: Size in bytes
-        
+
     Returns:
         Formatted string (e.g., "1.5 MB")
     """
@@ -95,7 +97,7 @@ def format_size(size_bytes: int) -> str:
 
 def force_gc() -> int:
     """Force garbage collection.
-    
+
     Returns:
         Number of objects collected
     """
@@ -110,12 +112,12 @@ def batch_process(
     gc_every: int = 10,
 ) -> Generator[list[T], None, None]:
     """Process items in batches with periodic garbage collection.
-    
+
     Args:
         items: Items to process
         batch_size: Size of each batch
         gc_every: Run GC every N batches
-        
+
     Yields:
         Batches of items
     """
@@ -142,7 +144,7 @@ class MemoryMonitor:
 
     def __init__(self, threshold_mb: float = 1000):
         """Initialize monitor.
-        
+
         Args:
             threshold_mb: Memory threshold in MB to trigger warning
         """
@@ -156,7 +158,7 @@ class MemoryMonitor:
 
     def check(self) -> dict[str, Any]:
         """Check current memory status.
-        
+
         Returns:
             Current memory stats and delta from baseline
         """
@@ -180,19 +182,17 @@ class MemoryMonitor:
 
     def gc_if_needed(self, threshold_percent: float = 80) -> bool:
         """Run garbage collection if memory usage is high.
-        
+
         Args:
             threshold_percent: Threshold percentage to trigger GC
-            
+
         Returns:
             True if GC was triggered
         """
         stats = MemoryStats.current()
 
         if stats.percent > threshold_percent:
-            logger.info(
-                f"Memory at {stats.percent:.1f}%, running GC..."
-            )
+            logger.info(f"Memory at {stats.percent:.1f}%, running GC...")
             force_gc()
             return True
 
@@ -204,7 +204,7 @@ class LRUCache:
 
     def __init__(self, max_size: int = 100, max_memory_mb: float = 100):
         """Initialize cache.
-        
+
         Args:
             max_size: Maximum number of items
             max_memory_mb: Maximum memory usage in MB
@@ -216,10 +216,10 @@ class LRUCache:
 
     def get(self, key: str) -> Any | None:
         """Get item from cache.
-        
+
         Args:
             key: Cache key
-            
+
         Returns:
             Cached value or None
         """
@@ -232,7 +232,7 @@ class LRUCache:
 
     def set(self, key: str, value: Any) -> None:
         """Set item in cache.
-        
+
         Args:
             key: Cache key
             value: Value to cache

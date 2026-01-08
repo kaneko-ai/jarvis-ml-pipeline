@@ -18,21 +18,30 @@ logger = logging.getLogger(__name__)
 # Patterns for extracting claim components
 EFFECT_PATTERNS = [
     # Increase/decrease patterns
-    re.compile(r'\b(increase[sd]?|decrease[sd]?|reduce[sd]?|improve[sd]?|worsen[sd]?)\s+(.+?)(?:\s+by|\s+in|\.|$)', re.IGNORECASE),
+    re.compile(
+        r"\b(increase[sd]?|decrease[sd]?|reduce[sd]?|improve[sd]?|worsen[sd]?)\s+(.+?)(?:\s+by|\s+in|\.|$)",
+        re.IGNORECASE,
+    ),
     # Association patterns
-    re.compile(r'\b(associated\s+with|correlate[sd]?\s+with|linked\s+to)\s+(.+?)(?:\s+in|\.|$)', re.IGNORECASE),
+    re.compile(
+        r"\b(associated\s+with|correlate[sd]?\s+with|linked\s+to)\s+(.+?)(?:\s+in|\.|$)",
+        re.IGNORECASE,
+    ),
     # Causation patterns
-    re.compile(r'\b(cause[sd]?|lead[s]?\s+to|result[s]?\s+in)\s+(.+?)(?:\s+in|\.|$)', re.IGNORECASE),
+    re.compile(
+        r"\b(cause[sd]?|lead[s]?\s+to|result[s]?\s+in)\s+(.+?)(?:\s+in|\.|$)", re.IGNORECASE
+    ),
 ]
 
 NEGATION_PATTERNS = [
-    re.compile(r'\b(no|not|neither|nor|never|without|lacks?|absent|fail(?:ed|s)?)\b', re.IGNORECASE),
-    re.compile(r'\b(does\s+not|did\s+not|do\s+not|cannot|could\s+not)\b', re.IGNORECASE),
+    re.compile(
+        r"\b(no|not|neither|nor|never|without|lacks?|absent|fail(?:ed|s)?)\b", re.IGNORECASE
+    ),
+    re.compile(r"\b(does\s+not|did\s+not|do\s+not|cannot|could\s+not)\b", re.IGNORECASE),
 ]
 
 QUANTITATIVE_PATTERN = re.compile(
-    r'(\d+(?:\.\d+)?)\s*(%|percent|fold|times|mg|kg|ml|μg|ng|mmol|μmol)',
-    re.IGNORECASE
+    r"(\d+(?:\.\d+)?)\s*(%|percent|fold|times|mg|kg|ml|μg|ng|mmol|μmol)", re.IGNORECASE
 )
 
 
@@ -56,10 +65,10 @@ class NormalizationResult:
 
 class ClaimNormalizer:
     """Normalizes claims for comparison.
-    
+
     Extracts structured components and creates normalized forms
     to enable contradiction detection.
-    
+
     Example:
         >>> normalizer = ClaimNormalizer()
         >>> result = normalizer.normalize("Drug X increases survival by 20%")
@@ -75,10 +84,10 @@ class ClaimNormalizer:
 
     def normalize(self, claim_text: str) -> NormalizationResult:
         """Normalize a claim text.
-        
+
         Args:
             claim_text: Raw claim text
-            
+
         Returns:
             NormalizationResult with structured components
         """
@@ -98,9 +107,7 @@ class ClaimNormalizer:
         subject, predicate, obj = self._extract_components(text)
 
         # Create normalized form
-        normalized = self._create_normalized_form(
-            subject, predicate, obj, is_negated
-        )
+        normalized = self._create_normalized_form(subject, predicate, obj, is_negated)
 
         return NormalizationResult(
             original=claim_text,
@@ -114,10 +121,10 @@ class ClaimNormalizer:
 
     def normalize_claim(self, claim: Claim) -> Claim:
         """Normalize a Claim object in-place.
-        
+
         Args:
             claim: Claim to normalize
-            
+
         Returns:
             The same Claim with normalized fields populated
         """
@@ -133,10 +140,10 @@ class ClaimNormalizer:
     def _clean_text(self, text: str) -> str:
         """Clean and normalize text."""
         # Remove extra whitespace
-        text = re.sub(r'\s+', ' ', text).strip()
+        text = re.sub(r"\s+", " ", text).strip()
         # Remove citation markers
-        text = re.sub(r'\[\d+(?:[-,]\d+)*\]', '', text)
-        text = re.sub(r'\([A-Z][a-z]+\s+et\s+al\.?,?\s*\d{4}\)', '', text)
+        text = re.sub(r"\[\d+(?:[-,]\d+)*\]", "", text)
+        text = re.sub(r"\([A-Z][a-z]+\s+et\s+al\.?,?\s*\d{4}\)", "", text)
         return text.strip()
 
     def _detect_negation(self, text: str) -> bool:
@@ -171,7 +178,7 @@ class ClaimNormalizer:
                 obj = match.group(2).strip()
 
                 # Try to extract subject (text before the predicate)
-                pre_match = text[:match.start()].strip()
+                pre_match = text[: match.start()].strip()
                 if pre_match:
                     # Take last significant phrase as subject
                     subject = self._extract_subject(pre_match)
@@ -182,12 +189,12 @@ class ClaimNormalizer:
     def _extract_subject(self, text: str) -> str | None:
         """Extract subject from pre-predicate text."""
         # Remove common prefixes
-        text = re.sub(r'^(the|a|an|this|that|these|those)\s+', '', text, flags=re.IGNORECASE)
+        text = re.sub(r"^(the|a|an|this|that|these|those)\s+", "", text, flags=re.IGNORECASE)
 
         # Take last noun phrase (simplified)
         words = text.split()
         if words:
-            return ' '.join(words[-3:]) if len(words) > 3 else text
+            return " ".join(words[-3:]) if len(words) > 3 else text
         return None
 
     def _create_normalized_form(
@@ -216,11 +223,11 @@ class ClaimNormalizer:
 
     def are_about_same_topic(self, claim_a: Claim, claim_b: Claim) -> bool:
         """Check if two claims are about the same topic.
-        
+
         Args:
             claim_a: First claim
             claim_b: Second claim
-            
+
         Returns:
             True if claims appear to be about the same topic
         """

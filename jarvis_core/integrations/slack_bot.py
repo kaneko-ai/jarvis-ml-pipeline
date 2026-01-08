@@ -2,6 +2,7 @@
 
 Extends RP-533 with interactive bot functionality.
 """
+
 from __future__ import annotations
 
 import os
@@ -13,6 +14,7 @@ from typing import Any
 
 class CommandType(Enum):
     """Bot command types."""
+
     SEARCH = "search"
     STATUS = "status"
     HELP = "help"
@@ -23,6 +25,7 @@ class CommandType(Enum):
 @dataclass
 class BotCommand:
     """A bot command."""
+
     command_type: CommandType
     args: list[str]
     user_id: str
@@ -33,6 +36,7 @@ class BotCommand:
 @dataclass
 class BotResponse:
     """Bot response."""
+
     text: str
     blocks: list[dict[str, Any]] = field(default_factory=list)
     attachments: list[dict[str, Any]] = field(default_factory=list)
@@ -41,7 +45,7 @@ class BotResponse:
 
 class JarvisSlackBot:
     """JARVIS Slack Bot.
-    
+
     Commands:
     - /jarvis search <query> - Search papers
     - /jarvis status - Get pipeline status
@@ -69,12 +73,12 @@ class JarvisSlackBot:
 
     def parse_command(self, text: str, user_id: str, channel_id: str) -> BotCommand | None:
         """Parse a command from text.
-        
+
         Args:
             text: Command text.
             user_id: User ID.
             channel_id: Channel ID.
-            
+
         Returns:
             Parsed command or None.
         """
@@ -82,7 +86,7 @@ class JarvisSlackBot:
 
         # Remove prefix if present
         if text.startswith(self.COMMAND_PREFIX):
-            text = text[len(self.COMMAND_PREFIX):].strip()
+            text = text[len(self.COMMAND_PREFIX) :].strip()
 
         if not text:
             return BotCommand(
@@ -124,10 +128,10 @@ class JarvisSlackBot:
 
     def handle_command(self, command: BotCommand) -> BotResponse:
         """Handle a bot command.
-        
+
         Args:
             command: Bot command.
-            
+
         Returns:
             Bot response.
         """
@@ -140,7 +144,7 @@ class JarvisSlackBot:
         handler: Callable[[BotCommand], BotResponse],
     ) -> None:
         """Register a command handler.
-        
+
         Args:
             command_type: Command type.
             handler: Handler function.
@@ -175,14 +179,14 @@ class JarvisSlackBot:
                     "text": {
                         "type": "mrkdwn",
                         "text": f"🔍 *Search Results for:* {query}",
-                    }
+                    },
                 },
                 {
                     "type": "section",
                     "fields": [
                         {"type": "mrkdwn", "text": "*Papers Found:* 42"},
                         {"type": "mrkdwn", "text": "*Processing Time:* 1.2s"},
-                    ]
+                    ],
                 },
                 {
                     "type": "actions",
@@ -197,9 +201,9 @@ class JarvisSlackBot:
                             "text": {"type": "plain_text", "text": "📥 Download"},
                             "action_id": "download_results",
                         },
-                    ]
-                }
-            ]
+                    ],
+                },
+            ],
         )
 
     def _handle_status(self, command: BotCommand) -> BotResponse:
@@ -207,10 +211,7 @@ class JarvisSlackBot:
         return BotResponse(
             text="📊 JARVIS Status",
             blocks=[
-                {
-                    "type": "header",
-                    "text": {"type": "plain_text", "text": "📊 JARVIS Status"}
-                },
+                {"type": "header", "text": {"type": "plain_text", "text": "📊 JARVIS Status"}},
                 {
                     "type": "section",
                     "fields": [
@@ -218,24 +219,22 @@ class JarvisSlackBot:
                         {"type": "mrkdwn", "text": "*Status:* 🟢 Healthy"},
                         {"type": "mrkdwn", "text": "*Uptime:* 99.9%"},
                         {"type": "mrkdwn", "text": "*Tests:* 206 passed"},
-                    ]
+                    ],
                 },
                 {
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": "📈 *Last 24h:* 150 searches, 12 reports generated"
-                    }
-                }
-            ]
+                        "text": "📈 *Last 24h:* 150 searches, 12 reports generated",
+                    },
+                },
+            ],
         )
 
     def _handle_analyze(self, command: BotCommand) -> BotResponse:
         """Handle analyze command."""
         if not command.args:
-            return BotResponse(
-                text="❓ Usage: `/jarvis analyze <topic>`"
-            )
+            return BotResponse(text="❓ Usage: `/jarvis analyze <topic>`")
 
         topic = command.args[0]
 
@@ -247,9 +246,9 @@ class JarvisSlackBot:
                     "text": {
                         "type": "mrkdwn",
                         "text": f"🔬 *Analysis Started*\nTopic: {topic}\n\nI'll notify you when the analysis is complete.",
-                    }
+                    },
                 }
-            ]
+            ],
         )
 
     def _handle_report(self, command: BotCommand) -> BotResponse:
@@ -262,15 +261,10 @@ class JarvisSlackBot:
                     "text": {
                         "type": "mrkdwn",
                         "text": "📝 *Report Generation*\n\nGenerating your research report. This may take a few minutes.",
-                    }
+                    },
                 },
-                {
-                    "type": "context",
-                    "elements": [
-                        {"type": "mrkdwn", "text": "⏳ Progress: 0%"}
-                    ]
-                }
-            ]
+                {"type": "context", "elements": [{"type": "mrkdwn", "text": "⏳ Progress: 0%"}]},
+            ],
         )
 
     def _handle_help(self, command: BotCommand) -> BotResponse:
@@ -278,17 +272,8 @@ class JarvisSlackBot:
         return BotResponse(
             text="🤖 JARVIS Bot Help",
             blocks=[
-                {
-                    "type": "header",
-                    "text": {"type": "plain_text", "text": "🤖 JARVIS Bot"}
-                },
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": "*Available Commands:*"
-                    }
-                },
+                {"type": "header", "text": {"type": "plain_text", "text": "🤖 JARVIS Bot"}},
+                {"type": "section", "text": {"type": "mrkdwn", "text": "*Available Commands:*"}},
                 {
                     "type": "section",
                     "text": {
@@ -299,19 +284,17 @@ class JarvisSlackBot:
                             "• `/jarvis analyze <topic>` - Analyze topic\n"
                             "• `/jarvis report` - Generate report\n"
                             "• `/jarvis help` - Show this help"
-                        )
-                    }
+                        ),
+                    },
                 },
-                {
-                    "type": "divider"
-                },
+                {"type": "divider"},
                 {
                     "type": "context",
                     "elements": [
                         {"type": "mrkdwn", "text": "💡 Tip: Use `/jarvis s` as shortcut for search"}
-                    ]
-                }
-            ]
+                    ],
+                },
+            ],
         )
 
 

@@ -3,6 +3,7 @@
 Per Issue Ω-1, this implements self-driving research cycles:
 PaperVector → Gap → Hypothesis → Experiment → Re-evaluation
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -92,19 +93,21 @@ def run_autonomous_research_loop(
         experiments = []
         for hyp in hypotheses[:2]:
             feasibility = score_feasibility(hyp["hypothesis"], vectors)
-            experiments.append({
-                "hypothesis": hyp["hypothesis"],
-                "feasibility": feasibility,
-                "proposed_methods": hyp.get("based_on", []),
-            })
+            experiments.append(
+                {
+                    "hypothesis": hyp["hypothesis"],
+                    "feasibility": feasibility,
+                    "proposed_methods": hyp.get("based_on", []),
+                }
+            )
         all_experiments.extend(experiments)
 
         # Step 4: Evaluate
         avg_feasibility = 0.0
         if experiments:
-            avg_feasibility = sum(
-                e["feasibility"].get("overall", 0.5) for e in experiments
-            ) / len(experiments)
+            avg_feasibility = sum(e["feasibility"].get("overall", 0.5) for e in experiments) / len(
+                experiments
+            )
 
         evaluation = {
             "avg_feasibility": round(avg_feasibility, 3),

@@ -3,6 +3,7 @@
 Finds supporting evidence for extracted claims.
 Output: evidence.jsonl (Phase 2 Evidence Unit Schema)
 """
+
 import logging
 import uuid
 from typing import Any
@@ -35,12 +36,12 @@ def find_evidence(claims: list[dict], papers: list[dict], **kwargs) -> dict[str,
                 "section": "abstract",
                 "paragraph_index": 0,
                 "sentence_index": claim.get("source_locator", {}).get("sentence_index", 0),
-                "char_offset": 0
+                "char_offset": 0,
             },
-            "quote_span": claim["claim_text"][:400], # Direct quote for now
+            "quote_span": claim["claim_text"][:400],  # Direct quote for now
             "evidence_strength": "Strong",
             "evidence_role": "Direct",
-            "contradiction_flag": False
+            "contradiction_flag": False,
         }
         evidence_list.append(ev)
 
@@ -50,5 +51,5 @@ def find_evidence(claims: list[dict], papers: list[dict], **kwargs) -> dict[str,
         "evidence": evidence_list,
         "count": len(evidence_list),
         "stage": "extraction.evidence_link",
-        "coverage": len(evidence_list) / len(claims) if claims else 0
+        "coverage": len(evidence_list) / len(claims) if claims else 0,
     }

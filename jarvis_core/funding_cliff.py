@@ -2,6 +2,7 @@
 
 Per Ψ-10, this predicts funding gaps.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -69,6 +70,8 @@ def predict_funding_cliff(
         "months_to_cliff": months_to_cliff,
         "momentum_score": round(momentum, 2),
         "mitigation": mitigation,
-        "urgency": "high" if months_to_cliff < 12 else ("medium" if months_to_cliff < 24 else "low"),
+        "urgency": (
+            "high" if months_to_cliff < 12 else ("medium" if months_to_cliff < 24 else "low")
+        ),
         "estimated": True,
     }

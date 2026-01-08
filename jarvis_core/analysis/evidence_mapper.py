@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class EvidenceReference:
     """エビデンス参照."""
+
     ref_type: str  # figure, table, citation, section
     ref_id: str
     ref_text: str
@@ -34,6 +35,7 @@ class EvidenceReference:
 @dataclass
 class MappedEvidence:
     """マッピング済みエビデンス."""
+
     claim_id: str
     claim_text: str
     evidence_refs: list[EvidenceReference] = field(default_factory=list)
@@ -50,7 +52,7 @@ class MappedEvidence:
 
 class EvidenceMapper:
     """エビデンスマッパー.
-    
+
     claimに対して図表・文献参照をマッピング
     """
 
@@ -70,11 +72,11 @@ class EvidenceMapper:
         full_text: str,
     ) -> list[MappedEvidence]:
         """claimにエビデンスをマッピング.
-        
+
         Args:
             claims: 主張リスト
             full_text: 全文テキスト
-        
+
         Returns:
             マッピング済みエビデンスリスト
         """
@@ -89,52 +91,62 @@ class EvidenceMapper:
             # 図参照を検出
             figures = re.findall(self.FIGURE_PATTERN, source_text)
             for fig in figures:
-                refs.append(EvidenceReference(
-                    ref_type="figure",
-                    ref_id=fig,
-                    ref_text=fig,
-                    location=self._find_location(fig, full_text),
-                ))
+                refs.append(
+                    EvidenceReference(
+                        ref_type="figure",
+                        ref_id=fig,
+                        ref_text=fig,
+                        location=self._find_location(fig, full_text),
+                    )
+                )
 
             # 表参照を検出
             tables = re.findall(self.TABLE_PATTERN, source_text)
             for table in tables:
-                refs.append(EvidenceReference(
-                    ref_type="table",
-                    ref_id=table,
-                    ref_text=table,
-                    location=self._find_location(table, full_text),
-                ))
+                refs.append(
+                    EvidenceReference(
+                        ref_type="table",
+                        ref_id=table,
+                        ref_text=table,
+                        location=self._find_location(table, full_text),
+                    )
+                )
 
             # 引用参照を検出
             citations = re.findall(self.CITATION_PATTERN, source_text)
             for citation in citations:
-                refs.append(EvidenceReference(
-                    ref_type="citation",
-                    ref_id=citation,
-                    ref_text=f"[{citation}]",
-                    location={},
-                ))
+                refs.append(
+                    EvidenceReference(
+                        ref_type="citation",
+                        ref_id=citation,
+                        ref_text=f"[{citation}]",
+                        location={},
+                    )
+                )
 
             # セクション参照を検出
             sections = re.findall(self.SECTION_PATTERN, source_text)
             for section in sections:
-                refs.append(EvidenceReference(
-                    ref_type="section",
-                    ref_id=section,
-                    ref_text=section,
-                    location={},
-                ))
+                refs.append(
+                    EvidenceReference(
+                        ref_type="section",
+                        ref_id=section,
+                        ref_text=section,
+                        location={},
+                    )
+                )
 
             # 信頼度を計算
             confidence = min(1.0, 0.3 + 0.2 * len(refs))
 
-            results.append(MappedEvidence(
-                claim_id=claim.get("claim_id", ""),
-                claim_text=claim_text,
-                evidence_refs=refs,
-                confidence=confidence,
-            ))
+            results.append(
+                MappedEvidence(
+                    claim_id=claim.get("claim_id", ""),
+                    claim_text=claim_text,
+                    evidence_refs=refs,
+                    confidence=confidence,
+                )
+            )
 
         logger.info(f"Mapped evidence for {len(results)} claims")
         return results
@@ -144,7 +156,7 @@ class EvidenceMapper:
         match = re.search(re.escape(ref), full_text, re.IGNORECASE)
         if match:
             # 文字位置から行番号を計算
-            lines_before = full_text[:match.start()].count('\n')
+            lines_before = full_text[: match.start()].count("\n")
             return {
                 "line": lines_before + 1,
                 "offset": match.start(),

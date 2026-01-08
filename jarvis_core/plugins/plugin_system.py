@@ -3,6 +3,7 @@
 Per JARVIS_LOCALFIRST_ROADMAP Task 3.1: プラグインシステム
 Provides extensible plugin architecture for custom functionality.
 """
+
 from __future__ import annotations
 
 import importlib
@@ -20,15 +21,17 @@ logger = logging.getLogger(__name__)
 
 class PluginType(Enum):
     """Plugin types."""
-    SOURCE = "source"          # Data source plugin
-    ANALYZER = "analyzer"      # Analysis plugin
-    EXPORTER = "exporter"      # Export format plugin
+
+    SOURCE = "source"  # Data source plugin
+    ANALYZER = "analyzer"  # Analysis plugin
+    EXPORTER = "exporter"  # Export format plugin
     INTEGRATION = "integration"  # External service integration
-    CUSTOM = "custom"          # Custom functionality
+    CUSTOM = "custom"  # Custom functionality
 
 
 class PluginStatus(Enum):
     """Plugin status."""
+
     REGISTERED = "registered"
     LOADED = "loaded"
     ACTIVE = "active"
@@ -39,6 +42,7 @@ class PluginStatus(Enum):
 @dataclass
 class PluginInfo:
     """Plugin metadata."""
+
     name: str
     version: str
     plugin_type: PluginType
@@ -88,7 +92,7 @@ class Plugin(ABC):
     @abstractmethod
     def initialize(self) -> bool:
         """Initialize the plugin.
-        
+
         Returns:
             True if initialization successful.
         """
@@ -154,7 +158,7 @@ class ExporterPlugin(Plugin):
     @abstractmethod
     def export(self, data: Any, output_path: Path | None = None, **kwargs) -> str:
         """Export data to format.
-        
+
         Returns:
             Exported content or path to file.
         """
@@ -174,10 +178,10 @@ class PluginRegistry:
 
     def register(self, plugin_class: type[Plugin]) -> bool:
         """Register a plugin class.
-        
+
         Args:
             plugin_class: Plugin class to register.
-            
+
         Returns:
             True if registration successful.
         """
@@ -250,10 +254,10 @@ class PluginRegistry:
 
     def load_from_directory(self, directory: Path) -> int:
         """Load plugins from a directory.
-        
+
         Args:
             directory: Path to plugins directory.
-            
+
         Returns:
             Number of plugins loaded.
         """
@@ -268,9 +272,7 @@ class PluginRegistry:
                 continue
 
             try:
-                spec = importlib.util.spec_from_file_location(
-                    file.stem, file
-                )
+                spec = importlib.util.spec_from_file_location(file.stem, file)
                 if spec and spec.loader:
                     module = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(module)
@@ -278,10 +280,12 @@ class PluginRegistry:
                     # Find Plugin subclasses
                     for name in dir(module):
                         obj = getattr(module, name)
-                        if (isinstance(obj, type) and
-                            issubclass(obj, Plugin) and
-                            obj is not Plugin and
-                            not name.startswith("_")):
+                        if (
+                            isinstance(obj, type)
+                            and issubclass(obj, Plugin)
+                            and obj is not Plugin
+                            and not name.startswith("_")
+                        ):
                             if self.register(obj):
                                 loaded += 1
 

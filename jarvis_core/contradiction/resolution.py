@@ -14,18 +14,20 @@ from typing import Any
 
 class ResolutionStrategy(Enum):
     """Strategies for resolving contradictions."""
-    METHODOLOGY = "methodology"   # Different methods
-    POPULATION = "population"     # Different study populations
-    TIMEFRAME = "timeframe"       # Different time periods
-    MEASURE = "measure"           # Different measurements
-    CONTEXT = "context"           # Different contexts
-    DEFINITION = "definition"     # Different definitions
+
+    METHODOLOGY = "methodology"  # Different methods
+    POPULATION = "population"  # Different study populations
+    TIMEFRAME = "timeframe"  # Different time periods
+    MEASURE = "measure"  # Different measurements
+    CONTEXT = "context"  # Different contexts
+    DEFINITION = "definition"  # Different definitions
     UNKNOWN = "unknown"
 
 
 @dataclass
 class ResolutionSuggestion:
     """A suggested resolution for a contradiction."""
+
     strategy: ResolutionStrategy
     explanation: str
     confidence: float
@@ -49,7 +51,7 @@ class ContradictionResolver:
 
     def __init__(self, use_llm: bool = True):
         """Initialize resolver.
-        
+
         Args:
             use_llm: Whether to use LLM for resolution suggestions
         """
@@ -63,13 +65,13 @@ class ContradictionResolver:
         context_b: str = "",
     ) -> ResolutionSuggestion:
         """Suggest resolution for contradicting claims.
-        
+
         Args:
             claim_a: First claim text
             claim_b: Second claim text
             context_a: Context for first claim
             context_b: Context for second claim
-            
+
         Returns:
             ResolutionSuggestion object
         """
@@ -103,27 +105,36 @@ class ContradictionResolver:
         combined = text_a + " " + text_b
 
         # Numeric differences -> measurement
-        if re.search(r'\d+%', text_a) and re.search(r'\d+%', text_b):
+        if re.search(r"\d+%", text_a) and re.search(r"\d+%", text_b):
             return ResolutionStrategy.MEASURE
 
         # Time expressions -> timeframe
-        time_patterns = [r'\d{4}', r'year', r'month', r'recent', r'during']
+        time_patterns = [r"\d{4}", r"year", r"month", r"recent", r"during"]
         if any(re.search(p, combined) for p in time_patterns):
             return ResolutionStrategy.TIMEFRAME
 
         # Population expressions -> population
-        pop_patterns = [r'patients?', r'subjects?', r'participants?', r'adults?', r'children', r'elderly']
+        pop_patterns = [
+            r"patients?",
+            r"subjects?",
+            r"participants?",
+            r"adults?",
+            r"children",
+            r"elderly",
+        ]
         if any(re.search(p, combined) for p in pop_patterns):
             return ResolutionStrategy.POPULATION
 
         # Method expressions -> methodology
-        method_patterns = [r'method', r'approach', r'technique', r'protocol', r'procedure']
+        method_patterns = [r"method", r"approach", r"technique", r"protocol", r"procedure"]
         if any(re.search(p, combined) for p in method_patterns):
             return ResolutionStrategy.METHODOLOGY
 
         return None
 
-    def _generate_explanation(self, strategy: ResolutionStrategy, claim_a: str, claim_b: str) -> str:
+    def _generate_explanation(
+        self, strategy: ResolutionStrategy, claim_a: str, claim_b: str
+    ) -> str:
         """Generate explanation for resolution strategy."""
         explanations = {
             ResolutionStrategy.METHODOLOGY: "The claims may differ due to different research methodologies or experimental approaches.",
@@ -157,6 +168,7 @@ class ContradictionResolver:
         """Use LLM for resolution suggestion."""
         try:
             from jarvis_core.llm import get_router
+
             router = get_router()
 
             prompt = f"""Analyze the contradiction between these claims:

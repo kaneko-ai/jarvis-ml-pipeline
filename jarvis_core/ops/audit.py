@@ -16,6 +16,7 @@ from typing import Any
 @dataclass
 class AuditEntry:
     """監査ログエントリ."""
+
     timestamp: str
     run_id: str
     stage: str
@@ -36,7 +37,7 @@ class AuditEntry:
 class AuditLogger:
     """
     監査ログ出力.
-    
+
     全ての実行を記録し、説明可能性を担保。
     """
 
@@ -46,11 +47,15 @@ class AuditLogger:
         self.entries: list[AuditEntry] = []
         self.run_id = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
 
-    def log(self, stage: str, action: str,
-            details: dict | None = None,
-            provenance_rate: float = 0.0,
-            success: bool = True,
-            error: str | None = None) -> AuditEntry:
+    def log(
+        self,
+        stage: str,
+        action: str,
+        details: dict | None = None,
+        provenance_rate: float = 0.0,
+        success: bool = True,
+        error: str | None = None,
+    ) -> AuditEntry:
         """監査ログを記録."""
         entry = AuditEntry(
             timestamp=datetime.utcnow().isoformat(),
@@ -60,7 +65,7 @@ class AuditLogger:
             details=details or {},
             provenance_rate=provenance_rate,
             success=success,
-            error=error
+            error=error,
         )
 
         self.entries.append(entry)
@@ -90,7 +95,7 @@ class AuditLogger:
             "errors": len(errors),
             "avg_provenance_rate": avg_provenance,
             "start_time": self.entries[0].timestamp,
-            "end_time": self.entries[-1].timestamp
+            "end_time": self.entries[-1].timestamp,
         }
 
     def export_html(self) -> str:
@@ -144,7 +149,7 @@ class AuditLogger:
 class FailureDiagnoser:
     """
     失敗診断.
-    
+
     パイプライン失敗の原因を分類。
     """
 
@@ -166,13 +171,13 @@ class FailureDiagnoser:
                 return {
                     "type": failure_type,
                     "keywords_matched": [kw for kw in keywords if kw.lower() in error_lower],
-                    "recommendation": self._get_recommendation(failure_type)
+                    "recommendation": self._get_recommendation(failure_type),
                 }
 
         return {
             "type": "unknown",
             "keywords_matched": [],
-            "recommendation": "エラーメッセージを確認してください"
+            "recommendation": "エラーメッセージを確認してください",
         }
 
     def _get_recommendation(self, failure_type: str) -> str:
@@ -191,18 +196,14 @@ class FailureDiagnoser:
 class CacheOptimizer:
     """
     キャッシュ最適化.
-    
+
     キャッシュのヒット率と効率を監視。
     """
 
     def __init__(self, cache_dir: Path | None = None):
         self.cache_dir = cache_dir or Path("artifacts/cache")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
-        self.stats = {
-            "hits": 0,
-            "misses": 0,
-            "size_bytes": 0
-        }
+        self.stats = {"hits": 0, "misses": 0, "size_bytes": 0}
 
     def record_hit(self) -> None:
         """キャッシュヒットを記録."""
@@ -219,10 +220,7 @@ class CacheOptimizer:
 
     def get_stats(self) -> dict[str, Any]:
         """統計を取得."""
-        return {
-            **self.stats,
-            "hit_rate": self.get_hit_rate()
-        }
+        return {**self.stats, "hit_rate": self.get_hit_rate()}
 
     def optimize(self) -> dict[str, Any]:
         """キャッシュを最適化."""
@@ -251,7 +249,7 @@ class CacheOptimizer:
             "total_size_mb": total_size / (1024 * 1024),
             "file_count": file_count,
             "cleared": cleared,
-            "hit_rate": self.get_hit_rate()
+            "hit_rate": self.get_hit_rate(),
         }
 
 

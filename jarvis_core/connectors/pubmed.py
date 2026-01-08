@@ -22,7 +22,7 @@ from xml.etree import ElementTree as ET
 class PaperDoc:
     """
     論文ドキュメント（正規化済み）.
-    
+
     Attributes:
         pmid: PubMed ID
         pmcid: PMC ID（OAの場合）
@@ -34,6 +34,7 @@ class PaperDoc:
         chunks: チャンク辞書（chunk_id -> text）
         char_spans: チャンクのspan情報（chunk_id -> (start, end)）
     """
+
     pmid: str
     title: str
     abstract: str = ""
@@ -53,6 +54,7 @@ class PaperDoc:
     def to_paper(self):
         """jarvis_core.contracts.types.Paper に変換."""
         from jarvis_core.contracts.types import Paper
+
         return Paper(
             doc_id=f"pmid:{self.pmid}",
             title=self.title,
@@ -63,7 +65,7 @@ class PaperDoc:
             doi=self.doi,
             pmid=self.pmid,
             sections=self.sections,
-            chunks=self.chunks
+            chunks=self.chunks,
         )
 
     def generate_chunks(self, chunk_size: int = 500) -> None:
@@ -81,7 +83,7 @@ class PaperDoc:
         if self.abstract:
             for i in range(0, len(self.abstract), chunk_size):
                 cid = f"chunk_{chunk_id}"
-                text = self.abstract[i:i+chunk_size]
+                text = self.abstract[i : i + chunk_size]
                 self.chunks[cid] = text
                 self.char_spans[cid] = (i, i + len(text))
                 chunk_id += 1
@@ -90,7 +92,7 @@ class PaperDoc:
         for section_name, section_text in self.sections.items():
             for i in range(0, len(section_text), chunk_size):
                 cid = f"chunk_{chunk_id}"
-                text = section_text[i:i+chunk_size]
+                text = section_text[i : i + chunk_size]
                 self.chunks[cid] = text
                 self.char_spans[cid] = (i, i + len(text))
                 chunk_id += 1
@@ -99,7 +101,7 @@ class PaperDoc:
 class PubMedConnector:
     """
     PubMed E-utilities Connector.
-    
+
     実APIを使用してPubMed検索・詳細取得を実行。
     """
 
@@ -108,7 +110,7 @@ class PubMedConnector:
     def __init__(self, api_key: str | None = None, email: str | None = None):
         """
         初期化.
-        
+
         Args:
             api_key: NCBI API key（レート制限緩和用）
             email: E-utilities利用規約に基づくメールアドレス
@@ -129,27 +131,22 @@ class PubMedConnector:
         """HTTP GETリクエスト."""
         self._rate_limit()
 
-        req = urllib.request.Request(url, headers={
-            "User-Agent": "JARVIS-ResearchOS/1.0"
-        })
+        req = urllib.request.Request(url, headers={"User-Agent": "JARVIS-ResearchOS/1.0"})
 
         with urllib.request.urlopen(req, timeout=timeout) as response:
             return response.read()
 
     def search(
-        self,
-        query: str,
-        retmax: int = 20,
-        filters: dict[str, str] | None = None
+        self, query: str, retmax: int = 20, filters: dict[str, str] | None = None
     ) -> list[str]:
         """
         PubMed検索.
-        
+
         Args:
             query: 検索クエリ
             retmax: 最大取得件数
             filters: 追加フィルタ（例: {"datetype": "pdat", "mindate": "2020"}）
-        
+
         Returns:
             PMIDリスト
         """
@@ -159,7 +156,7 @@ class PubMedConnector:
             "retmax": retmax,
             "retmode": "json",
             "sort": "relevance",
-            "email": self.email
+            "email": self.email,
         }
 
         if self.api_key:
@@ -181,10 +178,10 @@ class PubMedConnector:
     def fetch_details(self, pmids: list[str]) -> list[PaperDoc]:
         """
         論文詳細を取得.
-        
+
         Args:
             pmids: PMIDリスト
-        
+
         Returns:
             PaperDocリスト
         """
@@ -197,7 +194,7 @@ class PubMedConnector:
             "id": ",".join(pmids),
             "retmode": "xml",
             "rettype": "abstract",
-            "email": self.email
+            "email": self.email,
         }
 
         if self.api_key:
@@ -304,7 +301,7 @@ class PubMedConnector:
             journal=journal,
             pub_date=pub_date,
             identifiers={"pmid": pmid, "doi": doi or "", "pmcid": pmcid or ""},
-            is_oa=pmcid is not None
+            is_oa=pmcid is not None,
         )
 
         # チャンク生成
@@ -313,19 +310,16 @@ class PubMedConnector:
         return paper
 
     def search_and_fetch(
-        self,
-        query: str,
-        max_results: int = 20,
-        filters: dict[str, str] | None = None
+        self, query: str, max_results: int = 20, filters: dict[str, str] | None = None
     ) -> list[PaperDoc]:
         """
         検索と詳細取得を一括実行.
-        
+
         Args:
             query: 検索クエリ
             max_results: 最大取得件数
             filters: 追加フィルタ
-        
+
         Returns:
             PaperDocリスト
         """
@@ -346,9 +340,7 @@ def get_pubmed_connector() -> PubMedConnector:
 
 
 def search_pubmed(
-    query: str,
-    max_results: int = 20,
-    filters: dict[str, str] | None = None
+    query: str, max_results: int = 20, filters: dict[str, str] | None = None
 ) -> list[str]:
     """PubMed検索（便利関数）."""
     return get_pubmed_connector().search(query, max_results, filters)

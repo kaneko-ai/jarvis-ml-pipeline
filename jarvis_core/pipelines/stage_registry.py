@@ -16,13 +16,14 @@ from jarvis_core.contracts.types import Artifacts, TaskContext
 
 class StageNotImplementedError(Exception):
     """未登録ステージエラー。CIでは捕捉せず落とす。"""
+
     pass
 
 
 class StageRegistry:
     """
     Stage Registry - ステージ名→実行可能オブジェクトを一元管理。
-    
+
     - 手動登録禁止（import時に自動登録）
     - 未登録ステージを検出したら即例外
     """
@@ -36,12 +37,12 @@ class StageRegistry:
             cls._instance._metadata: dict[str, dict[str, Any]] = {}
         return cls._instance
 
-    def register(self, name: str, handler: Callable,
-                 description: str = "",
-                 requires_provenance: bool = True) -> None:
+    def register(
+        self, name: str, handler: Callable, description: str = "", requires_provenance: bool = True
+    ) -> None:
         """
         ステージを登録。
-        
+
         Args:
             name: ステージ名（例: "retrieval.query_expand"）
             handler: 実行可能オブジェクト
@@ -54,19 +55,19 @@ class StageRegistry:
         self._handlers[name] = handler
         self._metadata[name] = {
             "description": description,
-            "requires_provenance": requires_provenance
+            "requires_provenance": requires_provenance,
         }
 
     def get(self, name: str) -> Callable:
         """
         ステージハンドラを取得。
-        
+
         Args:
             name: ステージ名
-        
+
         Returns:
             実行可能オブジェクト
-        
+
         Raises:
             StageNotImplementedError: 未登録の場合
         """
@@ -80,10 +81,10 @@ class StageRegistry:
     def validate_pipeline(self, stage_names: list[str]) -> None:
         """
         パイプラインの全ステージが登録済みか検証。
-        
+
         Args:
             stage_names: ステージ名リスト
-        
+
         Raises:
             StageNotImplementedError: 未登録ステージが1つでもあれば
         """
@@ -125,24 +126,24 @@ def get_stage_registry() -> StageRegistry:
     return _registry
 
 
-def register_stage(name: str, description: str = "",
-                   requires_provenance: bool = True) -> Callable:
+def register_stage(name: str, description: str = "", requires_provenance: bool = True) -> Callable:
     """
     ステージ登録デコレータ。
-    
+
     使用例:
         @register_stage("retrieval.query_expand")
         def stage_query_expand(context, artifacts):
             ...
-    
+
     Args:
         name: ステージ名
         description: 説明
         requires_provenance: provenance更新必須フラグ
-    
+
     Returns:
         デコレータ
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(context: TaskContext, artifacts: Artifacts) -> Artifacts:
@@ -157,7 +158,7 @@ def register_stage(name: str, description: str = "",
 def validate_all_stages(stage_names: list[str]) -> None:
     """
     全ステージの登録を検証（CI用）。
-    
+
     Raises:
         StageNotImplementedError: 未登録ステージがあれば
     """

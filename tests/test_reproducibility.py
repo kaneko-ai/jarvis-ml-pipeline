@@ -3,6 +3,7 @@
 同一入力 → 同一構造 を検証
 - タイムスタンプ、run_id 以外は同一であること
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -27,7 +28,7 @@ def get_structure_keys(data: Any, prefix: str = "") -> set[str]:
 
 def normalize_for_diff(data: dict[str, Any]) -> dict[str, Any]:
     """再現性比較のためにデータを正規化.
-    
+
     除外するフィールド:
     - timestamp (変動)
     - run_id (変動)
@@ -36,11 +37,7 @@ def normalize_for_diff(data: dict[str, Any]) -> dict[str, Any]:
 
     def _normalize(obj: Any) -> Any:
         if isinstance(obj, dict):
-            return {
-                k: _normalize(v)
-                for k, v in obj.items()
-                if k not in EXCLUDE_FIELDS
-            }
+            return {k: _normalize(v) for k, v in obj.items() if k not in EXCLUDE_FIELDS}
         elif isinstance(obj, list):
             return [_normalize(item) for item in obj]
         return obj

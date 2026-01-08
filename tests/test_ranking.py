@@ -20,11 +20,7 @@ class TestRankingItem:
 
     def test_create_item(self):
         """アイテムを作成できること."""
-        item = RankingItem(
-            item_id="item1",
-            item_type="paper",
-            features={"relevance": 0.9}
-        )
+        item = RankingItem(item_id="item1", item_type="paper", features={"relevance": 0.9})
         assert item.item_id == "item1"
         assert item.get_feature("relevance") == 0.9
 

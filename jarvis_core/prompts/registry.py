@@ -5,6 +5,7 @@ Per RP-28 and 100% Plan, provides versioned prompt management.
 - prompts_used.json記録
 - 用途別プロンプト資産化
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -43,6 +44,7 @@ class PromptEntry:
 @dataclass
 class PromptUsage:
     """Record of prompt usage in a run."""
+
     prompt_id: str
     version: str
     prompt_hash: str
@@ -76,11 +78,12 @@ class PromptRegistry:
         """Register default prompts for all categories."""
 
         # === Search Category ===
-        self.register(PromptEntry(
-            prompt_id="search_composer",
-            version="1.0",
-            category="search",
-            template="""You are a biomedical search expert. Generate an optimized PubMed search query.
+        self.register(
+            PromptEntry(
+                prompt_id="search_composer",
+                version="1.0",
+                category="search",
+                template="""You are a biomedical search expert. Generate an optimized PubMed search query.
 
 Query: {query}
 Domain: {domain}
@@ -101,15 +104,17 @@ Output JSON format:
   "filters": {{...}},
   "reasoning": "..."
 }}""",
-            description="Generate optimized PubMed search query with MeSH terms",
-        ))
+                description="Generate optimized PubMed search query with MeSH terms",
+            )
+        )
 
         # === Retrieve Category ===
-        self.register(PromptEntry(
-            prompt_id="paper_survey_retrieve",
-            version="1.0",
-            category="search",
-            template="""You are a research assistant. Based on the query, identify key entities and concepts.
+        self.register(
+            PromptEntry(
+                prompt_id="paper_survey_retrieve",
+                version="1.0",
+                category="search",
+                template="""You are a research assistant. Based on the query, identify key entities and concepts.
 
 Query: {query}
 
@@ -117,14 +122,16 @@ Extract:
 1. Main entities (genes, proteins, diseases)
 2. Key relationships
 3. Relevant search terms""",
-            description="Paper survey retrieval prompt",
-        ))
+                description="Paper survey retrieval prompt",
+            )
+        )
 
-        self.register(PromptEntry(
-            prompt_id="paper_selector",
-            version="1.0",
-            category="search",
-            template="""You are a paper selection expert for immuno-oncology research.
+        self.register(
+            PromptEntry(
+                prompt_id="paper_selector",
+                version="1.0",
+                category="search",
+                template="""You are a paper selection expert for immuno-oncology research.
 
 Query: {query}
 Paper candidates (title, abstract, year):
@@ -143,15 +150,17 @@ For each paper, output:
 - reason (brief)
 
 Output as JSON array.""",
-            description="Select most relevant papers for analysis",
-        ))
+                description="Select most relevant papers for analysis",
+            )
+        )
 
         # === Extract Category ===
-        self.register(PromptEntry(
-            prompt_id="claim_extractor",
-            version="1.0",
-            category="extract",
-            template="""You are extracting scientific claims from a paper.
+        self.register(
+            PromptEntry(
+                prompt_id="claim_extractor",
+                version="1.0",
+                category="extract",
+                template="""You are extracting scientific claims from a paper.
 
 Paper: {paper_title}
 Text: {text}
@@ -168,14 +177,16 @@ Rules:
 - Include methodology claims if relevant
 
 Output as JSON array of claims.""",
-            description="Extract structured claims from paper text",
-        ))
+                description="Extract structured claims from paper text",
+            )
+        )
 
-        self.register(PromptEntry(
-            prompt_id="evidence_extractor",
-            version="1.0",
-            category="extract",
-            template="""You are linking claims to evidence within a paper.
+        self.register(
+            PromptEntry(
+                prompt_id="evidence_extractor",
+                version="1.0",
+                category="extract",
+                template="""You are linking claims to evidence within a paper.
 
 Claim: {claim_text}
 Available text chunks:
@@ -202,15 +213,17 @@ Output JSON:
     }}
   ]
 }}""",
-            description="Link claims to supporting evidence with locators",
-        ))
+                description="Link claims to supporting evidence with locators",
+            )
+        )
 
         # === Rank Category ===
-        self.register(PromptEntry(
-            prompt_id="ranker",
-            version="1.0",
-            category="rank",
-            template="""You are ranking papers and claims by importance.
+        self.register(
+            PromptEntry(
+                prompt_id="ranker",
+                version="1.0",
+                category="rank",
+                template="""You are ranking papers and claims by importance.
 
 Query: {query}
 Items to rank:
@@ -229,15 +242,17 @@ For each item, provide:
 - factors: which criteria contributed
 
 Output as JSON array sorted by rank.""",
-            description="Rank papers/claims by configurable criteria",
-        ))
+                description="Rank papers/claims by configurable criteria",
+            )
+        )
 
         # === Summarize Category ===
-        self.register(PromptEntry(
-            prompt_id="summarizer_300",
-            version="1.0",
-            category="summarize",
-            template="""Create a 300-character Japanese summary.
+        self.register(
+            PromptEntry(
+                prompt_id="summarizer_300",
+                version="1.0",
+                category="summarize",
+                template="""Create a 300-character Japanese summary.
 
 Topic: {topic}
 Key claims with evidence:
@@ -250,14 +265,16 @@ Requirements:
 4. 不確実な点は「〜の可能性」で表現
 
 Output the summary only, no explanation.""",
-            description="Generate 300-char Japanese summary",
-        ))
+                description="Generate 300-char Japanese summary",
+            )
+        )
 
-        self.register(PromptEntry(
-            prompt_id="summarizer_detailed",
-            version="1.0",
-            category="summarize",
-            template="""Create a detailed Japanese summary with structure.
+        self.register(
+            PromptEntry(
+                prompt_id="summarizer_detailed",
+                version="1.0",
+                category="summarize",
+                template="""Create a detailed Japanese summary with structure.
 
 Topic: {topic}
 Claims with evidence:
@@ -274,14 +291,16 @@ Rules:
 - Each claim must cite paper_id
 - Distinguish facts from interpretations
 - List unknowns explicitly""",
-            description="Generate detailed structured summary",
-        ))
+                description="Generate detailed structured summary",
+            )
+        )
 
-        self.register(PromptEntry(
-            prompt_id="summarizer_notebooklm",
-            version="1.0",
-            category="summarize",
-            template="""Create a NotebookLM-style conversational script.
+        self.register(
+            PromptEntry(
+                prompt_id="summarizer_notebooklm",
+                version="1.0",
+                category="summarize",
+                template="""Create a NotebookLM-style conversational script.
 
 Topic: {topic}
 Claims with evidence:
@@ -299,15 +318,17 @@ Include:
 - 核心の解説
 - 意外な発見
 - 今後の研究への示唆""",
-            description="Generate NotebookLM conversational script",
-        ))
+                description="Generate NotebookLM conversational script",
+            )
+        )
 
         # === Verify Category ===
-        self.register(PromptEntry(
-            prompt_id="paper_survey_generate",
-            version="1.0",
-            category="verify",
-            template="""Based on the following evidence, generate a structured summary.
+        self.register(
+            PromptEntry(
+                prompt_id="paper_survey_generate",
+                version="1.0",
+                category="verify",
+                template="""Based on the following evidence, generate a structured summary.
 
 Evidence:
 {evidence}
@@ -318,14 +339,16 @@ Requirements:
 3. Note any gaps in evidence
 
 Output as a structured list of claims.""",
-            description="Paper survey generation prompt",
-        ))
+                description="Paper survey generation prompt",
+            )
+        )
 
-        self.register(PromptEntry(
-            prompt_id="claim_check",
-            version="1.0",
-            category="verify",
-            template="""Verify if the following claim is supported by the evidence.
+        self.register(
+            PromptEntry(
+                prompt_id="claim_check",
+                version="1.0",
+                category="verify",
+                template="""Verify if the following claim is supported by the evidence.
 
 Claim: {claim}
 
@@ -333,14 +356,16 @@ Evidence:
 {evidence}
 
 Output: SUPPORTS, NOT_ENOUGH, or REFUTES with brief reason.""",
-            description="Claim verification prompt",
-        ))
+                description="Claim verification prompt",
+            )
+        )
 
-        self.register(PromptEntry(
-            prompt_id="no_hallucination_check",
-            version="1.0",
-            category="verify",
-            template="""Check if the answer contains unsupported claims.
+        self.register(
+            PromptEntry(
+                prompt_id="no_hallucination_check",
+                version="1.0",
+                category="verify",
+                template="""Check if the answer contains unsupported claims.
 
 Answer: {answer}
 
@@ -357,8 +382,9 @@ Output JSON:
   "unsupported_claims": [...],
   "suggestions": [...]
 }}""",
-            description="Check for hallucinations in generated answers",
-        ))
+                description="Check for hallucinations in generated answers",
+            )
+        )
 
     def _load_templates(self, templates_dir: Path) -> None:
         """Load prompt templates from YAML files."""
@@ -373,13 +399,15 @@ Output JSON:
                     data = yaml.safe_load(f)
 
                 if isinstance(data, dict):
-                    self.register(PromptEntry(
-                        prompt_id=data.get("prompt_id", yaml_file.stem),
-                        version=data.get("version", "1.0"),
-                        template=data.get("template", ""),
-                        description=data.get("description", ""),
-                        category=data.get("category", "general"),
-                    ))
+                    self.register(
+                        PromptEntry(
+                            prompt_id=data.get("prompt_id", yaml_file.stem),
+                            version=data.get("version", "1.0"),
+                            template=data.get("template", ""),
+                            description=data.get("description", ""),
+                            category=data.get("category", "general"),
+                        )
+                    )
             except Exception:
                 pass
 
@@ -405,22 +433,20 @@ Output JSON:
         return self._prompts[matching[0]]
 
     def render(
-        self,
-        prompt_id: str,
-        version: str = "1.0",
-        record_usage: bool = True,
-        **kwargs
+        self, prompt_id: str, version: str = "1.0", record_usage: bool = True, **kwargs
     ) -> str:
         """Render a prompt with variables."""
         entry = self.get(prompt_id, version)
 
         if record_usage:
-            self._usage_log.append(PromptUsage(
-                prompt_id=prompt_id,
-                version=version,
-                prompt_hash=entry.prompt_hash,
-                timestamp=datetime.now(timezone.utc).isoformat(),
-            ))
+            self._usage_log.append(
+                PromptUsage(
+                    prompt_id=prompt_id,
+                    version=version,
+                    prompt_hash=entry.prompt_hash,
+                    timestamp=datetime.now(timezone.utc).isoformat(),
+                )
+            )
 
         return entry.template.format(**kwargs)
 
@@ -439,12 +465,7 @@ Output JSON:
     def save_usage_log(self, filepath: Path) -> None:
         """Save usage log to prompts_used.json."""
         with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(
-                [u.to_dict() for u in self._usage_log],
-                f,
-                indent=2,
-                ensure_ascii=False
-            )
+            json.dump([u.to_dict() for u in self._usage_log], f, indent=2, ensure_ascii=False)
 
     def clear_usage_log(self) -> None:
         """Clear usage log for new run."""
@@ -452,10 +473,7 @@ Output JSON:
 
     def export_catalog(self) -> dict[str, Any]:
         """Export all prompts as catalog."""
-        return {
-            key: entry.to_dict()
-            for key, entry in self._prompts.items()
-        }
+        return {key: entry.to_dict() for key, entry in self._prompts.items()}
 
 
 # Global registry
@@ -468,4 +486,3 @@ def get_registry() -> PromptRegistry:
     if _registry is None:
         _registry = PromptRegistry()
     return _registry
-

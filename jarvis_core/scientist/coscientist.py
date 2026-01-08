@@ -1,6 +1,7 @@
 """JARVIS AI Co-Scientist Module - Phase 1 Features (101-120)
 All features are FREE - no paid APIs required.
 """
+
 import random
 from collections import defaultdict
 from datetime import datetime
@@ -28,11 +29,11 @@ class HypothesisGenerator:
 
     def generate_hypotheses(self, topic: str, n: int = 5) -> list[dict]:
         """Generate hypotheses from knowledge base.
-        
+
         Args:
             topic: Research topic
             n: Number of hypotheses
-            
+
         Returns:
             List of hypothesis dicts with confidence scores
         """
@@ -44,15 +45,17 @@ class HypothesisGenerator:
             template = random.choice(self.HYPOTHESIS_TEMPLATES)
             hypothesis = self._fill_template(template, entities, topic)
 
-            hypotheses.append({
-                "id": f"H{i+1}",
-                "text": hypothesis,
-                "confidence": round(random.uniform(0.4, 0.9), 2),
-                "novelty_score": round(random.uniform(0.3, 0.95), 2),
-                "testability_score": round(random.uniform(0.5, 1.0), 2),
-                "supporting_papers": self._find_support(topic)[:3],
-                "generated_at": datetime.now().isoformat()
-            })
+            hypotheses.append(
+                {
+                    "id": f"H{i+1}",
+                    "text": hypothesis,
+                    "confidence": round(random.uniform(0.4, 0.9), 2),
+                    "novelty_score": round(random.uniform(0.3, 0.95), 2),
+                    "testability_score": round(random.uniform(0.5, 1.0), 2),
+                    "supporting_papers": self._find_support(topic)[:3],
+                    "generated_at": datetime.now().isoformat(),
+                }
+            )
 
         return sorted(hypotheses, key=lambda x: x["confidence"], reverse=True)
 
@@ -72,7 +75,7 @@ class HypothesisGenerator:
             "pathway": "signaling cascade",
             "var1": words[0] if words else "Variable 1",
             "var2": words[-1] if len(words) > 1 else "Variable 2",
-            "mediator": "intermediate factor"
+            "mediator": "intermediate factor",
         }
 
     def _fill_template(self, template: str, entities: dict, topic: str) -> str:
@@ -107,10 +110,10 @@ class ResearchQuestionDecomposer:
 
     def decompose(self, question: str) -> dict:
         """Decompose research question.
-        
+
         Args:
             question: Main research question
-            
+
         Returns:
             Decomposition with sub-questions
         """
@@ -121,27 +124,44 @@ class ResearchQuestionDecomposer:
         for pattern, subs in self.DECOMPOSITION_PATTERNS:
             if pattern in question_lower:
                 for i, sub in enumerate(subs):
-                    sub_questions.append({
-                        "id": f"SQ{i+1}",
-                        "question": f"{sub.capitalize()}: related to '{question[:50]}...'",
-                        "priority": len(subs) - i,
-                        "dependencies": [f"SQ{j+1}" for j in range(i)]
-                    })
+                    sub_questions.append(
+                        {
+                            "id": f"SQ{i+1}",
+                            "question": f"{sub.capitalize()}: related to '{question[:50]}...'",
+                            "priority": len(subs) - i,
+                            "dependencies": [f"SQ{j+1}" for j in range(i)],
+                        }
+                    )
                 break
 
         # Default decomposition
         if not sub_questions:
             sub_questions = [
-                {"id": "SQ1", "question": f"Background: What is known about {question[:30]}?", "priority": 3, "dependencies": []},
-                {"id": "SQ2", "question": f"Gap: What is unknown about {question[:30]}?", "priority": 2, "dependencies": ["SQ1"]},
-                {"id": "SQ3", "question": f"Approach: How to investigate {question[:30]}?", "priority": 1, "dependencies": ["SQ1", "SQ2"]}
+                {
+                    "id": "SQ1",
+                    "question": f"Background: What is known about {question[:30]}?",
+                    "priority": 3,
+                    "dependencies": [],
+                },
+                {
+                    "id": "SQ2",
+                    "question": f"Gap: What is unknown about {question[:30]}?",
+                    "priority": 2,
+                    "dependencies": ["SQ1"],
+                },
+                {
+                    "id": "SQ3",
+                    "question": f"Approach: How to investigate {question[:30]}?",
+                    "priority": 1,
+                    "dependencies": ["SQ1", "SQ2"],
+                },
             ]
 
         return {
             "main_question": question,
             "sub_questions": sub_questions,
             "total": len(sub_questions),
-            "estimated_time_months": len(sub_questions) * 6
+            "estimated_time_months": len(sub_questions) * 6,
         }
 
 
@@ -171,46 +191,54 @@ class LiteratureGapAnalyzer:
 
     def find_gaps(self, research_area: str) -> list[dict]:
         """Find research gaps.
-        
+
         Args:
             research_area: Area to analyze
-            
+
         Returns:
             List of identified gaps
         """
         area_lower = research_area.lower()
 
         # Analyze coverage
-        related_topics = [k for k in self.topics_covered.keys() if area_lower in k or k in area_lower]
+        related_topics = [
+            k for k in self.topics_covered.keys() if area_lower in k or k in area_lower
+        ]
 
         gaps = []
 
         # Gap 1: Under-studied topics
-        gaps.append({
-            "type": "under_studied",
-            "description": f"Limited research on specific aspects of {research_area}",
-            "severity": "high",
-            "opportunity_score": 0.85,
-            "suggested_approach": "Systematic investigation with novel methods"
-        })
+        gaps.append(
+            {
+                "type": "under_studied",
+                "description": f"Limited research on specific aspects of {research_area}",
+                "severity": "high",
+                "opportunity_score": 0.85,
+                "suggested_approach": "Systematic investigation with novel methods",
+            }
+        )
 
         # Gap 2: Methodological
-        gaps.append({
-            "type": "methodological",
-            "description": f"Need for improved experimental approaches in {research_area}",
-            "severity": "medium",
-            "opportunity_score": 0.72,
-            "suggested_approach": "Develop and validate new techniques"
-        })
+        gaps.append(
+            {
+                "type": "methodological",
+                "description": f"Need for improved experimental approaches in {research_area}",
+                "severity": "medium",
+                "opportunity_score": 0.72,
+                "suggested_approach": "Develop and validate new techniques",
+            }
+        )
 
         # Gap 3: Translation
-        gaps.append({
-            "type": "translational",
-            "description": f"Gap between basic research and clinical application in {research_area}",
-            "severity": "high",
-            "opportunity_score": 0.90,
-            "suggested_approach": "Focus on clinically relevant models"
-        })
+        gaps.append(
+            {
+                "type": "translational",
+                "description": f"Gap between basic research and clinical application in {research_area}",
+                "severity": "high",
+                "opportunity_score": 0.90,
+                "suggested_approach": "Focus on clinically relevant models",
+            }
+        )
 
         return gaps
 
@@ -221,7 +249,7 @@ class LiteratureGapAnalyzer:
             "hot_topics": sorted_topics[:5],
             "emerging_topics": sorted_topics[10:15],
             "cold_spots": sorted_topics[-5:],
-            "total_papers": len(self.papers)
+            "total_papers": len(self.papers),
         }
 
 
@@ -235,11 +263,11 @@ class ExperimentDesignerPro:
 
     def design_experiment(self, hypothesis: str, variables: dict = None) -> dict:
         """Design complete experiment.
-        
+
         Args:
             hypothesis: Research hypothesis
             variables: Expected variables
-            
+
         Returns:
             Complete experiment design
         """
@@ -261,26 +289,26 @@ class ExperimentDesignerPro:
             "design": {
                 "groups": [
                     {"name": "Control", "n": n_per_group},
-                    {"name": "Treatment", "n": n_per_group}
+                    {"name": "Treatment", "n": n_per_group},
                 ],
                 "total_n": n_per_group * 2,
                 "randomization": "block_randomization",
-                "blinding": "double_blind"
+                "blinding": "double_blind",
             },
             "power_analysis": {
                 "effect_size": effect_size,
                 "alpha": alpha,
                 "power": power,
-                "sample_size_per_group": n_per_group
+                "sample_size_per_group": n_per_group,
             },
             "primary_outcome": "Main effect measure",
             "secondary_outcomes": ["Safety metrics", "Quality of life"],
             "statistical_analysis": {
                 "primary": "t_test" if effect_size > 0.3 else "anova",
-                "adjustments": ["bonferroni", "fdr"]
+                "adjustments": ["bonferroni", "fdr"],
             },
             "timeline": self._generate_timeline(n_per_group),
-            "budget_estimate": self._estimate_budget(n_per_group)
+            "budget_estimate": self._estimate_budget(n_per_group),
         }
 
     def _generate_timeline(self, n: int) -> dict:
@@ -290,7 +318,7 @@ class ExperimentDesignerPro:
             "intervention": "3 months",
             "follow_up": "6 months",
             "analysis": "2 months",
-            "total": f"{n // 10 + 12} months"
+            "total": f"{n // 10 + 12} months",
         }
 
     def _estimate_budget(self, n: int) -> dict:
@@ -301,7 +329,7 @@ class ExperimentDesignerPro:
             "supplies": n * per_subject * 0.3,
             "equipment": n * per_subject * 0.2,
             "other": n * per_subject * 0.1,
-            "total": n * per_subject
+            "total": n * per_subject,
         }
 
 
@@ -313,11 +341,11 @@ class HypothesisDebateSystem:
 
     def debate(self, hypothesis: str, rounds: int = 3) -> dict:
         """Run debate on hypothesis.
-        
+
         Args:
             hypothesis: Hypothesis to debate
             rounds: Number of debate rounds
-            
+
         Returns:
             Debate transcript and verdict
         """
@@ -326,15 +354,15 @@ class HypothesisDebateSystem:
         for i in range(rounds):
             # Pro arguments
             pro_arg = self._generate_pro_argument(hypothesis, i)
-            debate_log.append({"round": i+1, "agent": "Pro", "argument": pro_arg})
+            debate_log.append({"round": i + 1, "agent": "Pro", "argument": pro_arg})
 
             # Con arguments
             con_arg = self._generate_con_argument(hypothesis, i)
-            debate_log.append({"round": i+1, "agent": "Con", "argument": con_arg})
+            debate_log.append({"round": i + 1, "agent": "Con", "argument": con_arg})
 
             # Moderator synthesis
             mod_summary = self._moderate(pro_arg, con_arg)
-            debate_log.append({"round": i+1, "agent": "Moderator", "argument": mod_summary})
+            debate_log.append({"round": i + 1, "agent": "Moderator", "argument": mod_summary})
 
         # Final verdict
         verdict = self._render_verdict(debate_log)
@@ -344,7 +372,7 @@ class HypothesisDebateSystem:
             "debate_log": debate_log,
             "verdict": verdict,
             "confidence": verdict["score"],
-            "recommendation": "test" if verdict["score"] > 0.6 else "revise"
+            "recommendation": "test" if verdict["score"] > 0.6 else "revise",
         }
 
     def _generate_pro_argument(self, hypothesis: str, round_num: int) -> str:
@@ -352,7 +380,7 @@ class HypothesisDebateSystem:
         pro_templates = [
             "The hypothesis is supported by existing literature on related mechanisms.",
             "Multiple studies have shown similar patterns, suggesting validity.",
-            "The proposed mechanism aligns with established biological principles."
+            "The proposed mechanism aligns with established biological principles.",
         ]
         return pro_templates[round_num % len(pro_templates)]
 
@@ -361,7 +389,7 @@ class HypothesisDebateSystem:
         con_templates = [
             "Alternative explanations have not been adequately ruled out.",
             "The sample sizes in supporting studies may be insufficient.",
-            "Confounding factors could explain the observed relationships."
+            "Confounding factors could explain the observed relationships.",
         ]
         return con_templates[round_num % len(con_templates)]
 
@@ -375,7 +403,7 @@ class HypothesisDebateSystem:
             "score": 0.72,
             "strength": "moderate",
             "key_concerns": ["Alternative explanations", "Sample size"],
-            "key_support": ["Literature consistency", "Biological plausibility"]
+            "key_support": ["Literature consistency", "Biological plausibility"],
         }
 
 
@@ -383,18 +411,21 @@ class HypothesisDebateSystem:
 # 106-120: Additional AI Co-Scientist Features
 # ============================================
 
+
 class ResearchRoadmapGenerator:
     """Generate multi-year research roadmaps."""
 
     def generate(self, goal: str, years: int = 5) -> dict:
         milestones = []
         for year in range(1, years + 1):
-            milestones.append({
-                "year": year,
-                "objectives": [f"Year {year} Objective 1", f"Year {year} Objective 2"],
-                "deliverables": [f"Publication {year}", f"Data release {year}"],
-                "dependencies": [f"Year {year-1} completion"] if year > 1 else []
-            })
+            milestones.append(
+                {
+                    "year": year,
+                    "objectives": [f"Year {year} Objective 1", f"Year {year} Objective 2"],
+                    "deliverables": [f"Publication {year}", f"Data release {year}"],
+                    "dependencies": [f"Year {year-1} completion"] if year > 1 else [],
+                }
+            )
         return {"goal": goal, "duration_years": years, "milestones": milestones}
 
 
@@ -406,9 +437,24 @@ class FundingOpportunityMatcher:
     def match(self, project: dict) -> list[dict]:
         keywords = project.get("keywords", ["research"])
         return [
-            {"source": "NIH Reporter", "match_score": 0.85, "deadline": "Rolling", "url": "https://reporter.nih.gov"},
-            {"source": "NSF", "match_score": 0.78, "deadline": "Varies", "url": "https://www.nsf.gov"},
-            {"source": "Preprints.org", "match_score": 0.72, "deadline": "None", "url": "https://www.preprints.org"}
+            {
+                "source": "NIH Reporter",
+                "match_score": 0.85,
+                "deadline": "Rolling",
+                "url": "https://reporter.nih.gov",
+            },
+            {
+                "source": "NSF",
+                "match_score": 0.78,
+                "deadline": "Varies",
+                "url": "https://www.nsf.gov",
+            },
+            {
+                "source": "Preprints.org",
+                "match_score": 0.72,
+                "deadline": "None",
+                "url": "https://www.preprints.org",
+            },
         ]
 
 
@@ -420,9 +466,9 @@ class CollaboratorNetworkBuilder:
             "center": author_name,
             "collaborators": [
                 {"name": "Collaborator 1", "papers_together": 5, "institutions": ["University A"]},
-                {"name": "Collaborator 2", "papers_together": 3, "institutions": ["Institute B"]}
+                {"name": "Collaborator 2", "papers_together": 3, "institutions": ["Institute B"]},
             ],
-            "potential": ["Suggested Collaborator based on topic overlap"]
+            "potential": ["Suggested Collaborator based on topic overlap"],
         }
 
 
@@ -440,7 +486,7 @@ class ResearchImpactPredictor:
             "predicted_citations_1y": int(score * 20),
             "predicted_citations_5y": int(score * 100),
             "impact_category": "high" if score > 0.7 else "medium" if score > 0.4 else "low",
-            "confidence": round(score, 2)
+            "confidence": round(score, 2),
         }
 
 
@@ -462,7 +508,7 @@ class NoveltyScoreCalculator:
         return {
             "novelty_score": round(novelty, 2),
             "new_concepts": list(idea_concepts - self.seen_concepts)[:5],
-            "existing_concepts": list(idea_concepts & self.seen_concepts)[:5]
+            "existing_concepts": list(idea_concepts & self.seen_concepts)[:5],
         }
 
 
@@ -470,12 +516,7 @@ class FeasibilityAnalyzer:
     """Analyze research feasibility."""
 
     def analyze(self, project: dict) -> dict:
-        factors = {
-            "technical": 0.75,
-            "resource": 0.68,
-            "timeline": 0.82,
-            "expertise": 0.70
-        }
+        factors = {"technical": 0.75, "resource": 0.68, "timeline": 0.82, "expertise": 0.70}
 
         overall = sum(factors.values()) / len(factors)
 
@@ -483,7 +524,7 @@ class FeasibilityAnalyzer:
             "overall_score": round(overall, 2),
             "factors": factors,
             "risks": ["Resource constraints", "Technical complexity"],
-            "mitigations": ["Seek collaboration", "Phase implementation"]
+            "mitigations": ["Seek collaboration", "Phase implementation"],
         }
 
 
@@ -505,7 +546,7 @@ class EthicsChecker:
             "requires_iacuc": "animal" in desc_lower,
             "privacy_considerations": "genetic" in desc_lower or "privacy" in desc_lower,
             "concerns": concerns,
-            "recommendation": "Consult ethics board" if concerns else "Standard review"
+            "recommendation": "Consult ethics board" if concerns else "Standard review",
         }
 
 
@@ -557,17 +598,15 @@ class TimelineOptimizer:
         for task in sorted(tasks, key=lambda x: x.get("priority", 0), reverse=True):
             duration = task.get("duration_months", 3)
             if current_month + duration <= max_duration:
-                scheduled.append({
-                    **task,
-                    "start_month": current_month,
-                    "end_month": current_month + duration
-                })
+                scheduled.append(
+                    {**task, "start_month": current_month, "end_month": current_month + duration}
+                )
                 current_month += duration
 
         return {
             "scheduled_tasks": scheduled,
             "total_duration": current_month,
-            "within_constraint": current_month <= max_duration
+            "within_constraint": current_month <= max_duration,
         }
 
 
@@ -580,8 +619,12 @@ class LabResourceAllocator:
         for exp in experiments:
             allocation = {
                 "experiment": exp.get("name"),
-                "equipment_hours": min(exp.get("equipment_needed", 10), resources.get("equipment_hours", 100)),
-                "personnel_hours": min(exp.get("personnel_needed", 20), resources.get("personnel_hours", 200))
+                "equipment_hours": min(
+                    exp.get("equipment_needed", 10), resources.get("equipment_hours", 100)
+                ),
+                "personnel_hours": min(
+                    exp.get("personnel_needed", 20), resources.get("personnel_hours", 200)
+                ),
             }
             allocations.append(allocation)
 
@@ -591,7 +634,13 @@ class LabResourceAllocator:
 class ReproducibilityScorer:
     """Score research reproducibility."""
 
-    CRITERIA = ["data_available", "code_available", "protocol_detailed", "reagents_described", "statistics_complete"]
+    CRITERIA = [
+        "data_available",
+        "code_available",
+        "protocol_detailed",
+        "reagents_described",
+        "statistics_complete",
+    ]
 
     def score(self, paper: dict) -> dict:
         scores = {}
@@ -604,7 +653,7 @@ class ReproducibilityScorer:
         return {
             "overall_score": round(total, 2),
             "criteria_scores": scores,
-            "recommendations": [c.replace("_", " ").title() for c, s in scores.items() if s == 0]
+            "recommendations": [c.replace("_", " ").title() for c, s in scores.items() if s == 0],
         }
 
 
@@ -647,9 +696,9 @@ class NegativeResultPublisher:
                 "methods": result.get("methods", "Methodology used"),
                 "results": "No significant effect was observed",
                 "implications": "Why this null result matters",
-                "data_availability": "Data and materials available at [repository]"
+                "data_availability": "Data and materials available at [repository]",
             },
-            "target_journals": ["PLOS ONE", "F1000Research", "Journal of Negative Results"]
+            "target_journals": ["PLOS ONE", "F1000Research", "Journal of Negative Results"],
         }
 
 
@@ -660,11 +709,23 @@ class ResearchPivotAdvisor:
         return {
             "continue_current": {"recommendation": "Proceed with modifications", "confidence": 0.6},
             "pivot_options": [
-                {"direction": "Focus on secondary findings", "effort": "low", "potential": "medium"},
-                {"direction": "Apply method to new domain", "effort": "medium", "potential": "high"},
-                {"direction": "Collaborate for complementary data", "effort": "medium", "potential": "high"}
+                {
+                    "direction": "Focus on secondary findings",
+                    "effort": "low",
+                    "potential": "medium",
+                },
+                {
+                    "direction": "Apply method to new domain",
+                    "effort": "medium",
+                    "potential": "high",
+                },
+                {
+                    "direction": "Collaborate for complementary data",
+                    "effort": "medium",
+                    "potential": "high",
+                },
             ],
-            "abandon_threshold": "If no progress in 6 months"
+            "abandon_threshold": "If no progress in 6 months",
         }
 
 
@@ -680,11 +741,13 @@ class MentorMatcher:
             overlap = len(mentee_interests & mentor_expertise)
 
             if overlap > 0:
-                matches.append({
-                    "mentor": mentor.get("name"),
-                    "match_score": min(overlap / max(len(mentee_interests), 1), 1.0),
-                    "shared_interests": list(mentee_interests & mentor_expertise)
-                })
+                matches.append(
+                    {
+                        "mentor": mentor.get("name"),
+                        "match_score": min(overlap / max(len(mentee_interests), 1), 1.0),
+                        "shared_interests": list(mentee_interests & mentor_expertise),
+                    }
+                )
 
         return sorted(matches, key=lambda x: x["match_score"], reverse=True)[:5]
 
@@ -695,14 +758,18 @@ class MentorMatcher:
 def get_hypothesis_generator() -> HypothesisGenerator:
     return HypothesisGenerator()
 
+
 def get_question_decomposer() -> ResearchQuestionDecomposer:
     return ResearchQuestionDecomposer()
+
 
 def get_gap_analyzer() -> LiteratureGapAnalyzer:
     return LiteratureGapAnalyzer()
 
+
 def get_experiment_designer() -> ExperimentDesignerPro:
     return ExperimentDesignerPro()
+
 
 def get_debate_system() -> HypothesisDebateSystem:
     return HypothesisDebateSystem()

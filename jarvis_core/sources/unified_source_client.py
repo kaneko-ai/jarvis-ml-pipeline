@@ -3,6 +3,7 @@
 Per JARVIS_LOCALFIRST_ROADMAP Task 1.4: 無料API統合
 Provides a unified interface across all academic literature sources.
 """
+
 from __future__ import annotations
 
 import logging
@@ -19,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 class SourceType(Enum):
     """Academic literature source types."""
+
     PUBMED = "pubmed"
     SEMANTIC_SCHOLAR = "semantic_scholar"
     OPENALEX = "openalex"
@@ -29,6 +31,7 @@ class SourceType(Enum):
 @dataclass
 class UnifiedPaper:
     """Unified paper representation across all sources."""
+
     id: str
     source: SourceType
     title: str
@@ -123,7 +126,7 @@ class UnifiedPaper:
 
 class UnifiedSourceClient:
     """Unified client for all academic literature sources.
-    
+
     Provides:
     - Consistent interface across sources
     - Automatic fallback between sources
@@ -156,13 +159,13 @@ class UnifiedSourceClient:
         deduplicate: bool = True,
     ) -> list[UnifiedPaper]:
         """Search across multiple sources.
-        
+
         Args:
             query: Search query.
             max_results: Max results per source.
             sources: Sources to search (default: all).
             deduplicate: Remove duplicates by DOI.
-            
+
         Returns:
             List of UnifiedPaper objects.
         """
@@ -200,7 +203,7 @@ class UnifiedSourceClient:
 
     def get_by_doi(self, doi: str) -> UnifiedPaper | None:
         """Get paper by DOI.
-        
+
         Tries multiple sources with fallback.
         """
         # Try OpenAlex first (fastest)
@@ -237,7 +240,7 @@ class UnifiedSourceClient:
         max_results: int = 50,
     ) -> list[UnifiedPaper]:
         """Get papers that cite this paper.
-        
+
         Uses the best available source based on paper metadata.
         """
         # Try to use DOI with Semantic Scholar or OpenAlex

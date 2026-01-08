@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class GoldsetCase:
     """Goldsetテストケース."""
+
     case_id: str
     query: str
     expected_papers: list[str]  # paper_ids
@@ -45,6 +46,7 @@ class GoldsetCase:
 @dataclass
 class RegressionResult:
     """回帰テスト結果."""
+
     case_id: str
     passed: bool
     actual_papers: int
@@ -80,7 +82,7 @@ class GoldsetRegression:
             logger.warning(f"Goldset not found: {self.goldset_path}")
             return
 
-        with open(self.goldset_path, encoding='utf-8') as f:
+        with open(self.goldset_path, encoding="utf-8") as f:
             for line in f:
                 if line.strip():
                     data = json.loads(line)
@@ -185,7 +187,9 @@ class GoldsetRegression:
 
         for r in results:
             status = "✅" if r.passed else "❌"
-            lines.append(f"| {r.case_id[:15]} | {r.actual_papers} | {r.actual_claims} | {r.actual_evidence} | {r.actual_score:.2f} | {status} |")
+            lines.append(
+                f"| {r.case_id[:15]} | {r.actual_papers} | {r.actual_claims} | {r.actual_evidence} | {r.actual_score:.2f} | {status} |"
+            )
 
         return "\n".join(lines)
 
@@ -193,6 +197,7 @@ class GoldsetRegression:
 # ============================================================
 # Pytest Integration
 # ============================================================
+
 
 def test_goldset_regression():
     """Goldset回帰テスト."""

@@ -1,4 +1,5 @@
 """Index admin endpoints for retrieval v2."""
+
 from __future__ import annotations
 
 import json
@@ -75,7 +76,9 @@ async def index_status():
 
 
 @router.post("/api/index/v2/update")
-async def index_update(body: Dict[str, Any] = Body(default={}), auth: bool = Depends(verify_admin_token)):
+async def index_update(
+    body: Dict[str, Any] = Body(default={}), auth: bool = Depends(verify_admin_token)
+):
     try:
         indexer = RetrievalIndexer()
         manifest = indexer.update()
@@ -85,7 +88,9 @@ async def index_update(body: Dict[str, Any] = Body(default={}), auth: bool = Dep
 
 
 @router.post("/api/index/v2/rebuild")
-async def index_rebuild(body: Dict[str, Any] = Body(default={}), auth: bool = Depends(verify_admin_token)):
+async def index_rebuild(
+    body: Dict[str, Any] = Body(default={}), auth: bool = Depends(verify_admin_token)
+):
     thread = threading.Thread(target=_rebuild_job, daemon=True)
     thread.start()
     return JSONResponse({"status": "queued"}, status_code=202)

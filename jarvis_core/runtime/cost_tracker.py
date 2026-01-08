@@ -3,6 +3,7 @@
 Tracks and reports inference costs, tokens, API calls, and execution time
 for each stage in a pipeline run.
 """
+
 import json
 import logging
 import time
@@ -26,10 +27,10 @@ class CostTracker:
         api_calls: int = 0,
         tokens: dict[str, int] | None = None,
         retries: int = 0,
-        cache_hits: int = 0
+        cache_hits: int = 0,
     ):
         """Record cost information for a stage.
-        
+
         Args:
             stage_name: Name of the stage
             duration_ms: Duration in milliseconds
@@ -53,7 +54,7 @@ class CostTracker:
 
     def get_total_cost(self) -> dict[str, Any]:
         """Calculate total costs across all stages.
-        
+
         Returns:
             Dict with aggregated costs
         """
@@ -79,7 +80,7 @@ class CostTracker:
 
     def export(self, run_dir: Path):
         """Export cost report to JSON.
-        
+
         Args:
             run_dir: Path to run directory
         """
@@ -98,16 +99,13 @@ class CostTracker:
         return cost_report
 
 
-def check_budget_exceeded(
-    cost_report: dict[str, Any],
-    budget_tokens: int | None = None
-) -> bool:
+def check_budget_exceeded(cost_report: dict[str, Any], budget_tokens: int | None = None) -> bool:
     """Check if budget was exceeded.
-    
+
     Args:
         cost_report: Cost report dict
         budget_tokens: Maximum allowed tokens
-        
+
     Returns:
         True if budget exceeded
     """

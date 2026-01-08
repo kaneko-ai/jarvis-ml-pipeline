@@ -1,4 +1,5 @@
 """Schedule engine for due computation."""
+
 from __future__ import annotations
 
 from datetime import datetime, time, timedelta, timezone
@@ -74,7 +75,13 @@ def next_run_at(schedule: dict[str, Any], now: datetime | None = None) -> str | 
         return None
     if freq == "MONTHLY":
         day = int(parts.get("BYMONTHDAY", 1))
-        candidate = localized.replace(day=day, hour=scheduled_time.hour, minute=scheduled_time.minute, second=scheduled_time.second, microsecond=0)
+        candidate = localized.replace(
+            day=day,
+            hour=scheduled_time.hour,
+            minute=scheduled_time.minute,
+            second=scheduled_time.second,
+            microsecond=0,
+        )
         if candidate <= localized:
             month = candidate.month + 1
             year = candidate.year + (1 if month > 12 else 0)
@@ -121,7 +128,13 @@ def is_due(schedule: dict[str, Any], now: datetime, last_run_at: str | None) -> 
                 break
     elif freq == "MONTHLY":
         day = int(parts.get("BYMONTHDAY", 1))
-        candidate = localized.replace(day=day, hour=scheduled_time.hour, minute=scheduled_time.minute, second=scheduled_time.second, microsecond=0)
+        candidate = localized.replace(
+            day=day,
+            hour=scheduled_time.hour,
+            minute=scheduled_time.minute,
+            second=scheduled_time.second,
+            microsecond=0,
+        )
         if candidate > localized:
             month = candidate.month - 1
             year = candidate.year - (1 if month < 1 else 0)
@@ -139,7 +152,9 @@ def is_due(schedule: dict[str, Any], now: datetime, last_run_at: str | None) -> 
     return True
 
 
-def due_schedules(schedules: list[dict[str, Any]], now: datetime | None = None) -> list[dict[str, Any]]:
+def due_schedules(
+    schedules: list[dict[str, Any]], now: datetime | None = None
+) -> list[dict[str, Any]]:
     now = now or datetime.now(timezone.utc)
     due: list[dict[str, Any]] = []
     for schedule in schedules:

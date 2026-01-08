@@ -2,6 +2,7 @@
 
 Per RP-418, implements role-based access control.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -77,7 +78,7 @@ DEFAULT_ROLES = {
 
 class RBAC:
     """Role-Based Access Control.
-    
+
     Per RP-418:
     - Role definitions
     - Resource permissions
@@ -96,13 +97,13 @@ class RBAC:
         description: str = "",
     ) -> Role:
         """Create a new role.
-        
+
         Args:
             role_id: Role identifier.
             name: Display name.
             permissions: List of permissions.
             description: Role description.
-            
+
         Returns:
             Created role.
         """
@@ -117,10 +118,10 @@ class RBAC:
 
     def get_role(self, role_id: str) -> Role | None:
         """Get a role by ID.
-        
+
         Args:
             role_id: Role identifier.
-            
+
         Returns:
             Role or None.
         """
@@ -133,12 +134,12 @@ class RBAC:
         roles: list[str],
     ) -> User:
         """Create a new user.
-        
+
         Args:
             user_id: User identifier.
             username: Username.
             roles: List of role IDs.
-            
+
         Returns:
             Created user.
         """
@@ -152,10 +153,10 @@ class RBAC:
 
     def get_user(self, user_id: str) -> User | None:
         """Get a user by ID.
-        
+
         Args:
             user_id: User identifier.
-            
+
         Returns:
             User or None.
         """
@@ -163,11 +164,11 @@ class RBAC:
 
     def assign_role(self, user_id: str, role_id: str) -> bool:
         """Assign a role to a user.
-        
+
         Args:
             user_id: User identifier.
             role_id: Role identifier.
-            
+
         Returns:
             True if assigned.
         """
@@ -183,11 +184,11 @@ class RBAC:
 
     def remove_role(self, user_id: str, role_id: str) -> bool:
         """Remove a role from a user.
-        
+
         Args:
             user_id: User identifier.
             role_id: Role identifier.
-            
+
         Returns:
             True if removed.
         """
@@ -201,10 +202,10 @@ class RBAC:
 
     def get_user_permissions(self, user_id: str) -> set[Permission]:
         """Get all permissions for a user.
-        
+
         Args:
             user_id: User identifier.
-            
+
         Returns:
             Set of permissions.
         """
@@ -226,11 +227,11 @@ class RBAC:
         permission: Permission,
     ) -> bool:
         """Check if user has permission.
-        
+
         Args:
             user_id: User identifier.
             permission: Permission to check.
-            
+
         Returns:
             True if permitted.
         """
@@ -243,15 +244,13 @@ class RBAC:
         permission: Permission,
     ) -> None:
         """Require permission or raise.
-        
+
         Args:
             user_id: User identifier.
             permission: Required permission.
-            
+
         Raises:
             PermissionError if not permitted.
         """
         if not self.check_permission(user_id, permission):
-            raise PermissionError(
-                f"User {user_id} lacks permission: {permission.value}"
-            )
+            raise PermissionError(f"User {user_id} lacks permission: {permission.value}")

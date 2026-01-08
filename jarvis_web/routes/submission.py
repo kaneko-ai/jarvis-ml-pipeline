@@ -100,7 +100,14 @@ def _version_key(version: str):
 
 
 def _email_path(run_id: str, version: str, recipient_type: str) -> Path:
-    return DATA_RUNS_DIR / run_id / SUBMISSION_DIRNAME / version / "email_drafts" / f"email_{recipient_type}.txt"
+    return (
+        DATA_RUNS_DIR
+        / run_id
+        / SUBMISSION_DIRNAME
+        / version
+        / "email_drafts"
+        / f"email_{recipient_type}.txt"
+    )
 
 
 def _changelog_path(run_id: str, version: str) -> Path:

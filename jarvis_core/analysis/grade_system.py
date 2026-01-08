@@ -3,6 +3,7 @@
 Per JARVIS_LOCALFIRST_ROADMAP Task 2.1: 証拠グレーディング
 Implements GRADE-style evidence assessment with rule-based and LLM classifiers.
 """
+
 from __future__ import annotations
 
 import logging
@@ -15,24 +16,27 @@ logger = logging.getLogger(__name__)
 
 class GRADELevel(Enum):
     """GRADE (Grading of Recommendations Assessment, Development and Evaluation) levels."""
-    HIGH = "high"         # Further research unlikely to change confidence
-    MODERATE = "moderate" # Further research likely to change confidence
-    LOW = "low"          # Further research very likely to change confidence
-    VERY_LOW = "very_low" # Very uncertain about the estimate
+
+    HIGH = "high"  # Further research unlikely to change confidence
+    MODERATE = "moderate"  # Further research likely to change confidence
+    LOW = "low"  # Further research very likely to change confidence
+    VERY_LOW = "very_low"  # Very uncertain about the estimate
 
 
 class StudyDesign(Enum):
     """Study design types for GRADE assessment."""
-    RCT = "rct"                    # Randomized controlled trial
+
+    RCT = "rct"  # Randomized controlled trial
     OBSERVATIONAL = "observational"  # Cohort, case-control
-    CASE_SERIES = "case_series"      # Case series/reports
-    EXPERT_OPINION = "expert_opinion" # Expert opinion, narrative
+    CASE_SERIES = "case_series"  # Case series/reports
+    EXPERT_OPINION = "expert_opinion"  # Expert opinion, narrative
     SYSTEMATIC_REVIEW = "systematic_review"  # Meta-analysis, SR
     UNKNOWN = "unknown"
 
 
 class BiasRisk(Enum):
     """Risk of bias levels."""
+
     LOW = "low"
     SOME_CONCERNS = "some_concerns"
     HIGH = "high"
@@ -41,6 +45,7 @@ class BiasRisk(Enum):
 @dataclass
 class GRADEAssessment:
     """Full GRADE assessment for a piece of evidence."""
+
     evidence_id: str
     claim_id: str
 
@@ -80,27 +85,38 @@ class GRADEAssessment:
 
 class RuleBasedGrader:
     """Rule-based evidence grader using GRADE methodology.
-    
+
     Implements heuristic-based grading without LLM.
     """
 
     # Keywords for study design detection
     STUDY_DESIGN_KEYWORDS = {
         StudyDesign.RCT: [
-            "randomized", "randomised", "rct", "controlled trial",
-            "double-blind", "placebo-controlled", "randomly assigned"
+            "randomized",
+            "randomised",
+            "rct",
+            "controlled trial",
+            "double-blind",
+            "placebo-controlled",
+            "randomly assigned",
         ],
         StudyDesign.SYSTEMATIC_REVIEW: [
-            "systematic review", "meta-analysis", "meta analysis",
-            "pooled analysis", "cochrane"
+            "systematic review",
+            "meta-analysis",
+            "meta analysis",
+            "pooled analysis",
+            "cochrane",
         ],
         StudyDesign.OBSERVATIONAL: [
-            "cohort", "case-control", "observational", "prospective",
-            "retrospective", "follow-up", "longitudinal"
+            "cohort",
+            "case-control",
+            "observational",
+            "prospective",
+            "retrospective",
+            "follow-up",
+            "longitudinal",
         ],
-        StudyDesign.CASE_SERIES: [
-            "case report", "case series", "case study", "single case"
-        ],
+        StudyDesign.CASE_SERIES: ["case report", "case series", "case study", "single case"],
     }
 
     # Keywords for bias risk detection
@@ -195,7 +211,7 @@ class RuleBasedGrader:
 
 class LLMGrader:
     """LLM-based evidence grader using local models.
-    
+
     Uses Ollama/llama.cpp for more nuanced evidence assessment.
     """
 
@@ -222,6 +238,7 @@ JSON Response:"""
         if self._router is None:
             try:
                 from jarvis_core.llm.model_router import get_router
+
                 self._router = get_router()
             except ImportError:
                 logger.warning("Model router not available")
@@ -290,12 +307,8 @@ JSON Response:"""
                     evidence_id=evidence_id,
                     claim_id=claim_id,
                     initial_level=GRADELevel.MODERATE,
-                    study_design=design_map.get(
-                        data.get("study_design", ""), StudyDesign.UNKNOWN
-                    ),
-                    final_level=grade_map.get(
-                        data.get("grade", ""), GRADELevel.MODERATE
-                    ),
+                    study_design=design_map.get(data.get("study_design", ""), StudyDesign.UNKNOWN),
+                    final_level=grade_map.get(data.get("grade", ""), GRADELevel.MODERATE),
                     confidence_score=float(data.get("confidence", 0.5)),
                     explanation=data.get("reasoning", ""),
                 )
@@ -307,7 +320,7 @@ JSON Response:"""
 
 class EnsembleGrader:
     """Ensemble evidence grader combining rule-based and LLM approaches.
-    
+
     Provides robust grading with fallback.
     """
 
@@ -334,16 +347,12 @@ class EnsembleGrader:
     ) -> GRADEAssessment:
         """Grade evidence using ensemble approach."""
         # Always run rule-based
-        rule_result = self.rule_grader.grade(
-            evidence_id, claim_id, evidence_text, metadata
-        )
+        rule_result = self.rule_grader.grade(evidence_id, claim_id, evidence_text, metadata)
 
         # Try LLM if available
         llm_result = None
         if self.use_llm and self.llm_grader:
-            llm_result = self.llm_grader.grade(
-                evidence_id, claim_id, claim_text, evidence_text
-            )
+            llm_result = self.llm_grader.grade(evidence_id, claim_id, claim_text, evidence_text)
 
         # Combine results
         if llm_result:
@@ -359,8 +368,7 @@ class EnsembleGrader:
         """Combine rule-based and LLM assessments."""
         # Weighted confidence
         combined_confidence = (
-            self.rule_weight * rule.confidence_score +
-            self.llm_weight * llm.confidence_score
+            self.rule_weight * rule.confidence_score + self.llm_weight * llm.confidence_score
         )
 
         # Use LLM level if confidence higher, else rule
@@ -418,12 +426,12 @@ def grade_evidence_with_grade(
     use_llm: bool = True,
 ) -> tuple[list[GRADEAssessment], dict[str, Any]]:
     """Grade evidence using GRADE methodology.
-    
+
     Args:
         evidence_list: List of evidence dictionaries.
         claims: List of claim dictionaries.
         use_llm: Whether to use LLM for grading.
-        
+
     Returns:
         Tuple of (assessments, summary_stats).
     """

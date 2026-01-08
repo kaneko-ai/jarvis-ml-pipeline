@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 2, this provides fault tolerance with partial result preservation.
 """
+
 from __future__ import annotations
 
 import time
@@ -15,20 +16,20 @@ from typing import Any
 class CircuitState(Enum):
     """Circuit breaker states."""
 
-    CLOSED = "closed"       # Normal operation
-    OPEN = "open"           # Failing, reject calls
+    CLOSED = "closed"  # Normal operation
+    OPEN = "open"  # Failing, reject calls
     HALF_OPEN = "half_open"  # Testing recovery
 
 
 class FailureReason(Enum):
     """Categorized failure reasons."""
 
-    INPUT = "input"         # Bad input
-    CONFIG = "config"       # Configuration error
-    MODEL = "model"         # Model/API error
-    NETWORK = "network"     # Network failure
-    TIMEOUT = "timeout"     # Timeout
-    BUDGET = "budget"       # Budget exceeded
+    INPUT = "input"  # Bad input
+    CONFIG = "config"  # Configuration error
+    MODEL = "model"  # Model/API error
+    NETWORK = "network"  # Network failure
+    TIMEOUT = "timeout"  # Timeout
+    BUDGET = "budget"  # Budget exceeded
     UNKNOWN = "unknown"
 
 
@@ -46,7 +47,7 @@ class RetryPolicy:
 
     def get_delay(self, attempt: int) -> float:
         """Get delay for attempt number."""
-        delay = self.base_delay * (self.exponential_base ** attempt)
+        delay = self.base_delay * (self.exponential_base**attempt)
         return min(delay, self.max_delay)
 
     def should_retry(self, reason: FailureReason, attempt: int) -> bool:

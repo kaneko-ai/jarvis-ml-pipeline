@@ -4,7 +4,6 @@ Per JARVIS_COMPLETION_PLAN_v3 Task 2.1
 """
 
 
-
 class TestEvidenceSchema:
     """Tests for evidence schema."""
 
@@ -110,7 +109,7 @@ class TestRuleBasedClassifier:
 
         grade = classifier.classify(
             title="A randomized controlled trial of aspirin for cardiovascular prevention",
-            abstract="Methods: We enrolled 1000 patients in a double-blind, placebo-controlled trial."
+            abstract="Methods: We enrolled 1000 patients in a double-blind, placebo-controlled trial.",
         )
 
         assert grade.study_type == StudyType.RCT
@@ -126,7 +125,7 @@ class TestRuleBasedClassifier:
 
         grade = classifier.classify(
             title="A systematic review and meta-analysis of statin therapy",
-            abstract="We searched PubMed, Cochrane Library, and EMBASE following PRISMA guidelines."
+            abstract="We searched PubMed, Cochrane Library, and EMBASE following PRISMA guidelines.",
         )
 
         assert grade.study_type in [StudyType.SYSTEMATIC_REVIEW, StudyType.META_ANALYSIS]
@@ -141,7 +140,7 @@ class TestRuleBasedClassifier:
 
         grade = classifier.classify(
             title="A prospective cohort study of diet and cancer risk",
-            abstract="We followed 50,000 participants for 10 years."
+            abstract="We followed 50,000 participants for 10 years.",
         )
 
         assert grade.study_type == StudyType.COHORT_PROSPECTIVE
@@ -156,7 +155,7 @@ class TestRuleBasedClassifier:
 
         grade = classifier.classify(
             title="A case-control study of smoking and lung cancer",
-            abstract="Cases were matched with controls from the same hospital."
+            abstract="Cases were matched with controls from the same hospital.",
         )
 
         assert grade.study_type == StudyType.CASE_CONTROL
@@ -187,7 +186,7 @@ class TestRuleBasedClassifier:
 
         grade = classifier.classify(
             title="Some generic paper about science",
-            abstract="This paper discusses various topics."
+            abstract="This paper discusses various topics.",
         )
 
         assert grade.level == EvidenceLevel.UNKNOWN or grade.confidence < 0.5
@@ -231,7 +230,7 @@ class TestEnsembleClassifier:
 
         grade = classifier.classify(
             title="A randomized controlled trial",
-            abstract="We conducted a double-blind RCT with n=500 patients."
+            abstract="We conducted a double-blind RCT with n=500 patients.",
         )
 
         assert grade.level == EvidenceLevel.LEVEL_1B

@@ -69,20 +69,21 @@ class TestE2EPipeline:
 
         # テスト用のコンテキストとartifacts
         context = TaskContext(
-            goal=oa_corpus.get("query", "CD73 tumor microenvironment"),
-            domain="oncology"
+            goal=oa_corpus.get("query", "CD73 tumor microenvironment"), domain="oncology"
         )
 
         artifacts = Artifacts()
 
         # モック論文データを追加
         for i, pmid in enumerate(oa_corpus.get("pmids", [])[:3]):  # 最初の3本のみ
-            artifacts.add_paper(Paper(
-                doc_id=f"pmid:{pmid}",
-                title=f"Test Paper {i+1}",
-                abstract="This study demonstrates that CD73 plays a key role in tumor microenvironment. We show that inhibition of CD73 enhances antitumor immunity.",
-                pmid=pmid
-            ))
+            artifacts.add_paper(
+                Paper(
+                    doc_id=f"pmid:{pmid}",
+                    title=f"Test Paper {i+1}",
+                    abstract="This study demonstrates that CD73 plays a key role in tumor microenvironment. We show that inhibition of CD73 enhances antitumor immunity.",
+                    pmid=pmid,
+                )
+            )
 
         # パイプライン実行
         result = executor.run(context, artifacts)

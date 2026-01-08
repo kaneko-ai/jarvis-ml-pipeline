@@ -9,10 +9,10 @@ class SankeyGenerator:
 
     def generate_citation_flow(self, papers: list[dict]) -> dict:
         """Generate citation flow data.
-        
+
         Args:
             papers: List of papers with citations
-            
+
         Returns:
             Sankey diagram data structure
         """
@@ -22,10 +22,7 @@ class SankeyGenerator:
 
         for i, paper in enumerate(papers):
             node_id = f"paper_{i}"
-            nodes.append({
-                "id": node_id,
-                "name": paper.get("title", "Unknown")[:40] + "..."
-            })
+            nodes.append({"id": node_id, "name": paper.get("title", "Unknown")[:40] + "..."})
             node_map[paper.get("pmid", str(i))] = node_id
 
         # Generate sample links
@@ -33,20 +30,16 @@ class SankeyGenerator:
             refs = paper.get("references", [])[:3]
             for ref_pmid in refs:
                 if ref_pmid in node_map:
-                    links.append({
-                        "source": f"paper_{i}",
-                        "target": node_map[ref_pmid],
-                        "value": 1
-                    })
+                    links.append({"source": f"paper_{i}", "target": node_map[ref_pmid], "value": 1})
 
         return {"nodes": nodes, "links": links}
 
     def generate_topic_flow(self, categories: dict[str, list[str]]) -> dict:
         """Generate topic flow data.
-        
+
         Args:
             categories: Dict of category -> papers
-            
+
         Returns:
             Sankey diagram data
         """
@@ -65,11 +58,13 @@ class SankeyGenerator:
         # Generate links
         for cat, papers in categories.items():
             for year in years:
-                links.append({
-                    "source": year,
-                    "target": cat,
-                    "value": len([p for p in papers if str(p.get("year")) == year])
-                })
+                links.append(
+                    {
+                        "source": year,
+                        "target": cat,
+                        "value": len([p for p in papers if str(p.get("year")) == year]),
+                    }
+                )
 
         return {"nodes": nodes, "links": links}
 
@@ -82,10 +77,10 @@ class ForceGraphGenerator:
 
     def generate_author_network(self, papers: list[dict]) -> dict:
         """Generate author collaboration network.
-        
+
         Args:
             papers: List of papers
-            
+
         Returns:
             Force graph data structure
         """
@@ -102,32 +97,25 @@ class ForceGraphGenerator:
                         "id": author,
                         "name": author,
                         "papers": 0,
-                        "group": hash(author.split()[0]) % 5  # Color group
+                        "group": hash(author.split()[0]) % 5,  # Color group
                     }
                 if author:
                     nodes[author]["papers"] += 1
 
             # Add collaboration links
             for i, a1 in enumerate(authors):
-                for a2 in authors[i+1:]:
+                for a2 in authors[i + 1 :]:
                     if a1 and a2:
-                        links.append({
-                            "source": a1,
-                            "target": a2,
-                            "value": 1
-                        })
+                        links.append({"source": a1, "target": a2, "value": 1})
 
-        return {
-            "nodes": list(nodes.values()),
-            "links": links
-        }
+        return {"nodes": list(nodes.values()), "links": links}
 
     def generate_citation_network(self, papers: list[dict]) -> dict:
         """Generate paper citation network.
-        
+
         Args:
             papers: List of papers
-            
+
         Returns:
             Force graph data
         """
@@ -135,21 +123,19 @@ class ForceGraphGenerator:
         links = []
 
         for paper in papers:
-            nodes.append({
-                "id": paper.get("pmid", ""),
-                "name": paper.get("title", "")[:30],
-                "citations": paper.get("citation_count", 0),
-                "group": 0
-            })
+            nodes.append(
+                {
+                    "id": paper.get("pmid", ""),
+                    "name": paper.get("title", "")[:30],
+                    "citations": paper.get("citation_count", 0),
+                    "group": 0,
+                }
+            )
 
         # Add citation links (if available)
         for paper in papers:
             for ref in paper.get("references", []):
-                links.append({
-                    "source": paper.get("pmid"),
-                    "target": ref,
-                    "value": 1
-                })
+                links.append({"source": paper.get("pmid"), "target": ref, "value": 1})
 
         return {"nodes": nodes, "links": links}
 
@@ -162,10 +148,10 @@ class BubbleChartGenerator:
 
     def generate_impact_chart(self, papers: list[dict]) -> list[dict]:
         """Generate impact factor bubble chart data.
-        
+
         Args:
             papers: List of papers
-            
+
         Returns:
             List of bubble data points
         """
@@ -176,17 +162,17 @@ class BubbleChartGenerator:
                 "x": paper.get("year", 2024),
                 "y": paper.get("citation_count", 0),
                 "r": min(paper.get("citation_count", 1) / 10 + 5, 50),  # Radius
-                "category": paper.get("category", "General")
+                "category": paper.get("category", "General"),
             }
             for i, paper in enumerate(papers)
         ]
 
     def generate_author_impact(self, authors: list[dict]) -> list[dict]:
         """Generate author impact bubble chart.
-        
+
         Args:
             authors: List of author stats
-            
+
         Returns:
             Bubble chart data
         """
@@ -196,7 +182,7 @@ class BubbleChartGenerator:
                 "name": author.get("name"),
                 "x": author.get("h_index", 0),
                 "y": author.get("total_citations", 0),
-                "r": author.get("paper_count", 1) * 2 + 5
+                "r": author.get("paper_count", 1) * 2 + 5,
             }
             for author in authors
         ]
@@ -210,10 +196,10 @@ class TreemapGenerator:
 
     def generate_category_treemap(self, papers: list[dict]) -> dict:
         """Generate category treemap.
-        
+
         Args:
             papers: List of papers
-            
+
         Returns:
             Treemap data structure
         """
@@ -234,20 +220,17 @@ class TreemapGenerator:
         return {
             "name": "Research Topics",
             "children": [
-                {
-                    "name": cat,
-                    "children": list(data["children"].values())
-                }
+                {"name": cat, "children": list(data["children"].values())}
                 for cat, data in categories.items()
-            ]
+            ],
         }
 
     def generate_journal_treemap(self, papers: list[dict]) -> dict:
         """Generate journal distribution treemap.
-        
+
         Args:
             papers: List of papers
-            
+
         Returns:
             Treemap data
         """
@@ -262,9 +245,8 @@ class TreemapGenerator:
         return {
             "name": "Journals",
             "children": [
-                {"name": j, "value": c}
-                for j, c in sorted(journals.items(), key=lambda x: -x[1])
-            ]
+                {"name": j, "value": c} for j, c in sorted(journals.items(), key=lambda x: -x[1])
+            ],
         }
 
 
@@ -285,11 +267,11 @@ class TrendPredictor:
 
     def predict_trend(self, topic: str, years_ahead: int = 2) -> dict:
         """Predict future trend using linear regression.
-        
+
         Args:
             topic: Topic name
             years_ahead: Years to predict
-            
+
         Returns:
             Prediction result
         """
@@ -330,15 +312,15 @@ class TrendPredictor:
             "historical": data,
             "predictions": predictions,
             "trend": "increasing" if slope > 0 else "decreasing" if slope < 0 else "stable",
-            "growth_rate": round(slope / y_mean * 100, 2) if y_mean > 0 else 0
+            "growth_rate": round(slope / y_mean * 100, 2) if y_mean > 0 else 0,
         }
 
     def get_hot_topics(self, top_n: int = 5) -> list[dict]:
         """Get hottest trending topics.
-        
+
         Args:
             top_n: Number of topics to return
-            
+
         Returns:
             List of trending topics
         """
@@ -346,11 +328,9 @@ class TrendPredictor:
         for topic in self.historical_data:
             pred = self.predict_trend(topic)
             if "error" not in pred:
-                trends.append({
-                    "topic": topic,
-                    "growth_rate": pred["growth_rate"],
-                    "trend": pred["trend"]
-                })
+                trends.append(
+                    {"topic": topic, "growth_rate": pred["growth_rate"], "trend": pred["trend"]}
+                )
 
         return sorted(trends, key=lambda x: x["growth_rate"], reverse=True)[:top_n]
 
@@ -359,14 +339,18 @@ class TrendPredictor:
 def get_sankey_generator() -> SankeyGenerator:
     return SankeyGenerator()
 
+
 def get_force_graph_generator() -> ForceGraphGenerator:
     return ForceGraphGenerator()
+
 
 def get_bubble_chart_generator() -> BubbleChartGenerator:
     return BubbleChartGenerator()
 
+
 def get_treemap_generator() -> TreemapGenerator:
     return TreemapGenerator()
+
 
 def get_trend_predictor() -> TrendPredictor:
     return TrendPredictor()
@@ -375,9 +359,27 @@ def get_trend_predictor() -> TrendPredictor:
 if __name__ == "__main__":
     # Demo
     papers = [
-        {"pmid": "1", "title": "Machine Learning in Healthcare", "authors": "Smith J, Johnson A", "year": 2024, "category": "AI"},
-        {"pmid": "2", "title": "Deep Learning for Drug Discovery", "authors": "Johnson A, Williams B", "year": 2024, "category": "AI"},
-        {"pmid": "3", "title": "CRISPR Gene Editing", "authors": "Williams B, Brown C", "year": 2023, "category": "Genomics"}
+        {
+            "pmid": "1",
+            "title": "Machine Learning in Healthcare",
+            "authors": "Smith J, Johnson A",
+            "year": 2024,
+            "category": "AI",
+        },
+        {
+            "pmid": "2",
+            "title": "Deep Learning for Drug Discovery",
+            "authors": "Johnson A, Williams B",
+            "year": 2024,
+            "category": "AI",
+        },
+        {
+            "pmid": "3",
+            "title": "CRISPR Gene Editing",
+            "authors": "Williams B, Brown C",
+            "year": 2023,
+            "category": "Genomics",
+        },
     ]
 
     print("=== Force Graph (Author Network) ===")

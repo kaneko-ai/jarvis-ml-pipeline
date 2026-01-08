@@ -2,6 +2,7 @@
 
 Per RP-355, combines multiple LLM outputs.
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -43,7 +44,7 @@ class EnsembleResult:
 
 class MultiModelEnsemble:
     """Combines outputs from multiple LLMs.
-    
+
     Per RP-355:
     - Parallel calls to Gemini + GPT-4 + Claude
     - Answer integration/voting
@@ -76,11 +77,11 @@ class MultiModelEnsemble:
         strategy: EnsembleStrategy | None = None,
     ) -> EnsembleResult:
         """Generate with ensemble.
-        
+
         Args:
             prompt: The prompt to generate from.
             strategy: Override ensemble strategy.
-            
+
         Returns:
             EnsembleResult with combined output.
         """
@@ -119,21 +120,25 @@ class MultiModelEnsemble:
                 text = generator(prompt)
                 latency = (time.time() - start) * 1000
 
-                outputs.append(ModelOutput(
-                    model_name=name,
-                    text=text,
-                    confidence=self.weights.get(name, 1.0),
-                    latency_ms=latency,
-                    metadata={},
-                ))
+                outputs.append(
+                    ModelOutput(
+                        model_name=name,
+                        text=text,
+                        confidence=self.weights.get(name, 1.0),
+                        latency_ms=latency,
+                        metadata={},
+                    )
+                )
             except Exception as e:
-                outputs.append(ModelOutput(
-                    model_name=name,
-                    text="",
-                    confidence=0.0,
-                    latency_ms=0.0,
-                    metadata={"error": str(e)},
-                ))
+                outputs.append(
+                    ModelOutput(
+                        model_name=name,
+                        text="",
+                        confidence=0.0,
+                        latency_ms=0.0,
+                        metadata={"error": str(e)},
+                    )
+                )
 
         return outputs
 

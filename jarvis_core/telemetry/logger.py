@@ -2,6 +2,7 @@
 
 Per RP-02, this provides robust logging to events.jsonl.
 """
+
 from __future__ import annotations
 
 import json

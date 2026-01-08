@@ -2,6 +2,7 @@
 
 プロンプト変更による性能劣化を検出。
 """
+
 from __future__ import annotations
 
 import json
@@ -14,6 +15,7 @@ from typing import Any
 @dataclass
 class BaselineScore:
     """ベースラインスコア."""
+
     prompt_id: str
     version: str
     prompt_hash: str
@@ -43,6 +45,7 @@ class BaselineScore:
 @dataclass
 class RegressionResult:
     """リグレッション検出結果."""
+
     prompt_id: str
     passed: bool = True
     degraded_metrics: list[dict[str, Any]] = field(default_factory=list)
@@ -63,7 +66,7 @@ class RegressionResult:
 
 class PromptRegressionChecker:
     """プロンプトリグレッション検出器.
-    
+
     ベースラインスコアと比較して劣化を検出。
     """
 
@@ -104,10 +107,7 @@ class PromptRegressionChecker:
         """ベースラインを保存."""
         self.baseline_path.parent.mkdir(parents=True, exist_ok=True)
 
-        data = {
-            key: baseline.to_dict()
-            for key, baseline in self._baselines.items()
-        }
+        data = {key: baseline.to_dict() for key, baseline in self._baselines.items()}
 
         with open(self.baseline_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
@@ -141,12 +141,12 @@ class PromptRegressionChecker:
         current_metrics: dict[str, float],
     ) -> RegressionResult:
         """リグレッションをチェック.
-        
+
         Args:
             prompt_id: プロンプトID
             version: バージョン
             current_metrics: 現在のメトリクス
-            
+
         Returns:
             RegressionResult
         """
@@ -179,21 +179,27 @@ class PromptRegressionChecker:
             if current_value < min_allowed:
                 # 劣化検出
                 result.passed = False
-                result.degraded_metrics.append({
-                    "metric": metric_name,
-                    "baseline": baseline_value,
-                    "current": current_value,
-                    "threshold": min_allowed,
-                    "degradation_pct": ((baseline_value - current_value) / baseline_value) * 100,
-                })
+                result.degraded_metrics.append(
+                    {
+                        "metric": metric_name,
+                        "baseline": baseline_value,
+                        "current": current_value,
+                        "threshold": min_allowed,
+                        "degradation_pct": ((baseline_value - current_value) / baseline_value)
+                        * 100,
+                    }
+                )
             elif current_value > baseline_value * 1.05:
                 # 5%以上の改善
-                result.improved_metrics.append({
-                    "metric": metric_name,
-                    "baseline": baseline_value,
-                    "current": current_value,
-                    "improvement_pct": ((current_value - baseline_value) / baseline_value) * 100,
-                })
+                result.improved_metrics.append(
+                    {
+                        "metric": metric_name,
+                        "baseline": baseline_value,
+                        "current": current_value,
+                        "improvement_pct": ((current_value - baseline_value) / baseline_value)
+                        * 100,
+                    }
+                )
 
         return result
 
@@ -202,10 +208,10 @@ class PromptRegressionChecker:
         metrics_by_prompt: dict[str, dict[str, float]],
     ) -> list[RegressionResult]:
         """全プロンプトをチェック.
-        
+
         Args:
             metrics_by_prompt: {prompt_id:version: metrics}
-            
+
         Returns:
             結果リスト
         """

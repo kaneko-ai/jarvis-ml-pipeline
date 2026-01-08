@@ -1,4 +1,5 @@
 """Scheduler schema definitions."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -74,7 +75,9 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def normalize_schedule_payload(payload: dict[str, Any], schedule_id: str, existing: dict[str, Any] | None = None) -> dict[str, Any]:
+def normalize_schedule_payload(
+    payload: dict[str, Any], schedule_id: str, existing: dict[str, Any] | None = None
+) -> dict[str, Any]:
     data = {**(existing or {}), **payload}
     data.setdefault("schedule_id", schedule_id)
     data.setdefault("enabled", True)

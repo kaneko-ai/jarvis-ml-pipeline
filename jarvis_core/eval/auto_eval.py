@@ -2,6 +2,7 @@
 
 Per RP-370, implements automated evaluation pipeline.
 """
+
 from __future__ import annotations
 
 import json
@@ -37,7 +38,7 @@ class DegradationAlert:
 
 class AutomatedEvalPipeline:
     """Automated evaluation pipeline.
-    
+
     Per RP-370:
     - Daily evaluation runs
     - Automatic metric aggregation
@@ -78,15 +79,16 @@ class AutomatedEvalPipeline:
         runner=None,
     ) -> EvalRun:
         """Run evaluation on cases.
-        
+
         Args:
             eval_cases: List of evaluation cases.
             runner: Optional custom runner.
-            
+
         Returns:
             EvalRun with results.
         """
         import time
+
         start = time.time()
 
         results = []
@@ -165,24 +167,28 @@ class AutomatedEvalPipeline:
 
         run_path = self.output_dir / f"{run.run_id}.json"
         with open(run_path, "w") as f:
-            json.dump({
-                "run_id": run.run_id,
-                "timestamp": run.timestamp,
-                "metrics": run.metrics,
-                "cases_passed": run.cases_passed,
-                "cases_failed": run.cases_failed,
-                "duration_seconds": run.duration_seconds,
-            }, f, indent=2)
+            json.dump(
+                {
+                    "run_id": run.run_id,
+                    "timestamp": run.timestamp,
+                    "metrics": run.metrics,
+                    "cases_passed": run.cases_passed,
+                    "cases_failed": run.cases_failed,
+                    "duration_seconds": run.duration_seconds,
+                },
+                f,
+                indent=2,
+            )
 
     def check_degradation(
         self,
         current_metrics: dict[str, float],
     ) -> list[DegradationAlert]:
         """Check for metric degradation.
-        
+
         Args:
             current_metrics: Current metrics.
-            
+
         Returns:
             List of degradation alerts.
         """
@@ -195,12 +201,14 @@ class AutomatedEvalPipeline:
 
             if delta > self.alert_threshold:
                 severity = "critical" if delta > 0.10 else "warning"
-                alerts.append(DegradationAlert(
-                    metric=metric,
-                    baseline=baseline_val,
-                    current=current_val,
-                    delta=delta,
-                    severity=severity,
-                ))
+                alerts.append(
+                    DegradationAlert(
+                        metric=metric,
+                        baseline=baseline_val,
+                        current=current_val,
+                        delta=delta,
+                        severity=severity,
+                    )
+                )
 
         return alerts

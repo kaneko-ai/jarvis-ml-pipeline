@@ -2,6 +2,7 @@
 
 Per RP-03, this provides configuration for reproducible execution.
 """
+
 from __future__ import annotations
 
 import json
@@ -34,11 +35,13 @@ class RunConfig:
     model: str = "gemini-2.0-flash"
 
     # Thresholds
-    thresholds: dict[str, float] = field(default_factory=lambda: {
-        "claim_precision": 0.85,
-        "citation_precision": 0.9,
-        "unsupported_claim_rate": 0.1,
-    })
+    thresholds: dict[str, float] = field(
+        default_factory=lambda: {
+            "claim_precision": 0.85,
+            "citation_precision": 0.9,
+            "unsupported_claim_rate": 0.1,
+        }
+    )
 
     # Additional config
     extra: dict[str, Any] = field(default_factory=dict)
@@ -49,6 +52,7 @@ class RunConfig:
             random.seed(self.seed)
             try:
                 import numpy as np
+
                 np.random.seed(self.seed)
             except ImportError:
                 pass

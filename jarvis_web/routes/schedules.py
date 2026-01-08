@@ -1,4 +1,5 @@
 """Schedule management endpoints."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -49,7 +50,9 @@ async def get_schedule(schedule_id: str, _: bool = Depends(verify_token)):
 
 
 @router.patch("/api/schedules/{schedule_id}")
-async def update_schedule(schedule_id: str, payload: Dict[str, Any], _: bool = Depends(verify_token)):
+async def update_schedule(
+    schedule_id: str, payload: Dict[str, Any], _: bool = Depends(verify_token)
+):
     schedule = store.update_schedule(schedule_id, payload)
     if not schedule:
         raise HTTPException(status_code=404, detail="schedule not found")
@@ -71,7 +74,11 @@ async def run_schedule(
     if not force:
         existing = store.find_run_by_idempotency(schedule_id, idempotency_key)
         if existing:
-            return {"run_id": existing.get("run_id"), "status": existing.get("status"), "skipped": True}
+            return {
+                "run_id": existing.get("run_id"),
+                "status": existing.get("status"),
+                "skipped": True,
+            }
 
     run = store.create_run(schedule_id, idempotency_key, runner.build_payload(schedule))
     payload = {**run.get("payload", {}), "schedule_run_id": run["run_id"]}

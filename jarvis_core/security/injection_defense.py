@@ -2,6 +2,7 @@
 
 Per RP-32, provides sanitization for web/PDF content.
 """
+
 from __future__ import annotations
 
 import re

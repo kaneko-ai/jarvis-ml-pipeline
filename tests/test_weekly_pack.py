@@ -40,7 +40,9 @@ updated_at: "2024-01-03T00:00:00+00:00"
 
     packs_root = tmp_path / "packs"
     now = datetime(2024, 1, 4, tzinfo=timezone.utc)
-    pack_path = generate_weekly_pack(kb_root=kb_root, packs_root=packs_root / "weekly", now=now, topics=["cd73"])
+    pack_path = generate_weekly_pack(
+        kb_root=kb_root, packs_root=packs_root / "weekly", now=now, topics=["cd73"]
+    )
 
     assert pack_path.exists()
     with zipfile.ZipFile(pack_path, "r") as zf:

@@ -2,6 +2,7 @@
 
 Per Research OS v3.0 specification.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -30,9 +31,9 @@ def analyze_counterfactual(
     # Find papers that would be affected
     concept_overlap = set(vector.concept.concepts.keys())
     affected = [
-        v for v in all_vectors
-        if v.paper_id != vector.paper_id
-        and any(c in v.concept.concepts for c in concept_overlap)
+        v
+        for v in all_vectors
+        if v.paper_id != vector.paper_id and any(c in v.concept.concepts for c in concept_overlap)
     ]
 
     # Calculate impact delta
@@ -70,25 +71,31 @@ def discover_blind_spots(
     tumor_coverage = sum(abs(v.biological_axis.tumor_context) for v in vectors) / len(vectors)
 
     if immune_coverage < 0.3:
-        blind_spots.append({
-            "axis": "immune",
-            "gap": "免疫軸の研究不足",
-            "severity": round(1 - immune_coverage, 2),
-        })
+        blind_spots.append(
+            {
+                "axis": "immune",
+                "gap": "免疫軸の研究不足",
+                "severity": round(1 - immune_coverage, 2),
+            }
+        )
 
     if metab_coverage < 0.3:
-        blind_spots.append({
-            "axis": "metabolism",
-            "gap": "代謝軸の研究不足",
-            "severity": round(1 - metab_coverage, 2),
-        })
+        blind_spots.append(
+            {
+                "axis": "metabolism",
+                "gap": "代謝軸の研究不足",
+                "severity": round(1 - metab_coverage, 2),
+            }
+        )
 
     if tumor_coverage < 0.3:
-        blind_spots.append({
-            "axis": "tumor",
-            "gap": "腫瘍文脈の研究不足",
-            "severity": round(1 - tumor_coverage, 2),
-        })
+        blind_spots.append(
+            {
+                "axis": "tumor",
+                "gap": "腫瘍文脈の研究不足",
+                "severity": round(1 - tumor_coverage, 2),
+            }
+        )
 
     return blind_spots
 
@@ -118,12 +125,14 @@ def simulate_concept_mutation(
     related.discard(concept)
 
     for r in list(related)[:5]:
-        mutation_paths.append({
-            "from": concept,
-            "to": f"{concept}×{r}",
-            "probability": 0.3,
-            "field": "cross-disciplinary",
-        })
+        mutation_paths.append(
+            {
+                "from": concept,
+                "to": f"{concept}×{r}",
+                "probability": 0.3,
+                "field": "cross-disciplinary",
+            }
+        )
 
     return {
         "original_concept": concept,
@@ -160,7 +169,9 @@ def simulate_research_debate(
     ]
 
     # Determine winner based on evidence
-    supporting = sum(1 for v in vectors for c in v.concept.concepts if c.lower() in hypothesis.lower())
+    supporting = sum(
+        1 for v in vectors for c in v.concept.concepts if c.lower() in hypothesis.lower()
+    )
     winner = "pro" if supporting > len(vectors) / 2 else "con"
 
     return {
@@ -201,7 +212,7 @@ def simulate_hypothesis_evolution(
 
     # Select survivors (top half)
     scored.sort(key=lambda x: x[1], reverse=True)
-    survivors = [s[0] for s in scored[:max(1, len(scored) // 2)]]
+    survivors = [s[0] for s in scored[: max(1, len(scored) // 2)]]
 
     return {
         "initial_count": len(hypotheses),

@@ -19,56 +19,51 @@ from jarvis_core.contracts.types import Claim, EvidenceLink, Paper
 @dataclass
 class ValidationResult:
     """検証結果."""
+
     valid: bool
     reasons: list[str]
     warnings: list[str]
 
     def to_dict(self) -> dict[str, Any]:
-        return {
-            "valid": self.valid,
-            "reasons": self.reasons,
-            "warnings": self.warnings
-        }
+        return {"valid": self.valid, "reasons": self.reasons, "warnings": self.warnings}
 
 
 class EvidenceValidator:
     """
     Evidence Link Validator.
-    
+
     スパン単位で根拠の妥当性を検証。
     """
 
     # 数値パターン
-    NUMBER_PATTERN = re.compile(r'\d+(?:\.\d+)?')
+    NUMBER_PATTERN = re.compile(r"\d+(?:\.\d+)?")
 
     # 重要エンティティパターン（分子名、疾患名など）
     ENTITY_PATTERNS = [
-        re.compile(r'CD\d+', re.IGNORECASE),  # CD73, CD39など
-        re.compile(r'[A-Z]{2,}(?:-\d+)?', re.IGNORECASE),  # TNF-α, IL-6など
-        re.compile(r'(?:cancer|tumor|carcinoma|lymphoma|melanoma)', re.IGNORECASE),
+        re.compile(r"CD\d+", re.IGNORECASE),  # CD73, CD39など
+        re.compile(r"[A-Z]{2,}(?:-\d+)?", re.IGNORECASE),  # TNF-α, IL-6など
+        re.compile(r"(?:cancer|tumor|carcinoma|lymphoma|melanoma)", re.IGNORECASE),
     ]
 
     def __init__(self, doc_store: dict[str, Paper] | None = None):
         """
         初期化.
-        
+
         Args:
             doc_store: doc_id -> Paper のマッピング
         """
         self.doc_store = doc_store or {}
 
     def validate_evidence_link(
-        self,
-        claim: Claim,
-        doc_store: dict[str, Paper] | None = None
+        self, claim: Claim, doc_store: dict[str, Paper] | None = None
     ) -> ValidationResult:
         """
         Claimの全evidenceを検証.
-        
+
         Args:
             claim: 検証対象のClaim
             doc_store: ドキュメントストア（省略時は初期化時の値）
-        
+
         Returns:
             ValidationResult
         """
@@ -77,11 +72,7 @@ class EvidenceValidator:
         warnings = []
 
         if not claim.evidence:
-            return ValidationResult(
-                valid=False,
-                reasons=["No evidence links found"],
-                warnings=[]
-            )
+            return ValidationResult(valid=False, reasons=["No evidence links found"], warnings=[])
 
         for i, ev in enumerate(claim.evidence):
             ev_result = self._validate_single_link(ev, claim.claim_text, store, i)
@@ -91,18 +82,10 @@ class EvidenceValidator:
         # 全エビデンスが有効ならvalid
         valid = len(reasons) == 0
 
-        return ValidationResult(
-            valid=valid,
-            reasons=reasons,
-            warnings=warnings
-        )
+        return ValidationResult(valid=valid, reasons=reasons, warnings=warnings)
 
     def _validate_single_link(
-        self,
-        ev: EvidenceLink,
-        claim_text: str,
-        store: dict[str, Paper],
-        index: int
+        self, ev: EvidenceLink, claim_text: str, store: dict[str, Paper], index: int
     ) -> tuple[list[str], list[str]]:
         """単一のEvidenceLinkを検証."""
         reasons = []
@@ -133,8 +116,7 @@ class EvidenceValidator:
             text = self._get_section_text(paper, ev.section)
             if text and ev.end > len(text):
                 reasons.append(
-                    f"{prefix} Span exceeds document length: "
-                    f"end={ev.end}, doc_len={len(text)}"
+                    f"{prefix} Span exceeds document length: " f"end={ev.end}, doc_len={len(text)}"
                 )
 
         # 5. 整合性チェック（数値・エンティティ）
@@ -159,7 +141,7 @@ class EvidenceValidator:
     def _check_coherence(self, claim_text: str, evidence_text: str) -> list[str]:
         """
         Claimとevidenceの整合性をチェック.
-        
+
         - 数値を含む主張ならevidenceに同数値が存在
         - 分子名/疾患名の一致
         """
@@ -187,8 +169,7 @@ class EvidenceValidator:
             overlap = claim_entities & evidence_entities
             if not overlap and len(claim_entities) <= 3:
                 warnings.append(
-                    f"Entity mismatch: claim entities {claim_entities} "
-                    f"not found in evidence"
+                    f"Entity mismatch: claim entities {claim_entities} " f"not found in evidence"
                 )
 
         return warnings
@@ -202,13 +183,11 @@ class EvidenceValidator:
         return entities
 
     def validate_all_claims(
-        self,
-        claims: list[Claim],
-        doc_store: dict[str, Paper] | None = None
+        self, claims: list[Claim], doc_store: dict[str, Paper] | None = None
     ) -> dict[str, Any]:
         """
         全Claimを検証.
-        
+
         Returns:
             {
                 "total": 10,
@@ -224,11 +203,13 @@ class EvidenceValidator:
 
         for claim in claims:
             result = self.validate_evidence_link(claim, store)
-            results.append({
-                "claim_id": claim.claim_id,
-                "claim_text": claim.claim_text[:100],
-                "result": result.to_dict()
-            })
+            results.append(
+                {
+                    "claim_id": claim.claim_id,
+                    "claim_text": claim.claim_text[:100],
+                    "result": result.to_dict(),
+                }
+            )
             if result.valid:
                 valid_count += 1
 
@@ -240,7 +221,7 @@ class EvidenceValidator:
             "valid": valid_count,
             "invalid": total - valid_count,
             "rate": rate,
-            "details": results
+            "details": results,
         }
 
 
@@ -252,11 +233,11 @@ def get_evidence_validator(doc_store: dict[str, Paper] | None = None) -> Evidenc
 def validate_evidence_link(claim: Claim, doc_store: dict[str, Paper]) -> ValidationResult:
     """
     Claimのevidenceを検証（便利関数）.
-    
+
     Args:
         claim: 検証対象のClaim
         doc_store: ドキュメントストア
-    
+
     Returns:
         ValidationResult
     """

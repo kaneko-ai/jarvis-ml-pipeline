@@ -2,6 +2,7 @@
 
 Per RP-19, provides unified index building with manifest management.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -78,12 +79,14 @@ def build_index(
                 from jarvis_tools.papers import PaperRecord
 
                 for pdf_file in pdf_path.glob("*.pdf"):
-                    papers.append(PaperRecord(
-                        paper_id=pdf_file.stem,
-                        title=pdf_file.stem,
-                        pdf_path=str(pdf_file),
-                        source="local",
-                    ))
+                    papers.append(
+                        PaperRecord(
+                            paper_id=pdf_file.stem,
+                            title=pdf_file.stem,
+                            pdf_path=str(pdf_file),
+                            source="local",
+                        )
+                    )
 
         # Step 2: Extract text from PDFs
         from jarvis_tools.papers import extract_text_from_pdf, split_pages_into_chunks
@@ -115,6 +118,7 @@ def build_index(
 
         # Save chunks
         import json
+
         chunks_file = version_dir / "chunks.jsonl"
         with open(chunks_file, "w", encoding="utf-8") as f:
             for chunk in chunks:

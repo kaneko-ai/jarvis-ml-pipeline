@@ -5,6 +5,7 @@ BM25 + ベクトル検索のハイブリッド。
 - 重み調整
 - Reciprocal Rank Fusion
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -14,6 +15,7 @@ from typing import Any
 @dataclass
 class HybridSearchResult:
     """ハイブリッド検索結果."""
+
     chunk_id: str
     paper_id: str
     text: str
@@ -36,7 +38,7 @@ class HybridSearchResult:
 
 class HybridSearchEngine:
     """ハイブリッド検索エンジン.
-    
+
     BM25とベクトル検索を組み合わせ。
     """
 
@@ -59,17 +61,18 @@ class HybridSearchEngine:
         method: str = "weighted",  # weighted, rrf
     ) -> list[HybridSearchResult]:
         """ハイブリッド検索.
-        
+
         Args:
             query: 検索クエリ
             top_k: 上位k件
             method: 結合方法（weighted=重み付き、rrf=RRF）
-            
+
         Returns:
             結果リスト
         """
         # BM25検索
         from jarvis_core.search import get_search_engine
+
         bm25 = get_search_engine()
         bm25_results = bm25.search(query, top_k=top_k * 2)
 
@@ -101,7 +104,7 @@ class HybridSearchEngine:
         combined = {}
 
         # BM25結果を追加
-        if hasattr(bm25_results, 'results'):
+        if hasattr(bm25_results, "results"):
             max_bm25 = max((r.score for r in bm25_results.results), default=1)
             for r in bm25_results.results:
                 chunk_id = r.chunk_id
@@ -149,14 +152,14 @@ class HybridSearchEngine:
         top_k: int,
     ) -> list[HybridSearchResult]:
         """Reciprocal Rank Fusion.
-        
+
         RRF(d) = Σ 1 / (k + rank(d))
         """
         rrf_scores: dict[str, float] = {}
         chunk_data: dict[str, dict[str, Any]] = {}
 
         # BM25ランク
-        if hasattr(bm25_results, 'results'):
+        if hasattr(bm25_results, "results"):
             for rank, r in enumerate(bm25_results.results, 1):
                 chunk_id = r.chunk_id
                 rrf_scores[chunk_id] = rrf_scores.get(chunk_id, 0) + 1 / (self.rrf_k + rank)
@@ -182,14 +185,16 @@ class HybridSearchEngine:
         results = []
         for chunk_id, score in sorted(rrf_scores.items(), key=lambda x: x[1], reverse=True)[:top_k]:
             data = chunk_data.get(chunk_id, {})
-            results.append(HybridSearchResult(
-                chunk_id=chunk_id,
-                paper_id=data.get("paper_id", ""),
-                text=data.get("text", ""),
-                bm25_score=data.get("bm25_score", 0),
-                vector_score=data.get("vector_score", 0),
-                hybrid_score=score,
-            ))
+            results.append(
+                HybridSearchResult(
+                    chunk_id=chunk_id,
+                    paper_id=data.get("paper_id", ""),
+                    text=data.get("text", ""),
+                    bm25_score=data.get("bm25_score", 0),
+                    vector_score=data.get("vector_score", 0),
+                    hybrid_score=score,
+                )
+            )
 
         for i, r in enumerate(results):
             r.rank = i + 1
@@ -203,5 +208,5 @@ def hybrid_search(
     bm25_weight: float = 0.5,
 ) -> list[HybridSearchResult]:
     """便利関数: ハイブリッド検索."""
-    engine = HybridSearchEngine(bm25_weight=bm25_weight, vector_weight=1-bm25_weight)
+    engine = HybridSearchEngine(bm25_weight=bm25_weight, vector_weight=1 - bm25_weight)
     return engine.search(query, top_k)

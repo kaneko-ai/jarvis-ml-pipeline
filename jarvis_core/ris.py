@@ -6,6 +6,7 @@ This module provides:
 Per RP15, this enables direct import into Zotero/EndNote.
 RIS format reference: https://en.wikipedia.org/wiki/RIS_(file_format)
 """
+
 from __future__ import annotations
 
 from .reference import Reference

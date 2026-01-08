@@ -13,6 +13,7 @@ Design Principles:
 4. Version-aware for future schema evolution
 5. Re-computable: can regenerate from source
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -342,10 +343,12 @@ def _update_index(out_path: Path, paper_id: str, source_locator: str) -> None:
     # Add if not exists
     existing_ids = {p["paper_id"] for p in index["papers"]}
     if paper_id not in existing_ids:
-        index["papers"].append({
-            "paper_id": paper_id,
-            "source_locator": source_locator,
-        })
+        index["papers"].append(
+            {
+                "paper_id": paper_id,
+                "source_locator": source_locator,
+            }
+        )
 
     with open(index_path, "w", encoding="utf-8") as f:
         json.dump(index, f, indent=2, ensure_ascii=False)
@@ -366,9 +369,21 @@ def extract_concepts_from_text(text: str) -> dict[str, float]:
 
     # Simple keyword detection
     keywords = [
-        "CD73", "PD-1", "PD-L1", "CTLA-4", "Adenosine", "ATP",
-        "T cell", "NK cell", "macrophage", "tumor", "cancer",
-        "immunotherapy", "checkpoint", "inhibitor", "TME",
+        "CD73",
+        "PD-1",
+        "PD-L1",
+        "CTLA-4",
+        "Adenosine",
+        "ATP",
+        "T cell",
+        "NK cell",
+        "macrophage",
+        "tumor",
+        "cancer",
+        "immunotherapy",
+        "checkpoint",
+        "inhibitor",
+        "TME",
     ]
 
     text_lower = text.lower()
@@ -388,9 +403,18 @@ def extract_methods_from_text(text: str) -> dict[str, float]:
     methods = {}
 
     method_keywords = [
-        "scRNA-seq", "RNA-seq", "FACS", "flow cytometry",
-        "Western blot", "qPCR", "ELISA", "mass spectrometry",
-        "CRISPR", "knockout", "knockdown", "mouse model",
+        "scRNA-seq",
+        "RNA-seq",
+        "FACS",
+        "flow cytometry",
+        "Western blot",
+        "qPCR",
+        "ELISA",
+        "mass spectrometry",
+        "CRISPR",
+        "knockout",
+        "knockdown",
+        "mouse model",
     ]
 
     text_lower = text.lower()
@@ -471,6 +495,7 @@ def extract_paper_vector_from_result(
 
 
 # ==================== Filter API ====================
+
 
 def filter_by_year(
     vectors: list[PaperVector],

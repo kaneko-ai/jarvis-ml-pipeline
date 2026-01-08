@@ -2,6 +2,7 @@
 
 Per PR-101, prevents path traversal attacks.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -9,6 +10,7 @@ from pathlib import Path
 
 class PathTraversalError(Exception):
     """Raised when path traversal is detected."""
+
     pass
 
 
@@ -33,9 +35,7 @@ def safe_join(base: str, *paths: str) -> Path:
     try:
         resolved.relative_to(base_path)
     except ValueError:
-        raise PathTraversalError(
-            f"Path traversal detected: {paths} would escape {base}"
-        )
+        raise PathTraversalError(f"Path traversal detected: {paths} would escape {base}")
 
     return resolved
 

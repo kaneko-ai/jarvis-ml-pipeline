@@ -2,6 +2,7 @@
 
 Tests all PaperVector-based analysis engines.
 """
+
 import sys
 from pathlib import Path
 
@@ -90,9 +91,7 @@ class TestRecommendation:
     def test_recommend_with_year_filter(self):
         """Should filter by year range."""
         vectors = _create_test_vectors()
-        results = recommend_papers(
-            vectors, ["CD73"], year_range=(2022, 2024)
-        )
+        results = recommend_papers(vectors, ["CD73"], year_range=(2022, 2024))
 
         assert all(r["year"] >= 2022 for r in results)
 

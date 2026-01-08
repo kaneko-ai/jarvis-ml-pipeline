@@ -2,6 +2,7 @@
 
 Per V4-M06, this integrates clusters with temporal evolution.
 """
+
 from __future__ import annotations
 
 from collections import defaultdict
@@ -41,7 +42,11 @@ def build_timeline_map(
         # Cluster by concept
         concept_groups = defaultdict(list)
         for p in papers:
-            top_concept = max(p.concept.concepts.items(), key=lambda x: x[1])[0] if p.concept.concepts else "other"
+            top_concept = (
+                max(p.concept.concepts.items(), key=lambda x: x[1])[0]
+                if p.concept.concepts
+                else "other"
+            )
             concept_groups[top_concept].append(p.paper_id)
 
         clusters_by_year[year] = {
@@ -51,7 +56,9 @@ def build_timeline_map(
                 {"concept": c, "papers": ids[:5], "size": len(ids)}
                 for c, ids in sorted(concept_groups.items(), key=lambda x: -len(x[1]))[:5]
             ],
-            "top_concept": max(concept_groups.items(), key=lambda x: len(x[1]))[0] if concept_groups else None,
+            "top_concept": (
+                max(concept_groups.items(), key=lambda x: len(x[1]))[0] if concept_groups else None
+            ),
         }
 
     # Detect transitions
@@ -62,13 +69,15 @@ def build_timeline_map(
         c2 = clusters_by_year[y2].get("top_concept")
 
         if c1 != c2:
-            transitions.append({
-                "from_year": y1,
-                "to_year": y2,
-                "from_concept": c1,
-                "to_concept": c2,
-                "type": "paradigm_shift",
-            })
+            transitions.append(
+                {
+                    "from_year": y1,
+                    "to_year": y2,
+                    "from_concept": c1,
+                    "to_concept": c2,
+                    "type": "paradigm_shift",
+                }
+            )
 
     return {
         "years": years,
@@ -94,6 +103,8 @@ def summarize_timeline(timeline_map: dict) -> str:
     if timeline_map["transitions"]:
         lines.append("## パラダイムシフト")
         for t in timeline_map["transitions"]:
-            lines.append(f"- {t['from_year']}→{t['to_year']}: {t['from_concept']} → {t['to_concept']}")
+            lines.append(
+                f"- {t['from_year']}→{t['to_year']}: {t['from_concept']} → {t['to_concept']}"
+            )
 
     return "\n".join(lines)

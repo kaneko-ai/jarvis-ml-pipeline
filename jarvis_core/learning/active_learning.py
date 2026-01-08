@@ -3,6 +3,7 @@
 Per JARVIS_LOCALFIRST_ROADMAP Task 2.5: Active Learning
 Implements active learning for evidence screening and classification.
 """
+
 from __future__ import annotations
 
 import logging
@@ -17,14 +18,16 @@ logger = logging.getLogger(__name__)
 
 class SamplingStrategy(Enum):
     """Active learning sampling strategies."""
-    UNCERTAINTY = "uncertainty"      # Sample most uncertain
-    DIVERSITY = "diversity"          # Sample most diverse
-    RANDOM = "random"                # Random sampling
-    COMBINED = "combined"            # Uncertainty + diversity
+
+    UNCERTAINTY = "uncertainty"  # Sample most uncertain
+    DIVERSITY = "diversity"  # Sample most diverse
+    RANDOM = "random"  # Random sampling
+    COMBINED = "combined"  # Uncertainty + diversity
 
 
 class Label(Enum):
     """Labeling options."""
+
     INCLUDE = "include"
     EXCLUDE = "exclude"
     UNCERTAIN = "uncertain"
@@ -34,6 +37,7 @@ class Label(Enum):
 @dataclass
 class LabeledSample:
     """A labeled training sample."""
+
     sample_id: str
     text: str
     label: Label | None = None
@@ -49,6 +53,7 @@ class LabeledSample:
 @dataclass
 class ActiveLearningState:
     """State of the active learning process."""
+
     total_samples: int = 0
     labeled_count: int = 0
     include_count: int = 0
@@ -224,10 +229,10 @@ class ActiveLearner:
         labels: list[tuple[str, Label, str | None]],
     ) -> int:
         """Submit labels for samples.
-        
+
         Args:
             labels: List of (sample_id, label, optional_feedback).
-            
+
         Returns:
             Number of labels applied.
         """
@@ -246,11 +251,13 @@ class ActiveLearner:
 
         if applied > 0:
             self.current_round += 1
-            self._history.append({
-                "round": self.current_round,
-                "labels_applied": applied,
-                "state": self.get_state().__dict__,
-            })
+            self._history.append(
+                {
+                    "round": self.current_round,
+                    "labels_applied": applied,
+                    "state": self.get_state().__dict__,
+                }
+            )
 
         return applied
 
@@ -286,12 +293,12 @@ def create_active_learner(
     batch_size: int = 10,
 ) -> ActiveLearner:
     """Create an active learner instance.
-    
+
     Args:
         samples: List of sample dictionaries with 'id' and 'text'.
         strategy: Sampling strategy ('uncertainty', 'diversity', 'random', 'combined').
         batch_size: Number of samples per labeling round.
-        
+
     Returns:
         ActiveLearner instance.
     """

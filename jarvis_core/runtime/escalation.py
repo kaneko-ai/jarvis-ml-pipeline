@@ -3,6 +3,7 @@
 Monitors eval_summary and triggers additional inference when quality is low.
 Based on inference_policy.yaml escalation rules.
 """
+
 import logging
 from pathlib import Path
 
@@ -29,7 +30,7 @@ class InferenceEscalator:
 
     def should_escalate(self, eval_summary: dict) -> list[dict]:
         """Check if escalation is needed based on eval_summary.
-        
+
         Returns:
             List of escalation actions to take
         """
@@ -58,7 +59,9 @@ class InferenceEscalator:
 
             if triggered:
                 action = rule.get("action", {})
-                logger.info(f"Escalation triggered: {metric_name} {condition} {threshold} (value={metric_value})")
+                logger.info(
+                    f"Escalation triggered: {metric_name} {condition} {threshold} (value={metric_value})"
+                )
                 actions.append(action)
 
         return actions
@@ -80,14 +83,14 @@ class InferenceEscalator:
 
     def execute_actions(self, actions: list[dict], context, artifacts) -> dict:
         """Execute escalation actions.
-        
+
         In production, this would trigger actual additional stages.
         For Phase 2, we log and return metadata.
         """
         results = {
             "escalation_triggered": len(actions) > 0,
             "actions_taken": [],
-            "additional_cost": 0
+            "additional_cost": 0,
         }
 
         for action in actions:
@@ -99,26 +102,27 @@ class InferenceEscalator:
             # Mock execution (in production, trigger actual stages)
             if action_type == "evidence_search_expand":
                 # Would trigger additional retrieval
-                results["actions_taken"].append({
-                    "type": action_type,
-                    "status": "simulated",
-                    "additional_papers": params.get("max_additional_papers", 5)
-                })
+                results["actions_taken"].append(
+                    {
+                        "type": action_type,
+                        "status": "simulated",
+                        "additional_papers": params.get("max_additional_papers", 5),
+                    }
+                )
                 results["additional_cost"] += 1000  # Mock token cost
 
             elif action_type == "refutation_search":
-                results["actions_taken"].append({
-                    "type": action_type,
-                    "status": "simulated"
-                })
+                results["actions_taken"].append({"type": action_type, "status": "simulated"})
                 results["additional_cost"] += 500
 
             elif action_type == "feature_extraction_expand":
-                results["actions_taken"].append({
-                    "type": action_type,
-                    "status": "simulated",
-                    "additional_features": params.get("additional_features", [])
-                })
+                results["actions_taken"].append(
+                    {
+                        "type": action_type,
+                        "status": "simulated",
+                        "additional_features": params.get("additional_features", []),
+                    }
+                )
                 results["additional_cost"] += 200
 
         return results

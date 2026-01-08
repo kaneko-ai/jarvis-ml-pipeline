@@ -3,6 +3,7 @@
 Tracks origin, retrieval time, and licensing of external data
 (IF, citation counts, Altmetrics, etc.)
 """
+
 import datetime
 import json
 import logging
@@ -18,10 +19,10 @@ def log_external_source(
     field: str,
     value: Any,
     source: str,
-    license_type: str | None = None
+    license_type: str | None = None,
 ) -> None:
     """Log external data source.
-    
+
     Args:
         run_dir: Path to run directory
         paper_id: Paper identifier
@@ -47,7 +48,7 @@ def log_external_source(
         "source": source,
         "retrieved_at": datetime.datetime.now().isoformat(),
         "license": license_type,
-        "status": "success" if value is not None else "missing"
+        "status": "success" if value is not None else "missing",
     }
 
     sources.append(entry)
@@ -57,18 +58,14 @@ def log_external_source(
         json.dump(sources, f, indent=2, ensure_ascii=False)
 
 
-def check_data_usage_allowed(
-    run_dir: Path,
-    paper_id: str,
-    field: str
-) -> bool:
+def check_data_usage_allowed(run_dir: Path, paper_id: str, field: str) -> bool:
     """Check if external data can be used in ranking.
-    
+
     Args:
         run_dir: Path to run directory
         paper_id: Paper identifier
         field: Field name
-        
+
     Returns:
         True if allowed to use
     """
@@ -98,10 +95,10 @@ def check_data_usage_allowed(
 
 def get_license_log(run_dir: Path) -> list[dict[str, Any]]:
     """Get license log for all papers.
-    
+
     Args:
         run_dir: Path to run directory
-        
+
     Returns:
         List of license entries
     """
@@ -120,14 +117,10 @@ def get_license_log(run_dir: Path) -> list[dict[str, Any]]:
 
 
 def log_license(
-    run_dir: Path,
-    paper_id: str,
-    source_url: str,
-    license_type: str,
-    fulltext_store_allowed: bool
+    run_dir: Path, paper_id: str, source_url: str, license_type: str, fulltext_store_allowed: bool
 ) -> None:
     """Log paper license information.
-    
+
     Args:
         run_dir: Path to run directory
         paper_id: Paper identifier
@@ -142,7 +135,7 @@ def log_license(
         "source_url": source_url,
         "license_type": license_type,
         "fulltext_store_allowed": fulltext_store_allowed,
-        "timestamp": datetime.datetime.now().isoformat()
+        "timestamp": datetime.datetime.now().isoformat(),
     }
 
     with open(license_file, "a", encoding="utf-8") as f:

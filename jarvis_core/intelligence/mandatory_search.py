@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SimilarJudgment:
     """類似判断."""
+
     entry: GoldsetEntry
     similarity: float
     common_points: str  # 今回との共通点
@@ -33,13 +34,14 @@ class SimilarJudgment:
 @dataclass
 class MandatorySearchResult:
     """類似判断検索結果（必須出力）."""
+
     query_context: str
     similar_judgments: list[SimilarJudgment]
     search_timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
 
     def format_output(self) -> str:
         """固定フォーマットで出力.
-        
+
         Phase2の出力フォーマット（固定）:
         【類似判断①】
         - Context:
@@ -66,9 +68,10 @@ class MandatorySearchResult:
 @dataclass
 class Phase2Decision:
     """Phase2判断結果.
-    
+
     類似判断との比較を含む。
     """
+
     issue_context: str
     similar_search: MandatorySearchResult
     decision: JudgmentDecision
@@ -102,7 +105,7 @@ class Phase2Decision:
 
 class MandatorySearchJudge:
     """強制類似検索付き判断器.
-    
+
     Phase2の核心:
     - 類似判断検索を必須ステップにせよ
     - 類似判断を無視した判断を禁止せよ
@@ -112,11 +115,11 @@ class MandatorySearchJudge:
         self,
         goldset_index: GoldsetIndex | None = None,
         evaluator: IntelligentEvaluator | None = None,
-        decision_maker: DecisionMaker | None = None
+        decision_maker: DecisionMaker | None = None,
     ):
         """
         初期化.
-        
+
         Args:
             goldset_index: GoldsetIndex
             evaluator: 5軸評価器
@@ -126,26 +129,21 @@ class MandatorySearchJudge:
         self.evaluator = evaluator or IntelligentEvaluator()
         self.decision_maker = decision_maker or DecisionMaker()
 
-    def judge(
-        self,
-        issue_id: str,
-        issue_context: str,
-        description: str = ""
-    ) -> Phase2Decision:
+    def judge(self, issue_id: str, issue_context: str, description: str = "") -> Phase2Decision:
         """
         類似判断検索付きで判断.
-        
+
         ルール（核心）:
         1. Issue概要をembedding化
         2. goldset_indexからTop-3類似判断を取得
         3. それを人間に見せる
         4. その上でaccept/rejectを決める
-        
+
         Args:
             issue_id: Issue ID
             issue_context: Issue概要
             description: 詳細説明
-        
+
         Returns:
             Phase2Decision
         """
@@ -181,11 +179,13 @@ class MandatorySearchJudge:
             # 共通点を自動生成（プレースホルダー）
             common = self._find_common_points(query, entry)
 
-            similar_judgments.append(SimilarJudgment(
-                entry=entry,
-                similarity=similarity,
-                common_points=common,
-            ))
+            similar_judgments.append(
+                SimilarJudgment(
+                    entry=entry,
+                    similarity=similarity,
+                    common_points=common,
+                )
+            )
 
         return MandatorySearchResult(
             query_context=query,
@@ -210,12 +210,10 @@ class MandatorySearchJudge:
         return "文脈の類似性から抽出"
 
     def _analyze_comparison(
-        self,
-        decision: JudgmentDecision,
-        similar_judgments: list[SimilarJudgment]
+        self, decision: JudgmentDecision, similar_judgments: list[SimilarJudgment]
     ) -> tuple[str, str]:
         """類似判断との比較を分析.
-        
+
         「同じ判断をするか／あえて外すか」を言語化。
         """
         if not similar_judgments:

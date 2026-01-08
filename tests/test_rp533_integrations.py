@@ -1,4 +1,5 @@
 """Tests for RP-533, RP-534: Slack and PagerDuty integrations."""
+
 import pytest
 
 pytestmark = pytest.mark.core

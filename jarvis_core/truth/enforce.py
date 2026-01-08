@@ -3,6 +3,7 @@
 Per V4-T01, this enforces that FACTs must have EvidenceRef.
 FACTs without evidence are automatically downgraded to INFERENCE.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

@@ -90,9 +90,7 @@ class TestBiasRiskAssessment:
         context = TaskContext(goal="test", domain="test")
         artifacts = Artifacts()
 
-        artifacts.metadata["primary_studies"] = [
-            {"pmid": "1", "title": "Study 1"}
-        ]
+        artifacts.metadata["primary_studies"] = [{"pmid": "1", "title": "Study 1"}]
 
         result = stage_extraction_bias_risk(context, artifacts)
 
@@ -109,7 +107,7 @@ class TestBiasRiskAssessment:
             "deviations",
             "missing_data",
             "outcome_measurement",
-            "selective_reporting"
+            "selective_reporting",
         ]
 
         for domain in required_domains:
@@ -162,8 +160,8 @@ class TestStoreTrainingRecordMeta:
         artifacts.metadata["bias_assessments"] = []
         artifacts.metadata["extraction_accuracy_proxy"] = {"overall_score": 0.8}
 
-        with patch('builtins.open', MagicMock()):
-            with patch.object(Path, 'mkdir'):
+        with patch("builtins.open", MagicMock()):
+            with patch.object(Path, "mkdir"):
                 result = stage_store_training_record_meta(context, artifacts)
 
         assert "meta_training_record_saved" in result.metadata
@@ -185,7 +183,7 @@ class TestPipelineStagesRegistered:
             "extraction.effect_size_fields",
             "extraction.bias_risk_rob",
             "evaluation.extraction_accuracy_proxy",
-            "ops.store_training_record_meta"
+            "ops.store_training_record_meta",
         ]
 
         for stage in required_stages:

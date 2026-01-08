@@ -45,7 +45,7 @@ def test_item_to_paper_conversion():
             "DOI": "10.1234/test",
             "date": "2023-01-15",
             "publicationTitle": "Test Journal",
-        }
+        },
     }
 
     paper = client.item_to_paper(zotero_item)

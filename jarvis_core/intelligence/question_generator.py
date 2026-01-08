@@ -19,16 +19,18 @@ logger = logging.getLogger(__name__)
 
 class QuestionType(Enum):
     """問いのタイプ."""
-    UNVERIFIED = "unverified"        # 未検証点
-    ASSUMPTION = "assumption"         # 既存の前提
-    HYPOTHESIS = "hypothesis"         # 検証すべき仮説
-    GAP = "gap"                       # 知識のギャップ
-    NEXT_STEP = "next_step"           # 次のステップ
+
+    UNVERIFIED = "unverified"  # 未検証点
+    ASSUMPTION = "assumption"  # 既存の前提
+    HYPOTHESIS = "hypothesis"  # 検証すべき仮説
+    GAP = "gap"  # 知識のギャップ
+    NEXT_STEP = "next_step"  # 次のステップ
 
 
 @dataclass
 class ResearchQuestion:
     """研究上の問い."""
+
     question_type: QuestionType
     question: str
     context: str
@@ -48,7 +50,7 @@ class ResearchQuestion:
 
 class QuestionGenerator:
     """問い生成器.
-    
+
     新テーマに対して：
     - 未検証点を特定
     - 前提を洗い出し
@@ -85,19 +87,16 @@ class QuestionGenerator:
     }
 
     def generate(
-        self,
-        topic: str,
-        context: str | None = None,
-        existing_knowledge: list[str] | None = None
+        self, topic: str, context: str | None = None, existing_knowledge: list[str] | None = None
     ) -> list[ResearchQuestion]:
         """
         問いを生成.
-        
+
         Args:
             topic: トピック
             context: コンテキスト
             existing_knowledge: 既存知識リスト
-        
+
         Returns:
             ResearchQuestion リスト
         """
@@ -120,7 +119,7 @@ class QuestionGenerator:
         q_type: QuestionType,
         topic: str,
         context: str | None,
-        existing_knowledge: list[str] | None
+        existing_knowledge: list[str] | None,
     ) -> ResearchQuestion | None:
         """タイプ別に問いを生成."""
         templates = self.QUESTION_TEMPLATES.get(q_type, [])
@@ -144,10 +143,7 @@ class QuestionGenerator:
         )
 
     def _calc_priority(
-        self,
-        q_type: QuestionType,
-        topic: str,
-        existing_knowledge: list[str] | None
+        self, q_type: QuestionType, topic: str, existing_knowledge: list[str] | None
     ) -> int:
         """優先度を計算."""
         # 基本優先度

@@ -1,4 +1,5 @@
 """Webhook receiver for observability testing."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone

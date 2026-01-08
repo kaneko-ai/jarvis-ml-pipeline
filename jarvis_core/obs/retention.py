@@ -1,4 +1,5 @@
 """Retention management for logs and metrics."""
+
 from __future__ import annotations
 
 import json

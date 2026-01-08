@@ -2,6 +2,7 @@
 
 Per RP32, this detects gaps in literature and proposes hypotheses.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -79,15 +80,19 @@ def generate_hypotheses(
             "tumor": "腫瘍微小環境",
         }
 
-        hypothesis = f"{concept}の{axis_to_phrase[max_gap_axis]}における役割は未解明である可能性が高い"
+        hypothesis = (
+            f"{concept}の{axis_to_phrase[max_gap_axis]}における役割は未解明である可能性が高い"
+        )
 
-        hypotheses.append({
-            "hypothesis": hypothesis,
-            "missing_axis": max_gap_axis,
-            "confidence": round(max_gap_value, 2),
-            "concept": concept,
-            "based_on": based_on,
-        })
+        hypotheses.append(
+            {
+                "hypothesis": hypothesis,
+                "missing_axis": max_gap_axis,
+                "confidence": round(max_gap_value, 2),
+                "concept": concept,
+                "based_on": based_on,
+            }
+        )
 
     # Sort by confidence
     hypotheses.sort(key=lambda x: x["confidence"], reverse=True)

@@ -1,4 +1,5 @@
 """Job runner implementations."""
+
 from __future__ import annotations
 
 import hashlib
@@ -173,7 +174,9 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
     jobs.inc_counts(job_id, found=result.total_found)
     if result.warnings:
         for warning in result.warnings:
-            jobs.append_event(job_id, {"message": warning.get("message", "warning"), "level": "warning"})
+            jobs.append_event(
+                job_id, {"message": warning.get("message", "warning"), "level": "warning"}
+            )
             logger.warning(warning.get("message", "warning"), step="Collecting")
 
     jobs.set_progress(job_id, STEP_WEIGHTS["collect"])
@@ -210,7 +213,9 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
     dedup_engine = DedupEngine()
     dedup_result = dedup_engine.deduplicate(audited_papers)
     canonical_papers = dedup_result.canonical_papers
-    jobs.inc_counts(job_id, deduped=dedup_result.merged_count, canonical_papers=len(canonical_papers))
+    jobs.inc_counts(
+        job_id, deduped=dedup_result.merged_count, canonical_papers=len(canonical_papers)
+    )
     jobs.inc_counts(job_id, oa_count=oa_count)
     _append_jsonl(research_dir / "canonical_papers.jsonl", canonical_papers)
 
@@ -225,16 +230,27 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
             text = "\n\n".join([p for p in [paper.title, paper.abstract] if p])
             if not text.strip():
                 jobs.inc_counts(job_id, failed=1)
-                jobs.append_event(job_id, {"message": f"no text for PMID {paper.pmid}", "level": "warning"})
+                jobs.append_event(
+                    job_id, {"message": f"no text for PMID {paper.pmid}", "level": "warning"}
+                )
                 logger.warning(f"no text for PMID {paper.pmid}", step="Downloading")
             else:
                 downloaded.append((paper, text))
                 jobs.inc_counts(job_id, downloaded=1)
         except Exception as exc:
             jobs.inc_counts(job_id, failed=1)
-            jobs.append_event(job_id, {"message": f"download failed for PMID {paper.pmid}: {exc}", "level": "warning"})
-            logger.warning(f"download failed for PMID {paper.pmid}", step="Downloading", data={"error": str(exc)})
-        _set_step_progress(job_id, STEP_WEIGHTS["collect"], STEP_WEIGHTS["download"], idx, total_papers)
+            jobs.append_event(
+                job_id,
+                {"message": f"download failed for PMID {paper.pmid}: {exc}", "level": "warning"},
+            )
+            logger.warning(
+                f"download failed for PMID {paper.pmid}",
+                step="Downloading",
+                data={"error": str(exc)},
+            )
+        _set_step_progress(
+            job_id, STEP_WEIGHTS["collect"], STEP_WEIGHTS["download"], idx, total_papers
+        )
     logger.step_end("Downloading", data={"downloaded": len(downloaded)})
     metrics.record_step_duration(run_id, "Downloading", (time.time() - step_start) * 1000)
 
@@ -248,8 +264,13 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
             jobs.inc_counts(job_id, extracted=1)
         except Exception as exc:
             jobs.inc_counts(job_id, failed=1)
-            jobs.append_event(job_id, {"message": f"extract failed for PMID {paper.pmid}: {exc}", "level": "warning"})
-            logger.warning(f"extract failed for PMID {paper.pmid}", step="Extracting", data={"error": str(exc)})
+            jobs.append_event(
+                job_id,
+                {"message": f"extract failed for PMID {paper.pmid}: {exc}", "level": "warning"},
+            )
+            logger.warning(
+                f"extract failed for PMID {paper.pmid}", step="Extracting", data={"error": str(exc)}
+            )
         _set_step_progress(job_id, 40, STEP_WEIGHTS["extract"], idx, len(downloaded))
     logger.step_end("Extracting", data={"extracted": len(extracted)})
     metrics.record_step_duration(run_id, "Extracting", (time.time() - step_start) * 1000)
@@ -262,7 +283,9 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
         redis_client = dedup.get_redis()
     except Exception as exc:
         redis_client = None
-        jobs.append_event(job_id, {"message": f"chunk dedupe unavailable: {exc}", "level": "warning"})
+        jobs.append_event(
+            job_id, {"message": f"chunk dedupe unavailable: {exc}", "level": "warning"}
+        )
 
     for idx, (paper, text) in enumerate(extracted, start=1):
         try:
@@ -283,7 +306,9 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
                         if not dedup.claim_chunk_seen(redis_client, chunk_id):
                             continue
                     except Exception as exc:
-                        jobs.append_event(job_id, {"message": f"chunk dedupe error: {exc}", "level": "warning"})
+                        jobs.append_event(
+                            job_id, {"message": f"chunk dedupe error: {exc}", "level": "warning"}
+                        )
                         redis_client = None
                 chunk_data = chunk.to_dict()
                 chunk_data["chunk_id"] = chunk_id
@@ -296,8 +321,13 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
             jobs.inc_counts(job_id, chunked=appended)
         except Exception as exc:
             jobs.inc_counts(job_id, failed=1)
-            jobs.append_event(job_id, {"message": f"chunk failed for PMID {paper.pmid}: {exc}", "level": "warning"})
-            logger.warning(f"chunk failed for PMID {paper.pmid}", step="Chunking", data={"error": str(exc)})
+            jobs.append_event(
+                job_id,
+                {"message": f"chunk failed for PMID {paper.pmid}: {exc}", "level": "warning"},
+            )
+            logger.warning(
+                f"chunk failed for PMID {paper.pmid}", step="Chunking", data={"error": str(exc)}
+            )
         _set_step_progress(job_id, 65, STEP_WEIGHTS["chunk"], idx, len(extracted))
     logger.step_end("Chunking", data={"chunked": jobs.read_job(job_id)["counts"].get("chunked", 0)})
     metrics.record_step_duration(run_id, "Chunking", (time.time() - step_start) * 1000)
@@ -393,14 +423,16 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
                     )
                 ]
             evidence_items = [
-                EvidenceItem(
-                    chunk_id=item.chunk_id,
-                    locator=item.locator,
-                    quote=item.quote,
-                    score=item.score,
-                ).to_dict()
-                if hasattr(item, "chunk_id")
-                else item.to_dict()
+                (
+                    EvidenceItem(
+                        chunk_id=item.chunk_id,
+                        locator=item.locator,
+                        quote=item.quote,
+                        score=item.score,
+                    ).to_dict()
+                    if hasattr(item, "chunk_id")
+                    else item.to_dict()
+                )
                 for item in evidence_candidates
             ]
             claim = ClaimUnit(
@@ -428,7 +460,9 @@ def run_collect_and_ingest(job_id: str, payload: Dict[str, Any]) -> None:
         jobs.inc_counts(job_id, claims=len(paper_claims))
         if any("weak_evidence" in (claim.get("audit_flags") or []) for claim in paper_claims):
             paper.setdefault("audit_flags", []).append("weak_evidence")
-        score_result = score_paper(paper, paper_claims, query=query, domain=payload.get("domain", ""))
+        score_result = score_paper(
+            paper, paper_claims, query=query, domain=payload.get("domain", "")
+        )
         scores[paper_id] = score_result.to_dict()
 
     if claims:
@@ -523,14 +557,16 @@ def run_feedback_analysis(job_id: str, payload: Dict[str, Any]) -> None:
         risk = risk_model.score(record.features, history, section=record.section)
         top_categories = [c["category"] for c in risk["top_categories"]]
         suggestions = suggestion_engine.suggest(record.text, top_categories)
-        items.append({
-            "location": record.location,
-            "risk_score": risk["risk_score"],
-            "risk_level": risk["risk_level"],
-            "top_categories": risk["top_categories"],
-            "reasons": risk["reasons"],
-            "suggestions": suggestions,
-        })
+        items.append(
+            {
+                "location": record.location,
+                "risk_score": risk["risk_score"],
+                "risk_level": risk["risk_level"],
+                "top_categories": risk["top_categories"],
+                "reasons": risk["reasons"],
+                "suggestions": suggestions,
+            }
+        )
 
     summary = {
         "high": sum(1 for i in items if i["risk_level"] == "high"),
@@ -558,7 +594,9 @@ def run_feedback_analysis(job_id: str, payload: Dict[str, Any]) -> None:
     jobs.set_progress(job_id, 100)
     jobs.set_step(job_id, "done")
     jobs.set_status(job_id, "success")
-    jobs.append_event(job_id, {"message": f"feedback analysis saved: {output_path}", "level": "info"})
+    jobs.append_event(
+        job_id, {"message": f"feedback analysis saved: {output_path}", "level": "info"}
+    )
 
 
 def run_job(job_id: str) -> None:
@@ -602,11 +640,15 @@ def run_job(job_id: str) -> None:
             schedule_id = run.get("schedule_id")
             schedule = schedule_store.get_schedule(schedule_id) if schedule_id else None
             if status == "success":
-                schedule_store.update_run(schedule_run_id, status="success", error=None, next_retry_at=None)
+                schedule_store.update_run(
+                    schedule_run_id, status="success", error=None, next_retry_at=None
+                )
                 schedule_store.update_schedule_status(schedule_id, "success")
                 return
             attempts = (run.get("attempts", 0) or 0) + 1
-            schedule_store.update_run(schedule_run_id, status="failed", error=error, attempts=attempts)
+            schedule_store.update_run(
+                schedule_run_id, status="failed", error=error, attempts=attempts
+            )
             if not schedule:
                 return
             limits = schedule.get("limits", {})
@@ -619,5 +661,7 @@ def run_job(job_id: str) -> None:
                     f"Schedule {schedule_id} disabled after {attempts} failures",
                 )
                 return
-            next_retry = schedule_retry.next_retry_at(attempts, int(limits.get("cooldown_minutes_after_failure", 30)))
+            next_retry = schedule_retry.next_retry_at(
+                attempts, int(limits.get("cooldown_minutes_after_failure", 30))
+            )
             schedule_store.update_run(schedule_run_id, next_retry_at=next_retry)

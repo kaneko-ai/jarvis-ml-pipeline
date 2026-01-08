@@ -2,6 +2,7 @@
 
 Per V4-M01, this explains why papers are similar.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -31,11 +32,13 @@ def explain_similarity(
     concept_overlap = concepts1 & concepts2
 
     if concept_overlap:
-        reasons.append({
-            "type": "concept_overlap",
-            "items": list(concept_overlap)[:5],
-            "score": len(concept_overlap) / max(len(concepts1 | concepts2), 1),
-        })
+        reasons.append(
+            {
+                "type": "concept_overlap",
+                "items": list(concept_overlap)[:5],
+                "score": len(concept_overlap) / max(len(concepts1 | concepts2), 1),
+            }
+        )
 
     # Method overlap
     methods1 = set(paper1.method.methods.keys())
@@ -43,21 +46,27 @@ def explain_similarity(
     method_overlap = methods1 & methods2
 
     if method_overlap:
-        reasons.append({
-            "type": "method_overlap",
-            "items": list(method_overlap)[:5],
-            "score": len(method_overlap) / max(len(methods1 | methods2), 1),
-        })
+        reasons.append(
+            {
+                "type": "method_overlap",
+                "items": list(method_overlap)[:5],
+                "score": len(method_overlap) / max(len(methods1 | methods2), 1),
+            }
+        )
 
     # Biological axis proximity
-    axis_dist = abs(paper1.biological_axis.immune_activation - paper2.biological_axis.immune_activation)
+    axis_dist = abs(
+        paper1.biological_axis.immune_activation - paper2.biological_axis.immune_activation
+    )
     if axis_dist < 0.3:
-        reasons.append({
-            "type": "axis_proximity",
-            "axis": "immune_activation",
-            "distance": round(axis_dist, 2),
-            "score": 1 - axis_dist,
-        })
+        reasons.append(
+            {
+                "type": "axis_proximity",
+                "axis": "immune_activation",
+                "distance": round(axis_dist, 2),
+                "score": 1 - axis_dist,
+            }
+        )
 
     # Calculate overall score
     if reasons:

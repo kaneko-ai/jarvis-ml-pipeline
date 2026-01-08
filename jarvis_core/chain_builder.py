@@ -2,6 +2,7 @@
 
 Per RP38, this builds research chains from claims to experiments.
 """
+
 from __future__ import annotations
 
 import re
@@ -96,12 +97,14 @@ def build_research_chain(
         else:
             experiment = "Western blot / qPCR to confirm expression changes"
 
-        results.append({
-            "claim": claim,
-            "hypothesis": hypothesis,
-            "experiment": experiment,
-            "supporting_papers": related,
-            "suggested_methods": methods,
-        })
+        results.append(
+            {
+                "claim": claim,
+                "hypothesis": hypothesis,
+                "experiment": experiment,
+                "supporting_papers": related,
+                "suggested_methods": methods,
+            }
+        )
 
     return results

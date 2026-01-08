@@ -2,6 +2,7 @@
 
 Per RP44, this tracks method evolution over time.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -60,12 +61,14 @@ def track_method_evolution(
             top_method = max(methods.items(), key=lambda x: x[1])
             dominant.append(top_method[0])
 
-        results.append({
-            "year": year,
-            "emerging_methods": emerging,
-            "dominant_methods": dominant,
-            "method_count": len(methods),
-        })
+        results.append(
+            {
+                "year": year,
+                "emerging_methods": emerging,
+                "dominant_methods": dominant,
+                "method_count": len(methods),
+            }
+        )
 
     return results
 

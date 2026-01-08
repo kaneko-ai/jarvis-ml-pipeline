@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TuneIteration:
     """チューニング反復."""
+
     iteration: int
     samples: list[SampleResult]
     best_sample: SampleResult | None
@@ -37,6 +38,7 @@ class TuneIteration:
 @dataclass
 class TuneResult:
     """チューニング結果."""
+
     workflow_id: str
     iterations: list[TuneIteration]
     final_fitness: float
@@ -48,19 +50,14 @@ class TuneResult:
 
 class WorkflowTuner:
     """ワークフローチューナー.
-    
+
     LayerXの Generator→Executor→Evaluator→Memory→Sampling を実装。
     """
 
-    def __init__(
-        self,
-        spec: WorkflowSpec,
-        goldset_path: str | None = None,
-        logs_dir: str = "logs"
-    ):
+    def __init__(self, spec: WorkflowSpec, goldset_path: str | None = None, logs_dir: str = "logs"):
         """
         初期化.
-        
+
         Args:
             spec: ワークフロー仕様
             goldset_path: ゴールドセットファイルパス（必須推奨）
@@ -85,16 +82,16 @@ class WorkflowTuner:
         self,
         generator: Callable[[dict[str, Any]], WorkflowSpec],
         evaluator: Callable[[WorkflowState], dict[str, float]],
-        fitness_threshold: float = 0.8
+        fitness_threshold: float = 0.8,
     ) -> TuneResult:
         """
         ワークフローをチューニング.
-        
+
         Args:
             generator: コンテキストから候補specを生成する関数
             evaluator: 実行結果からスコアを評価する関数
             fitness_threshold: 終了条件のフィットネス閾値
-        
+
         Returns:
             TuneResult
         """
@@ -123,24 +120,30 @@ class WorkflowTuner:
             is_improvement = fitness > self._best_fitness
             if is_improvement:
                 self._best_fitness = fitness
-                self._best_config = best_sample.output.get("config", {}) if best_sample.output else {}
+                self._best_config = (
+                    best_sample.output.get("config", {}) if best_sample.output else {}
+                )
 
-            self._iterations.append(TuneIteration(
-                iteration=iteration + 1,
-                samples=[best_sample],
-                best_sample=best_sample,
-                fitness_score=fitness,
-                is_improvement=is_improvement,
-                context_used=context,
-            ))
+            self._iterations.append(
+                TuneIteration(
+                    iteration=iteration + 1,
+                    samples=[best_sample],
+                    best_sample=best_sample,
+                    fitness_score=fitness,
+                    is_improvement=is_improvement,
+                    context_used=context,
+                )
+            )
 
             # メモリ更新（次のイテレーションのコンテキスト用）
-            self.context_packager.add_log(LogEntry(
-                run_id=best_sample.sample_id,
-                step_id="tune",
-                score=fitness,
-                output_summary=str(best_sample.output)[:500],
-            ))
+            self.context_packager.add_log(
+                LogEntry(
+                    run_id=best_sample.sample_id,
+                    step_id="tune",
+                    score=fitness,
+                    output_summary=str(best_sample.output)[:500],
+                )
+            )
             self._prev_best_scores = current_scores
 
             # 4. 終了条件チェック
@@ -155,16 +158,13 @@ class WorkflowTuner:
     def _prepare_context(self) -> dict[str, Any]:
         """Generatorに渡すコンテキストを準備."""
         current_scores = {"fitness": self._best_fitness}
-        return self.context_packager.package_for_generator(
-            current_scores,
-            self._prev_best_scores
-        )
+        return self.context_packager.package_for_generator(current_scores, self._prev_best_scores)
 
     def _sample_and_evaluate(
         self,
         generator: Callable[[dict[str, Any]], WorkflowSpec],
         evaluator: Callable[[WorkflowState], dict[str, float]],
-        context: dict[str, Any]
+        context: dict[str, Any],
     ) -> SampleResult | None:
         """候補をサンプリング・評価."""
 
@@ -196,7 +196,9 @@ class WorkflowTuner:
 
     def _finalize(self, reason: str, converged: bool) -> TuneResult:
         """結果をまとめる."""
-        logger.info(f"Tune finished: {reason}, converged={converged}, fitness={self._best_fitness:.3f}")
+        logger.info(
+            f"Tune finished: {reason}, converged={converged}, fitness={self._best_fitness:.3f}"
+        )
 
         return TuneResult(
             workflow_id=self.spec.workflow_id,

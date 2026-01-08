@@ -2,6 +2,7 @@
 
 Per RP-305, detects semantic duplicates using embeddings.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -20,7 +21,7 @@ class DuplicateCluster:
 
 class SemanticDeduplicator:
     """Semantic deduplication using embeddings.
-    
+
     Per RP-305:
     - Cosine similarity > 0.95 for duplicate detection
     - Separate logic for intra/inter-document
@@ -43,11 +44,11 @@ class SemanticDeduplicator:
         embeddings: list[list[float]] | None = None,
     ) -> list[DuplicateCluster]:
         """Find duplicate chunks.
-        
+
         Args:
             chunks: List of chunks with text, chunk_id, doc_id.
             embeddings: Optional precomputed embeddings.
-            
+
         Returns:
             List of duplicate clusters.
         """
@@ -91,16 +92,16 @@ class SemanticDeduplicator:
                     processed.add(j)
 
             if len(cluster_members) > 1:
-                cluster_id = hashlib.md5(
-                    str(cluster_members).encode()
-                ).hexdigest()[:8]
+                cluster_id = hashlib.md5(str(cluster_members).encode()).hexdigest()[:8]
 
-                clusters.append(DuplicateCluster(
-                    cluster_id=cluster_id,
-                    representative_id=chunks[i]["chunk_id"],
-                    member_ids=[chunks[m]["chunk_id"] for m in cluster_members],
-                    similarity_scores=similarities,
-                ))
+                clusters.append(
+                    DuplicateCluster(
+                        cluster_id=cluster_id,
+                        representative_id=chunks[i]["chunk_id"],
+                        member_ids=[chunks[m]["chunk_id"] for m in cluster_members],
+                        similarity_scores=similarities,
+                    )
+                )
                 processed.add(i)
 
         return clusters
@@ -139,12 +140,14 @@ class SemanticDeduplicator:
         clusters = []
         for text_hash, indices in text_to_chunks.items():
             if len(indices) > 1:
-                clusters.append(DuplicateCluster(
-                    cluster_id=text_hash[:8],
-                    representative_id=chunks[indices[0]]["chunk_id"],
-                    member_ids=[chunks[i]["chunk_id"] for i in indices],
-                    similarity_scores={chunks[i]["chunk_id"]: 1.0 for i in indices},
-                ))
+                clusters.append(
+                    DuplicateCluster(
+                        cluster_id=text_hash[:8],
+                        representative_id=chunks[indices[0]]["chunk_id"],
+                        member_ids=[chunks[i]["chunk_id"] for i in indices],
+                        similarity_scores={chunks[i]["chunk_id"]: 1.0 for i in indices},
+                    )
+                )
 
         return clusters
 
@@ -154,11 +157,11 @@ class SemanticDeduplicator:
         embeddings: list[list[float]] | None = None,
     ) -> list[dict]:
         """Remove duplicates, keeping representatives.
-        
+
         Args:
             chunks: List of chunks.
             embeddings: Optional embeddings.
-            
+
         Returns:
             Deduplicated chunk list.
         """

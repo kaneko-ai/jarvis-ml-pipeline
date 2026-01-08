@@ -6,6 +6,7 @@ This module provides:
 
 Per RP23, this enables semantic search alongside BM25.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -39,7 +40,7 @@ def dummy_embed(text: str, dim: int = 64) -> list[float]:
     for i in range(dim):
         # Use pairs of hex chars to generate floats
         idx = (i * 2) % len(h)
-        val = int(h[idx:idx + 2], 16) / 255.0
+        val = int(h[idx : idx + 2], 16) / 255.0
         # Normalize to [-1, 1]
         val = val * 2 - 1
         vector.append(val)

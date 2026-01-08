@@ -3,6 +3,7 @@
 Explains why papers are ranked in their positions based on subscores
 and feature importance.
 """
+
 import logging
 from typing import Any
 
@@ -11,10 +12,10 @@ logger = logging.getLogger(__name__)
 
 def calculate_average_subscores(papers: list[dict]) -> dict[str, float]:
     """Calculate average subscores across all papers.
-    
+
     Args:
         papers: List of paper dicts with subscores
-        
+
     Returns:
         Dict of average subscores
     """
@@ -31,9 +32,7 @@ def calculate_average_subscores(papers: list[dict]) -> dict[str, float]:
     averages = {}
     for key in subscore_keys:
         values = [
-            p.get("subscores", {}).get(key, 0.0)
-            for p in papers
-            if key in p.get("subscores", {})
+            p.get("subscores", {}).get(key, 0.0) for p in papers if key in p.get("subscores", {})
         ]
         if values:
             averages[key] = sum(values) / len(values)
@@ -45,27 +44,23 @@ def explain_ranking(
     paper: dict,
     avg_subscores: dict[str, float],
     top_n_strengths: int = 3,
-    top_n_weaknesses: int = 2
+    top_n_weaknesses: int = 2,
 ) -> dict[str, Any]:
     """Generate ranking explanation for a paper.
-    
+
     Args:
         paper: Paper dict with subscores
         avg_subscores: Average subscores across all papers
         top_n_strengths: Number of top strengths to report
         top_n_weaknesses: Number of top weaknesses to report
-        
+
     Returns:
         Dict with 'strengths', 'weaknesses', 'explanation'
     """
     subscores = paper.get("subscores", {})
 
     if not subscores or not avg_subscores:
-        return {
-            "strengths": [],
-            "weaknesses": [],
-            "explanation": "Insufficient scoring data"
-        }
+        return {"strengths": [], "weaknesses": [], "explanation": "Insufficient scoring data"}
 
     # Calculate differences from average
     diffs = {}
@@ -87,19 +82,15 @@ def explain_ranking(
 
     explanation = f"主な強み: {strength_text} | 主な弱み: {weakness_text}"
 
-    return {
-        "strengths": strengths,
-        "weaknesses": weaknesses,
-        "explanation": explanation
-    }
+    return {"strengths": strengths, "weaknesses": weaknesses, "explanation": explanation}
 
 
 def format_subscores_markdown(subscores: dict[str, float]) -> list[str]:
     """Format subscores as markdown lines.
-    
+
     Args:
         subscores: Dict of subscore name -> value
-        
+
     Returns:
         List of markdown lines
     """
@@ -112,7 +103,7 @@ def format_subscores_markdown(subscores: dict[str, float]) -> list[str]:
         "reproducibility",
         "tme_relevance",
         "novelty",
-        "evidence_quality"
+        "evidence_quality",
     ]
 
     # Display in preferred order
@@ -133,10 +124,10 @@ def format_subscores_markdown(subscores: dict[str, float]) -> list[str]:
 
 def validate_subscores(paper: dict) -> list[str]:
     """Validate that paper has required subscores.
-    
+
     Args:
         paper: Paper dict
-        
+
     Returns:
         List of validation errors (empty if valid)
     """

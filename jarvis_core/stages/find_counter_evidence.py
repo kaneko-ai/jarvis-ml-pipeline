@@ -2,24 +2,21 @@
 
 Actively searches for disconfirming evidence to prevent confirmation bias.
 """
+
 import logging
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-def find_counter_evidence(
-    claim: dict[str, Any],
-    papers: list[dict],
-    **kwargs
-) -> list[dict]:
+def find_counter_evidence(claim: dict[str, Any], papers: list[dict], **kwargs) -> list[dict]:
     """Find evidence that refutes or contradicts a claim.
-    
+
     Args:
         claim: Claim dictionary
         papers: List of paper dictionaries
         **kwargs: Additional context
-        
+
     Returns:
         List of counter-evidence dictionaries
     """
@@ -41,7 +38,7 @@ def find_counter_evidence(
             "in contrast",
             "opposite",
             "no evidence",
-            "failed to show"
+            "failed to show",
         ]
 
         has_contradiction = any(pattern in abstract for pattern in contradiction_patterns)
@@ -49,6 +46,7 @@ def find_counter_evidence(
         if has_contradiction:
             # Mock counter evidence
             import uuid
+
             evidence_id = f"counter_ev_{uuid.uuid4().hex[:12]}"
 
             counter_ev = {
@@ -68,16 +66,13 @@ def find_counter_evidence(
     return counter_evidence
 
 
-def merge_supporting_and_refuting(
-    supporting: list[dict],
-    refuting: list[dict]
-) -> dict[str, Any]:
+def merge_supporting_and_refuting(supporting: list[dict], refuting: list[dict]) -> dict[str, Any]:
     """Merge supporting and refuting evidence for balanced view.
-    
+
     Args:
         supporting: List of supporting evidence
         refuting: List of refuting evidence
-        
+
     Returns:
         Dict with 'conclusion_type', 'synthesis'
     """
@@ -98,5 +93,5 @@ def merge_supporting_and_refuting(
         "conclusion_type": conclusion_type,
         "synthesis": synthesis,
         "support_count": support_count,
-        "refute_count": refute_count
+        "refute_count": refute_count,
     }

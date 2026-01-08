@@ -14,6 +14,7 @@ from jarvis_core.citation.stance_classifier import CitationStance
 @dataclass
 class InfluenceScore:
     """Influence score for a paper."""
+
     paper_id: str
     total_citations: int
     support_count: int
@@ -39,7 +40,7 @@ class InfluenceCalculator:
 
     def __init__(self, citation_graph=None):
         """Initialize calculator.
-        
+
         Args:
             citation_graph: Optional CitationGraph instance
         """
@@ -51,11 +52,11 @@ class InfluenceCalculator:
         citations: list | None = None,
     ) -> InfluenceScore:
         """Calculate influence score for a paper.
-        
+
         Args:
             paper_id: Paper ID
             citations: Optional list of citation objects with stance attribute
-            
+
         Returns:
             InfluenceScore object
         """
@@ -73,9 +74,11 @@ class InfluenceCalculator:
                 controversy_score=0.0,
             )
 
-        support = sum(1 for c in citations if getattr(c, 'stance', None) == CitationStance.SUPPORT)
-        contrast = sum(1 for c in citations if getattr(c, 'stance', None) == CitationStance.CONTRAST)
-        mention = sum(1 for c in citations if getattr(c, 'stance', None) == CitationStance.MENTION)
+        support = sum(1 for c in citations if getattr(c, "stance", None) == CitationStance.SUPPORT)
+        contrast = sum(
+            1 for c in citations if getattr(c, "stance", None) == CitationStance.CONTRAST
+        )
+        mention = sum(1 for c in citations if getattr(c, "stance", None) == CitationStance.MENTION)
 
         total = len(citations)
 
@@ -99,26 +102,20 @@ class InfluenceCalculator:
         )
 
     def rank_papers(
-        self,
-        paper_ids: list[str],
-        citations_map: dict = None,
-        by: str = "influence"
+        self, paper_ids: list[str], citations_map: dict = None, by: str = "influence"
     ) -> list[InfluenceScore]:
         """Rank papers by influence or controversy.
-        
+
         Args:
             paper_ids: List of paper IDs
             citations_map: Dict mapping paper_id to list of citations
             by: Ranking criterion ("influence", "controversy", "citations")
-            
+
         Returns:
             Sorted list of InfluenceScore objects
         """
         citations_map = citations_map or {}
-        scores = [
-            self.calculate(pid, citations_map.get(pid, []))
-            for pid in paper_ids
-        ]
+        scores = [self.calculate(pid, citations_map.get(pid, [])) for pid in paper_ids]
 
         if by == "influence":
             return sorted(scores, key=lambda x: x.influence_score, reverse=True)

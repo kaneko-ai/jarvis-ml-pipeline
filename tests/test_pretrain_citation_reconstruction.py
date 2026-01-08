@@ -34,19 +34,16 @@ class TestLeakageFilter:
         # paper_Aを設定（アブストラクトにキーワード）
         artifacts.metadata["paper_A"] = {
             "title": "CD73 inhibition therapy",
-            "abstract": "This study shows CD73 inhibition enhances antitumor immunity in cancer."
+            "abstract": "This study shows CD73 inhibition enhances antitumor immunity in cancer.",
         }
 
         # R_set_docsを設定（高リーク = 類似度高い）
         artifacts.metadata["R_set_docs"] = [
             {
                 "ref_id": "R1",
-                "abstract": "CD73 inhibition enhances antitumor immunity in cancer treatment."
+                "abstract": "CD73 inhibition enhances antitumor immunity in cancer treatment.",
             },
-            {
-                "ref_id": "R2",
-                "abstract": "Unrelated topic about protein folding mechanisms."
-            }
+            {"ref_id": "R2", "abstract": "Unrelated topic about protein folding mechanisms."},
         ]
 
         result = stage_leakage_filter(context, artifacts)
@@ -71,12 +68,15 @@ class TestLeakageFilter:
 
         artifacts.metadata["paper_A"] = {
             "title": "Test",
-            "abstract": "unique words that only appear here abc def ghi jkl mno pqr stu vwx yz"
+            "abstract": "unique words that only appear here abc def ghi jkl mno pqr stu vwx yz",
         }
 
         artifacts.metadata["R_set_docs"] = [
-            {"ref_id": "R1", "abstract": "unique words that only appear here abc def ghi jkl mno pqr stu vwx yz"},
-            {"ref_id": "R2", "abstract": "completely different topic unrelated"}
+            {
+                "ref_id": "R1",
+                "abstract": "unique words that only appear here abc def ghi jkl mno pqr stu vwx yz",
+            },
+            {"ref_id": "R2", "abstract": "completely different topic unrelated"},
         ]
 
         result = stage_leakage_filter(context, artifacts)
@@ -154,20 +154,18 @@ class TestMatchScore:
         artifacts.metadata["reconstruction"] = {
             "background_points": [
                 {"text": "Point 1", "evidence": [{"ref_id": "R1"}]},
-                {"text": "Point 2", "evidence": []}
+                {"text": "Point 2", "evidence": []},
             ],
             "hypotheses": [{"text": "Hypo"}],
-            "missing_critical_views": []
+            "missing_critical_views": [],
         }
 
         artifacts.metadata["gold_points"] = [
             {"point_id": "g1", "claim": "Gold 1"},
-            {"point_id": "g2", "claim": "Gold 2"}
+            {"point_id": "g2", "claim": "Gold 2"},
         ]
 
-        artifacts.metadata["leakage_flags"] = [
-            {"ref_id": "R1", "leakage_level": "low"}
-        ]
+        artifacts.metadata["leakage_flags"] = [{"ref_id": "R1", "leakage_level": "low"}]
 
         result = stage_match_score(context, artifacts)
 
@@ -234,10 +232,7 @@ class TestStoreTrainingRecord:
         context = TaskContext(goal="test", domain="test")
         artifacts = Artifacts()
 
-        artifacts.metadata["no_leakage_gate"] = {
-            "passed": False,
-            "save_to_training": False
-        }
+        artifacts.metadata["no_leakage_gate"] = {"passed": False, "save_to_training": False}
 
         result = stage_store_training_record(context, artifacts)
 
@@ -261,9 +256,9 @@ class TestStoreTrainingRecord:
         artifacts.metadata["leakage_flags"] = []
 
         # 最初の保存
-        with patch('builtins.open', MagicMock()):
-            with patch.object(Path, 'exists', return_value=False):
-                with patch.object(Path, 'mkdir'):
+        with patch("builtins.open", MagicMock()):
+            with patch.object(Path, "exists", return_value=False):
+                with patch.object(Path, "mkdir"):
                     result = stage_store_training_record(context, artifacts)
 
         # 保存フラグを確認（エラーなく完了）
@@ -287,7 +282,7 @@ class TestPipelineStagesRegistered:
             "extraction.gold_from_A",
             "evaluation.match_score",
             "quality_gate.no_leakage",
-            "ops.store_training_record"
+            "ops.store_training_record",
         ]
 
         for stage in required_stages:
@@ -295,7 +290,12 @@ class TestPipelineStagesRegistered:
 
     def test_pipeline_yaml_is_valid(self):
         """パイプラインYAMLが有効であること。"""
-        config_path = Path(__file__).parents[1] / "configs" / "pipelines" / "pretrain_citation_reconstruction.yml"
+        config_path = (
+            Path(__file__).parents[1]
+            / "configs"
+            / "pipelines"
+            / "pretrain_citation_reconstruction.yml"
+        )
 
         if config_path.exists():
             config = PipelineConfig.from_yaml(config_path)

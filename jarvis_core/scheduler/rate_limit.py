@@ -1,4 +1,5 @@
 """Scheduler rate limiting utilities."""
+
 from __future__ import annotations
 
 import time

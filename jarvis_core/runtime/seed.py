@@ -2,6 +2,7 @@
 
 Per PR-67, ensures deterministic random behavior.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -22,6 +23,7 @@ def enforce_seed(seed: int) -> None:
     # Try to set numpy if available
     try:
         import numpy as np
+
         np.random.seed(seed)
     except ImportError:
         pass

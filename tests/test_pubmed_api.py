@@ -1,4 +1,5 @@
 """Tests for PubMed API client."""
+
 import pytest
 
 from jarvis_core.integrations.pubmed import (
@@ -21,7 +22,7 @@ class TestPaperResult:
             authors=["Smith J", "Johnson A"],
             journal="Nature",
             pub_date="2024 Jan",
-            abstract="This is a test abstract."
+            abstract="This is a test abstract.",
         )
         assert paper.pmid == "12345678"
         assert paper.title == "Test Paper"
@@ -35,7 +36,7 @@ class TestPaperResult:
             authors=["Smith J"],
             journal="Nature",
             pub_date="2024 Jan",
-            abstract="This is a test abstract."
+            abstract="This is a test abstract.",
         )
         data = paper.to_dict()
 
@@ -52,7 +53,7 @@ class TestPaperResult:
             authors=[],
             journal="Test",
             pub_date="2024",
-            abstract=long_abstract
+            abstract=long_abstract,
         )
         data = paper.to_dict()
         assert len(data["abstract"]) < 250

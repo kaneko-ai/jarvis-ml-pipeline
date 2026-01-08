@@ -2,6 +2,7 @@
 
 Per RP-116, persists BM25 index with IndexRegistry.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -63,15 +64,19 @@ class BM25IndexStore:
 
         # Save metadata
         with open(meta_path, "w", encoding="utf-8") as f:
-            json.dump({
-                "index_id": metadata.index_id,
-                "index_type": metadata.index_type,
-                "build_params": metadata.build_params,
-                "inputs_hash": metadata.inputs_hash,
-                "doc_count": metadata.doc_count,
-                "created_at": metadata.created_at,
-                "version": metadata.version,
-            }, f, indent=2)
+            json.dump(
+                {
+                    "index_id": metadata.index_id,
+                    "index_type": metadata.index_type,
+                    "build_params": metadata.build_params,
+                    "inputs_hash": metadata.inputs_hash,
+                    "doc_count": metadata.doc_count,
+                    "created_at": metadata.created_at,
+                    "version": metadata.version,
+                },
+                f,
+                indent=2,
+            )
 
         return str(index_path)
 

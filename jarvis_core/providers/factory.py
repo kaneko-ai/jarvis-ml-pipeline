@@ -27,22 +27,21 @@ def load_runtime_config(config_path: str = "config.yaml") -> dict:
         logger.warning(f"Config file not found: {config_path}")
         return {}
 
-    with open(path, encoding='utf-8') as f:
+    with open(path, encoding="utf-8") as f:
         config = yaml.safe_load(f) or {}
 
     return config.get("runtime", {})
 
 
 def get_llm_provider(
-    provider_type: str | None = None,
-    config_path: str = "config.yaml"
+    provider_type: str | None = None, config_path: str = "config.yaml"
 ) -> LLMProvider:
     """LLMプロバイダーを取得.
-    
+
     Args:
         provider_type: "api" | "local" | None (設定から読み込み)
         config_path: 設定ファイルパス
-    
+
     Returns:
         LLMProvider
     """
@@ -69,15 +68,14 @@ def get_llm_provider(
 
 
 def get_embed_provider(
-    provider_type: str | None = None,
-    config_path: str = "config.yaml"
+    provider_type: str | None = None, config_path: str = "config.yaml"
 ) -> EmbedProvider:
     """Embeddingプロバイダーを取得.
-    
+
     Args:
         provider_type: "api" | "local" | None (設定から読み込み)
         config_path: 設定ファイルパス
-    
+
     Returns:
         EmbedProvider
     """

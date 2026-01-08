@@ -2,6 +2,7 @@
 
 Per RP30, this compares two papers and explains differences.
 """
+
 from __future__ import annotations
 
 import math
@@ -47,9 +48,15 @@ def compare_papers(a: PaperVector, b: PaperVector) -> dict:
     bio_distance = math.sqrt(sum((x - y) ** 2 for x, y in zip(bio_a, bio_b)))
 
     axis_diff = {
-        "immune_activation": round(a.biological_axis.immune_activation - b.biological_axis.immune_activation, 2),
-        "metabolism_signal": round(a.biological_axis.metabolism_signal - b.biological_axis.metabolism_signal, 2),
-        "tumor_context": round(a.biological_axis.tumor_context - b.biological_axis.tumor_context, 2),
+        "immune_activation": round(
+            a.biological_axis.immune_activation - b.biological_axis.immune_activation, 2
+        ),
+        "metabolism_signal": round(
+            a.biological_axis.metabolism_signal - b.biological_axis.metabolism_signal, 2
+        ),
+        "tumor_context": round(
+            a.biological_axis.tumor_context - b.biological_axis.tumor_context, 2
+        ),
     }
 
     # Generate summary

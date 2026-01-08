@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 
 def test_chroma_vector_store_add():
-    with patch('jarvis_core.embeddings.chroma_store.ChromaVectorStore._init_client') as mock_init:
+    with patch("jarvis_core.embeddings.chroma_store.ChromaVectorStore._init_client") as mock_init:
         mock_client = MagicMock()
         mock_collection = MagicMock()
         mock_init.return_value = (mock_client, mock_collection)
@@ -23,7 +23,7 @@ def test_chroma_vector_store_add():
 
 
 def test_chroma_vector_store_search():
-    with patch('jarvis_core.embeddings.chroma_store.ChromaVectorStore._init_client') as mock_init:
+    with patch("jarvis_core.embeddings.chroma_store.ChromaVectorStore._init_client") as mock_init:
         mock_client = MagicMock()
         mock_collection = MagicMock()
         mock_init.return_value = (mock_client, mock_collection)
@@ -47,7 +47,7 @@ def test_chroma_vector_store_search():
 
 
 def test_chroma_vector_store_count():
-    with patch('jarvis_core.embeddings.chroma_store.ChromaVectorStore._init_client') as mock_init:
+    with patch("jarvis_core.embeddings.chroma_store.ChromaVectorStore._init_client") as mock_init:
         mock_client = MagicMock()
         mock_collection = MagicMock()
         mock_collection.count.return_value = 100

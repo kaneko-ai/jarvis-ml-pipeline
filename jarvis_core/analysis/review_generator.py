@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ReviewOutput:
     """レビュー出力."""
+
     summary_short: str  # 300字
     summary_long: str  # 1000字
     summary_beginner: str  # 初心者向け
@@ -54,20 +55,24 @@ class ReviewOutput:
         for finding in self.key_findings:
             lines.append(f"- {finding}")
 
-        lines.extend([
-            "",
-            "## Methodology",
-            self.methodology_summary,
-            "",
-            "## Limitations",
-        ])
+        lines.extend(
+            [
+                "",
+                "## Methodology",
+                self.methodology_summary,
+                "",
+                "## Limitations",
+            ]
+        )
         for limitation in self.limitations:
             lines.append(f"- {limitation}")
 
-        lines.extend([
-            "",
-            "## Future Directions",
-        ])
+        lines.extend(
+            [
+                "",
+                "## Future Directions",
+            ]
+        )
         for direction in self.future_directions:
             lines.append(f"- {direction}")
 
@@ -76,7 +81,7 @@ class ReviewOutput:
 
 class ReviewGenerator:
     """レビュー生成器.
-    
+
     論文群から多粒度レビューを生成
     """
 
@@ -112,11 +117,11 @@ class ReviewGenerator:
         claims: list[dict[str, Any]],
     ) -> ReviewOutput:
         """レビューを生成.
-        
+
         Args:
             papers: 論文リスト
             claims: 主張リスト
-        
+
         Returns:
             レビュー出力
         """
@@ -191,16 +196,22 @@ class ReviewGenerator:
         # 論文タイトルから要約を生成
         titles = [p.get("title", "") for p in papers[:3]]
 
-        summary_short = f"This review covers {len(papers)} papers. " + \
-                        f"Key topics include: {', '.join(titles[:2])}."
+        summary_short = (
+            f"This review covers {len(papers)} papers. "
+            + f"Key topics include: {', '.join(titles[:2])}."
+        )
 
-        summary_long = f"This comprehensive review analyzes {len(papers)} papers " + \
-                       "related to the research topic. " + \
-                       f"The studies include: {'; '.join(titles)}. " + \
-                       f"A total of {len(claims)} key claims were identified."
+        summary_long = (
+            f"This comprehensive review analyzes {len(papers)} papers "
+            + "related to the research topic. "
+            + f"The studies include: {'; '.join(titles)}. "
+            + f"A total of {len(claims)} key claims were identified."
+        )
 
-        summary_beginner = "This research looks at important scientific questions. " + \
-                          "Scientists studied these topics to help us understand better."
+        summary_beginner = (
+            "This research looks at important scientific questions. "
+            + "Scientists studied these topics to help us understand better."
+        )
 
         key_findings = [c.get("claim_text", "")[:100] for c in claims[:5]]
 

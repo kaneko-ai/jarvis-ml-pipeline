@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 2, this provides DAG-based task execution with dependency resolution.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -183,8 +184,7 @@ class TaskGraph:
                     break
 
                 futures = {
-                    executor.submit(self.execute_task, task_id): task_id
-                    for task_id in ready
+                    executor.submit(self.execute_task, task_id): task_id for task_id in ready
                 }
 
                 for future in as_completed(futures):

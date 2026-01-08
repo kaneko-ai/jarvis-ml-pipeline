@@ -5,6 +5,7 @@ that it can summarize, discuss, and convert to audio.
 
 Per RP19, this creates a document optimized for NotebookLM's understanding.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -109,6 +110,8 @@ def export_notebooklm(
     lines.append("")
     lines.append("---")
     lines.append("")
-    lines.append(f"*Generated from {len(result.citations)} citations across {len(references)} sources.*")
+    lines.append(
+        f"*Generated from {len(result.citations)} citations across {len(references)} sources.*"
+    )
 
     return "\n".join(lines)

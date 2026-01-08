@@ -8,6 +8,7 @@ from jarvis_core.sync.storage import SyncQueueStorage
 
 logger = logging.getLogger(__name__)
 
+
 class SyncQueueManager:
     def __init__(self):
         self.storage = SyncQueueStorage()
@@ -18,6 +19,7 @@ class SyncQueueManager:
         # But instructions say "Task 1.5.3: Default Handler Registration -> handlers.py"
         # So we keep it separate or import it here if needed.
         from jarvis_core.sync.handlers import register_default_handlers
+
         register_default_handlers(self)
 
     def register_handler(self, operation: str, handler: Callable) -> None:

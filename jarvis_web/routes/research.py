@@ -1,4 +1,5 @@
 """Research-oriented API endpoints."""
+
 from __future__ import annotations
 
 import csv
@@ -89,7 +90,11 @@ async def get_paper(paper_id: str, run_id: str = Query(...)):
     papers = _load_jsonl(run_dir / "canonical_papers.jsonl")
     claims = _load_jsonl(run_dir / "claims.jsonl")
     paper = next(
-        (p for p in papers if p.get("canonical_paper_id") == paper_id or p.get("paper_id") == paper_id),
+        (
+            p
+            for p in papers
+            if p.get("canonical_paper_id") == paper_id or p.get("paper_id") == paper_id
+        ),
         None,
     )
     if not paper:

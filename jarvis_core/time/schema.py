@@ -1,4 +1,5 @@
 """Time allocation schema for P10."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

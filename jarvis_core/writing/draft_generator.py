@@ -1,4 +1,5 @@
 """Draft generation for research plan, thesis, and slides."""
+
 from __future__ import annotations
 
 import json
@@ -31,7 +32,6 @@ def _safe_read_json(path: Path) -> dict:
         return {}
     with open(path, encoding="utf-8") as f:
         return json.load(f)
-
 
 
 def _normalize_evidence(item: dict[str, Any]) -> EvidenceLocator:
@@ -94,7 +94,9 @@ def load_claims(run_dir: Path) -> list[ClaimDatum]:
                 text = data.get("claim") or data.get("text") or data.get("statement") or ""
                 if not text:
                     continue
-                evidence_raw = data.get("evidence") or data.get("citations") or data.get("citation_details")
+                evidence_raw = (
+                    data.get("evidence") or data.get("citations") or data.get("citation_details")
+                )
                 evidence = _extract_evidence(evidence_raw)
                 weak = bool(data.get("weak_evidence") or data.get("weak"))
                 score = data.get("score") or data.get("rank_score")
@@ -147,28 +149,38 @@ def _sections_to_markdown(sections: Iterable[Section]) -> str:
 
 
 def _build_metadata_header(run_id: str) -> str:
-    return (
-        f"Generated from run_id={run_id}, template_version={TEMPLATE_VERSION}, generated_at={_now()}\n\n"
-    )
+    return f"Generated from run_id={run_id}, template_version={TEMPLATE_VERSION}, generated_at={_now()}\n\n"
 
 
 def generate_markdown_research_plan(run_dir: Path, claims: list[ClaimDatum]) -> str:
     overview_text = load_overview(run_dir)
     references = _load_references(run_dir, claims)
     sections = build_research_plan_sections(claims, overview_text, references)
-    return "# Research Plan Draft\n\n" + _build_metadata_header(run_dir.name) + _sections_to_markdown(sections)
+    return (
+        "# Research Plan Draft\n\n"
+        + _build_metadata_header(run_dir.name)
+        + _sections_to_markdown(sections)
+    )
 
 
 def generate_markdown_thesis_outline(run_dir: Path, claims: list[ClaimDatum]) -> str:
     references = _load_references(run_dir, claims)
     sections = build_thesis_outline_sections(claims, references)
-    return "# Thesis Outline\n\n" + _build_metadata_header(run_dir.name) + _sections_to_markdown(sections)
+    return (
+        "# Thesis Outline\n\n"
+        + _build_metadata_header(run_dir.name)
+        + _sections_to_markdown(sections)
+    )
 
 
 def generate_markdown_thesis_draft(run_dir: Path, claims: list[ClaimDatum]) -> str:
     references = _load_references(run_dir, claims)
     sections = build_thesis_draft_sections(claims, references)
-    return "# Thesis Draft\n\n" + _build_metadata_header(run_dir.name) + _sections_to_markdown(sections)
+    return (
+        "# Thesis Draft\n\n"
+        + _build_metadata_header(run_dir.name)
+        + _sections_to_markdown(sections)
+    )
 
 
 def _write_text(path: Path, content: str) -> None:

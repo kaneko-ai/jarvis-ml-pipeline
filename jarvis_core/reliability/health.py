@@ -2,6 +2,7 @@
 
 Per RP-543, implements comprehensive health checks.
 """
+
 from __future__ import annotations
 
 import time
@@ -43,7 +44,7 @@ class HealthReport:
 
 class HealthChecker:
     """Health check manager.
-    
+
     Per RP-543:
     - /health (basic liveness)
     - /ready (deep readiness)
@@ -66,7 +67,7 @@ class HealthChecker:
         check_fn: Callable[[], CheckResult],
     ) -> None:
         """Register a health check.
-        
+
         Args:
             name: Check name.
             check_fn: Check function.
@@ -79,7 +80,7 @@ class HealthChecker:
         check_fn: Callable,
     ) -> None:
         """Register an async health check.
-        
+
         Args:
             name: Check name.
             check_fn: Async check function.
@@ -88,7 +89,7 @@ class HealthChecker:
 
     def check_liveness(self) -> HealthReport:
         """Basic liveness check.
-        
+
         Returns:
             HealthReport for liveness.
         """
@@ -104,7 +105,7 @@ class HealthChecker:
 
     def check_readiness(self) -> HealthReport:
         """Deep readiness check.
-        
+
         Returns:
             HealthReport with all checks.
         """
@@ -122,16 +123,21 @@ class HealthChecker:
 
                 if result.status == HealthStatus.UNHEALTHY:
                     overall_status = HealthStatus.UNHEALTHY
-                elif result.status == HealthStatus.DEGRADED and overall_status == HealthStatus.HEALTHY:
+                elif (
+                    result.status == HealthStatus.DEGRADED
+                    and overall_status == HealthStatus.HEALTHY
+                ):
                     overall_status = HealthStatus.DEGRADED
 
             except Exception as e:
-                results.append(CheckResult(
-                    name=name,
-                    status=HealthStatus.UNHEALTHY,
-                    latency_ms=0,
-                    message=str(e),
-                ))
+                results.append(
+                    CheckResult(
+                        name=name,
+                        status=HealthStatus.UNHEALTHY,
+                        latency_ms=0,
+                        message=str(e),
+                    )
+                )
                 overall_status = HealthStatus.UNHEALTHY
 
         return HealthReport(
@@ -144,7 +150,7 @@ class HealthChecker:
 
     async def check_readiness_async(self) -> HealthReport:
         """Async deep readiness check.
-        
+
         Returns:
             HealthReport with all checks.
         """
@@ -162,12 +168,14 @@ class HealthChecker:
                 if result.status == HealthStatus.UNHEALTHY:
                     overall_status = HealthStatus.UNHEALTHY
             except Exception as e:
-                results.append(CheckResult(
-                    name=name,
-                    status=HealthStatus.UNHEALTHY,
-                    latency_ms=0,
-                    message=str(e),
-                ))
+                results.append(
+                    CheckResult(
+                        name=name,
+                        status=HealthStatus.UNHEALTHY,
+                        latency_ms=0,
+                        message=str(e),
+                    )
+                )
                 overall_status = HealthStatus.UNHEALTHY
 
         # Run async checks
@@ -181,12 +189,14 @@ class HealthChecker:
                 if result.status == HealthStatus.UNHEALTHY:
                     overall_status = HealthStatus.UNHEALTHY
             except Exception as e:
-                results.append(CheckResult(
-                    name=name,
-                    status=HealthStatus.UNHEALTHY,
-                    latency_ms=0,
-                    message=str(e),
-                ))
+                results.append(
+                    CheckResult(
+                        name=name,
+                        status=HealthStatus.UNHEALTHY,
+                        latency_ms=0,
+                        message=str(e),
+                    )
+                )
                 overall_status = HealthStatus.UNHEALTHY
 
         return HealthReport(
@@ -200,10 +210,12 @@ class HealthChecker:
 
 # Built-in checks
 
+
 def check_redis(redis_url: str) -> CheckResult:
     """Check Redis connectivity."""
     try:
         import redis
+
         r = redis.from_url(redis_url)
         start = time.time()
         r.ping()
@@ -228,6 +240,7 @@ def check_postgres(database_url: str) -> CheckResult:
     """Check PostgreSQL connectivity."""
     try:
         import psycopg2
+
         start = time.time()
         conn = psycopg2.connect(database_url)
         cursor = conn.cursor()
@@ -255,6 +268,7 @@ def check_qdrant(qdrant_url: str) -> CheckResult:
     """Check Qdrant connectivity."""
     try:
         import requests
+
         start = time.time()
         resp = requests.get(f"{qdrant_url}/health", timeout=5)
         latency = (time.time() - start) * 1000
@@ -286,8 +300,9 @@ def check_disk_space(path: str = "/", min_gb: float = 1.0) -> CheckResult:
     """Check disk space."""
     try:
         import shutil
+
         total, used, free = shutil.disk_usage(path)
-        free_gb = free / (1024 ** 3)
+        free_gb = free / (1024**3)
 
         if free_gb >= min_gb:
             status = HealthStatus.HEALTHY
@@ -316,6 +331,7 @@ def check_memory(max_percent: float = 90.0) -> CheckResult:
     """Check memory usage."""
     try:
         import psutil
+
         memory = psutil.virtual_memory()
 
         if memory.percent < max_percent * 0.8:

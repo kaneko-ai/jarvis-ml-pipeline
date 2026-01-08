@@ -2,6 +2,7 @@
 
 Per RP-300, implements structure-aware dynamic chunking.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -57,7 +58,7 @@ class AdaptiveChunk:
 
 class AdaptiveChunker:
     """Structure-aware dynamic chunker.
-    
+
     Per RP-300:
     - Respects section boundaries
     - Independent figure/table caption chunks
@@ -81,11 +82,11 @@ class AdaptiveChunker:
         sections: list[dict[str, Any]] | None = None,
     ) -> list[AdaptiveChunk]:
         """Chunk text adaptively.
-        
+
         Args:
             text: Full document text.
             sections: Optional section annotations.
-            
+
         Returns:
             List of AdaptiveChunk objects.
         """
@@ -125,11 +126,13 @@ class AdaptiveChunker:
         sections = []
         for pattern, content_type in patterns:
             for match in re.finditer(pattern, text):
-                sections.append({
-                    "start": match.start(),
-                    "title": match.group(),
-                    "type": content_type,
-                })
+                sections.append(
+                    {
+                        "start": match.start(),
+                        "title": match.group(),
+                        "type": content_type,
+                    }
+                )
 
         # Sort by position
         sections.sort(key=lambda x: x["start"])
@@ -154,10 +157,14 @@ class AdaptiveChunker:
         for section in sections:
             content_type = section.get("type", ContentType.UNKNOWN)
             if isinstance(content_type, str):
-                content_type = ContentType(content_type) if content_type in [e.value for e in ContentType] else ContentType.UNKNOWN
+                content_type = (
+                    ContentType(content_type)
+                    if content_type in [e.value for e in ContentType]
+                    else ContentType.UNKNOWN
+                )
 
             chunk_size = CHUNK_SIZE_MAP.get(content_type, self.default_size)
-            section_text = text[section["start"]:section["end"]]
+            section_text = text[section["start"] : section["end"]]
             section_title = section.get("title", "")
 
             # Split section into chunks
@@ -194,7 +201,7 @@ class AdaptiveChunker:
         chunks = []
 
         # Split by sentences first
-        sentences = re.split(r'(?<=[.!?])\s+', text)
+        sentences = re.split(r"(?<=[.!?])\s+", text)
 
         current_chunk = []
         current_len = 0
@@ -208,18 +215,22 @@ class AdaptiveChunker:
                 chunk_text = " ".join(current_chunk)
                 chunk_id = self._generate_chunk_id(chunk_text, chunk_start)
 
-                chunks.append(AdaptiveChunk(
-                    chunk_id=chunk_id,
-                    text=chunk_text,
-                    content_type=content_type,
-                    section_title=section_title,
-                    start_char=chunk_start,
-                    end_char=chunk_start + len(chunk_text),
-                ))
+                chunks.append(
+                    AdaptiveChunk(
+                        chunk_id=chunk_id,
+                        text=chunk_text,
+                        content_type=content_type,
+                        section_title=section_title,
+                        start_char=chunk_start,
+                        end_char=chunk_start + len(chunk_text),
+                    )
+                )
 
                 # Start new chunk with overlap
                 if self.overlap > 0 and current_chunk:
-                    overlap_text = current_chunk[-1] if len(current_chunk[-1]) <= self.overlap else ""
+                    overlap_text = (
+                        current_chunk[-1] if len(current_chunk[-1]) <= self.overlap else ""
+                    )
                     current_chunk = [overlap_text] if overlap_text else []
                     current_len = len(overlap_text)
                 else:
@@ -236,14 +247,16 @@ class AdaptiveChunker:
             chunk_text = " ".join(current_chunk)
             chunk_id = self._generate_chunk_id(chunk_text, chunk_start)
 
-            chunks.append(AdaptiveChunk(
-                chunk_id=chunk_id,
-                text=chunk_text,
-                content_type=content_type,
-                section_title=section_title,
-                start_char=chunk_start,
-                end_char=chunk_start + len(chunk_text),
-            ))
+            chunks.append(
+                AdaptiveChunk(
+                    chunk_id=chunk_id,
+                    text=chunk_text,
+                    content_type=content_type,
+                    section_title=section_title,
+                    start_char=chunk_start,
+                    end_char=chunk_start + len(chunk_text),
+                )
+            )
 
         return chunks
 
@@ -255,27 +268,31 @@ class AdaptiveChunker:
         fig_pattern = r"(?i)(Figure\s+\d+[.:]\s*[^\n]+)"
         for match in re.finditer(fig_pattern, text):
             chunk_id = self._generate_chunk_id(match.group(1), match.start())
-            chunks.append(AdaptiveChunk(
-                chunk_id=chunk_id,
-                text=match.group(1),
-                content_type=ContentType.FIGURE_CAPTION,
-                section_title="Figures",
-                start_char=match.start(),
-                end_char=match.end(),
-            ))
+            chunks.append(
+                AdaptiveChunk(
+                    chunk_id=chunk_id,
+                    text=match.group(1),
+                    content_type=ContentType.FIGURE_CAPTION,
+                    section_title="Figures",
+                    start_char=match.start(),
+                    end_char=match.end(),
+                )
+            )
 
         # Table captions
         table_pattern = r"(?i)(Table\s+\d+[.:]\s*[^\n]+)"
         for match in re.finditer(table_pattern, text):
             chunk_id = self._generate_chunk_id(match.group(1), match.start())
-            chunks.append(AdaptiveChunk(
-                chunk_id=chunk_id,
-                text=match.group(1),
-                content_type=ContentType.TABLE_CAPTION,
-                section_title="Tables",
-                start_char=match.start(),
-                end_char=match.end(),
-            ))
+            chunks.append(
+                AdaptiveChunk(
+                    chunk_id=chunk_id,
+                    text=match.group(1),
+                    content_type=ContentType.TABLE_CAPTION,
+                    section_title="Tables",
+                    start_char=match.start(),
+                    end_char=match.end(),
+                )
+            )
 
         return chunks
 
@@ -295,7 +312,7 @@ class AdaptiveChunker:
         for chunk in chunks:
             for key, caption_id in caption_ids.items():
                 # Build pattern without f-string backslash issue
-                pattern_key = key.replace('_', r'\s+')
+                pattern_key = key.replace("_", r"\s+")
                 ref_pattern = f"(?i){pattern_key}"
                 if re.search(ref_pattern, chunk.text) and chunk.chunk_id != caption_id:
                     if caption_id not in chunk.related_chunks:

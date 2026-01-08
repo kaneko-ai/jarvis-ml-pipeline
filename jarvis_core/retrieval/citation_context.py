@@ -2,6 +2,7 @@
 
 Per RP-120, retrieves citation context for evidence validation.
 """
+
 from __future__ import annotations
 
 import re
@@ -84,13 +85,15 @@ def extract_citation_context(
         # Full context
         full_context = text[context_start:context_end].strip()
 
-        contexts.append(CitationContext(
-            citation_marker=citation_text,
-            context_before=context_before,
-            context_after=context_after,
-            full_context=full_context,
-            position=start,
-        ))
+        contexts.append(
+            CitationContext(
+                citation_marker=citation_text,
+                context_before=context_before,
+                context_after=context_after,
+                full_context=full_context,
+                position=start,
+            )
+        )
 
     return contexts
 
@@ -109,7 +112,7 @@ def extract_citation_windows(
         List of CitationWindow objects.
     """
     # Split into sentences (simple)
-    sentences = re.split(r'(?<=[.!?])\s+', text)
+    sentences = re.split(r"(?<=[.!?])\s+", text)
 
     windows = []
     for i, sentence in enumerate(sentences):
@@ -125,12 +128,14 @@ def extract_citation_windows(
         window_text = " ".join(sentences[start_idx:end_idx])
         citation_markers = [c[0] for c in citations_in_sentence]
 
-        windows.append(CitationWindow(
-            text=window_text,
-            citations=citation_markers,
-            start_char=0,  # Would need char tracking
-            end_char=len(window_text),
-        ))
+        windows.append(
+            CitationWindow(
+                text=window_text,
+                citations=citation_markers,
+                start_char=0,  # Would need char tracking
+                end_char=len(window_text),
+            )
+        )
 
     return windows
 

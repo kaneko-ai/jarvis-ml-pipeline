@@ -3,6 +3,7 @@
 Per JARVIS_LOCALFIRST_ROADMAP Task 1.4: 無料API統合
 Uses NCBI E-utilities API (free, no API key required for low volume).
 """
+
 from __future__ import annotations
 
 import logging
@@ -25,6 +26,7 @@ EINFO_URL = f"{EUTILS_BASE}/einfo.fcgi"
 @dataclass
 class PubMedArticle:
     """PubMed article representation."""
+
     pmid: str
     title: str
     abstract: str = ""
@@ -53,7 +55,7 @@ class PubMedArticle:
 
 class PubMedClient:
     """Client for NCBI PubMed E-utilities API.
-    
+
     Free API with rate limiting (3 requests/second without API key).
     """
 
@@ -97,12 +99,12 @@ class PubMedClient:
         sort: str = "relevance",
     ) -> list[str]:
         """Search PubMed and return PMIDs.
-        
+
         Args:
             query: Search query (PubMed query syntax).
             max_results: Maximum number of results.
             sort: Sort order ('relevance' or 'date').
-            
+
         Returns:
             List of PMIDs.
         """
@@ -131,10 +133,10 @@ class PubMedClient:
 
     def fetch(self, pmids: list[str]) -> list[PubMedArticle]:
         """Fetch article details by PMIDs.
-        
+
         Args:
             pmids: List of PubMed IDs.
-            
+
         Returns:
             List of PubMedArticle objects.
         """
@@ -270,11 +272,11 @@ class PubMedClient:
         max_results: int = 20,
     ) -> list[PubMedArticle]:
         """Search and fetch articles in one call.
-        
+
         Args:
             query: Search query.
             max_results: Maximum number of results.
-            
+
         Returns:
             List of PubMedArticle objects.
         """

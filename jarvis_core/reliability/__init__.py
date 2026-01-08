@@ -1,4 +1,5 @@
 """Reliability package."""
+
 from .circuit_breaker import (
     CircuitBreaker,
     CircuitConfig,
@@ -73,5 +74,3 @@ __all__ = [
     "RecoveryTimeObjective",
     "get_dr_manager",
 ]
-
-

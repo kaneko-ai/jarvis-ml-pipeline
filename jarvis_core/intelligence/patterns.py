@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PatternSummary:
     """パターンサマリー."""
+
     pattern: DecisionPattern
     count: int
     success_rate: float
@@ -27,7 +28,7 @@ class PatternSummary:
 
 class PatternExtractor:
     """判断パターン抽出器.
-    
+
     Decisionをクラスタリングし、判断の「型」を抽出。
     """
 
@@ -44,7 +45,7 @@ class PatternExtractor:
     def __init__(self, store: Optional[DecisionStore] = None):
         """
         初期化.
-        
+
         Args:
             store: DecisionStore
         """
@@ -53,10 +54,10 @@ class PatternExtractor:
     def classify(self, decision: DecisionItem) -> DecisionPattern:
         """
         Decisionをパターン分類.
-        
+
         Args:
             decision: 判断
-        
+
         Returns:
             DecisionPattern
         """
@@ -88,7 +89,7 @@ class PatternExtractor:
     def extract_summaries(self) -> list[PatternSummary]:
         """
         全パターンのサマリーを抽出.
-        
+
         Returns:
             PatternSummary リスト
         """
@@ -111,13 +112,15 @@ class PatternExtractor:
             # 例のコンテキスト
             examples = [d.context[:50] for d in items[:3]]
 
-            summaries.append(PatternSummary(
-                pattern=pattern,
-                count=len(items),
-                success_rate=success_rate,
-                description=self.PATTERN_DESCRIPTIONS.get(pattern, ""),
-                example_contexts=examples,
-            ))
+            summaries.append(
+                PatternSummary(
+                    pattern=pattern,
+                    count=len(items),
+                    success_rate=success_rate,
+                    description=self.PATTERN_DESCRIPTIONS.get(pattern, ""),
+                    example_contexts=examples,
+                )
+            )
 
         # カウント降順でソート
         summaries.sort(key=lambda x: x.count, reverse=True)
@@ -127,25 +130,19 @@ class PatternExtractor:
     def get_pattern_advice(self, pattern: DecisionPattern) -> str:
         """
         パターンに基づくアドバイスを取得.
-        
+
         Args:
             pattern: パターン
-        
+
         Returns:
             アドバイス文字列
         """
         advice_map = {
-            DecisionPattern.EARLY_STAGE_REJECT:
-                "このパターンは根拠が揃うまで保留がベスト。急いで採用すると後悔する傾向。",
-            DecisionPattern.HIGH_EFFORT_DELAY:
-                "コストが高い場合は後回しが正解。他の改善を先にやると効率的。",
-            DecisionPattern.EVALUATOR_FIRST:
-                "評価系の改善は優先度高。判断精度が上がると全体が良くなる。",
-            DecisionPattern.CORE_PRIORITY:
-                "中核機能の改善は積極採用。Javisの本質的強化につながる。",
-            DecisionPattern.EVIDENCE_REQUIRED:
-                "根拠が不足。追加調査をしてから再検討。",
-            DecisionPattern.UNCLASSIFIED:
-                "パターン未確定。慎重に判断。",
+            DecisionPattern.EARLY_STAGE_REJECT: "このパターンは根拠が揃うまで保留がベスト。急いで採用すると後悔する傾向。",
+            DecisionPattern.HIGH_EFFORT_DELAY: "コストが高い場合は後回しが正解。他の改善を先にやると効率的。",
+            DecisionPattern.EVALUATOR_FIRST: "評価系の改善は優先度高。判断精度が上がると全体が良くなる。",
+            DecisionPattern.CORE_PRIORITY: "中核機能の改善は積極採用。Javisの本質的強化につながる。",
+            DecisionPattern.EVIDENCE_REQUIRED: "根拠が不足。追加調査をしてから再検討。",
+            DecisionPattern.UNCLASSIFIED: "パターン未確定。慎重に判断。",
         }
         return advice_map.get(pattern, "")

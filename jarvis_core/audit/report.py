@@ -2,6 +2,7 @@
 
 Per V4-D2, this generates audit reports for artifacts.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -80,8 +81,10 @@ def generate_audit_report(artifact: ArtifactBase) -> AuditReport:
     for fact in artifact.facts:
         total_evidence += len(fact.evidence_refs)
 
-    evidence_coverage = 1.0 if not artifact.facts else (
-        total_evidence / len(artifact.facts) if total_evidence else 0.0
+    evidence_coverage = (
+        1.0
+        if not artifact.facts
+        else (total_evidence / len(artifact.facts) if total_evidence else 0.0)
     )
 
     # Identify weaknesses

@@ -4,6 +4,7 @@
 - 成功パターン記録
 - 最適な修復戦略選択
 """
+
 from __future__ import annotations
 
 import json
@@ -16,6 +17,7 @@ from typing import Any
 @dataclass
 class RepairRecord:
     """修復記録."""
+
     fail_reason: str
     repair_action: str
     success: bool
@@ -48,6 +50,7 @@ class RepairRecord:
 @dataclass
 class RepairStrategy:
     """修復戦略."""
+
     action: str
     success_rate: float
     avg_attempts: float
@@ -66,7 +69,7 @@ class RepairStrategy:
 
 class SelfRepairLearner:
     """Self-Repair学習器.
-    
+
     過去の修復結果から最適な戦略を学習。
     """
 
@@ -157,12 +160,14 @@ class SelfRepairLearner:
         strategies = []
         for action, stats in action_stats.items():
             total = stats["successes"] + stats["failures"]
-            strategies.append(RepairStrategy(
-                action=action,
-                success_rate=stats["successes"] / total if total > 0 else 0,
-                avg_attempts=stats["total_attempts"] / total if total > 0 else 0,
-                total_uses=total,
-            ))
+            strategies.append(
+                RepairStrategy(
+                    action=action,
+                    success_rate=stats["successes"] / total if total > 0 else 0,
+                    avg_attempts=stats["total_attempts"] / total if total > 0 else 0,
+                    total_uses=total,
+                )
+            )
 
         # 成功率順でソート
         strategies.sort(key=lambda s: s.success_rate, reverse=True)
@@ -200,17 +205,21 @@ class SelfRepairLearner:
         for reason in fail_reasons:
             best = self.get_best_strategy(reason)
             if best:
-                recommendations.append({
-                    "fail_reason": reason,
-                    "recommended_action": best.action,
-                    "expected_success_rate": best.success_rate,
-                })
+                recommendations.append(
+                    {
+                        "fail_reason": reason,
+                        "recommended_action": best.action,
+                        "expected_success_rate": best.success_rate,
+                    }
+                )
             else:
-                recommendations.append({
-                    "fail_reason": reason,
-                    "recommended_action": None,
-                    "expected_success_rate": 0,
-                })
+                recommendations.append(
+                    {
+                        "fail_reason": reason,
+                        "recommended_action": None,
+                        "expected_success_rate": 0,
+                    }
+                )
 
         return recommendations
 

@@ -5,6 +5,7 @@ This module provides:
 
 Per RP22, this enriches Reference with DOI, title, authors, year.
 """
+
 from __future__ import annotations
 
 import json

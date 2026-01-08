@@ -4,7 +4,6 @@ Per JARVIS_COMPLETION_PLAN_v3 Sprint 19-20
 """
 
 
-
 class TestScoringWeights:
     """Tests for scoring weights configuration."""
 
@@ -21,10 +20,10 @@ class TestScoringWeights:
 
         # Weights should sum to approximately 1.0
         total = (
-            weights.evidence_weight +
-            weights.citation_weight +
-            weights.recency_weight +
-            weights.source_weight
+            weights.evidence_weight
+            + weights.citation_weight
+            + weights.recency_weight
+            + weights.source_weight
         )
         assert 0.99 <= total <= 1.01
 
@@ -55,10 +54,10 @@ class TestScoringWeights:
         )
 
         total = (
-            weights.evidence_weight +
-            weights.citation_weight +
-            weights.recency_weight +
-            weights.source_weight
+            weights.evidence_weight
+            + weights.citation_weight
+            + weights.recency_weight
+            + weights.source_weight
         )
         assert 0.99 <= total <= 1.01
 

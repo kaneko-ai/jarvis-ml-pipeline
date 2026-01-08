@@ -23,6 +23,7 @@ ARXIV_API_URL = "http://export.arxiv.org/api/query"
 @dataclass
 class ArxivPaper:
     """arXiv論文."""
+
     arxiv_id: str
     title: str
     authors: list[str]
@@ -47,7 +48,7 @@ class ArxivPaper:
 
 class ArxivClient:
     """arXiv API Client.
-    
+
     arXiv API を使用して論文を検索・取得
     """
 
@@ -70,12 +71,12 @@ class ArxivClient:
         categories: list[str] | None = None,
     ) -> list[ArxivPaper]:
         """論文を検索.
-        
+
         Args:
             query: 検索クエリ
             max_results: 最大結果数
             categories: カテゴリフィルタ（例: cs.LG, q-bio.BM）
-        
+
         Returns:
             論文リスト
         """
@@ -112,29 +113,29 @@ class ArxivClient:
         papers = []
 
         # エントリを分割
-        entries = re.findall(r'<entry>(.*?)</entry>', xml_text, re.DOTALL)
+        entries = re.findall(r"<entry>(.*?)</entry>", xml_text, re.DOTALL)
 
         for entry in entries:
             # arXiv ID
-            id_match = re.search(r'<id>http://arxiv.org/abs/(.+?)</id>', entry)
+            id_match = re.search(r"<id>http://arxiv.org/abs/(.+?)</id>", entry)
             arxiv_id = id_match.group(1) if id_match else ""
 
             # タイトル
-            title_match = re.search(r'<title>(.+?)</title>', entry, re.DOTALL)
+            title_match = re.search(r"<title>(.+?)</title>", entry, re.DOTALL)
             title = title_match.group(1).strip() if title_match else ""
-            title = re.sub(r'\s+', ' ', title)
+            title = re.sub(r"\s+", " ", title)
 
             # 著者
-            author_matches = re.findall(r'<name>(.+?)</name>', entry)
+            author_matches = re.findall(r"<name>(.+?)</name>", entry)
             authors = author_matches[:5]  # 最大5名
 
             # Abstract
-            summary_match = re.search(r'<summary>(.+?)</summary>', entry, re.DOTALL)
+            summary_match = re.search(r"<summary>(.+?)</summary>", entry, re.DOTALL)
             abstract = summary_match.group(1).strip() if summary_match else ""
-            abstract = re.sub(r'\s+', ' ', abstract)
+            abstract = re.sub(r"\s+", " ", abstract)
 
             # 公開日
-            published_match = re.search(r'<published>(\d{4})-', entry)
+            published_match = re.search(r"<published>(\d{4})-", entry)
             year = int(published_match.group(1)) if published_match else 2024
 
             # カテゴリ
@@ -145,14 +146,16 @@ class ArxivClient:
             pdf_url = pdf_match.group(1) if pdf_match else ""
 
             if arxiv_id and title:
-                papers.append(ArxivPaper(
-                    arxiv_id=arxiv_id,
-                    title=title,
-                    authors=authors,
-                    year=year,
-                    abstract=abstract,
-                    categories=category_matches,
-                    pdf_url=pdf_url,
-                ))
+                papers.append(
+                    ArxivPaper(
+                        arxiv_id=arxiv_id,
+                        title=title,
+                        authors=authors,
+                        year=year,
+                        abstract=abstract,
+                        categories=category_matches,
+                        pdf_url=pdf_url,
+                    )
+                )
 
         return papers

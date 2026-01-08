@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SimilarityResult:
     """類似度検索結果."""
+
     decision: DecisionItem
     similarity_score: float
     match_reason: str
@@ -25,7 +26,7 @@ class SimilarityResult:
 
 class SimilaritySearcher:
     """類似Decision検索器.
-    
+
     新しいIssue生成時：
     - 過去のDecisionを検索
     - 類似度の高いもの Top3 を必ず提示
@@ -34,24 +35,20 @@ class SimilaritySearcher:
     def __init__(self, store: DecisionStore | None = None):
         """
         初期化.
-        
+
         Args:
             store: DecisionStore
         """
         self.store = store or DecisionStore()
 
-    def search(
-        self,
-        context: str,
-        top_k: int = 3
-    ) -> list[SimilarityResult]:
+    def search(self, context: str, top_k: int = 3) -> list[SimilarityResult]:
         """
         類似Decisionを検索.
-        
+
         Args:
             context: 新しいIssueのコンテキスト
             top_k: 上位何件
-        
+
         Returns:
             SimilarityResult リスト（類似度降順）
         """
@@ -63,29 +60,27 @@ class SimilaritySearcher:
         for d in decisions:
             score, reason = self._calc_similarity(context, d)
             if score > 0:
-                results.append(SimilarityResult(
-                    decision=d,
-                    similarity_score=score,
-                    match_reason=reason,
-                ))
+                results.append(
+                    SimilarityResult(
+                        decision=d,
+                        similarity_score=score,
+                        match_reason=reason,
+                    )
+                )
 
         # スコア降順でソート
         results.sort(key=lambda x: x.similarity_score, reverse=True)
 
         return results[:top_k]
 
-    def _calc_similarity(
-        self,
-        context: str,
-        decision: DecisionItem
-    ) -> tuple[float, str]:
+    def _calc_similarity(self, context: str, decision: DecisionItem) -> tuple[float, str]:
         """
         類似度を計算.
-        
+
         Args:
             context: 新しいコンテキスト
             decision: 過去のDecision
-        
+
         Returns:
             (スコア, 理由)
         """
@@ -115,16 +110,13 @@ class SimilaritySearcher:
 
         return 0.0, ""
 
-    def format_for_prompt(
-        self,
-        results: list[SimilarityResult]
-    ) -> str:
+    def format_for_prompt(self, results: list[SimilarityResult]) -> str:
         """
         プロンプト用にフォーマット.
-        
+
         Args:
             results: 検索結果
-        
+
         Returns:
             文字列
         """

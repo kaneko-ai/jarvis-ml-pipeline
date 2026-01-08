@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class OllamaConfig:
     """Ollama設定."""
+
     base_url: str = "http://127.0.0.1:11434"
     model: str = "llama3.2"
     timeout: int = 120
@@ -26,7 +27,7 @@ class OllamaConfig:
 
 class OllamaAdapter:
     """Ollamaアダプター.
-    
+
     ローカルOllamaサーバーを使用したLLM推論を提供。
     """
 
@@ -52,10 +53,8 @@ class OllamaAdapter:
 
         try:
             import requests
-            response = requests.get(
-                f"{self.base_url}/api/tags",
-                timeout=5
-            )
+
+            response = requests.get(f"{self.base_url}/api/tags", timeout=5)
             self._available = response.status_code == 200
             if self._available:
                 logger.info(f"Ollama server available at {self.base_url}")
@@ -72,10 +71,8 @@ class OllamaAdapter:
 
         try:
             import requests
-            response = requests.get(
-                f"{self.base_url}/api/tags",
-                timeout=10
-            )
+
+            response = requests.get(f"{self.base_url}/api/tags", timeout=10)
             response.raise_for_status()
             data = response.json()
             return [m["name"] for m in data.get("models", [])]
@@ -89,16 +86,16 @@ class OllamaAdapter:
         model: str | None = None,
         max_tokens: int = 1024,
         temperature: float = 0.7,
-        **kwargs
+        **kwargs,
     ) -> str:
         """テキスト生成.
-        
+
         Args:
             prompt: 入力プロンプト
             model: モデル名（省略時はデフォルト）
             max_tokens: 最大トークン数
             temperature: 温度パラメータ
-            
+
         Returns:
             生成されたテキスト
         """
@@ -115,15 +112,11 @@ class OllamaAdapter:
                 "num_predict": max_tokens,
                 "temperature": temperature,
                 **kwargs.get("options", {}),
-            }
+            },
         }
 
         try:
-            response = requests.post(
-                url,
-                json=payload,
-                timeout=self.config.timeout
-            )
+            response = requests.post(url, json=payload, timeout=self.config.timeout)
             response.raise_for_status()
             data = response.json()
             return data.get("response", "")
@@ -137,16 +130,16 @@ class OllamaAdapter:
         model: str | None = None,
         max_tokens: int = 1024,
         temperature: float = 0.7,
-        **kwargs
+        **kwargs,
     ) -> Generator[str, None, None]:
         """ストリーミング生成.
-        
+
         Args:
             prompt: 入力プロンプト
             model: モデル名
             max_tokens: 最大トークン数
             temperature: 温度パラメータ
-            
+
         Yields:
             生成されたテキストチャンク
         """
@@ -164,15 +157,12 @@ class OllamaAdapter:
             "options": {
                 "num_predict": max_tokens,
                 "temperature": temperature,
-            }
+            },
         }
 
         try:
             with requests.post(
-                url,
-                json=payload,
-                timeout=self.config.timeout,
-                stream=True
+                url, json=payload, timeout=self.config.timeout, stream=True
             ) as response:
                 response.raise_for_status()
                 for line in response.iter_lines():
@@ -192,16 +182,16 @@ class OllamaAdapter:
         model: str | None = None,
         max_tokens: int = 1024,
         temperature: float = 0.7,
-        **kwargs
+        **kwargs,
     ) -> str:
         """チャット形式で生成.
-        
+
         Args:
             messages: メッセージリスト [{"role": "user", "content": "..."}]
             model: モデル名
             max_tokens: 最大トークン数
             temperature: 温度パラメータ
-            
+
         Returns:
             生成されたレスポンス
         """
@@ -217,15 +207,11 @@ class OllamaAdapter:
             "options": {
                 "num_predict": max_tokens,
                 "temperature": temperature,
-            }
+            },
         }
 
         try:
-            response = requests.post(
-                url,
-                json=payload,
-                timeout=self.config.timeout
-            )
+            response = requests.post(url, json=payload, timeout=self.config.timeout)
             response.raise_for_status()
             data = response.json()
             return data.get("message", {}).get("content", "")
@@ -239,10 +225,10 @@ class OllamaAdapter:
         model: str | None = None,
         max_tokens: int = 1024,
         temperature: float = 0.7,
-        **kwargs
+        **kwargs,
     ) -> Generator[str, None, None]:
         """ストリーミングチャット.
-        
+
         Yields:
             生成されたテキストチャンク
         """
@@ -260,15 +246,12 @@ class OllamaAdapter:
             "options": {
                 "num_predict": max_tokens,
                 "temperature": temperature,
-            }
+            },
         }
 
         try:
             with requests.post(
-                url,
-                json=payload,
-                timeout=self.config.timeout,
-                stream=True
+                url, json=payload, timeout=self.config.timeout, stream=True
             ) as response:
                 response.raise_for_status()
                 for line in response.iter_lines():
@@ -283,17 +266,13 @@ class OllamaAdapter:
             logger.error(f"Ollama chat stream error: {e}")
             raise RuntimeError(f"Ollama API error: {e}") from e
 
-    def embeddings(
-        self,
-        text: str,
-        model: str = "nomic-embed-text"
-    ) -> list[float]:
+    def embeddings(self, text: str, model: str = "nomic-embed-text") -> list[float]:
         """テキスト埋め込み生成.
-        
+
         Args:
             text: 入力テキスト
             model: 埋め込みモデル名
-            
+
         Returns:
             埋め込みベクトル
         """
@@ -307,11 +286,7 @@ class OllamaAdapter:
         }
 
         try:
-            response = requests.post(
-                url,
-                json=payload,
-                timeout=self.config.timeout
-            )
+            response = requests.post(url, json=payload, timeout=self.config.timeout)
             response.raise_for_status()
             data = response.json()
             return data.get("embedding", [])

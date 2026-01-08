@@ -1,4 +1,5 @@
 """Tests for additional integrations module."""
+
 import pytest
 
 from jarvis_core.integrations.additional import (
@@ -61,7 +62,7 @@ class TestObsidianExporter:
             "authors": "Smith J",
             "year": 2024,
             "journal": "Nature",
-            "abstract": "Test abstract"
+            "abstract": "Test abstract",
         }
         md = exporter.paper_to_markdown(paper)
         assert "# Test Paper" in md
@@ -150,7 +151,7 @@ class TestAnnotationManager:
             text="Important finding",
             highlight_color="yellow",
             page=1,
-            position={"x": 0, "y": 0}
+            position={"x": 0, "y": 0},
         )
         ann_id = am.add_annotation("paper1", ann)
         assert ann_id.startswith("ann_")

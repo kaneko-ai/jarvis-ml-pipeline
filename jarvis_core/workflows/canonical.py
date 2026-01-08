@@ -3,6 +3,7 @@
 Per V4-C1, these are the standard research workflows.
 Each workflow is a complete pipeline from input to artifact output.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -38,11 +39,13 @@ def run_literature_to_plan(
     if not vectors:
         return ArtifactBase(
             kind="research_plan",
-            inferences=[Inference(
-                statement="No input vectors provided",
-                method="validation",
-                confidence=0.0,
-            )],
+            inferences=[
+                Inference(
+                    statement="No input vectors provided",
+                    method="validation",
+                    confidence=0.0,
+                )
+            ],
             provenance=Provenance(source_modules=["literature_to_plan"]),
         )
 
@@ -59,10 +62,12 @@ def run_literature_to_plan(
     feasibility_results = []
     for hyp in hypotheses[:3]:
         feas = score_feasibility(hyp["hypothesis"], vectors)
-        feasibility_results.append({
-            "hypothesis": hyp["hypothesis"],
-            "feasibility": feas,
-        })
+        feasibility_results.append(
+            {
+                "hypothesis": hyp["hypothesis"],
+                "feasibility": feas,
+            }
+        )
 
     # Build Artifact
     inferences = [
@@ -75,20 +80,24 @@ def run_literature_to_plan(
     ]
 
     for hyp in hypotheses[:3]:
-        inferences.append(Inference(
-            statement=hyp["hypothesis"],
-            method="hypothesis_generation",
-            confidence=hyp.get("confidence", 0.5),
-        ))
+        inferences.append(
+            Inference(
+                statement=hyp["hypothesis"],
+                method="hypothesis_generation",
+                confidence=hyp.get("confidence", 0.5),
+            )
+        )
 
     recommendations = []
     for fr in feasibility_results:
         if fr["feasibility"].get("overall", 0) > 0.4:
-            recommendations.append(Recommendation(
-                statement=f"Pursue: {fr['hypothesis'][:50]}...",
-                rationale=fr["feasibility"].get("reason", "Feasible"),
-                priority="high" if fr["feasibility"].get("overall", 0) > 0.6 else "medium",
-            ))
+            recommendations.append(
+                Recommendation(
+                    statement=f"Pursue: {fr['hypothesis'][:50]}...",
+                    rationale=fr["feasibility"].get("reason", "Feasible"),
+                    priority="high" if fr["feasibility"].get("overall", 0) > 0.6 else "medium",
+                )
+            )
 
     return ArtifactBase(
         kind="research_plan",
@@ -97,7 +106,9 @@ def run_literature_to_plan(
         metrics={
             "gap_count": len(gaps),
             "hypothesis_count": len(hypotheses),
-            "feasible_count": len([f for f in feasibility_results if f["feasibility"].get("overall", 0) > 0.4]),
+            "feasible_count": len(
+                [f for f in feasibility_results if f["feasibility"].get("overall", 0) > 0.4]
+            ),
         },
         provenance=Provenance(
             source_modules=["gap_analysis", "hypothesis", "feasibility"],
@@ -132,11 +143,13 @@ def run_plan_to_grant(
 
     # Enhance with plan info
     if plan_artifact.recommendations:
-        artifact.inferences.append(Inference(
-            statement=f"Based on {len(plan_artifact.recommendations)} recommended directions",
-            method="plan_integration",
-            confidence=0.7,
-        ))
+        artifact.inferences.append(
+            Inference(
+                statement=f"Based on {len(plan_artifact.recommendations)} recommended directions",
+                method="plan_integration",
+                confidence=0.7,
+            )
+        )
 
     artifact.provenance.source_modules.append("plan_to_grant")
 
@@ -239,11 +252,13 @@ def run_plan_to_talk(
 
     recommendations = []
     for q in rehearsal.get("tough_questions", [])[:3]:
-        recommendations.append(Recommendation(
-            statement=f"Prepare answer for: {q[:50]}...",
-            rationale="Anticipate tough questions",
-            priority="high",
-        ))
+        recommendations.append(
+            Recommendation(
+                statement=f"Prepare answer for: {q[:50]}...",
+                rationale="Anticipate tough questions",
+                priority="high",
+            )
+        )
 
     return ArtifactBase(
         kind="presentation",

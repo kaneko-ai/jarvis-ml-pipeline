@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 class StepStatus(Enum):
     """ステップ状態."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -39,6 +40,7 @@ class StepStatus(Enum):
 @dataclass
 class StepResult:
     """ステップ実行結果."""
+
     step_id: str
     status: StepStatus
     output: Any = None
@@ -54,9 +56,10 @@ class StepResult:
 @dataclass
 class WorkflowState:
     """ワークフロー状態.
-    
+
     Step modeのMVP: step単位で状態を保存・再開。
     """
+
     run_id: str
     workflow_id: str
     mode: Mode
@@ -100,14 +103,14 @@ class WorkflowState:
         run_dir.mkdir(parents=True, exist_ok=True)
 
         state_file = run_dir / "workflow_state.json"
-        with open(state_file, 'w', encoding='utf-8') as f:
+        with open(state_file, "w", encoding="utf-8") as f:
             json.dump(self.to_dict(), f, ensure_ascii=False, indent=2)
 
     @classmethod
     def load(cls, logs_dir: Path, run_id: str) -> WorkflowState:
         """状態を読み込み."""
         state_file = logs_dir / "runs" / run_id / "workflow_state.json"
-        with open(state_file, encoding='utf-8') as f:
+        with open(state_file, encoding="utf-8") as f:
             data = json.load(f)
 
         state = cls(
@@ -123,22 +126,24 @@ class WorkflowState:
         )
 
         for r in data.get("step_results", []):
-            state.step_results.append(StepResult(
-                step_id=r["step_id"],
-                status=StepStatus(r["status"]),
-                output=r.get("output"),
-                error=r.get("error"),
-                cost=r.get("cost", 0),
-                latency_sec=r.get("latency_sec", 0),
-                attempts=r.get("attempts", 1),
-            ))
+            state.step_results.append(
+                StepResult(
+                    step_id=r["step_id"],
+                    status=StepStatus(r["status"]),
+                    output=r.get("output"),
+                    error=r.get("error"),
+                    cost=r.get("cost", 0),
+                    latency_sec=r.get("latency_sec", 0),
+                    attempts=r.get("attempts", 1),
+                )
+            )
 
         return state
 
 
 class WorkflowRunner:
     """ワークフローランナー.
-    
+
     Step mode MVP: step単位で順次実行。
     失敗時はstep単位で再試行。
     """
@@ -147,11 +152,11 @@ class WorkflowRunner:
         self,
         spec: WorkflowSpec,
         logs_dir: str = "logs",
-        step_handlers: dict[str, Callable] | None = None
+        step_handlers: dict[str, Callable] | None = None,
     ):
         """
         初期化.
-        
+
         Args:
             spec: ワークフロー仕様
             logs_dir: ログディレクトリ
@@ -165,10 +170,10 @@ class WorkflowRunner:
     def run(self, run_id: str | None = None) -> WorkflowState:
         """
         ワークフローを実行.
-        
+
         Args:
             run_id: 実行ID（指定時は再開）
-        
+
         Returns:
             WorkflowState
         """

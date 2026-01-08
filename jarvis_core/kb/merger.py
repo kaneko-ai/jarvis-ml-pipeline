@@ -1,4 +1,5 @@
 """Merge updates into existing notes while preserving manual edits."""
+
 from __future__ import annotations
 
 

@@ -22,9 +22,7 @@ def test_adapter_manifest_matches_api_map():
     base_paths = api_map.get("base_paths", {})
     requirements = _load_adapter_requirements()
 
-    required_keys = sorted(
-        {key for group in requirements.values() for key in group}
-    )
+    required_keys = sorted({key for group in requirements.values() for key in group})
     missing = [key for key in required_keys if key not in base_paths]
 
     assert not missing, f"Missing API map keys: {missing}"

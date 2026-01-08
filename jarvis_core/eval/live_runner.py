@@ -2,6 +2,7 @@
 
 Per RP-17, this runs periodic evaluations for drift detection.
 """
+
 from __future__ import annotations
 
 import json
@@ -50,7 +51,9 @@ def run_live_eval(
         "date": date,
         "query_count": len(queries),
         "avg_latency_ms": sum(r["latency_ms"] for r in results) / len(results) if results else 0,
-        "retrieval_success_rate": sum(1 for r in results if r["retrieval_success"]) / len(results) if results else 0,
+        "retrieval_success_rate": (
+            sum(1 for r in results if r["retrieval_success"]) / len(results) if results else 0
+        ),
     }
 
     # Save results

@@ -5,6 +5,7 @@
 - エンティティ認識
 - クエリ分解
 """
+
 from __future__ import annotations
 
 import re
@@ -14,6 +15,7 @@ from dataclasses import dataclass, field
 @dataclass
 class AdaptedQuery:
     """適応されたクエリ."""
+
     original: str
     expanded: str
     entities: list[str] = field(default_factory=list)
@@ -38,29 +40,44 @@ BIOMEDICAL_ENTITIES = {
         r"\b[A-Z][A-Z0-9]{1,5}\b",  # Gene symbols (CD73, PDL1, etc.)
     ],
     "diseases": [
-        "cancer", "tumor", "carcinoma", "melanoma", "lymphoma",
-        "leukemia", "adenocarcinoma", "sarcoma",
+        "cancer",
+        "tumor",
+        "carcinoma",
+        "melanoma",
+        "lymphoma",
+        "leukemia",
+        "adenocarcinoma",
+        "sarcoma",
     ],
     "drugs": [
-        "pembrolizumab", "nivolumab", "ipilimumab", "atezolizumab",
-        "durvalumab", "avelumab",
+        "pembrolizumab",
+        "nivolumab",
+        "ipilimumab",
+        "atezolizumab",
+        "durvalumab",
+        "avelumab",
     ],
     "pathways": [
-        "adenosine pathway", "pd-1 pathway", "ctla-4 pathway",
-        "jak-stat", "mapk", "pi3k-akt",
+        "adenosine pathway",
+        "pd-1 pathway",
+        "ctla-4 pathway",
+        "jak-stat",
+        "mapk",
+        "pi3k-akt",
     ],
 }
 
 
 class QueryAdapter:
     """クエリ適応器.
-    
+
     検索クエリを自動的に改善。
     """
 
     def __init__(self, domain: str = "immuno_onco"):
         self.domain = domain
         from jarvis_tools.papers.query_builder import DOMAIN_SYNONYMS
+
         self.synonyms = DOMAIN_SYNONYMS.get(f"{domain}_preclinical", {})
 
     def adapt(self, query: str) -> AdaptedQuery:
@@ -118,7 +135,7 @@ class QueryAdapter:
     def _decompose_query(self, query: str) -> list[str]:
         """クエリを部分クエリに分解."""
         # ANDで分割
-        parts = re.split(r'\s+AND\s+', query, flags=re.IGNORECASE)
+        parts = re.split(r"\s+AND\s+", query, flags=re.IGNORECASE)
         if len(parts) > 1:
             return parts
 

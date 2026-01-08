@@ -2,6 +2,7 @@
 
 Per RP-444, assists with paper writing.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -44,7 +45,7 @@ class CitationSuggestion:
 
 class PaperWritingAssistant:
     """Assists with paper writing.
-    
+
     Per RP-444:
     - Structure suggestions
     - Citation insertion
@@ -67,11 +68,11 @@ class PaperWritingAssistant:
         paper_type: str = "research",
     ) -> dict[PaperSection, str]:
         """Suggest paper structure.
-        
+
         Args:
             topic: Paper topic.
             paper_type: Type of paper.
-            
+
         Returns:
             Section outlines.
         """
@@ -92,11 +93,11 @@ class PaperWritingAssistant:
         available_papers: list[dict] | None = None,
     ) -> list[CitationSuggestion]:
         """Suggest citations for text.
-        
+
         Args:
             text: Text to add citations to.
             available_papers: Papers to cite from.
-            
+
         Returns:
             Citation suggestions.
         """
@@ -111,13 +112,15 @@ class PaperWritingAssistant:
                 if available_papers:
                     paper = self._find_relevant_paper(sentence, available_papers)
                     if paper:
-                        suggestions.append(CitationSuggestion(
-                            position=sum(len(s) + 2 for s in sentences[:i]),
-                            paper_id=paper.get("id", ""),
-                            title=paper.get("title", ""),
-                            relevance_score=0.8,
-                            citation_text=self._format_citation(paper),
-                        ))
+                        suggestions.append(
+                            CitationSuggestion(
+                                position=sum(len(s) + 2 for s in sentences[:i]),
+                                paper_id=paper.get("id", ""),
+                                title=paper.get("title", ""),
+                                relevance_score=0.8,
+                                citation_text=self._format_citation(paper),
+                            )
+                        )
 
         return suggestions
 
@@ -181,11 +184,11 @@ class PaperWritingAssistant:
         text: str,
     ) -> WritingSuggestion:
         """Suggest improvements for a section.
-        
+
         Args:
             section: Section type.
             text: Current text.
-            
+
         Returns:
             Writing suggestion.
         """
@@ -211,10 +214,10 @@ class PaperWritingAssistant:
         text: str,
     ) -> list[dict[str, str]]:
         """Check writing style.
-        
+
         Args:
             text: Text to check.
-            
+
         Returns:
             Style issues.
         """
@@ -224,25 +227,31 @@ class PaperWritingAssistant:
         passive_patterns = ["was ", "were ", "is being", "has been"]
         passive_count = sum(text.lower().count(p) for p in passive_patterns)
         if passive_count > 5:
-            issues.append({
-                "type": "passive_voice",
-                "message": "Consider reducing passive voice usage",
-            })
+            issues.append(
+                {
+                    "type": "passive_voice",
+                    "message": "Consider reducing passive voice usage",
+                }
+            )
 
         # Check for long sentences
         sentences = text.split(". ")
         long_sentences = [s for s in sentences if len(s.split()) > 40]
         if long_sentences:
-            issues.append({
-                "type": "long_sentence",
-                "message": f"{len(long_sentences)} sentence(s) exceed 40 words",
-            })
+            issues.append(
+                {
+                    "type": "long_sentence",
+                    "message": f"{len(long_sentences)} sentence(s) exceed 40 words",
+                }
+            )
 
         # Check for first person
         if " I " in text or " we " in text.lower():
-            issues.append({
-                "type": "first_person",
-                "message": "Consider third person for formal style",
-            })
+            issues.append(
+                {
+                    "type": "first_person",
+                    "message": "Consider third person for formal style",
+                }
+            )
 
         return issues

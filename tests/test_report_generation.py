@@ -41,17 +41,11 @@ class TestSupportLevelDetermination:
         assert determine_support_level(evidence) == "Strong"
 
     def test_two_medium(self):
-        evidence = [
-            {"evidence_strength": "Medium"},
-            {"evidence_strength": "Medium"}
-        ]
+        evidence = [{"evidence_strength": "Medium"}, {"evidence_strength": "Medium"}]
         assert determine_support_level(evidence) == "Medium"
 
     def test_medium_and_weak(self):
-        evidence = [
-            {"evidence_strength": "Medium"},
-            {"evidence_strength": "Weak"}
-        ]
+        evidence = [{"evidence_strength": "Medium"}, {"evidence_strength": "Weak"}]
         assert determine_support_level(evidence) == "Medium"
 
     def test_only_weak(self):
@@ -68,7 +62,7 @@ class TestConclusionValidation:
             claim_id="claim_001",
             evidence_ids=["ev_001", "ev_002"],
             support_level="Strong",
-            uncertainty_label="確定"
+            uncertainty_label="確定",
         )
         errors = validate_conclusion(conclusion)
         assert len(errors) == 0
@@ -79,7 +73,7 @@ class TestConclusionValidation:
             claim_id="claim_001",
             evidence_ids=[],
             support_level="Strong",
-            uncertainty_label="確定"
+            uncertainty_label="確定",
         )
         errors = validate_conclusion(conclusion)
         assert len(errors) > 0
@@ -91,7 +85,7 @@ class TestConclusionValidation:
             claim_id="claim_001",
             evidence_ids=[],
             support_level="None",
-            uncertainty_label="推測"
+            uncertainty_label="推測",
         )
         errors = validate_conclusion(conclusion)
         assert len(errors) > 0
@@ -103,7 +97,7 @@ class TestConclusionValidation:
             claim_id="claim_001",
             evidence_ids=["ev_001"],
             support_level="Strong",
-            uncertainty_label="推測"  # Should be 確定
+            uncertainty_label="推測",  # Should be 確定
         )
         errors = validate_conclusion(conclusion)
         assert len(errors) > 0

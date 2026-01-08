@@ -2,6 +2,7 @@
 
 Per V4-D01, this sorts items by risk score for review prioritization.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -93,13 +94,15 @@ def triage_by_risk(
             "confidence": fact.confidence,
         }
         risk_score, reasons = calculate_risk_score(item, "fact")
-        results.append(TriageResult(
-            item_id=f"fact_{i}",
-            item_type="fact",
-            content=fact.statement,
-            risk_score=risk_score,
-            risk_reasons=reasons,
-        ))
+        results.append(
+            TriageResult(
+                item_id=f"fact_{i}",
+                item_type="fact",
+                content=fact.statement,
+                risk_score=risk_score,
+                risk_reasons=reasons,
+            )
+        )
 
     # Process inferences
     for i, inf in enumerate(artifact.inferences):
@@ -107,13 +110,15 @@ def triage_by_risk(
             "content": inf.statement,
         }
         risk_score, reasons = calculate_risk_score(item, "inference")
-        results.append(TriageResult(
-            item_id=f"inference_{i}",
-            item_type="inference",
-            content=inf.statement,
-            risk_score=risk_score,
-            risk_reasons=reasons,
-        ))
+        results.append(
+            TriageResult(
+                item_id=f"inference_{i}",
+                item_type="inference",
+                content=inf.statement,
+                risk_score=risk_score,
+                risk_reasons=reasons,
+            )
+        )
 
     # Sort by risk (highest first)
     results.sort(key=lambda x: x.risk_score, reverse=True)

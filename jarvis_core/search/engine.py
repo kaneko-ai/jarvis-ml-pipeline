@@ -3,6 +3,7 @@
 BM25/ハイブリッド検索API。
 チャンクを対象にlocator付き検索結果を返す。
 """
+
 from __future__ import annotations
 
 import json
@@ -17,6 +18,7 @@ from typing import Any
 @dataclass
 class SearchResult:
     """検索結果."""
+
     chunk_id: str
     paper_id: str
     paper_title: str
@@ -40,6 +42,7 @@ class SearchResult:
 @dataclass
 class SearchResults:
     """検索結果群."""
+
     results: list[SearchResult] = field(default_factory=list)
     total: int = 0
     query: str = ""
@@ -85,7 +88,7 @@ class BM25Index:
 
     def search(self, query: str, top_k: int = 10) -> list[tuple]:
         """検索.
-        
+
         Returns:
             [(doc_index, score), ...]
         """
@@ -136,13 +139,13 @@ class BM25Index:
     def _tokenize(self, text: str) -> list[str]:
         """トークン化."""
         text = text.lower()
-        tokens = re.findall(r'\b[a-z][a-z0-9]+\b', text)
+        tokens = re.findall(r"\b[a-z][a-z0-9]+\b", text)
         return tokens
 
 
 class SearchEngine:
     """検索エンジン.
-    
+
     BM25ベースの検索 + 将来的なベクトル検索拡張。
     """
 
@@ -175,16 +178,17 @@ class SearchEngine:
         filters: dict[str, Any] | None = None,
     ) -> SearchResults:
         """検索.
-        
+
         Args:
             query: 検索クエリ
             top_k: 上位k件
             filters: フィルタ（paper_id等）
-            
+
         Returns:
             SearchResults
         """
         import time
+
         start = time.time()
 
         if not self._loaded or not self._chunks:
@@ -210,20 +214,22 @@ class SearchEngine:
             # ハイライト
             highlights = self._extract_highlights(chunk.get("text", ""), query_lower)
 
-            results.append(SearchResult(
-                chunk_id=chunk.get("chunk_id", ""),
-                paper_id=chunk.get("paper_id", ""),
-                paper_title=chunk.get("paper_title", ""),
-                text=chunk.get("text", ""),
-                score=score,
-                locator={
-                    "section": chunk.get("section", ""),
-                    "paragraph": chunk.get("paragraph_index", 0),
-                    "char_start": chunk.get("char_start", 0),
-                    "char_end": chunk.get("char_end", 0),
-                },
-                highlights=highlights,
-            ))
+            results.append(
+                SearchResult(
+                    chunk_id=chunk.get("chunk_id", ""),
+                    paper_id=chunk.get("paper_id", ""),
+                    paper_title=chunk.get("paper_title", ""),
+                    text=chunk.get("text", ""),
+                    score=score,
+                    locator={
+                        "section": chunk.get("section", ""),
+                        "paragraph": chunk.get("paragraph_index", 0),
+                        "char_start": chunk.get("char_start", 0),
+                        "char_end": chunk.get("char_end", 0),
+                    },
+                    highlights=highlights,
+                )
+            )
 
         elapsed = (time.time() - start) * 1000
 
@@ -236,8 +242,8 @@ class SearchEngine:
 
     def _extract_highlights(self, text: str, query: str) -> list[str]:
         """クエリに関連する文をハイライト抽出."""
-        sentences = re.split(r'(?<=[.!?])\s+', text)
-        query_words = set(re.findall(r'\b[a-z]+\b', query.lower()))
+        sentences = re.split(r"(?<=[.!?])\s+", text)
+        query_words = set(re.findall(r"\b[a-z]+\b", query.lower()))
 
         highlights = []
         for sent in sentences:

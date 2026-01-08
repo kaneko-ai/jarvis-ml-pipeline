@@ -14,10 +14,10 @@ class EvidenceVisualizer:
 
     def generate_confidence_chart(self, grades: list[EvidenceGrade]) -> str:
         """Generate Mermaid pie chart of evidence level distribution.
-        
+
         Args:
             grades: List of EvidenceGrade objects
-            
+
         Returns:
             Mermaid pie chart string
         """
@@ -34,15 +34,15 @@ class EvidenceVisualizer:
 
     def generate_confidence_bar(self, grade: EvidenceGrade) -> str:
         """Generate Mermaid bar chart for level probabilities.
-        
+
         Args:
             grade: Single EvidenceGrade with level_probabilities
-            
+
         Returns:
             Mermaid xychart string
         """
         # Extract probabilities if available
-        probs = getattr(grade, 'level_probabilities', None)
+        probs = getattr(grade, "level_probabilities", None)
         if not probs:
             # Create default based on confidence
             probs = {grade.level.value: grade.confidence}
@@ -59,10 +59,10 @@ class EvidenceVisualizer:
 
     def generate_summary_table(self, grades: list[EvidenceGrade]) -> str:
         """Generate markdown table summarizing grades.
-        
+
         Args:
             grades: List of EvidenceGrade objects
-            
+
         Returns:
             Markdown table string
         """

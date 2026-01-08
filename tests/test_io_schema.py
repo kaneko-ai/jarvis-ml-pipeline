@@ -22,19 +22,23 @@ class TestLoadTrainTest:
         """基本的な読み込みができること."""
         with tempfile.TemporaryDirectory() as tmpdir:
             # 訓練データ
-            train_df = pd.DataFrame({
-                "f1": [1, 2, 3],
-                "f2": [4, 5, 6],
-                "Class": [0, 1, 0],
-            })
+            train_df = pd.DataFrame(
+                {
+                    "f1": [1, 2, 3],
+                    "f2": [4, 5, 6],
+                    "Class": [0, 1, 0],
+                }
+            )
             train_path = Path(tmpdir) / "train.csv"
             train_df.to_csv(train_path, index=False)
 
             # テストデータ
-            test_df = pd.DataFrame({
-                "f1": [7, 8],
-                "f2": [9, 10],
-            })
+            test_df = pd.DataFrame(
+                {
+                    "f1": [7, 8],
+                    "f2": [9, 10],
+                }
+            )
             test_path = Path(tmpdir) / "test.csv"
             test_df.to_csv(test_path, index=False)
 
@@ -53,19 +57,23 @@ class TestLoadTrainTest:
     def test_column_mismatch_raises(self):
         """列不整合でエラーになること."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            train_df = pd.DataFrame({
-                "f1": [1, 2],
-                "f2": [3, 4],
-                "Class": [0, 1],
-            })
+            train_df = pd.DataFrame(
+                {
+                    "f1": [1, 2],
+                    "f2": [3, 4],
+                    "Class": [0, 1],
+                }
+            )
             train_path = Path(tmpdir) / "train.csv"
             train_df.to_csv(train_path, index=False)
 
             # 列が異なる
-            test_df = pd.DataFrame({
-                "f1": [5],
-                "f3": [6],  # f2ではなくf3
-            })
+            test_df = pd.DataFrame(
+                {
+                    "f1": [5],
+                    "f3": [6],  # f2ではなくf3
+                }
+            )
             test_path = Path(tmpdir) / "test.csv"
             test_df.to_csv(test_path, index=False)
 

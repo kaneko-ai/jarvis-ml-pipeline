@@ -2,6 +2,7 @@
 
 Per RP-510, implements canary and blue-green deployment strategies.
 """
+
 from __future__ import annotations
 
 import random
@@ -14,6 +15,7 @@ from typing import Any
 
 class DeploymentStrategy(Enum):
     """Deployment strategies."""
+
     ROLLING = "rolling"
     CANARY = "canary"
     BLUE_GREEN = "blue_green"
@@ -22,6 +24,7 @@ class DeploymentStrategy(Enum):
 
 class DeploymentStatus(Enum):
     """Deployment status."""
+
     PENDING = "pending"
     IN_PROGRESS = "in_progress"
     SUCCEEDED = "succeeded"
@@ -32,6 +35,7 @@ class DeploymentStatus(Enum):
 @dataclass
 class CanaryConfig:
     """Canary deployment configuration."""
+
     initial_weight: float = 0.1  # 10% initial traffic
     increment: float = 0.1  # 10% increment per step
     max_weight: float = 1.0  # 100% final traffic
@@ -44,6 +48,7 @@ class CanaryConfig:
 @dataclass
 class DeploymentVersion:
     """A deployment version."""
+
     version: str
     image: str
     replicas: int = 1
@@ -55,6 +60,7 @@ class DeploymentVersion:
 @dataclass
 class DeploymentResult:
     """Result of a deployment operation."""
+
     success: bool
     strategy: DeploymentStrategy
     old_version: str
@@ -67,7 +73,7 @@ class DeploymentResult:
 
 class CanaryDeploymentManager:
     """Manages canary and blue-green deployments.
-    
+
     Per RP-510:
     - Gradual traffic shifting
     - Automatic rollback
@@ -96,12 +102,12 @@ class CanaryDeploymentManager:
         current_version: str | None = None,
     ) -> DeploymentResult:
         """Deploy a new version using canary strategy.
-        
+
         Args:
             new_version: New version identifier.
             new_image: New container image.
             current_version: Current version (optional).
-            
+
         Returns:
             Deployment result.
         """
@@ -174,11 +180,11 @@ class CanaryDeploymentManager:
         new_image: str,
     ) -> DeploymentResult:
         """Deploy using blue-green strategy.
-        
+
         Args:
             new_version: New version identifier.
             new_image: New container image.
-            
+
         Returns:
             Deployment result.
         """
@@ -238,10 +244,10 @@ class CanaryDeploymentManager:
 
     def rollback(self, target_version: str | None = None) -> bool:
         """Rollback to a previous version.
-        
+
         Args:
             target_version: Specific version to rollback to.
-            
+
         Returns:
             True if rollback succeeded.
         """

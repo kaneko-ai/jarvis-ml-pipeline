@@ -2,6 +2,7 @@
 
 Per Issue Ω-2, this estimates grant success probability.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

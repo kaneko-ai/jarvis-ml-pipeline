@@ -3,6 +3,7 @@
 Per JARVIS_COMPLETION_PLAN_v3 Sprint 19: AL CLI統合
 Provides command-line interface for paper screening.
 """
+
 from __future__ import annotations
 
 import json
@@ -14,10 +15,10 @@ from .engine import ActiveLearningEngine, ALConfig, ALStats
 
 def load_papers_from_jsonl(path: Path) -> dict[str, dict]:
     """Load papers from JSONL file.
-    
+
     Args:
         path: Path to JSONL file
-        
+
     Returns:
         Dict mapping paper_id to paper data
     """
@@ -34,10 +35,10 @@ def load_papers_from_jsonl(path: Path) -> dict[str, dict]:
 
 def extract_features(paper: dict) -> list[float]:
     """Extract simple TF-IDF-like features from paper.
-    
+
     Args:
         paper: Paper dictionary with title/abstract
-        
+
     Returns:
         Feature vector (simple word count based)
     """
@@ -45,12 +46,24 @@ def extract_features(paper: dict) -> list[float]:
 
     # Simple keyword features for screening
     keywords = [
-        "randomized", "controlled", "trial", "rct",
-        "systematic", "review", "meta-analysis",
-        "cohort", "case-control", "observational",
-        "prospective", "retrospective",
-        "significant", "p<0.05", "confidence interval",
-        "efficacy", "safety", "outcome",
+        "randomized",
+        "controlled",
+        "trial",
+        "rct",
+        "systematic",
+        "review",
+        "meta-analysis",
+        "cohort",
+        "case-control",
+        "observational",
+        "prospective",
+        "retrospective",
+        "significant",
+        "p<0.05",
+        "confidence interval",
+        "efficacy",
+        "safety",
+        "outcome",
     ]
 
     features = []
@@ -71,13 +84,13 @@ def run_screening_session(
     interactive: bool = True,
 ) -> ALStats:
     """Run an active learning screening session.
-    
+
     Args:
         input_path: Path to input JSONL with papers
         output_path: Path to output JSONL with labels
         config: Active learning configuration
         interactive: Whether to prompt for labels
-        
+
     Returns:
         Final statistics
     """
@@ -153,7 +166,9 @@ def run_screening_session(
             else:
                 # Auto-label based on keywords (for testing)
                 text = f"{paper.get('title', '')} {paper.get('abstract', '')}".lower()
-                label = 1 if any(kw in text for kw in ["randomized", "clinical trial", "rct"]) else 0
+                label = (
+                    1 if any(kw in text for kw in ["randomized", "clinical trial", "rct"]) else 0
+                )
 
             engine.update(paper_id, label)
             labeled_results[paper_id] = {
@@ -184,7 +199,7 @@ def run_screening_session(
 
 def cmd_screen(args) -> None:
     """Execute screening command.
-    
+
     Args:
         args: Parsed command line arguments
     """

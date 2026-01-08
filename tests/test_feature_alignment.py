@@ -23,21 +23,25 @@ class TestFeatureAlignment:
         """列順が保持されること."""
         with tempfile.TemporaryDirectory() as tmpdir:
             # 訓練データ
-            train_df = pd.DataFrame({
-                "a": [1, 2],
-                "b": [3, 4],
-                "c": [5, 6],
-                "label": [0, 1],
-            })
+            train_df = pd.DataFrame(
+                {
+                    "a": [1, 2],
+                    "b": [3, 4],
+                    "c": [5, 6],
+                    "label": [0, 1],
+                }
+            )
             train_path = Path(tmpdir) / "train.csv"
             train_df.to_csv(train_path, index=False)
 
             # テストデータ（列順が異なる）
-            test_df = pd.DataFrame({
-                "c": [7],
-                "a": [8],
-                "b": [9],
-            })
+            test_df = pd.DataFrame(
+                {
+                    "c": [7],
+                    "a": [8],
+                    "b": [9],
+                }
+            )
             test_path = Path(tmpdir) / "test.csv"
             test_df.to_csv(test_path, index=False)
 
@@ -53,16 +57,21 @@ class TestFeatureAlignment:
 
     def test_scaler_alignment(self):
         """Scalerでも整合性が保たれること."""
-        X_train = pd.DataFrame({
-            "f1": [1.0, 2.0, 3.0],
-            "f2": [10.0, 20.0, 30.0],
-        })
-        X_test = pd.DataFrame({
-            "f1": [4.0],
-            "f2": [40.0],
-        })
+        X_train = pd.DataFrame(
+            {
+                "f1": [1.0, 2.0, 3.0],
+                "f2": [10.0, 20.0, 30.0],
+            }
+        )
+        X_test = pd.DataFrame(
+            {
+                "f1": [4.0],
+                "f2": [40.0],
+            }
+        )
 
         from sklearn.preprocessing import StandardScaler
+
         scaler = StandardScaler()
 
         X_train_scaled, scaler = fit_transform(X_train, scaler)

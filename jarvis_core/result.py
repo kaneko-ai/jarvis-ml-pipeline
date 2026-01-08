@@ -8,6 +8,7 @@ This module provides structured result types that enable:
 Per RP12, this maintains backward compatibility while adding
 structured data access. RP13 adds claim-level tracking.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -78,7 +79,9 @@ class EvidenceQAResult:
 
         # Add claims if present
         if self.claims is not None:
-            result["claims"] = self.claims.to_dict() if hasattr(self.claims, "to_dict") else self.claims
+            result["claims"] = (
+                self.claims.to_dict() if hasattr(self.claims, "to_dict") else self.claims
+            )
 
         return result
 

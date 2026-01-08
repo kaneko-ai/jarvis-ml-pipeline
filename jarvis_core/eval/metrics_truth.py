@@ -6,6 +6,7 @@ Per V4-A03, this calculates truth-related metrics:
 - 矛盾検出精度 (Contradiction detection accuracy)
 - 引用関連性P/R (Citation relevance precision/recall)
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -22,9 +23,9 @@ class TruthMetrics:
 
     # Core metrics
     unsupported_fact_rate: float  # 誤FACT率
-    downgrade_rate: float         # 降格率
-    fact_precision: float         # Precision for FACT labels
-    fact_recall: float            # Recall for FACT labels
+    downgrade_rate: float  # 降格率
+    fact_precision: float  # Precision for FACT labels
+    fact_recall: float  # Recall for FACT labels
 
     # Detail counts
     total_claims: int
@@ -147,18 +148,22 @@ def calculate_artifact_metrics(artifact: ArtifactBase) -> TruthMetrics:
     predictions = []
 
     for fact in artifact.facts:
-        predictions.append({
-            "claim": fact.statement,
-            "label": "fact",
-            "has_evidence": len(fact.evidence_refs) > 0,
-        })
+        predictions.append(
+            {
+                "claim": fact.statement,
+                "label": "fact",
+                "has_evidence": len(fact.evidence_refs) > 0,
+            }
+        )
 
     for inf in artifact.inferences:
-        predictions.append({
-            "claim": inf.statement,
-            "label": "inference",
-            "has_evidence": False,
-            "was_downgraded": "降格" in inf.statement or "downgrade" in inf.method,
-        })
+        predictions.append(
+            {
+                "claim": inf.statement,
+                "label": "inference",
+                "has_evidence": False,
+                "was_downgraded": "降格" in inf.statement or "downgrade" in inf.method,
+            }
+        )
 
     return calculate_truth_metrics(predictions)

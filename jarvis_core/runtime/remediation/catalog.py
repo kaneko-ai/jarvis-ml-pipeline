@@ -2,6 +2,7 @@
 
 Per RP-185, provides registry for remediation actions.
 """
+
 from __future__ import annotations
 
 from .actions import BUILTIN_ACTIONS, RemediationAction
@@ -9,6 +10,7 @@ from .actions import BUILTIN_ACTIONS, RemediationAction
 
 class DuplicateActionError(Exception):
     """Raised when registering duplicate action ID."""
+
     pass
 
 
@@ -34,9 +36,7 @@ class ActionCatalog:
             DuplicateActionError: If action ID already exists.
         """
         if action.action_id in self._actions:
-            raise DuplicateActionError(
-                f"Action '{action.action_id}' already registered"
-            )
+            raise DuplicateActionError(f"Action '{action.action_id}' already registered")
         self._actions[action.action_id] = action
 
     def get(self, action_id: str) -> RemediationAction | None:

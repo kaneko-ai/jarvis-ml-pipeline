@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 class EmbeddingModel(Enum):
     """Available embedding models."""
+
     MINILM = "all-MiniLM-L6-v2"
     MINILM_MULTILINGUAL = "paraphrase-multilingual-MiniLM-L12-v2"
     SPECTER2 = "allenai/specter2"
@@ -54,7 +55,7 @@ MODEL_CONFIG = {
 
 class LocalEmbedProvider(EmbedProvider):
     """ローカルEmbeddingプロバイダー.
-    
+
     Supports multiple models:
     - all-MiniLM-L6-v2: General purpose, fast (384d)
     - paraphrase-multilingual-MiniLM-L12-v2: Multilingual (384d)
@@ -69,6 +70,7 @@ class LocalEmbedProvider(EmbedProvider):
     ):
         if config is None:
             from .base import ProviderConfig, ProviderType
+
             config = ProviderConfig(provider_type=ProviderType.LOCAL)
 
         super().__init__(config)
@@ -82,10 +84,7 @@ class LocalEmbedProvider(EmbedProvider):
             self._model_enum = self._get_model_enum(self._model_name)
 
         self._model = None
-        self._dimension = MODEL_CONFIG.get(
-            self._model_enum,
-            {"dimension": 384}
-        )["dimension"]
+        self._dimension = MODEL_CONFIG.get(self._model_enum, {"dimension": 384})["dimension"]
 
     def _get_model_enum(self, model_name: str) -> EmbeddingModel:
         """Get model enum from name."""
@@ -116,11 +115,11 @@ class LocalEmbedProvider(EmbedProvider):
 
         try:
             from sentence_transformers import SentenceTransformer
+
             self._model = SentenceTransformer(self._model_name)
             self._dimension = self._model.get_sentence_embedding_dimension()
             logger.info(
-                f"Local Embed provider initialized: {self._model_name}, "
-                f"dim={self._dimension}"
+                f"Local Embed provider initialized: {self._model_name}, " f"dim={self._dimension}"
             )
         except ImportError:
             logger.warning("sentence-transformers not installed, using mock")
@@ -132,6 +131,7 @@ class LocalEmbedProvider(EmbedProvider):
         """利用可能かどうか."""
         try:
             import sentence_transformers  # noqa: F401
+
             return True
         except ImportError:
             return False
@@ -172,4 +172,3 @@ class LocalEmbedProvider(EmbedProvider):
     def model_info(self) -> dict:
         """Get model configuration info."""
         return MODEL_CONFIG.get(self._model_enum, {})
-

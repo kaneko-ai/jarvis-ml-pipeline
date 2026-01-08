@@ -3,6 +3,7 @@
 Provides a lightweight wrapper around `run_jarvis` so users can invoke the
 core orchestration from the terminal via ``python -m jarvis_core.cli``.
 """
+
 from argparse import ArgumentParser
 from collections.abc import Sequence
 

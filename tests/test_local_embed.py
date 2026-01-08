@@ -2,6 +2,7 @@
 
 Tests for Task 1.2: ローカル埋め込み
 """
+
 import pytest
 
 

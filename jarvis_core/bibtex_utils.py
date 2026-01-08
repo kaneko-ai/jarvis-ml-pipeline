@@ -5,6 +5,7 @@ This module provides:
 
 Per RP15, this enables direct import into LaTeX/Overleaf/Zotero.
 """
+
 from __future__ import annotations
 
 import re

@@ -2,6 +2,7 @@
 
 Per RP-07, this provides claim-level verification for RAGChecker-style evaluation.
 """
+
 from __future__ import annotations
 
 import re
@@ -68,25 +69,27 @@ def extract_claims(answer: str) -> list[Claim]:
     Claims are sentences that make factual assertions.
     """
     # Split into sentences
-    sentences = re.split(r'[.!?。！？]\s*', answer)
+    sentences = re.split(r"[.!?。！？]\s*", answer)
     sentences = [s.strip() for s in sentences if s.strip()]
 
     claims = []
     for i, sent in enumerate(sentences):
         # Skip questions and hedged statements
-        if '?' in sent:
+        if "?" in sent:
             continue
-        if any(w in sent.lower() for w in ['might', 'could', 'may', 'perhaps', 'possibly']):
+        if any(w in sent.lower() for w in ["might", "could", "may", "perhaps", "possibly"]):
             continue
 
         # Look for citation markers like [1], [chunk_id], etc.
-        citation_ids = re.findall(r'\[([^\]]+)\]', sent)
+        citation_ids = re.findall(r"\[([^\]]+)\]", sent)
 
-        claims.append(Claim(
-            claim_id=f"claim_{i}",
-            text=sent,
-            citation_ids=citation_ids,
-        ))
+        claims.append(
+            Claim(
+                claim_id=f"claim_{i}",
+                text=sent,
+                citation_ids=citation_ids,
+            )
+        )
 
     return claims
 
@@ -107,10 +110,7 @@ def check_claim_against_evidence(
         ClaimCheckResult with verdict.
     """
     # Gather evidence for this claim's citations
-    evidence_texts = [
-        evidence_map[cid] for cid in claim.citation_ids
-        if cid in evidence_map
-    ]
+    evidence_texts = [evidence_map[cid] for cid in claim.citation_ids if cid in evidence_map]
 
     # No citations -> NOT_ENOUGH
     if not claim.citation_ids:

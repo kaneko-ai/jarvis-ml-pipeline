@@ -2,6 +2,7 @@
 
 Per RP-580, implements failure injection for testing resilience.
 """
+
 from __future__ import annotations
 
 import random
@@ -52,7 +53,7 @@ class ChaosExperiment:
 
 class ChaosMonkey:
     """Chaos engineering framework.
-    
+
     Per RP-580:
     - Failure injection
     - Latency injection
@@ -86,12 +87,12 @@ class ChaosMonkey:
         config: dict[str, Any] | None = None,
     ) -> ChaosExperiment:
         """Start a chaos experiment.
-        
+
         Args:
             name: Experiment name.
             chaos_type: Type of chaos.
             config: Experiment config.
-            
+
         Returns:
             Started experiment.
         """
@@ -114,7 +115,7 @@ class ChaosMonkey:
 
     def stop_experiment(self, experiment_id: str) -> None:
         """Stop a chaos experiment.
-        
+
         Args:
             experiment_id: Experiment ID.
         """
@@ -129,10 +130,10 @@ class ChaosMonkey:
         target: str | None = None,
     ) -> float:
         """Inject latency if enabled.
-        
+
         Args:
             target: Target service/function.
-            
+
         Returns:
             Injected latency in seconds.
         """
@@ -165,10 +166,10 @@ class ChaosMonkey:
         target: str | None = None,
     ) -> bool:
         """Check if should inject failure.
-        
+
         Args:
             target: Target service/function.
-            
+
         Returns:
             True if should fail.
         """
@@ -192,10 +193,10 @@ class ChaosMonkey:
         target: str | None = None,
     ) -> bool:
         """Check if should inject timeout.
-        
+
         Args:
             target: Target service/function.
-            
+
         Returns:
             True if should timeout.
         """
@@ -212,10 +213,10 @@ class ChaosMonkey:
         experiment_id: str,
     ) -> dict[str, Any] | None:
         """Get experiment results.
-        
+
         Args:
             experiment_id: Experiment ID.
-            
+
         Returns:
             Experiment results.
         """
@@ -248,6 +249,7 @@ def get_chaos_monkey() -> ChaosMonkey:
 
 def chaos_enabled(func: Callable) -> Callable:
     """Decorator to inject chaos into function calls."""
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         monkey = get_chaos_monkey()
@@ -271,4 +273,5 @@ def chaos_enabled(func: Callable) -> Callable:
 
 class ChaosException(Exception):
     """Exception raised by chaos injection."""
+
     pass

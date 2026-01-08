@@ -4,6 +4,7 @@ Per JARVIS_MASTER.md, EvidenceStore is the single source of truth for
 citations. ExecutionEngine validates citations against EvidenceStore
 and regenerates quotes from it (agent quotes are not trusted).
 """
+
 import sys
 import types
 from pathlib import Path
@@ -130,16 +131,12 @@ class TestEvidenceStoreIntegration:
             answer="This is supported by important evidence.",
             citations=[citation],
         )
-        engine = ExecutionEngine(
-            planner=planner, router=router, evidence_store=store
-        )
+        engine = ExecutionEngine(planner=planner, router=router, evidence_store=store)
 
         task = make_task()
         executed = engine.run(task)
 
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         assert complete_event["agent_status"] == "success"
 
     def test_citation_with_invalid_chunk_id_returns_partial(self):
@@ -160,21 +157,14 @@ class TestEvidenceStoreIntegration:
             answer="This claims to have evidence but doesn't.",
             citations=[citation],
         )
-        engine = ExecutionEngine(
-            planner=planner, router=router, evidence_store=store
-        )
+        engine = ExecutionEngine(planner=planner, router=router, evidence_store=store)
 
         task = make_task()
         executed = engine.run(task)
 
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         assert complete_event["agent_status"] == "partial"
-        assert any(
-            "chunk_not_in_evidence_store" in w
-            for w in complete_event["quality_warnings"]
-        )
+        assert any("chunk_not_in_evidence_store" in w for w in complete_event["quality_warnings"])
 
     def test_quote_is_regenerated_from_evidence_store(self):
         """Test that quote is regenerated from EvidenceStore, not agent."""
@@ -199,9 +189,7 @@ class TestEvidenceStoreIntegration:
             answer="Answer with evidence.",
             citations=[citation],
         )
-        engine = ExecutionEngine(
-            planner=planner, router=router, evidence_store=store
-        )
+        engine = ExecutionEngine(planner=planner, router=router, evidence_store=store)
 
         task = make_task()
         engine.run(task)
@@ -227,15 +215,9 @@ class TestEvidenceStoreIntegration:
             status="success",
             # Answer must include terms from chunk text for relevance check
             answer="Pre-execution evidence is important.",
-            citations=[
-                Citation(
-                    chunk_id=chunk_id, source="x", locator="x", quote="x"
-                )
-            ],
+            citations=[Citation(chunk_id=chunk_id, source="x", locator="x", quote="x")],
         )
-        engine = ExecutionEngine(
-            planner=planner, router=router, evidence_store=store
-        )
+        engine = ExecutionEngine(planner=planner, router=router, evidence_store=store)
 
         task = make_task()
         executed = engine.run(task)
@@ -244,7 +226,5 @@ class TestEvidenceStoreIntegration:
         assert engine.evidence_store is store
         assert engine.evidence_store.has_chunk(chunk_id)
 
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         assert complete_event["agent_status"] == "success"

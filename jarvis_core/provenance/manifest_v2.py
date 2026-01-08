@@ -2,6 +2,7 @@
 
 Per V4-B03, this records all execution parameters for reproducibility.
 """
+
 from __future__ import annotations
 
 import json
@@ -115,7 +116,7 @@ def create_manifest(
     )
 
     # Compute input hashes
-    for inp in (inputs or []):
+    for inp in inputs or []:
         path = Path(inp)
         if path.exists():
             content = path.read_bytes()

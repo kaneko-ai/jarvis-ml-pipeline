@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PDFSection:
     """PDFセクション."""
+
     title: str
     content: str
     page: int
@@ -35,6 +36,7 @@ class PDFSection:
 @dataclass
 class PDFDocument:
     """抽出済みPDFドキュメント."""
+
     path: str
     title: str
     authors: list[str]
@@ -66,7 +68,7 @@ class PDFDocument:
 
 class PDFExtractor:
     """PDF抽出器.
-    
+
     PyMuPDF (fitz) を使用してPDFからテキストを抽出
     """
 
@@ -88,6 +90,7 @@ class PDFExtractor:
         if self._fitz is None:
             try:
                 import fitz
+
                 self._fitz = fitz
             except ImportError:
                 logger.warning("PyMuPDF not installed. Install with: pip install pymupdf")
@@ -96,10 +99,10 @@ class PDFExtractor:
 
     def extract(self, pdf_path: str) -> PDFDocument:
         """PDFからテキストを抽出.
-        
+
         Args:
             pdf_path: PDFファイルパス
-        
+
         Returns:
             抽出済みドキュメント
         """
@@ -190,12 +193,14 @@ class PDFExtractor:
                 if section_type:
                     # 前のセクションを保存
                     if current_section:
-                        sections.append(PDFSection(
-                            title=current_section,
-                            content="\n".join(current_content),
-                            page=current_page,
-                            section_type=self._get_section_type(current_section),
-                        ))
+                        sections.append(
+                            PDFSection(
+                                title=current_section,
+                                content="\n".join(current_content),
+                                page=current_page,
+                                section_type=self._get_section_type(current_section),
+                            )
+                        )
 
                     current_section = line
                     current_content = []
@@ -205,12 +210,14 @@ class PDFExtractor:
 
         # 最後のセクション
         if current_section:
-            sections.append(PDFSection(
-                title=current_section,
-                content="\n".join(current_content),
-                page=current_page,
-                section_type=self._get_section_type(current_section),
-            ))
+            sections.append(
+                PDFSection(
+                    title=current_section,
+                    content="\n".join(current_content),
+                    page=current_page,
+                    section_type=self._get_section_type(current_section),
+                )
+            )
 
         return sections
 

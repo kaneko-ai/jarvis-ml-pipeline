@@ -2,6 +2,7 @@
 
 Per PR-96, provides systematic retry with backoff.
 """
+
 from __future__ import annotations
 
 import random
@@ -45,11 +46,11 @@ def calculate_backoff(
     policy: RetryPolicy,
 ) -> float:
     """Calculate backoff delay for an attempt."""
-    delay = policy.base_delay_seconds * (policy.exponential_base ** attempt)
+    delay = policy.base_delay_seconds * (policy.exponential_base**attempt)
     delay = min(delay, policy.max_delay_seconds)
 
     if policy.jitter:
-        delay *= (0.5 + random.random())
+        delay *= 0.5 + random.random()
 
     return delay
 
@@ -106,6 +107,7 @@ def with_retry(
 
 class CircuitOpen(Exception):
     """Raised when circuit breaker is open."""
+
     pass
 
 

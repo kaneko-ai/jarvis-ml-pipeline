@@ -2,6 +2,7 @@
 
 Per V4-C02, this defines and enforces SLO constraints.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -22,8 +23,8 @@ class SLOPolicy:
     """Service Level Objective policy."""
 
     # Time limits (seconds)
-    max_time_quick: float = 60.0      # quick_plan max time
-    max_time_deep: float = 600.0      # deep_plan max time
+    max_time_quick: float = 60.0  # quick_plan max time
+    max_time_deep: float = 600.0  # deep_plan max time
 
     # Cost limits (tokens)
     max_tokens_quick: int = 50000

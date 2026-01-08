@@ -20,6 +20,7 @@ from typing import Any
 @dataclass
 class QueryPackage:
     """検索クエリパッケージ."""
+
     query: str
     source: str = "pubmed"
     filters: dict[str, Any] = field(default_factory=dict)
@@ -35,6 +36,7 @@ class QueryPackage:
 @dataclass
 class SearchResultItem:
     """検索結果アイテム."""
+
     doc_id: str
     rank: int
     score: float = 0.0
@@ -46,6 +48,7 @@ class SearchResultItem:
 @dataclass
 class RetrievedContent:
     """取得コンテンツ."""
+
     doc_id: str
     content_hash: str
     title: str = ""
@@ -57,6 +60,7 @@ class RetrievedContent:
 @dataclass
 class ChunkMapping:
     """チャンクマッピング."""
+
     doc_id: str
     chunk_id: str
     start: int
@@ -68,6 +72,7 @@ class ChunkMapping:
 @dataclass
 class ModelIO:
     """モデル入出力."""
+
     stage_id: str
     model_id: str
     model_version: str = ""
@@ -79,6 +84,7 @@ class ModelIO:
 @dataclass
 class Snapshot:
     """スナップショット."""
+
     run_id: str
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
     snapshot_version: str = "1"
@@ -100,15 +106,12 @@ class Snapshot:
             "search_results": {
                 "total_count": len(self.search_results),
                 "returned_count": len(self.search_results),
-                "results": [asdict(r) for r in self.search_results]
+                "results": [asdict(r) for r in self.search_results],
             },
             "retrieved_content": [asdict(c) for c in self.retrieved_content],
             "chunk_mapping": [asdict(m) for m in self.chunk_mapping],
             "model_io": [asdict(io) for io in self.model_io],
-            "degraded": {
-                "is_degraded": self.is_degraded,
-                "reasons": self.degraded_reasons
-            }
+            "degraded": {"is_degraded": self.is_degraded, "reasons": self.degraded_reasons},
         }
 
     @classmethod
@@ -117,7 +120,7 @@ class Snapshot:
         snapshot = cls(
             run_id=data["run_id"],
             created_at=data.get("created_at", ""),
-            snapshot_version=data.get("snapshot_version", "1")
+            snapshot_version=data.get("snapshot_version", "1"),
         )
 
         # QueryPackage
@@ -127,7 +130,7 @@ class Snapshot:
                 query=qp["query"],
                 source=qp.get("source", "pubmed"),
                 filters=qp.get("filters", {}),
-                max_results=qp.get("max_results", 20)
+                max_results=qp.get("max_results", 20),
             )
 
         # Search results
@@ -161,7 +164,7 @@ class SnapshotManager:
     def __init__(self, base_path: str = "artifacts", compress: bool = True):
         """
         初期化.
-        
+
         Args:
             base_path: スナップショット保存先ベースパス
             compress: gzip圧縮するか
@@ -178,10 +181,10 @@ class SnapshotManager:
     def save(self, snapshot: Snapshot) -> Path:
         """
         スナップショットを保存.
-        
+
         Args:
             snapshot: 保存するスナップショット
-        
+
         Returns:
             保存先パス
         """
@@ -191,10 +194,10 @@ class SnapshotManager:
         data = json.dumps(snapshot.to_dict(), ensure_ascii=False, indent=2)
 
         if self.compress:
-            with gzip.open(path, 'wt', encoding='utf-8') as f:
+            with gzip.open(path, "wt", encoding="utf-8") as f:
                 f.write(data)
         else:
-            with open(path, 'w', encoding='utf-8') as f:
+            with open(path, "w", encoding="utf-8") as f:
                 f.write(data)
 
         return path
@@ -202,10 +205,10 @@ class SnapshotManager:
     def load(self, run_id: str) -> Snapshot | None:
         """
         スナップショットを読み込み.
-        
+
         Args:
             run_id: 実行ID
-        
+
         Returns:
             スナップショット（存在しない場合None）
         """
@@ -220,11 +223,11 @@ class SnapshotManager:
                 return None
 
         try:
-            if path.suffix == '.gz':
-                with gzip.open(path, 'rt', encoding='utf-8') as f:
+            if path.suffix == ".gz":
+                with gzip.open(path, "rt", encoding="utf-8") as f:
                     data = json.load(f)
             else:
-                with open(path, encoding='utf-8') as f:
+                with open(path, encoding="utf-8") as f:
                     data = json.load(f)
 
             return Snapshot.from_dict(data)

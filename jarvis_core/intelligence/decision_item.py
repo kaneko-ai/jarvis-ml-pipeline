@@ -21,28 +21,30 @@ logger = logging.getLogger(__name__)
 
 class DecisionPattern(Enum):
     """判断パターン（型）.
-    
+
     Decisionをクラスタリングして抽出。
     """
-    EARLY_STAGE_REJECT = "early-stage-reject"      # 流行初期・根拠不足
-    HIGH_EFFORT_DELAY = "high-effort-delay"        # コスト高→後回し
-    EVALUATOR_FIRST = "evaluator-first"            # まず評価系を強化
-    CORE_PRIORITY = "core-priority"                # 中核機能優先
-    EVIDENCE_REQUIRED = "evidence-required"        # 根拠必須
+
+    EARLY_STAGE_REJECT = "early-stage-reject"  # 流行初期・根拠不足
+    HIGH_EFFORT_DELAY = "high-effort-delay"  # コスト高→後回し
+    EVALUATOR_FIRST = "evaluator-first"  # まず評価系を強化
+    CORE_PRIORITY = "core-priority"  # 中核機能優先
+    EVIDENCE_REQUIRED = "evidence-required"  # 根拠必須
     UNCLASSIFIED = "unclassified"
 
 
 @dataclass
 class DecisionItem:
     """判断単位（再利用可能な知識）.
-    
+
     Issue はイベント、Decision は知識。
     """
+
     decision_id: str
-    context: str           # 状況説明
-    decision: str          # accept | reject
+    context: str  # 状況説明
+    decision: str  # accept | reject
     pattern: DecisionPattern
-    reason: str            # 判断理由
+    reason: str  # 判断理由
     outcome: str | None = None  # 結果（後日評価）
     outcome_status: str | None = None  # success | neutral | failure
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
@@ -80,14 +82,14 @@ class DecisionItem:
 
 class DecisionStore:
     """判断ストア.
-    
+
     過去のDecisionを保存・検索。
     """
 
     def __init__(self, storage_path: str = "data/decisions"):
         """
         初期化.
-        
+
         Args:
             storage_path: ストレージディレクトリ
         """
@@ -102,7 +104,7 @@ class DecisionStore:
         if not decisions_file.exists():
             return
 
-        with open(decisions_file, encoding='utf-8') as f:
+        with open(decisions_file, encoding="utf-8") as f:
             for line in f:
                 if line.strip():
                     self._decisions.append(DecisionItem.from_dict(json.loads(line)))
@@ -112,7 +114,7 @@ class DecisionStore:
     def _save(self) -> None:
         """ストレージに保存."""
         decisions_file = self.storage_path / "decisions.jsonl"
-        with open(decisions_file, 'w', encoding='utf-8') as f:
+        with open(decisions_file, "w", encoding="utf-8") as f:
             for d in self._decisions:
                 f.write(json.dumps(d.to_dict(), ensure_ascii=False) + "\n")
 
@@ -141,12 +143,7 @@ class DecisionStore:
         """accept/rejectでフィルタ."""
         return [d for d in self._decisions if d.decision == decision]
 
-    def update_outcome(
-        self,
-        decision_id: str,
-        outcome: str,
-        outcome_status: str
-    ) -> bool:
+    def update_outcome(self, decision_id: str, outcome: str, outcome_status: str) -> bool:
         """Outcomeを更新."""
         for d in self._decisions:
             if d.decision_id == decision_id:

@@ -1,4 +1,5 @@
 """Lightweight execution engine for sequencing subtasks."""
+
 from __future__ import annotations
 
 import logging
@@ -87,9 +88,7 @@ class ExecutionEngine:
 
         return executed
 
-    def _normalize_agent_result(
-        self, result: Any
-    ) -> tuple[str, list[str]]:
+    def _normalize_agent_result(self, result: Any) -> tuple[str, list[str]]:
         """Normalize AgentResult status per JARVIS_MASTER.md Section 5.4.1.
 
         This is the final arbiter of status. Agent-provided status is a suggestion;
@@ -125,9 +124,7 @@ class ExecutionEngine:
 
         # Rule 4: Check citation-answer relevance (RP10)
         # Verify that citations are actually relevant to the answer
-        relevance_ok, relevance_warnings = self._check_citation_relevance(
-            answer, valid_citations
-        )
+        relevance_ok, relevance_warnings = self._check_citation_relevance(answer, valid_citations)
         warnings.extend(relevance_warnings)
 
         if not relevance_ok:
@@ -141,9 +138,7 @@ class ExecutionEngine:
 
         return "success", warnings
 
-    def _validate_citations(
-        self, citations: list[Any]
-    ) -> tuple[list[Any], list[str]]:
+    def _validate_citations(self, citations: list[Any]) -> tuple[list[Any], list[str]]:
         """Validate citations against EvidenceStore per JARVIS_MASTER.md Section 5.4.2.
 
         This method:
@@ -236,9 +231,7 @@ class ExecutionEngine:
                 citations_with_overlap += 1
                 total_overlap += len(overlap)
             else:
-                warnings.append(
-                    f"citation[{i}]_low_relevance_overlap:{len(overlap)}"
-                )
+                warnings.append(f"citation[{i}]_low_relevance_overlap:{len(overlap)}")
 
         # At least one citation must have sufficient overlap
         if citations_with_overlap == 0:
@@ -275,8 +268,10 @@ class ExecutionEngine:
         # Budget: append budget summary if degraded
         if self._current_tracker and self._current_tracker.degraded:
             budget_info = self._current_tracker.to_summary(self.budget_spec)
-            answer += f"\n\n---\n**Budget**: {budget_info['tool_calls']} tool calls, " \
-                      f"degraded due to: {', '.join(budget_info['degrade_reasons'] or [])}"
+            answer += (
+                f"\n\n---\n**Budget**: {budget_info['tool_calls']} tool calls, "
+                f"degraded due to: {', '.join(budget_info['degrade_reasons'] or [])}"
+            )
 
         return answer
 
@@ -306,9 +301,7 @@ class ExecutionEngine:
             # Budget: check if retry is allowed
             budget_allows_retry = True
             if self._current_tracker:
-                budget_decision = self.budget_policy.decide(
-                    self.budget_spec, self._current_tracker
-                )
+                budget_decision = self.budget_policy.decide(self.budget_spec, self._current_tracker)
                 budget_allows_retry = budget_decision.allow_retry
                 if not budget_allows_retry:
                     self._current_tracker.record_degrade("budget_retry_blocked")
@@ -336,4 +329,3 @@ class ExecutionEngine:
                 self._current_tracker.record_retry()
 
             attempt += 1
-

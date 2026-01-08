@@ -7,16 +7,21 @@ from jarvis_core.network.degradation import DegradationLevel, get_degradation_ma
 
 class OfflineError(Exception):
     """Raised when an operation cannot be performed in offline mode."""
+
     pass
+
 
 class OfflineQueuedError(Exception):
     """Raised when an operation is queued for later execution."""
+
     def __init__(self, message: str, queue_id: str):
         super().__init__(message)
         self.queue_id = queue_id
 
+
 def degradation_aware(func: Callable) -> Callable:
     """Decorator to handle offline mode by attempting cache fallback or raising OfflineError."""
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
         manager = get_degradation_manager()
@@ -52,7 +57,7 @@ def degradation_aware(func: Callable) -> Callable:
 
             try:
                 # Try simple cache lookup if available on self
-                if args and hasattr(args[0], 'get_cached_result'):
+                if args and hasattr(args[0], "get_cached_result"):
                     res = args[0].get_cached_result(func.__name__, args[1:], kwargs)
                     if res is not None:
                         return res
@@ -62,10 +67,13 @@ def degradation_aware(func: Callable) -> Callable:
             raise OfflineError(f"Offline mode: {func.__name__} unavailable")
 
         return func(*args, **kwargs)
+
     return wrapper
+
 
 def degradation_aware_with_queue(func: Callable) -> Callable:
     """Decorator: Offline -> Check Cache -> Queue if missing."""
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         manager = get_degradation_manager()
@@ -74,7 +82,7 @@ def degradation_aware_with_queue(func: Callable) -> Callable:
         if level in (DegradationLevel.LIMITED, DegradationLevel.OFFLINE):
             # 1. Try Cache
             try:
-                if args and hasattr(args[0], 'get_cached_result'):
+                if args and hasattr(args[0], "get_cached_result"):
                     res = args[0].get_cached_result(func.__name__, args[1:], kwargs)
                     if res is not None:
                         return res
@@ -85,6 +93,7 @@ def degradation_aware_with_queue(func: Callable) -> Callable:
             # We need to import SyncQueueManager here to avoid circular imports at top level
             try:
                 from jarvis_core.sync.manager import SyncQueueManager
+
                 queue_manager = SyncQueueManager()
                 # Serialize args/kwargs needs care, but for basic types it's ok.
                 # args[0] is 'self', we shouldn't queue 'self'.
@@ -94,8 +103,8 @@ def degradation_aware_with_queue(func: Callable) -> Callable:
                 # Usually we register a handler string.
 
                 queue_id = queue_manager.enqueue(
-                    operation=func.__name__, # Or some registry key
-                    params={"args": args[1:], "kwargs": kwargs} # Skip self
+                    operation=func.__name__,  # Or some registry key
+                    params={"args": args[1:], "kwargs": kwargs},  # Skip self
                 )
                 raise OfflineQueuedError(f"Queued for sync: {queue_id}", queue_id)
             except ImportError:
@@ -103,4 +112,5 @@ def degradation_aware_with_queue(func: Callable) -> Callable:
                 raise OfflineError("Offline and sync manager unavailable")
 
         return func(*args, **kwargs)
+
     return wrapper

@@ -2,6 +2,7 @@
 
 Per V4-P06, this defines error types and standardized exit codes.
 """
+
 from __future__ import annotations
 
 

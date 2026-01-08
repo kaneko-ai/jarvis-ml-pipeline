@@ -60,7 +60,7 @@ class TestGoldenTestRunner:
             test_case = GoldenTestCase(
                 test_id="test1",
                 input_data={"query": "test"},
-                expected_output={"result": "success", "score": 0.9}
+                expected_output={"result": "success", "score": 0.9},
             )
 
             actual_output = {"result": "success", "score": 0.91}
@@ -77,10 +77,7 @@ class TestDriftDetector:
         detector = DriftDetector(metrics_path="nonexistent.jsonl")
 
         alert = detector.check_drift(
-            metric_name="provenance_rate",
-            current_value=0.95,
-            baseline=0.96,
-            threshold=0.1
+            metric_name="provenance_rate", current_value=0.95, baseline=0.96, threshold=0.1
         )
 
         assert alert is None
@@ -90,10 +87,7 @@ class TestDriftDetector:
         detector = DriftDetector(metrics_path="nonexistent.jsonl")
 
         alert = detector.check_drift(
-            metric_name="provenance_rate",
-            current_value=0.70,
-            baseline=0.95,
-            threshold=0.1
+            metric_name="provenance_rate", current_value=0.70, baseline=0.95, threshold=0.1
         )
 
         assert alert is not None
@@ -159,7 +153,7 @@ class TestGDPRCompliance:
                 requester="user1",
                 target_type="document",
                 target_id="doc123",
-                reason="GDPR Article 17"
+                reason="GDPR Article 17",
             )
 
             assert request.request_id.startswith("GDPR-")

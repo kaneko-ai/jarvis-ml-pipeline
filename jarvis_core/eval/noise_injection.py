@@ -2,6 +2,7 @@
 
 Per RP-122, injects noise to test retrieval robustness.
 """
+
 from __future__ import annotations
 
 import random
@@ -84,9 +85,7 @@ def inject_noise(
 
     shuffled = [combined[i] for i in indices]
     new_noise_indices = [
-        shuffled_idx
-        for shuffled_idx, orig_idx in enumerate(indices)
-        if orig_idx >= len(documents)
+        shuffled_idx for shuffled_idx, orig_idx in enumerate(indices) if orig_idx >= len(documents)
     ]
 
     return NoisyRetrievalResult(

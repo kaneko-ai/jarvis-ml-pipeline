@@ -3,6 +3,7 @@
 Per V4-P02, this provides unified configuration with priority:
 CLI > YAML > ENV > default
 """
+
 from __future__ import annotations
 
 import json

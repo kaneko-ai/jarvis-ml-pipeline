@@ -8,11 +8,9 @@ google_genai_stub = types.ModuleType("google.genai")
 
 
 class _DummyErrors:
-    class ServerError(Exception):
-        ...
+    class ServerError(Exception): ...
 
-    class ClientError(Exception):
-        ...
+    class ClientError(Exception): ...
 
 
 google_genai_stub.errors = _DummyErrors

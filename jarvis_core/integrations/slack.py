@@ -2,6 +2,7 @@
 
 Per RP-533, implements Slack notifications and alerts.
 """
+
 from __future__ import annotations
 
 import os
@@ -34,7 +35,7 @@ class SlackMessage:
 
 class SlackClient:
     """Slack API client.
-    
+
     Per RP-533:
     - Send notifications
     - Channel management
@@ -63,13 +64,13 @@ class SlackClient:
         **kwargs,
     ) -> dict[str, Any] | None:
         """Send a message to Slack.
-        
+
         Args:
             text: Message text.
             channel: Target channel.
             message_type: Message type for formatting.
             **kwargs: Additional API parameters.
-            
+
         Returns:
             API response or None if disabled.
         """
@@ -105,14 +106,14 @@ class SlackClient:
         channel: str | None = None,
     ) -> dict[str, Any] | None:
         """Send an alert to Slack.
-        
+
         Args:
             title: Alert title.
             description: Alert description.
             severity: Alert severity.
             fields: Additional fields.
             channel: Target channel.
-            
+
         Returns:
             API response.
         """
@@ -131,29 +132,33 @@ class SlackClient:
                     "type": "plain_text",
                     "text": f"{emoji} {title}",
                     "emoji": True,
-                }
+                },
             },
             {
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
                     "text": description,
-                }
+                },
             },
         ]
 
         if fields:
             field_blocks = []
             for key, value in fields.items():
-                field_blocks.append({
-                    "type": "mrkdwn",
-                    "text": f"*{key}:*\n{value}",
-                })
+                field_blocks.append(
+                    {
+                        "type": "mrkdwn",
+                        "text": f"*{key}:*\n{value}",
+                    }
+                )
 
-            blocks.append({
-                "type": "section",
-                "fields": field_blocks[:10],  # Max 10 fields
-            })
+            blocks.append(
+                {
+                    "type": "section",
+                    "fields": field_blocks[:10],  # Max 10 fields
+                }
+            )
 
         payload = {
             "channel": channel,
@@ -173,14 +178,14 @@ class SlackClient:
         channel: str | None = None,
     ) -> dict[str, Any] | None:
         """Send pipeline status update.
-        
+
         Args:
             pipeline_id: Pipeline ID.
             status: Current status.
             progress: Progress (0-1).
             message: Optional message.
             channel: Target channel.
-            
+
         Returns:
             API response.
         """
@@ -240,11 +245,11 @@ class SlackClient:
         payload: dict[str, Any],
     ) -> dict[str, Any] | None:
         """Post to Slack API.
-        
+
         Args:
             endpoint: API endpoint.
             payload: Request payload.
-            
+
         Returns:
             API response.
         """

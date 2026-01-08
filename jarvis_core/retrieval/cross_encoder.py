@@ -2,6 +2,7 @@
 
 Per RP-303, implements two-stage retrieval with cross-encoder reranking.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -21,7 +22,7 @@ class RerankedResult:
 
 class CrossEncoderReranker:
     """Cross-encoder reranker for two-stage retrieval.
-    
+
     Per RP-303:
     - Takes top-100 from initial retrieval
     - Reranks with cross-encoder
@@ -44,6 +45,7 @@ class CrossEncoderReranker:
         if self._model is None:
             try:
                 from sentence_transformers import CrossEncoder
+
                 self._model = CrossEncoder(self.model_name)
             except ImportError:
                 self._model = None
@@ -56,12 +58,12 @@ class CrossEncoderReranker:
         top_k: int = 10,
     ) -> list[RerankedResult]:
         """Rerank candidates using cross-encoder.
-        
+
         Args:
             query: The search query.
             candidates: List of candidate chunks with text and scores.
             top_k: Number of results to return.
-            
+
         Returns:
             Reranked results.
         """
@@ -69,7 +71,7 @@ class CrossEncoderReranker:
             return []
 
         # Limit candidates to max_rerank
-        candidates = candidates[:self.max_rerank]
+        candidates = candidates[: self.max_rerank]
 
         # Get cross-encoder scores
         model = self._load_model()
@@ -95,23 +97,25 @@ class CrossEncoderReranker:
         # Build results
         results = []
         for rank, (candidate, orig_score, rerank_score) in enumerate(scored[:top_k]):
-            results.append(RerankedResult(
-                chunk_id=candidate.get("chunk_id", str(rank)),
-                text=candidate.get("text", ""),
-                original_score=orig_score,
-                reranked_score=rerank_score,
-                rank=rank + 1,
-                metadata=candidate.get("metadata", {}),
-            ))
+            results.append(
+                RerankedResult(
+                    chunk_id=candidate.get("chunk_id", str(rank)),
+                    text=candidate.get("text", ""),
+                    original_score=orig_score,
+                    reranked_score=rerank_score,
+                    rank=rank + 1,
+                    metadata=candidate.get("metadata", {}),
+                )
+            )
 
         return results
 
     def estimate_latency(self, num_candidates: int) -> float:
         """Estimate reranking latency in ms.
-        
+
         Args:
             num_candidates: Number of candidates to rerank.
-            
+
         Returns:
             Estimated latency in milliseconds.
         """
@@ -125,12 +129,12 @@ class CrossEncoderReranker:
         top_k: int = 10,
     ) -> list[RerankedResult]:
         """Rerank with automatic candidate count adjustment.
-        
+
         Args:
             query: The search query.
             candidates: All candidates.
             top_k: Number of results to return.
-            
+
         Returns:
             Reranked results within latency budget.
         """
@@ -146,7 +150,7 @@ class CrossEncoderReranker:
 
 class TwoStageRetriever:
     """Two-stage retrieval with reranking.
-    
+
     Stage 1: Fast retrieval (BM25 or dense)
     Stage 2: Cross-encoder reranking
     """
@@ -167,11 +171,11 @@ class TwoStageRetriever:
         top_k: int = 10,
     ) -> list[RerankedResult]:
         """Two-stage retrieval.
-        
+
         Args:
             query: Search query.
             top_k: Final number of results.
-            
+
         Returns:
             Reranked results.
         """

@@ -2,6 +2,7 @@
 
 Per RP-121, decomposes queries into sub-queries for better retrieval.
 """
+
 from __future__ import annotations
 
 import re
@@ -69,13 +70,29 @@ CATEGORY_PATTERNS = {
 
 # Known immunology entities
 KNOWN_ENTITIES = [
-    "CD73", "NT5E", "CD39", "ENTPD1",
-    "PD-1", "PDCD1", "PD-L1", "CD274",
-    "CTLA-4", "TIM-3", "LAG-3", "TIGIT",
-    "adenosine", "ATP", "AMP",
-    "Treg", "Th1", "Th2", "Th17",
-    "TME", "tumor microenvironment",
-    "checkpoint", "immunotherapy",
+    "CD73",
+    "NT5E",
+    "CD39",
+    "ENTPD1",
+    "PD-1",
+    "PDCD1",
+    "PD-L1",
+    "CD274",
+    "CTLA-4",
+    "TIM-3",
+    "LAG-3",
+    "TIGIT",
+    "adenosine",
+    "ATP",
+    "AMP",
+    "Treg",
+    "Th1",
+    "Th2",
+    "Th17",
+    "TME",
+    "tumor microenvironment",
+    "checkpoint",
+    "immunotherapy",
 ]
 
 

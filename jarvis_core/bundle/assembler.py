@@ -4,6 +4,7 @@ BUNDLE_CONTRACT.md準拠:
 - 成功時: 10ファイル全て生成
 - 失敗時: FAILURE_REQUIREDファイルは必ず生成
 """
+
 from __future__ import annotations
 
 import json
@@ -13,7 +14,7 @@ from pathlib import Path
 
 class BundleAssembler:
     """10ファイル契約を必ず満たすBundle生成器.
-    
+
     使用法:
         assembler = BundleAssembler(store)
         assembler.build(context, artifacts)  # 成功時
@@ -44,7 +45,7 @@ class BundleAssembler:
 
     def __init__(self, run_dir: Path):
         """初期化.
-        
+
         Args:
             run_dir: runの出力ディレクトリ (logs/runs/{run_id}/)
         """
@@ -58,7 +59,7 @@ class BundleAssembler:
         quality_report: dict | None = None,
     ) -> list[str]:
         """成功時のBundle生成（10ファイル全て）.
-        
+
         Args:
             context: 実行コンテキスト
                 - run_id: str
@@ -74,29 +75,35 @@ class BundleAssembler:
                 - citations: list[dict]
                 - warnings: list[dict]
             quality_report: 品質評価結果（オプション）
-                
+
         Returns:
             生成されたファイルのリスト
         """
         generated = []
 
         # 1. input.json
-        self._save_json("input.json", {
-            "goal": context.get("goal", ""),
-            "query": context.get("query", context.get("goal", "")),
-            "constraints": context.get("constraints", {}),
-            "timestamp": context.get("timestamp", datetime.now(timezone.utc).isoformat()),
-        })
+        self._save_json(
+            "input.json",
+            {
+                "goal": context.get("goal", ""),
+                "query": context.get("query", context.get("goal", "")),
+                "constraints": context.get("constraints", {}),
+                "timestamp": context.get("timestamp", datetime.now(timezone.utc).isoformat()),
+            },
+        )
         generated.append("input.json")
 
         # 2. run_config.json
-        self._save_json("run_config.json", {
-            "run_id": context.get("run_id", "unknown"),
-            "pipeline": context.get("pipeline", "default"),
-            "timestamp": context.get("timestamp", datetime.now(timezone.utc).isoformat()),
-            "seed": context.get("seed", 42),
-            "model": context.get("model", "unknown"),
-        })
+        self._save_json(
+            "run_config.json",
+            {
+                "run_id": context.get("run_id", "unknown"),
+                "pipeline": context.get("pipeline", "default"),
+                "timestamp": context.get("timestamp", datetime.now(timezone.utc).isoformat()),
+                "seed": context.get("seed", 42),
+                "model": context.get("model", "unknown"),
+            },
+        )
         generated.append("run_config.json")
 
         # 3. papers.jsonl
@@ -149,13 +156,13 @@ class BundleAssembler:
         fail_reasons: list[dict] | None = None,
     ) -> list[str]:
         """失敗時のBundle生成（FAILURE_REQUIREDのみ）.
-        
+
         Args:
             context: 実行コンテキスト
             error: エラーメッセージ
             partial_artifacts: 途中まで収集された成果物
             fail_reasons: 失敗理由のリスト
-                
+
         Returns:
             生成されたファイルのリスト
         """
@@ -164,21 +171,27 @@ class BundleAssembler:
 
         # input.json（あれば生成）
         if context.get("goal") or context.get("query"):
-            self._save_json("input.json", {
-                "goal": context.get("goal", ""),
-                "query": context.get("query", context.get("goal", "")),
-                "constraints": context.get("constraints", {}),
-                "timestamp": context.get("timestamp", datetime.now(timezone.utc).isoformat()),
-            })
+            self._save_json(
+                "input.json",
+                {
+                    "goal": context.get("goal", ""),
+                    "query": context.get("query", context.get("goal", "")),
+                    "constraints": context.get("constraints", {}),
+                    "timestamp": context.get("timestamp", datetime.now(timezone.utc).isoformat()),
+                },
+            )
             generated.append("input.json")
 
         # run_config.json（最低限）
-        self._save_json("run_config.json", {
-            "run_id": context.get("run_id", "unknown"),
-            "pipeline": context.get("pipeline", "default"),
-            "timestamp": context.get("timestamp", datetime.now(timezone.utc).isoformat()),
-            "status": "failed",
-        })
+        self._save_json(
+            "run_config.json",
+            {
+                "run_id": context.get("run_id", "unknown"),
+                "pipeline": context.get("pipeline", "default"),
+                "timestamp": context.get("timestamp", datetime.now(timezone.utc).isoformat()),
+                "status": "failed",
+            },
+        )
         generated.append("run_config.json")
 
         # result.json（FAILURE_REQUIRED）
@@ -213,11 +226,13 @@ class BundleAssembler:
 
         # warnings.jsonl（FAILURE_REQUIRED）
         warnings = partial.get("warnings", [])
-        warnings.append({
-            "code": "EXECUTION_ERROR",
-            "message": error,
-            "severity": "error",
-        })
+        warnings.append(
+            {
+                "code": "EXECUTION_ERROR",
+                "message": error,
+                "severity": "error",
+            }
+        )
         self._save_jsonl("warnings.jsonl", self._ensure_warning_schema(warnings))
         generated.append("warnings.jsonl")
 
@@ -234,24 +249,32 @@ class BundleAssembler:
         """papers.jsonlの必須キーを保証."""
         result = []
         for i, p in enumerate(papers):
-            result.append({
-                "paper_id": p.get("paper_id", f"paper_{i}"),
-                "title": p.get("title", "Untitled"),
-                "year": p.get("year", 0),
-                **{k: v for k, v in p.items() if k not in ["paper_id", "title", "year"]}
-            })
+            result.append(
+                {
+                    "paper_id": p.get("paper_id", f"paper_{i}"),
+                    "title": p.get("title", "Untitled"),
+                    "year": p.get("year", 0),
+                    **{k: v for k, v in p.items() if k not in ["paper_id", "title", "year"]},
+                }
+            )
         return result
 
     def _ensure_claim_schema(self, claims: list) -> list:
         """claims.jsonlの必須キーを保証."""
         result = []
         for i, c in enumerate(claims):
-            result.append({
-                "claim_id": c.get("claim_id", f"claim_{i}"),
-                "paper_id": c.get("paper_id", "unknown"),
-                "claim_text": c.get("claim_text", c.get("text", "")),
-                **{k: v for k, v in c.items() if k not in ["claim_id", "paper_id", "claim_text"]}
-            })
+            result.append(
+                {
+                    "claim_id": c.get("claim_id", f"claim_{i}"),
+                    "paper_id": c.get("paper_id", "unknown"),
+                    "claim_text": c.get("claim_text", c.get("text", "")),
+                    **{
+                        k: v
+                        for k, v in c.items()
+                        if k not in ["claim_id", "paper_id", "claim_text"]
+                    },
+                }
+            )
         return result
 
     def _ensure_evidence_schema(self, evidence: list) -> list:
@@ -261,13 +284,19 @@ class BundleAssembler:
             locator = e.get("locator", {})
             if isinstance(locator, str):
                 locator = {"section": locator, "paragraph": 0}
-            result.append({
-                "claim_id": e.get("claim_id", f"claim_{i}"),
-                "paper_id": e.get("paper_id", "unknown"),
-                "evidence_text": e.get("evidence_text", e.get("text", "")),
-                "locator": locator,
-                **{k: v for k, v in e.items() if k not in ["claim_id", "paper_id", "evidence_text", "locator"]}
-            })
+            result.append(
+                {
+                    "claim_id": e.get("claim_id", f"claim_{i}"),
+                    "paper_id": e.get("paper_id", "unknown"),
+                    "evidence_text": e.get("evidence_text", e.get("text", "")),
+                    "locator": locator,
+                    **{
+                        k: v
+                        for k, v in e.items()
+                        if k not in ["claim_id", "paper_id", "evidence_text", "locator"]
+                    },
+                }
+            )
         return result
 
     def _ensure_scores_schema(self, scores: dict) -> dict:
@@ -275,7 +304,7 @@ class BundleAssembler:
         return {
             "features": scores.get("features", {}),
             "rankings": scores.get("rankings", []),
-            **{k: v for k, v in scores.items() if k not in ["features", "rankings"]}
+            **{k: v for k, v in scores.items() if k not in ["features", "rankings"]},
         }
 
     def _ensure_warning_schema(self, warnings: list) -> list:
@@ -284,11 +313,13 @@ class BundleAssembler:
         for w in warnings:
             if isinstance(w, str):
                 w = {"code": "GENERAL", "message": w, "severity": "warning"}
-            result.append({
-                "code": w.get("code", "GENERAL"),
-                "message": w.get("message", str(w)),
-                "severity": w.get("severity", "warning"),
-            })
+            result.append(
+                {
+                    "code": w.get("code", "GENERAL"),
+                    "message": w.get("message", str(w)),
+                    "severity": w.get("severity", "warning"),
+                }
+            )
         return result
 
     # === Builders ===
@@ -301,8 +332,10 @@ class BundleAssembler:
             "status": "success",
             "answer": artifacts.get("answer", ""),
             "citations": artifacts.get("citations", []),
-            "warnings": [w.get("message", str(w)) if isinstance(w, dict) else w
-                        for w in artifacts.get("warnings", [])],
+            "warnings": [
+                w.get("message", str(w)) if isinstance(w, dict) else w
+                for w in artifacts.get("warnings", [])
+            ],
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
@@ -325,8 +358,10 @@ class BundleAssembler:
 
         # locator欠落チェック
         locator_missing = sum(
-            1 for e in evidence
-            if not e.get("locator") or (isinstance(e.get("locator"), dict) and not e["locator"].get("section"))
+            1
+            for e in evidence
+            if not e.get("locator")
+            or (isinstance(e.get("locator"), dict) and not e["locator"].get("section"))
         )
 
         # 品質ゲート判定
@@ -339,7 +374,9 @@ class BundleAssembler:
 
         if locator_missing > 0:
             gate_passed = False
-            fail_reasons.append({"code": "LOCATOR_MISSING", "msg": f"根拠位置情報がない: {locator_missing}件"})
+            fail_reasons.append(
+                {"code": "LOCATOR_MISSING", "msg": f"根拠位置情報がない: {locator_missing}件"}
+            )
 
         # 外部品質レポートがあれば統合
         if quality_report:
@@ -471,11 +508,11 @@ class BundleAssembler:
 def _safe_filename(name: str, max_len: int = 50) -> str:
     """
     ファイル名を安全な形式に変換.
-    
+
     Args:
         name: 元のファイル名
         max_len: 最大長
-        
+
     Returns:
         安全なファイル名
     """

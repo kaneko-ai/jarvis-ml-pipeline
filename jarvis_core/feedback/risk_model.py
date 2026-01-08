@@ -1,4 +1,5 @@
 """Explainable feedback risk model."""
+
 from __future__ import annotations
 
 import math

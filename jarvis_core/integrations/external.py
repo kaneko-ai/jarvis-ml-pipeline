@@ -1,4 +1,5 @@
 """JARVIS Integrations Module - Phase 3 Features (21-30)"""
+
 import json
 import urllib.parse
 import urllib.request
@@ -12,6 +13,7 @@ from datetime import datetime
 @dataclass
 class SlackConfig:
     """Slack configuration."""
+
     webhook_url: str
     channel: str = "#jarvis-alerts"
     username: str = "JARVIS Bot"
@@ -26,11 +28,11 @@ class SlackNotifier:
 
     def send_message(self, text: str, attachments: list[dict] | None = None) -> bool:
         """Send a message to Slack.
-        
+
         Args:
             text: Message text
             attachments: Optional rich attachments
-            
+
         Returns:
             True if successful
         """
@@ -38,18 +40,16 @@ class SlackNotifier:
             "text": text,
             "username": self.config.username,
             "icon_emoji": self.config.icon_emoji,
-            "channel": self.config.channel
+            "channel": self.config.channel,
         }
 
         if attachments:
             payload["attachments"] = attachments
 
         try:
-            data = json.dumps(payload).encode('utf-8')
+            data = json.dumps(payload).encode("utf-8")
             req = urllib.request.Request(
-                self.config.webhook_url,
-                data=data,
-                headers={'Content-Type': 'application/json'}
+                self.config.webhook_url, data=data, headers={"Content-Type": "application/json"}
             )
             with urllib.request.urlopen(req, timeout=10) as response:
                 return response.status == 200
@@ -59,28 +59,28 @@ class SlackNotifier:
 
     def send_paper_alert(self, papers: list[dict]) -> bool:
         """Send paper alert to Slack.
-        
+
         Args:
             papers: List of paper dictionaries
-            
+
         Returns:
             True if successful
         """
         if not papers:
             return False
 
-        attachments = [{
-            "color": "#a78bfa",
-            "title": f"📄 {p.get('title', 'Unknown')}",
-            "text": f"{p.get('authors', 'Unknown')} • {p.get('journal', 'Unknown')}",
-            "footer": f"PMID: {p.get('pmid', 'N/A')}",
-            "ts": int(datetime.now().timestamp())
-        } for p in papers[:5]]
+        attachments = [
+            {
+                "color": "#a78bfa",
+                "title": f"📄 {p.get('title', 'Unknown')}",
+                "text": f"{p.get('authors', 'Unknown')} • {p.get('journal', 'Unknown')}",
+                "footer": f"PMID: {p.get('pmid', 'N/A')}",
+                "ts": int(datetime.now().timestamp()),
+            }
+            for p in papers[:5]
+        ]
 
-        return self.send_message(
-            f"🔬 JARVIS found {len(papers)} new papers!",
-            attachments
-        )
+        return self.send_message(f"🔬 JARVIS found {len(papers)} new papers!", attachments)
 
 
 # ============================================
@@ -89,6 +89,7 @@ class SlackNotifier:
 @dataclass
 class NotionConfig:
     """Notion configuration."""
+
     api_key: str
     database_id: str
 
@@ -101,19 +102,21 @@ class NotionSync:
     def __init__(self, config: NotionConfig):
         self.config = config
 
-    def _make_request(self, endpoint: str, method: str = "GET", data: dict | None = None) -> dict | None:
+    def _make_request(
+        self, endpoint: str, method: str = "GET", data: dict | None = None
+    ) -> dict | None:
         """Make Notion API request."""
         url = f"{self.BASE_URL}/{endpoint}"
         headers = {
             "Authorization": f"Bearer {self.config.api_key}",
             "Content-Type": "application/json",
-            "Notion-Version": "2022-06-28"
+            "Notion-Version": "2022-06-28",
         }
 
         try:
             req = urllib.request.Request(url, headers=headers, method=method)
             if data:
-                req.data = json.dumps(data).encode('utf-8')
+                req.data = json.dumps(data).encode("utf-8")
 
             with urllib.request.urlopen(req, timeout=10) as response:
                 return json.loads(response.read().decode())
@@ -123,10 +126,10 @@ class NotionSync:
 
     def add_paper(self, paper: dict) -> bool:
         """Add a paper to Notion database.
-        
+
         Args:
             paper: Paper dictionary
-            
+
         Returns:
             True if successful
         """
@@ -138,8 +141,8 @@ class NotionSync:
                 "Authors": {"rich_text": [{"text": {"content": paper.get("authors", "")}}]},
                 "Journal": {"select": {"name": paper.get("journal", "Unknown")}},
                 "Year": {"number": int(paper.get("year", 2024))},
-                "Status": {"select": {"name": "To Read"}}
-            }
+                "Status": {"select": {"name": "To Read"}},
+            },
         }
 
         result = self._make_request("pages", method="POST", data=data)
@@ -156,10 +159,10 @@ class ORCIDClient:
 
     def get_author(self, orcid_id: str) -> dict | None:
         """Get author profile by ORCID ID.
-        
+
         Args:
             orcid_id: ORCID identifier (e.g., 0000-0001-2345-6789)
-            
+
         Returns:
             Author profile dictionary
         """
@@ -174,7 +177,7 @@ class ORCIDClient:
                     "orcid": orcid_id,
                     "name": data.get("name", {}).get("given-names", {}).get("value", ""),
                     "family_name": data.get("name", {}).get("family-name", {}).get("value", ""),
-                    "biography": data.get("biography", {}).get("content", "")
+                    "biography": data.get("biography", {}).get("content", ""),
                 }
         except Exception as e:
             print(f"ORCID error: {e}")
@@ -191,11 +194,11 @@ class ArXivClient:
 
     def search(self, query: str, max_results: int = 10) -> list[dict]:
         """Search arXiv for papers.
-        
+
         Args:
             query: Search query
             max_results: Maximum results
-            
+
         Returns:
             List of paper dictionaries
         """
@@ -204,7 +207,7 @@ class ArXivClient:
             "start": 0,
             "max_results": max_results,
             "sortBy": "submittedDate",
-            "sortOrder": "descending"
+            "sortOrder": "descending",
         }
 
         url = f"{self.BASE_URL}?{urllib.parse.urlencode(params)}"
@@ -225,19 +228,21 @@ class ArXivClient:
         import re
 
         papers = []
-        entries = re.findall(r'<entry>(.*?)</entry>', xml_content, re.DOTALL)
+        entries = re.findall(r"<entry>(.*?)</entry>", xml_content, re.DOTALL)
 
         for entry in entries[:10]:
-            title_match = re.search(r'<title>(.*?)</title>', entry, re.DOTALL)
-            id_match = re.search(r'<id>(.*?)</id>', entry)
-            summary_match = re.search(r'<summary>(.*?)</summary>', entry, re.DOTALL)
+            title_match = re.search(r"<title>(.*?)</title>", entry, re.DOTALL)
+            id_match = re.search(r"<id>(.*?)</id>", entry)
+            summary_match = re.search(r"<summary>(.*?)</summary>", entry, re.DOTALL)
 
-            papers.append({
-                "title": title_match.group(1).strip() if title_match else "Unknown",
-                "arxiv_id": id_match.group(1).split("/")[-1] if id_match else "",
-                "abstract": summary_match.group(1).strip()[:200] if summary_match else "",
-                "source": "arXiv"
-            })
+            papers.append(
+                {
+                    "title": title_match.group(1).strip() if title_match else "Unknown",
+                    "arxiv_id": id_match.group(1).split("/")[-1] if id_match else "",
+                    "abstract": summary_match.group(1).strip()[:200] if summary_match else "",
+                    "source": "arXiv",
+                }
+            )
 
         return papers
 
@@ -255,18 +260,18 @@ class SemanticScholarClient:
 
     def search(self, query: str, limit: int = 10) -> list[dict]:
         """Search Semantic Scholar.
-        
+
         Args:
             query: Search query
             limit: Result limit
-            
+
         Returns:
             List of paper dictionaries
         """
         params = {
             "query": query,
             "limit": limit,
-            "fields": "title,authors,year,citationCount,abstract"
+            "fields": "title,authors,year,citationCount,abstract",
         }
 
         url = f"{self.BASE_URL}/paper/search?{urllib.parse.urlencode(params)}"
@@ -286,7 +291,7 @@ class SemanticScholarClient:
                         "authors": ", ".join([a.get("name", "") for a in p.get("authors", [])[:3]]),
                         "year": p.get("year"),
                         "citations": p.get("citationCount", 0),
-                        "abstract": p.get("abstract", "")[:200] if p.get("abstract") else ""
+                        "abstract": p.get("abstract", "")[:200] if p.get("abstract") else "",
                     }
                     for p in data.get("data", [])
                 ]
@@ -296,10 +301,10 @@ class SemanticScholarClient:
 
     def get_paper(self, paper_id: str) -> dict | None:
         """Get paper details by ID.
-        
+
         Args:
             paper_id: Semantic Scholar paper ID
-            
+
         Returns:
             Paper details dictionary
         """
@@ -326,19 +331,19 @@ class GitHubIssueCreator:
 
     def create_issue(self, title: str, body: str, labels: list[str] | None = None) -> str | None:
         """Create a GitHub issue.
-        
+
         Args:
             title: Issue title
             body: Issue body
             labels: Optional labels
-            
+
         Returns:
             Issue URL if successful
         """
         url = f"https://api.github.com/repos/{self.owner}/{self.repo}/issues"
         headers = {
             "Authorization": f"token {self.token}",
-            "Accept": "application/vnd.github.v3+json"
+            "Accept": "application/vnd.github.v3+json",
         }
 
         data = {"title": title, "body": body}
@@ -347,10 +352,7 @@ class GitHubIssueCreator:
 
         try:
             req = urllib.request.Request(
-                url,
-                data=json.dumps(data).encode('utf-8'),
-                headers=headers,
-                method="POST"
+                url, data=json.dumps(data).encode("utf-8"), headers=headers, method="POST"
             )
             with urllib.request.urlopen(req, timeout=10) as response:
                 result = json.loads(response.read().decode())
@@ -361,10 +363,10 @@ class GitHubIssueCreator:
 
     def create_paper_issue(self, paper: dict) -> str | None:
         """Create issue from paper.
-        
+
         Args:
             paper: Paper dictionary
-            
+
         Returns:
             Issue URL
         """
@@ -388,6 +390,7 @@ class GitHubIssueCreator:
 # ============================================
 # FACTORY FUNCTIONS
 # ============================================
+
 
 def get_slack_notifier(webhook_url: str, channel: str = "#jarvis") -> SlackNotifier:
     """Get Slack notifier instance."""

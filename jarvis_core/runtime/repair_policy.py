@@ -2,6 +2,7 @@
 
 Per RP-183, defines the contract for automatic repair loop behavior.
 """
+
 from __future__ import annotations
 
 import json
@@ -20,18 +21,22 @@ class RepairPolicy:
     max_attempts: int = 3
     max_wall_time_sec: float = 300.0
     max_tool_calls: int = 50
-    allowed_actions: list[str] = field(default_factory=lambda: [
-        "SWITCH_FETCH_ADAPTER",
-        "INCREASE_TOP_K",
-        "TIGHTEN_MMR",
-        "CITATION_FIRST_PROMPT",
-        "BUDGET_REBALANCE",
-        "MODEL_ROUTER_SAFE_SWITCH",
-    ])
-    stop_on: dict[str, Any] = field(default_factory=lambda: {
-        "consecutive_no_improvement": 2,
-        "same_failure_repeated": 3,
-    })
+    allowed_actions: list[str] = field(
+        default_factory=lambda: [
+            "SWITCH_FETCH_ADAPTER",
+            "INCREASE_TOP_K",
+            "TIGHTEN_MMR",
+            "CITATION_FIRST_PROMPT",
+            "BUDGET_REBALANCE",
+            "MODEL_ROUTER_SAFE_SWITCH",
+        ]
+    )
+    stop_on: dict[str, Any] = field(
+        default_factory=lambda: {
+            "consecutive_no_improvement": 2,
+            "same_failure_repeated": 3,
+        }
+    )
     budget_overrides: dict[str, Any] | None = None
 
     def __post_init__(self):

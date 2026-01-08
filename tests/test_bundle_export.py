@@ -5,6 +5,7 @@ Per RP12, these tests verify:
 - Bundle export (bundle.json, evidence/*.txt, citations.md)
 - Backward compatibility of run_evidence_qa()
 """
+
 import json
 import sys
 import tempfile
@@ -79,9 +80,7 @@ class TestEvidenceQAResult:
         data = {
             "answer": "Answer",
             "status": "success",
-            "citations": [
-                {"chunk_id": "c1", "source": "pdf", "locator": "l1", "quote": "q1"}
-            ],
+            "citations": [{"chunk_id": "c1", "source": "pdf", "locator": "l1", "quote": "q1"}],
             "inputs": ["file.pdf"],
             "query": "query",
             "chunks_used": ["c1"],

@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ExtractedClaim:
     """抽出された主張."""
+
     claim_id: str
     claim_text: str
     claim_type: str  # finding, method, hypothesis, conclusion
@@ -28,7 +29,7 @@ class ExtractedClaim:
 
 class ClaimExtractor:
     """LLM Claim抽出器.
-    
+
     Gemini/GPT/ローカルLLMを使用して主張を抽出
     """
 
@@ -63,12 +64,12 @@ JSON形式で出力してください：
         section: str = "",
     ) -> list[ExtractedClaim]:
         """テキストから主張を抽出.
-        
+
         Args:
             text: 入力テキスト
             source_id: ソースID
             section: セクション名
-        
+
         Returns:
             抽出された主張リスト
         """
@@ -92,15 +93,17 @@ JSON形式で出力してください：
 
             claims = []
             for i, data in enumerate(claims_data):
-                claims.append(ExtractedClaim(
-                    claim_id=f"{source_id}_c{i:03d}",
-                    claim_text=data.get("claim_text", ""),
-                    claim_type=data.get("claim_type", "finding"),
-                    confidence=data.get("confidence", 0.5),
-                    source_text=data.get("evidence", ""),
-                    source_location={"section": section},
-                    evidence_refs=[],
-                ))
+                claims.append(
+                    ExtractedClaim(
+                        claim_id=f"{source_id}_c{i:03d}",
+                        claim_text=data.get("claim_text", ""),
+                        claim_type=data.get("claim_type", "finding"),
+                        confidence=data.get("confidence", 0.5),
+                        source_text=data.get("evidence", ""),
+                        source_location={"section": section},
+                        evidence_refs=[],
+                    )
+                )
 
             return claims
 
@@ -113,7 +116,7 @@ JSON形式で出力してください：
         import json
 
         # JSON部分を抽出
-        match = re.search(r'\[.*\]', response, re.DOTALL)
+        match = re.search(r"\[.*\]", response, re.DOTALL)
         if match:
             try:
                 return json.loads(match.group())
@@ -132,7 +135,7 @@ JSON形式で出力してください：
         claims = []
 
         # 文に分割
-        sentences = re.split(r'(?<=[.!?])\s+', text)
+        sentences = re.split(r"(?<=[.!?])\s+", text)
 
         # 主張パターン
         claim_patterns = [
@@ -146,15 +149,17 @@ JSON形式で出力してください：
         for sentence in sentences:
             for pattern, claim_type in claim_patterns:
                 if re.search(pattern, sentence):
-                    claims.append(ExtractedClaim(
-                        claim_id=f"{source_id}_c{claim_count:03d}",
-                        claim_text=sentence.strip(),
-                        claim_type=claim_type,
-                        confidence=0.6,
-                        source_text=sentence.strip(),
-                        source_location={"section": section},
-                        evidence_refs=[],
-                    ))
+                    claims.append(
+                        ExtractedClaim(
+                            claim_id=f"{source_id}_c{claim_count:03d}",
+                            claim_text=sentence.strip(),
+                            claim_type=claim_type,
+                            confidence=0.6,
+                            source_text=sentence.strip(),
+                            source_location={"section": section},
+                            evidence_refs=[],
+                        )
+                    )
                     claim_count += 1
                     break
 

@@ -2,6 +2,7 @@
 
 Per Issue Ω-5, this detects cross-field innovation opportunities.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -40,7 +41,7 @@ def find_cross_field_opportunities(
             concept_papers[c].add(v.paper_id)
 
         for i, c1 in enumerate(concepts):
-            for c2 in concepts[i + 1:]:
+            for c2 in concepts[i + 1 :]:
                 pair = tuple(sorted([c1, c2]))
                 cooccurrence[pair] = cooccurrence.get(pair, 0) + 1
 
@@ -49,7 +50,7 @@ def find_cross_field_opportunities(
     all_concepts = list(concept_papers.keys())
 
     for i, c1 in enumerate(all_concepts):
-        for c2 in all_concepts[i + 1:]:
+        for c2 in all_concepts[i + 1 :]:
             pair = tuple(sorted([c1, c2]))
             cooc_count = cooccurrence.get(pair, 0)
 
@@ -69,15 +70,17 @@ def find_cross_field_opportunities(
                 # Generate "why not" reason
                 why_not = _analyze_why_not_combined(c1, c2, vectors)
 
-                opportunities.append({
-                    "concepts": [c1, c2],
-                    "innovation_score": round(gap_score, 3),
-                    "c1_papers": c1_count,
-                    "c2_papers": c2_count,
-                    "combined_papers": cooc_count,
-                    "why_not_combined": why_not,
-                    "potential": f"{c1} × {c2}の組み合わせは未開拓",
-                })
+                opportunities.append(
+                    {
+                        "concepts": [c1, c2],
+                        "innovation_score": round(gap_score, 3),
+                        "c1_papers": c1_count,
+                        "c2_papers": c2_count,
+                        "combined_papers": cooc_count,
+                        "why_not_combined": why_not,
+                        "potential": f"{c1} × {c2}の組み合わせは未開拓",
+                    }
+                )
 
     # Sort by innovation score
     opportunities.sort(key=lambda x: x["innovation_score"], reverse=True)

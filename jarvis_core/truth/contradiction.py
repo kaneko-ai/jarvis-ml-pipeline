@@ -2,6 +2,7 @@
 
 Per V4-T04, this detects potential contradictions between facts.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -50,7 +51,24 @@ def find_shared_concepts(text1: str, text2: str) -> list[str]:
     words2 = set(text2.lower().split())
 
     # Filter stopwords
-    stopwords = {"the", "a", "an", "is", "are", "was", "were", "in", "on", "at", "to", "for", "of", "and", "that", "this"}
+    stopwords = {
+        "the",
+        "a",
+        "an",
+        "is",
+        "are",
+        "was",
+        "were",
+        "in",
+        "on",
+        "at",
+        "to",
+        "for",
+        "of",
+        "and",
+        "that",
+        "this",
+    }
     shared = words1 & words2 - stopwords
 
     # Keep only substantial words
@@ -91,7 +109,7 @@ def detect_contradictions(
     contradictions = []
 
     for i, fact1 in enumerate(facts):
-        for fact2 in facts[i + 1:]:
+        for fact2 in facts[i + 1 :]:
             # Check for shared concepts
             shared = find_shared_concepts(fact1.statement, fact2.statement)
 
@@ -105,13 +123,15 @@ def detect_contradictions(
             )
 
             if has_antonym:
-                contradictions.append(ContradictionResult(
-                    fact1=fact1.statement,
-                    fact2=fact2.statement,
-                    contradiction_type=f"antonym_pattern: {pattern}",
-                    confidence=0.5,  # Not definitive
-                    shared_concept=shared[0] if shared else "",
-                ))
+                contradictions.append(
+                    ContradictionResult(
+                        fact1=fact1.statement,
+                        fact2=fact2.statement,
+                        contradiction_type=f"antonym_pattern: {pattern}",
+                        confidence=0.5,  # Not definitive
+                        shared_concept=shared[0] if shared else "",
+                    )
+                )
 
     return contradictions
 

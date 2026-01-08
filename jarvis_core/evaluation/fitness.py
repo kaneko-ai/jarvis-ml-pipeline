@@ -17,12 +17,13 @@ logger = logging.getLogger(__name__)
 @dataclass
 class FitnessScore:
     """フィットネススコア."""
+
     correctness: float = 0.0  # 引用精度、スキーマ準拠
-    regression: float = 0.0   # 回帰率（0=なし、1=全て回帰）
+    regression: float = 0.0  # 回帰率（0=なし、1=全て回帰）
     reproducibility: float = 0.0  # 再現性
-    cost: float = 0.0         # 推論コスト（正規化）
-    latency: float = 0.0      # 時間（秒）
-    security: float = 1.0     # セキュリティ（1=安全、0=危険）
+    cost: float = 0.0  # 推論コスト（正規化）
+    latency: float = 0.0  # 時間（秒）
+    security: float = 1.0  # セキュリティ（1=安全、0=危険）
 
     def total(self, weights: dict[str, float] | None = None) -> float:
         """重み付き総合スコア."""
@@ -59,9 +60,10 @@ class FitnessScore:
 @dataclass
 class FitnessGate:
     """フィットネスゲート.
-    
+
     最低条件を満たさないWorkflowは採用不可。
     """
+
     min_correctness: float = 0.7
     max_regression: float = 0.1
     min_reproducibility: float = 0.8
@@ -70,7 +72,7 @@ class FitnessGate:
     def check(self, score: FitnessScore) -> tuple[bool, list[str]]:
         """
         ゲートチェック.
-        
+
         Returns:
             (合格したか, 失敗理由リスト)
         """
@@ -83,7 +85,9 @@ class FitnessGate:
             failures.append(f"regression {score.regression:.2f} > {self.max_regression}")
 
         if score.reproducibility < self.min_reproducibility:
-            failures.append(f"reproducibility {score.reproducibility:.2f} < {self.min_reproducibility}")
+            failures.append(
+                f"reproducibility {score.reproducibility:.2f} < {self.min_reproducibility}"
+            )
 
         if self.require_security and score.security < 1.0:
             failures.append(f"security issue detected: {score.security:.2f}")
@@ -98,7 +102,7 @@ class FitnessEvaluator:
     def __init__(self, gate: FitnessGate | None = None):
         """
         初期化.
-        
+
         Args:
             gate: フィットネスゲート
         """
@@ -112,11 +116,11 @@ class FitnessEvaluator:
         cost: float,
         latency: float,
         security: float = 1.0,
-        prev_scores: FitnessScore | None = None
+        prev_scores: FitnessScore | None = None,
     ) -> tuple[FitnessScore, bool, list[str]]:
         """
         フィットネスを評価.
-        
+
         Args:
             correctness: 正確性スコア
             reproducibility: 再現性スコア
@@ -124,7 +128,7 @@ class FitnessEvaluator:
             latency: レイテンシ
             security: セキュリティスコア
             prev_scores: 前回のスコア（回帰検知用）
-        
+
         Returns:
             (FitnessScore, ゲート合格, 失敗理由)
         """
@@ -165,7 +169,7 @@ class FitnessEvaluator:
     ) -> tuple[FitnessScore, bool, list[str]]:
         """
         実行結果からフィットネスを評価.
-        
+
         Args:
             claims_count: Claim総数
             claims_with_evidence: 根拠付きClaim数
@@ -173,7 +177,7 @@ class FitnessEvaluator:
             total_runs: 総実行回数
             cost: 総コスト
             latency: 総レイテンシ
-        
+
         Returns:
             (FitnessScore, ゲート合格, 失敗理由)
         """

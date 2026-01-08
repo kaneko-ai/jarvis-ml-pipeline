@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class LlamaCppConfig:
     """llama.cpp設定."""
+
     model_path: str | None = None
     n_ctx: int = 4096
     n_threads: int = 4
@@ -28,7 +29,7 @@ class LlamaCppConfig:
 
 class LlamaCppAdapter:
     """llama.cppアダプター.
-    
+
     llama-cpp-pythonを使用したローカルLLM推論を提供。
     Ollamaが利用できない環境でのフォールバック用。
     """
@@ -49,6 +50,7 @@ class LlamaCppAdapter:
 
         try:
             import llama_cpp  # noqa: F401
+
             self._available = True
             logger.info("llama-cpp-python is available")
             return True
@@ -63,9 +65,7 @@ class LlamaCppAdapter:
             return
 
         if not self.config.model_path:
-            raise RuntimeError(
-                "LLAMACPP_MODEL_PATH not set. Please set the path to a GGUF model."
-            )
+            raise RuntimeError("LLAMACPP_MODEL_PATH not set. Please set the path to a GGUF model.")
 
         model_path = Path(self.config.model_path)
         if not model_path.exists():
@@ -93,7 +93,7 @@ class LlamaCppAdapter:
         temperature: float = 0.7,
         top_p: float = 0.95,
         stop: list[str] | None = None,
-        **kwargs
+        **kwargs,
     ) -> str:
         """テキスト生成."""
         if not self.is_available():
@@ -122,7 +122,7 @@ class LlamaCppAdapter:
         temperature: float = 0.7,
         top_p: float = 0.95,
         stop: list[str] | None = None,
-        **kwargs
+        **kwargs,
     ) -> Generator[str, None, None]:
         """ストリーミング生成."""
         if not self.is_available():
@@ -148,20 +148,11 @@ class LlamaCppAdapter:
             raise RuntimeError(f"llama.cpp error: {e}") from e
 
     def chat(
-        self,
-        messages: list[dict],
-        max_tokens: int = 512,
-        temperature: float = 0.7,
-        **kwargs
+        self, messages: list[dict], max_tokens: int = 512, temperature: float = 0.7, **kwargs
     ) -> str:
         """チャット形式で生成."""
         prompt = self._messages_to_prompt(messages)
-        return self.generate(
-            prompt,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            **kwargs
-        )
+        return self.generate(prompt, max_tokens=max_tokens, temperature=temperature, **kwargs)
 
     def _messages_to_prompt(self, messages: list[dict]) -> str:
         """メッセージリストをプロンプト形式に変換（ChatML形式）."""

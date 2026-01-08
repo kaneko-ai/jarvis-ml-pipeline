@@ -3,6 +3,7 @@
 Per JARVIS_LOCALFIRST_ROADMAP Task 1.3: 永続キャッシュ
 Provides LRU eviction, TTL management, and thread-safe access.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -23,6 +24,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class CacheEntry:
     """Cache entry with metadata."""
+
     key: str
     value: Any
     created_at: float
@@ -39,7 +41,7 @@ class CacheEntry:
 
 class SQLiteCache:
     """SQLite-based persistent cache with LRU eviction.
-    
+
     Features:
     - Thread-safe access
     - LRU eviction when max size reached
@@ -89,7 +91,8 @@ class SQLiteCache:
     def _init_db(self) -> None:
         """Initialize database schema."""
         with self._cursor() as cursor:
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS cache (
                     key TEXT PRIMARY KEY,
                     namespace TEXT NOT NULL DEFAULT 'default',
@@ -99,15 +102,20 @@ class SQLiteCache:
                     ttl_seconds INTEGER,
                     size_bytes INTEGER NOT NULL
                 )
-            """)
-            cursor.execute("""
+            """
+            )
+            cursor.execute(
+                """
                 CREATE INDEX IF NOT EXISTS idx_namespace 
                 ON cache(namespace)
-            """)
-            cursor.execute("""
+            """
+            )
+            cursor.execute(
+                """
                 CREATE INDEX IF NOT EXISTS idx_accessed_at 
                 ON cache(accessed_at)
-            """)
+            """
+            )
         logger.info(f"SQLite cache initialized at {self.db_path}")
 
     def _hash_key(self, key: str) -> str:
@@ -120,21 +128,18 @@ class SQLiteCache:
         namespace: str = "default",
     ) -> Any | None:
         """Get value from cache.
-        
+
         Args:
             key: Cache key.
             namespace: Cache namespace.
-            
+
         Returns:
             Cached value or None if not found/expired.
         """
         hashed_key = self._hash_key(f"{namespace}:{key}")
 
         with self._cursor() as cursor:
-            cursor.execute(
-                "SELECT * FROM cache WHERE key = ?",
-                (hashed_key,)
-            )
+            cursor.execute("SELECT * FROM cache WHERE key = ?", (hashed_key,))
             row = cursor.fetchone()
 
             if row is None:
@@ -149,8 +154,7 @@ class SQLiteCache:
 
             # Update access time (LRU)
             cursor.execute(
-                "UPDATE cache SET accessed_at = ? WHERE key = ?",
-                (time.time(), hashed_key)
+                "UPDATE cache SET accessed_at = ? WHERE key = ?", (time.time(), hashed_key)
             )
 
             # Deserialize value
@@ -167,7 +171,7 @@ class SQLiteCache:
         ttl_seconds: int | None = None,
     ) -> None:
         """Set value in cache.
-        
+
         Args:
             key: Cache key.
             value: Value to cache.
@@ -190,15 +194,18 @@ class SQLiteCache:
         self._evict_if_needed(size_bytes)
 
         with self._cursor() as cursor:
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT OR REPLACE INTO cache 
                 (key, namespace, value, created_at, accessed_at, ttl_seconds, size_bytes)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (hashed_key, namespace, serialized, now, now, ttl, size_bytes))
+            """,
+                (hashed_key, namespace, serialized, now, now, ttl, size_bytes),
+            )
 
     def delete(self, key: str, namespace: str = "default") -> bool:
         """Delete value from cache.
-        
+
         Returns:
             True if key was deleted.
         """
@@ -210,10 +217,10 @@ class SQLiteCache:
 
     def clear(self, namespace: str | None = None) -> int:
         """Clear cache.
-        
+
         Args:
             namespace: If provided, clear only this namespace.
-            
+
         Returns:
             Number of entries deleted.
         """
@@ -239,7 +246,7 @@ class SQLiteCache:
             cursor.execute(
                 "DELETE FROM cache WHERE ttl_seconds IS NOT NULL "
                 "AND (created_at + ttl_seconds) < ?",
-                (time.time(),)
+                (time.time(),),
             )
 
             # Recalculate size
@@ -253,26 +260,30 @@ class SQLiteCache:
             # Delete LRU entries until we have space
             target_size = int(self.max_size_bytes * 0.8)  # Free 20% extra
 
-            cursor.execute("""
+            cursor.execute(
+                """
                 DELETE FROM cache WHERE key IN (
                     SELECT key FROM cache 
                     ORDER BY accessed_at ASC 
                     LIMIT (SELECT COUNT(*) * 0.2 FROM cache)
                 )
-            """)
+            """
+            )
 
             logger.info(f"Evicted LRU entries, freed {current_size - target_size} bytes")
 
     def stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         with self._cursor() as cursor:
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT 
                     COUNT(*) as count,
                     SUM(size_bytes) as total_bytes,
                     COUNT(DISTINCT namespace) as namespaces
                 FROM cache
-            """)
+            """
+            )
             row = cursor.fetchone()
 
             return {

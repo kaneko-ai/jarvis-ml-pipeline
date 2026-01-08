@@ -2,6 +2,7 @@
 
 Per RP-440, assists with research hypothesis generation.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -34,7 +35,7 @@ class Hypothesis:
 
 class HypothesisGenerator:
     """Generates research hypotheses from literature gaps.
-    
+
     Per RP-440:
     - Gap detection from known knowledge
     - Hypothesis candidate generation
@@ -55,11 +56,11 @@ class HypothesisGenerator:
         papers: list[dict[str, Any]],
     ) -> list[ResearchGap]:
         """Find research gaps in literature.
-        
+
         Args:
             topic: Research topic.
             papers: Related papers.
-            
+
         Returns:
             List of identified gaps.
         """
@@ -72,24 +73,28 @@ class HypothesisGenerator:
         # Find uncovered aspects
         for i, aspect in enumerate(expected_aspects):
             if aspect.lower() not in [a.lower() for a in covered_aspects]:
-                gaps.append(ResearchGap(
-                    gap_id=f"gap_{i}",
-                    description=f"Limited research on {aspect} in {topic}",
-                    category="coverage",
-                    supporting_evidence=[],
-                    confidence=0.7,
-                ))
+                gaps.append(
+                    ResearchGap(
+                        gap_id=f"gap_{i}",
+                        description=f"Limited research on {aspect} in {topic}",
+                        category="coverage",
+                        supporting_evidence=[],
+                        confidence=0.7,
+                    )
+                )
 
         # Find contradictions
         contradictions = self._find_contradictions(papers)
         for i, contradiction in enumerate(contradictions):
-            gaps.append(ResearchGap(
-                gap_id=f"gap_contradiction_{i}",
-                description=contradiction,
-                category="contradiction",
-                supporting_evidence=[],
-                confidence=0.8,
-            ))
+            gaps.append(
+                ResearchGap(
+                    gap_id=f"gap_contradiction_{i}",
+                    description=contradiction,
+                    category="contradiction",
+                    supporting_evidence=[],
+                    confidence=0.8,
+                )
+            )
 
         return gaps
 
@@ -140,11 +145,11 @@ class HypothesisGenerator:
         context: dict[str, Any] | None = None,
     ) -> list[Hypothesis]:
         """Generate hypotheses from gaps.
-        
+
         Args:
             gaps: Identified research gaps.
             context: Additional context.
-            
+
         Returns:
             Generated hypotheses.
         """
@@ -194,11 +199,11 @@ class HypothesisGenerator:
         existing_literature: list[dict[str, Any]],
     ) -> dict[str, float]:
         """Evaluate a hypothesis.
-        
+
         Args:
             hypothesis: Hypothesis to evaluate.
             existing_literature: Related papers.
-            
+
         Returns:
             Evaluation scores.
         """

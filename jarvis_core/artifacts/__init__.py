@@ -1,4 +1,5 @@
 """Artifacts package."""
+
 from .claim_set import Claim, ClaimSet, ClaimType
 from .schema import (
     ArtifactBase,
@@ -24,4 +25,3 @@ __all__ = [
     "Claim",
     "ClaimType",
 ]
-

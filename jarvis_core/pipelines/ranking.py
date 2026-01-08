@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class FeatureVector:
     """特徴量ベクトル."""
+
     paper_id: str
     recency: float = 0.0
     evidence_count: float = 0.0
@@ -50,6 +51,7 @@ class FeatureVector:
 @dataclass
 class RankExplanation:
     """順位の説明."""
+
     paper_id: str
     rank: int
     score: float
@@ -63,7 +65,7 @@ class RankExplanation:
 
 class PaperRanker:
     """論文ランカー.
-    
+
     Phase C: 特徴量ベースのランキング
     - LightGBMは将来実装（現在は重み付き和）
     - 説明可能性を重視
@@ -85,10 +87,10 @@ class PaperRanker:
         features: list[FeatureVector],
     ) -> list[RankExplanation]:
         """ランキングを実行.
-        
+
         Args:
             features: 特徴量リスト
-        
+
         Returns:
             順位付き説明リスト
         """
@@ -96,10 +98,7 @@ class PaperRanker:
         scored = []
         for fv in features:
             score = fv.weighted_score(self.weights)
-            contributions = [
-                (k, v * self.weights.get(k, 0.0))
-                for k, v in fv.to_dict().items()
-            ]
+            contributions = [(k, v * self.weights.get(k, 0.0)) for k, v in fv.to_dict().items()]
             contributions.sort(key=lambda x: -x[1])
             scored.append((fv.paper_id, score, contributions))
 
@@ -109,12 +108,14 @@ class PaperRanker:
         # 説明を生成
         explanations = []
         for rank, (paper_id, score, contribs) in enumerate(scored, 1):
-            explanations.append(RankExplanation(
-                paper_id=paper_id,
-                rank=rank,
-                score=score,
-                top_factors=contribs,
-            ))
+            explanations.append(
+                RankExplanation(
+                    paper_id=paper_id,
+                    rank=rank,
+                    score=score,
+                    top_factors=contribs,
+                )
+            )
 
         return explanations
 
@@ -124,11 +125,11 @@ class PaperRanker:
         top_n: int = 3,
     ) -> str:
         """report.md用のセクションを生成.
-        
+
         Args:
             explanations: 順位説明リスト
             top_n: 上位N件
-        
+
         Returns:
             Markdown文字列
         """
@@ -144,8 +145,10 @@ class PaperRanker:
             lines.append(f"| {exp.rank} | {exp.paper_id} | {exp.score:.3f} | {factors} |")
 
         lines.append("")
-        lines.append("**Note**: Ranking is based on weighted features. "
-                     "Higher evidence_count and recency contribute more to the score.")
+        lines.append(
+            "**Note**: Ranking is based on weighted features. "
+            "Higher evidence_count and recency contribute more to the score."
+        )
 
         return "\n".join(lines)
 
@@ -154,15 +157,17 @@ class PaperRanker:
 # Budget Control (Test-time Scaling)
 # ============================================================
 
+
 @dataclass
 class InferenceBudget:
     """推論バジェット.
-    
+
     Phase C: test-time scaling
     - low: abstract only, top_k=1
     - medium: abstract + 1st paragraph, top_k=3
     - high: full text, top_k=5
     """
+
     level: str  # low, medium, high
     top_k: int
     use_fulltext: bool
@@ -185,7 +190,7 @@ class InferenceBudget:
 
 class BudgetController:
     """バジェットコントローラー.
-    
+
     cheap→expensive の制御
     """
 

@@ -70,7 +70,9 @@ def build_submission_package(
     named_files = _apply_naming_rules(rules.get("files") or {}, naming_context)
 
     copied = _copy_artifacts(artifacts, structure, named_files)
-    manifest_path = _write_submission_manifest(run_id, submission_version, artifacts, structure, named_files)
+    manifest_path = _write_submission_manifest(
+        run_id, submission_version, artifacts, structure, named_files
+    )
 
     attachments = _build_attachment_list(structure, named_files, copied, manifest_path)
     check_report = _run_checklist(
@@ -196,9 +198,17 @@ def _discover_artifacts(run_dir: Path) -> dict[str, Path | None]:
                 artifacts["qa_report"] = path
             elif artifacts["thesis_pdf"] is None:
                 artifacts["thesis_pdf"] = path
-        elif path.suffix.lower() == ".json" and "manifest" in name_lower and artifacts["manifest"] is None:
+        elif (
+            path.suffix.lower() == ".json"
+            and "manifest" in name_lower
+            and artifacts["manifest"] is None
+        ):
             artifacts["manifest"] = path
-        elif path.suffix.lower() == ".md" and path.name == "report.md" and artifacts["report_md"] is None:
+        elif (
+            path.suffix.lower() == ".md"
+            and path.name == "report.md"
+            and artifacts["report_md"] is None
+        ):
             artifacts["report_md"] = path
 
     return artifacts
@@ -324,7 +334,9 @@ def _run_single_check(
             status = "fail"
             details = f"errors={errors}"
     elif check_type == "figure_reference_zero":
-        broken = _extract_metric_from_files(run_dir, ["figure_reference_report.json", "figure_refs.json"], "broken_count")
+        broken = _extract_metric_from_files(
+            run_dir, ["figure_reference_report.json", "figure_refs.json"], "broken_count"
+        )
         if broken not in (0, "0", None):
             status = "fail"
             details = f"broken={broken}"
@@ -332,7 +344,9 @@ def _run_single_check(
             status = "fail"
             details = "report not found"
     elif check_type == "unused_references":
-        unused = _extract_metric_from_files(run_dir, ["unused_references.json", "unused_refs.json"], "count")
+        unused = _extract_metric_from_files(
+            run_dir, ["unused_references.json", "unused_refs.json"], "count"
+        )
         if unused not in (0, "0", None):
             status = "warn"
             details = f"unused={unused}"
@@ -458,7 +472,9 @@ def _build_diff_report(
     previous_package_path: str | None,
     run_id: str,
 ):
-    previous_files, temp_dir = _resolve_previous_files(submission_version, previous_package_path, run_id)
+    previous_files, temp_dir = _resolve_previous_files(
+        submission_version, previous_package_path, run_id
+    )
     try:
         return generate_diff_report(
             current_docx=artifacts.get("thesis_docx"),
@@ -534,7 +550,9 @@ def _write_email_draft(folder: Path, draft) -> Path:
     return path
 
 
-def _write_check_report(json_paths: list[Path], md_paths: list[Path], report: dict[str, object]) -> None:
+def _write_check_report(
+    json_paths: list[Path], md_paths: list[Path], report: dict[str, object]
+) -> None:
     payload = json.dumps(report, ensure_ascii=False, indent=2)
     lines = ["# Submission Check Report", "", f"Blocked: {report.get('blocked')}", "", "## Checks"]
     for item in report.get("checks", []):

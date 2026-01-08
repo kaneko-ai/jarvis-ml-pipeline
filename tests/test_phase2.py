@@ -47,13 +47,10 @@ class TestGoldsetIndex:
             goldset_path.write_text(
                 '{"context":"論文RAG設計","decision":"accept","scores":{},"reason":"速度優先","outcome":"成功"}\n'
                 '{"context":"Graph RAG導入","decision":"reject","scores":{},"reason":"時期尚早","outcome":"正解"}\n',
-                encoding="utf-8"
+                encoding="utf-8",
             )
 
-            index = GoldsetIndex(
-                goldset_path=str(goldset_path),
-                index_path=tmpdir
-            )
+            index = GoldsetIndex(goldset_path=str(goldset_path), index_path=tmpdir)
 
             # 検索（embedding未使用）
             results = index._keyword_search("論文RAG設計", top_k=2)
@@ -72,13 +69,10 @@ class TestMandatorySearchJudge:
             goldset_path = Path(tmpdir) / "goldset.jsonl"
             goldset_path.write_text(
                 '{"context":"API/Local切替設計","decision":"accept","scores":{"relevance":5},"reason":"機密性重要","outcome":"自由度向上"}\n',
-                encoding="utf-8"
+                encoding="utf-8",
             )
 
-            index = GoldsetIndex(
-                goldset_path=str(goldset_path),
-                index_path=tmpdir
-            )
+            index = GoldsetIndex(goldset_path=str(goldset_path), index_path=tmpdir)
 
             judge = MandatorySearchJudge(goldset_index=index)
 
@@ -100,13 +94,10 @@ class TestMandatorySearchJudge:
             goldset_path = Path(tmpdir) / "goldset.jsonl"
             goldset_path.write_text(
                 '{"context":"テスト","decision":"accept","scores":{},"reason":"理由","outcome":"結果"}\n',
-                encoding="utf-8"
+                encoding="utf-8",
             )
 
-            index = GoldsetIndex(
-                goldset_path=str(goldset_path),
-                index_path=tmpdir
-            )
+            index = GoldsetIndex(goldset_path=str(goldset_path), index_path=tmpdir)
 
             judge = MandatorySearchJudge(goldset_index=index)
             result = judge.judge("test", "テスト判断")

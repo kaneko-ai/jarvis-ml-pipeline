@@ -24,6 +24,7 @@ PUBMED_SUMMARY_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcg
 @dataclass
 class PubMedPaper:
     """PubMed論文."""
+
     pmid: str
     title: str
     authors: list[str]
@@ -48,7 +49,7 @@ class PubMedPaper:
 
 class PubMedClient:
     """PubMed API Client.
-    
+
     E-Utilities API を使用して論文を検索・取得
     """
 
@@ -79,13 +80,13 @@ class PubMedClient:
         date_to: str | None = None,
     ) -> list[str]:
         """論文を検索してPMIDリストを返す.
-        
+
         Args:
             query: 検索クエリ
             max_results: 最大結果数
             date_from: 開始日（YYYY/MM/DD）
             date_to: 終了日（YYYY/MM/DD）
-        
+
         Returns:
             PMIDリスト
         """
@@ -123,10 +124,10 @@ class PubMedClient:
 
     def fetch(self, pmids: list[str]) -> list[PubMedPaper]:
         """PMIDから論文詳細を取得.
-        
+
         Args:
             pmids: PMIDリスト
-        
+
         Returns:
             論文リスト
         """
@@ -166,16 +167,20 @@ class PubMedClient:
         papers = []
 
         # PMIDを抽出
-        pmid_matches = re.findall(r'<PMID[^>]*>(\d+)</PMID>', xml_text)
+        pmid_matches = re.findall(r"<PMID[^>]*>(\d+)</PMID>", xml_text)
 
         # タイトルを抽出
-        title_matches = re.findall(r'<ArticleTitle>(.+?)</ArticleTitle>', xml_text, re.DOTALL)
+        title_matches = re.findall(r"<ArticleTitle>(.+?)</ArticleTitle>", xml_text, re.DOTALL)
 
         # Abstractを抽出
-        abstract_matches = re.findall(r'<AbstractText[^>]*>(.+?)</AbstractText>', xml_text, re.DOTALL)
+        abstract_matches = re.findall(
+            r"<AbstractText[^>]*>(.+?)</AbstractText>", xml_text, re.DOTALL
+        )
 
         # 年を抽出
-        year_matches = re.findall(r'<PubDate>.*?<Year>(\d{4})</Year>.*?</PubDate>', xml_text, re.DOTALL)
+        year_matches = re.findall(
+            r"<PubDate>.*?<Year>(\d{4})</Year>.*?</PubDate>", xml_text, re.DOTALL
+        )
 
         for i, pmid in enumerate(pmid_matches):
             title = title_matches[i] if i < len(title_matches) else "Unknown"
@@ -183,17 +188,19 @@ class PubMedClient:
             year = int(year_matches[i]) if i < len(year_matches) else 2024
 
             # HTMLタグを削除
-            title = re.sub(r'<[^>]+>', '', title)
-            abstract = re.sub(r'<[^>]+>', '', abstract)
+            title = re.sub(r"<[^>]+>", "", title)
+            abstract = re.sub(r"<[^>]+>", "", abstract)
 
-            papers.append(PubMedPaper(
-                pmid=pmid,
-                title=title.strip(),
-                authors=["Author"],  # 簡易版では省略
-                year=year,
-                abstract=abstract.strip(),
-                journal="",
-            ))
+            papers.append(
+                PubMedPaper(
+                    pmid=pmid,
+                    title=title.strip(),
+                    authors=["Author"],  # 簡易版では省略
+                    year=year,
+                    abstract=abstract.strip(),
+                    journal="",
+                )
+            )
 
         return papers
 

@@ -1,4 +1,5 @@
 """Paper deduplication engine for research-grade ingestion."""
+
 from __future__ import annotations
 
 import hashlib
@@ -86,9 +87,11 @@ class DedupEngine:
         if not text:
             return None
         for existing in canonical:
-            existing_text = " ".join(
-                [existing.get("title") or "", existing.get("abstract") or ""]
-            ).strip().lower()
+            existing_text = (
+                " ".join([existing.get("title") or "", existing.get("abstract") or ""])
+                .strip()
+                .lower()
+            )
             if not existing_text:
                 continue
             if SequenceMatcher(None, text, existing_text).ratio() >= self.similarity_threshold:

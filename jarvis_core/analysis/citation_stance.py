@@ -3,6 +3,7 @@
 Per JARVIS_LOCALFIRST_ROADMAP Task 2.2: 引用分析
 Classifies citation stance (support/contrast/neutral) locally.
 """
+
 from __future__ import annotations
 
 import logging
@@ -16,16 +17,18 @@ logger = logging.getLogger(__name__)
 
 class CitationStance(Enum):
     """Citation stance categories."""
-    SUPPORTS = "supports"        # Evidence supports the claim
+
+    SUPPORTS = "supports"  # Evidence supports the claim
     CONTRADICTS = "contradicts"  # Evidence contradicts the claim
-    NEUTRAL = "neutral"          # No clear stance
-    EXTENDS = "extends"          # Builds upon without support/contradiction
-    UNRELATED = "unrelated"      # Not related to the claim
+    NEUTRAL = "neutral"  # No clear stance
+    EXTENDS = "extends"  # Builds upon without support/contradiction
+    UNRELATED = "unrelated"  # Not related to the claim
 
 
 @dataclass
 class StanceResult:
     """Result of stance classification."""
+
     claim_id: str
     evidence_id: str
     stance: CitationStance
@@ -46,7 +49,7 @@ class StanceResult:
 
 class RuleBasedStanceClassifier:
     """Rule-based stance classifier using linguistic cues.
-    
+
     Fast and deterministic, no external dependencies.
     """
 
@@ -199,6 +202,7 @@ Answer:"""
         if self._router is None:
             try:
                 from jarvis_core.llm.model_router import get_router
+
                 self._router = get_router()
             except ImportError:
                 pass
@@ -222,11 +226,15 @@ Answer:"""
         )
 
         try:
-            response = router.generate(
-                prompt,
-                max_tokens=20,
-                temperature=0.0,
-            ).strip().upper()
+            response = (
+                router.generate(
+                    prompt,
+                    max_tokens=20,
+                    temperature=0.0,
+                )
+                .strip()
+                .upper()
+            )
 
             if "SUPPORT" in response:
                 stance = CitationStance.SUPPORTS
@@ -273,9 +281,7 @@ class EnsembleStanceClassifier:
         if not self.use_llm or not self.llm_classifier:
             return rule_result
 
-        llm_result = self.llm_classifier.classify(
-            claim_text, evidence_text, claim_id, evidence_id
-        )
+        llm_result = self.llm_classifier.classify(claim_text, evidence_text, claim_id, evidence_id)
 
         if not llm_result:
             return rule_result
@@ -313,12 +319,12 @@ def analyze_citations(
     use_llm: bool = True,
 ) -> tuple[list[StanceResult], dict[str, Any]]:
     """Analyze citation stances for all claim-evidence pairs.
-    
+
     Args:
         claims: List of claim dictionaries.
         evidence_list: List of evidence dictionaries.
         use_llm: Whether to use LLM classifier.
-        
+
     Returns:
         Tuple of (results, summary_stats).
     """

@@ -102,12 +102,12 @@ SVG_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
 
 class PRISMAGenerator:
     """Generates PRISMA 2020 flow diagrams.
-    
+
     Supports multiple output formats:
     - Mermaid (for markdown/web)
     - SVG (for embedding/printing)
     - Text (for accessibility)
-    
+
     Example:
         >>> generator = PRISMAGenerator()
         >>> data = PRISMAData(records_from_databases=1000, ...)
@@ -116,20 +116,20 @@ class PRISMAGenerator:
 
     def to_mermaid(self, data: PRISMAData) -> str:
         """Generate Mermaid flowchart code.
-        
+
         Args:
             data: PRISMA flow data
-            
+
         Returns:
             Mermaid diagram code
         """
         data.calculate_totals()
 
         after_dup = (
-            data.records_from_databases +
-            data.records_from_registers +
-            data.records_from_other_sources -
-            data.duplicates_removed
+            data.records_from_databases
+            + data.records_from_registers
+            + data.records_from_other_sources
+            - data.duplicates_removed
         )
 
         return MERMAID_TEMPLATE.format(
@@ -149,19 +149,19 @@ class PRISMAGenerator:
 
     def to_svg(self, data: PRISMAData) -> str:
         """Generate SVG diagram.
-        
+
         Args:
             data: PRISMA flow data
-            
+
         Returns:
             SVG code
         """
         data.calculate_totals()
 
         total_records = (
-            data.records_from_databases +
-            data.records_from_registers +
-            data.records_from_other_sources
+            data.records_from_databases
+            + data.records_from_registers
+            + data.records_from_other_sources
         )
 
         return SVG_TEMPLATE.format(
@@ -176,10 +176,10 @@ class PRISMAGenerator:
 
     def to_text(self, data: PRISMAData) -> str:
         """Generate text representation.
-        
+
         Args:
             data: PRISMA flow data
-            
+
         Returns:
             Text summary
         """
@@ -224,7 +224,7 @@ class PRISMAGenerator:
         format: str = "svg",
     ) -> None:
         """Save PRISMA diagram to file.
-        
+
         Args:
             data: PRISMA flow data
             output_path: Output file path
@@ -249,13 +249,13 @@ def generate_prisma_flow(
     format: str = "mermaid",
 ) -> str:
     """Generate PRISMA flow diagram.
-    
+
     Convenience function for quick generation.
-    
+
     Args:
         data: PRISMA flow data
         format: Output format (mermaid, svg, text)
-        
+
     Returns:
         Diagram code/content
     """

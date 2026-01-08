@@ -2,6 +2,7 @@
 
 Tests Ψ-1 to Ψ-30 modules.
 """
+
 import sys
 from pathlib import Path
 
@@ -102,11 +103,19 @@ class TestROIEngine:
 class TestNegativeResults:
     def test_vault_operations(self):
         vault = NegativeResultsVault()
-        vault.add(NegativeResult(id="1", hypothesis="H1", experiment="E1", outcome="failed", failure_type="technical"))
+        vault.add(
+            NegativeResult(
+                id="1", hypothesis="H1", experiment="E1", outcome="failed", failure_type="technical"
+            )
+        )
         assert len(vault.results) == 1
 
     def test_analyze(self):
-        results = [NegativeResult(id="1", hypothesis="H1", experiment="E1", outcome="failed", failure_type="technical")]
+        results = [
+            NegativeResult(
+                id="1", hypothesis="H1", experiment="E1", outcome="failed", failure_type="technical"
+            )
+        ]
         analysis = analyze_negative_results(results)
         assert analysis["total"] == 1
 

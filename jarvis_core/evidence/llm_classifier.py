@@ -81,10 +81,10 @@ class LLMConfig:
 
 class LLMBasedClassifier:
     """LLM-based evidence classifier.
-    
+
     Uses local LLM to classify evidence levels based on paper content.
     Falls back to rule-based classification if LLM is unavailable.
-    
+
     Example:
         >>> classifier = LLMBasedClassifier()
         >>> grade = classifier.classify(
@@ -97,7 +97,7 @@ class LLMBasedClassifier:
 
     def __init__(self, config: LLMConfig | None = None):
         """Initialize the classifier.
-        
+
         Args:
             config: LLM configuration
         """
@@ -134,12 +134,12 @@ class LLMBasedClassifier:
         full_text: str = "",
     ) -> EvidenceGrade:
         """Classify evidence level using LLM.
-        
+
         Args:
             title: Paper title
             abstract: Paper abstract
             full_text: Full paper text (optional, not used for cost reasons)
-            
+
         Returns:
             EvidenceGrade with classification result
         """
@@ -225,8 +225,8 @@ class LLMBasedClassifier:
 
         # Try to find JSON object
         patterns = [
-            re.compile(r'\{[^{}]*\}', re.DOTALL),
-            re.compile(r'```json\s*(\{[^{}]*\})\s*```', re.DOTALL),
+            re.compile(r"\{[^{}]*\}", re.DOTALL),
+            re.compile(r"```json\s*(\{[^{}]*\})\s*```", re.DOTALL),
         ]
 
         for pattern in patterns:
@@ -284,10 +284,10 @@ class LLMBasedClassifier:
 
     def extract_pico(self, abstract: str) -> PICOExtraction:
         """Extract PICO components using LLM.
-        
+
         Args:
             abstract: Paper abstract
-            
+
         Returns:
             PICOExtraction with extracted components
         """

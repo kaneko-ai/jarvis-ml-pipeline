@@ -1,4 +1,5 @@
 """P9 plan integration for time/finance constraints."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

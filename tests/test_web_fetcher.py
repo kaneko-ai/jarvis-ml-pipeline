@@ -2,6 +2,7 @@
 
 Per RP8, these tests use mocks to avoid network dependencies.
 """
+
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch

@@ -3,6 +3,7 @@
 論文・主張のランキング。
 重み設定可能な複合スコアリング。
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -13,6 +14,7 @@ from typing import Any
 @dataclass
 class RankingWeights:
     """ランキングの重み設定."""
+
     relevance: float = 0.4
     evidence: float = 0.3
     recency: float = 0.15
@@ -40,6 +42,7 @@ class RankingWeights:
         """YAMLファイルから読み込み."""
         try:
             import yaml
+
             with open(filepath, encoding="utf-8") as f:
                 data = yaml.safe_load(f)
             return cls.from_dict(data)
@@ -50,6 +53,7 @@ class RankingWeights:
 @dataclass
 class RankedItem:
     """ランク付けされたアイテム."""
+
     item_id: str
     item_type: str  # paper, claim
     score: float
@@ -71,6 +75,7 @@ class RankedItem:
 @dataclass
 class RankingResult:
     """ランキング結果."""
+
     items: list[RankedItem] = field(default_factory=list)
     weights_used: RankingWeights | None = None
 
@@ -83,7 +88,7 @@ class RankingResult:
 
 class Ranker:
     """論文・主張ランカー.
-    
+
     複合スコアに基づいてアイテムをランク付け。
     """
 
@@ -102,12 +107,12 @@ class Ranker:
         evidence_counts: dict[str, int] | None = None,
     ) -> RankingResult:
         """論文をランク付け.
-        
+
         Args:
             papers: 論文リスト [{paper_id, title, year, abstract, ...}]
             query: 検索クエリ（関連度計算用）
             evidence_counts: paper_id -> 根拠数のマップ
-            
+
         Returns:
             RankingResult
         """
@@ -127,23 +132,25 @@ class Ranker:
 
             # 重み付き総合スコア
             score = (
-                factors["relevance"] * self.weights.relevance +
-                factors["evidence"] * self.weights.evidence +
-                factors["recency"] * self.weights.recency +
-                factors["methodology"] * self.weights.methodology
+                factors["relevance"] * self.weights.relevance
+                + factors["evidence"] * self.weights.evidence
+                + factors["recency"] * self.weights.recency
+                + factors["methodology"] * self.weights.methodology
             ) * 100  # 0-100スケール
 
-            ranked.append(RankedItem(
-                item_id=paper_id,
-                item_type="paper",
-                score=score,
-                rank=0,  # 後で設定
-                factors=factors,
-                metadata={
-                    "title": paper.get("title", ""),
-                    "year": paper.get("year", 0),
-                },
-            ))
+            ranked.append(
+                RankedItem(
+                    item_id=paper_id,
+                    item_type="paper",
+                    score=score,
+                    rank=0,  # 後で設定
+                    factors=factors,
+                    metadata={
+                        "title": paper.get("title", ""),
+                        "year": paper.get("year", 0),
+                    },
+                )
+            )
 
         # スコアでソートしてランク付け
         ranked.sort(key=lambda x: x.score, reverse=True)
@@ -158,11 +165,11 @@ class Ranker:
         evidence: list[dict[str, Any]],
     ) -> RankingResult:
         """主張をランク付け.
-        
+
         Args:
             claims: 主張リスト
             evidence: 根拠リスト
-            
+
         Returns:
             RankingResult
         """
@@ -189,22 +196,24 @@ class Ranker:
             }
 
             score = (
-                factors["evidence"] * 0.5 +
-                factors["confidence"] * 0.3 +
-                factors["type_weight"] * 0.2
+                factors["evidence"] * 0.5
+                + factors["confidence"] * 0.3
+                + factors["type_weight"] * 0.2
             ) * 100
 
-            ranked.append(RankedItem(
-                item_id=claim_id,
-                item_type="claim",
-                score=score,
-                rank=0,
-                factors=factors,
-                metadata={
-                    "claim_text": claim.get("claim_text", "")[:100],
-                    "claim_type": claim_type,
-                },
-            ))
+            ranked.append(
+                RankedItem(
+                    item_id=claim_id,
+                    item_type="claim",
+                    score=score,
+                    rank=0,
+                    factors=factors,
+                    metadata={
+                        "claim_text": claim.get("claim_text", "")[:100],
+                        "claim_type": claim_type,
+                    },
+                )
+            )
 
         # ソートとランク付け
         ranked.sort(key=lambda x: x.score, reverse=True)
@@ -224,7 +233,8 @@ class Ranker:
 
         # キーワードマッチ
         import re
-        keywords = re.findall(r'\b[a-z]{3,}\b', query_lower)
+
+        keywords = re.findall(r"\b[a-z]{3,}\b", query_lower)
         if not keywords:
             return 0.5
 
@@ -262,7 +272,13 @@ class Ranker:
         # 本番ではより詳細な評価が必要
         abstract = paper.get("abstract", "").lower()
 
-        indicators = ["randomized", "controlled", "clinical trial", "meta-analysis", "systematic review"]
+        indicators = [
+            "randomized",
+            "controlled",
+            "clinical trial",
+            "meta-analysis",
+            "systematic review",
+        ]
         score = 0.5
 
         for ind in indicators:

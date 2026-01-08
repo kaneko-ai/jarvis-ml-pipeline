@@ -95,10 +95,7 @@ class TestCheckpointManager:
         with TemporaryDirectory() as tmpdir:
             manager = CheckpointManager(base_path=tmpdir)
 
-            checkpoint = RunCheckpoint(
-                run_id="test_run",
-                pipeline="test_pipeline"
-            )
+            checkpoint = RunCheckpoint(run_id="test_run", pipeline="test_pipeline")
 
             manager.save(checkpoint)
             loaded = manager.load("test_run")
@@ -115,12 +112,7 @@ class TestCheckpointManager:
             checkpoint = RunCheckpoint(run_id="test_run", pipeline="test")
             manager.save(checkpoint)
 
-            manager.update_stage(
-                "test_run",
-                "stage_1",
-                StageStatus.COMPLETED,
-                duration_ms=1000
-            )
+            manager.update_stage("test_run", "stage_1", StageStatus.COMPLETED, duration_ms=1000)
 
             loaded = manager.load("test_run")
             assert "stage_1" in loaded.stages
@@ -145,11 +137,7 @@ class TestCheckpointManager:
         with TemporaryDirectory() as tmpdir:
             manager = CheckpointManager(base_path=tmpdir)
 
-            checkpoint = RunCheckpoint(
-                run_id="test_run",
-                pipeline="test",
-                current_stage_idx=3
-            )
+            checkpoint = RunCheckpoint(run_id="test_run", pipeline="test", current_stage_idx=3)
             manager.save(checkpoint)
 
             resume_point = manager.get_resume_point("test_run")
@@ -211,7 +199,7 @@ class TestMetricsCollector:
                 provenance_rate=0.95,
                 pico_consistency_rate=0.88,
                 gate_name="provenance",
-                gate_passed=True
+                gate_passed=True,
             )
 
             metrics = collector.get_current_metrics()

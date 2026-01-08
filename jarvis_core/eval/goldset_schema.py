@@ -3,6 +3,7 @@
 Per V4-A01, this defines the Goldset schema for evaluation.
 Format: JSONL with Claim/Fact/Evidence/Locator/Label.
 """
+
 from __future__ import annotations
 
 import json
@@ -14,10 +15,10 @@ from pathlib import Path
 class GoldsetLabel(Enum):
     """Labels for goldset entries."""
 
-    FACT = "fact"           # Fully supported by evidence
+    FACT = "fact"  # Fully supported by evidence
     INFERENCE = "inference"  # Derived, explicitly marked as estimated
     UNSUPPORTED = "unsupported"  # Claim without evidence
-    QUOTE = "quote"         # Direct quote from source
+    QUOTE = "quote"  # Direct quote from source
 
 
 @dataclass

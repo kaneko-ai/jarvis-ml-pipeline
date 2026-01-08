@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 class Role(Enum):
     """ユーザーロール."""
+
     ADMIN = "admin"
     RESEARCHER = "researcher"
     REVIEWER = "reviewer"
@@ -32,6 +33,7 @@ class Role(Enum):
 
 class Permission(Enum):
     """パーミッション."""
+
     READ = "read"
     WRITE = "write"
     EXECUTE = "execute"
@@ -41,7 +43,13 @@ class Permission(Enum):
 
 # ロールごとのパーミッション
 ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
-    Role.ADMIN: {Permission.READ, Permission.WRITE, Permission.EXECUTE, Permission.DELETE, Permission.ADMIN},
+    Role.ADMIN: {
+        Permission.READ,
+        Permission.WRITE,
+        Permission.EXECUTE,
+        Permission.DELETE,
+        Permission.ADMIN,
+    },
     Role.RESEARCHER: {Permission.READ, Permission.WRITE, Permission.EXECUTE},
     Role.REVIEWER: {Permission.READ, Permission.EXECUTE},
     Role.READONLY: {Permission.READ},
@@ -51,6 +59,7 @@ ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
 @dataclass
 class AccessLogEntry:
     """アクセスログエントリ."""
+
     timestamp: str
     user_id: str
     action: str
@@ -65,7 +74,7 @@ class AccessControl:
     def __init__(self, audit_path: str = "audit/access_log.jsonl"):
         """
         初期化.
-        
+
         Args:
             audit_path: 監査ログパス
         """
@@ -82,20 +91,15 @@ class AccessControl:
         """ユーザーロールを取得."""
         return self._user_roles.get(user_id, Role.READONLY)
 
-    def check_permission(
-        self,
-        user_id: str,
-        permission: Permission,
-        resource: str = ""
-    ) -> bool:
+    def check_permission(self, user_id: str, permission: Permission, resource: str = "") -> bool:
         """
         パーミッションをチェック.
-        
+
         Args:
             user_id: ユーザーID
             permission: 必要なパーミッション
             resource: リソース名
-        
+
         Returns:
             許可されているか
         """
@@ -107,29 +111,24 @@ class AccessControl:
 
         return granted
 
-    def _log_access(
-        self,
-        user_id: str,
-        action: str,
-        resource: str,
-        granted: bool
-    ):
+    def _log_access(self, user_id: str, action: str, resource: str, granted: bool):
         """アクセスをログ."""
         entry = AccessLogEntry(
             timestamp=datetime.now().isoformat(),
             user_id=user_id,
             action=action,
             resource=resource,
-            granted=granted
+            granted=granted,
         )
 
-        with open(self.audit_path, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(asdict(entry), ensure_ascii=False) + '\n')
+        with open(self.audit_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(asdict(entry), ensure_ascii=False) + "\n")
 
 
 @dataclass
 class DeletionRequest:
     """削除リクエスト."""
+
     request_id: str
     requester: str
     target_type: str  # user, document, claim
@@ -145,15 +144,15 @@ class GDPRCompliance:
 
     # 個人情報パターン
     PII_PATTERNS = [
-        (r'\b[A-Z][a-z]+ [A-Z][a-z]+\b', 'name'),  # 人名
-        (r'\b\d{3}[-.]?\d{3}[-.]?\d{4}\b', 'phone'),  # 電話番号
-        (r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', 'email'),  # メール
+        (r"\b[A-Z][a-z]+ [A-Z][a-z]+\b", "name"),  # 人名
+        (r"\b\d{3}[-.]?\d{3}[-.]?\d{4}\b", "phone"),  # 電話番号
+        (r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", "email"),  # メール
     ]
 
     def __init__(self, requests_path: str = "audit/gdpr_requests.jsonl"):
         """
         初期化.
-        
+
         Args:
             requests_path: リクエストログパス
         """
@@ -164,10 +163,10 @@ class GDPRCompliance:
     def detect_pii(self, text: str) -> list[dict[str, Any]]:
         """
         PIIを検出.
-        
+
         Args:
             text: 検査対象テキスト
-        
+
         Returns:
             検出されたPIIリスト
         """
@@ -176,47 +175,45 @@ class GDPRCompliance:
         for pattern, pii_type in self.PII_PATTERNS:
             matches = re.findall(pattern, text)
             for match in matches:
-                findings.append({
-                    "type": pii_type,
-                    "value_hash": hashlib.sha256(match.encode()).hexdigest()[:8],
-                    "location": text.find(match)
-                })
+                findings.append(
+                    {
+                        "type": pii_type,
+                        "value_hash": hashlib.sha256(match.encode()).hexdigest()[:8],
+                        "location": text.find(match),
+                    }
+                )
 
         return findings
 
     def anonymize_text(self, text: str) -> str:
         """
         テキストを匿名化.
-        
+
         Args:
             text: 匿名化対象テキスト
-        
+
         Returns:
             匿名化されたテキスト
         """
         anonymized = text
 
         for pattern, pii_type in self.PII_PATTERNS:
-            anonymized = re.sub(pattern, f'[{pii_type.upper()}_REDACTED]', anonymized)
+            anonymized = re.sub(pattern, f"[{pii_type.upper()}_REDACTED]", anonymized)
 
         return anonymized
 
     def create_deletion_request(
-        self,
-        requester: str,
-        target_type: str,
-        target_id: str,
-        reason: str
+        self, requester: str, target_type: str, target_id: str, reason: str
     ) -> DeletionRequest:
         """
         削除リクエストを作成.
-        
+
         Args:
             requester: リクエスター
             target_type: 対象タイプ
             target_id: 対象ID
             reason: 理由
-        
+
         Returns:
             削除リクエスト
         """
@@ -227,30 +224,25 @@ class GDPRCompliance:
             requester=requester,
             target_type=target_type,
             target_id=target_id,
-            reason=reason
+            reason=reason,
         )
 
-        with open(self.requests_path, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(asdict(request), ensure_ascii=False) + '\n')
+        with open(self.requests_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(asdict(request), ensure_ascii=False) + "\n")
 
         logger.info(f"GDPR deletion request created: {request.request_id}")
 
         return request
 
-    def process_deletion_request(
-        self,
-        request_id: str,
-        approved: bool,
-        processor: str
-    ) -> bool:
+    def process_deletion_request(self, request_id: str, approved: bool, processor: str) -> bool:
         """
         削除リクエストを処理.
-        
+
         Args:
             request_id: リクエストID
             approved: 承認されたか
             processor: 処理者
-        
+
         Returns:
             処理成功したか
         """
@@ -261,11 +253,11 @@ class GDPRCompliance:
             "request_id": request_id,
             "status": status,
             "processor": processor,
-            "completed_at": datetime.now().isoformat()
+            "completed_at": datetime.now().isoformat(),
         }
 
-        with open(self.requests_path, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(completion_entry, ensure_ascii=False) + '\n')
+        with open(self.requests_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(completion_entry, ensure_ascii=False) + "\n")
 
         return True
 

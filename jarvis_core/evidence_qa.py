@@ -11,6 +11,7 @@ Usage:
         inputs=["paper.pdf", "https://example.com/article"],
     )
 """
+
 from __future__ import annotations
 
 import logging
@@ -57,7 +58,6 @@ QUESTION: {query}
 """
 
 
-
 class EvidenceQAAgent(BaseAgent):
     """Agent for evidence-based QA with citation requirements.
 
@@ -95,8 +95,7 @@ class EvidenceQAAgent(BaseAgent):
         # Format evidence for prompt
         if relevant_chunks:
             evidence_text = "\n".join(
-                f"[{c['chunk_id']}] ({c['locator']}): {c['preview']}"
-                for c in relevant_chunks
+                f"[{c['chunk_id']}] ({c['locator']}): {c['preview']}" for c in relevant_chunks
             )
         else:
             evidence_text = "(No evidence available)"
@@ -464,4 +463,3 @@ def get_evidence_store_for_bundle(
             logger.warning("Failed to ingest %s: %s", input_path, e)
 
     return store
-

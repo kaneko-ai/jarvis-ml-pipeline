@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ComparisonRow:
     """比較行."""
+
     paper_id: str
     title: str
     year: int
@@ -39,6 +40,7 @@ class ComparisonRow:
 @dataclass
 class ComparisonTable:
     """比較表."""
+
     title: str
     columns: list[str]
     rows: list[ComparisonRow] = field(default_factory=list)
@@ -103,7 +105,7 @@ class ComparisonTable:
 
 class ComparisonAnalyzer:
     """比較分析器.
-    
+
     論文間の手法・結果を比較
     """
 
@@ -117,11 +119,11 @@ class ComparisonAnalyzer:
         claims: list[dict[str, Any]] | None = None,
     ) -> ComparisonTable:
         """比較分析を実行.
-        
+
         Args:
             papers: 論文リスト
             claims: 主張リスト（オプション）
-        
+
         Returns:
             比較表
         """
@@ -199,7 +201,9 @@ class ComparisonAnalyzer:
         for m in methods:
             method_counts[m] = method_counts.get(m, 0) + 1
 
-        most_common_method = max(method_counts, key=method_counts.get) if method_counts else "Unknown"
+        most_common_method = (
+            max(method_counts, key=method_counts.get) if method_counts else "Unknown"
+        )
 
         summary = f"""
 ## Comparison Summary

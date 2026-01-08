@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class RunMetrics:
     """ラン単位のメトリクス."""
+
     run_id: str
     pipeline: str
     started_at: str = field(default_factory=lambda: datetime.now().isoformat())
@@ -53,6 +54,7 @@ class RunMetrics:
 @dataclass
 class QualityMetrics:
     """品質メトリクス."""
+
     run_id: str
 
     # Provenance
@@ -80,7 +82,7 @@ class MetricsCollector:
     def __init__(self, base_path: str = "artifacts"):
         """
         初期化.
-        
+
         Args:
             base_path: メトリクス保存先ベースパス
         """
@@ -146,7 +148,7 @@ class MetricsCollector:
         direction_consistency_rate: float | None = None,
         extraction_completeness: float | None = None,
         gate_name: str | None = None,
-        gate_passed: bool | None = None
+        gate_passed: bool | None = None,
     ):
         """品質メトリクスを更新."""
         if not self._current_quality:
@@ -195,13 +197,13 @@ class MetricsCollector:
 
         # ランメトリクス
         run_metrics = asdict(self._current_run)
-        with open(metrics_dir / "run_metrics.json", 'w', encoding='utf-8') as f:
+        with open(metrics_dir / "run_metrics.json", "w", encoding="utf-8") as f:
             json.dump(run_metrics, f, ensure_ascii=False, indent=2)
 
         # 品質メトリクス
         if self._current_quality:
             quality_metrics = asdict(self._current_quality)
-            with open(metrics_dir / "quality_metrics.json", 'w', encoding='utf-8') as f:
+            with open(metrics_dir / "quality_metrics.json", "w", encoding="utf-8") as f:
                 json.dump(quality_metrics, f, ensure_ascii=False, indent=2)
 
         # 集約ファイルに追記
@@ -209,15 +211,15 @@ class MetricsCollector:
 
         return {
             "run": run_metrics,
-            "quality": asdict(self._current_quality) if self._current_quality else {}
+            "quality": asdict(self._current_quality) if self._current_quality else {},
         }
 
     def _append_to_aggregate(self, run_metrics: dict[str, Any]):
         """集約ファイルに追記."""
         aggregate_path = self.base_path / "metrics_aggregate.jsonl"
 
-        with open(aggregate_path, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(run_metrics, ensure_ascii=False) + '\n')
+        with open(aggregate_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(run_metrics, ensure_ascii=False) + "\n")
 
     def get_current_metrics(self) -> dict[str, Any] | None:
         """現在のメトリクスを取得."""
@@ -226,7 +228,7 @@ class MetricsCollector:
 
         return {
             "run": asdict(self._current_run),
-            "quality": asdict(self._current_quality) if self._current_quality else {}
+            "quality": asdict(self._current_quality) if self._current_quality else {},
         }
 
 

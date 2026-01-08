@@ -4,6 +4,7 @@ Per MASTER_SPEC v1.1, this is the ONLY entry point for task execution.
 成果物契約: run_config.json, result.json, eval_summary.json, events.jsonl 必須
 成功条件: gate_passed == true ⇔ status == "success"
 """
+
 from __future__ import annotations
 
 import json
@@ -18,11 +19,13 @@ from .task import Task, TaskCategory
 
 class TelemetryMissingError(Exception):
     """Raised when telemetry was not generated (hard gate failure)."""
+
     pass
 
 
 class ContractViolationError(Exception):
     """Raised when artifact contract is violated."""
+
     pass
 
 
@@ -44,14 +47,16 @@ def _run_feedback_analysis(text: str) -> dict | None:
         risk = risk_model.score(record.features, history, section=record.section)
         top_categories = [c["category"] for c in risk["top_categories"]]
         suggestions = suggestion_engine.suggest(record.text, top_categories)
-        items.append({
-            "location": record.location,
-            "risk_score": risk["risk_score"],
-            "risk_level": risk["risk_level"],
-            "top_categories": risk["top_categories"],
-            "reasons": risk["reasons"],
-            "suggestions": suggestions,
-        })
+        items.append(
+            {
+                "location": record.location,
+                "risk_score": risk["risk_score"],
+                "risk_level": risk["risk_level"],
+                "top_categories": risk["top_categories"],
+                "reasons": risk["reasons"],
+                "suggestions": suggestions,
+            }
+        )
 
     summary = {
         "high": sum(1 for i in items if i["risk_level"] == "high"),
@@ -144,12 +149,14 @@ def run_task(
     assert logger is not None, "TelemetryLogger must be initialized"
 
     # Save config (artifact 1/4)
-    store.save_config({
-        "run_id": run_id,
-        "seed": config.seed,
-        "model": config.model,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    })
+    store.save_config(
+        {
+            "run_id": run_id,
+            "seed": config.seed,
+            "model": config.model,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+    )
 
     # Parse task
     goal = task_dict.get("goal") or task_dict.get("user_goal", "")
@@ -190,7 +197,6 @@ def run_task(
         router=router,
         evidence_store=evidence_store,
     )
-
 
     # Initialize verifier (per MASTER_SPEC: Verify強制)
     verifier = QualityGateVerifier(
@@ -307,10 +313,9 @@ def run_task(
         # 失敗時: FAILURE_REQUIRED + 可能な成果物
         # FailReasonをdict化（JSON直列化のため）
         fail_reasons_dict = [{"code": "EXECUTION_ERROR", "msg": execution_error}]
-        fail_reasons_dict.extend([
-            fr.to_dict() if hasattr(fr, 'to_dict') else fr
-            for fr in verify_result.fail_reasons
-        ])
+        fail_reasons_dict.extend(
+            [fr.to_dict() if hasattr(fr, "to_dict") else fr for fr in verify_result.fail_reasons]
+        )
         assembler.build_failure(
             context=context,
             error=execution_error,
@@ -325,15 +330,20 @@ def run_task(
             "evidence": evidence,
             "answer": answer,
             "citations": citations,
-            "warnings": [{"code": "GENERAL", "message": w, "severity": "warning"}
-                        if isinstance(w, str) else w for w in warnings],
+            "warnings": [
+                (
+                    {"code": "GENERAL", "message": w, "severity": "warning"}
+                    if isinstance(w, str)
+                    else w
+                )
+                for w in warnings
+            ],
             "feedback_risk": feedback_report,
         }
         quality_report = {
             "gate_passed": verify_result.gate_passed,
             "fail_reasons": [
-                fr.to_dict() if hasattr(fr, 'to_dict') else fr
-                for fr in verify_result.fail_reasons
+                fr.to_dict() if hasattr(fr, "to_dict") else fr for fr in verify_result.fail_reasons
             ],
         }
         assembler.build(context, artifacts, quality_report)
@@ -341,6 +351,7 @@ def run_task(
     qa_result = None
     try:
         from .style import run_qa_gate
+
         qa_result = run_qa_gate(run_id=run_id, run_dir=store.run_dir)
     except Exception as exc:
         warnings.append(f"QA gate failed: {exc}")
@@ -355,8 +366,11 @@ def run_task(
                 "warn_count": qa_result.get("warn_count", 0),
                 "top_errors": qa_result.get("top_errors", []),
             }
-            eval_summary_path.write_text(json.dumps(eval_data, indent=2, ensure_ascii=False), encoding="utf-8")
+            eval_summary_path.write_text(
+                json.dumps(eval_data, indent=2, ensure_ascii=False), encoding="utf-8"
+            )
         from .output.manifest import export_manifest
+
         export_manifest(store.run_dir)
 
     # eval_dataを取得（BundleAssemblerが生成したものを読む）
@@ -373,9 +387,7 @@ def run_task(
     is_failure = final_status == "failed"
     missing = store.validate_contract(is_failure=is_failure)
     if missing:
-        raise ContractViolationError(
-            f"Artifact contract violated: missing files {missing}"
-        )
+        raise ContractViolationError(f"Artifact contract violated: missing files {missing}")
 
     return AppResult(
         run_id=run_id,

@@ -22,7 +22,7 @@ class CitationContext:
     cited_paper_id: str
     citation_text: str  # The actual citing sentence
     context_before: str = ""  # Sentences before the citation
-    context_after: str = ""   # Sentences after the citation
+    context_after: str = ""  # Sentences after the citation
     section: str | None = None  # Section where citation appears
     position: int = 0  # Position in document (sentence index)
 
@@ -58,20 +58,20 @@ class CitationContext:
 # Common citation patterns
 CITATION_PATTERNS = [
     # Numeric: [1], [1,2], [1-3]
-    re.compile(r'\[(\d+(?:[-,]\s*\d+)*)\]'),
+    re.compile(r"\[(\d+(?:[-,]\s*\d+)*)\]"),
     # Author-year: (Smith et al., 2020), (Smith 2020)
-    re.compile(r'\(([A-Z][a-z]+(?:\s+et\s+al\.?)?,?\s*\d{4})\)'),
+    re.compile(r"\(([A-Z][a-z]+(?:\s+et\s+al\.?)?,?\s*\d{4})\)"),
     # Superscript style: text^1, text^1,2
-    re.compile(r'[\d\w]\^(\d+(?:,\s*\d+)*)'),
+    re.compile(r"[\d\w]\^(\d+(?:,\s*\d+)*)"),
 ]
 
 
 class CitationExtractor:
     """Extracts citation contexts from text.
-    
+
     Identifies citations in text and extracts the surrounding context
     for stance classification.
-    
+
     Example:
         >>> extractor = CitationExtractor()
         >>> contexts = extractor.extract(
@@ -89,14 +89,14 @@ class CitationExtractor:
         patterns: list[re.Pattern] | None = None,
     ):
         """Initialize the extractor.
-        
+
         Args:
             context_window: Number of sentences to include as context
             patterns: Custom citation patterns
         """
         self._context_window = context_window
         self._patterns = patterns or CITATION_PATTERNS
-        self._sentence_pattern = re.compile(r'(?<=[.!?])\s+(?=[A-Z])')
+        self._sentence_pattern = re.compile(r"(?<=[.!?])\s+(?=[A-Z])")
 
     def extract(
         self,
@@ -105,12 +105,12 @@ class CitationExtractor:
         reference_map: dict[str, str] | None = None,
     ) -> list[CitationContext]:
         """Extract citation contexts from text.
-        
+
         Args:
             text: Full text to extract from
             paper_id: ID of the citing paper
             reference_map: Map of citation markers to cited paper IDs
-            
+
         Returns:
             List of CitationContext objects
         """
@@ -140,16 +140,18 @@ class CitationExtractor:
                 # Detect section
                 section = self._detect_section(text, i, sentences)
 
-                contexts.append(CitationContext(
-                    citing_paper_id=paper_id,
-                    cited_paper_id=cited_id,
-                    citation_text=sentence,
-                    context_before=context_before,
-                    context_after=context_after,
-                    section=section,
-                    position=i,
-                    citation_marker=marker,
-                ))
+                contexts.append(
+                    CitationContext(
+                        citing_paper_id=paper_id,
+                        cited_paper_id=cited_id,
+                        citation_text=sentence,
+                        context_before=context_before,
+                        context_after=context_after,
+                        section=section,
+                        position=i,
+                        citation_marker=marker,
+                    )
+                )
 
         return contexts
 
@@ -161,7 +163,7 @@ class CitationExtractor:
 
     def _find_citations(self, sentence: str) -> list[tuple[str, str]]:
         """Find citations in a sentence.
-        
+
         Returns list of (marker, full_match) tuples.
         """
         citations = []
@@ -184,7 +186,7 @@ class CitationExtractor:
             return reference_map[marker]
 
         # Try numeric extraction
-        numbers = re.findall(r'\d+', marker)
+        numbers = re.findall(r"\d+", marker)
         for num in numbers:
             if num in reference_map:
                 return reference_map[num]
@@ -220,12 +222,12 @@ class CitationExtractor:
         """Detect the section where the citation appears."""
         # Look for section headers before this position
         section_patterns = [
-            (r'\b(Introduction|Background)\b', "Introduction"),
-            (r'\b(Methods?|Materials?\s+and\s+Methods?)\b', "Methods"),
-            (r'\b(Results?)\b', "Results"),
-            (r'\b(Discussion)\b', "Discussion"),
-            (r'\b(Conclusion|Summary)\b', "Conclusion"),
-            (r'\b(Related\s+Work|Literature\s+Review)\b', "Related Work"),
+            (r"\b(Introduction|Background)\b", "Introduction"),
+            (r"\b(Methods?|Materials?\s+and\s+Methods?)\b", "Methods"),
+            (r"\b(Results?)\b", "Results"),
+            (r"\b(Discussion)\b", "Discussion"),
+            (r"\b(Conclusion|Summary)\b", "Conclusion"),
+            (r"\b(Related\s+Work|Literature\s+Review)\b", "Related Work"),
         ]
 
         # Get text before current position
@@ -253,15 +255,15 @@ def extract_citation_contexts(
     context_window: int = 1,
 ) -> list[CitationContext]:
     """Extract citation contexts from text.
-    
+
     Convenience function for quick extraction.
-    
+
     Args:
         text: Full text to extract from
         paper_id: ID of the citing paper
         reference_map: Map of citation markers to cited paper IDs
         context_window: Number of sentences for context
-        
+
     Returns:
         List of CitationContext objects
     """

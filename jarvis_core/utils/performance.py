@@ -3,6 +3,7 @@
 Per JARVIS_LOCALFIRST_ROADMAP Task 3.5: 最適化
 Provides utilities for memory, performance, and resource optimization.
 """
+
 from __future__ import annotations
 
 import gc
@@ -23,6 +24,7 @@ T = TypeVar("T")
 @dataclass
 class PerformanceMetrics:
     """Performance measurement results."""
+
     name: str
     execution_time_ms: float
     memory_before_mb: float
@@ -43,6 +45,7 @@ def get_memory_usage_mb() -> float:
     """Get current memory usage in MB."""
     try:
         import psutil
+
         process = psutil.Process()
         return process.memory_info().rss / (1024 * 1024)
     except ImportError:
@@ -53,7 +56,7 @@ def get_memory_usage_mb() -> float:
 @contextmanager
 def measure_performance(name: str = "operation") -> Generator[PerformanceMetrics, None, None]:
     """Context manager to measure performance.
-    
+
     Usage:
         with measure_performance("my_operation") as metrics:
             # do work
@@ -89,6 +92,7 @@ def measure_performance(name: str = "operation") -> Generator[PerformanceMetrics
 
 def timed(func: Callable[..., T]) -> Callable[..., T]:
     """Decorator to time function execution."""
+
     @wraps(func)
     def wrapper(*args, **kwargs) -> T:
         start = time.perf_counter()
@@ -96,17 +100,20 @@ def timed(func: Callable[..., T]) -> Callable[..., T]:
         elapsed = (time.perf_counter() - start) * 1000
         logger.debug(f"{func.__name__}: {elapsed:.2f}ms")
         return result
+
     return wrapper
 
 
 def memoize(maxsize: int = 128):
     """Memoization decorator with size limit.
-    
+
     Args:
         maxsize: Maximum cache size.
     """
+
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         return lru_cache(maxsize=maxsize)(func)
+
     return decorator
 
 
@@ -123,12 +130,12 @@ class BatchProcessor:
         show_progress: bool = False,
     ) -> list[Any]:
         """Process items in batches.
-        
+
         Args:
             items: Items to process.
             processor: Function to process each batch.
             show_progress: Log progress.
-            
+
         Returns:
             Processed results.
         """
@@ -136,7 +143,7 @@ class BatchProcessor:
         total = len(items)
 
         for i in range(0, total, self.batch_size):
-            batch = items[i:i + self.batch_size]
+            batch = items[i : i + self.batch_size]
             batch_results = processor(batch)
             results.extend(batch_results)
 
@@ -193,7 +200,7 @@ class MemoryManager:
 
     def cleanup(self, force: bool = False) -> int:
         """Cleanup resources if memory is high.
-        
+
         Returns:
             Number of resources unloaded.
         """
@@ -264,11 +271,8 @@ class ResponseCache:
 
         # If still full, remove 10% oldest
         if len(self._cache) >= self.max_size:
-            sorted_keys = sorted(
-                self._cache.keys(),
-                key=lambda k: self._cache[k][1]
-            )
-            for k in sorted_keys[:len(sorted_keys) // 10 + 1]:
+            sorted_keys = sorted(self._cache.keys(), key=lambda k: self._cache[k][1])
+            for k in sorted_keys[: len(sorted_keys) // 10 + 1]:
                 del self._cache[k]
 
     def clear(self) -> None:

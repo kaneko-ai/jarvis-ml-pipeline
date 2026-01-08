@@ -1,4 +1,5 @@
 """JARVIS Workflow Automation & Advanced UI - Phase 4-5 Features (46-75)"""
+
 import json
 from collections import defaultdict
 from collections.abc import Callable
@@ -22,6 +23,7 @@ class TaskStatus(Enum):
 @dataclass
 class PipelineTask:
     """Pipeline task definition."""
+
     id: str
     name: str
     handler: str  # Function name or module
@@ -85,7 +87,8 @@ class PaperPipelineOrchestrator:
             # Check dependencies
             deps_ok = all(
                 self.tasks[dep].status == TaskStatus.COMPLETED
-                for dep in task.dependencies if dep in self.tasks
+                for dep in task.dependencies
+                if dep in self.tasks
             )
 
             if not deps_ok:
@@ -110,7 +113,11 @@ class PaperPipelineOrchestrator:
 
             task.end_time = datetime.now().isoformat()
 
-        return {"tasks": len(self.tasks), "completed": sum(1 for t in self.tasks.values() if t.status == TaskStatus.COMPLETED), "results": results}
+        return {
+            "tasks": len(self.tasks),
+            "completed": sum(1 for t in self.tasks.values() if t.status == TaskStatus.COMPLETED),
+            "results": results,
+        }
 
 
 # ============================================
@@ -153,7 +160,7 @@ class WeeklyDigestGenerator:
             "total_papers": len(relevant),
             "topics": dict(by_topic),
             "highlights": relevant[:5],
-            "trends": self._detect_trends(relevant)
+            "trends": self._detect_trends(relevant),
         }
 
     def _detect_trends(self, papers: list[dict]) -> list[str]:
@@ -188,6 +195,7 @@ class WeeklyDigestGenerator:
 # 48-60: Workflow Features
 # ============================================
 
+
 class ResearchJournalBot:
     """Automatic daily research log."""
 
@@ -196,11 +204,9 @@ class ResearchJournalBot:
 
     def log_activity(self, activity_type: str, details: dict):
         """Log research activity."""
-        self.entries.append({
-            "timestamp": datetime.now().isoformat(),
-            "type": activity_type,
-            "details": details
-        })
+        self.entries.append(
+            {"timestamp": datetime.now().isoformat(), "type": activity_type, "details": details}
+        )
 
     def generate_daily_log(self, date: str = None) -> str:
         """Generate daily log summary."""
@@ -219,14 +225,9 @@ class MeetingNotesGenerator:
 
     def process(self, transcript: str) -> dict:
         """Process transcript into structured notes."""
-        lines = transcript.split('\n')
+        lines = transcript.split("\n")
 
-        notes = {
-            "summary": "",
-            "action_items": [],
-            "decisions": [],
-            "discussed_papers": []
-        }
+        notes = {"summary": "", "action_items": [], "decisions": [], "discussed_papers": []}
 
         for line in lines:
             line_lower = line.lower()
@@ -237,7 +238,9 @@ class MeetingNotesGenerator:
             elif "paper" in line_lower and ("pmid" in line_lower or "doi" in line_lower):
                 notes["discussed_papers"].append(line.strip())
 
-        notes["summary"] = f"Meeting with {len(notes['action_items'])} action items and {len(notes['decisions'])} decisions."
+        notes["summary"] = (
+            f"Meeting with {len(notes['action_items'])} action items and {len(notes['decisions'])} decisions."
+        )
 
         return notes
 
@@ -247,8 +250,8 @@ class EmailDraftAssistant:
 
     TEMPLATES = {
         "collaboration": "Dear {name},\n\nI am writing to inquire about potential collaboration opportunities in {field}...",
-        "cover_letter": "Dear Editor,\n\nPlease find attached our manuscript entitled \"{title}\"...",
-        "review_response": "Dear Editor and Reviewers,\n\nThank you for your thoughtful comments on our manuscript..."
+        "cover_letter": 'Dear Editor,\n\nPlease find attached our manuscript entitled "{title}"...',
+        "review_response": "Dear Editor and Reviewers,\n\nThank you for your thoughtful comments on our manuscript...",
     }
 
     def generate(self, template_type: str, variables: dict) -> str:
@@ -268,11 +271,11 @@ class ReferenceManagerSync:
     def import_from_bibtex(self, bibtex_content: str) -> int:
         """Import from BibTeX."""
         # Simple parsing
-        entries = bibtex_content.split('@')
+        entries = bibtex_content.split("@")
         count = 0
         for entry in entries[1:]:
-            if '{' in entry:
-                key = entry.split('{')[1].split(',')[0]
+            if "{" in entry:
+                key = entry.split("{")[1].split(",")[0]
                 self.local_refs[key] = {"raw": entry}
                 count += 1
         return count
@@ -297,20 +300,19 @@ class DeadlineTracker:
 
     def add_deadline(self, name: str, date: str, category: str = "general"):
         """Add a deadline."""
-        self.deadlines.append({
-            "name": name,
-            "date": date,
-            "category": category,
-            "created": datetime.now().isoformat()
-        })
+        self.deadlines.append(
+            {
+                "name": name,
+                "date": date,
+                "category": category,
+                "created": datetime.now().isoformat(),
+            }
+        )
 
     def get_upcoming(self, days: int = 30) -> list[dict]:
         """Get upcoming deadlines."""
         cutoff = (datetime.now() + timedelta(days=days)).strftime("%Y-%m-%d")
-        return sorted(
-            [d for d in self.deadlines if d["date"] <= cutoff],
-            key=lambda x: x["date"]
-        )
+        return sorted([d for d in self.deadlines if d["date"] <= cutoff], key=lambda x: x["date"])
 
     def get_alerts(self) -> list[dict]:
         """Get deadline alerts."""
@@ -320,11 +322,17 @@ class DeadlineTracker:
         for d in self.deadlines:
             days_until = (datetime.strptime(d["date"], "%Y-%m-%d") - datetime.now()).days
             if days_until <= 7:
-                alerts.append({
-                    **d,
-                    "days_until": days_until,
-                    "urgency": "critical" if days_until <= 1 else "high" if days_until <= 3 else "medium"
-                })
+                alerts.append(
+                    {
+                        **d,
+                        "days_until": days_until,
+                        "urgency": (
+                            "critical"
+                            if days_until <= 1
+                            else "high" if days_until <= 3 else "medium"
+                        ),
+                    }
+                )
 
         return alerts
 
@@ -339,16 +347,15 @@ class ImpactTracker:
         """Add paper to track."""
         self.papers[paper_id] = {
             "metrics": [{"date": datetime.now().isoformat(), **initial_metrics}],
-            "alerts": []
+            "alerts": [],
         }
 
     def update_metrics(self, paper_id: str, new_metrics: dict):
         """Update paper metrics."""
         if paper_id in self.papers:
-            self.papers[paper_id]["metrics"].append({
-                "date": datetime.now().isoformat(),
-                **new_metrics
-            })
+            self.papers[paper_id]["metrics"].append(
+                {"date": datetime.now().isoformat(), **new_metrics}
+            )
 
             # Check for significant changes
             if len(self.papers[paper_id]["metrics"]) >= 2:
@@ -356,10 +363,9 @@ class ImpactTracker:
                 curr = self.papers[paper_id]["metrics"][-1]
 
                 if curr.get("citations", 0) > prev.get("citations", 0) + 5:
-                    self.papers[paper_id]["alerts"].append({
-                        "type": "citation_spike",
-                        "date": datetime.now().isoformat()
-                    })
+                    self.papers[paper_id]["alerts"].append(
+                        {"type": "citation_spike", "date": datetime.now().isoformat()}
+                    )
 
 
 class ResearchPortfolioDashboard:
@@ -393,7 +399,7 @@ class ResearchPortfolioDashboard:
             "total_citations": total_citations,
             "h_index": h_index,
             "unique_collaborators": len(set(self.collaborators)),
-            "papers_by_year": self._group_by_year()
+            "papers_by_year": self._group_by_year(),
         }
 
     def _group_by_year(self) -> dict[int, int]:
@@ -409,6 +415,7 @@ class ResearchPortfolioDashboard:
 # ============================================
 # 61-75: ADVANCED UI/UX FEATURES
 # ============================================
+
 
 class ReadingListOptimizer:
     """Optimize reading list order."""
@@ -454,8 +461,8 @@ class MindMapGenerator:
                 {"name": "Methods", "children": ["Approach", "Data", "Analysis"]},
                 {"name": "Findings", "children": words[:3]},
                 {"name": "Implications", "children": ["Future Work", "Applications"]},
-                {"name": "Related Work", "children": ["Citation 1", "Citation 2", "Citation 3"]}
-            ]
+                {"name": "Related Work", "children": ["Citation 1", "Citation 2", "Citation 3"]},
+            ],
         }
 
     def to_mermaid(self, mindmap: dict) -> str:
@@ -475,10 +482,7 @@ class PaperComparisonView:
 
     def compare(self, papers: list[dict]) -> dict:
         """Generate comparison."""
-        comparison = {
-            "papers": [p.get("title", "Unknown")[:50] for p in papers],
-            "aspects": {}
-        }
+        comparison = {"papers": [p.get("title", "Unknown")[:50] for p in papers], "aspects": {}}
 
         aspects = ["year", "journal", "citation_count", "method"]
         for aspect in aspects:
@@ -519,7 +523,7 @@ class FocusMode:
         return {
             "status": "started",
             "duration": duration_minutes,
-            "end_time": (datetime.now() + timedelta(minutes=duration_minutes)).strftime("%H:%M")
+            "end_time": (datetime.now() + timedelta(minutes=duration_minutes)).strftime("%H:%M"),
         }
 
     def end_session(self) -> dict:
@@ -535,7 +539,7 @@ class FocusMode:
             "status": "completed",
             "duration_minutes": duration,
             "papers_read": len(self.read_papers),
-            "total_pomodoros": self.pomodoro_count
+            "total_pomodoros": self.pomodoro_count,
         }
 
     def log_paper_read(self, paper_id: str):
@@ -555,21 +559,21 @@ class AnnotationCollaboration:
         if paper_id not in self.annotations:
             self.annotations[paper_id] = []
 
-        self.annotations[paper_id].append({
-            **annotation,
-            "user_id": user_id,
-            "timestamp": datetime.now().isoformat(),
-            "replies": []
-        })
+        self.annotations[paper_id].append(
+            {
+                **annotation,
+                "user_id": user_id,
+                "timestamp": datetime.now().isoformat(),
+                "replies": [],
+            }
+        )
 
     def add_reply(self, paper_id: str, annotation_idx: int, user_id: str, text: str):
         """Add reply to annotation."""
         if paper_id in self.annotations and annotation_idx < len(self.annotations[paper_id]):
-            self.annotations[paper_id][annotation_idx]["replies"].append({
-                "user_id": user_id,
-                "text": text,
-                "timestamp": datetime.now().isoformat()
-            })
+            self.annotations[paper_id][annotation_idx]["replies"].append(
+                {"user_id": user_id, "text": text, "timestamp": datetime.now().isoformat()}
+            )
 
     def get_annotations(self, paper_id: str) -> list[dict]:
         """Get all annotations for paper."""
@@ -591,7 +595,7 @@ class DailyPaperBriefing:
 
             abstract = paper.get("abstract", "")
             if abstract:
-                first_sentence = abstract.split('.')[0]
+                first_sentence = abstract.split(".")[0]
                 script += f"{first_sentence}.\n\n"
 
         script += "That's your briefing for today. Have a productive day!"
@@ -608,7 +612,7 @@ class AccessibilitySuite:
             "font_size": "medium",
             "screen_reader_mode": False,
             "keyboard_nav": True,
-            "reduce_motion": False
+            "reduce_motion": False,
         }
 
     def set_preference(self, key: str, value: Any):
@@ -636,7 +640,7 @@ class AccessibilitySuite:
         labels = {
             "search": {"role": "search", "aria-label": "Search papers"},
             "nav": {"role": "navigation", "aria-label": "Main navigation"},
-            "paper_list": {"role": "list", "aria-label": "Paper list"}
+            "paper_list": {"role": "list", "aria-label": "Paper list"},
         }
         return labels.get(element_type, {})
 
@@ -647,11 +651,14 @@ class AccessibilitySuite:
 def get_pipeline_orchestrator() -> PaperPipelineOrchestrator:
     return PaperPipelineOrchestrator()
 
+
 def get_weekly_digest() -> WeeklyDigestGenerator:
     return WeeklyDigestGenerator()
 
+
 def get_deadline_tracker() -> DeadlineTracker:
     return DeadlineTracker()
+
 
 def get_focus_mode() -> FocusMode:
     return FocusMode()
@@ -670,6 +677,8 @@ if __name__ == "__main__":
     print("\n=== Weekly Digest Demo ===")
     digest = WeeklyDigestGenerator()
     digest.set_interests(["machine learning", "cancer"])
-    digest.add_papers([{"title": "Machine learning in oncology", "abstract": "ML for cancer diagnosis"}])
+    digest.add_papers(
+        [{"title": "Machine learning in oncology", "abstract": "ML for cancer diagnosis"}]
+    )
     result = digest.generate()
     print(f"Digest: {result['total_papers']} relevant papers")

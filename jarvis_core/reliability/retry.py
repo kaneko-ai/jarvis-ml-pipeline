@@ -2,6 +2,7 @@
 
 Per RP-576, implements exponential backoff retry.
 """
+
 from __future__ import annotations
 
 import logging
@@ -14,7 +15,7 @@ from typing import TypeVar
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 @dataclass
@@ -44,15 +45,15 @@ def calculate_delay(
     config: RetryConfig,
 ) -> float:
     """Calculate delay with exponential backoff and jitter.
-    
+
     Args:
         attempt: Current attempt number (0-indexed).
         config: Retry configuration.
-        
+
     Returns:
         Delay in seconds.
     """
-    delay = config.base_delay * (config.exponential_base ** attempt)
+    delay = config.base_delay * (config.exponential_base**attempt)
     delay = min(delay, config.max_delay)
 
     if config.jitter:
@@ -67,11 +68,11 @@ def retry_with_backoff(
     on_retry: Callable[[int, Exception, float], None] | None = None,
 ) -> Callable:
     """Decorator for retry with exponential backoff.
-    
+
     Args:
         config: Retry configuration.
         on_retry: Callback on each retry.
-        
+
     Returns:
         Decorator.
     """
@@ -113,7 +114,7 @@ def retry_with_backoff(
 
 class RetryContext:
     """Context manager for retry logic.
-    
+
     Usage:
         with RetryContext(max_retries=3) as retry:
             for attempt in retry:
@@ -160,13 +161,13 @@ async def async_retry_with_backoff(
     **kwargs,
 ) -> T:
     """Async retry with exponential backoff.
-    
+
     Args:
         func: Async function to retry.
         config: Retry configuration.
         *args: Positional arguments.
         **kwargs: Keyword arguments.
-        
+
     Returns:
         Function result.
     """

@@ -7,6 +7,7 @@ This module provides:
 Per RP14, this enables generating submittable reference lists
 for academic documents.
 """
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -173,14 +174,16 @@ def format_references_markdown(
         lines.append("")
 
     # Add mapping section
-    lines.extend([
-        "---",
-        "",
-        "## Chunk Mapping",
-        "",
-        "| Reference | Chunk IDs |",
-        "|-----------|-----------|",
-    ])
+    lines.extend(
+        [
+            "---",
+            "",
+            "## Chunk Mapping",
+            "",
+            "| Reference | Chunk IDs |",
+            "|-----------|-----------|",
+        ]
+    )
 
     for ref in refs:
         chunk_str = ", ".join(f"`{cid[:12]}...`" for cid in ref.chunk_ids[:3])

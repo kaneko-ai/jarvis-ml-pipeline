@@ -3,6 +3,7 @@
 Per JARVIS_LOCALFIRST_ROADMAP Task 2.4: PRISMA自動生成
 Generates PRISMA 2020 flow diagrams for systematic reviews.
 """
+
 from __future__ import annotations
 
 import logging
@@ -16,6 +17,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PRISMAStats:
     """PRISMA flow diagram statistics."""
+
     # Identification
     records_identified_database: int = 0
     records_identified_other: int = 0
@@ -48,6 +50,7 @@ class PRISMAStats:
 @dataclass
 class PRISMADiagram:
     """PRISMA 2020 flow diagram representation."""
+
     title: str
     date: str
     stats: PRISMAStats
@@ -204,8 +207,7 @@ flowchart TD
         # Format exclusion reasons
         if s.exclusion_reasons:
             reasons = "\n".join(
-                f"- {reason}: {count}"
-                for reason, count in s.exclusion_reasons.items()
+                f"- {reason}: {count}" for reason, count in s.exclusion_reasons.items()
             )
         else:
             reasons = "- No exclusion reasons recorded"
@@ -277,14 +279,14 @@ def generate_prisma(
     output_format: str = "markdown",
 ) -> str:
     """Convenience function to generate PRISMA output.
-    
+
     Args:
         search_results: Initial search results.
         screened_results: Results after screening.
         included_results: Final included studies.
         title: Review title.
         output_format: 'markdown' or 'mermaid'.
-        
+
     Returns:
         Formatted PRISMA output.
     """

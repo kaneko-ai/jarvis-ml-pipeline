@@ -7,6 +7,7 @@
 2. リトライ上限で停止
 3. 停止時は「何が不明か」「次に何が必要か」を明示
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -16,6 +17,7 @@ from typing import Any
 @dataclass
 class StopDecision:
     """停止判定結果."""
+
     should_stop: bool = False
     reason: str = ""
     unknown_aspects: list[str] = field(default_factory=list)
@@ -62,7 +64,7 @@ class StopDecision:
 
 class StopPolicy:
     """停止ポリシー.
-    
+
     以下の条件で停止を判定:
     1. 根拠なしで断言しようとしている
     2. リトライ上限に達した
@@ -97,7 +99,7 @@ class StopPolicy:
         partial_answer: str = "",
     ) -> StopDecision:
         """停止すべきか評価.
-        
+
         Args:
             evidence_count: 抽出された根拠の数
             assertions_without_evidence: 根拠なし断言の数
@@ -106,7 +108,7 @@ class StopPolicy:
             has_fatal_error: 致命的エラーがあるか
             error_message: エラーメッセージ
             partial_answer: 部分的な回答
-            
+
         Returns:
             StopDecision
         """
@@ -128,22 +130,28 @@ class StopPolicy:
             decision.should_stop = True
             decision.reason = "十分な根拠が見つかりませんでした"
             decision.unknown_aspects.append("この質問に対する信頼できる根拠が不足しています")
-            decision.next_steps.extend([
-                "検索クエリを変更して再試行してください",
-                "より具体的な質問に分解してください",
-                "追加の論文/資料を投入してください",
-            ])
+            decision.next_steps.extend(
+                [
+                    "検索クエリを変更して再試行してください",
+                    "より具体的な質問に分解してください",
+                    "追加の論文/資料を投入してください",
+                ]
+            )
             return decision
 
         # 条件3: 根拠なし断言
         if assertions_without_evidence > self.thresholds["max_assertion_without_evidence"]:
             decision.should_stop = True
             decision.reason = "根拠なしの断言を避けるため停止しました"
-            decision.unknown_aspects.append(f"{assertions_without_evidence}件の主張に根拠がありません")
-            decision.next_steps.extend([
-                "根拠付きの主張のみで回答を再構成してください",
-                "不確実な点は「〜の可能性がある」等の表現を使用してください",
-            ])
+            decision.unknown_aspects.append(
+                f"{assertions_without_evidence}件の主張に根拠がありません"
+            )
+            decision.next_steps.extend(
+                [
+                    "根拠付きの主張のみで回答を再構成してください",
+                    "不確実な点は「〜の可能性がある」等の表現を使用してください",
+                ]
+            )
             return decision
 
         # 条件4: リトライ上限
@@ -151,21 +159,27 @@ class StopPolicy:
             decision.should_stop = True
             decision.reason = f"リトライ上限（{self.thresholds['max_retries']}回）に達しました"
             decision.unknown_aspects.append("複数回の試行でも十分な品質に達しませんでした")
-            decision.next_steps.extend([
-                "質問の範囲を狭めてください",
-                "異なるアプローチで再試行してください",
-            ])
+            decision.next_steps.extend(
+                [
+                    "質問の範囲を狭めてください",
+                    "異なるアプローチで再試行してください",
+                ]
+            )
             return decision
 
         # 条件5: 信頼度不足
         if confidence < self.thresholds["min_confidence"]:
             decision.should_stop = True
-            decision.reason = f"信頼度が閾値（{self.thresholds['min_confidence']:.0%}）を下回りました"
+            decision.reason = (
+                f"信頼度が閾値（{self.thresholds['min_confidence']:.0%}）を下回りました"
+            )
             decision.unknown_aspects.append("回答の信頼性が十分ではありません")
-            decision.next_steps.extend([
-                "追加の根拠を探してください",
-                "専門家に確認してください",
-            ])
+            decision.next_steps.extend(
+                [
+                    "追加の根拠を探してください",
+                    "専門家に確認してください",
+                ]
+            )
             return decision
 
         # 停止不要

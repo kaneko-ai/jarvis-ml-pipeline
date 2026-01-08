@@ -1,4 +1,5 @@
 """JARVIS Provenance Module - 根拠付け"""
+
 from .aligner import EvidenceCandidate, align_claim_to_chunks
 from .linker import (
     ChunkInfo,

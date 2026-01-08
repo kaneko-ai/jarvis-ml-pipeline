@@ -3,6 +3,7 @@
 Per JARVIS_LOCALFIRST_ROADMAP Task 1.5: オフラインモード
 Manages offline detection, fallback strategies, and sync queue.
 """
+
 from __future__ import annotations
 
 import logging
@@ -20,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 class ConnectivityState(Enum):
     """Network connectivity state."""
+
     ONLINE = "online"
     OFFLINE = "offline"
     DEGRADED = "degraded"  # Partial connectivity
@@ -28,6 +30,7 @@ class ConnectivityState(Enum):
 @dataclass
 class SyncItem:
     """Item queued for sync when online."""
+
     id: str
     operation: str  # e.g., "fetch_paper", "update_index"
     payload: dict[str, Any]
@@ -39,11 +42,14 @@ class SyncItem:
 @dataclass
 class OfflineConfig:
     """Offline mode configuration."""
+
     check_interval_seconds: int = 30
-    check_hosts: list[str] = field(default_factory=lambda: [
-        "8.8.8.8",  # Google DNS
-        "1.1.1.1",  # Cloudflare DNS
-    ])
+    check_hosts: list[str] = field(
+        default_factory=lambda: [
+            "8.8.8.8",  # Google DNS
+            "1.1.1.1",  # Cloudflare DNS
+        ]
+    )
     check_port: int = 53
     check_timeout: float = 3.0
     sync_batch_size: int = 10
@@ -51,7 +57,7 @@ class OfflineConfig:
 
 class OfflineManager:
     """Manages offline mode for JARVIS.
-    
+
     Features:
     - Network connectivity detection
     - Automatic fallback to cached data
@@ -96,7 +102,7 @@ class OfflineManager:
 
     def check_connectivity(self) -> ConnectivityState:
         """Check network connectivity.
-        
+
         Returns:
             Current connectivity state.
         """
@@ -159,12 +165,12 @@ class OfflineManager:
         item_id: str | None = None,
     ) -> str:
         """Queue an operation for when online.
-        
+
         Args:
             operation: Operation name.
             payload: Operation data.
             item_id: Optional custom ID.
-            
+
         Returns:
             Sync item ID.
         """
@@ -190,7 +196,7 @@ class OfflineManager:
 
     def clear_sync_queue(self) -> int:
         """Clear sync queue.
-        
+
         Returns:
             Number of items cleared.
         """
@@ -243,11 +249,11 @@ class OfflineManager:
         offline_func: Callable[[], Any],
     ) -> Any:
         """Execute with automatic fallback.
-        
+
         Args:
             online_func: Function to call when online.
             offline_func: Fallback function when offline.
-            
+
         Returns:
             Result from either function.
         """

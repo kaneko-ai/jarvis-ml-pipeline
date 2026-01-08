@@ -3,6 +3,7 @@
 Per V4-A3, this unifies all scores across modules.
 All scores must be registered and normalized to 0-1.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -52,103 +53,137 @@ class ScoreRegistry:
     def _register_defaults(self):
         """Register all default scores."""
         # Research metrics
-        self.register(ScoreDefinition(
-            name="roi_score",
-            description="Research return on investment",
-            direction="higher_better",
-            calibration_note="Based on output value / time invested",
-        ))
-        self.register(ScoreDefinition(
-            name="gap_score",
-            description="Research gap opportunity",
-            direction="higher_better",
-            calibration_note="Higher = less explored area",
-        ))
-        self.register(ScoreDefinition(
-            name="novelty",
-            description="Novelty of research",
-            direction="higher_better",
-        ))
-        self.register(ScoreDefinition(
-            name="impact",
-            description="Future impact potential",
-            direction="higher_better",
-        ))
+        self.register(
+            ScoreDefinition(
+                name="roi_score",
+                description="Research return on investment",
+                direction="higher_better",
+                calibration_note="Based on output value / time invested",
+            )
+        )
+        self.register(
+            ScoreDefinition(
+                name="gap_score",
+                description="Research gap opportunity",
+                direction="higher_better",
+                calibration_note="Higher = less explored area",
+            )
+        )
+        self.register(
+            ScoreDefinition(
+                name="novelty",
+                description="Novelty of research",
+                direction="higher_better",
+            )
+        )
+        self.register(
+            ScoreDefinition(
+                name="impact",
+                description="Future impact potential",
+                direction="higher_better",
+            )
+        )
 
         # Feasibility metrics
-        self.register(ScoreDefinition(
-            name="difficulty",
-            description="Experiment difficulty",
-            direction="lower_better",
-            calibration_note="0=easy, 1=hard",
-        ))
-        self.register(ScoreDefinition(
-            name="cost",
-            description="Experiment cost",
-            direction="lower_better",
-        ))
-        self.register(ScoreDefinition(
-            name="reproducibility",
-            description="Reproducibility likelihood",
-            direction="higher_better",
-        ))
+        self.register(
+            ScoreDefinition(
+                name="difficulty",
+                description="Experiment difficulty",
+                direction="lower_better",
+                calibration_note="0=easy, 1=hard",
+            )
+        )
+        self.register(
+            ScoreDefinition(
+                name="cost",
+                description="Experiment cost",
+                direction="lower_better",
+            )
+        )
+        self.register(
+            ScoreDefinition(
+                name="reproducibility",
+                description="Reproducibility likelihood",
+                direction="higher_better",
+            )
+        )
 
         # Risk metrics
-        self.register(ScoreDefinition(
-            name="burnout_risk",
-            description="Burnout risk level",
-            direction="lower_better",
-        ))
-        self.register(ScoreDefinition(
-            name="collapse_risk",
-            description="Field collapse risk",
-            direction="lower_better",
-        ))
-        self.register(ScoreDefinition(
-            name="culture_risk_index",
-            description="Lab culture risk",
-            direction="lower_better",
-        ))
-        self.register(ScoreDefinition(
-            name="stop_score",
-            description="Theme termination score",
-            direction="lower_better",
-            calibration_note="Higher = more reason to stop",
-        ))
+        self.register(
+            ScoreDefinition(
+                name="burnout_risk",
+                description="Burnout risk level",
+                direction="lower_better",
+            )
+        )
+        self.register(
+            ScoreDefinition(
+                name="collapse_risk",
+                description="Field collapse risk",
+                direction="lower_better",
+            )
+        )
+        self.register(
+            ScoreDefinition(
+                name="culture_risk_index",
+                description="Lab culture risk",
+                direction="lower_better",
+            )
+        )
+        self.register(
+            ScoreDefinition(
+                name="stop_score",
+                description="Theme termination score",
+                direction="lower_better",
+                calibration_note="Higher = more reason to stop",
+            )
+        )
 
         # Grant/Career metrics
-        self.register(ScoreDefinition(
-            name="grant_score",
-            description="Grant success probability",
-            direction="higher_better",
-        ))
-        self.register(ScoreDefinition(
-            name="alignment",
-            description="Alignment with target",
-            direction="higher_better",
-        ))
-        self.register(ScoreDefinition(
-            name="competitiveness_score",
-            description="Career competitiveness",
-            direction="higher_better",
-        ))
+        self.register(
+            ScoreDefinition(
+                name="grant_score",
+                description="Grant success probability",
+                direction="higher_better",
+            )
+        )
+        self.register(
+            ScoreDefinition(
+                name="alignment",
+                description="Alignment with target",
+                direction="higher_better",
+            )
+        )
+        self.register(
+            ScoreDefinition(
+                name="competitiveness_score",
+                description="Career competitiveness",
+                direction="higher_better",
+            )
+        )
 
         # Confidence metrics
-        self.register(ScoreDefinition(
-            name="confidence_index",
-            description="Claim confidence",
-            direction="higher_better",
-        ))
-        self.register(ScoreDefinition(
-            name="citation_strength",
-            description="Citation power index",
-            direction="higher_better",
-        ))
-        self.register(ScoreDefinition(
-            name="survival_probability",
-            description="Paper longevity probability",
-            direction="higher_better",
-        ))
+        self.register(
+            ScoreDefinition(
+                name="confidence_index",
+                description="Claim confidence",
+                direction="higher_better",
+            )
+        )
+        self.register(
+            ScoreDefinition(
+                name="citation_strength",
+                description="Citation power index",
+                direction="higher_better",
+            )
+        )
+        self.register(
+            ScoreDefinition(
+                name="survival_probability",
+                description="Paper longevity probability",
+                direction="higher_better",
+            )
+        )
 
     def register(self, definition: ScoreDefinition) -> None:
         """Register a score definition."""

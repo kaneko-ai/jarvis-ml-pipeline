@@ -1,4 +1,5 @@
 """Health checks for cron/worker/index state."""
+
 from __future__ import annotations
 
 import json

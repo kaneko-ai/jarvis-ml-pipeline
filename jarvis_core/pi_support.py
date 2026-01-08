@@ -2,6 +2,7 @@
 
 Per Issue Ω-10, this supports PI-level research decisions.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

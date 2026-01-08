@@ -69,12 +69,12 @@ class PaperNode:
 
 class CitationGraph:
     """A graph of citation relationships.
-    
+
     Supports analysis of citation networks including:
     - Finding supporting/contrasting citations
     - Identifying highly cited papers
     - Finding citation chains
-    
+
     Example:
         >>> graph = CitationGraph()
         >>> graph.add_edge("paper_A", "paper_B", CitationStance.SUPPORT)
@@ -101,13 +101,13 @@ class CitationGraph:
         authors: list[str] | None = None,
     ) -> PaperNode:
         """Add a paper node to the graph.
-        
+
         Args:
             paper_id: Paper identifier
             title: Paper title
             year: Publication year
             authors: List of author names
-            
+
         Returns:
             The created or updated PaperNode
         """
@@ -139,14 +139,14 @@ class CitationGraph:
         context: CitationContext | None = None,
     ) -> CitationEdge:
         """Add a citation edge to the graph.
-        
+
         Args:
             source_id: Citing paper ID
             target_id: Cited paper ID
             stance: Citation stance
             confidence: Classification confidence
             context: Optional citation context
-            
+
         Returns:
             The created or updated CitationEdge
         """
@@ -226,33 +226,30 @@ class CitationGraph:
 
     def get_top_cited(self, limit: int = 10) -> list[tuple[str, int]]:
         """Get top cited papers.
-        
+
         Args:
             limit: Maximum number of results
-            
+
         Returns:
             List of (paper_id, citation_count) tuples
         """
         papers_by_citations = [
-            (node.paper_id, node.cited_by_count)
-            for node in self._nodes.values()
+            (node.paper_id, node.cited_by_count) for node in self._nodes.values()
         ]
         papers_by_citations.sort(key=lambda x: x[1], reverse=True)
         return papers_by_citations[:limit]
 
     def get_controversial_papers(self, min_contrast: int = 2) -> list[str]:
         """Get papers with significant contrasting citations.
-        
+
         Args:
             min_contrast: Minimum number of contrasting citations
-            
+
         Returns:
             List of paper IDs
         """
         return [
-            node.paper_id
-            for node in self._nodes.values()
-            if node.contrast_count >= min_contrast
+            node.paper_id for node in self._nodes.values() if node.contrast_count >= min_contrast
         ]
 
     def to_dict(self) -> dict[str, Any]:
@@ -282,14 +279,14 @@ def build_citation_graph(
     stance_results: list[StanceResult] | None = None,
 ) -> CitationGraph:
     """Build a citation graph from contexts and stance results.
-    
+
     Convenience function for building a graph from extracted citations.
-    
+
     Args:
         contexts: List of CitationContext objects
         stance_results: Optional stance classification results
             (must be same length as contexts if provided)
-        
+
     Returns:
         CitationGraph with citations added
     """

@@ -2,6 +2,7 @@
 
 Per V4-M03, this builds cluster maps for field overview.
 """
+
 from __future__ import annotations
 
 from collections import defaultdict
@@ -31,31 +32,43 @@ def build_cluster_map(
     concept_to_papers = defaultdict(list)
 
     for v in vectors:
-        top_concept = max(v.concept.concepts.items(), key=lambda x: x[1])[0] if v.concept.concepts else "other"
+        top_concept = (
+            max(v.concept.concepts.items(), key=lambda x: x[1])[0]
+            if v.concept.concepts
+            else "other"
+        )
         concept_to_papers[top_concept].append(v)
 
     # Build clusters
     clusters = []
-    for concept, papers in sorted(concept_to_papers.items(), key=lambda x: -len(x[1]))[:num_clusters]:
+    for concept, papers in sorted(concept_to_papers.items(), key=lambda x: -len(x[1]))[
+        :num_clusters
+    ]:
         # Calculate centroid (average positions)
         avg_novelty = sum(p.temporal.novelty for p in papers) / len(papers)
         avg_impact = sum(p.impact.future_potential for p in papers) / len(papers)
 
         # Find center paper
-        center = min(papers, key=lambda p: abs(p.temporal.novelty - avg_novelty) + abs(p.impact.future_potential - avg_impact))
+        center = min(
+            papers,
+            key=lambda p: abs(p.temporal.novelty - avg_novelty)
+            + abs(p.impact.future_potential - avg_impact),
+        )
 
-        clusters.append({
-            "cluster_id": f"cluster_{len(clusters)}",
-            "top_concept": concept,
-            "paper_ids": [p.paper_id for p in papers],
-            "size": len(papers),
-            "centroid": {
-                "novelty": round(avg_novelty, 3),
-                "impact": round(avg_impact, 3),
-            },
-            "center_paper": center.paper_id,
-            "concepts": list(set(c for p in papers for c in p.concept.concepts))[:5],
-        })
+        clusters.append(
+            {
+                "cluster_id": f"cluster_{len(clusters)}",
+                "top_concept": concept,
+                "paper_ids": [p.paper_id for p in papers],
+                "size": len(papers),
+                "centroid": {
+                    "novelty": round(avg_novelty, 3),
+                    "impact": round(avg_impact, 3),
+                },
+                "center_paper": center.paper_id,
+                "concepts": list(set(c for p in papers for c in p.concept.concepts))[:5],
+            }
+        )
 
     return {
         "clusters": clusters,

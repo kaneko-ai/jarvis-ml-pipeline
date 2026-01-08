@@ -33,10 +33,10 @@ class ClassificationPattern:
 
 class RuleBasedClassifier:
     """Rule-based evidence classifier using pattern matching.
-    
+
     Uses keywords and patterns to identify study types and assign
     evidence levels based on study design.
-    
+
     Example:
         >>> classifier = RuleBasedClassifier()
         >>> grade = classifier.classify(
@@ -53,7 +53,7 @@ class RuleBasedClassifier:
         self._sample_size_pattern = re.compile(
             r"(?:n\s*=\s*|sample\s+(?:size|of)\s*(?:was\s+)?|"
             r"(?:included|enrolled|recruited)\s+)(\d+(?:,\d+)?)",
-            re.IGNORECASE
+            re.IGNORECASE,
         )
 
     def _build_patterns(self) -> list[ClassificationPattern]:
@@ -77,7 +77,6 @@ class RuleBasedClassifier:
                 ],
                 weight=1.0,
             ),
-
             # RCT (Level 1b)
             ClassificationPattern(
                 study_type=StudyType.RCT,
@@ -100,7 +99,6 @@ class RuleBasedClassifier:
                 ],
                 weight=0.9,
             ),
-
             # Cohort studies (Level 2b)
             ClassificationPattern(
                 study_type=StudyType.COHORT_PROSPECTIVE,
@@ -120,7 +118,6 @@ class RuleBasedClassifier:
                 ],
                 weight=0.8,
             ),
-
             # Case-control (Level 3b)
             ClassificationPattern(
                 study_type=StudyType.CASE_CONTROL,
@@ -130,7 +127,6 @@ class RuleBasedClassifier:
                 ],
                 weight=0.7,
             ),
-
             # Cross-sectional (Level 4)
             ClassificationPattern(
                 study_type=StudyType.CROSS_SECTIONAL,
@@ -141,7 +137,6 @@ class RuleBasedClassifier:
                 ],
                 weight=0.6,
             ),
-
             # Case series / Case report (Level 4)
             ClassificationPattern(
                 study_type=StudyType.CASE_SERIES,
@@ -159,7 +154,6 @@ class RuleBasedClassifier:
                 ],
                 weight=0.4,
             ),
-
             # Guidelines and reviews (Level 5)
             ClassificationPattern(
                 study_type=StudyType.GUIDELINE,
@@ -196,12 +190,12 @@ class RuleBasedClassifier:
         full_text: str = "",
     ) -> EvidenceGrade:
         """Classify evidence level from text.
-        
+
         Args:
             title: Paper title
             abstract: Paper abstract
             full_text: Full paper text (optional)
-            
+
         Returns:
             EvidenceGrade with classification result
         """
@@ -217,10 +211,12 @@ class RuleBasedClassifier:
         for pattern_config in self._patterns:
             for pattern in pattern_config.patterns:
                 if pattern.search(combined_text):
-                    matches.append((
-                        pattern_config.study_type,
-                        pattern_config.weight,
-                    ))
+                    matches.append(
+                        (
+                            pattern_config.study_type,
+                            pattern_config.weight,
+                        )
+                    )
                     break  # Only count each pattern config once
 
         if not matches:
@@ -274,10 +270,10 @@ class RuleBasedClassifier:
 
     def extract_pico(self, text: str) -> PICOExtraction:
         """Extract PICO components from text.
-        
+
         Args:
             text: Paper text (abstract preferred)
-            
+
         Returns:
             PICOExtraction with extracted components
         """
@@ -310,7 +306,9 @@ class RuleBasedClassifier:
         """Extract intervention from text."""
         patterns = [
             re.compile(r"(?:treated\s+with|received|administered)\s+([^.]{5,60})", re.IGNORECASE),
-            re.compile(r"intervention\s+(?:group|arm)?\s*(?:received)?\s*([^.]{5,60})", re.IGNORECASE),
+            re.compile(
+                r"intervention\s+(?:group|arm)?\s*(?:received)?\s*([^.]{5,60})", re.IGNORECASE
+            ),
         ]
         for pattern in patterns:
             match = pattern.search(text)
@@ -336,8 +334,12 @@ class RuleBasedClassifier:
     def _extract_outcome(self, text: str) -> str | None:
         """Extract primary outcome from text."""
         patterns = [
-            re.compile(r"primary\s+(?:end\s*point|outcome)\s+(?:was|is)?\s*([^.]{10,80})", re.IGNORECASE),
-            re.compile(r"main\s+outcome\s+(?:measure)?\s*(?:was|is)?\s*([^.]{10,80})", re.IGNORECASE),
+            re.compile(
+                r"primary\s+(?:end\s*point|outcome)\s+(?:was|is)?\s*([^.]{10,80})", re.IGNORECASE
+            ),
+            re.compile(
+                r"main\s+outcome\s+(?:measure)?\s*(?:was|is)?\s*([^.]{10,80})", re.IGNORECASE
+            ),
         ]
         for pattern in patterns:
             match = pattern.search(text)

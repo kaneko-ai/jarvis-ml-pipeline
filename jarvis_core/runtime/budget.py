@@ -2,6 +2,7 @@
 
 Per RP-138, enforces budget limits across all layers.
 """
+
 from __future__ import annotations
 
 import threading
@@ -49,9 +50,7 @@ class BudgetExceeded(Exception):
         self.budget_type = budget_type
         self.limit = limit
         self.used = used
-        super().__init__(
-            f"Budget exceeded: {budget_type.value} limit {limit}, used {used}"
-        )
+        super().__init__(f"Budget exceeded: {budget_type.value} limit {limit}, used {used}")
 
 
 class BudgetManager:

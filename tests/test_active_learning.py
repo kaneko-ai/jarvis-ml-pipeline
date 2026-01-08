@@ -3,7 +3,6 @@
 Per JARVIS_COMPLETION_PLAN_v3 Task 2.5
 """
 
-
 import numpy as np
 import pytest
 
@@ -174,13 +173,15 @@ class TestQueryStrategy:
         strategy = DiversitySampling()
 
         # Mock embeddings: 5 samples with 3 features
-        embeddings = np.array([
-            [0.0, 0.0, 0.0],
-            [1.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0],
-            [0.0, 0.0, 1.0],
-            [0.5, 0.5, 0.5],
-        ])
+        embeddings = np.array(
+            [
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0],
+                [0.0, 0.0, 1.0],
+                [0.5, 0.5, 0.5],
+            ]
+        )
 
         selected = strategy.select(embeddings, n=3)
 
@@ -197,12 +198,14 @@ class TestQueryStrategy:
         )
 
         probabilities = np.array([0.5, 0.3, 0.7, 0.45])
-        embeddings = np.array([
-            [0.0, 0.0],
-            [1.0, 0.0],
-            [0.0, 1.0],
-            [1.0, 1.0],
-        ])
+        embeddings = np.array(
+            [
+                [0.0, 0.0],
+                [1.0, 0.0],
+                [0.0, 1.0],
+                [1.0, 1.0],
+            ]
+        )
 
         selected = strategy.select(
             probabilities=probabilities,
@@ -500,7 +503,11 @@ class TestActiveLearningCLI:
         )
 
         # Should not error, and should show help
-        assert result.returncode == 0 or "usage" in result.stdout.lower() or "help" in result.stderr.lower()
+        assert (
+            result.returncode == 0
+            or "usage" in result.stdout.lower()
+            or "help" in result.stderr.lower()
+        )
 
 
 class TestModuleImports:

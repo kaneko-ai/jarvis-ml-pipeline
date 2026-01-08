@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Node:
     """ノード."""
+
     id: str
     label: str
     node_type: str  # concept, paper, claim, author, entity
@@ -34,6 +35,7 @@ class Node:
 @dataclass
 class Edge:
     """エッジ."""
+
     source: str
     target: str
     edge_type: str  # cites, mentions, supports, contradicts, coauthor
@@ -52,7 +54,7 @@ class Edge:
 
 class KnowledgeGraph:
     """知識グラフ.
-    
+
     概念・論文・主張の関係を管理
     """
 
@@ -160,13 +162,13 @@ class KnowledgeGraph:
 
     def save(self, path: str):
         """保存."""
-        with open(path, 'w', encoding='utf-8') as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(self.to_dict(), f, indent=2, ensure_ascii=False)
         logger.info(f"Saved knowledge graph to {path}")
 
     def load(self, path: str):
         """読み込み."""
-        with open(path, encoding='utf-8') as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
 
         for node_data in data.get("nodes", []):

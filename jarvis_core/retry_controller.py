@@ -5,6 +5,7 @@ Phase Loop 3: 半自律（自動改善）
 - 回数上限あり
 - 変更点を必ずログ化
 """
+
 from __future__ import annotations
 
 import logging
@@ -18,11 +19,12 @@ logger = logging.getLogger(__name__)
 
 class RetryAction(Enum):
     """再試行アクション."""
-    RE_SEARCH = "re_search"           # 再検索
-    RE_EXTRACT = "re_extract"         # chunk再抽出
-    EXPAND_QUERY = "expand_query"     # クエリ拡張
-    ADD_SOURCES = "add_sources"       # ソース追加
-    NONE = "none"                     # 再試行なし
+
+    RE_SEARCH = "re_search"  # 再検索
+    RE_EXTRACT = "re_extract"  # chunk再抽出
+    EXPAND_QUERY = "expand_query"  # クエリ拡張
+    ADD_SOURCES = "add_sources"  # ソース追加
+    NONE = "none"  # 再試行なし
 
 
 # fail_reason → action マップ（コード固定・例外禁止）
@@ -43,6 +45,7 @@ FAIL_ACTION_MAP: dict[str, RetryAction] = {
 @dataclass
 class RetryAttempt:
     """再試行の記録."""
+
     attempt_number: int
     fail_reason: str
     action_taken: RetryAction
@@ -53,6 +56,7 @@ class RetryAttempt:
 @dataclass
 class RetryResult:
     """Retry結果."""
+
     success: bool
     attempts: list[RetryAttempt] = field(default_factory=list)
     final_status: str = "failed"
@@ -61,7 +65,7 @@ class RetryResult:
 
 class RetryController:
     """再試行コントローラー.
-    
+
     Phase Loop 3: 自動改善の最小実装
     - fail_reason → action マップ固定
     - 回数上限あり
@@ -77,7 +81,7 @@ class RetryController:
         action_handlers: dict[RetryAction, Callable] | None = None,
     ):
         """初期化.
-        
+
         Args:
             max_retries: 最大再試行回数
             action_handlers: アクション→ハンドラーのマップ
@@ -88,10 +92,10 @@ class RetryController:
 
     def get_action_for_fail_reason(self, fail_reason: str) -> RetryAction:
         """fail_reasonに対応するアクションを取得.
-        
+
         Args:
             fail_reason: 失敗理由コード
-        
+
         Returns:
             対応するRetryAction
         """
@@ -99,10 +103,10 @@ class RetryController:
 
     def should_retry(self, fail_reasons: list[str]) -> bool:
         """再試行すべきかを判定.
-        
+
         Args:
             fail_reasons: 失敗理由コードのリスト
-        
+
         Returns:
             再試行すべきならTrue
         """
@@ -123,11 +127,11 @@ class RetryController:
         context: dict[str, Any],
     ) -> RetryAttempt:
         """再試行を実行.
-        
+
         Args:
             fail_reasons: 失敗理由コードのリスト
             context: 実行コンテキスト
-        
+
         Returns:
             RetryAttempt
         """
@@ -180,18 +184,17 @@ class RetryController:
 
         # ログ出力
         logger.info(
-            f"Retry attempt {attempt_number}: "
-            f"{target_reason} → {action.value} → {result}"
+            f"Retry attempt {attempt_number}: " f"{target_reason} → {action.value} → {result}"
         )
 
         return attempt
 
     def get_result(self, final_success: bool) -> RetryResult:
         """最終結果を取得.
-        
+
         Args:
             final_success: 最終的に成功したか
-        
+
         Returns:
             RetryResult
         """

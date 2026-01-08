@@ -2,6 +2,7 @@
 
 Per RP-309, generates query variations for coverage.
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -22,7 +23,7 @@ class FusedResult:
 
 class MultiQueryFusion:
     """Generates query variations and fuses results.
-    
+
     Per RP-309:
     - Generates 3-5 query variations
     - Searches each variation
@@ -41,10 +42,10 @@ class MultiQueryFusion:
 
     def generate_variations(self, query: str) -> list[str]:
         """Generate query variations.
-        
+
         Args:
             query: Original query.
-            
+
         Returns:
             List of query variations.
         """
@@ -66,7 +67,7 @@ class MultiQueryFusion:
             f"{query} therapeutic implications",
         ]
 
-        for template in templates[:self.num_variations - 1]:
+        for template in templates[: self.num_variations - 1]:
             variations.append(template)
 
         return variations
@@ -76,10 +77,10 @@ class MultiQueryFusion:
         result_sets: list[list[dict[str, Any]]],
     ) -> list[FusedResult]:
         """Fuse multiple result sets using RRF.
-        
+
         Args:
             result_sets: List of result lists from different queries.
-            
+
         Returns:
             Fused results sorted by RRF score.
         """
@@ -104,13 +105,15 @@ class MultiQueryFusion:
         fused = []
         for chunk_id, score in scores.items():
             chunk = chunks[chunk_id]
-            fused.append(FusedResult(
-                chunk_id=chunk_id,
-                text=chunk.get("text", ""),
-                fused_score=score,
-                query_hits=hits[chunk_id],
-                metadata=chunk.get("metadata", {}),
-            ))
+            fused.append(
+                FusedResult(
+                    chunk_id=chunk_id,
+                    text=chunk.get("text", ""),
+                    fused_score=score,
+                    query_hits=hits[chunk_id],
+                    metadata=chunk.get("metadata", {}),
+                )
+            )
 
         # Sort by fused score
         fused.sort(key=lambda x: x.fused_score, reverse=True)
@@ -125,13 +128,13 @@ class MultiQueryFusion:
         per_query_k: int = 20,
     ) -> list[FusedResult]:
         """Multi-query search with fusion.
-        
+
         Args:
             query: Original query.
             retriever: Search function.
             top_k: Final number of results.
             per_query_k: Results per query variation.
-            
+
         Returns:
             Fused results.
         """

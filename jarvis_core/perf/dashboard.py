@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 3, this provides full dashboard output with fixed schema.
 """
+
 from __future__ import annotations
 
 import json
@@ -125,9 +126,7 @@ def generate_dashboard(
     if span_tracker:
         summary = span_tracker.get_summary()
         dashboard.span_stats = summary
-        dashboard.total_duration_ms = sum(
-            s.get("total_ms", 0) for s in summary.values()
-        )
+        dashboard.total_duration_ms = sum(s.get("total_ms", 0) for s in summary.values())
 
         # Top slow stages
         sorted_stages = sorted(
@@ -136,8 +135,7 @@ def generate_dashboard(
             reverse=True,
         )
         dashboard.top_slow_stages = [
-            {"stage": k, "duration_ms": v.get("total_ms", 0)}
-            for k, v in sorted_stages[:5]
+            {"stage": k, "duration_ms": v.get("total_ms", 0)} for k, v in sorted_stages[:5]
         ]
 
     # Cache statistics
@@ -153,7 +151,9 @@ def generate_dashboard(
     # Budget usage
     if budget_manager:
         status = budget_manager.get_status()
-        dashboard.budget_breakdown = {k: v.get("percent", 0) for k, v in status.items() if isinstance(v, dict)}
+        dashboard.budget_breakdown = {
+            k: v.get("percent", 0) for k, v in status.items() if isinstance(v, dict)
+        }
         if "tokens" in status:
             dashboard.budget_usage_percent = status["tokens"].get("percent", 0)
 
@@ -229,13 +229,17 @@ class Scorecard:
         """Save scorecard."""
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
-            json.dump({
-                "run_id": self.run_id,
-                "timestamp": self.timestamp.isoformat(),
-                "gates_passed": self.gates_passed,
-                "gates_failed": self.gates_failed,
-                "gates": self.gates,
-            }, f, indent=2)
+            json.dump(
+                {
+                    "run_id": self.run_id,
+                    "timestamp": self.timestamp.isoformat(),
+                    "gates_passed": self.gates_passed,
+                    "gates_failed": self.gates_failed,
+                    "gates": self.gates,
+                },
+                f,
+                indent=2,
+            )
 
 
 def generate_scorecard(
@@ -250,29 +254,39 @@ def generate_scorecard(
     # Gate 1: Unsupported FACT rate
     if truth_metrics:
         gate1_passed = truth_metrics.unsupported_fact_rate <= 0.1
-        gates.append({
-            "name": "Unsupported FACT Rate ≤ 10%",
-            "passed": gate1_passed,
-            "value": f"{truth_metrics.unsupported_fact_rate:.1%}",
-        })
+        gates.append(
+            {
+                "name": "Unsupported FACT Rate ≤ 10%",
+                "passed": gate1_passed,
+                "value": f"{truth_metrics.unsupported_fact_rate:.1%}",
+            }
+        )
 
     # Gate 2: No regression
     if regression_result:
         gate2_passed = not regression_result.is_regression
-        gates.append({
-            "name": "No Quality Regression",
-            "passed": gate2_passed,
-            "value": "Passed" if gate2_passed else ", ".join(regression_result.regression_reasons),
-        })
+        gates.append(
+            {
+                "name": "No Quality Regression",
+                "passed": gate2_passed,
+                "value": (
+                    "Passed" if gate2_passed else ", ".join(regression_result.regression_reasons)
+                ),
+            }
+        )
 
     # Gate 3: SLO compliance
     if slo_status:
         gate3_passed = len(slo_status.violations) == 0
-        gates.append({
-            "name": "SLO Compliance",
-            "passed": gate3_passed,
-            "value": "Passed" if gate3_passed else str(len(slo_status.violations)) + " violations",
-        })
+        gates.append(
+            {
+                "name": "SLO Compliance",
+                "passed": gate3_passed,
+                "value": (
+                    "Passed" if gate3_passed else str(len(slo_status.violations)) + " violations"
+                ),
+            }
+        )
 
     passed = sum(1 for g in gates if g["passed"])
     failed = len(gates) - passed

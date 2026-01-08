@@ -20,13 +20,13 @@ def log_ranking(
     stage: str,
     items: list[RankingItem],
     chosen_order: list[str],
-    extra: dict[str, Any] | None = None
+    extra: dict[str, Any] | None = None,
 ) -> None:
     """
     ランキング結果をログ出力.
-    
+
     後でLightGBMの学習データとして使用可能な形式で保存。
-    
+
     Args:
         path: ログファイルパス
         task_id: タスクID
@@ -65,7 +65,7 @@ class RankingLogger:
     def __init__(self, log_path: str = "logs/ranking.jsonl"):
         """
         初期化.
-        
+
         Args:
             log_path: ログファイルパス
         """
@@ -77,14 +77,7 @@ class RankingLogger:
         stage: str,
         items: list[RankingItem],
         chosen_order: list[str],
-        extra: dict[str, Any] | None = None
+        extra: dict[str, Any] | None = None,
     ) -> None:
         """ランキングをログ."""
-        log_ranking(
-            self.log_path,
-            task_id,
-            stage,
-            items,
-            chosen_order,
-            extra
-        )
+        log_ranking(self.log_path, task_id, stage, items, chosen_order, extra)

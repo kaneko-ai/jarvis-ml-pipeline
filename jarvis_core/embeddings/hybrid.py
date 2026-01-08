@@ -52,11 +52,11 @@ class HybridSearchResult:
 
 class HybridSearch:
     """Hybrid search combining dense (vector) and sparse (BM25) retrieval.
-    
+
     Supports multiple fusion methods:
     - RRF (Reciprocal Rank Fusion): Combines rankings, robust to score scales
     - Linear: Weighted combination of normalized scores
-    
+
     Example:
         >>> hybrid = HybridSearch()
         >>> corpus = ["machine learning", "deep learning", "NLP"]
@@ -76,7 +76,7 @@ class HybridSearch:
         rrf_k: int = 60,
     ):
         """Initialize the hybrid search engine.
-        
+
         Args:
             dense_model: Dense embedding model (default: MiniLM)
             sparse_index: BM25 sparse index
@@ -113,7 +113,7 @@ class HybridSearch:
         metadata: list[dict] | None = None,
     ) -> None:
         """Index a corpus for hybrid search.
-        
+
         Args:
             corpus: List of document texts
             ids: Optional list of document IDs
@@ -154,12 +154,12 @@ class HybridSearch:
         mode: str = "hybrid",
     ) -> HybridSearchResult:
         """Search the index.
-        
+
         Args:
             query: Search query
             top_k: Number of results to return
             mode: Search mode ("hybrid", "dense", "sparse")
-            
+
         Returns:
             HybridSearchResult with ranked results
         """
@@ -186,7 +186,7 @@ class HybridSearch:
             similarities = np.dot(self._vectors, query_vec.T).flatten()
 
             # Get top candidates
-            top_indices = np.argsort(similarities)[::-1][:top_k * 3]
+            top_indices = np.argsort(similarities)[::-1][: top_k * 3]
             for idx in top_indices:
                 doc_id = self._doc_ids[idx]
                 dense_results[doc_id] = float(similarities[idx])
@@ -237,7 +237,7 @@ class HybridSearch:
         dense_scores: dict[str, float],
     ) -> list[tuple[str, float]]:
         """Reciprocal Rank Fusion.
-        
+
         RRF score = sum(1 / (k + rank)) for each ranking
         """
         # Create rankings
@@ -301,14 +301,11 @@ class HybridSearch:
         if max_val == min_val:
             return dict.fromkeys(scores, 1.0)
 
-        return {
-            k: (v - min_val) / (max_val - min_val)
-            for k, v in scores.items()
-        }
+        return {k: (v - min_val) / (max_val - min_val) for k, v in scores.items()}
 
     def save(self, path: Path) -> None:
         """Save the hybrid index to disk.
-        
+
         Args:
             path: Directory to save the index
         """
@@ -346,13 +343,15 @@ class HybridSearch:
         logger.info(f"HybridSearch index saved to {path}")
 
     @classmethod
-    def load(cls, path: Path, dense_model: SentenceTransformerEmbedding | None = None) -> HybridSearch:
+    def load(
+        cls, path: Path, dense_model: SentenceTransformerEmbedding | None = None
+    ) -> HybridSearch:
         """Load a hybrid index from disk.
-        
+
         Args:
             path: Directory containing the saved index
             dense_model: Optional dense model (for computing new query embeddings)
-            
+
         Returns:
             Loaded HybridSearch instance
         """

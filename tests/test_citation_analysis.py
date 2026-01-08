@@ -4,7 +4,6 @@ Per JARVIS_COMPLETION_PLAN_v3 Task 2.2
 """
 
 
-
 class TestCitationContextExtractor:
     """Tests for citation context extraction."""
 
@@ -165,7 +164,8 @@ class TestCitationGraph:
 
         graph = CitationGraph()
         edge = graph.add_edge(
-            "paper_A", "paper_B",
+            "paper_A",
+            "paper_B",
             stance=CitationStance.SUPPORT,
             confidence=0.9,
         )

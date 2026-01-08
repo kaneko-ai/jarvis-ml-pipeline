@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 3, this boosts candidates using citation/neighbor graphs.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -64,7 +65,8 @@ class GraphBooster:
                 cite_counts[cited] = cite_counts.get(cited, 0) + 1
 
         bridges = [
-            paper_id for paper_id, count in cite_counts.items()
+            paper_id
+            for paper_id, count in cite_counts.items()
             if count > 1 and paper_id not in seed_ids
         ]
 

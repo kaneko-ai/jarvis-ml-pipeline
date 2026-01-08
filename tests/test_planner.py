@@ -39,4 +39,3 @@ def test_planner_falls_back_for_unknown_category():
 
     assert len(subtasks) == 1
     assert subtasks[0] is task
-

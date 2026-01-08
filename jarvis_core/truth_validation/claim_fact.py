@@ -2,6 +2,7 @@
 
 Per V4-B2, this detects misalignment between claims and facts.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -16,23 +16,26 @@ logger = logging.getLogger(__name__)
 
 class JudgeRole(Enum):
     """Judge役割."""
+
     STRICT_REVIEWER = "strict_reviewer"  # 厳格査読者
-    PRACTICAL_PM = "practical_pm"         # 実務PM
-    COUNTERFACTUAL = "counterfactual"     # 反証役
+    PRACTICAL_PM = "practical_pm"  # 実務PM
+    COUNTERFACTUAL = "counterfactual"  # 反証役
 
 
 class DisqualificationReason(Enum):
     """失格理由."""
-    NO_EVIDENCE = "no_evidence"           # 根拠なき断言
-    UNKNOWN_SOURCE = "unknown_source"     # 出典不明
-    NOT_REPRODUCIBLE = "not_reproducible" # 再現性なし
-    BIAS_DETECTED = "bias_detected"       # バイアス検出
-    CLAIM_MISMATCH = "claim_mismatch"     # 主張と根拠の不一致
+
+    NO_EVIDENCE = "no_evidence"  # 根拠なき断言
+    UNKNOWN_SOURCE = "unknown_source"  # 出典不明
+    NOT_REPRODUCIBLE = "not_reproducible"  # 再現性なし
+    BIAS_DETECTED = "bias_detected"  # バイアス検出
+    CLAIM_MISMATCH = "claim_mismatch"  # 主張と根拠の不一致
 
 
 @dataclass
 class JudgeVerdict:
     """Judge判定."""
+
     judge_role: JudgeRole
     approved: bool
     score: float  # 0.0 - 1.0
@@ -44,6 +47,7 @@ class JudgeVerdict:
 @dataclass
 class EvaluationResult:
     """評価結果."""
+
     item_id: str
     verdicts: list[JudgeVerdict]
     final_approved: bool
@@ -61,12 +65,12 @@ class EvaluationResult:
 
 class MultiJudgeEvaluator:
     """Multi-Judge評価器.
-    
+
     Judge種別:
     - 厳格査読者: 学術的正確性を重視
     - 実務PM: 実用性・コストを重視
     - 反証役: 反例・弱点を探す
-    
+
     失格条件:
     - 根拠なき断言
     - 出典不明
@@ -86,17 +90,17 @@ class MultiJudgeEvaluator:
         item_id: str,
         content: str,
         evidence: list[str],
-        metadata: dict[str, Any] | None = None
+        metadata: dict[str, Any] | None = None,
     ) -> EvaluationResult:
         """
         アイテムを評価.
-        
+
         Args:
             item_id: アイテムID
             content: 評価対象の内容
             evidence: 根拠リスト
             metadata: メタデータ
-        
+
         Returns:
             EvaluationResult
         """
@@ -128,11 +132,7 @@ class MultiJudgeEvaluator:
         )
 
     def _judge(
-        self,
-        role: JudgeRole,
-        content: str,
-        evidence: list[str],
-        metadata: dict[str, Any] | None
+        self, role: JudgeRole, content: str, evidence: list[str], metadata: dict[str, Any] | None
     ) -> JudgeVerdict:
         """単一Judgeの判定."""
 
@@ -160,7 +160,7 @@ class MultiJudgeEvaluator:
         content: str,
         evidence: list[str],
         disqualifications: list[DisqualificationReason],
-        suggestions: list[str]
+        suggestions: list[str],
     ) -> JudgeVerdict:
         """厳格査読者の判定."""
 
@@ -191,7 +191,7 @@ class MultiJudgeEvaluator:
         content: str,
         evidence: list[str],
         disqualifications: list[DisqualificationReason],
-        suggestions: list[str]
+        suggestions: list[str],
     ) -> JudgeVerdict:
         """実務PMの判定."""
 
@@ -212,7 +212,7 @@ class MultiJudgeEvaluator:
         content: str,
         evidence: list[str],
         disqualifications: list[DisqualificationReason],
-        suggestions: list[str]
+        suggestions: list[str],
     ) -> JudgeVerdict:
         """反証役の判定."""
 

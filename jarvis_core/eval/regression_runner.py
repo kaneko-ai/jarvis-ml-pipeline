@@ -2,6 +2,7 @@
 
 Per V4-A05, this runs regression benchmarks and detects degradation.
 """
+
 from __future__ import annotations
 
 import json
@@ -87,19 +88,25 @@ def run_regression(
         delta = current.unsupported_fact_rate - baseline.unsupported_fact_rate
         if delta > thresholds.get("unsupported_fact_rate", 0.05):
             is_regression = True
-            reasons.append(f"unsupported_fact_rate increased: {baseline.unsupported_fact_rate:.2%} → {current.unsupported_fact_rate:.2%}")
+            reasons.append(
+                f"unsupported_fact_rate increased: {baseline.unsupported_fact_rate:.2%} → {current.unsupported_fact_rate:.2%}"
+            )
 
         # Lower precision is bad
         delta = baseline.fact_precision - current.fact_precision
         if delta > thresholds.get("fact_precision", 0.05):
             is_regression = True
-            reasons.append(f"fact_precision decreased: {baseline.fact_precision:.2%} → {current.fact_precision:.2%}")
+            reasons.append(
+                f"fact_precision decreased: {baseline.fact_precision:.2%} → {current.fact_precision:.2%}"
+            )
 
         # Lower recall is bad
         delta = baseline.fact_recall - current.fact_recall
         if delta > thresholds.get("fact_recall", 0.05):
             is_regression = True
-            reasons.append(f"fact_recall decreased: {baseline.fact_recall:.2%} → {current.fact_recall:.2%}")
+            reasons.append(
+                f"fact_recall decreased: {baseline.fact_recall:.2%} → {current.fact_recall:.2%}"
+            )
 
     return RegressionResult(
         run_id=datetime.now().strftime("%Y%m%d_%H%M%S"),
@@ -136,19 +143,23 @@ def generate_regression_report(result: RegressionResult) -> str:
     ]
 
     if result.baseline_metrics:
-        lines.extend([
-            "## Baseline Comparison",
-            f"- Unsupported FACT Rate: {result.baseline_metrics.unsupported_fact_rate:.2%}",
-            f"- FACT Precision: {result.baseline_metrics.fact_precision:.2%}",
-            f"- FACT Recall: {result.baseline_metrics.fact_recall:.2%}",
-            "",
-        ])
+        lines.extend(
+            [
+                "## Baseline Comparison",
+                f"- Unsupported FACT Rate: {result.baseline_metrics.unsupported_fact_rate:.2%}",
+                f"- FACT Precision: {result.baseline_metrics.fact_precision:.2%}",
+                f"- FACT Recall: {result.baseline_metrics.fact_recall:.2%}",
+                "",
+            ]
+        )
 
     if result.regression_reasons:
-        lines.extend([
-            "## Regression Reasons",
-            "",
-        ])
+        lines.extend(
+            [
+                "## Regression Reasons",
+                "",
+            ]
+        )
         for reason in result.regression_reasons:
             lines.append(f"- {reason}")
 

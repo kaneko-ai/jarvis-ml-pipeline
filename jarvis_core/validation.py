@@ -3,6 +3,7 @@
 This module intentionally keeps validation lightweight and dependency-free
 so that execution and retry logic can reuse simple sanity checks.
 """
+
 from __future__ import annotations
 
 import logging
@@ -65,7 +66,9 @@ def validate_json_schema(data: Any, schema: dict[str, Any]) -> EvaluationResult:
         if isinstance(expected_type, tuple):
             expected = expected_type
         else:
-            expected = (expected_type,) if isinstance(expected_type, type) else (type(expected_type),)
+            expected = (
+                (expected_type,) if isinstance(expected_type, type) else (type(expected_type),)
+            )
 
         if not isinstance(value, tuple(expected)):
             _append_error(

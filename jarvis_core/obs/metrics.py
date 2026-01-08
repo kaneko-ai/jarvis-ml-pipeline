@@ -1,4 +1,5 @@
 """Metrics collection and aggregation for observability."""
+
 from __future__ import annotations
 
 import json
@@ -209,6 +210,5 @@ def get_top_errors(days: int = 30, limit: int = 5) -> list[dict[str, Any]]:
             errors[label] = errors.get(label, 0) + 1
     sorted_errors = sorted(errors.items(), key=lambda item: item[1], reverse=True)
     return [
-        {"error_type": error_type, "count": count}
-        for error_type, count in sorted_errors[:limit]
+        {"error_type": error_type, "count": count} for error_type, count in sorted_errors[:limit]
     ]

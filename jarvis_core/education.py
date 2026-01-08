@@ -2,6 +2,7 @@
 
 Per RP36, this translates knowledge to different education levels.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal

@@ -18,18 +18,20 @@ from jarvis_core.contracts.types import Artifacts, RuntimeConfig, TaskContext
 
 class PluginError(Exception):
     """プラグインエラー。"""
+
     pass
 
 
 class PluginValidationError(PluginError):
     """プラグイン検証エラー（CI失敗）。"""
+
     pass
 
 
 class PluginProtocol(Protocol):
     """
     プラグインプロトコル。
-    
+
     全プラグインは activate/run/deactivate を実装必須。
     """
 
@@ -58,11 +60,12 @@ VALID_TYPES = ["retrieval", "extract", "summarize", "score", "graph", "design", 
 class PluginManifest:
     """
     plugin.json の正式仕様。
-    
+
     必須キー: id, entrypoint
     オプション: version, type, dependencies, hardware
     それ以外のキーは禁止。
     """
+
     id: str
     entrypoint: str
     version: str = "0.1.0"
@@ -74,7 +77,7 @@ class PluginManifest:
     def from_json(cls, path: Path) -> PluginManifest:
         """
         plugin.json から読み込み。
-        
+
         不正なキーがあればPluginValidationError。
         """
         with open(path, encoding="utf-8") as f:
@@ -83,27 +86,23 @@ class PluginManifest:
         # 必須キーチェック
         for key in REQUIRED_KEYS:
             if key not in data:
-                raise PluginValidationError(
-                    f"Missing required key '{key}' in {path}"
-                )
+                raise PluginValidationError(f"Missing required key '{key}' in {path}")
 
         # 不正キーチェック（厳格検証 - 余剰キーは即エラー）
         # 後方互換: name/description/requires/enabled も許可
-        all_valid_keys = set(REQUIRED_KEYS + OPTIONAL_KEYS + [
-            "name", "description", "requires", "enabled"
-        ])
+        all_valid_keys = set(
+            REQUIRED_KEYS + OPTIONAL_KEYS + ["name", "description", "requires", "enabled"]
+        )
         for key in data.keys():
             if key not in all_valid_keys:
                 raise PluginValidationError(
-                    f"Unknown key '{key}' in {path}. "
-                    f"Allowed keys: {sorted(all_valid_keys)}"
+                    f"Unknown key '{key}' in {path}. " f"Allowed keys: {sorted(all_valid_keys)}"
                 )
 
         # typeチェック
         if "type" in data and data["type"] not in VALID_TYPES:
             raise PluginValidationError(
-                f"Invalid type '{data['type']}' in {path}. "
-                f"Valid types: {VALID_TYPES}"
+                f"Invalid type '{data['type']}' in {path}. " f"Valid types: {VALID_TYPES}"
             )
 
         return cls(
@@ -112,7 +111,7 @@ class PluginManifest:
             version=data.get("version", "0.1.0"),
             type=data.get("type", "ops"),
             dependencies=data.get("dependencies", data.get("requires", [])),
-            hardware=data.get("hardware", {})
+            hardware=data.get("hardware", {}),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -122,14 +121,14 @@ class PluginManifest:
             "type": self.type,
             "entrypoint": self.entrypoint,
             "dependencies": self.dependencies,
-            "hardware": self.hardware
+            "hardware": self.hardware,
         }
 
 
 class PluginManager:
     """
     Plugin Manager - プラグインの統一管理。
-    
+
     ロード条件:
     1. plugin.json が存在
     2. id, entrypoint が存在
@@ -146,7 +145,7 @@ class PluginManager:
     def discover(self) -> list[PluginManifest]:
         """
         利用可能なプラグインを検出。
-        
+
         Returns:
             有効なマニフェストのリスト
         """
@@ -163,9 +162,7 @@ class PluginManager:
             manifest_path = plugin_dir / "plugin.json"
 
             if not manifest_path.exists():
-                self.errors.append(
-                    f"Plugin '{plugin_dir.name}' missing plugin.json"
-                )
+                self.errors.append(f"Plugin '{plugin_dir.name}' missing plugin.json")
                 continue
 
             try:
@@ -175,19 +172,17 @@ class PluginManager:
             except PluginValidationError as e:
                 self.errors.append(str(e))
             except Exception as e:
-                self.errors.append(
-                    f"Failed to load plugin '{plugin_dir.name}': {e}"
-                )
+                self.errors.append(f"Failed to load plugin '{plugin_dir.name}': {e}")
 
         return manifests
 
     def validate_all(self) -> bool:
         """
         全プラグインを検証。
-        
+
         Returns:
             全て有効ならTrue
-        
+
         Raises:
             PluginValidationError: 1つでも不正なら
         """
@@ -195,8 +190,7 @@ class PluginManager:
 
         if self.errors:
             raise PluginValidationError(
-                "Plugin validation failed:\n" +
-                "\n".join(f"  - {e}" for e in self.errors)
+                "Plugin validation failed:\n" + "\n".join(f"  - {e}" for e in self.errors)
             )
 
         return True
@@ -204,10 +198,10 @@ class PluginManager:
     def load(self, plugin_id: str) -> Any:
         """
         プラグインをロード。
-        
+
         Args:
             plugin_id: プラグインID
-        
+
         Returns:
             プラグインインスタンス
         """
@@ -272,7 +266,7 @@ class PluginManager:
 
     def list_active_plugins(self) -> list[str]:
         """アクティブなプラグイン一覧を取得。
-        
+
         Returns:
             ロード済みプラグインのIDリスト
         """

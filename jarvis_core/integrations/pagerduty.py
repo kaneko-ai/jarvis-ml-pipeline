@@ -2,6 +2,7 @@
 
 Per RP-534, implements PagerDuty alerting.
 """
+
 from __future__ import annotations
 
 import os
@@ -43,7 +44,7 @@ class PagerDutyEvent:
 
 class PagerDutyClient:
     """PagerDuty Events API client.
-    
+
     Per RP-534:
     - Send alerts
     - Acknowledge/resolve incidents
@@ -76,7 +77,7 @@ class PagerDutyClient:
         runbook_url: str | None = None,
     ) -> dict[str, Any] | None:
         """Trigger a PagerDuty alert.
-        
+
         Args:
             summary: Alert summary.
             severity: Alert severity.
@@ -84,7 +85,7 @@ class PagerDutyClient:
             dedup_key: Deduplication key.
             custom_details: Additional details.
             runbook_url: Link to runbook.
-            
+
         Returns:
             API response.
         """
@@ -93,10 +94,12 @@ class PagerDutyClient:
 
         links = []
         if runbook_url:
-            links.append({
-                "href": runbook_url,
-                "text": "Runbook",
-            })
+            links.append(
+                {
+                    "href": runbook_url,
+                    "text": "Runbook",
+                }
+            )
 
         payload = self._build_payload(
             action=EventAction.TRIGGER,
@@ -115,10 +118,10 @@ class PagerDutyClient:
         dedup_key: str,
     ) -> dict[str, Any] | None:
         """Acknowledge an incident.
-        
+
         Args:
             dedup_key: Deduplication key.
-            
+
         Returns:
             API response.
         """
@@ -138,10 +141,10 @@ class PagerDutyClient:
         dedup_key: str,
     ) -> dict[str, Any] | None:
         """Resolve an incident.
-        
+
         Args:
             dedup_key: Deduplication key.
-            
+
         Returns:
             API response.
         """
@@ -165,14 +168,14 @@ class PagerDutyClient:
         annotations: dict[str, str] | None = None,
     ) -> dict[str, Any] | None:
         """Trigger alert with Prometheus-style labels.
-        
+
         Args:
             alert_name: Alert name.
             description: Alert description.
             severity: Alert severity.
             labels: Alert labels.
             annotations: Alert annotations.
-            
+
         Returns:
             API response.
         """
@@ -241,10 +244,10 @@ class PagerDutyClient:
 
     def _send(self, payload: dict[str, Any]) -> dict[str, Any] | None:
         """Send event to PagerDuty.
-        
+
         Args:
             payload: Event payload.
-            
+
         Returns:
             API response.
         """

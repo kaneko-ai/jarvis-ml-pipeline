@@ -2,6 +2,7 @@
 
 Per Issue Ω-6, this plans research career trajectory.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal

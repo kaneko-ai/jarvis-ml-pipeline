@@ -2,6 +2,7 @@
 
 Tests for Task 1.4: 無料API統合
 """
+
 import time
 from unittest.mock import MagicMock, patch
 
@@ -55,11 +56,9 @@ class TestPubMedClientNew:
 
         client = PubMedClient()
 
-        with patch.object(client._session, 'get') as mock_get:
+        with patch.object(client._session, "get") as mock_get:
             mock_response = MagicMock()
-            mock_response.json.return_value = {
-                "esearchresult": {"idlist": ["123", "456"]}
-            }
+            mock_response.json.return_value = {"esearchresult": {"idlist": ["123", "456"]}}
             mock_get.return_value = mock_response
 
             result = client.search("test query")
@@ -98,14 +97,16 @@ class TestSemanticScholarClientNew:
 
         client = SemanticScholarClient()
 
-        with patch.object(client._session, 'get') as mock_get:
+        with patch.object(client._session, "get") as mock_get:
             mock_response = MagicMock()
             mock_response.json.return_value = {
-                "data": [{
-                    "paperId": "abc",
-                    "title": "Test",
-                    "authors": [],
-                }]
+                "data": [
+                    {
+                        "paperId": "abc",
+                        "title": "Test",
+                        "authors": [],
+                    }
+                ]
             }
             mock_get.return_value = mock_response
 
@@ -145,14 +146,16 @@ class TestOpenAlexClientNew:
 
         client = OpenAlexClient()
 
-        with patch.object(client._session, 'get') as mock_get:
+        with patch.object(client._session, "get") as mock_get:
             mock_response = MagicMock()
             mock_response.json.return_value = {
-                "results": [{
-                    "id": "https://openalex.org/W123",
-                    "title": "Test",
-                    "authorships": [],
-                }]
+                "results": [
+                    {
+                        "id": "https://openalex.org/W123",
+                        "title": "Test",
+                        "authorships": [],
+                    }
+                ]
             }
             mock_get.return_value = mock_response
 

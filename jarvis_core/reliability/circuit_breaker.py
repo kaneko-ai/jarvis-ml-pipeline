@@ -2,6 +2,7 @@
 
 Per RP-575, implements robust circuit breaker pattern.
 """
+
 from __future__ import annotations
 
 import threading
@@ -16,8 +17,8 @@ from typing import TypeVar
 class CircuitState(Enum):
     """Circuit breaker states."""
 
-    CLOSED = "closed"      # Normal operation
-    OPEN = "open"          # Failing, rejecting calls
+    CLOSED = "closed"  # Normal operation
+    OPEN = "open"  # Failing, rejecting calls
     HALF_OPEN = "half_open"  # Testing recovery
 
 
@@ -53,12 +54,12 @@ class CircuitOpenError(Exception):
         super().__init__(f"Circuit '{circuit_name}' is open. Retry after {retry_after:.1f}s")
 
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class CircuitBreaker:
     """Circuit breaker for fault isolation.
-    
+
     Per RP-575:
     - Three states: closed, open, half-open
     - Configurable thresholds
@@ -145,15 +146,15 @@ class CircuitBreaker:
         **kwargs,
     ) -> T:
         """Execute a call through the circuit breaker.
-        
+
         Args:
             func: Function to call.
             *args: Positional arguments.
             **kwargs: Keyword arguments.
-            
+
         Returns:
             Function result.
-            
+
         Raises:
             CircuitOpenError: If circuit is open.
         """
@@ -191,9 +192,11 @@ class CircuitBreaker:
 
     def __call__(self, func: Callable[..., T]) -> Callable[..., T]:
         """Decorator usage."""
+
         @wraps(func)
         def wrapper(*args, **kwargs):
             return self.call(func, *args, **kwargs)
+
         return wrapper
 
     def reset(self) -> None:
@@ -214,11 +217,11 @@ def get_circuit(
     config: CircuitConfig | None = None,
 ) -> CircuitBreaker:
     """Get or create a circuit breaker.
-    
+
     Args:
         name: Circuit name.
         config: Optional configuration.
-        
+
     Returns:
         CircuitBreaker instance.
     """
@@ -234,15 +237,16 @@ def circuit_breaker(
     fallback: Callable | None = None,
 ) -> Callable:
     """Decorator for circuit breaker.
-    
+
     Args:
         name: Circuit name.
         config: Optional configuration.
         fallback: Optional fallback function.
-        
+
     Returns:
         Decorator.
     """
+
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         circuit = get_circuit(name, config)
         if fallback:

@@ -2,6 +2,7 @@
 
 Per RP-340, processes and indexes figures from papers.
 """
+
 from __future__ import annotations
 
 import re
@@ -35,7 +36,7 @@ class Table:
 
 class FigureUnderstanding:
     """Processes and understands figures.
-    
+
     Per RP-340:
     - Generates figure embeddings (CLIP)
     - Links captions to figures
@@ -56,11 +57,11 @@ class FigureUnderstanding:
         page_images: list[Any] | None = None,
     ) -> list[Figure]:
         """Extract figures from PDF.
-        
+
         Args:
             pdf_path: Path to PDF file.
             page_images: Optional pre-extracted page images.
-            
+
         Returns:
             List of extracted figures.
         """
@@ -80,14 +81,16 @@ class FigureUnderstanding:
             if self.clip_model:
                 embedding = self._generate_embedding(caption)
 
-            figures.append(Figure(
-                figure_id=figure_id,
-                caption=caption,
-                figure_type=fig_type,
-                page=None,
-                embedding=embedding,
-                metadata={},
-            ))
+            figures.append(
+                Figure(
+                    figure_id=figure_id,
+                    caption=caption,
+                    figure_type=fig_type,
+                    page=None,
+                    embedding=embedding,
+                    metadata={},
+                )
+            )
 
         return figures
 
@@ -98,6 +101,7 @@ class FigureUnderstanding:
         # Read PDF text
         try:
             from pathlib import Path
+
             path = Path(pdf_path)
             if not path.exists():
                 return []
@@ -106,6 +110,7 @@ class FigureUnderstanding:
             text = ""
             try:
                 import pdfplumber
+
                 with pdfplumber.open(pdf_path) as pdf:
                     for page in pdf.pages:
                         text += page.extract_text() or ""
@@ -153,12 +158,12 @@ class FigureUnderstanding:
         top_k: int = 5,
     ) -> list[Figure]:
         """Search figures by query.
-        
+
         Args:
             query: Search query.
             figures: List of figures to search.
             top_k: Number of results.
-            
+
         Returns:
             Matching figures.
         """
@@ -178,7 +183,7 @@ class FigureUnderstanding:
 
 class TableExtractor:
     """Extracts and processes tables.
-    
+
     Per RP-341:
     - Complex table structure analysis
     - Merged cell handling
@@ -190,10 +195,10 @@ class TableExtractor:
         pdf_path: str,
     ) -> list[Table]:
         """Extract tables from PDF.
-        
+
         Args:
             pdf_path: Path to PDF.
-            
+
         Returns:
             List of extracted tables.
         """
@@ -217,14 +222,16 @@ class TableExtractor:
                         headers = [str(h or "").strip() for h in headers]
                         rows = [[str(c or "").strip() for c in row] for row in rows]
 
-                        tables.append(Table(
-                            table_id=f"table_p{page_num + 1}_{i + 1}",
-                            caption=f"Table from page {page_num + 1}",
-                            headers=headers,
-                            rows=rows,
-                            page=page_num + 1,
-                            metadata={},
-                        ))
+                        tables.append(
+                            Table(
+                                table_id=f"table_p{page_num + 1}_{i + 1}",
+                                caption=f"Table from page {page_num + 1}",
+                                headers=headers,
+                                rows=rows,
+                                page=page_num + 1,
+                                metadata={},
+                            )
+                        )
         except ImportError:
             pass
         except Exception:

@@ -3,6 +3,7 @@
 Generates markdown reports with mandatory evidence ID references
 and explicit uncertainty labels for all conclusions.
 """
+
 import json
 import logging
 from pathlib import Path
@@ -16,10 +17,10 @@ logger = logging.getLogger(__name__)
 
 def load_artifacts(run_dir: Path) -> dict[str, Any]:
     """Load claims, evidence, and papers from run directory.
-    
+
     Args:
         run_dir: Path to run directory
-        
+
     Returns:
         Dict with 'claims', 'evidence', 'papers'
     """
@@ -54,11 +55,11 @@ def load_artifacts(run_dir: Path) -> dict[str, Any]:
 
 def build_evidence_map(claims: list[dict], evidence_list: list[dict]) -> dict[str, list[dict]]:
     """Build mapping from claim_id to evidence list.
-    
+
     Args:
         claims: List of claim dictionaries
         evidence_list: List of evidence dictionaries
-        
+
     Returns:
         Dict mapping claim_id to list of evidence dicts
     """
@@ -74,26 +75,22 @@ def build_evidence_map(claims: list[dict], evidence_list: list[dict]) -> dict[st
     return evidence_map
 
 
-def select_best_evidence(
-    evidence_list: list[dict],
-    max_count: int = 3
-) -> list[dict]:
+def select_best_evidence(evidence_list: list[dict], max_count: int = 3) -> list[dict]:
     """Select best evidence by strength.
-    
+
     Priority: Strong → Medium → Weak
-    
+
     Args:
         evidence_list: List of evidence for a claim
         max_count: Maximum number to select
-        
+
     Returns:
         Selected evidence list
     """
     # Sort by strength
     strength_order = {"Strong": 0, "Medium": 1, "Weak": 2, "None": 3}
     sorted_ev = sorted(
-        evidence_list,
-        key=lambda e: strength_order.get(e.get("evidence_strength", "None"), 3)
+        evidence_list, key=lambda e: strength_order.get(e.get("evidence_strength", "None"), 3)
     )
 
     return sorted_ev[:max_count]
@@ -101,16 +98,16 @@ def select_best_evidence(
 
 def determine_support_level(evidence_list: list[dict]) -> str:
     """Determine overall support level from evidence.
-    
+
     Rules:
     - Strong if any Strong evidence
     - Medium if 2+ Medium or 1 Medium + Weak
     - Weak if only Weak evidence
     - None if no evidence
-    
+
     Args:
         evidence_list: List of evidence
-        
+
     Returns:
         Support level: "Strong", "Medium", "Weak", or "None"
     """
@@ -139,11 +136,11 @@ def determine_support_level(evidence_list: list[dict]) -> str:
 
 def create_conclusion(claim: dict, evidence_list: list[dict]) -> Conclusion:
     """Create a Conclusion object from claim and evidence.
-    
+
     Args:
         claim: Claim dictionary
         evidence_list: Evidence list for this claim
-        
+
     Returns:
         Conclusion object
     """
@@ -157,9 +154,7 @@ def create_conclusion(claim: dict, evidence_list: list[dict]) -> Conclusion:
     support_level = determine_support_level(selected_evidence)
 
     # Check for contradictions
-    has_contradiction = any(
-        e.get("evidence_role") == "refuting" for e in evidence_list
-    )
+    has_contradiction = any(e.get("evidence_role") == "refuting" for e in evidence_list)
 
     # Determine uncertainty
     uncertainty = determine_uncertainty(support_level, has_contradiction)
@@ -183,17 +178,17 @@ def create_conclusion(claim: dict, evidence_list: list[dict]) -> Conclusion:
         evidence_ids=evidence_ids,
         support_level=support_level,
         uncertainty_label=uncertainty,
-        notes=" / ".join(notes) if notes else ""
+        notes=" / ".join(notes) if notes else "",
     )
 
 
 def generate_report(run_dir: Path, query: str) -> str:
     """Generate complete markdown report with evidence IDs.
-    
+
     Args:
         run_dir: Path to run directory
         query: Research query
-        
+
     Returns:
         Markdown report text
     """
@@ -239,7 +234,7 @@ def generate_report(run_dir: Path, query: str) -> str:
         total_claims=total_claims,
         supported_claims=supported_claims,
         support_rate=support_rate,
-        quality_warnings=all_errors
+        quality_warnings=all_errors,
     )
 
     # Generate report
@@ -253,19 +248,23 @@ def generate_report(run_dir: Path, query: str) -> str:
 
     # Warning if low support
     if metadata.support_rate < 0.90:
-        lines.extend([
-            "> [!CAUTION] 根拠支持率が低い",
-            f"> Support Rate: {metadata.support_rate:.1%} (推奨: ≥90%)",
-            "> 結論の解釈には注意が必要です。",
-            "",
-        ])
+        lines.extend(
+            [
+                "> [!CAUTION] 根拠支持率が低い",
+                f"> Support Rate: {metadata.support_rate:.1%} (推奨: ≥90%)",
+                "> 結論の解釈には注意が必要です。",
+                "",
+            ]
+        )
 
-    lines.extend([
-        "---",
-        "",
-        "## Key Conclusions",
-        "",
-    ])
+    lines.extend(
+        [
+            "---",
+            "",
+            "## Key Conclusions",
+            "",
+        ]
+    )
 
     # Group by claim type
     by_type = {}
@@ -284,22 +283,26 @@ def generate_report(run_dir: Path, query: str) -> str:
     # Display by type
     for claim_type, type_conclusions in by_type.items():
         if claim_type != "General":
-            lines.extend([
-                f"### {claim_type}",
-                "",
-            ])
+            lines.extend(
+                [
+                    f"### {claim_type}",
+                    "",
+                ]
+            )
 
         for conclusion in type_conclusions:
             lines.append(conclusion.to_markdown())
             lines.append("")
 
     # References
-    lines.extend([
-        "---",
-        "",
-        "## References",
-        "",
-    ])
+    lines.extend(
+        [
+            "---",
+            "",
+            "## References",
+            "",
+        ]
+    )
 
     for paper in papers[:10]:
         paper_id = paper.get("paper_id", "Unknown")

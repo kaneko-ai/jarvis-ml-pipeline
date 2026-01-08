@@ -31,7 +31,7 @@ class ExclusionReason:
 @dataclass
 class PRISMAData:
     """PRISMA 2020 flow diagram data.
-    
+
     Based on PRISMA 2020 statement for systematic reviews.
     """
 
@@ -64,9 +64,9 @@ class PRISMAData:
     def calculate_totals(self) -> None:
         """Calculate derived totals."""
         total_identified = (
-            self.records_from_databases +
-            self.records_from_registers +
-            self.records_from_other_sources
+            self.records_from_databases
+            + self.records_from_registers
+            + self.records_from_other_sources
         )
 
         if self.records_screened == 0:

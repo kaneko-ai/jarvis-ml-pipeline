@@ -2,6 +2,7 @@
 
 Per Issue Ω-7, this simulates research failure branches.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -58,46 +59,66 @@ def _generate_failure_branches(
     branches = []
 
     # Technical failure
-    branches.append({
-        "type": "technical",
-        "description": "実験技術的失敗",
-        "probability": 0.3,
-        "sub_branches": [
-            {"type": "sub", "description": "プロトコル最適化失敗", "probability": 0.4},
-            {"type": "sub", "description": "試薬品質問題", "probability": 0.2},
-        ] if depth < max_depth - 1 else [],
-    })
+    branches.append(
+        {
+            "type": "technical",
+            "description": "実験技術的失敗",
+            "probability": 0.3,
+            "sub_branches": (
+                [
+                    {"type": "sub", "description": "プロトコル最適化失敗", "probability": 0.4},
+                    {"type": "sub", "description": "試薬品質問題", "probability": 0.2},
+                ]
+                if depth < max_depth - 1
+                else []
+            ),
+        }
+    )
 
     # Biological failure
     if "immune" in hypothesis_lower or "cell" in hypothesis_lower:
-        branches.append({
-            "type": "biological",
-            "description": "生物学的変動",
-            "probability": 0.4,
-            "sub_branches": [
-                {"type": "sub", "description": "細胞ロット変動", "probability": 0.3},
-                {"type": "sub", "description": "マウス系統差", "probability": 0.25},
-            ] if depth < max_depth - 1 else [],
-        })
+        branches.append(
+            {
+                "type": "biological",
+                "description": "生物学的変動",
+                "probability": 0.4,
+                "sub_branches": (
+                    [
+                        {"type": "sub", "description": "細胞ロット変動", "probability": 0.3},
+                        {"type": "sub", "description": "マウス系統差", "probability": 0.25},
+                    ]
+                    if depth < max_depth - 1
+                    else []
+                ),
+            }
+        )
 
     # Conceptual failure
-    branches.append({
-        "type": "conceptual",
-        "description": "仮説自体の誤り",
-        "probability": 0.2,
-        "sub_branches": [
-            {"type": "sub", "description": "前提条件の誤認", "probability": 0.5},
-            {"type": "sub", "description": "相関と因果の混同", "probability": 0.3},
-        ] if depth < max_depth - 1 else [],
-    })
+    branches.append(
+        {
+            "type": "conceptual",
+            "description": "仮説自体の誤り",
+            "probability": 0.2,
+            "sub_branches": (
+                [
+                    {"type": "sub", "description": "前提条件の誤認", "probability": 0.5},
+                    {"type": "sub", "description": "相関と因果の混同", "probability": 0.3},
+                ]
+                if depth < max_depth - 1
+                else []
+            ),
+        }
+    )
 
     # Resource failure
-    branches.append({
-        "type": "resource",
-        "description": "リソース不足",
-        "probability": 0.15,
-        "sub_branches": [] if depth < max_depth - 1 else [],
-    })
+    branches.append(
+        {
+            "type": "resource",
+            "description": "リソース不足",
+            "probability": 0.15,
+            "sub_branches": [] if depth < max_depth - 1 else [],
+        }
+    )
 
     return branches
 

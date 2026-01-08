@@ -20,11 +20,11 @@ logger = logging.getLogger(__name__)
 class CitationStance(Enum):
     """Citation stance towards the cited work."""
 
-    SUPPORT = "support"      # Cites to support/confirm
-    CONTRAST = "contrast"    # Cites to contrast/critique
-    MENTION = "mention"      # Neutral mention/background
-    EXTEND = "extend"        # Extends the cited work
-    COMPARE = "compare"      # Compares methods/results
+    SUPPORT = "support"  # Cites to support/confirm
+    CONTRAST = "contrast"  # Cites to contrast/critique
+    MENTION = "mention"  # Neutral mention/background
+    EXTEND = "extend"  # Extends the cited work
+    COMPARE = "compare"  # Compares methods/results
     UNKNOWN = "unknown"
 
 
@@ -53,45 +53,45 @@ class StanceResult:
 
 # Stance indicator patterns
 SUPPORT_PATTERNS = [
-    re.compile(r'\b(confirm|support|consistent with|in (?:line|agreement) with)\b', re.IGNORECASE),
-    re.compile(r'\b(validate|corroborate|replicate|verify)\b', re.IGNORECASE),
-    re.compile(r'\b(demonstrated|showed|found(?: that)?|reported)\b', re.IGNORECASE),
-    re.compile(r'\b(following|building on|based on|as (?:shown|described))\b', re.IGNORECASE),
+    re.compile(r"\b(confirm|support|consistent with|in (?:line|agreement) with)\b", re.IGNORECASE),
+    re.compile(r"\b(validate|corroborate|replicate|verify)\b", re.IGNORECASE),
+    re.compile(r"\b(demonstrated|showed|found(?: that)?|reported)\b", re.IGNORECASE),
+    re.compile(r"\b(following|building on|based on|as (?:shown|described))\b", re.IGNORECASE),
 ]
 
 CONTRAST_PATTERNS = [
-    re.compile(r'\b(contrast|contrary|unlike|differ|disagree)\b', re.IGNORECASE),
-    re.compile(r'\b(however|although|despite|but|whereas)\b', re.IGNORECASE),
-    re.compile(r'\b(limitation|failed|unable|problem|issue)\b', re.IGNORECASE),
-    re.compile(r'\b(challenge|question|critique|criticize)\b', re.IGNORECASE),
-    re.compile(r'\b(improve(?:d|s)? (?:upon|on)|better than|outperform)\b', re.IGNORECASE),
+    re.compile(r"\b(contrast|contrary|unlike|differ|disagree)\b", re.IGNORECASE),
+    re.compile(r"\b(however|although|despite|but|whereas)\b", re.IGNORECASE),
+    re.compile(r"\b(limitation|failed|unable|problem|issue)\b", re.IGNORECASE),
+    re.compile(r"\b(challenge|question|critique|criticize)\b", re.IGNORECASE),
+    re.compile(r"\b(improve(?:d|s)? (?:upon|on)|better than|outperform)\b", re.IGNORECASE),
 ]
 
 EXTEND_PATTERNS = [
-    re.compile(r'\b(extend|expand|build(?:ing)? (?:on|upon)|advance)\b', re.IGNORECASE),
-    re.compile(r'\b(further|additional|novel|new approach)\b', re.IGNORECASE),
-    re.compile(r'\b(we (?:propose|introduce|present|develop))\b', re.IGNORECASE),
+    re.compile(r"\b(extend|expand|build(?:ing)? (?:on|upon)|advance)\b", re.IGNORECASE),
+    re.compile(r"\b(further|additional|novel|new approach)\b", re.IGNORECASE),
+    re.compile(r"\b(we (?:propose|introduce|present|develop))\b", re.IGNORECASE),
 ]
 
 COMPARE_PATTERNS = [
-    re.compile(r'\b(compare|comparison|similar(?:ly)?|likewise)\b', re.IGNORECASE),
-    re.compile(r'\b(versus|vs\.?|against|relative to)\b', re.IGNORECASE),
-    re.compile(r'\b(both|like|same as)\b', re.IGNORECASE),
+    re.compile(r"\b(compare|comparison|similar(?:ly)?|likewise)\b", re.IGNORECASE),
+    re.compile(r"\b(versus|vs\.?|against|relative to)\b", re.IGNORECASE),
+    re.compile(r"\b(both|like|same as)\b", re.IGNORECASE),
 ]
 
 MENTION_PATTERNS = [
-    re.compile(r'\b(see|refer|note|e\.g\.|i\.e\.)\b', re.IGNORECASE),
-    re.compile(r'\b(previous(?:ly)?|earlier|prior|recent(?:ly)?)\b', re.IGNORECASE),
-    re.compile(r'\b(studied|examined|investigated|analyzed)\b', re.IGNORECASE),
+    re.compile(r"\b(see|refer|note|e\.g\.|i\.e\.)\b", re.IGNORECASE),
+    re.compile(r"\b(previous(?:ly)?|earlier|prior|recent(?:ly)?)\b", re.IGNORECASE),
+    re.compile(r"\b(studied|examined|investigated|analyzed)\b", re.IGNORECASE),
 ]
 
 
 class StanceClassifier:
     """Classifies citation stances using pattern matching.
-    
+
     Uses linguistic cues to determine whether a citation supports,
     contrasts with, or merely mentions the cited work.
-    
+
     Example:
         >>> classifier = StanceClassifier()
         >>> result = classifier.classify_text(
@@ -103,7 +103,7 @@ class StanceClassifier:
 
     def __init__(self, use_llm: bool = False):
         """Initialize the classifier.
-        
+
         Args:
             use_llm: Whether to use LLM for classification (not yet implemented)
         """
@@ -128,10 +128,10 @@ class StanceClassifier:
 
     def classify(self, context: CitationContext) -> StanceResult:
         """Classify citation stance from context.
-        
+
         Args:
             context: CitationContext to classify
-            
+
         Returns:
             StanceResult with classification
         """
@@ -141,10 +141,10 @@ class StanceClassifier:
 
     def classify_text(self, text: str) -> StanceResult:
         """Classify citation stance from text.
-        
+
         Args:
             text: Text containing the citation
-            
+
         Returns:
             StanceResult with classification
         """
@@ -203,10 +203,10 @@ class StanceClassifier:
         contexts: list[CitationContext],
     ) -> list[StanceResult]:
         """Classify multiple citation contexts.
-        
+
         Args:
             contexts: List of CitationContext objects
-            
+
         Returns:
             List of StanceResult objects
         """
@@ -215,12 +215,12 @@ class StanceClassifier:
 
 def classify_citation_stance(text: str) -> StanceResult:
     """Classify citation stance from text.
-    
+
     Convenience function for quick classification.
-    
+
     Args:
         text: Text containing the citation
-        
+
     Returns:
         StanceResult with classification
     """

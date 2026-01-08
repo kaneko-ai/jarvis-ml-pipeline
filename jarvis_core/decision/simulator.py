@@ -1,4 +1,5 @@
 """Monte Carlo simulator for decision outcomes."""
+
 from __future__ import annotations
 
 import math
@@ -42,7 +43,9 @@ def _assign_task(assumption: Assumption) -> str:
 def _weighted_risk(option: Option) -> tuple[float, list[dict[str, float]]]:
     risk_inputs = option.risk_factors or default_risk_inputs()
     total_weight = sum(risk.weight.value for risk in risk_inputs) or 1.0
-    weighted_score = sum(risk.score.value * risk.weight.value for risk in risk_inputs) / total_weight
+    weighted_score = (
+        sum(risk.score.value * risk.weight.value for risk in risk_inputs) / total_weight
+    )
     contributions = []
     for risk in risk_inputs:
         contribution = (risk.score.value * risk.weight.value) / total_weight

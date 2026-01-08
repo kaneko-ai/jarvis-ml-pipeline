@@ -6,6 +6,7 @@ Per RP14, these tests verify:
 - Vancouver/APA formatting
 - Bundle references.md generation
 """
+
 import sys
 import tempfile
 from pathlib import Path
@@ -191,7 +192,9 @@ class TestBundleReferences:
             answer="Test",
             status="success",
             citations=[
-                Citation(chunk_id=chunk_id, source="pdf", locator="pdf:paper.pdf#page:1", quote="q"),
+                Citation(
+                    chunk_id=chunk_id, source="pdf", locator="pdf:paper.pdf#page:1", quote="q"
+                ),
             ],
             inputs=["paper.pdf"],
             query="Test query",

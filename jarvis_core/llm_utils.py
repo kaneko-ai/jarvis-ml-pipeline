@@ -61,9 +61,7 @@ class LLMClient:
 
     def _init_ollama(self) -> None:
         """Initialize Ollama client."""
-        self._ollama_base_url = os.getenv(
-            "OLLAMA_BASE_URL", "http://127.0.0.1:11434"
-        )
+        self._ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
         # Default model for ollama if gemini model specified
         if "gemini" in self.model.lower():
             self.model = os.getenv("OLLAMA_MODEL", "llama3.2")
@@ -123,10 +121,12 @@ class LLMClient:
 
         ollama_messages = []
         for m in messages:
-            ollama_messages.append({
-                "role": m.role,
-                "content": m.content,
-            })
+            ollama_messages.append(
+                {
+                    "role": m.role,
+                    "content": m.content,
+                }
+            )
 
         url = f"{self._ollama_base_url}/api/chat"
         payload = {
@@ -142,4 +142,3 @@ class LLMClient:
             return data.get("message", {}).get("content", "")
         except requests.RequestException as e:
             raise RuntimeError(f"Ollama API error: {e}") from e
-

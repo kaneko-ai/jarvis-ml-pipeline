@@ -2,6 +2,7 @@
 
 Per RP-23, provides citation-ready output formatting.
 """
+
 from __future__ import annotations
 
 import json
@@ -47,7 +48,7 @@ def render_claimset_markdown(
                     ev = evidence_map[cid]
                     locator = ev.get("locator", cid)
                     quote = ev.get("quote", "")[:100]
-                    lines.append(f"- `{locator}`: \"{quote}...\"")
+                    lines.append(f'- `{locator}`: "{quote}..."')
                 else:
                     lines.append(f"- `{cid}`")
             lines.append("")

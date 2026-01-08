@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from jarvis_core.sync.manager import SyncQueueManager
 
-def register_default_handlers(manager: 'SyncQueueManager') -> None:
+
+def register_default_handlers(manager: "SyncQueueManager") -> None:
     # Avoid circular imports by importing here
     # Implementation depends on what we want to sync.
     # Instructions example:
@@ -16,12 +17,13 @@ def register_default_handlers(manager: 'SyncQueueManager') -> None:
     # Or define simple wrappers.
 
     def handle_search(args, kwargs):
-         # This is a bit tricky because we don't know the client instance.
-         # The 'queue' assumes we can replay the operation.
-         # For 'search', we likely use unified search.
-         from jarvis_core.sources import UnifiedSourceClient
-         client = UnifiedSourceClient()
-         client.search(*args, **kwargs)
+        # This is a bit tricky because we don't know the client instance.
+        # The 'queue' assumes we can replay the operation.
+        # For 'search', we likely use unified search.
+        from jarvis_core.sources import UnifiedSourceClient
+
+        client = UnifiedSourceClient()
+        client.search(*args, **kwargs)
 
     manager.register_handler("search", handle_search)
 

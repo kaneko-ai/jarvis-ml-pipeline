@@ -1,4 +1,5 @@
 """Tests for RP-510, RP-535, RP-581 implementations."""
+
 import tempfile
 from pathlib import Path
 
@@ -149,6 +150,7 @@ class TestDisasterRecovery:
 
         with tempfile.TemporaryDirectory() as tmpdir:
             from jarvis_core.reliability.disaster_recovery import BackupConfig
+
             config = BackupConfig(backup_dir=tmpdir)
             manager = DisasterRecoveryManager(config)
             assert manager is not None

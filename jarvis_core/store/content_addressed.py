@@ -3,6 +3,7 @@
 Per V4-B01, this provides content-addressed storage for inputs/extracts.
 Same input → same hash (deterministic).
 """
+
 from __future__ import annotations
 
 import hashlib

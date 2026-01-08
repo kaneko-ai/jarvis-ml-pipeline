@@ -2,6 +2,7 @@
 
 Per RP-439, implements comprehensive observability.
 """
+
 from __future__ import annotations
 
 import json
@@ -40,7 +41,7 @@ class Metric:
 
 class Tracer:
     """Distributed tracing.
-    
+
     Per RP-439:
     - Jaeger-compatible tracing
     - Span management
@@ -66,13 +67,13 @@ class Tracer:
         tags: dict[str, str] | None = None,
     ) -> Span:
         """Start a new span.
-        
+
         Args:
             operation: Operation name.
             trace_id: Optional trace ID.
             parent_id: Optional parent span ID.
             tags: Optional tags.
-            
+
         Returns:
             Started span.
         """
@@ -113,7 +114,7 @@ class Tracer:
         status: str = "ok",
     ) -> None:
         """End a span.
-        
+
         Args:
             span: Span to end.
             status: Final status.
@@ -134,7 +135,7 @@ class Tracer:
         tags: dict[str, str] | None = None,
     ):
         """Context manager for spans.
-        
+
         Args:
             operation: Operation name.
             tags: Optional tags.
@@ -144,18 +145,20 @@ class Tracer:
             yield span
             self.end_span(span, status="ok")
         except Exception as e:
-            span.logs.append({
-                "timestamp": time.time(),
-                "event": "error",
-                "message": str(e),
-            })
+            span.logs.append(
+                {
+                    "timestamp": time.time(),
+                    "event": "error",
+                    "message": str(e),
+                }
+            )
             self.end_span(span, status="error")
             raise
 
 
 class MetricsCollector:
     """Metrics collection.
-    
+
     Per RP-439:
     - Prometheus-compatible metrics
     - Custom metrics
@@ -174,7 +177,7 @@ class MetricsCollector:
         tags: dict[str, str] | None = None,
     ) -> None:
         """Increment a counter.
-        
+
         Args:
             name: Metric name.
             value: Increment value.
@@ -183,13 +186,15 @@ class MetricsCollector:
         key = f"{name}:{json.dumps(tags or {}, sort_keys=True)}"
         self._counters[key] = self._counters.get(key, 0) + value
 
-        self._metrics.append(Metric(
-            name=name,
-            value=self._counters[key],
-            timestamp=time.time(),
-            tags=tags or {},
-            metric_type="counter",
-        ))
+        self._metrics.append(
+            Metric(
+                name=name,
+                value=self._counters[key],
+                timestamp=time.time(),
+                tags=tags or {},
+                metric_type="counter",
+            )
+        )
 
     def gauge(
         self,
@@ -198,7 +203,7 @@ class MetricsCollector:
         tags: dict[str, str] | None = None,
     ) -> None:
         """Set a gauge value.
-        
+
         Args:
             name: Metric name.
             value: Gauge value.
@@ -207,13 +212,15 @@ class MetricsCollector:
         key = f"{name}:{json.dumps(tags or {}, sort_keys=True)}"
         self._gauges[key] = value
 
-        self._metrics.append(Metric(
-            name=name,
-            value=value,
-            timestamp=time.time(),
-            tags=tags or {},
-            metric_type="gauge",
-        ))
+        self._metrics.append(
+            Metric(
+                name=name,
+                value=value,
+                timestamp=time.time(),
+                tags=tags or {},
+                metric_type="gauge",
+            )
+        )
 
     def histogram(
         self,
@@ -222,29 +229,31 @@ class MetricsCollector:
         tags: dict[str, str] | None = None,
     ) -> None:
         """Record a histogram value.
-        
+
         Args:
             name: Metric name.
             value: Value to record.
             tags: Optional tags.
         """
-        self._metrics.append(Metric(
-            name=name,
-            value=value,
-            timestamp=time.time(),
-            tags=tags or {},
-            metric_type="histogram",
-        ))
+        self._metrics.append(
+            Metric(
+                name=name,
+                value=value,
+                timestamp=time.time(),
+                tags=tags or {},
+                metric_type="histogram",
+            )
+        )
 
     def get_metrics(
         self,
         since: float | None = None,
     ) -> list[Metric]:
         """Get collected metrics.
-        
+
         Args:
             since: Optional timestamp filter.
-            
+
         Returns:
             List of metrics.
         """
@@ -254,7 +263,7 @@ class MetricsCollector:
 
     def export_prometheus(self) -> str:
         """Export metrics in Prometheus format.
-        
+
         Returns:
             Prometheus exposition format string.
         """
@@ -277,7 +286,7 @@ class MetricsCollector:
 
 class Logger:
     """Structured logging.
-    
+
     Per RP-439:
     - ELK-compatible logging
     - Structured JSON output

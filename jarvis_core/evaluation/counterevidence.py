@@ -17,6 +17,7 @@ from typing import Any
 
 class EvidenceStance(Enum):
     """エビデンスの立場."""
+
     SUPPORTING = "supporting"
     OPPOSING = "opposing"
     NEUTRAL = "neutral"
@@ -25,16 +26,18 @@ class EvidenceStance(Enum):
 
 class ControversyLevel(Enum):
     """論争レベル."""
-    NONE = "none"              # 論争なし（コンセンサス）
-    LOW = "low"                # 軽微な論争
-    MODERATE = "moderate"      # 中程度の論争
-    HIGH = "high"              # 高い論争
+
+    NONE = "none"  # 論争なし（コンセンサス）
+    LOW = "low"  # 軽微な論争
+    MODERATE = "moderate"  # 中程度の論争
+    HIGH = "high"  # 高い論争
     UNRESOLVED = "unresolved"  # 未解決
 
 
 @dataclass
 class CounterevidenceResult:
     """反証探索結果."""
+
     claim_id: str
     claim_text: str
     supporting_count: int = 0
@@ -49,6 +52,7 @@ class CounterevidenceResult:
 @dataclass
 class ControversyMapEntry:
     """論争マップエントリ."""
+
     topic: str
     claim_text: str
     supporting_arguments: list[dict[str, Any]] = field(default_factory=list)
@@ -62,6 +66,7 @@ class ControversyMapEntry:
 @dataclass
 class ControversyMap:
     """論争マップ."""
+
     run_id: str
     entries: list[ControversyMapEntry] = field(default_factory=list)
     has_high_controversy: bool = False
@@ -80,12 +85,12 @@ class ControversyMap:
                     "undecided_points": e.undecided_points,
                     "current_consensus": e.current_consensus,
                     "controversy_level": e.controversy_level.value,
-                    "provenance": e.provenance
+                    "provenance": e.provenance,
                 }
                 for e in self.entries
             ],
             "has_high_controversy": self.has_high_controversy,
-            "summary": self.summary
+            "summary": self.summary,
         }
 
 
@@ -94,15 +99,32 @@ class CounterevidenceSearcher:
 
     # 反対方向を示すキーワード
     OPPOSITION_KEYWORDS = [
-        "however", "but", "contrary", "contradict", "oppose",
-        "fail", "failed", "not support", "no effect", "negative",
-        "no significant", "no difference", "ineffective"
+        "however",
+        "but",
+        "contrary",
+        "contradict",
+        "oppose",
+        "fail",
+        "failed",
+        "not support",
+        "no effect",
+        "negative",
+        "no significant",
+        "no difference",
+        "ineffective",
     ]
 
     # 支持方向を示すキーワード
     SUPPORT_KEYWORDS = [
-        "support", "confirm", "consistent", "agree", "positive",
-        "significant", "effective", "demonstrate", "show"
+        "support",
+        "confirm",
+        "consistent",
+        "agree",
+        "positive",
+        "significant",
+        "effective",
+        "demonstrate",
+        "show",
     ]
 
     def __init__(self):
@@ -112,10 +134,10 @@ class CounterevidenceSearcher:
     def generate_counter_query(self, claim_text: str) -> str:
         """
         反証用検索クエリを生成.
-        
+
         Args:
             claim_text: 主張テキスト
-        
+
         Returns:
             反証検索用クエリ
         """
@@ -123,8 +145,8 @@ class CounterevidenceSearcher:
         negation_terms = ["NOT", "fail", "negative", "no effect", "contradict"]
 
         # 主要キーワードを抽出
-        words = re.findall(r'\b[a-zA-Z]{4,}\b', claim_text.lower())
-        stopwords = {'the', 'and', 'for', 'with', 'from', 'that', 'this', 'have', 'been'}
+        words = re.findall(r"\b[a-zA-Z]{4,}\b", claim_text.lower())
+        stopwords = {"the", "and", "for", "with", "from", "that", "this", "have", "been"}
         keywords = [w for w in words if w not in stopwords][:5]
 
         if keywords:
@@ -133,34 +155,24 @@ class CounterevidenceSearcher:
 
         return claim_text
 
-    def classify_stance(
-        self,
-        claim_text: str,
-        evidence_text: str
-    ) -> tuple[EvidenceStance, float]:
+    def classify_stance(self, claim_text: str, evidence_text: str) -> tuple[EvidenceStance, float]:
         """
         エビデンスの立場を分類.
-        
+
         Args:
             claim_text: 主張テキスト
             evidence_text: エビデンステキスト
-        
+
         Returns:
             (立場, 確信度)
         """
         evidence_lower = evidence_text.lower()
 
         # 反対キーワードのカウント
-        opposition_count = sum(
-            1 for kw in self.OPPOSITION_KEYWORDS
-            if kw in evidence_lower
-        )
+        opposition_count = sum(1 for kw in self.OPPOSITION_KEYWORDS if kw in evidence_lower)
 
         # 支持キーワードのカウント
-        support_count = sum(
-            1 for kw in self.SUPPORT_KEYWORDS
-            if kw in evidence_lower
-        )
+        support_count = sum(1 for kw in self.SUPPORT_KEYWORDS if kw in evidence_lower)
 
         total = opposition_count + support_count
         if total == 0:
@@ -175,18 +187,14 @@ class CounterevidenceSearcher:
         else:
             return EvidenceStance.INCONCLUSIVE, 0.5
 
-    def assess_controversy(
-        self,
-        supporting_count: int,
-        opposing_count: int
-    ) -> ControversyLevel:
+    def assess_controversy(self, supporting_count: int, opposing_count: int) -> ControversyLevel:
         """
         論争レベルを評価.
-        
+
         Args:
             supporting_count: 支持エビデンス数
             opposing_count: 反対エビデンス数
-        
+
         Returns:
             論争レベル
         """
@@ -210,26 +218,20 @@ class CounterevidenceSearcher:
             return ControversyLevel.UNRESOLVED
 
     def search_counterevidence(
-        self,
-        claim_id: str,
-        claim_text: str,
-        evidence_texts: list[str]
+        self, claim_id: str, claim_text: str, evidence_texts: list[str]
     ) -> CounterevidenceResult:
         """
         反証を探索.
-        
+
         Args:
             claim_id: 主張ID
             claim_text: 主張テキスト
             evidence_texts: エビデンステキストリスト
-        
+
         Returns:
             反証探索結果
         """
-        result = CounterevidenceResult(
-            claim_id=claim_id,
-            claim_text=claim_text
-        )
+        result = CounterevidenceResult(claim_id=claim_id, claim_text=claim_text)
 
         for i, evidence in enumerate(evidence_texts):
             stance, confidence = self.classify_stance(claim_text, evidence)
@@ -238,7 +240,7 @@ class CounterevidenceSearcher:
                 "index": i,
                 "stance": stance.value,
                 "confidence": confidence,
-                "text_preview": evidence[:200]
+                "text_preview": evidence[:200],
             }
 
             if stance == EvidenceStance.SUPPORTING:
@@ -252,8 +254,7 @@ class CounterevidenceSearcher:
 
         # 論争レベルを評価
         result.controversy_level = self.assess_controversy(
-            result.supporting_count,
-            result.opposing_count
+            result.supporting_count, result.opposing_count
         )
 
         # 結論ステータスを決定
@@ -275,19 +276,16 @@ class ControversyMapGenerator:
         self.searcher = CounterevidenceSearcher()
 
     def generate(
-        self,
-        run_id: str,
-        claims: list[dict[str, Any]],
-        evidence_by_claim: dict[str, list[str]]
+        self, run_id: str, claims: list[dict[str, Any]], evidence_by_claim: dict[str, list[str]]
     ) -> ControversyMap:
         """
         論争マップを生成.
-        
+
         Args:
             run_id: 実行ID
             claims: 主張リスト
             evidence_by_claim: claim_id -> エビデンステキストリスト
-        
+
         Returns:
             論争マップ
         """
@@ -323,12 +321,15 @@ class ControversyMapGenerator:
                         "Majority supporting"
                         if counter_result.supporting_count > counter_result.opposing_count
                         else "Contested"
-                    )
+                    ),
                 )
 
                 controversy_map.entries.append(entry)
 
-                if counter_result.controversy_level in [ControversyLevel.HIGH, ControversyLevel.UNRESOLVED]:
+                if counter_result.controversy_level in [
+                    ControversyLevel.HIGH,
+                    ControversyLevel.UNRESOLVED,
+                ]:
                     high_controversy_count += 1
 
         controversy_map.has_high_controversy = high_controversy_count > 0
@@ -341,16 +342,15 @@ class ControversyMapGenerator:
 
 
 def check_one_sided_conclusion(
-    claims: list[dict[str, Any]],
-    controversy_map: ControversyMap
+    claims: list[dict[str, Any]], controversy_map: ControversyMap
 ) -> tuple[bool, list[str]]:
     """
     一方的結論チェック.
-    
+
     Args:
         claims: 主張リスト
         controversy_map: 論争マップ
-    
+
     Returns:
         (違反あり, 違反主張IDリスト)
     """

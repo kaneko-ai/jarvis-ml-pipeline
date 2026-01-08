@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 3, this redacts PII from text.
 """
+
 from __future__ import annotations
 
 from .pii_scan import PIIScanner
@@ -42,20 +43,21 @@ class Redactor:
             if self.preserve_format:
                 # Preserve format (e.g., ###-###-#### for SSN)
                 replacement = "".join(
-                    self.replacement_char if c.isalnum() else c
-                    for c in match.text
+                    self.replacement_char if c.isalnum() else c for c in match.text
                 )
             else:
                 replacement = self.replacement_char * len(match.text)
 
-            result = result[:match.start] + replacement + result[match.end:]
+            result = result[: match.start] + replacement + result[match.end :]
 
             # Log redaction
-            self.redaction_log.append({
-                "type": match.pii_type.value,
-                "position": match.start,
-                "length": len(match.text),
-            })
+            self.redaction_log.append(
+                {
+                    "type": match.pii_type.value,
+                    "position": match.start,
+                    "length": len(match.text),
+                }
+            )
 
         return result
 
@@ -77,9 +79,11 @@ class Redactor:
                 result[key] = self.redact_dict(value)
             elif isinstance(value, list):
                 result[key] = [
-                    self.redact_dict(v) if isinstance(v, dict)
-                    else self.redact_text(v) if isinstance(v, str)
-                    else v
+                    (
+                        self.redact_dict(v)
+                        if isinstance(v, dict)
+                        else self.redact_text(v) if isinstance(v, str) else v
+                    )
                     for v in value
                 ]
             else:

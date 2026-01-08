@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class FailReason:
     """失敗理由（定型コード）."""
+
     code: str
     msg: str
     severity: str = "error"  # error, warning, info
@@ -45,6 +46,7 @@ class FailCodes:
 @dataclass
 class VerifyResult:
     """Verify結果."""
+
     gate_passed: bool
     fail_reasons: list[FailReason] = field(default_factory=list)
     metrics: dict[str, Any] = field(default_factory=dict)
@@ -64,7 +66,7 @@ class VerifyResult:
 
 class QualityGateVerifier:
     """品質ゲート検証器.
-    
+
     Step 21-40: 品質ゲートを強制
     - citation必須
     - locator必須
@@ -110,13 +112,13 @@ class QualityGateVerifier:
         evidence: list[dict[str, Any]] | None = None,
     ) -> VerifyResult:
         """品質ゲートを検証.
-        
+
         Args:
             answer: 回答テキスト
             citations: 引用リスト
             claims: 主張リスト
             evidence: 根拠リスト
-        
+
         Returns:
             VerifyResult
         """
@@ -126,10 +128,12 @@ class QualityGateVerifier:
         # Step 22: citation必須
         if self.require_citations:
             if not citations:
-                fail_reasons.append(FailReason(
-                    code=FailCodes.CITATION_MISSING,
-                    msg="Citations are required but none provided.",
-                ))
+                fail_reasons.append(
+                    FailReason(
+                        code=FailCodes.CITATION_MISSING,
+                        msg="Citations are required but none provided.",
+                    )
+                )
 
         metrics["citation_count"] = len(citations)
 
@@ -142,12 +146,16 @@ class QualityGateVerifier:
                     missing_locators += 1
 
             if missing_locators > 0:
-                fail_reasons.append(FailReason(
-                    code=FailCodes.LOCATOR_MISSING,
-                    msg=f"{missing_locators} citations missing locator information.",
-                ))
+                fail_reasons.append(
+                    FailReason(
+                        code=FailCodes.LOCATOR_MISSING,
+                        msg=f"{missing_locators} citations missing locator information.",
+                    )
+                )
 
-            metrics["locator_coverage"] = 1.0 - (missing_locators / len(citations)) if citations else 0
+            metrics["locator_coverage"] = (
+                1.0 - (missing_locators / len(citations)) if citations else 0
+            )
 
         # Step 24: 断定の危険チェック
         assertion_matches = []
@@ -156,11 +164,13 @@ class QualityGateVerifier:
             assertion_matches.extend(matches)
 
         if assertion_matches:
-            fail_reasons.append(FailReason(
-                code=FailCodes.ASSERTION_DANGER,
-                msg=f"Dangerous assertions detected: {assertion_matches[:3]}",
-                severity="warning",
-            ))
+            fail_reasons.append(
+                FailReason(
+                    code=FailCodes.ASSERTION_DANGER,
+                    msg=f"Dangerous assertions detected: {assertion_matches[:3]}",
+                    severity="warning",
+                )
+            )
 
         metrics["assertion_count"] = len(assertion_matches)
 
@@ -171,10 +181,12 @@ class QualityGateVerifier:
             pii_matches.extend(matches)
 
         if pii_matches:
-            fail_reasons.append(FailReason(
-                code=FailCodes.PII_DETECTED,
-                msg=f"PII detected in answer: {len(pii_matches)} matches",
-            ))
+            fail_reasons.append(
+                FailReason(
+                    code=FailCodes.PII_DETECTED,
+                    msg=f"PII detected in answer: {len(pii_matches)} matches",
+                )
+            )
 
         metrics["pii_count"] = len(pii_matches)
 
@@ -190,10 +202,12 @@ class QualityGateVerifier:
             metrics["evidence_coverage"] = coverage
 
             if coverage < self.min_evidence_coverage:
-                fail_reasons.append(FailReason(
-                    code=FailCodes.EVIDENCE_WEAK,
-                    msg=f"Evidence coverage {coverage:.2f} below threshold {self.min_evidence_coverage}",
-                ))
+                fail_reasons.append(
+                    FailReason(
+                        code=FailCodes.EVIDENCE_WEAK,
+                        msg=f"Evidence coverage {coverage:.2f} below threshold {self.min_evidence_coverage}",
+                    )
+                )
 
         # Step 26: gate_passedを決定
         # errorレベルの失敗があればfail
@@ -211,10 +225,12 @@ class QualityGateVerifier:
         """Verify未実行の結果を作成（Step 30）."""
         return VerifyResult(
             gate_passed=False,
-            fail_reasons=[FailReason(
-                code=FailCodes.VERIFY_NOT_RUN,
-                msg="Quality gate verification was not executed.",
-            )],
+            fail_reasons=[
+                FailReason(
+                    code=FailCodes.VERIFY_NOT_RUN,
+                    msg="Quality gate verification was not executed.",
+                )
+            ],
             metrics={},
             verified=False,
         )

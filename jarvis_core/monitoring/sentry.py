@@ -2,6 +2,7 @@
 
 Per RP-535, implements error tracking and reporting.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -17,6 +18,7 @@ from typing import Any
 
 class ErrorLevel(Enum):
     """Error severity levels."""
+
     DEBUG = "debug"
     INFO = "info"
     WARNING = "warning"
@@ -27,6 +29,7 @@ class ErrorLevel(Enum):
 @dataclass
 class ErrorEvent:
     """An error event."""
+
     event_id: str
     level: ErrorLevel
     message: str
@@ -43,6 +46,7 @@ class ErrorEvent:
 @dataclass
 class SentryConfig:
     """Sentry configuration."""
+
     dsn: str = ""
     environment: str = "development"
     release: str = ""
@@ -54,7 +58,7 @@ class SentryConfig:
 
 class SentryClient:
     """Sentry-compatible error tracking client.
-    
+
     Per RP-535:
     - Capture exceptions
     - Capture messages
@@ -84,11 +88,11 @@ class SentryClient:
         **kwargs,
     ) -> str | None:
         """Capture an exception.
-        
+
         Args:
             exception: Exception to capture.
             **kwargs: Additional data.
-            
+
         Returns:
             Event ID if captured.
         """
@@ -99,6 +103,7 @@ class SentryClient:
         if exc is None:
             # Get current exception
             import sys
+
             exc_info = sys.exc_info()
             if exc_info[1]:
                 exc = exc_info[1]
@@ -131,12 +136,12 @@ class SentryClient:
         **kwargs,
     ) -> str | None:
         """Capture a message.
-        
+
         Args:
             message: Message to capture.
             level: Message level.
             **kwargs: Additional data.
-            
+
         Returns:
             Event ID if captured.
         """
@@ -165,7 +170,7 @@ class SentryClient:
         data: dict[str, Any] | None = None,
     ) -> None:
         """Add a breadcrumb.
-        
+
         Args:
             category: Breadcrumb category.
             message: Breadcrumb message.
@@ -184,7 +189,7 @@ class SentryClient:
 
         # Trim old breadcrumbs
         if len(self._breadcrumbs) > self.config.max_breadcrumbs:
-            self._breadcrumbs = self._breadcrumbs[-self.config.max_breadcrumbs:]
+            self._breadcrumbs = self._breadcrumbs[-self.config.max_breadcrumbs :]
 
     def set_user(
         self,
@@ -194,7 +199,7 @@ class SentryClient:
         **kwargs,
     ) -> None:
         """Set user context.
-        
+
         Args:
             user_id: User ID.
             email: User email.
@@ -210,7 +215,7 @@ class SentryClient:
 
     def set_tag(self, key: str, value: str) -> None:
         """Set a tag.
-        
+
         Args:
             key: Tag key.
             value: Tag value.
@@ -219,7 +224,7 @@ class SentryClient:
 
     def set_extra(self, key: str, value: Any) -> None:
         """Set extra data.
-        
+
         Args:
             key: Extra key.
             value: Extra value.
@@ -242,11 +247,13 @@ class SentryClient:
     def _should_sample(self) -> bool:
         """Check if event should be sampled."""
         import random
+
         return random.random() < self.config.sample_rate
 
     def _generate_event_id(self) -> str:
         """Generate unique event ID."""
         import uuid
+
         return uuid.uuid4().hex
 
     def _compute_fingerprint(self, exc: Exception) -> str:
@@ -292,6 +299,7 @@ def capture_message(message: str, level: ErrorLevel = ErrorLevel.INFO, **kwargs)
 
 def sentry_trace(func: Callable) -> Callable:
     """Decorator to capture exceptions from a function."""
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
@@ -299,4 +307,5 @@ def sentry_trace(func: Callable) -> Callable:
         except Exception as e:
             capture_exception(e, extra={"function": func.__name__})
             raise
+
     return wrapper

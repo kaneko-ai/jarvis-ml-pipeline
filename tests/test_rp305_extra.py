@@ -2,6 +2,7 @@
 
 Core tests for RP-305, RP-322, RP-385, RP-439, etc.
 """
+
 from datetime import datetime
 
 import pytest
@@ -57,12 +58,16 @@ class TestTemporalKG:
 
         # Add two triples with different time ranges
         tkg.add_triple(
-            "CD73", "expressed_in", "tumor",
+            "CD73",
+            "expressed_in",
+            "tumor",
             valid_from=datetime(2015, 1, 1),
             valid_to=datetime(2020, 1, 1),
         )
         tkg.add_triple(
-            "CD73", "expressed_in", "immune cells",
+            "CD73",
+            "expressed_in",
+            "immune cells",
             valid_from=datetime(2020, 1, 1),
         )
 

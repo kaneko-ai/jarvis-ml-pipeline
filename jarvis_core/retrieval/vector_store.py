@@ -1,4 +1,5 @@
 """Vector store with simple numpy persistence."""
+
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -18,12 +19,19 @@ class VectorStore:
     @classmethod
     def load(cls, index_path: Path) -> VectorStore:
         if not index_path.exists():
-            return cls(index_path=index_path, chunk_ids=[], vectors=np.zeros((0, 1), dtype=np.float32), model_name="")
+            return cls(
+                index_path=index_path,
+                chunk_ids=[],
+                vectors=np.zeros((0, 1), dtype=np.float32),
+                model_name="",
+            )
         data = np.load(index_path, allow_pickle=True)
         chunk_ids = data["chunk_ids"].tolist()
         vectors = data["vectors"]
         model_name = str(data["model_name"])
-        return cls(index_path=index_path, chunk_ids=chunk_ids, vectors=vectors, model_name=model_name)
+        return cls(
+            index_path=index_path, chunk_ids=chunk_ids, vectors=vectors, model_name=model_name
+        )
 
     def save(self) -> None:
         self.index_path.parent.mkdir(parents=True, exist_ok=True)

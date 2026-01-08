@@ -38,7 +38,7 @@ class ALConfig:
 
     # Model settings
     model_type: str = "logistic"  # logistic, svm, random_forest
-    feature_type: str = "tfidf"   # tfidf, embedding
+    feature_type: str = "tfidf"  # tfidf, embedding
 
     # Behavior
     random_seed: int = 42
@@ -79,10 +79,10 @@ class ALStats:
 
 class ActiveLearningEngine:
     """Active learning engine for efficient screening.
-    
+
     Implements uncertainty sampling and diversity-based query strategies
     with multiple stopping criteria.
-    
+
     Example:
         >>> engine = ActiveLearningEngine()
         >>> engine.initialize(instances)
@@ -94,7 +94,7 @@ class ActiveLearningEngine:
 
     def __init__(self, config: ALConfig | None = None):
         """Initialize the engine.
-        
+
         Args:
             config: Active learning configuration
         """
@@ -123,7 +123,7 @@ class ActiveLearningEngine:
         seed_labels: dict[str, int] | None = None,
     ) -> None:
         """Initialize with instances.
-        
+
         Args:
             instances: Dict mapping instance_id to feature vectors
             seed_labels: Optional initial labels
@@ -161,18 +161,15 @@ class ActiveLearningEngine:
             return []
 
         # Random selection for initial samples
-        samples = random.sample(
-            self._unlabeled,
-            min(needed, len(self._unlabeled))
-        )
+        samples = random.sample(self._unlabeled, min(needed, len(self._unlabeled)))
         return samples
 
     def get_next_query(self, n: int = None) -> list[str]:
         """Get next instances to query for labels.
-        
+
         Args:
             n: Number of instances to return (default: batch_size)
-            
+
         Returns:
             List of instance IDs to label
         """
@@ -191,10 +188,7 @@ class ActiveLearningEngine:
             samples = self._uncertainty_sampling(n)
         else:
             # Fallback to random
-            samples = random.sample(
-                self._unlabeled,
-                min(n, len(self._unlabeled))
-            )
+            samples = random.sample(self._unlabeled, min(n, len(self._unlabeled)))
 
         return samples
 
@@ -227,6 +221,7 @@ class ActiveLearningEngine:
 
         try:
             import numpy as np
+
             X = np.array(features).reshape(1, -1)
             proba = self._model.predict_proba(X)[0, 1]
             return float(proba)
@@ -235,7 +230,7 @@ class ActiveLearningEngine:
 
     def update(self, instance_id: str, label: int) -> None:
         """Update with a new label.
-        
+
         Args:
             instance_id: Instance that was labeled
             label: Label (1 = relevant, 0 = not relevant)
@@ -260,7 +255,7 @@ class ActiveLearningEngine:
 
     def update_batch(self, labels: dict[str, int]) -> None:
         """Update with multiple labels.
-        
+
         Args:
             labels: Dict mapping instance_id to label
         """
@@ -313,7 +308,7 @@ class ActiveLearningEngine:
 
     def should_stop(self) -> bool:
         """Check if stopping criterion is met.
-        
+
         Returns:
             True if should stop
         """
@@ -371,15 +366,13 @@ class ActiveLearningEngine:
 
     def get_predictions(self) -> dict[str, float]:
         """Get predictions for all unlabeled instances.
-        
+
         Returns:
             Dict mapping instance_id to relevance probability
         """
         predictions = {}
         for instance_id in self._unlabeled:
-            predictions[instance_id] = self._predict_proba(
-                self._instances[instance_id]
-            )
+            predictions[instance_id] = self._predict_proba(self._instances[instance_id])
         return predictions
 
     @property

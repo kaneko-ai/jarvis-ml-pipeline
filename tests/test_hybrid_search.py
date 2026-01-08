@@ -243,7 +243,7 @@ class TestSPECTER2:
 
         embedding = embedder.embed(
             title="A randomized controlled trial of aspirin",
-            abstract="Methods: We conducted a double-blind RCT..."
+            abstract="Methods: We conducted a double-blind RCT...",
         )
 
         assert isinstance(embedding, np.ndarray)

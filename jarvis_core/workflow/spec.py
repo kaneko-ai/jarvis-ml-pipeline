@@ -19,11 +19,12 @@ import yaml
 
 class Mode(Enum):
     """主導権モード.
-    
+
     - STEP: 状態遷移として割り込み（Stepごとの遷移と再実行が明確）- MVP
     - HITL: 人間の判断をイベントとして前提化（保留/承認/修正）
     - DURABLE: 処理の中で割り込み（同一プロセス内で再試行/待機）
     """
+
     STEP = "step"
     HITL = "hitl"
     DURABLE = "durable"
@@ -32,6 +33,7 @@ class Mode(Enum):
 @dataclass
 class RetryPolicy:
     """リトライポリシー."""
+
     max_attempts: int = 3
     backoff_sec: int = 1
 
@@ -39,9 +41,10 @@ class RetryPolicy:
 @dataclass
 class StepSpec:
     """ステップ仕様.
-    
+
     tool/router/plannerへの委譲を定義。
     """
+
     step_id: str
     action: str  # tool | router | planner | evaluator
     tool: str | None = None
@@ -63,7 +66,7 @@ class StepSpec:
             requires_approval=data.get("requires_approval", False),
             retry_policy=RetryPolicy(
                 max_attempts=retry_data.get("max_attempts", 3),
-                backoff_sec=retry_data.get("backoff_sec", 1)
+                backoff_sec=retry_data.get("backoff_sec", 1),
             ),
             timeout_sec=data.get("timeout_sec", 120),
             depends_on=data.get("depends_on", []),
@@ -73,14 +76,15 @@ class StepSpec:
 @dataclass
 class FitnessWeights:
     """適応度関数の重み.
-    
+
     Findyの"適応度関数"をJavisのゲートに落とす。
     """
+
     correctness: float = 0.4  # 引用精度、スキーマ準拠
-    regression: float = 0.2   # 前回ベストより悪化していないか
+    regression: float = 0.2  # 前回ベストより悪化していないか
     reproducibility: float = 0.2  # 再現性
-    cost: float = 0.1         # 推論コスト
-    latency: float = 0.1      # 時間
+    cost: float = 0.1  # 推論コスト
+    latency: float = 0.1  # 時間
 
     def to_dict(self) -> dict[str, float]:
         """辞書に変換."""
@@ -107,9 +111,10 @@ class FitnessWeights:
 @dataclass
 class Budgets:
     """予算制限.
-    
+
     採用済み「8」に対応: コスト上限でn_samples自動調整。
     """
+
     max_tokens: int = 100000
     max_cost: float = 10.0
     max_iters: int = 10
@@ -129,10 +134,11 @@ class Budgets:
 @dataclass
 class WorkflowSpec:
     """ワークフロー仕様.
-    
+
     Step Functions型でワークフローを定義。
     主導権（durable/step/hitl）を明示。
     """
+
     workflow_id: str
     mode: Mode
     objective: str
@@ -145,7 +151,7 @@ class WorkflowSpec:
     @classmethod
     def from_yaml(cls, path: Path) -> WorkflowSpec:
         """YAMLファイルから読み込み."""
-        with open(path, encoding='utf-8') as f:
+        with open(path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
         return cls.from_dict(data)
 

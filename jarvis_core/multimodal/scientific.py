@@ -1,4 +1,5 @@
 """JARVIS Multimodal & Scientific Module - Phase 3 Features (31-45)"""
+
 import re
 from dataclasses import dataclass
 
@@ -13,10 +14,10 @@ class FigureAnalyzer:
 
     def analyze_figure(self, figure_metadata: dict) -> dict:
         """Analyze figure from metadata (placeholder for vision model).
-        
+
         Args:
             figure_metadata: Figure information
-            
+
         Returns:
             Analysis result
         """
@@ -24,7 +25,7 @@ class FigureAnalyzer:
             "figure_type": figure_metadata.get("type", "unknown"),
             "caption": figure_metadata.get("caption", ""),
             "extracted_data": self._extract_data(figure_metadata),
-            "description": self._generate_description(figure_metadata)
+            "description": self._generate_description(figure_metadata),
         }
 
     def _extract_data(self, metadata: dict) -> list[dict]:
@@ -33,7 +34,7 @@ class FigureAnalyzer:
         return [
             {"label": "Group A", "value": 45.2},
             {"label": "Group B", "value": 38.7},
-            {"label": "Control", "value": 22.1}
+            {"label": "Control", "value": 22.1},
         ]
 
     def _generate_description(self, metadata: dict) -> str:
@@ -50,25 +51,25 @@ class TableExtractor:
 
     def extract_table(self, html_or_text: str) -> dict:
         """Extract table structure from HTML or text.
-        
+
         Args:
             html_or_text: Raw table content
-            
+
         Returns:
             Structured table data
         """
         # Simple pipe-delimited table parsing
-        lines = html_or_text.strip().split('\n')
+        lines = html_or_text.strip().split("\n")
         if not lines:
             return {"headers": [], "rows": []}
 
-        headers = [h.strip() for h in lines[0].split('|') if h.strip()]
+        headers = [h.strip() for h in lines[0].split("|") if h.strip()]
         rows = []
 
         for line in lines[1:]:
-            if '---' in line:
+            if "---" in line:
                 continue
-            cells = [c.strip() for c in line.split('|') if c.strip()]
+            cells = [c.strip() for c in line.split("|") if c.strip()]
             if cells:
                 rows.append(cells)
 
@@ -79,7 +80,7 @@ class TableExtractor:
         return {
             "same_structure": table1.get("headers") == table2.get("headers"),
             "row_count_diff": len(table1.get("rows", [])) - len(table2.get("rows", [])),
-            "common_headers": list(set(table1.get("headers", [])) & set(table2.get("headers", [])))
+            "common_headers": list(set(table1.get("headers", [])) & set(table2.get("headers", []))),
         }
 
     def to_dataframe_code(self, table: dict) -> str:
@@ -107,27 +108,27 @@ class ChemicalStructureAnalyzer:
         "COOH": "carboxyl",
         "NH2": "amino",
         "CH3": "methyl",
-        "C6H5": "phenyl"
+        "C6H5": "phenyl",
     }
 
     def parse_smiles(self, smiles: str) -> dict:
         """Parse SMILES notation (simplified).
-        
+
         Args:
             smiles: SMILES string
-            
+
         Returns:
             Parsed structure info
         """
-        atoms = re.findall(r'[A-Z][a-z]?', smiles)
-        rings = smiles.count('1') + smiles.count('2')
+        atoms = re.findall(r"[A-Z][a-z]?", smiles)
+        rings = smiles.count("1") + smiles.count("2")
 
         return {
             "smiles": smiles,
             "atoms": list(set(atoms)),
             "atom_count": len(atoms),
             "ring_count": rings,
-            "is_aromatic": 'c' in smiles.lower() or 'C1=CC=CC=C1' in smiles
+            "is_aromatic": "c" in smiles.lower() or "C1=CC=CC=C1" in smiles,
         }
 
     def find_similar_compounds(self, smiles: str, database: list[dict]) -> list[dict]:
@@ -151,6 +152,7 @@ class ChemicalStructureAnalyzer:
 @dataclass
 class ProteinStructure:
     """Protein structure data."""
+
     pdb_id: str
     sequence: str
     secondary_structure: str = ""
@@ -178,7 +180,7 @@ class ProteinViewer:
         return {
             "pdb_id": pdb_id,
             "length": len(seq),
-            "composition": {aa: seq.count(aa) for aa in self.AMINO_ACIDS if seq.count(aa) > 0}
+            "composition": {aa: seq.count(aa) for aa in self.AMINO_ACIDS if seq.count(aa) > 0},
         }
 
     def predict_secondary_structure(self, sequence: str) -> str:
@@ -199,7 +201,7 @@ class ProteinViewer:
         return {
             "pdb": pdb_id,
             "style": {"cartoon": {"color": "spectrum"}},
-            "surface": {"opacity": 0.7}
+            "surface": {"opacity": 0.7},
         }
 
 
@@ -213,10 +215,10 @@ class MedicalImageAnalyzer:
 
     def analyze(self, image_metadata: dict) -> dict:
         """Analyze medical image.
-        
+
         Args:
             image_metadata: Image information
-            
+
         Returns:
             Analysis result
         """
@@ -226,14 +228,14 @@ class MedicalImageAnalyzer:
             "modality": modality,
             "regions_of_interest": self._detect_roi(image_metadata),
             "findings": self._generate_findings(modality),
-            "confidence": 0.85
+            "confidence": 0.85,
         }
 
     def _detect_roi(self, metadata: dict) -> list[dict]:
         """Detect regions of interest (placeholder)."""
         return [
             {"region": "lung_upper", "area": 1250, "abnormality_score": 0.15},
-            {"region": "lung_lower", "area": 1450, "abnormality_score": 0.05}
+            {"region": "lung_lower", "area": 1450, "abnormality_score": 0.05},
         ]
 
     def _generate_findings(self, modality: str) -> list[str]:
@@ -241,7 +243,7 @@ class MedicalImageAnalyzer:
         findings = {
             "xray": ["No acute cardiopulmonary abnormality", "Normal heart size"],
             "ct": ["No evidence of mass lesion", "Normal parenchymal attenuation"],
-            "mri": ["No signal abnormality identified", "Normal brain parenchyma"]
+            "mri": ["No signal abnormality identified", "Normal brain parenchyma"],
         }
         return findings.get(modality, ["Analysis complete"])
 
@@ -249,6 +251,7 @@ class MedicalImageAnalyzer:
 # ============================================
 # 36-45: Additional Scientific Features
 # ============================================
+
 
 class VideoAbstractAnalyzer:
     """Analyze video abstracts."""
@@ -258,10 +261,7 @@ class VideoAbstractAnalyzer:
         duration = video_metadata.get("duration_seconds", 60)
         frames = []
         for i in range(0, duration, 10):
-            frames.append({
-                "timestamp": i,
-                "description": f"Frame at {i}s"
-            })
+            frames.append({"timestamp": i, "description": f"Frame at {i}s"})
         return frames
 
     def transcribe(self, audio_metadata: dict) -> str:
@@ -283,7 +283,7 @@ class DatasetFinder:
                 "repository": "zenodo",
                 "name": f"Dataset for {' '.join(keywords)}",
                 "url": "https://zenodo.org/record/example",
-                "format": "csv"
+                "format": "csv",
             }
         ]
 
@@ -296,14 +296,14 @@ class CodeRepositoryLinker:
         # Check for GitHub links in abstract/text
         text = f"{paper.get('title', '')} {paper.get('abstract', '')}"
 
-        github_pattern = r'github\.com/([a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+)'
+        github_pattern = r"github\.com/([a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+)"
         matches = re.findall(github_pattern, text)
 
         if matches:
             return {
                 "platform": "github",
                 "repo": matches[0],
-                "url": f"https://github.com/{matches[0]}"
+                "url": f"https://github.com/{matches[0]}",
             }
         return None
 
@@ -314,7 +314,7 @@ class CodeRepositoryLinker:
             "has_requirements": True,
             "has_docker": False,
             "has_tests": True,
-            "reproducibility_score": 0.75
+            "reproducibility_score": 0.75,
         }
 
 
@@ -326,21 +326,21 @@ class SupplementaryMaterialParser:
         sections = {}
 
         # Find section headers
-        header_pattern = r'^(?:Supplementary )?(?:Figure|Table|Method|Data) S?\d+'
+        header_pattern = r"^(?:Supplementary )?(?:Figure|Table|Method|Data) S?\d+"
         current_section = "general"
         current_content = []
 
-        for line in content.split('\n'):
+        for line in content.split("\n"):
             if re.match(header_pattern, line, re.IGNORECASE):
                 if current_content:
-                    sections[current_section] = '\n'.join(current_content)
+                    sections[current_section] = "\n".join(current_content)
                 current_section = line.strip()
                 current_content = []
             else:
                 current_content.append(line)
 
         if current_content:
-            sections[current_section] = '\n'.join(current_content)
+            sections[current_section] = "\n".join(current_content)
 
         return {"sections": sections, "count": len(sections)}
 
@@ -353,24 +353,26 @@ class ProtocolExtractor:
     def extract(self, methods_text: str) -> list[dict]:
         """Extract step-by-step protocol."""
         steps = []
-        sentences = methods_text.split('.')
+        sentences = methods_text.split(".")
 
         step_num = 1
         for sentence in sentences:
             sentence = sentence.strip()
             if any(kw in sentence.lower() for kw in self.PROTOCOL_KEYWORDS):
-                steps.append({
-                    "step": step_num,
-                    "action": sentence,
-                    "duration": self._extract_duration(sentence)
-                })
+                steps.append(
+                    {
+                        "step": step_num,
+                        "action": sentence,
+                        "duration": self._extract_duration(sentence),
+                    }
+                )
                 step_num += 1
 
         return steps
 
     def _extract_duration(self, text: str) -> str | None:
         """Extract duration from text."""
-        patterns = [r'(\d+)\s*(?:min|minutes?)', r'(\d+)\s*(?:h|hours?)', r'(\d+)\s*(?:s|seconds?)']
+        patterns = [r"(\d+)\s*(?:min|minutes?)", r"(\d+)\s*(?:h|hours?)", r"(\d+)\s*(?:s|seconds?)"]
         for pattern in patterns:
             match = re.search(pattern, text, re.IGNORECASE)
             if match:
@@ -386,23 +388,29 @@ class StatisticalResultParser:
         results = []
 
         # P-value pattern
-        p_pattern = r'[pP]\s*[=<>]\s*(\d+\.?\d*(?:e-?\d+)?)'
+        p_pattern = r"[pP]\s*[=<>]\s*(\d+\.?\d*(?:e-?\d+)?)"
         for match in re.finditer(p_pattern, text):
-            results.append({
-                "type": "p_value",
-                "value": match.group(1),
-                "context": text[max(0, match.start()-50):match.end()+50]
-            })
+            results.append(
+                {
+                    "type": "p_value",
+                    "value": match.group(1),
+                    "context": text[max(0, match.start() - 50) : match.end() + 50],
+                }
+            )
 
         # Confidence interval pattern
-        ci_pattern = r'(\d+)%\s*(?:CI|confidence interval)[:\s]*\[?(\d+\.?\d*)\s*[-–]\s*(\d+\.?\d*)\]?'
+        ci_pattern = (
+            r"(\d+)%\s*(?:CI|confidence interval)[:\s]*\[?(\d+\.?\d*)\s*[-–]\s*(\d+\.?\d*)\]?"
+        )
         for match in re.finditer(ci_pattern, text, re.IGNORECASE):
-            results.append({
-                "type": "confidence_interval",
-                "level": match.group(1),
-                "lower": match.group(2),
-                "upper": match.group(3)
-            })
+            results.append(
+                {
+                    "type": "confidence_interval",
+                    "level": match.group(1),
+                    "lower": match.group(2),
+                    "upper": match.group(3),
+                }
+            )
 
         return results
 
@@ -415,18 +423,18 @@ class FormulaCalculator:
         return {
             "raw": latex,
             "type": self._identify_type(latex),
-            "variables": re.findall(r'[a-zA-Z]', latex)
+            "variables": re.findall(r"[a-zA-Z]", latex),
         }
 
     def _identify_type(self, latex: str) -> str:
         """Identify formula type."""
-        if '\\int' in latex:
+        if "\\int" in latex:
             return "integral"
-        elif '\\sum' in latex:
+        elif "\\sum" in latex:
             return "summation"
-        elif '\\frac' in latex:
+        elif "\\frac" in latex:
             return "fraction"
-        elif '=' in latex:
+        elif "=" in latex:
             return "equation"
         return "expression"
 
@@ -454,7 +462,7 @@ class GeneAnnotator:
             "organism": "Homo sapiens",
             "chromosome": "1",
             "go_terms": ["GO:0005515", "GO:0046983"],
-            "pathways": ["KEGG:hsa04110"]
+            "pathways": ["KEGG:hsa04110"],
         }
 
 
@@ -466,7 +474,7 @@ class DrugGeneMapper:
         # Placeholder - would call DrugBank API
         return [
             {"gene": "CYP3A4", "interaction_type": "metabolized_by", "score": 0.95},
-            {"gene": "ABCB1", "interaction_type": "transported_by", "score": 0.87}
+            {"gene": "ABCB1", "interaction_type": "transported_by", "score": 0.87},
         ]
 
 
@@ -481,7 +489,7 @@ class ClinicalTrialLinker:
                 "nct_id": "NCT04123456",
                 "title": f"Trial related to {paper.get('title', '')[:30]}",
                 "status": "Recruiting",
-                "phase": "Phase 3"
+                "phase": "Phase 3",
             }
         ]
 
@@ -492,17 +500,22 @@ class ClinicalTrialLinker:
 def get_figure_analyzer() -> FigureAnalyzer:
     return FigureAnalyzer()
 
+
 def get_table_extractor() -> TableExtractor:
     return TableExtractor()
+
 
 def get_chemical_analyzer() -> ChemicalStructureAnalyzer:
     return ChemicalStructureAnalyzer()
 
+
 def get_protein_viewer() -> ProteinViewer:
     return ProteinViewer()
 
+
 def get_medical_image_analyzer() -> MedicalImageAnalyzer:
     return MedicalImageAnalyzer()
+
 
 def get_gene_annotator() -> GeneAnnotator:
     return GeneAnnotator()

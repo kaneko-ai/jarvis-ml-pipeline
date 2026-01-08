@@ -2,6 +2,7 @@
 
 Saves and restores paper retrieval results for reproducible runs.
 """
+
 import json
 import logging
 from pathlib import Path
@@ -15,17 +16,17 @@ def save_snapshot(
     query: str,
     source: str,
     included_ids: list[str],
-    excluded_ids: list[dict[str, Any]] = None
+    excluded_ids: list[dict[str, Any]] = None,
 ) -> Path:
     """Save retrieval snapshot.
-    
+
     Args:
         run_dir: Path to run directory
         query: Search query
         source: Database source (pubmed/openalex)
         included_ids: List of included paper IDs
         excluded_ids: List of dicts with excluded IDs and reasons
-        
+
     Returns:
         Path to snapshot file
     """
@@ -37,7 +38,7 @@ def save_snapshot(
         "retrieved_at": datetime.datetime.now().isoformat(),
         "included_ids": included_ids,
         "excluded_ids": excluded_ids or [],
-        "version": "1.0"
+        "version": "1.0",
     }
 
     snapshot_path = run_dir / "retrieval_snapshot.json"
@@ -52,10 +53,10 @@ def save_snapshot(
 
 def load_snapshot(snapshot_path: Path) -> dict[str, Any]:
     """Load retrieval snapshot.
-    
+
     Args:
         snapshot_path: Path to snapshot file
-        
+
     Returns:
         Snapshot dict
     """

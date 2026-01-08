@@ -3,6 +3,7 @@
 Per JARVIS_LOCALFIRST_ROADMAP Task 1.2: ローカル埋め込み
 Implements Reciprocal Rank Fusion (RRF) for combining sparse and dense retrieval.
 """
+
 from __future__ import annotations
 
 import logging
@@ -16,6 +17,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class RetrievalResult:
     """Single retrieval result."""
+
     doc_id: str
     text: str
     score: float
@@ -35,7 +37,7 @@ class BM25Retriever:
 
     def index(self, documents: list[dict]) -> None:
         """Index documents for BM25 retrieval.
-        
+
         Args:
             documents: List of dicts with 'id' and 'text' keys.
         """
@@ -62,11 +64,11 @@ class BM25Retriever:
 
     def search(self, query: str, top_k: int = 10) -> list[tuple[str, float]]:
         """Search with BM25.
-        
+
         Args:
             query: Query string.
             top_k: Number of results.
-            
+
         Returns:
             List of (doc_id, score) tuples.
         """
@@ -104,6 +106,7 @@ class DenseRetriever:
 
         try:
             from sentence_transformers import SentenceTransformer
+
             self._model = SentenceTransformer(self.model_name)
             logger.info(f"Loaded embedding model: {self.model_name}")
         except ImportError:
@@ -112,7 +115,7 @@ class DenseRetriever:
 
     def index(self, documents: list[dict]) -> None:
         """Index documents with dense embeddings.
-        
+
         Args:
             documents: List of dicts with 'id' and 'text' keys.
         """
@@ -138,11 +141,11 @@ class DenseRetriever:
 
     def search(self, query: str, top_k: int = 10) -> list[tuple[str, float]]:
         """Search with dense embeddings.
-        
+
         Args:
             query: Query string.
             top_k: Number of results.
-            
+
         Returns:
             List of (doc_id, score) tuples.
         """
@@ -168,7 +171,7 @@ class DenseRetriever:
 
 class HybridRetriever:
     """Hybrid retriever combining BM25 and dense embeddings.
-    
+
     Uses Reciprocal Rank Fusion (RRF) for score combination.
     """
 
@@ -189,7 +192,7 @@ class HybridRetriever:
 
     def index(self, documents: list[dict]) -> None:
         """Index documents for hybrid retrieval.
-        
+
         Args:
             documents: List of dicts with 'id' and 'text' keys.
         """
@@ -209,12 +212,12 @@ class HybridRetriever:
         use_rrf: bool = True,
     ) -> list[RetrievalResult]:
         """Hybrid search combining BM25 and dense.
-        
+
         Args:
             query: Query string.
             top_k: Number of results.
             use_rrf: Use Reciprocal Rank Fusion (True) or weighted sum (False).
-            
+
         Returns:
             List of RetrievalResult objects.
         """
@@ -231,13 +234,15 @@ class HybridRetriever:
         results = []
         for doc_id, score in combined[:top_k]:
             doc = self._documents.get(doc_id, {})
-            results.append(RetrievalResult(
-                doc_id=doc_id,
-                text=doc.get("text", ""),
-                score=score,
-                source="hybrid",
-                metadata=doc.get("metadata"),
-            ))
+            results.append(
+                RetrievalResult(
+                    doc_id=doc_id,
+                    text=doc.get("text", ""),
+                    score=score,
+                    source="hybrid",
+                    metadata=doc.get("metadata"),
+                )
+            )
 
         return results
 
@@ -247,7 +252,7 @@ class HybridRetriever:
         dense_results: list[tuple[str, float]],
     ) -> list[tuple[str, float]]:
         """Reciprocal Rank Fusion.
-        
+
         RRF(d) = Σ 1 / (k + rank(d))
         """
         scores: dict[str, float] = {}
@@ -297,11 +302,11 @@ def create_hybrid_retriever(
     dense_model: str = "all-MiniLM-L6-v2",
 ) -> HybridRetriever:
     """Create and index a hybrid retriever.
-    
+
     Args:
         documents: List of document dicts with 'id' and 'text'.
         dense_model: SentenceTransformers model name.
-        
+
     Returns:
         Indexed HybridRetriever instance.
     """

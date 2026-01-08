@@ -23,20 +23,22 @@ logger = logging.getLogger(__name__)
 
 class OutcomeStatus(Enum):
     """Outcome状態."""
-    SUCCESS = "success"      # 効果あり
-    NEUTRAL = "neutral"      # 影響なし
-    FAILURE = "failure"      # 悪影響/無駄
-    PENDING = "pending"      # 未評価
+
+    SUCCESS = "success"  # 効果あり
+    NEUTRAL = "neutral"  # 影響なし
+    FAILURE = "failure"  # 悪影響/無駄
+    PENDING = "pending"  # 未評価
 
 
 @dataclass
 class OutcomeRecord:
     """Outcome記録."""
+
     decision_id: str
     status: OutcomeStatus
-    effect_description: str      # 効果はあったか
-    cost_justified: bool         # コストに見合ったか
-    would_repeat: bool           # 次もやるか
+    effect_description: str  # 効果はあったか
+    cost_justified: bool  # コストに見合ったか
+    would_repeat: bool  # 次もやるか
     evaluated_at: str = field(default_factory=lambda: datetime.now().isoformat())
     metadata: dict[str, Any] = field(default_factory=dict)
 
@@ -68,7 +70,7 @@ class OutcomeRecord:
 
 class OutcomeTracker:
     """Outcome追跡器.
-    
+
     採用後n週間で評価。
     失敗判断はExperienceに強制保存。
     """
@@ -77,11 +79,11 @@ class OutcomeTracker:
         self,
         storage_path: str = "data/outcomes",
         decision_store: DecisionStore | None = None,
-        evaluation_weeks: int = 2
+        evaluation_weeks: int = 2,
     ):
         """
         初期化.
-        
+
         Args:
             storage_path: ストレージパス
             decision_store: DecisionStore
@@ -100,7 +102,7 @@ class OutcomeTracker:
         if not outcomes_file.exists():
             return
 
-        with open(outcomes_file, encoding='utf-8') as f:
+        with open(outcomes_file, encoding="utf-8") as f:
             for line in f:
                 if line.strip():
                     self._outcomes.append(OutcomeRecord.from_dict(json.loads(line)))
@@ -110,7 +112,7 @@ class OutcomeTracker:
     def _save(self) -> None:
         """ストレージに保存."""
         outcomes_file = self.storage_path / "outcomes.jsonl"
-        with open(outcomes_file, 'w', encoding='utf-8') as f:
+        with open(outcomes_file, "w", encoding="utf-8") as f:
             for o in self._outcomes:
                 f.write(json.dumps(o.to_dict(), ensure_ascii=False) + "\n")
 
@@ -139,7 +141,7 @@ class OutcomeTracker:
             if d.decision == "accept" and d.decision_id not in evaluated_ids:
                 # 採用からn週経過しているか
                 try:
-                    decision_time = datetime.fromisoformat(d.timestamp.replace('Z', '+00:00'))
+                    decision_time = datetime.fromisoformat(d.timestamp.replace("Z", "+00:00"))
                     if decision_time < cutoff:
                         pending.append(d.decision_id)
                 except:

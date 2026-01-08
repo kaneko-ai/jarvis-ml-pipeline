@@ -15,10 +15,10 @@ from jarvis_core.embeddings.specter2 import SPECTER2Embedding
 
 def get_embedding_model(model_type: str = "general"):
     """Get embedding model by type.
-    
+
     Args:
         model_type: "general" or "scientific"
-        
+
     Returns:
         Embedding model instance
     """
@@ -36,4 +36,3 @@ __all__ = [
     "FusionMethod",
     "SPECTER2Embedding",
 ]
-

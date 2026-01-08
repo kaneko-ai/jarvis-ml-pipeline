@@ -2,6 +2,7 @@
 
 Per Ψ-4, this translates research to business hypotheses.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

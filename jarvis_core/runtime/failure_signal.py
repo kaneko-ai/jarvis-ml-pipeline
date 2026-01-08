@@ -2,6 +2,7 @@
 
 Per RP-184, normalizes failures for repair logic input.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -84,7 +85,9 @@ class FailureSignal:
         }
 
     @classmethod
-    def from_exception(cls, exc: Exception, stage: FailureStage = FailureStage.UNKNOWN) -> FailureSignal:
+    def from_exception(
+        cls, exc: Exception, stage: FailureStage = FailureStage.UNKNOWN
+    ) -> FailureSignal:
         """Create from exception."""
         exc_type = type(exc).__name__
 
@@ -106,7 +109,9 @@ class FailureSignal:
         )
 
     @classmethod
-    def from_result_error(cls, error_type: str, message: str, stage: str = "unknown") -> FailureSignal:
+    def from_result_error(
+        cls, error_type: str, message: str, stage: str = "unknown"
+    ) -> FailureSignal:
         """Create from Result error."""
         # Map error types to codes
         code_map = {
@@ -164,16 +169,20 @@ def extract_failure_signals(result: Any) -> list[FailureSignal]:
             for gate, passed in value.gate_results.items():
                 if not passed:
                     if gate == "citation":
-                        signals.append(FailureSignal(
-                            code=FailureCode.CITATION_GATE_FAILED,
-                            message="Citation gate not met",
-                            stage=FailureStage.VALIDATE,
-                        ))
+                        signals.append(
+                            FailureSignal(
+                                code=FailureCode.CITATION_GATE_FAILED,
+                                message="Citation gate not met",
+                                stage=FailureStage.VALIDATE,
+                            )
+                        )
                     elif gate == "entity":
-                        signals.append(FailureSignal(
-                            code=FailureCode.ENTITY_MISS,
-                            message="Expected entities not found",
-                            stage=FailureStage.RETRIEVE,
-                        ))
+                        signals.append(
+                            FailureSignal(
+                                code=FailureCode.ENTITY_MISS,
+                                message="Expected entities not found",
+                                stage=FailureStage.RETRIEVE,
+                            )
+                        )
 
     return signals

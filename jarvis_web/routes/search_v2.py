@@ -1,4 +1,5 @@
 """Search v2 API endpoints."""
+
 from __future__ import annotations
 
 import json
@@ -23,7 +24,8 @@ async def search_v2(payload: Dict[str, Any] = Body(...)):
     engine = HybridSearchEngine()
     if not engine.chunk_map:
         return JSONResponse(
-            {"took_ms": 0, "total_candidates": 0, "results": [], "error": "index_missing"}, status_code=200
+            {"took_ms": 0, "total_candidates": 0, "results": [], "error": "index_missing"},
+            status_code=200,
         )
     try:
         result = engine.search(query=query, filters=filters, top_k=top_k, mode=mode)
@@ -44,7 +46,8 @@ async def export_search_v2(payload: Dict[str, Any] = Body(...)):
     engine = HybridSearchEngine()
     if not engine.chunk_map:
         return JSONResponse(
-            {"took_ms": 0, "total_candidates": 0, "results": [], "error": "index_missing"}, status_code=200
+            {"took_ms": 0, "total_candidates": 0, "results": [], "error": "index_missing"},
+            status_code=200,
         )
     try:
         result = engine.search(query=query, filters=filters, top_k=top_k, mode=mode)

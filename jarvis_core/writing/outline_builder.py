@@ -1,4 +1,5 @@
 """Outline and draft structure builder for writing outputs."""
+
 from __future__ import annotations
 
 import json
@@ -76,12 +77,16 @@ def build_research_plan_sections(
 
     gap_claim = ordered[1] if len(ordered) > 1 else top_claim
     gap_paragraphs = (
-        [_paragraph_from_claim(gap_claim, prefix="未解決課題: ")] if gap_claim else [_fallback_paragraph("未解決課題を整理してください。")]
+        [_paragraph_from_claim(gap_claim, prefix="未解決課題: ")]
+        if gap_claim
+        else [_fallback_paragraph("未解決課題を整理してください。")]
     )
 
     hypothesis_claim = ordered[2] if len(ordered) > 2 else top_claim
     hypothesis_paragraphs = (
-        [_paragraph_from_claim(hypothesis_claim, prefix="仮説: ")] if hypothesis_claim else [_fallback_paragraph("仮説を設定してください。")]
+        [_paragraph_from_claim(hypothesis_claim, prefix="仮説: ")]
+        if hypothesis_claim
+        else [_fallback_paragraph("仮説を設定してください。")]
     )
 
     aim_paragraphs: list[str] = []
@@ -99,7 +104,9 @@ def build_research_plan_sections(
                 _paragraph_from_claim(claim, prefix=f"Aim {idx + 1}の方法: [[YOUR_DATA_HERE]] ")
             )
         else:
-            approach_paragraphs.append(_fallback_paragraph(f"Aim {idx + 1}の方法: [[YOUR_DATA_HERE]]"))
+            approach_paragraphs.append(
+                _fallback_paragraph(f"Aim {idx + 1}の方法: [[YOUR_DATA_HERE]]")
+            )
 
     expected_paragraphs = (
         [_paragraph_from_claim(top_claim, prefix="期待される結果: ")]
@@ -119,9 +126,7 @@ def build_research_plan_sections(
         else [_fallback_paragraph("インパクトを記述してください。")]
     )
 
-    reference_paragraphs = [
-        f"- {ref}" for ref in references
-    ] or ["- [[REFERENCES_PLACEHOLDER]]"]
+    reference_paragraphs = [f"- {ref}" for ref in references] or ["- [[REFERENCES_PLACEHOLDER]]"]
 
     return [
         Section("背景 (Background)", background_paragraphs),
@@ -144,13 +149,19 @@ def build_thesis_outline_sections(
     top_claim = ordered[0] if ordered else None
 
     abstract_paragraphs = (
-        [_paragraph_from_claim(top_claim, prefix="要旨: ")] if top_claim else [_fallback_paragraph("要旨を記述してください。")]
+        [_paragraph_from_claim(top_claim, prefix="要旨: ")]
+        if top_claim
+        else [_fallback_paragraph("要旨を記述してください。")]
     )
     background_paragraphs = (
-        [_paragraph_from_claim(top_claim, prefix="背景: ")] if top_claim else [_fallback_paragraph("背景を記述してください。")]
+        [_paragraph_from_claim(top_claim, prefix="背景: ")]
+        if top_claim
+        else [_fallback_paragraph("背景を記述してください。")]
     )
     objectives_paragraphs = (
-        [_paragraph_from_claim(top_claim, prefix="目的: ")] if top_claim else [_fallback_paragraph("目的を記述してください。")]
+        [_paragraph_from_claim(top_claim, prefix="目的: ")]
+        if top_claim
+        else [_fallback_paragraph("目的を記述してください。")]
     )
     methods_paragraphs = [
         _fallback_paragraph("[[YOUR_DATA_HERE]] 実験条件・図番号・統計を記述"),
@@ -165,10 +176,14 @@ def build_thesis_outline_sections(
         results_paragraphs.append(_fallback_paragraph("結果を記述してください。"))
 
     discussion_paragraphs = (
-        [_paragraph_from_claim(top_claim, prefix="考察: ")] if top_claim else [_fallback_paragraph("考察を記述してください。")]
+        [_paragraph_from_claim(top_claim, prefix="考察: ")]
+        if top_claim
+        else [_fallback_paragraph("考察を記述してください。")]
     )
     conclusion_paragraphs = (
-        [_paragraph_from_claim(top_claim, prefix="結論: ")] if top_claim else [_fallback_paragraph("結論を記述してください。")]
+        [_paragraph_from_claim(top_claim, prefix="結論: ")]
+        if top_claim
+        else [_fallback_paragraph("結論を記述してください。")]
     )
 
     reference_paragraphs = [f"- {ref}" for ref in references] or ["- [[REFERENCES_PLACEHOLDER]]"]

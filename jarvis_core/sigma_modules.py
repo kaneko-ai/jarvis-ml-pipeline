@@ -9,6 +9,7 @@ Organized by category for maintainability.
 論文・発表補助: Σ-20〜Σ-25
 継続・運用系: Σ-26〜Σ-30
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -20,6 +21,7 @@ if TYPE_CHECKING:
 # =========================
 # Σ-1〜Σ-7: 思考・仮説系
 # =========================
+
 
 def score_hypothesis(hypothesis: str, vectors: list[PaperVector]) -> dict:
     """Σ-1: Score a hypothesis based on evidence."""
@@ -37,7 +39,9 @@ def score_hypothesis(hypothesis: str, vectors: list[PaperVector]) -> dict:
     }
 
 
-def analyze_hypothesis_dependencies(hypotheses: list[str], vectors: list[PaperVector]) -> list[dict]:
+def analyze_hypothesis_dependencies(
+    hypotheses: list[str], vectors: list[PaperVector]
+) -> list[dict]:
     """Σ-2: Analyze dependencies between hypotheses."""
     deps = []
     for i, h1 in enumerate(hypotheses):
@@ -86,10 +90,14 @@ def detect_consensus(vectors: list[PaperVector], concept: str) -> dict:
 
     # Check axis agreement
     axes = [v.biological_axis.immune_activation for v in relevant]
-    variance = sum((x - sum(axes)/len(axes))**2 for x in axes) / len(axes)
+    variance = sum((x - sum(axes) / len(axes)) ** 2 for x in axes) / len(axes)
     agreement = 1 / (1 + variance)
 
-    return {"consensus": agreement > 0.7, "agreement": round(agreement, 2), "sample_size": len(relevant)}
+    return {
+        "consensus": agreement > 0.7,
+        "agreement": round(agreement, 2),
+        "sample_size": len(relevant),
+    }
 
 
 def find_counter_evidence(hypothesis: str, vectors: list[PaperVector]) -> list[dict]:
@@ -98,10 +106,12 @@ def find_counter_evidence(hypothesis: str, vectors: list[PaperVector]) -> list[d
     for v in vectors:
         # Simple heuristic: papers with opposite axis values
         if v.biological_axis.immune_activation < -0.3:
-            counters.append({
-                "paper_id": v.paper_id,
-                "reason": "反対の免疫軸を示す",
-            })
+            counters.append(
+                {
+                    "paper_id": v.paper_id,
+                    "reason": "反対の免疫軸を示す",
+                }
+            )
     return counters[:5]
 
 
@@ -117,6 +127,7 @@ def generate_hypothesis_diagram(hypotheses: list[str]) -> dict:
 # =========================
 # Σ-8〜Σ-13: 分析・可視化系
 # =========================
+
 
 def build_impact_heatmap(vectors: list[PaperVector]) -> dict[str, dict[str, float]]:
     """Σ-8: Build impact heatmap by year and concept."""
@@ -209,6 +220,7 @@ def map_research_density(vectors: list[PaperVector]) -> dict[str, float]:
 # Σ-14〜Σ-19: 実験・設計系
 # =========================
 
+
 def score_protocol_difficulty(methods: list[str]) -> float:
     """Σ-14: Score protocol difficulty."""
     DIFFICULTY = {"scRNA-seq": 0.9, "CRISPR": 0.8, "Western blot": 0.3, "qPCR": 0.2}
@@ -245,7 +257,7 @@ def enumerate_controls(experiment_type: str) -> list[str]:
 def check_sample_size(n: int, effect_size: float = 0.5) -> dict:
     """Σ-17: Check sample size adequacy."""
     # Simplified power calculation
-    required = int(16 / (effect_size ** 2))
+    required = int(16 / (effect_size**2))
     adequate = n >= required
     return {"n": n, "required": required, "adequate": adequate, "power": min(1.0, n / required)}
 
@@ -264,12 +276,17 @@ def validate_stats_method(data_type: str, comparison: str) -> str:
 def explain_model_reasoning(model: str, vectors: list[PaperVector]) -> str:
     """Σ-19: Explain model system reasoning."""
     count = sum(1 for v in vectors if model.lower() in str(v.metadata.species).lower())
-    return f"{model}は{count}論文で使用。関連研究との整合性あり。" if count else f"{model}の使用実績なし"
+    return (
+        f"{model}は{count}論文で使用。関連研究との整合性あり。"
+        if count
+        else f"{model}の使用実績なし"
+    )
 
 
 # =========================
 # Σ-20〜Σ-25: 論文・発表補助
 # =========================
+
 
 def plan_figures(vectors: list[PaperVector]) -> list[dict]:
     """Σ-20: Plan figure structure (no generation)."""
@@ -337,6 +354,7 @@ def detect_citation_bias(vectors: list[PaperVector]) -> dict:
 # Σ-26〜Σ-30: 継続・運用系
 # =========================
 
+
 def detect_research_drift(old_vectors: list[PaperVector], new_vectors: list[PaperVector]) -> dict:
     """Σ-26: Detect research drift over time."""
     old_concepts = set()
@@ -380,7 +398,9 @@ def assess_field_saturation(vectors: list[PaperVector], concept: str) -> dict:
     }
 
 
-def detect_new_concepts(old_vectors: list[PaperVector], new_vectors: list[PaperVector]) -> list[str]:
+def detect_new_concepts(
+    old_vectors: list[PaperVector], new_vectors: list[PaperVector]
+) -> list[str]:
     """Σ-29: Detect newly emerging concepts."""
     old_concepts = set(c for v in old_vectors for c in v.concept.concepts)
     new_concepts = set(c for v in new_vectors for c in v.concept.concepts)

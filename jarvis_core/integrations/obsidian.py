@@ -5,6 +5,7 @@ Each Claim becomes a note, linked to sources and the query.
 
 Per RP19, this creates a vault structure optimized for knowledge building.
 """
+
 from __future__ import annotations
 
 import re
@@ -79,17 +80,13 @@ def export_obsidian(
             claim_name = f"Claim_{i}_{claim.id[:8]}"
             claim_files[claim.id] = claim_name
 
-            claim_content = _generate_claim_note(
-                claim, i, references, source_files, query_filename
-            )
+            claim_content = _generate_claim_note(claim, i, references, source_files, query_filename)
             claim_path = notes_dir / f"{claim_name}.md"
             with open(claim_path, "w", encoding="utf-8") as f:
                 f.write(claim_content)
 
     # Create query (index) note
-    index_content = _generate_query_note(
-        result, references, claim_files, source_files
-    )
+    index_content = _generate_query_note(result, references, claim_files, source_files)
     index_path = out_path / f"{query_filename}.md"
     with open(index_path, "w", encoding="utf-8") as f:
         f.write(index_content)
@@ -132,18 +129,20 @@ def _generate_claim_note(
             else:
                 lines.append(f"- {source_link}")
 
-    lines.extend([
-        "",
-        "---",
-        "",
-        "## Used in",
-        "",
-        f"- [[{query_filename}]]",
-        "",
-        "---",
-        "",
-        f"Status: {'✓ Valid' if claim.valid else '? Unverified'}",
-    ])
+    lines.extend(
+        [
+            "",
+            "---",
+            "",
+            "## Used in",
+            "",
+            f"- [[{query_filename}]]",
+            "",
+            "---",
+            "",
+            f"Status: {'✓ Valid' if claim.valid else '? Unverified'}",
+        ]
+    )
 
     return "\n".join(lines)
 
@@ -169,18 +168,20 @@ def _generate_source_note(ref: Reference, result: EvidenceQAResult) -> str:
         lines.append(f"**Pages cited:** {ref.get_pages_display()}")
         lines.append("")
 
-    lines.extend([
-        "---",
-        "",
-        "## Locator",
-        "",
-        f"`{ref.locator}`",
-        "",
-        "---",
-        "",
-        "## Referenced by",
-        "",
-    ])
+    lines.extend(
+        [
+            "---",
+            "",
+            "## Locator",
+            "",
+            f"`{ref.locator}`",
+            "",
+            "---",
+            "",
+            "## Referenced by",
+            "",
+        ]
+    )
 
     # Find claims that use this source
     if result.claims is not None:
@@ -219,24 +220,28 @@ def _generate_query_note(
             status = "✓" if claim.valid else "?"
             lines.append(f"- {status} {claim_link}: {claim.text[:50]}...")
 
-    lines.extend([
-        "",
-        "---",
-        "",
-        "## Sources",
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "---",
+            "",
+            "## Sources",
+            "",
+        ]
+    )
 
     for ref in references:
         source_link = f"[[{source_files[ref.id]}]]"
         lines.append(f"- {source_link}")
 
-    lines.extend([
-        "",
-        "---",
-        "",
-        f"*Status: {result.status}*",
-    ])
+    lines.extend(
+        [
+            "",
+            "---",
+            "",
+            f"*Status: {result.status}*",
+        ]
+    )
 
     return "\n".join(lines)
 

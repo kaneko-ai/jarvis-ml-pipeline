@@ -3,6 +3,7 @@
 Per V4.2 Sprint 2, this defines deterministic cache key computation.
 Key includes: input_hash, extractor_version, model_version, thresholds, config_hash.
 """
+
 from __future__ import annotations
 
 import hashlib

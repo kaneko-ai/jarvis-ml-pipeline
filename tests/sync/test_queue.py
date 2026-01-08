@@ -10,6 +10,7 @@ def test_queue_item_creation():
     assert item.status == QueueItemStatus.PENDING
     assert item.to_dict()["params"] == {"a": 1}
 
+
 def test_storage_add_and_get(tmp_path):
     # Use tmp file for testing
     db_path = tmp_path / "test_queue.db"
@@ -21,9 +22,10 @@ def test_storage_add_and_get(tmp_path):
     assert len(pending) == 1
     assert pending[0].id == "1"
 
+
 def test_manager_process_queue():
     # Patch the class in the manager module where it is imported
-    with patch('jarvis_core.sync.manager.SyncQueueStorage') as mock_storage_cls:
+    with patch("jarvis_core.sync.manager.SyncQueueStorage") as mock_storage_cls:
         mock_storage = MagicMock()
         mock_storage_cls.return_value = mock_storage
 
@@ -42,9 +44,10 @@ def test_manager_process_queue():
         mock_handler.assert_called_once()
         mock_storage.update_status.assert_called()
 
+
 def test_manager_process_queue_no_handler():
-     # Patch the class in the manager module where it is imported
-     with patch('jarvis_core.sync.manager.SyncQueueStorage') as mock_storage_cls:
+    # Patch the class in the manager module where it is imported
+    with patch("jarvis_core.sync.manager.SyncQueueStorage") as mock_storage_cls:
         mock_storage = MagicMock()
         mock_storage_cls.return_value = mock_storage
 

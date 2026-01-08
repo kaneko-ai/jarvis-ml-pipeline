@@ -1,4 +1,5 @@
 """JARVIS Agentic AI System - Phase 2 Features (16-30)"""
+
 import json
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -21,6 +22,7 @@ class AgentRole(Enum):
 @dataclass
 class AgentTask:
     """Task for an agent."""
+
     id: str
     role: AgentRole
     input_data: dict
@@ -32,6 +34,7 @@ class AgentTask:
 @dataclass
 class Agent:
     """Agent definition."""
+
     id: str
     role: AgentRole
     capabilities: list[str]
@@ -53,15 +56,11 @@ class MultiAgentOrchestrator:
         """Register an agent."""
         self.agents[agent.id] = agent
 
-    def create_task(self, role: AgentRole, input_data: dict,
-                    dependencies: list[str] = None) -> str:
+    def create_task(self, role: AgentRole, input_data: dict, dependencies: list[str] = None) -> str:
         """Create a new task."""
         task_id = f"task_{len(self.tasks)}_{role.value}"
         task = AgentTask(
-            id=task_id,
-            role=role,
-            input_data=input_data,
-            dependencies=dependencies or []
+            id=task_id, role=role, input_data=input_data, dependencies=dependencies or []
         )
         self.tasks[task_id] = task
         return task_id
@@ -89,12 +88,14 @@ class MultiAgentOrchestrator:
         task.status = "completed"
         task.output = result
 
-        self.execution_history.append({
-            "task_id": task_id,
-            "agent_id": agent.id,
-            "timestamp": datetime.now().isoformat(),
-            "result": result
-        })
+        self.execution_history.append(
+            {
+                "task_id": task_id,
+                "agent_id": agent.id,
+                "timestamp": datetime.now().isoformat(),
+                "result": result,
+            }
+        )
 
         return result
 
@@ -131,6 +132,7 @@ class MultiAgentOrchestrator:
 # 17-30: SPECIALIZED AGENTS
 # ============================================
 
+
 class SearchAgent(Agent):
     """Agent for paper search."""
 
@@ -143,7 +145,7 @@ class SearchAgent(Agent):
             "status": "completed",
             "papers_found": 10,
             "query": query,
-            "sources": self.capabilities
+            "sources": self.capabilities,
         }
 
 
@@ -151,13 +153,15 @@ class AnalysisAgent(Agent):
     """Agent for paper analysis."""
 
     def __init__(self):
-        super().__init__("analysis_agent", AgentRole.ANALYZE, ["comparison", "meta_analysis", "gap_analysis"])
+        super().__init__(
+            "analysis_agent", AgentRole.ANALYZE, ["comparison", "meta_analysis", "gap_analysis"]
+        )
 
     def execute(self, task: AgentTask) -> dict:
         return {
             "status": "completed",
             "analysis_type": task.input_data.get("type", "general"),
-            "insights": ["Finding 1", "Finding 2", "Finding 3"]
+            "insights": ["Finding 1", "Finding 2", "Finding 3"],
         }
 
 
@@ -165,13 +169,15 @@ class SummarizeAgent(Agent):
     """Agent for summarization."""
 
     def __init__(self):
-        super().__init__("summarize_agent", AgentRole.SUMMARIZE, ["abstract", "full_text", "multi_paper"])
+        super().__init__(
+            "summarize_agent", AgentRole.SUMMARIZE, ["abstract", "full_text", "multi_paper"]
+        )
 
     def execute(self, task: AgentTask) -> dict:
         return {
             "status": "completed",
             "format": task.input_data.get("format", "brief"),
-            "summary": "This is a generated summary of the research findings..."
+            "summary": "This is a generated summary of the research findings...",
         }
 
 
@@ -183,7 +189,7 @@ class WritingAgent(Agent):
         "methods": "We conducted...",
         "results": "Our analysis revealed...",
         "discussion": "These findings suggest...",
-        "conclusion": "In conclusion..."
+        "conclusion": "In conclusion...",
     }
 
     def __init__(self):
@@ -192,11 +198,7 @@ class WritingAgent(Agent):
     def execute(self, task: AgentTask) -> dict:
         section = task.input_data.get("section", "general")
         template = self.SECTION_TEMPLATES.get(section, "Content for this section...")
-        return {
-            "status": "completed",
-            "section": section,
-            "draft": template
-        }
+        return {"status": "completed", "section": section, "draft": template}
 
     def generate_draft(self, section: str, context: dict) -> str:
         """Generate section draft."""
@@ -207,9 +209,7 @@ class WritingAgent(Agent):
 class ReviewAgent(Agent):
     """Agent for peer review simulation."""
 
-    REVIEW_CRITERIA = [
-        "novelty", "methodology", "clarity", "significance", "reproducibility"
-    ]
+    REVIEW_CRITERIA = ["novelty", "methodology", "clarity", "significance", "reproducibility"]
 
     def __init__(self):
         super().__init__("review_agent", AgentRole.REVIEW, ["self_review", "peer_review"])
@@ -219,7 +219,10 @@ class ReviewAgent(Agent):
             "status": "completed",
             "review_type": task.input_data.get("type", "general"),
             "scores": dict.fromkeys(self.REVIEW_CRITERIA, 7),
-            "comments": ["Consider expanding the methodology section", "Add more recent references"]
+            "comments": [
+                "Consider expanding the methodology section",
+                "Add more recent references",
+            ],
         }
 
     def simulate_review(self, paper: dict) -> dict:
@@ -239,7 +242,7 @@ class ReviewAgent(Agent):
         return {
             "recommendation": "minor_revision" if len(comments) < 3 else "major_revision",
             "comments": comments,
-            "scores": {c: 6 + (hash(c) % 4) for c in self.REVIEW_CRITERIA}
+            "scores": {c: 6 + (hash(c) % 4) for c in self.REVIEW_CRITERIA},
         }
 
 
@@ -272,7 +275,7 @@ data <- read.csv("{filename}")
 # Plot
 ggplot(data, aes(x=x, y=y)) + geom_point()
 ggsave("output.png")
-"""
+""",
     }
 
     def __init__(self):
@@ -287,8 +290,8 @@ ggsave("output.png")
             "code": template.format(
                 filename="data.csv",
                 analysis_code="result = df.describe()",
-                plot_code="plt.plot(df['x'], df['y'])"
-            )
+                plot_code="plt.plot(df['x'], df['y'])",
+            ),
         }
 
 
@@ -296,7 +299,9 @@ class ExperimentDesignAgent(Agent):
     """Agent for experiment design."""
 
     def __init__(self):
-        super().__init__("experiment_agent", AgentRole.ANALYZE, ["design", "power_analysis", "sample_size"])
+        super().__init__(
+            "experiment_agent", AgentRole.ANALYZE, ["design", "power_analysis", "sample_size"]
+        )
 
     def design_experiment(self, hypothesis: str, variables: dict) -> dict:
         """Design an experiment based on hypothesis."""
@@ -307,7 +312,7 @@ class ExperimentDesignAgent(Agent):
             "dependent_variables": ["outcome_1", "outcome_2"],
             "sample_size_estimate": self._power_analysis(variables),
             "control_conditions": ["placebo", "standard_care"],
-            "statistical_tests": ["t_test", "anova", "regression"]
+            "statistical_tests": ["t_test", "anova", "regression"],
         }
 
     def _power_analysis(self, variables: dict) -> int:
@@ -317,17 +322,14 @@ class ExperimentDesignAgent(Agent):
         alpha = variables.get("alpha", 0.05)
 
         # Simplified formula
-        n = int(16 / (effect_size ** 2))  # Approximation
+        n = int(16 / (effect_size**2))  # Approximation
         return max(n, 30)
 
 
 class GrantProposalAgent(Agent):
     """Agent for grant proposal writing."""
 
-    SECTIONS = [
-        "specific_aims", "significance", "innovation",
-        "approach", "timeline", "budget"
-    ]
+    SECTIONS = ["specific_aims", "significance", "innovation", "approach", "timeline", "budget"]
 
     def __init__(self):
         super().__init__("grant_agent", AgentRole.WRITE, ["nih", "nsf", "private"])
@@ -342,13 +344,15 @@ class GrantProposalAgent(Agent):
                 "innovation": "Our approach is innovative because...",
                 "approach": self._generate_approach(project),
                 "timeline": self._generate_timeline(project),
-                "budget": self._estimate_budget(project)
-            }
+                "budget": self._estimate_budget(project),
+            },
         }
 
     def _generate_aims(self, project: dict) -> str:
-        return f"Aim 1: {project.get('aim1', 'Primary objective')}\n" \
-               f"Aim 2: {project.get('aim2', 'Secondary objective')}"
+        return (
+            f"Aim 1: {project.get('aim1', 'Primary objective')}\n"
+            f"Aim 2: {project.get('aim2', 'Secondary objective')}"
+        )
 
     def _generate_approach(self, project: dict) -> str:
         return f"We will employ {project.get('method', 'advanced techniques')}..."
@@ -364,7 +368,7 @@ class GrantProposalAgent(Agent):
             "supplies": 25000,
             "travel": 10000,
             "indirect": 75000,
-            "total": 310000
+            "total": 310000,
         }
 
 
@@ -387,7 +391,7 @@ class ProjectMemorySystem:
 
         # Trim context window
         if len(self.context_window) > self.max_context:
-            self.context_window = self.context_window[-self.max_context:]
+            self.context_window = self.context_window[-self.max_context :]
 
     def retrieve(self, project_id: str, query: str = None, n: int = 10) -> list[dict]:
         """Retrieve memories."""
@@ -424,11 +428,9 @@ class SelfImprovingAgent:
 
     def record_feedback(self, action: str, feedback: dict):
         """Record user feedback."""
-        self.feedback_history.append({
-            "action": action,
-            "feedback": feedback,
-            "timestamp": datetime.now().isoformat()
-        })
+        self.feedback_history.append(
+            {"action": action, "feedback": feedback, "timestamp": datetime.now().isoformat()}
+        )
 
         # Update performance metrics
         score = feedback.get("score", 0.5)
@@ -465,8 +467,9 @@ class CollaborationFinder:
         """Add researcher profile."""
         self.researcher_profiles[researcher_id] = profile
 
-    def find_matches(self, interests: list[str], location: str = None,
-                     institution_type: str = None) -> list[dict]:
+    def find_matches(
+        self, interests: list[str], location: str = None, institution_type: str = None
+    ) -> list[dict]:
         """Find matching collaborators."""
         matches = []
 
@@ -487,12 +490,14 @@ class CollaborationFinder:
                 score += 1
 
             if score > 0:
-                matches.append({
-                    "researcher_id": rid,
-                    "name": profile.get("name", "Unknown"),
-                    "match_score": score,
-                    "interests": list(profile_interests)
-                })
+                matches.append(
+                    {
+                        "researcher_id": rid,
+                        "name": profile.get("name", "Unknown"),
+                        "match_score": score,
+                        "interests": list(profile_interests),
+                    }
+                )
 
         return sorted(matches, key=lambda x: x["match_score"], reverse=True)
 

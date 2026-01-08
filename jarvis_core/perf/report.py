@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 2, this outputs Span/SLO/Budget/Cache statistics in fixed schema.
 """
+
 from __future__ import annotations
 
 import json
@@ -97,9 +98,7 @@ def generate_perf_report(
     if span_tracker:
         summary = span_tracker.get_summary()
         report.span_stats = summary
-        report.total_duration_ms = sum(
-            s.get("total_ms", 0) for s in summary.values()
-        )
+        report.total_duration_ms = sum(s.get("total_ms", 0) for s in summary.values())
 
     # Collect SLO status
     if slo_status:

@@ -6,6 +6,7 @@ Per RP22, these tests verify:
 - Reference enrichment
 - Failure handling (graceful)
 """
+
 import json
 import sys
 from pathlib import Path
@@ -47,21 +48,25 @@ class TestCrossRefResolver:
     def test_search_crossref_success(self, mock_urlopen):
         """Should parse CrossRef response."""
         mock_response = MagicMock()
-        mock_response.read.return_value = json.dumps({
-            "status": "ok",
-            "message": {
-                "items": [{
-                    "DOI": "10.1234/example",
-                    "title": ["Example Paper"],
-                    "author": [
-                        {"family": "Smith", "given": "John"},
-                    ],
-                    "published-print": {"date-parts": [[2023]]},
-                    "container-title": ["Nature"],
-                    "URL": "https://example.com",
-                }]
+        mock_response.read.return_value = json.dumps(
+            {
+                "status": "ok",
+                "message": {
+                    "items": [
+                        {
+                            "DOI": "10.1234/example",
+                            "title": ["Example Paper"],
+                            "author": [
+                                {"family": "Smith", "given": "John"},
+                            ],
+                            "published-print": {"date-parts": [[2023]]},
+                            "container-title": ["Nature"],
+                            "URL": "https://example.com",
+                        }
+                    ]
+                },
             }
-        }).encode()
+        ).encode()
         mock_response.__enter__ = lambda s: s
         mock_response.__exit__ = MagicMock()
         mock_urlopen.return_value = mock_response

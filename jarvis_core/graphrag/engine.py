@@ -1,4 +1,5 @@
 """JARVIS GraphRAG & Knowledge Graph Module - Phase 1 Features (1-15)"""
+
 import hashlib
 import math
 import re
@@ -12,13 +13,16 @@ from dataclasses import dataclass, field
 @dataclass
 class GraphNode:
     """Graph node representing an entity."""
+
     id: str
     type: str  # paper, author, concept, gene, drug
     properties: dict = field(default_factory=dict)
 
+
 @dataclass
 class GraphEdge:
     """Graph edge representing a relationship."""
+
     source: str
     target: str
     type: str  # cites, authored_by, relates_to, etc.
@@ -47,11 +51,11 @@ class GraphRAGEngine:
 
     def multi_hop_query(self, start_id: str, hops: int = 2) -> list[GraphNode]:
         """Multi-hop graph traversal for reasoning.
-        
+
         Args:
             start_id: Starting node ID
             hops: Number of hops
-            
+
         Returns:
             List of reachable nodes
         """
@@ -71,12 +75,12 @@ class GraphRAGEngine:
 
     def find_path(self, source: str, target: str, max_depth: int = 5) -> list[str] | None:
         """Find path between two nodes (BFS).
-        
+
         Args:
             source: Source node ID
             target: Target node ID
             max_depth: Maximum search depth
-            
+
         Returns:
             Path as list of node IDs or None
         """
@@ -121,20 +125,24 @@ class AdaptiveRAG:
 
     def assess_query_complexity(self, query: str) -> dict:
         """Assess query complexity to decide retrieval strategy.
-        
+
         Args:
             query: User query
-            
+
         Returns:
             Complexity assessment
         """
         words = query.lower().split()
 
         # Complexity indicators
-        has_comparison = any(w in words for w in ['compare', 'versus', 'vs', 'difference', 'between'])
-        has_temporal = any(w in words for w in ['recent', 'latest', '2024', '2025', 'trend', 'new'])
-        has_specific = any(w in words for w in ['specific', 'exact', 'particular', 'pmid'])
-        has_multi_hop = len([w for w in words if w in ['how', 'why', 'cause', 'effect', 'mechanism']]) > 0
+        has_comparison = any(
+            w in words for w in ["compare", "versus", "vs", "difference", "between"]
+        )
+        has_temporal = any(w in words for w in ["recent", "latest", "2024", "2025", "trend", "new"])
+        has_specific = any(w in words for w in ["specific", "exact", "particular", "pmid"])
+        has_multi_hop = (
+            len([w for w in words if w in ["how", "why", "cause", "effect", "mechanism"]]) > 0
+        )
 
         complexity_score = sum([has_comparison, has_temporal, has_specific, has_multi_hop])
 
@@ -142,7 +150,7 @@ class AdaptiveRAG:
             "query": query,
             "complexity_score": complexity_score,
             "needs_external": has_temporal or complexity_score >= 2,
-            "strategy": self._select_strategy(complexity_score, has_temporal)
+            "strategy": self._select_strategy(complexity_score, has_temporal),
         }
 
     def _select_strategy(self, score: int, needs_recent: bool) -> str:
@@ -196,11 +204,11 @@ class CorrectiveRAG:
 
     def evaluate_retrieval(self, query: str, retrieved_docs: list[dict]) -> dict:
         """Evaluate retrieval quality.
-        
+
         Args:
             query: Original query
             retrieved_docs: Retrieved documents
-            
+
         Returns:
             Evaluation with confidence scores
         """
@@ -232,16 +240,16 @@ class CorrectiveRAG:
 
     def detect_hallucination(self, answer: str, sources: list[dict]) -> dict:
         """Detect potential hallucinations.
-        
+
         Args:
             answer: Generated answer
             sources: Source documents
-            
+
         Returns:
             Hallucination detection result
         """
         # Extract claims from answer
-        claims = [s.strip() for s in answer.split('.') if len(s.strip()) > 20]
+        claims = [s.strip() for s in answer.split(".") if len(s.strip()) > 20]
 
         source_text = " ".join([d.get("abstract", "") for d in sources]).lower()
 
@@ -261,7 +269,7 @@ class CorrectiveRAG:
             "verified_claims": len(verified),
             "suspicious_claims": len(suspicious),
             "hallucination_risk": len(suspicious) / max(len(claims), 1),
-            "suspicious": suspicious[:3]  # Top 3 for review
+            "suspicious": suspicious[:3],  # Top 3 for review
         }
 
 
@@ -274,7 +282,7 @@ class PaperStreamMonitor:
     SOURCES = {
         "arxiv": "http://export.arxiv.org/api/query",
         "biorxiv": "https://api.biorxiv.org/details/biorxiv",
-        "medrxiv": "https://api.biorxiv.org/details/medrxiv"
+        "medrxiv": "https://api.biorxiv.org/details/medrxiv",
     }
 
     def __init__(self):
@@ -282,14 +290,13 @@ class PaperStreamMonitor:
         self.seen_ids: set[str] = set()
         self.callbacks: list[callable] = []
 
-    def add_filter(self, keywords: list[str], authors: list[str] = None,
-                   journals: list[str] = None):
+    def add_filter(
+        self, keywords: list[str], authors: list[str] = None, journals: list[str] = None
+    ):
         """Add monitoring filter."""
-        self.filters.append({
-            "keywords": keywords,
-            "authors": authors or [],
-            "journals": journals or []
-        })
+        self.filters.append(
+            {"keywords": keywords, "authors": authors or [], "journals": journals or []}
+        )
 
     def check_match(self, paper: dict) -> bool:
         """Check if paper matches any filter."""
@@ -328,9 +335,9 @@ class KnowledgeGraphBuilder:
     """Automatic KG construction from papers."""
 
     ENTITY_PATTERNS = {
-        "gene": r'\b([A-Z][A-Z0-9]{2,})\b',
-        "drug": r'\b([A-Z][a-z]+(?:mab|nib|lib|cept|tide))\b',
-        "disease": r'\b([A-Z][a-z]+ (?:cancer|disease|syndrome|disorder))\b',
+        "gene": r"\b([A-Z][A-Z0-9]{2,})\b",
+        "drug": r"\b([A-Z][a-z]+(?:mab|nib|lib|cept|tide))\b",
+        "disease": r"\b([A-Z][a-z]+ (?:cancer|disease|syndrome|disorder))\b",
     }
 
     def __init__(self):
@@ -349,7 +356,11 @@ class KnowledgeGraphBuilder:
 
     def build_from_paper(self, paper: dict) -> dict:
         """Build KG nodes and edges from a paper."""
-        paper_id = paper.get("pmid") or paper.get("id") or hashlib.md5(paper.get("title", "").encode()).hexdigest()[:8]
+        paper_id = (
+            paper.get("pmid")
+            or paper.get("id")
+            or hashlib.md5(paper.get("title", "").encode()).hexdigest()[:8]
+        )
 
         # Add paper node
         paper_node = GraphNode(
@@ -358,8 +369,8 @@ class KnowledgeGraphBuilder:
             properties={
                 "title": paper.get("title"),
                 "year": paper.get("year"),
-                "journal": paper.get("journal")
-            }
+                "journal": paper.get("journal"),
+            },
         )
         self.graph.add_node(paper_node)
 
@@ -369,7 +380,9 @@ class KnowledgeGraphBuilder:
 
         for entity in entities:
             entity_id = f"{entity['type']}_{hashlib.md5(entity['text'].encode()).hexdigest()[:6]}"
-            entity_node = GraphNode(id=entity_id, type=entity['type'], properties={"name": entity['text']})
+            entity_node = GraphNode(
+                id=entity_id, type=entity["type"], properties={"name": entity["text"]}
+            )
             self.graph.add_node(entity_node)
 
             # Add edge from paper to entity
@@ -406,7 +419,7 @@ class CitationNetworkAnalyzer:
             return {}
 
         # Initialize scores
-        scores = {node.id: 1/n for node in nodes}
+        scores = {node.id: 1 / n for node in nodes}
 
         for _ in range(iterations):
             new_scores = {}
@@ -431,18 +444,23 @@ class CitationNetworkAnalyzer:
         for paper_id, score in sorted_papers[:top_n]:
             if paper_id in self.graph.nodes:
                 node = self.graph.nodes[paper_id]
-                results.append({
-                    "id": paper_id,
-                    "title": node.properties.get("title", "Unknown"),
-                    "influence_score": round(score * 1000, 2)
-                })
+                results.append(
+                    {
+                        "id": paper_id,
+                        "title": node.properties.get("title", "Unknown"),
+                        "influence_score": round(score * 1000, 2),
+                    }
+                )
 
         return results
 
     def detect_emerging_topics(self, year_threshold: int = 2023) -> list[dict]:
         """Detect emerging research topics."""
-        recent_papers = [n for n in self.graph.nodes.values()
-                        if n.type == "paper" and n.properties.get("year", 0) >= year_threshold]
+        recent_papers = [
+            n
+            for n in self.graph.nodes.values()
+            if n.type == "paper" and n.properties.get("year", 0) >= year_threshold
+        ]
 
         # Count entity co-occurrences
         entity_counts = defaultdict(int)
@@ -475,8 +493,8 @@ class SemanticClustering:
             h = hash(word) % dim
             embedding[h] += 1
         # Normalize
-        norm = math.sqrt(sum(x*x for x in embedding)) or 1
-        return [x/norm for x in embedding]
+        norm = math.sqrt(sum(x * x for x in embedding)) or 1
+        return [x / norm for x in embedding]
 
     def add_paper(self, paper_id: str, text: str):
         """Add paper embedding."""
@@ -484,9 +502,9 @@ class SemanticClustering:
 
     def cosine_similarity(self, vec1: list[float], vec2: list[float]) -> float:
         """Calculate cosine similarity."""
-        dot = sum(a*b for a, b in zip(vec1, vec2))
-        norm1 = math.sqrt(sum(a*a for a in vec1))
-        norm2 = math.sqrt(sum(b*b for b in vec2))
+        dot = sum(a * b for a, b in zip(vec1, vec2))
+        norm1 = math.sqrt(sum(a * a for a in vec1))
+        norm2 = math.sqrt(sum(b * b for b in vec2))
         return dot / (norm1 * norm2) if norm1 and norm2 else 0
 
     def find_similar(self, paper_id: str, top_n: int = 5) -> list[tuple[str, float]]:
@@ -532,13 +550,14 @@ class SemanticClustering:
 # 8-15: Additional Features
 # ============================================
 
+
 class HierarchicalConceptExtractor:
     """Extract hierarchical concepts from papers."""
 
     CONCEPT_HIERARCHY = {
         "disease": ["cancer", "diabetes", "cardiovascular", "neurological"],
         "treatment": ["drug", "therapy", "surgery", "immunotherapy"],
-        "technology": ["AI", "machine learning", "deep learning", "genomics"]
+        "technology": ["AI", "machine learning", "deep learning", "genomics"],
     }
 
     def extract(self, text: str) -> dict:
@@ -555,8 +574,12 @@ class CrossLingualSearch:
     """Cross-lingual paper search."""
 
     TRANSLATIONS = {
-        "がん": "cancer", "治療": "treatment", "機械学習": "machine learning",
-        "深層学習": "deep learning", "遺伝子": "gene", "タンパク質": "protein"
+        "がん": "cancer",
+        "治療": "treatment",
+        "機械学習": "machine learning",
+        "深層学習": "deep learning",
+        "遺伝子": "gene",
+        "タンパク質": "protein",
     }
 
     def translate_query(self, query: str) -> str:
@@ -614,17 +637,19 @@ class HypothesisLinkDiscovery:
         # Find papers with shared entities but no direct citation
         paper_ids = list(paper_entities.keys())
         for i, p1 in enumerate(paper_ids):
-            for p2 in paper_ids[i+1:]:
+            for p2 in paper_ids[i + 1 :]:
                 shared = paper_entities[p1] & paper_entities[p2]
                 if len(shared) >= 2:
                     # Check if not already connected
                     if p2 not in graph.adjacency.get(p1, []):
-                        links.append({
-                            "paper1": p1,
-                            "paper2": p2,
-                            "shared_entities": list(shared),
-                            "potential_link_strength": len(shared)
-                        })
+                        links.append(
+                            {
+                                "paper1": p1,
+                                "paper2": p2,
+                                "shared_entities": list(shared),
+                                "potential_link_strength": len(shared),
+                            }
+                        )
 
         return sorted(links, key=lambda x: x["potential_link_strength"], reverse=True)
 
@@ -633,9 +658,15 @@ class EvidenceStrengthScorer:
     """Score evidence strength in papers."""
 
     STRENGTH_INDICATORS = {
-        "high": ["randomized", "double-blind", "meta-analysis", "systematic review", "large cohort"],
+        "high": [
+            "randomized",
+            "double-blind",
+            "meta-analysis",
+            "systematic review",
+            "large cohort",
+        ],
         "medium": ["cohort", "case-control", "prospective", "retrospective"],
-        "low": ["case report", "case series", "opinion", "narrative review"]
+        "low": ["case report", "case series", "opinion", "narrative review"],
     }
 
     def score(self, abstract: str) -> dict:
@@ -652,9 +683,12 @@ class ContradictionDetector:
     """Detect contradictions between papers."""
 
     CONTRADICTION_PAIRS = [
-        ("increases", "decreases"), ("positive", "negative"),
-        ("effective", "ineffective"), ("significant", "not significant"),
-        ("improves", "worsens"), ("beneficial", "harmful")
+        ("increases", "decreases"),
+        ("positive", "negative"),
+        ("effective", "ineffective"),
+        ("significant", "not significant"),
+        ("improves", "worsens"),
+        ("beneficial", "harmful"),
     ]
 
     def detect(self, paper1: dict, paper2: dict) -> dict:
@@ -669,7 +703,7 @@ class ContradictionDetector:
         return {
             "has_potential_contradiction": len(contradictions) > 0,
             "contradiction_pairs": contradictions,
-            "confidence": min(len(contradictions) / 3, 1.0)
+            "confidence": min(len(contradictions) / 3, 1.0),
         }
 
 
@@ -679,17 +713,22 @@ class ContradictionDetector:
 def get_graphrag_engine() -> GraphRAGEngine:
     return GraphRAGEngine()
 
+
 def get_adaptive_rag() -> AdaptiveRAG:
     return AdaptiveRAG()
+
 
 def get_corrective_rag() -> CorrectiveRAG:
     return CorrectiveRAG()
 
+
 def get_kg_builder() -> KnowledgeGraphBuilder:
     return KnowledgeGraphBuilder()
 
+
 def get_citation_analyzer() -> CitationNetworkAnalyzer:
     return CitationNetworkAnalyzer()
+
 
 def get_semantic_clustering() -> SemanticClustering:
     return SemanticClustering()

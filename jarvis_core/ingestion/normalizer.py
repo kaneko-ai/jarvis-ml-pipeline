@@ -6,6 +6,7 @@
 - 参照番号除去
 - セクションヘッダー統一
 """
+
 from __future__ import annotations
 
 import re
@@ -16,6 +17,7 @@ from dataclasses import dataclass
 @dataclass
 class NormalizedText:
     """正規化されたテキスト."""
+
     original: str
     normalized: str
     changes: list[str]
@@ -30,7 +32,7 @@ class NormalizedText:
 
 class TextNormalizer:
     """テキスト正規化器.
-    
+
     コーパス全体で一貫した処理を保証。
     """
 
@@ -64,35 +66,35 @@ class TextNormalizer:
         result = normalized
 
         # 制御文字除去
-        result = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', result)
+        result = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", result)
 
         # 連続空白の正規化
         old_len = len(result)
-        result = re.sub(r'[ \t]+', ' ', result)
+        result = re.sub(r"[ \t]+", " ", result)
         if len(result) != old_len:
             changes.append("whitespace_normalized")
 
         # 連続改行の正規化（3つ以上→2つ）
-        result = re.sub(r'\n{3,}', '\n\n', result)
+        result = re.sub(r"\n{3,}", "\n\n", result)
 
         # 参照番号の処理（ [1], [1,2], [1-3] など）
         old_len = len(result)
-        result = re.sub(r'\s*\[\d+(?:[,\s\-–]+\d+)*\]', '', result)
+        result = re.sub(r"\s*\[\d+(?:[,\s\-–]+\d+)*\]", "", result)
         if len(result) != old_len:
             changes.append("citations_cleaned")
 
         # 上付き数字の除去
-        result = re.sub(r'[⁰¹²³⁴⁵⁶⁷⁸⁹]+', '', result)
+        result = re.sub(r"[⁰¹²³⁴⁵⁶⁷⁸⁹]+", "", result)
 
         # 特殊ダッシュの統一
-        result = result.replace('–', '-').replace('—', '-').replace('−', '-')
+        result = result.replace("–", "-").replace("—", "-").replace("−", "-")
 
         # 引用符の統一
         result = result.replace('"', '"').replace('"', '"')
-        result = result.replace(''', "'").replace(''', "'")
+        result = result.replace(""", "'").replace(""", "'")
 
         # 行末の空白除去
-        result = '\n'.join(line.rstrip() for line in result.split('\n'))
+        result = "\n".join(line.rstrip() for line in result.split("\n"))
 
         return NormalizedText(
             original=text,
@@ -117,7 +119,7 @@ class TextNormalizer:
         normalized = self.normalize(text).normalized
 
         # 文分割
-        sentences = re.split(r'(?<=[.!?])\s+', normalized)
+        sentences = re.split(r"(?<=[.!?])\s+", normalized)
 
         # クリーンな文のみ抽出
         clean = []
@@ -129,11 +131,11 @@ class TextNormalizer:
                 continue
 
             # 数字・記号のみの文はスキップ
-            if not re.search(r'[a-zA-Z]{3,}', sent):
+            if not re.search(r"[a-zA-Z]{3,}", sent):
                 continue
 
             # 参照リストっぽい文はスキップ
-            if re.match(r'^\d+\.\s*[A-Z][a-z]+', sent):
+            if re.match(r"^\d+\.\s*[A-Z][a-z]+", sent):
                 continue
 
             clean.append(sent)

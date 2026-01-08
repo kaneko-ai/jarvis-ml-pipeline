@@ -2,6 +2,7 @@
 
 Manages human approval workflow for research outputs before external sharing.
 """
+
 import datetime
 import json
 import logging
@@ -11,21 +12,17 @@ logger = logging.getLogger(__name__)
 
 
 def write_approval(
-    run_dir: Path,
-    approved: bool,
-    approver: str,
-    scope: str,
-    notes: str = ""
+    run_dir: Path, approved: bool, approver: str, scope: str, notes: str = ""
 ) -> Path:
     """Write approval status.
-    
+
     Args:
         run_dir: Path to run directory
         approved: Approval status
         approver: Name of approver
         scope: Scope of approval (e.g., "publication", "internal")
         notes: Optional notes
-        
+
     Returns:
         Path to approval.json
     """
@@ -34,7 +31,7 @@ def write_approval(
         "approver": approver,
         "scope": scope,
         "timestamp": datetime.datetime.now().isoformat(),
-        "notes": notes
+        "notes": notes,
     }
 
     approval_path = run_dir / "approval.json"
@@ -49,10 +46,10 @@ def write_approval(
 
 def check_approval(run_dir: Path) -> bool:
     """Check if run is approved for export/sharing.
-    
+
     Args:
         run_dir: Path to run directory
-        
+
     Returns:
         True if approved
     """
@@ -69,11 +66,11 @@ def check_approval(run_dir: Path) -> bool:
 
 def require_approval(run_dir: Path, operation: str = "export"):
     """Require approval or raise error.
-    
+
     Args:
         run_dir: Path to run directory
         operation: Operation name (for error message)
-        
+
     Raises:
         PermissionError: If not approved
     """

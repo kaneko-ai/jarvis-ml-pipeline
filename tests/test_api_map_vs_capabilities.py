@@ -125,7 +125,10 @@ def test_api_map_vs_capabilities(client, monkeypatch):
         "search": {"method": "GET", "params": {"q": "test", "top_k": 1}},
         "job_detail": {"method": "GET"},
         "job_events": {"method": "GET", "params": {"tail": 1}},
-        "jobs": {"method": "POST", "json": {"type": "collect_and_ingest", "payload": {"query": "q"}}},
+        "jobs": {
+            "method": "POST",
+            "json": {"type": "collect_and_ingest", "payload": {"query": "q"}},
+        },
         "finance_simulate": {"method": "POST", "json": {"months": 1}},
         "finance_optimize": {"method": "POST", "json": {"months": 1}},
         "finance_download": {"method": "GET", "params": {"format": "zip"}},
