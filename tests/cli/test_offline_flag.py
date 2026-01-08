@@ -1,9 +1,9 @@
 import os
-import sys
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
+
 from jarvis_cli import main
 from jarvis_core.network.degradation import DegradationLevel
+
 
 def test_offline_flag_sets_degradation_level():
     with patch('sys.argv', ['jarvis_cli.py', '--offline', 'show-run']):

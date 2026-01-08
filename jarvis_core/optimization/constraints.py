@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List
 
 from jarvis_core.finance.schema import MonthlyCashflow
 from jarvis_core.time.schema import TimeSchema
@@ -17,8 +16,8 @@ class ConstraintViolation:
 
 @dataclass
 class ConstraintReport:
-    hard_violations: List[ConstraintViolation] = field(default_factory=list)
-    soft_violations: List[ConstraintViolation] = field(default_factory=list)
+    hard_violations: list[ConstraintViolation] = field(default_factory=list)
+    soft_violations: list[ConstraintViolation] = field(default_factory=list)
 
     def status(self) -> str:
         if self.hard_violations:
@@ -29,7 +28,7 @@ class ConstraintReport:
 
 
 def evaluate_constraints(
-    cashflows: List[MonthlyCashflow],
+    cashflows: list[MonthlyCashflow],
     time_schema: TimeSchema,
     initial_savings: float,
     research_required: float | None = None,

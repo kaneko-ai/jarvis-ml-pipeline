@@ -5,7 +5,6 @@ based on evidence strength and contradictions.
 """
 from typing import Literal
 
-
 UncertaintyLabel = Literal["確定", "高信頼", "要注意", "推測"]
 SupportLevel = Literal["Strong", "Medium", "Weak", "None"]
 
@@ -65,7 +64,7 @@ def get_allowed_language(uncertainty: UncertaintyLabel) -> dict[str, list[str]]:
             "forbidden": ["である（断定）", "確実", "明らか", "証明"]
         }
     }
-    
+
     return rules.get(uncertainty, rules["推測"])
 
 

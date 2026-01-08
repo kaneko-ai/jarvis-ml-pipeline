@@ -1,8 +1,8 @@
 """Evidence locator formatting utilities."""
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable, List, Optional
 
 
 @dataclass(frozen=True)
@@ -17,7 +17,7 @@ class EvidenceLocator:
     weak: bool = False
 
 
-def _safe(value: Optional[object], fallback: str = "unknown") -> str:
+def _safe(value: object | None, fallback: str = "unknown") -> str:
     if value is None:
         return fallback
     text = str(value).strip()
@@ -30,7 +30,7 @@ def format_evidence_locator(evidence_items: Iterable[EvidenceLocator]) -> str:
     if not items:
         return "【根拠: unknown】"
 
-    parts: List[str] = []
+    parts: list[str] = []
     for item in items[:3]:
         parts.append(
             f"{_safe(item.paper_id)}, {_safe(item.chunk_id)}, {_safe(item.section)} ¶ {_safe(item.paragraph)} {_safe(item.sentence)}"

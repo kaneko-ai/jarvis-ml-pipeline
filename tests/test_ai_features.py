@@ -1,52 +1,52 @@
 """Tests for AI features module."""
 import pytest
+
 from jarvis_core.ai.features import (
-    RelatedPapersFinder,
+    AutoTagger,
+    CitationGenerator,
+    KeywordExtractor,
     PaperQA,
     PaperTranslator,
-    AutoTagger,
-    SimilarityCalculator,
-    KeywordExtractor,
     SentimentAnalyzer,
-    CitationGenerator,
+    SimilarityCalculator,
     get_auto_tagger,
-    get_keyword_extractor,
     get_citation_generator,
-    get_sentiment_analyzer
+    get_keyword_extractor,
+    get_sentiment_analyzer,
 )
 
 
 class TestAutoTagger:
     """Test auto-tagging functionality."""
-    
+
     def test_get_tags_ai(self):
         """Test AI tag detection."""
         tagger = AutoTagger()
         text = "Deep learning for medical image analysis"
         tags = tagger.get_tags(text)
         assert "AI" in tags
-    
+
     def test_get_tags_clinical(self):
         """Test clinical tag detection."""
         tagger = AutoTagger()
         text = "Clinical trial results for patient treatment"
         tags = tagger.get_tags(text)
         assert "Clinical" in tags
-    
+
     def test_get_tags_covid(self):
         """Test COVID-19 tag detection."""
         tagger = AutoTagger()
         text = "COVID-19 vaccine development"
         tags = tagger.get_tags(text)
         assert "COVID-19" in tags
-    
+
     def test_get_tags_default(self):
         """Test default tag for unrecognized text."""
         tagger = AutoTagger()
         text = "Random unrelated content"
         tags = tagger.get_tags(text)
         assert "General" in tags
-    
+
     def test_tag_paper(self):
         """Test tagging a paper."""
         tagger = AutoTagger()
@@ -59,7 +59,7 @@ class TestAutoTagger:
 
 class TestKeywordExtractor:
     """Test keyword extraction."""
-    
+
     def test_extract_keywords(self):
         """Test basic keyword extraction."""
         extractor = KeywordExtractor()
@@ -67,7 +67,7 @@ class TestKeywordExtractor:
         keywords = extractor.extract(text, 3)
         assert len(keywords) > 0
         assert keywords[0][0] == "machine"
-    
+
     def test_extract_filters_stopwords(self):
         """Test stopword filtering."""
         extractor = KeywordExtractor()
@@ -75,7 +75,7 @@ class TestKeywordExtractor:
         keywords = [k for k, _ in extractor.extract(text, 10)]
         assert "the" not in keywords
         assert "study" not in keywords  # Common research word
-    
+
     def test_extract_phrases(self):
         """Test phrase extraction."""
         extractor = KeywordExtractor()
@@ -86,7 +86,7 @@ class TestKeywordExtractor:
 
 class TestSentimentAnalyzer:
     """Test sentiment analysis."""
-    
+
     def test_positive_sentiment(self):
         """Test positive sentiment detection."""
         analyzer = SentimentAnalyzer()
@@ -94,7 +94,7 @@ class TestSentimentAnalyzer:
         result = analyzer.analyze(text)
         assert result["sentiment"] in ["Positive", "Mixed"]
         assert result["positive_indicators"] > 0
-    
+
     def test_negative_sentiment(self):
         """Test negative sentiment detection."""
         analyzer = SentimentAnalyzer()
@@ -102,7 +102,7 @@ class TestSentimentAnalyzer:
         result = analyzer.analyze(text)
         assert result["sentiment"] in ["Negative", "Mixed"]
         assert result["negative_indicators"] > 0
-    
+
     def test_neutral_sentiment(self):
         """Test neutral sentiment."""
         analyzer = SentimentAnalyzer()
@@ -113,7 +113,7 @@ class TestSentimentAnalyzer:
 
 class TestCitationGenerator:
     """Test citation generation."""
-    
+
     def test_apa_format(self):
         """Test APA citation format."""
         generator = CitationGenerator()
@@ -127,7 +127,7 @@ class TestCitationGenerator:
         assert "Smith J, Johnson A" in citation
         assert "2024" in citation
         assert "Nature" in citation
-    
+
     def test_bibtex_format(self):
         """Test BibTeX format."""
         generator = CitationGenerator()
@@ -141,7 +141,7 @@ class TestCitationGenerator:
         citation = generator.generate(paper, 'bibtex')
         assert "@article{" in citation
         assert "title={Test Paper}" in citation
-    
+
     def test_generate_all(self):
         """Test generating all formats."""
         generator = CitationGenerator()
@@ -155,14 +155,14 @@ class TestCitationGenerator:
 
 class TestPaperTranslator:
     """Test paper translation."""
-    
+
     def test_translate_keywords(self):
         """Test keyword translation."""
         translator = PaperTranslator()
         translations = translator.translate_keywords("cancer treatment", 'ja')
         assert "cancer" in translations
         assert "treatment" in translations
-    
+
     def test_add_translations(self):
         """Test adding translations to text."""
         translator = PaperTranslator()
@@ -172,19 +172,19 @@ class TestPaperTranslator:
 
 class TestSimilarityCalculator:
     """Test similarity calculation."""
-    
+
     def test_jaccard_similarity_same(self):
         """Test similarity of identical texts."""
         calc = SimilarityCalculator()
         score = calc.jaccard_similarity("hello world test", "hello world test")
         assert score == 1.0
-    
+
     def test_jaccard_similarity_different(self):
         """Test similarity of different texts."""
         calc = SimilarityCalculator()
         score = calc.jaccard_similarity("machine learning", "quantum physics")
         assert score < 0.5
-    
+
     def test_compare_papers(self):
         """Test paper comparison."""
         calc = SimilarityCalculator()
@@ -197,14 +197,14 @@ class TestSimilarityCalculator:
 
 class TestPaperQA:
     """Test paper Q&A."""
-    
+
     def test_answer_author_question(self):
         """Test answering author question."""
         qa = PaperQA()
         qa.set_context({"title": "Test", "authors": "Smith J", "abstract": "", "journal": "", "year": ""})
         answer = qa.answer("Who wrote this paper?")
         assert "Smith J" in answer
-    
+
     def test_answer_year_question(self):
         """Test answering year question."""
         qa = PaperQA()
@@ -215,16 +215,16 @@ class TestPaperQA:
 
 class TestFactoryFunctions:
     """Test factory functions."""
-    
+
     def test_get_auto_tagger(self):
         assert isinstance(get_auto_tagger(), AutoTagger)
-    
+
     def test_get_keyword_extractor(self):
         assert isinstance(get_keyword_extractor(), KeywordExtractor)
-    
+
     def test_get_citation_generator(self):
         assert isinstance(get_citation_generator(), CitationGenerator)
-    
+
     def test_get_sentiment_analyzer(self):
         assert isinstance(get_sentiment_analyzer(), SentimentAnalyzer)
 

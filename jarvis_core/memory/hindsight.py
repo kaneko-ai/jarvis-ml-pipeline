@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -33,14 +33,14 @@ class MemoryEntry:
     memory_type: MemoryType
     content: str
     source: str  # 情報源
-    evidence: List[str] = field(default_factory=list)  # 根拠
+    evidence: list[str] = field(default_factory=list)  # 根拠
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
-    updated_at: Optional[str] = None
+    updated_at: str | None = None
     verified: bool = False  # 検証済みフラグ
-    verification_method: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
-    def to_dict(self) -> Dict[str, Any]:
+    verification_method: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
         """辞書に変換."""
         return {
             "id": self.id,
@@ -54,9 +54,9 @@ class MemoryEntry:
             "verification_method": self.verification_method,
             "metadata": self.metadata,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "MemoryEntry":
+    def from_dict(cls, data: dict[str, Any]) -> MemoryEntry:
         """辞書から生成."""
         return cls(
             id=data["id"],
@@ -80,7 +80,7 @@ class HindsightMemory:
     - World には必ず evidence が必要
     - Experience は実行ログとして保存
     """
-    
+
     def __init__(self, storage_path: str = "data/memory"):
         """
         初期化.
@@ -90,40 +90,40 @@ class HindsightMemory:
         """
         self.storage_path = Path(storage_path)
         self.storage_path.mkdir(parents=True, exist_ok=True)
-        
-        self._memories: Dict[MemoryType, List[MemoryEntry]] = {
+
+        self._memories: dict[MemoryType, list[MemoryEntry]] = {
             MemoryType.WORLD: [],
             MemoryType.EXPERIENCE: [],
             MemoryType.OBSERVATION: [],
             MemoryType.OPINION: [],
         }
-        
+
         self._load()
-    
+
     def _load(self) -> None:
         """ストレージから読み込み."""
         for memory_type in MemoryType:
             file_path = self.storage_path / f"{memory_type.value}.jsonl"
             if file_path.exists():
-                with open(file_path, 'r', encoding='utf-8') as f:
+                with open(file_path, encoding='utf-8') as f:
                     for line in f:
                         if line.strip():
                             entry = MemoryEntry.from_dict(json.loads(line))
                             self._memories[memory_type].append(entry)
                 logger.info(f"Loaded {len(self._memories[memory_type])} {memory_type.value} entries")
-    
+
     def _save(self, memory_type: MemoryType) -> None:
         """ストレージに保存."""
         file_path = self.storage_path / f"{memory_type.value}.jsonl"
         with open(file_path, 'w', encoding='utf-8') as f:
             for entry in self._memories[memory_type]:
                 f.write(json.dumps(entry.to_dict(), ensure_ascii=False) + "\n")
-    
+
     def add_world(
         self,
         content: str,
         source: str,
-        evidence: List[str],
+        evidence: list[str],
         verification_method: str = "direct_verification"
     ) -> MemoryEntry:
         """
@@ -143,7 +143,7 @@ class HindsightMemory:
         """
         if not evidence:
             raise ValueError("World entries require evidence")
-        
+
         entry = MemoryEntry(
             id=f"world_{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}",
             memory_type=MemoryType.WORLD,
@@ -153,18 +153,18 @@ class HindsightMemory:
             verified=True,
             verification_method=verification_method,
         )
-        
+
         self._memories[MemoryType.WORLD].append(entry)
         self._save(MemoryType.WORLD)
         logger.info(f"Added World entry: {entry.id}")
-        
+
         return entry
-    
+
     def add_experience(
         self,
         content: str,
         source: str,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: dict[str, Any] | None = None
     ) -> MemoryEntry:
         """
         Experience（実行・失敗・手動判断）を追加.
@@ -184,13 +184,13 @@ class HindsightMemory:
             source=source,
             metadata=metadata or {},
         )
-        
+
         self._memories[MemoryType.EXPERIENCE].append(entry)
         self._save(MemoryType.EXPERIENCE)
         logger.info(f"Added Experience entry: {entry.id}")
-        
+
         return entry
-    
+
     def add_observation(
         self,
         content: str,
@@ -213,13 +213,13 @@ class HindsightMemory:
             source=source,
             verified=False,
         )
-        
+
         self._memories[MemoryType.OBSERVATION].append(entry)
         self._save(MemoryType.OBSERVATION)
         logger.info(f"Added Observation entry: {entry.id}")
-        
+
         return entry
-    
+
     def add_opinion(
         self,
         content: str,
@@ -244,19 +244,19 @@ class HindsightMemory:
             source=source,
             verified=False,
         )
-        
+
         self._memories[MemoryType.OPINION].append(entry)
         self._save(MemoryType.OPINION)
         logger.info(f"Added Opinion entry: {entry.id}")
-        
+
         return entry
-    
+
     def promote_to_world(
         self,
         observation_id: str,
-        evidence: List[str],
+        evidence: list[str],
         verification_method: str
-    ) -> Optional[MemoryEntry]:
+    ) -> MemoryEntry | None:
         """
         ObservationをWorldに昇格.
         
@@ -277,15 +277,15 @@ class HindsightMemory:
             if entry.id == observation_id:
                 obs = entry
                 break
-        
+
         if not obs:
             logger.warning(f"Observation not found: {observation_id}")
             return None
-        
+
         # 根拠チェック
         if not evidence:
             raise ValueError("Cannot promote to World without evidence")
-        
+
         # Worldに追加
         world_entry = self.add_world(
             content=obs.content,
@@ -293,22 +293,22 @@ class HindsightMemory:
             evidence=evidence,
             verification_method=verification_method,
         )
-        
+
         # Observationを削除
         self._memories[MemoryType.OBSERVATION] = [
             e for e in self._memories[MemoryType.OBSERVATION] if e.id != observation_id
         ]
         self._save(MemoryType.OBSERVATION)
-        
+
         logger.info(f"Promoted {observation_id} to World: {world_entry.id}")
         return world_entry
-    
+
     def query(
         self,
-        memory_type: Optional[MemoryType] = None,
+        memory_type: MemoryType | None = None,
         verified_only: bool = False,
         limit: int = 100
-    ) -> List[MemoryEntry]:
+    ) -> list[MemoryEntry]:
         """
         メモリをクエリ.
         
@@ -321,9 +321,9 @@ class HindsightMemory:
             MemoryEntryリスト
         """
         results = []
-        
+
         types_to_search = [memory_type] if memory_type else list(MemoryType)
-        
+
         for mt in types_to_search:
             for entry in self._memories[mt]:
                 if verified_only and not entry.verified:
@@ -331,5 +331,5 @@ class HindsightMemory:
                 results.append(entry)
                 if len(results) >= limit:
                     break
-        
+
         return results[:limit]

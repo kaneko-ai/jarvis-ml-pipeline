@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass
@@ -18,11 +18,11 @@ class StopDecision:
     """停止判定結果."""
     should_stop: bool = False
     reason: str = ""
-    unknown_aspects: List[str] = field(default_factory=list)
-    next_steps: List[str] = field(default_factory=list)
+    unknown_aspects: list[str] = field(default_factory=list)
+    next_steps: list[str] = field(default_factory=list)
     partial_answer: str = ""
     confidence: float = 0.0
-    
+
     def to_dict(self) -> dict:
         return {
             "should_stop": self.should_stop,
@@ -32,31 +32,31 @@ class StopDecision:
             "partial_answer": self.partial_answer,
             "confidence": self.confidence,
         }
-    
+
     def format_response(self) -> str:
         """ユーザー向けレスポンスをフォーマット."""
         lines = []
-        
+
         if self.partial_answer:
             lines.append("## 部分的な回答")
             lines.append(self.partial_answer)
             lines.append("")
-        
+
         if self.unknown_aspects:
             lines.append("## 不明な点")
             for aspect in self.unknown_aspects:
                 lines.append(f"- {aspect}")
             lines.append("")
-        
+
         if self.next_steps:
             lines.append("## 次に必要な情報/ステップ")
             for step in self.next_steps:
                 lines.append(f"- {step}")
             lines.append("")
-        
+
         lines.append(f"*信頼度: {self.confidence:.0%}*")
         lines.append(f"*停止理由: {self.reason}*")
-        
+
         return "\n".join(lines)
 
 
@@ -69,7 +69,7 @@ class StopPolicy:
     3. 致命的なエラーが発生した
     4. 品質ゲートを満たせない
     """
-    
+
     # 停止条件の閾値
     DEFAULT_THRESHOLDS = {
         "min_evidence_count": 1,
@@ -77,15 +77,15 @@ class StopPolicy:
         "max_retries": 3,
         "max_assertion_without_evidence": 0,
     }
-    
+
     def __init__(
         self,
-        thresholds: Optional[Dict[str, Any]] = None,
+        thresholds: dict[str, Any] | None = None,
         refuse_if_no_evidence: bool = True,
     ):
         self.thresholds = {**self.DEFAULT_THRESHOLDS, **(thresholds or {})}
         self.refuse_if_no_evidence = refuse_if_no_evidence
-    
+
     def evaluate(
         self,
         evidence_count: int,
@@ -114,7 +114,7 @@ class StopPolicy:
             partial_answer=partial_answer,
             confidence=confidence,
         )
-        
+
         # 条件1: 致命的エラー
         if has_fatal_error:
             decision.should_stop = True
@@ -122,7 +122,7 @@ class StopPolicy:
             decision.unknown_aspects.append(f"エラー: {error_message}")
             decision.next_steps.append("システム管理者に連絡してください")
             return decision
-        
+
         # 条件2: 根拠不足
         if self.refuse_if_no_evidence and evidence_count < self.thresholds["min_evidence_count"]:
             decision.should_stop = True
@@ -134,7 +134,7 @@ class StopPolicy:
                 "追加の論文/資料を投入してください",
             ])
             return decision
-        
+
         # 条件3: 根拠なし断言
         if assertions_without_evidence > self.thresholds["max_assertion_without_evidence"]:
             decision.should_stop = True
@@ -145,7 +145,7 @@ class StopPolicy:
                 "不確実な点は「〜の可能性がある」等の表現を使用してください",
             ])
             return decision
-        
+
         # 条件4: リトライ上限
         if retry_count >= self.thresholds["max_retries"]:
             decision.should_stop = True
@@ -156,7 +156,7 @@ class StopPolicy:
                 "異なるアプローチで再試行してください",
             ])
             return decision
-        
+
         # 条件5: 信頼度不足
         if confidence < self.thresholds["min_confidence"]:
             decision.should_stop = True
@@ -167,11 +167,11 @@ class StopPolicy:
                 "専門家に確認してください",
             ])
             return decision
-        
+
         # 停止不要
         decision.should_stop = False
         return decision
-    
+
     def format_refuse_response(
         self,
         decision: StopDecision,
@@ -186,7 +186,7 @@ class StopPolicy:
             "---",
             "",
         ]
-        
+
         lines.append(decision.format_response())
-        
+
         return "\n".join(lines)

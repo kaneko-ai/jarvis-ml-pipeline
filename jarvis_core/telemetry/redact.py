@@ -5,8 +5,7 @@ Per PR-71, scrubs sensitive data from logs.
 from __future__ import annotations
 
 import re
-from typing import Any, Dict
-
+from typing import Any
 
 # Patterns to redact
 REDACTION_PATTERNS = [
@@ -37,7 +36,7 @@ def redact_string(text: str) -> str:
     return result
 
 
-def redact_dict(data: Dict[str, Any], depth: int = 0, max_depth: int = 5) -> Dict[str, Any]:
+def redact_dict(data: dict[str, Any], depth: int = 0, max_depth: int = 5) -> dict[str, Any]:
     """Recursively redact sensitive data from a dictionary."""
     if depth > max_depth:
         return data

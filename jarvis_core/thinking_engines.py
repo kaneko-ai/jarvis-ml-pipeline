@@ -4,7 +4,7 @@ Per Research OS v3.0 specification.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 
 # Ψ-16: Counterfactual Research Engine
 def analyze_counterfactual(
-    vector: "PaperVector",
-    all_vectors: List["PaperVector"],
+    vector: PaperVector,
+    all_vectors: list[PaperVector],
 ) -> dict:
     """Analyze 'what if this paper didn't exist' impact.
 
@@ -49,8 +49,8 @@ def analyze_counterfactual(
 
 # Ψ-17: Blind-Spot Discovery Engine
 def discover_blind_spots(
-    vectors: List["PaperVector"],
-) -> List[dict]:
+    vectors: list[PaperVector],
+) -> list[dict]:
     """Discover collective blind spots in research.
 
     Args:
@@ -96,7 +96,7 @@ def discover_blind_spots(
 # Ψ-18: Concept Mutation Simulator
 def simulate_concept_mutation(
     concept: str,
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
 ) -> dict:
     """Simulate how a concept might evolve across fields.
 
@@ -136,7 +136,7 @@ def simulate_concept_mutation(
 # Ψ-19: AI-vs-AI Research Debate
 def simulate_research_debate(
     hypothesis: str,
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
 ) -> dict:
     """Simulate AI debate on research strategy.
 
@@ -175,8 +175,8 @@ def simulate_research_debate(
 
 # Ψ-20: Hypothesis Darwinism Engine
 def simulate_hypothesis_evolution(
-    hypotheses: List[str],
-    vectors: List["PaperVector"],
+    hypotheses: list[str],
+    vectors: list[PaperVector],
     generations: int = 3,
 ) -> dict:
     """Simulate hypothesis survival across generations.

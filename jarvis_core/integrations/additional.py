@@ -1,15 +1,14 @@
 """JARVIS Additional Integrations - Remaining Phase 3 Features (23,24,26,27)"""
 import json
-import urllib.request
 import urllib.parse
-from typing import Dict, List, Optional
+import urllib.request
 from dataclasses import dataclass
 
 
 # ============================================
 # 23. ZOTERO INTEGRATION
 # ============================================
-@dataclass  
+@dataclass
 class ZoteroConfig:
     """Zotero configuration."""
     api_key: str
@@ -19,19 +18,19 @@ class ZoteroConfig:
 
 class ZoteroClient:
     """Zotero API client for reference management."""
-    
+
     BASE_URL = "https://api.zotero.org"
-    
+
     def __init__(self, config: ZoteroConfig):
         self.config = config
-    
-    def _get_headers(self) -> Dict:
+
+    def _get_headers(self) -> dict:
         return {
             "Zotero-API-Key": self.config.api_key,
             "Content-Type": "application/json"
         }
-    
-    def get_items(self, limit: int = 25) -> List[Dict]:
+
+    def get_items(self, limit: int = 25) -> list[dict]:
         """Get library items.
         
         Args:
@@ -41,7 +40,7 @@ class ZoteroClient:
             List of items
         """
         url = f"{self.BASE_URL}/users/{self.config.user_id}/items?limit={limit}"
-        
+
         try:
             req = urllib.request.Request(url, headers=self._get_headers())
             with urllib.request.urlopen(req, timeout=10) as response:
@@ -49,8 +48,8 @@ class ZoteroClient:
         except Exception as e:
             print(f"Zotero error: {e}")
             return []
-    
-    def add_item(self, paper: Dict) -> bool:
+
+    def add_item(self, paper: dict) -> bool:
         """Add paper to Zotero library.
         
         Args:
@@ -71,9 +70,9 @@ class ZoteroClient:
             "DOI": paper.get("doi", ""),
             "extra": f"PMID: {paper.get('pmid', '')}"
         }
-        
+
         url = f"{self.BASE_URL}/users/{self.config.user_id}/items"
-        
+
         try:
             data = json.dumps([item]).encode("utf-8")
             req = urllib.request.Request(url, data=data, headers=self._get_headers(), method="POST")
@@ -82,8 +81,8 @@ class ZoteroClient:
         except Exception as e:
             print(f"Zotero add error: {e}")
             return False
-    
-    def search(self, query: str) -> List[Dict]:
+
+    def search(self, query: str) -> list[dict]:
         """Search Zotero library.
         
         Args:
@@ -94,7 +93,7 @@ class ZoteroClient:
         """
         encoded_query = urllib.parse.quote(query)
         url = f"{self.BASE_URL}/users/{self.config.user_id}/items?q={encoded_query}"
-        
+
         try:
             req = urllib.request.Request(url, headers=self._get_headers())
             with urllib.request.urlopen(req, timeout=10) as response:
@@ -111,25 +110,25 @@ class ZoteroClient:
 class GoogleDriveConfig:
     """Google Drive configuration."""
     access_token: str
-    folder_id: Optional[str] = None
+    folder_id: str | None = None
 
 
 class GoogleDriveExporter:
     """Export files to Google Drive."""
-    
+
     BASE_URL = "https://www.googleapis.com/drive/v3"
     UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3"
-    
+
     def __init__(self, config: GoogleDriveConfig):
         self.config = config
-    
-    def _get_headers(self) -> Dict:
+
+    def _get_headers(self) -> dict:
         return {
             "Authorization": f"Bearer {self.config.access_token}",
             "Content-Type": "application/json"
         }
-    
-    def list_files(self, limit: int = 10) -> List[Dict]:
+
+    def list_files(self, limit: int = 10) -> list[dict]:
         """List files in Drive.
         
         Args:
@@ -141,9 +140,9 @@ class GoogleDriveExporter:
         params = f"pageSize={limit}"
         if self.config.folder_id:
             params += f"&q='{self.config.folder_id}' in parents"
-        
+
         url = f"{self.BASE_URL}/files?{params}"
-        
+
         try:
             req = urllib.request.Request(url, headers=self._get_headers())
             with urllib.request.urlopen(req, timeout=10) as response:
@@ -152,8 +151,8 @@ class GoogleDriveExporter:
         except Exception as e:
             print(f"Google Drive error: {e}")
             return []
-    
-    def export_json(self, filename: str, data: Dict) -> Optional[str]:
+
+    def export_json(self, filename: str, data: dict) -> str | None:
         """Export JSON data to Drive.
         
         Args:
@@ -167,10 +166,10 @@ class GoogleDriveExporter:
             "name": filename,
             "mimeType": "application/json"
         }
-        
+
         if self.config.folder_id:
             metadata["parents"] = [self.config.folder_id]
-        
+
         # In production, would use multipart upload
         # This is a simplified version
         try:
@@ -178,8 +177,8 @@ class GoogleDriveExporter:
         except Exception as e:
             print(f"Export error: {e}")
             return None
-    
-    def export_papers(self, papers: List[Dict], filename: str = "jarvis_papers.json") -> Optional[str]:
+
+    def export_papers(self, papers: list[dict], filename: str = "jarvis_papers.json") -> str | None:
         """Export papers to Drive.
         
         Args:
@@ -209,19 +208,19 @@ class DiscordConfig:
 
 class DiscordBot:
     """Discord bot for notifications."""
-    
+
     BASE_URL = "https://discord.com/api/v10"
-    
+
     def __init__(self, config: DiscordConfig):
         self.config = config
-    
-    def _get_headers(self) -> Dict:
+
+    def _get_headers(self) -> dict:
         return {
             "Authorization": f"Bot {self.config.bot_token}",
             "Content-Type": "application/json"
         }
-    
-    def send_message(self, content: str, embed: Optional[Dict] = None) -> bool:
+
+    def send_message(self, content: str, embed: dict | None = None) -> bool:
         """Send message to channel.
         
         Args:
@@ -232,11 +231,11 @@ class DiscordBot:
             Success status
         """
         url = f"{self.BASE_URL}/channels/{self.config.channel_id}/messages"
-        
+
         data = {"content": content}
         if embed:
             data["embeds"] = [embed]
-        
+
         try:
             req = urllib.request.Request(
                 url,
@@ -249,8 +248,8 @@ class DiscordBot:
         except Exception as e:
             print(f"Discord error: {e}")
             return False
-    
-    def send_paper_alert(self, papers: List[Dict]) -> bool:
+
+    def send_paper_alert(self, papers: list[dict]) -> bool:
         """Send paper alert to Discord.
         
         Args:
@@ -272,7 +271,7 @@ class DiscordBot:
             ],
             "footer": {"text": "JARVIS Research OS"}
         }
-        
+
         return self.send_message("New papers found!", embed)
 
 
@@ -281,11 +280,11 @@ class DiscordBot:
 # ============================================
 class ObsidianExporter:
     """Export papers to Obsidian markdown format."""
-    
-    def __init__(self, vault_path: Optional[str] = None):
+
+    def __init__(self, vault_path: str | None = None):
         self.vault_path = vault_path
-    
-    def paper_to_markdown(self, paper: Dict) -> str:
+
+    def paper_to_markdown(self, paper: dict) -> str:
         """Convert paper to Obsidian markdown.
         
         Args:
@@ -295,7 +294,7 @@ class ObsidianExporter:
             Markdown string
         """
         tags = " ".join([f"#{t}" for t in paper.get("tags", ["research"])])
-        
+
         return f"""---
 title: "{paper.get('title', 'Unknown')}"
 authors: "{paper.get('authors', 'Unknown')}"
@@ -341,8 +340,8 @@ tags: [{', '.join([f'"{t}"' for t in paper.get('tags', ['research'])])}]
 {tags}
 Created by [[JARVIS Research OS]]
 """
-    
-    def export_paper(self, paper: Dict, filename: Optional[str] = None) -> str:
+
+    def export_paper(self, paper: dict, filename: str | None = None) -> str:
         """Export single paper.
         
         Args:
@@ -356,18 +355,18 @@ Created by [[JARVIS Research OS]]
             # Create filename from title
             safe_title = "".join(c if c.isalnum() or c == " " else "_" for c in paper.get("title", "paper")[:50])
             filename = f"{safe_title}.md"
-        
+
         content = self.paper_to_markdown(paper)
-        
+
         if self.vault_path:
             import os
             filepath = os.path.join(self.vault_path, filename)
             with open(filepath, "w", encoding="utf-8") as f:
                 f.write(content)
-        
+
         return filename
-    
-    def export_all(self, papers: List[Dict], folder: str = "JARVIS Papers") -> List[str]:
+
+    def export_all(self, papers: list[dict], folder: str = "JARVIS Papers") -> list[str]:
         """Export multiple papers.
         
         Args:
@@ -393,49 +392,49 @@ class Widget:
     id: str
     type: str
     title: str
-    position: Dict  # {"x": 0, "y": 0, "w": 2, "h": 2}
-    config: Dict
+    position: dict  # {"x": 0, "y": 0, "w": 2, "h": 2}
+    config: dict
 
 
 class DashboardManager:
     """Manage custom dashboard layouts."""
-    
+
     WIDGET_TYPES = [
         "stats", "chart", "search", "papers", "notifications",
         "calendar", "quick_actions", "word_cloud", "timeline"
     ]
-    
+
     def __init__(self):
-        self.widgets: List[Widget] = []
-        self.layouts: Dict[str, List[Widget]] = {}
-    
+        self.widgets: list[Widget] = []
+        self.layouts: dict[str, list[Widget]] = {}
+
     def add_widget(self, widget: Widget):
         """Add widget to dashboard."""
         self.widgets.append(widget)
-    
+
     def remove_widget(self, widget_id: str):
         """Remove widget."""
         self.widgets = [w for w in self.widgets if w.id != widget_id]
-    
-    def update_position(self, widget_id: str, position: Dict):
+
+    def update_position(self, widget_id: str, position: dict):
         """Update widget position."""
         for widget in self.widgets:
             if widget.id == widget_id:
                 widget.position = position
                 break
-    
+
     def save_layout(self, name: str):
         """Save current layout."""
         self.layouts[name] = self.widgets.copy()
-    
+
     def load_layout(self, name: str) -> bool:
         """Load saved layout."""
         if name in self.layouts:
             self.widgets = self.layouts[name].copy()
             return True
         return False
-    
-    def get_default_layout(self) -> List[Widget]:
+
+    def get_default_layout(self) -> list[Widget]:
         """Get default dashboard layout."""
         return [
             Widget("stats", "stats", "Statistics", {"x": 0, "y": 0, "w": 12, "h": 2}, {}),
@@ -451,13 +450,13 @@ class DashboardManager:
 # ============================================
 class SplitViewManager:
     """Manage split view layouts."""
-    
+
     LAYOUTS = ["single", "vertical", "horizontal", "quad"]
-    
+
     def __init__(self):
         self.current_layout = "single"
-        self.panes: Dict[str, Dict] = {"main": {"content": None}}
-    
+        self.panes: dict[str, dict] = {"main": {"content": None}}
+
     def set_layout(self, layout: str):
         """Set split view layout.
         
@@ -466,9 +465,9 @@ class SplitViewManager:
         """
         if layout not in self.LAYOUTS:
             return
-        
+
         self.current_layout = layout
-        
+
         if layout == "single":
             self.panes = {"main": {"content": None}}
         elif layout == "vertical":
@@ -482,8 +481,8 @@ class SplitViewManager:
                 "bottom_left": {"content": None},
                 "bottom_right": {"content": None}
             }
-    
-    def set_pane_content(self, pane_id: str, content: Dict):
+
+    def set_pane_content(self, pane_id: str, content: dict):
         """Set content for a pane.
         
         Args:
@@ -492,7 +491,7 @@ class SplitViewManager:
         """
         if pane_id in self.panes:
             self.panes[pane_id]["content"] = content
-    
+
     def generate_css(self) -> str:
         """Generate CSS for current layout."""
         if self.current_layout == "vertical":
@@ -509,12 +508,12 @@ class SplitViewManager:
 # ============================================
 class FullScreenManager:
     """Manage full screen mode."""
-    
+
     def __init__(self):
         self.is_fullscreen = False
         self.target_element = None
-    
-    def toggle(self, element_id: Optional[str] = None) -> Dict:
+
+    def toggle(self, element_id: str | None = None) -> dict:
         """Toggle full screen mode.
         
         Args:
@@ -525,13 +524,13 @@ class FullScreenManager:
         """
         self.is_fullscreen = not self.is_fullscreen
         self.target_element = element_id
-        
+
         return {
             "is_fullscreen": self.is_fullscreen,
             "element": element_id,
             "action": "enter" if self.is_fullscreen else "exit"
         }
-    
+
     def generate_js(self) -> str:
         """Generate fullscreen JavaScript."""
         return """
@@ -557,19 +556,19 @@ class Annotation:
     text: str
     highlight_color: str
     page: int
-    position: Dict  # {"x": 0, "y": 0, "width": 100, "height": 20}
+    position: dict  # {"x": 0, "y": 0, "width": 100, "height": 20}
     note: str = ""
     created_at: str = ""
 
 
 class AnnotationManager:
     """Manage document annotations."""
-    
+
     COLORS = ["yellow", "green", "pink", "blue", "purple"]
-    
+
     def __init__(self):
-        self.annotations: Dict[str, List[Annotation]] = {}
-    
+        self.annotations: dict[str, list[Annotation]] = {}
+
     def add_annotation(self, paper_id: str, annotation: Annotation) -> str:
         """Add annotation.
         
@@ -582,17 +581,17 @@ class AnnotationManager:
         """
         if paper_id not in self.annotations:
             self.annotations[paper_id] = []
-        
+
         annotation.id = f"ann_{len(self.annotations[paper_id])}"
         annotation.created_at = __import__("datetime").datetime.now().isoformat()
         self.annotations[paper_id].append(annotation)
-        
+
         return annotation.id
-    
-    def get_annotations(self, paper_id: str) -> List[Annotation]:
+
+    def get_annotations(self, paper_id: str) -> list[Annotation]:
         """Get annotations for paper."""
         return self.annotations.get(paper_id, [])
-    
+
     def delete_annotation(self, paper_id: str, annotation_id: str) -> bool:
         """Delete annotation."""
         if paper_id in self.annotations:
@@ -601,8 +600,8 @@ class AnnotationManager:
             ]
             return True
         return False
-    
-    def export_annotations(self, paper_id: str) -> Dict:
+
+    def export_annotations(self, paper_id: str) -> dict:
         """Export annotations for paper."""
         return {
             "paper_id": paper_id,
@@ -623,13 +622,13 @@ class AnnotationManager:
 # ============================================
 class ThreeDAnimationConfig:
     """Configuration for 3D background animations."""
-    
+
     def __init__(self):
         self.enabled = True
         self.type = "particles"  # particles, waves, network
         self.color_scheme = "purple"
-    
-    def generate_config(self) -> Dict:
+
+    def generate_config(self) -> dict:
         """Generate Three.js configuration."""
         return {
             "enabled": self.enabled,
@@ -651,7 +650,7 @@ class ThreeDAnimationConfig:
                 "color": "#f472b6"
             }
         }
-    
+
     def generate_js_snippet(self) -> str:
         """Generate Three.js initialization snippet."""
         return """
@@ -693,7 +692,7 @@ if __name__ == "__main__":
     paper = {"title": "Test Paper", "authors": "Smith J", "year": 2024, "journal": "Nature"}
     md = exporter.paper_to_markdown(paper)
     print(md[:200] + "...")
-    
+
     print("\n=== Dashboard Manager ===")
     dm = DashboardManager()
     layout = dm.get_default_layout()

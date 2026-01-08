@@ -6,9 +6,10 @@ so that execution and retry logic can reuse simple sanity checks.
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Iterable, List
+from typing import Any
 
 logger = logging.getLogger("jarvis_core.validation")
 
@@ -18,9 +19,9 @@ class EvaluationResult:
     """Container for validation outcomes."""
 
     ok: bool
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] | None = field(default_factory=list)
-    meta: Dict[str, Any] | None = field(default_factory=dict)
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] | None = field(default_factory=list)
+    meta: dict[str, Any] | None = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if self.warnings is None:
@@ -29,12 +30,12 @@ class EvaluationResult:
             self.meta = {}
 
 
-def _append_error(errors: List[str], message: str) -> None:
+def _append_error(errors: list[str], message: str) -> None:
     errors.append(message)
     logger.info(message)
 
 
-def validate_json_schema(data: Any, schema: Dict[str, Any]) -> EvaluationResult:
+def validate_json_schema(data: Any, schema: dict[str, Any]) -> EvaluationResult:
     """Perform a lightweight structural validation against a simple schema.
 
     The schema is expected to be a mapping of key -> expected type (or tuple of
@@ -43,8 +44,8 @@ def validate_json_schema(data: Any, schema: Dict[str, Any]) -> EvaluationResult:
     errors.
     """
 
-    errors: List[str] = []
-    warnings: List[str] = []
+    errors: list[str] = []
+    warnings: list[str] = []
 
     if not isinstance(schema, dict):
         _append_error(errors, "Schema must be a dictionary of key -> type")
@@ -81,7 +82,7 @@ def validate_json_schema(data: Any, schema: Dict[str, Any]) -> EvaluationResult:
 def validate_file_exists(path: str) -> EvaluationResult:
     """Validate that a filesystem path exists."""
 
-    errors: List[str] = []
+    errors: list[str] = []
     target = Path(path)
     if not target.exists():
         _append_error(errors, f"File does not exist: {path}")
@@ -91,9 +92,9 @@ def validate_file_exists(path: str) -> EvaluationResult:
 def combine_evaluations(*results: EvaluationResult) -> EvaluationResult:
     """Merge multiple evaluation results into a single aggregated outcome."""
 
-    errors: List[str] = []
-    warnings: List[str] = []
-    meta: Dict[str, Any] = {}
+    errors: list[str] = []
+    warnings: list[str] = []
+    meta: dict[str, Any] = {}
 
     for res in results:
         errors.extend(res.errors)

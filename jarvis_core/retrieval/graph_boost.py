@@ -5,16 +5,16 @@ Per V4.2 Sprint 3, this boosts candidates using citation/neighbor graphs.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Dict, Any, Set
+from typing import Any
 
 
 @dataclass
 class BoostResult:
     """Result of graph boosting."""
 
-    boosted: List[Any]
-    bridge_papers: List[str]
-    boost_scores: Dict[str, float]
+    boosted: list[Any]
+    bridge_papers: list[str]
+    boost_scores: dict[str, float]
 
 
 class GraphBooster:
@@ -22,8 +22,8 @@ class GraphBooster:
 
     def __init__(
         self,
-        citation_graph: Dict[str, List[str]] = None,
-        similarity_graph: Dict[str, List[str]] = None,
+        citation_graph: dict[str, list[str]] = None,
+        similarity_graph: dict[str, list[str]] = None,
         citation_boost: float = 0.2,
         neighbor_boost: float = 0.1,
     ):
@@ -42,8 +42,8 @@ class GraphBooster:
 
     def find_bridge_papers(
         self,
-        seed_ids: List[str],
-    ) -> List[str]:
+        seed_ids: list[str],
+    ) -> list[str]:
         """Find papers that bridge between seed papers.
 
         Args:
@@ -53,12 +53,12 @@ class GraphBooster:
             List of bridge paper IDs.
         """
         # Get all cited papers from seeds
-        cited_by_seeds: Set[str] = set()
+        cited_by_seeds: set[str] = set()
         for seed in seed_ids:
             cited_by_seeds.update(self.citation_graph.get(seed, []))
 
         # Find papers cited by multiple seeds (bridges)
-        cite_counts: Dict[str, int] = {}
+        cite_counts: dict[str, int] = {}
         for seed in seed_ids:
             for cited in self.citation_graph.get(seed, []):
                 cite_counts[cited] = cite_counts.get(cited, 0) + 1
@@ -72,8 +72,8 @@ class GraphBooster:
 
     def boost(
         self,
-        candidates: List[Any],
-        seed_ids: List[str] = None,
+        candidates: list[Any],
+        seed_ids: list[str] = None,
     ) -> BoostResult:
         """Boost candidates using graph relationships.
 
@@ -85,7 +85,7 @@ class GraphBooster:
             BoostResult with boosted candidates.
         """
         seed_ids = seed_ids or []
-        boost_scores: Dict[str, float] = {}
+        boost_scores: dict[str, float] = {}
         bridge_papers = self.find_bridge_papers(seed_ids)
 
         # Calculate boosts

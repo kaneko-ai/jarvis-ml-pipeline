@@ -4,14 +4,15 @@ Per RP-535, implements error tracking and reporting.
 """
 from __future__ import annotations
 
+import hashlib
 import os
 import time
 import traceback
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any, Callable
 from enum import Enum
 from functools import wraps
-import hashlib
+from typing import Any
 
 
 class ErrorLevel(Enum):
@@ -29,14 +30,14 @@ class ErrorEvent:
     event_id: str
     level: ErrorLevel
     message: str
-    exception_type: Optional[str] = None
-    exception_value: Optional[str] = None
-    stacktrace: Optional[str] = None
+    exception_type: str | None = None
+    exception_value: str | None = None
+    stacktrace: str | None = None
     timestamp: float = field(default_factory=time.time)
-    user_id: Optional[str] = None
-    tags: Dict[str, str] = field(default_factory=dict)
-    extra: Dict[str, Any] = field(default_factory=dict)
-    fingerprint: Optional[str] = None
+    user_id: str | None = None
+    tags: dict[str, str] = field(default_factory=dict)
+    extra: dict[str, Any] = field(default_factory=dict)
+    fingerprint: str | None = None
 
 
 @dataclass
@@ -61,27 +62,27 @@ class SentryClient:
     - User context
     - Tags and extra data
     """
-    
-    def __init__(self, config: Optional[SentryConfig] = None):
+
+    def __init__(self, config: SentryConfig | None = None):
         self.config = config or SentryConfig(
             dsn=os.getenv("SENTRY_DSN", ""),
             environment=os.getenv("JARVIS_ENV", "development"),
         )
         self._enabled = bool(self.config.dsn)
-        self._breadcrumbs: List[Dict[str, Any]] = []
-        self._user: Optional[Dict[str, Any]] = None
-        self._tags: Dict[str, str] = {}
-        self._events: List[ErrorEvent] = []
-    
+        self._breadcrumbs: list[dict[str, Any]] = []
+        self._user: dict[str, Any] | None = None
+        self._tags: dict[str, str] = {}
+        self._events: list[ErrorEvent] = []
+
     def is_enabled(self) -> bool:
         """Check if Sentry is enabled."""
         return self._enabled
-    
+
     def capture_exception(
         self,
-        exception: Optional[Exception] = None,
+        exception: Exception | None = None,
         **kwargs,
-    ) -> Optional[str]:
+    ) -> str | None:
         """Capture an exception.
         
         Args:
@@ -93,7 +94,7 @@ class SentryClient:
         """
         if not self._should_sample():
             return None
-        
+
         exc = exception
         if exc is None:
             # Get current exception
@@ -101,10 +102,10 @@ class SentryClient:
             exc_info = sys.exc_info()
             if exc_info[1]:
                 exc = exc_info[1]
-        
+
         if exc is None:
             return None
-        
+
         event = ErrorEvent(
             event_id=self._generate_event_id(),
             level=ErrorLevel.ERROR,
@@ -117,18 +118,18 @@ class SentryClient:
             extra=kwargs.get("extra", {}),
             fingerprint=self._compute_fingerprint(exc),
         )
-        
+
         self._events.append(event)
         self._send_event(event)
-        
+
         return event.event_id
-    
+
     def capture_message(
         self,
         message: str,
         level: ErrorLevel = ErrorLevel.INFO,
         **kwargs,
-    ) -> Optional[str]:
+    ) -> str | None:
         """Capture a message.
         
         Args:
@@ -141,7 +142,7 @@ class SentryClient:
         """
         if not self._should_sample():
             return None
-        
+
         event = ErrorEvent(
             event_id=self._generate_event_id(),
             level=level,
@@ -150,18 +151,18 @@ class SentryClient:
             tags={**self._tags, **kwargs.get("tags", {})},
             extra=kwargs.get("extra", {}),
         )
-        
+
         self._events.append(event)
         self._send_event(event)
-        
+
         return event.event_id
-    
+
     def add_breadcrumb(
         self,
         category: str,
         message: str,
         level: str = "info",
-        data: Optional[Dict[str, Any]] = None,
+        data: dict[str, Any] | None = None,
     ) -> None:
         """Add a breadcrumb.
         
@@ -178,18 +179,18 @@ class SentryClient:
             "timestamp": time.time(),
             "data": data or {},
         }
-        
+
         self._breadcrumbs.append(breadcrumb)
-        
+
         # Trim old breadcrumbs
         if len(self._breadcrumbs) > self.config.max_breadcrumbs:
             self._breadcrumbs = self._breadcrumbs[-self.config.max_breadcrumbs:]
-    
+
     def set_user(
         self,
-        user_id: Optional[str] = None,
-        email: Optional[str] = None,
-        username: Optional[str] = None,
+        user_id: str | None = None,
+        email: str | None = None,
+        username: str | None = None,
         **kwargs,
     ) -> None:
         """Set user context.
@@ -206,7 +207,7 @@ class SentryClient:
             "username": username,
             **kwargs,
         }
-    
+
     def set_tag(self, key: str, value: str) -> None:
         """Set a tag.
         
@@ -215,7 +216,7 @@ class SentryClient:
             value: Tag value.
         """
         self._tags[key] = value
-    
+
     def set_extra(self, key: str, value: Any) -> None:
         """Set extra data.
         
@@ -225,34 +226,34 @@ class SentryClient:
         """
         # Store in tags for simplicity
         self._tags[f"extra.{key}"] = str(value)
-    
-    def get_last_event_id(self) -> Optional[str]:
+
+    def get_last_event_id(self) -> str | None:
         """Get last captured event ID."""
         return self._events[-1].event_id if self._events else None
-    
-    def get_events(self) -> List[ErrorEvent]:
+
+    def get_events(self) -> list[ErrorEvent]:
         """Get all captured events (for testing)."""
         return self._events.copy()
-    
+
     def clear_events(self) -> None:
         """Clear captured events (for testing)."""
         self._events.clear()
-    
+
     def _should_sample(self) -> bool:
         """Check if event should be sampled."""
         import random
         return random.random() < self.config.sample_rate
-    
+
     def _generate_event_id(self) -> str:
         """Generate unique event ID."""
         import uuid
         return uuid.uuid4().hex
-    
+
     def _compute_fingerprint(self, exc: Exception) -> str:
         """Compute exception fingerprint for grouping."""
         content = f"{type(exc).__name__}:{str(exc)}"
         return hashlib.sha256(content.encode()).hexdigest()[:32]
-    
+
     def _send_event(self, event: ErrorEvent) -> None:
         """Send event to Sentry (mock in development)."""
         # In production, send to Sentry API
@@ -260,10 +261,10 @@ class SentryClient:
 
 
 # Global client
-_sentry_client: Optional[SentryClient] = None
+_sentry_client: SentryClient | None = None
 
 
-def init_sentry(dsn: Optional[str] = None, **kwargs) -> SentryClient:
+def init_sentry(dsn: str | None = None, **kwargs) -> SentryClient:
     """Initialize Sentry client."""
     global _sentry_client
     config = SentryConfig(dsn=dsn or "", **kwargs)
@@ -279,12 +280,12 @@ def get_sentry() -> SentryClient:
     return _sentry_client
 
 
-def capture_exception(exception: Optional[Exception] = None, **kwargs) -> Optional[str]:
+def capture_exception(exception: Exception | None = None, **kwargs) -> str | None:
     """Capture exception helper."""
     return get_sentry().capture_exception(exception, **kwargs)
 
 
-def capture_message(message: str, level: ErrorLevel = ErrorLevel.INFO, **kwargs) -> Optional[str]:
+def capture_message(message: str, level: ErrorLevel = ErrorLevel.INFO, **kwargs) -> str | None:
     """Capture message helper."""
     return get_sentry().capture_message(message, level, **kwargs)
 

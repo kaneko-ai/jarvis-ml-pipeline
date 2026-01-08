@@ -5,7 +5,6 @@ Per V4.2 Sprint 3, this selects optimal cost-quality tradeoffs.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional
 
 
 @dataclass
@@ -16,9 +15,9 @@ class ParetoChoice:
     name: str
     estimated_cost: float
     estimated_quality: float
-    settings: Dict[str, any] = field(default_factory=dict)
+    settings: dict[str, any] = field(default_factory=dict)
 
-    def is_dominated_by(self, other: "ParetoChoice") -> bool:
+    def is_dominated_by(self, other: ParetoChoice) -> bool:
         """Check if this choice is dominated by another."""
         # Dominated if other is better or equal in both dimensions
         return (
@@ -42,8 +41,8 @@ class ParetoPlanner:
 
     def generate_choices(
         self,
-        available_methods: List[str] = None,
-    ) -> List[ParetoChoice]:
+        available_methods: list[str] = None,
+    ) -> list[ParetoChoice]:
         """Generate possible execution choices.
 
         Args:
@@ -52,7 +51,6 @@ class ParetoPlanner:
         Returns:
             List of choices.
         """
-        from .cost_model import CostModel
         from .quality_gain import estimate_quality
 
         available_methods = available_methods or ["bm25_only", "hybrid", "hybrid_rerank"]
@@ -97,8 +95,8 @@ class ParetoPlanner:
 
     def find_pareto_frontier(
         self,
-        choices: List[ParetoChoice],
-    ) -> List[ParetoChoice]:
+        choices: list[ParetoChoice],
+    ) -> list[ParetoChoice]:
         """Find non-dominated choices (Pareto frontier)."""
         frontier = []
 
@@ -150,7 +148,7 @@ class ParetoPlanner:
     def plan(
         self,
         budget_remaining: float = 1.0,
-    ) -> Dict[str, any]:
+    ) -> dict[str, any]:
         """Create execution plan.
 
         Args:

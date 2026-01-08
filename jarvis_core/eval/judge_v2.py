@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +25,9 @@ class JudgeResult:
     """Judge結果."""
     judge_type: JudgeType
     passed: bool
-    issues: List[Dict[str, Any]] = field(default_factory=list)
+    issues: list[dict[str, Any]] = field(default_factory=list)
     score: float = 0.0
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
 
 
 class FormJudge:
@@ -39,15 +39,15 @@ class FormJudge:
     - locator存在
     - 結果構造
     """
-    
+
     REQUIRED_CITATION_FIELDS = {"paper_id"}
     REQUIRED_LOCATOR_FIELDS = {"section"}
-    
+
     def judge(
         self,
         answer: str,
-        citations: List[Dict[str, Any]],
-        result: Optional[Dict[str, Any]] = None,
+        citations: list[dict[str, Any]],
+        result: dict[str, Any] | None = None,
     ) -> JudgeResult:
         """形式をチェック.
         
@@ -62,7 +62,7 @@ class FormJudge:
         issues = []
         checks_passed = 0
         total_checks = 0
-        
+
         # 1. Citation存在チェック
         total_checks += 1
         if citations:
@@ -73,7 +73,7 @@ class FormJudge:
                 "passed": False,
                 "msg": "No citations provided",
             })
-        
+
         # 2. Citation構造チェック
         if citations:
             for i, cit in enumerate(citations):
@@ -88,7 +88,7 @@ class FormJudge:
                         "index": i,
                         "missing": list(missing),
                     })
-        
+
         # 3. Locator存在チェック
         for i, cit in enumerate(citations):
             total_checks += 1
@@ -102,7 +102,7 @@ class FormJudge:
                     "index": i,
                     "msg": "Missing or incomplete locator",
                 })
-        
+
         # 4. Answer存在チェック
         total_checks += 1
         if answer and len(answer.strip()) > 0:
@@ -113,10 +113,10 @@ class FormJudge:
                 "passed": False,
                 "msg": "Answer is empty",
             })
-        
+
         score = checks_passed / total_checks if total_checks > 0 else 0.0
         passed = len([i for i in issues if not i.get("passed", True)]) == 0
-        
+
         return JudgeResult(
             judge_type=JudgeType.FORM,
             passed=passed,
@@ -136,12 +136,12 @@ class SemanticJudge:
     - 回答と引用の関連性（キーワード重複）
     - 論理的一貫性（簡易）
     """
-    
+
     def judge(
         self,
         answer: str,
-        citations: List[Dict[str, Any]],
-        claims: Optional[List[Dict[str, Any]]] = None,
+        citations: list[dict[str, Any]],
+        claims: list[dict[str, Any]] | None = None,
     ) -> JudgeResult:
         """意味整合をチェック.
         
@@ -156,11 +156,11 @@ class SemanticJudge:
         issues = []
         checks_passed = 0
         total_checks = 0
-        
+
         # 1. 回答と引用のキーワード重複チェック（簡易）
         total_checks += 1
         answer_words = set(answer.lower().split())
-        
+
         citation_overlap = 0
         for cit in citations:
             evidence_text = cit.get("evidence_text", "")
@@ -169,7 +169,7 @@ class SemanticJudge:
                 overlap = len(answer_words & evidence_words)
                 if overlap > 0:
                     citation_overlap += 1
-        
+
         if citation_overlap > 0 or not citations:
             checks_passed += 1
         else:
@@ -178,7 +178,7 @@ class SemanticJudge:
                 "passed": False,
                 "msg": "Answer may not be related to citations",
             })
-        
+
         # 2. 長さの妥当性チェック
         total_checks += 1
         if len(answer) >= 10:  # 最低10文字
@@ -189,7 +189,7 @@ class SemanticJudge:
                 "passed": False,
                 "msg": "Answer is too short",
             })
-        
+
         # 3. 主張との整合性（claimsがある場合）
         if claims:
             total_checks += 1
@@ -200,7 +200,7 @@ class SemanticJudge:
                 if claim_text and any(word in answer.lower() for word in claim_text.lower().split()[:3]):
                     claim_found = True
                     break
-            
+
             if claim_found:
                 checks_passed += 1
             else:
@@ -209,10 +209,10 @@ class SemanticJudge:
                     "passed": False,
                     "msg": "Answer may not reflect extracted claims",
                 })
-        
+
         score = checks_passed / total_checks if total_checks > 0 else 0.0
         passed = score >= 0.5  # 50%以上でpass
-        
+
         return JudgeResult(
             judge_type=JudgeType.SEMANTIC,
             passed=passed,
@@ -230,18 +230,18 @@ class IntegratedJudge:
     
     Judge-AとJudge-Bの結果を統合。
     """
-    
+
     def __init__(self):
         self.form_judge = FormJudge()
         self.semantic_judge = SemanticJudge()
-    
+
     def judge(
         self,
         answer: str,
-        citations: List[Dict[str, Any]],
-        claims: Optional[List[Dict[str, Any]]] = None,
-        result: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, JudgeResult]:
+        citations: list[dict[str, Any]],
+        claims: list[dict[str, Any]] | None = None,
+        result: dict[str, Any] | None = None,
+    ) -> dict[str, JudgeResult]:
         """統合判定.
         
         Returns:
@@ -249,17 +249,17 @@ class IntegratedJudge:
         """
         form_result = self.form_judge.judge(answer, citations, result)
         semantic_result = self.semantic_judge.judge(answer, citations, claims)
-        
+
         return {
             "form": form_result,
             "semantic": semantic_result,
         }
-    
+
     def overall_passed(
         self,
         answer: str,
-        citations: List[Dict[str, Any]],
-        claims: Optional[List[Dict[str, Any]]] = None,
+        citations: list[dict[str, Any]],
+        claims: list[dict[str, Any]] | None = None,
     ) -> bool:
         """総合判定.
         

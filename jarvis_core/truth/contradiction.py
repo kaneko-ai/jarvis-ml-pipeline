@@ -5,7 +5,7 @@ Per V4-T04, this detects potential contradictions between facts.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..artifacts.schema import Fact
@@ -44,7 +44,7 @@ class ContradictionResult:
         }
 
 
-def find_shared_concepts(text1: str, text2: str) -> List[str]:
+def find_shared_concepts(text1: str, text2: str) -> list[str]:
     """Find shared concepts between two texts."""
     words1 = set(text1.lower().split())
     words2 = set(text2.lower().split())
@@ -72,8 +72,8 @@ def check_antonym_pattern(text1: str, text2: str) -> tuple[bool, str]:
 
 
 def detect_contradictions(
-    facts: List["Fact"],
-) -> List[ContradictionResult]:
+    facts: list[Fact],
+) -> list[ContradictionResult]:
     """Detect potential contradictions between facts.
 
     Args:
@@ -116,7 +116,7 @@ def detect_contradictions(
     return contradictions
 
 
-def summarize_contradictions(results: List[ContradictionResult]) -> str:
+def summarize_contradictions(results: list[ContradictionResult]) -> str:
     """Generate human-readable summary of contradictions."""
     if not results:
         return "矛盾の可能性は検出されませんでした。"

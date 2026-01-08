@@ -8,18 +8,18 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
 class ChromaVectorStore:
     """ChromaDB-based vector store for RAG."""
-    
+
     def __init__(
         self,
         collection_name: str = "jarvis_papers",
-        persist_directory: Optional[Path] = None,
+        persist_directory: Path | None = None,
     ):
         """Initialize ChromaDB vector store.
         
@@ -31,7 +31,7 @@ class ChromaVectorStore:
         self._persist_directory = persist_directory
         self._client = None
         self._collection = None
-    
+
     def _init_client(self):
         """Initialize ChromaDB client."""
         if self._client is None:
@@ -42,7 +42,7 @@ class ChromaVectorStore:
                 raise ImportError(
                     "chromadb is required. Install with: pip install chromadb"
                 )
-            
+
             if self._persist_directory:
                 self._persist_directory = Path(self._persist_directory)
                 self._persist_directory.mkdir(parents=True, exist_ok=True)
@@ -51,20 +51,20 @@ class ChromaVectorStore:
                 )
             else:
                 self._client = chromadb.Client()
-            
+
             self._collection = self._client.get_or_create_collection(
                 name=self._collection_name,
                 metadata={"hnsw:space": "cosine"}
             )
-        
+
         return self._client, self._collection
-    
+
     def add(
         self,
-        texts: List[str],
-        embeddings: List[List[float]],
-        ids: List[str],
-        metadata: Optional[List[Dict[str, Any]]] = None,
+        texts: list[str],
+        embeddings: list[list[float]],
+        ids: list[str],
+        metadata: list[dict[str, Any]] | None = None,
     ) -> None:
         """Add documents to the collection.
         
@@ -75,22 +75,22 @@ class ChromaVectorStore:
             metadata: Optional metadata per document
         """
         _, collection = self._init_client()
-        
+
         collection.add(
             documents=texts,
             embeddings=embeddings,
             ids=ids,
             metadatas=metadata,
         )
-        
+
         logger.info(f"Added {len(ids)} documents to ChromaDB")
-    
+
     def search(
         self,
-        query_embedding: List[float],
+        query_embedding: list[float],
         top_k: int = 10,
-        where: Optional[Dict[str, Any]] = None,
-    ) -> List[Tuple[str, float, str, Dict[str, Any]]]:
+        where: dict[str, Any] | None = None,
+    ) -> list[tuple[str, float, str, dict[str, Any]]]:
         """Search for similar documents.
         
         Args:
@@ -102,14 +102,14 @@ class ChromaVectorStore:
             List of (doc_id, score, text, metadata) tuples
         """
         _, collection = self._init_client()
-        
+
         results = collection.query(
             query_embeddings=[query_embedding],
             n_results=top_k,
             where=where,
             include=["documents", "metadatas", "distances"],
         )
-        
+
         output = []
         if results["ids"] and results["ids"][0]:
             for i, doc_id in enumerate(results["ids"][0]):
@@ -119,10 +119,10 @@ class ChromaVectorStore:
                 text = results["documents"][0][i] if results["documents"] else ""
                 meta = results["metadatas"][0][i] if results["metadatas"] else {}
                 output.append((doc_id, score, text, meta))
-        
+
         return output
-    
-    def delete(self, ids: List[str]) -> None:
+
+    def delete(self, ids: list[str]) -> None:
         """Delete documents by ID.
         
         Args:
@@ -131,7 +131,7 @@ class ChromaVectorStore:
         _, collection = self._init_client()
         collection.delete(ids=ids)
         logger.info(f"Deleted {len(ids)} documents from ChromaDB")
-    
+
     @property
     def count(self) -> int:
         """Return number of documents in collection."""

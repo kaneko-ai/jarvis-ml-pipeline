@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict
 
 
 @dataclass
@@ -15,8 +14,8 @@ class VariableBlock:
 @dataclass
 class TimeSchema:
     week_hours: float
-    fixed: Dict[str, float]
-    variable: Dict[str, VariableBlock]
+    fixed: dict[str, float]
+    variable: dict[str, VariableBlock]
 
     def fixed_total(self) -> float:
         return sum(self.fixed.values())

@@ -8,11 +8,11 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from .pubmed_client import PubMedClient, PubMedArticle
-from .semantic_scholar_client import SemanticScholarClient, S2Paper
 from .openalex_client import OpenAlexClient, OpenAlexWork
+from .pubmed_client import PubMedArticle, PubMedClient
+from .semantic_scholar_client import S2Paper, SemanticScholarClient
 
 logger = logging.getLogger(__name__)
 
@@ -33,17 +33,17 @@ class UnifiedPaper:
     source: SourceType
     title: str
     abstract: str = ""
-    authors: List[str] = field(default_factory=list)
-    year: Optional[int] = None
+    authors: list[str] = field(default_factory=list)
+    year: int | None = None
     venue: str = ""
-    doi: Optional[str] = None
-    pmid: Optional[str] = None
+    doi: str | None = None
+    pmid: str | None = None
     citation_count: int = 0
-    url: Optional[str] = None
-    keywords: List[str] = field(default_factory=list)
-    raw_data: Optional[Dict[str, Any]] = None
-    
-    def to_dict(self) -> Dict[str, Any]:
+    url: str | None = None
+    keywords: list[str] = field(default_factory=list)
+    raw_data: dict[str, Any] | None = None
+
+    def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "source": self.source.value,
@@ -58,9 +58,9 @@ class UnifiedPaper:
             "url": self.url,
             "keywords": self.keywords,
         }
-    
+
     @classmethod
-    def from_pubmed(cls, article: PubMedArticle) -> "UnifiedPaper":
+    def from_pubmed(cls, article: PubMedArticle) -> UnifiedPaper:
         """Create from PubMed article."""
         year = None
         if article.pub_date:
@@ -68,7 +68,7 @@ class UnifiedPaper:
                 year = int(article.pub_date.split("-")[0])
             except (ValueError, IndexError):
                 pass
-        
+
         return cls(
             id=f"pubmed:{article.pmid}",
             source=SourceType.PUBMED,
@@ -82,9 +82,9 @@ class UnifiedPaper:
             keywords=article.mesh_terms,
             raw_data=article.to_dict(),
         )
-    
+
     @classmethod
-    def from_s2(cls, paper: S2Paper) -> "UnifiedPaper":
+    def from_s2(cls, paper: S2Paper) -> UnifiedPaper:
         """Create from Semantic Scholar paper."""
         return cls(
             id=f"s2:{paper.paper_id}",
@@ -100,9 +100,9 @@ class UnifiedPaper:
             keywords=paper.fields_of_study,
             raw_data=paper.to_dict(),
         )
-    
+
     @classmethod
-    def from_openalex(cls, work: OpenAlexWork) -> "UnifiedPaper":
+    def from_openalex(cls, work: OpenAlexWork) -> UnifiedPaper:
         """Create from OpenAlex work."""
         return cls(
             id=f"openalex:{work.openalex_id}",
@@ -130,12 +130,12 @@ class UnifiedSourceClient:
     - Deduplication by DOI
     - Aggregated search results
     """
-    
+
     def __init__(
         self,
-        email: Optional[str] = None,
-        pubmed_api_key: Optional[str] = None,
-        s2_api_key: Optional[str] = None,
+        email: str | None = None,
+        pubmed_api_key: str | None = None,
+        s2_api_key: str | None = None,
     ):
         self.pubmed = PubMedClient(
             api_key=pubmed_api_key,
@@ -147,14 +147,14 @@ class UnifiedSourceClient:
         self.openalex = OpenAlexClient(
             email=email,
         )
-    
+
     def search(
         self,
         query: str,
         max_results: int = 20,
-        sources: Optional[List[SourceType]] = None,
+        sources: list[SourceType] | None = None,
         deduplicate: bool = True,
-    ) -> List[UnifiedPaper]:
+    ) -> list[UnifiedPaper]:
         """Search across multiple sources.
         
         Args:
@@ -172,33 +172,33 @@ class UnifiedSourceClient:
                 SourceType.SEMANTIC_SCHOLAR,
                 SourceType.PUBMED,
             ]
-        
-        all_papers: List[UnifiedPaper] = []
-        
+
+        all_papers: list[UnifiedPaper] = []
+
         for source in sources:
             try:
                 if source == SourceType.PUBMED:
                     articles = self.pubmed.search_and_fetch(query, max_results)
                     all_papers.extend(UnifiedPaper.from_pubmed(a) for a in articles)
-                    
+
                 elif source == SourceType.SEMANTIC_SCHOLAR:
                     papers = self.s2.search(query, limit=max_results)
                     all_papers.extend(UnifiedPaper.from_s2(p) for p in papers)
-                    
+
                 elif source == SourceType.OPENALEX:
                     works = self.openalex.search(query, per_page=max_results)
                     all_papers.extend(UnifiedPaper.from_openalex(w) for w in works)
-                    
+
             except Exception as e:
                 logger.warning(f"Search failed for {source.value}: {e}")
                 continue
-        
+
         if deduplicate:
             all_papers = self._deduplicate(all_papers)
-        
+
         return all_papers
-    
-    def get_by_doi(self, doi: str) -> Optional[UnifiedPaper]:
+
+    def get_by_doi(self, doi: str) -> UnifiedPaper | None:
         """Get paper by DOI.
         
         Tries multiple sources with fallback.
@@ -210,7 +210,7 @@ class UnifiedSourceClient:
                 return UnifiedPaper.from_openalex(work)
         except Exception:
             pass
-        
+
         # Try Semantic Scholar
         try:
             paper = self.s2.get_paper(doi)
@@ -218,10 +218,10 @@ class UnifiedSourceClient:
                 return UnifiedPaper.from_s2(paper)
         except Exception:
             pass
-        
+
         return None
-    
-    def get_by_pmid(self, pmid: str) -> Optional[UnifiedPaper]:
+
+    def get_by_pmid(self, pmid: str) -> UnifiedPaper | None:
         """Get paper by PubMed ID."""
         try:
             articles = self.pubmed.fetch([pmid])
@@ -230,12 +230,12 @@ class UnifiedSourceClient:
         except Exception:
             pass
         return None
-    
+
     def get_citations(
         self,
         paper: UnifiedPaper,
         max_results: int = 50,
-    ) -> List[UnifiedPaper]:
+    ) -> list[UnifiedPaper]:
         """Get papers that cite this paper.
         
         Uses the best available source based on paper metadata.
@@ -248,7 +248,7 @@ class UnifiedSourceClient:
                 return [UnifiedPaper.from_s2(p) for p in papers]
             except Exception:
                 pass
-            
+
             try:
                 works = self.openalex.get_citing_works(
                     f"https://doi.org/{paper.doi}",
@@ -257,24 +257,24 @@ class UnifiedSourceClient:
                 return [UnifiedPaper.from_openalex(w) for w in works]
             except Exception:
                 pass
-        
+
         return []
-    
-    def _deduplicate(self, papers: List[UnifiedPaper]) -> List[UnifiedPaper]:
+
+    def _deduplicate(self, papers: list[UnifiedPaper]) -> list[UnifiedPaper]:
         """Remove duplicate papers by DOI."""
         seen_dois: set = set()
-        unique_papers: List[UnifiedPaper] = []
-        
+        unique_papers: list[UnifiedPaper] = []
+
         for paper in papers:
             if paper.doi:
                 if paper.doi in seen_dois:
                     continue
                 seen_dois.add(paper.doi)
             unique_papers.append(paper)
-        
+
         return unique_papers
-    
-    def status(self) -> Dict[str, Any]:
+
+    def status(self) -> dict[str, Any]:
         """Get client status."""
         return {
             "sources": [s.value for s in SourceType],

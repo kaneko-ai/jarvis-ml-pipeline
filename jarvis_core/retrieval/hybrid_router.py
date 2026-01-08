@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Dict, Any, Optional
+from typing import Any
 
 
 class RouteDecision(Enum):
@@ -23,8 +23,8 @@ class RoutingResult:
 
     decision: RouteDecision
     confidence: float
-    reasons: List[str]
-    query_features: Dict[str, Any]
+    reasons: list[str]
+    query_features: dict[str, Any]
 
 
 class HybridRouter:
@@ -38,7 +38,7 @@ class HybridRouter:
         self.bm25_keywords_threshold = bm25_keywords_threshold
         self.dense_cost_multiplier = dense_cost_multiplier
 
-    def analyze_query(self, query: str) -> Dict[str, Any]:
+    def analyze_query(self, query: str) -> dict[str, Any]:
         """Analyze query characteristics."""
         words = query.lower().split()
 
@@ -71,7 +71,7 @@ class HybridRouter:
     def route(
         self,
         query: str,
-        budget_remaining: Optional[float] = None,
+        budget_remaining: float | None = None,
     ) -> RoutingResult:
         """Determine routing for query.
 

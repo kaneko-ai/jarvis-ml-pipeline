@@ -6,8 +6,8 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
 from enum import Enum
+from typing import Any
 
 
 class ClaimVerdict(Enum):
@@ -24,7 +24,7 @@ class Claim:
 
     claim_id: str
     text: str
-    citation_ids: List[str] = field(default_factory=list)
+    citation_ids: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -33,7 +33,7 @@ class ClaimCheckResult:
 
     claim: Claim
     verdict: ClaimVerdict
-    evidence_texts: List[str] = field(default_factory=list)
+    evidence_texts: list[str] = field(default_factory=list)
     reason: str = ""
 
 
@@ -48,7 +48,7 @@ class ClaimCheckSummary:
     claim_precision: float
     citation_coverage: float
     unsupported_count: int
-    results: List[ClaimCheckResult] = field(default_factory=list)
+    results: list[ClaimCheckResult] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -62,7 +62,7 @@ class ClaimCheckSummary:
         }
 
 
-def extract_claims(answer: str) -> List[Claim]:
+def extract_claims(answer: str) -> list[Claim]:
     """Extract claims from answer text.
 
     Claims are sentences that make factual assertions.
@@ -93,8 +93,8 @@ def extract_claims(answer: str) -> List[Claim]:
 
 def check_claim_against_evidence(
     claim: Claim,
-    evidence_map: Dict[str, str],
-    llm_client: Optional[Any] = None,
+    evidence_map: dict[str, str],
+    llm_client: Any | None = None,
 ) -> ClaimCheckResult:
     """Check if a claim is supported by evidence.
 
@@ -165,8 +165,8 @@ def check_claim_against_evidence(
 
 def check_all_claims(
     answer: str,
-    evidence_map: Dict[str, str],
-    llm_client: Optional[Any] = None,
+    evidence_map: dict[str, str],
+    llm_client: Any | None = None,
 ) -> ClaimCheckSummary:
     """Check all claims in an answer.
 

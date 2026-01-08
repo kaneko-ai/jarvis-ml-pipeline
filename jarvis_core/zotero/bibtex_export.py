@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 from jarvis_core.notes.note_generator import _load_jsonl
 
@@ -31,7 +31,7 @@ def _first_author(authors: Any) -> str:
     return parts[-1] if parts else "Unknown"
 
 
-def safe_key(paper: Dict[str, Any], existing: Dict[str, int]) -> str:
+def safe_key(paper: dict[str, Any], existing: dict[str, int]) -> str:
     author = _first_author(paper.get("authors") or paper.get("author"))
     year = paper.get("year") or "n.d."
     journal = _journal_short(paper.get("journal", ""))
@@ -59,8 +59,8 @@ def export_bibtex(
     output_dir = output_base_dir / run_id / "zotero"
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    keys: Dict[str, int] = {}
-    entries: List[str] = []
+    keys: dict[str, int] = {}
+    entries: list[str] = []
     for paper in papers:
         entry_key = safe_key(paper, keys)
         authors = paper.get("authors") or paper.get("author") or []
@@ -71,19 +71,19 @@ def export_bibtex(
 
         lines = [
             f"@article{{{entry_key},",
-            f"  title={{" + str(paper.get("title", "Untitled")) + "}},",
-            f"  author={{" + author_field + "}},",
+            "  title={" + str(paper.get("title", "Untitled")) + "}},",
+            "  author={" + author_field + "}},",
         ]
         if paper.get("journal"):
-            lines.append(f"  journal={{" + str(paper.get("journal")) + "}},")
+            lines.append("  journal={" + str(paper.get("journal")) + "}},")
         if paper.get("year"):
-            lines.append(f"  year={{" + str(paper.get("year")) + "}},")
+            lines.append("  year={" + str(paper.get("year")) + "}},")
         if paper.get("doi"):
-            lines.append(f"  doi={{" + str(paper.get("doi")) + "}},")
+            lines.append("  doi={" + str(paper.get("doi")) + "}},")
         if paper.get("pmid"):
-            lines.append(f"  pmid={{" + str(paper.get("pmid")) + "}},")
+            lines.append("  pmid={" + str(paper.get("pmid")) + "}},")
         if paper.get("url"):
-            lines.append(f"  url={{" + str(paper.get("url")) + "}},")
+            lines.append("  url={" + str(paper.get("url")) + "}},")
         lines.append("}")
         entries.append("\n".join(lines))
 

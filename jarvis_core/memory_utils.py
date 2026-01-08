@@ -4,17 +4,17 @@ Per RP37, this enables searching across past research assets.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def search_memory(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     query: str,
     top_k: int = 10,
-) -> List["PaperVector"]:
+) -> list[PaperVector]:
     """Search research memory for relevant papers.
 
     Searches across:
@@ -75,10 +75,10 @@ def search_memory(
 
 
 def find_related(
-    paper: "PaperVector",
-    all_vectors: List["PaperVector"],
+    paper: PaperVector,
+    all_vectors: list[PaperVector],
     top_k: int = 5,
-) -> List["PaperVector"]:
+) -> list[PaperVector]:
     """Find papers related to a given paper.
 
     Args:
@@ -118,7 +118,7 @@ def find_related(
     return [v for _, v in scored[:top_k]]
 
 
-def get_memory_stats(vectors: List["PaperVector"]) -> dict:
+def get_memory_stats(vectors: list[PaperVector]) -> dict:
     """Get statistics about the research memory.
 
     Args:

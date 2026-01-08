@@ -4,14 +4,14 @@ Per Ψ-10, this predicts funding gaps.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def predict_funding_cliff(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     current_funding_months: int = 24,
     publication_rate: float = 2.0,
 ) -> dict:

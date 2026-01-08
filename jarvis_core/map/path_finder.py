@@ -4,19 +4,19 @@ Per V4-M05, this finds conceptual paths between papers.
 """
 from __future__ import annotations
 
-from typing import List, Optional, TYPE_CHECKING
 from collections import deque
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..paper_vector import PaperVector
 
 
 def find_concept_path(
-    paper1: "PaperVector",
-    paper2: "PaperVector",
-    all_papers: List["PaperVector"],
+    paper1: PaperVector,
+    paper2: PaperVector,
+    all_papers: list[PaperVector],
     max_depth: int = 4,
-) -> Optional[dict]:
+) -> dict | None:
     """Find conceptual path between two papers.
 
     Args:

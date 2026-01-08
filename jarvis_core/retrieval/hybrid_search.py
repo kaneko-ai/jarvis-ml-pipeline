@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -19,9 +18,9 @@ from jarvis_core.retrieval.vector_store import VectorStore
 class HybridSearchResult:
     took_ms: int
     total_candidates: int
-    results: List[SearchResult]
+    results: list[SearchResult]
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "took_ms": self.took_ms,
             "total_candidates": self.total_candidates,
@@ -33,7 +32,7 @@ class HybridSearchEngine:
     def __init__(
         self,
         index_dir: Path | str = Path("data/index/v2"),
-        embedding_provider: Optional[EmbeddingProvider] = None,
+        embedding_provider: EmbeddingProvider | None = None,
     ):
         self.index_dir = Path(index_dir)
         self.embedding_provider = embedding_provider or HashEmbeddingProvider()
@@ -42,11 +41,11 @@ class HybridSearchEngine:
         self.chunks_path = self.index_dir / "chunks.jsonl"
         self.chunk_map = self._load_chunks()
 
-    def _load_chunks(self) -> Dict[str, Chunk]:
+    def _load_chunks(self) -> dict[str, Chunk]:
         if not self.chunks_path.exists():
             return {}
-        chunk_map: Dict[str, Chunk] = {}
-        with open(self.chunks_path, "r", encoding="utf-8") as f:
+        chunk_map: dict[str, Chunk] = {}
+        with open(self.chunks_path, encoding="utf-8") as f:
             for line in f:
                 if not line.strip():
                     continue
@@ -69,17 +68,17 @@ class HybridSearchEngine:
                 chunk_map[chunk.chunk_id] = chunk
         return chunk_map
 
-    def _normalize_scores(self, scores: Dict[str, float]) -> Dict[str, float]:
+    def _normalize_scores(self, scores: dict[str, float]) -> dict[str, float]:
         if not scores:
             return {}
         values = np.array(list(scores.values()))
         max_val = float(values.max()) if values.size else 0.0
         min_val = float(values.min()) if values.size else 0.0
         if max_val == min_val:
-            return {key: 1.0 for key in scores}
+            return dict.fromkeys(scores, 1.0)
         return {key: (score - min_val) / (max_val - min_val) for key, score in scores.items()}
 
-    def search(self, query: str, filters: Optional[Dict] = None, top_k: int = 20, mode: str = "hybrid") -> HybridSearchResult:
+    def search(self, query: str, filters: dict | None = None, top_k: int = 20, mode: str = "hybrid") -> HybridSearchResult:
         import time
 
         start_time = time.time()
@@ -87,8 +86,8 @@ class HybridSearchEngine:
             return HybridSearchResult(took_ms=0, total_candidates=0, results=[])
         filters = filters or {}
         candidate_count = max(top_k * 10, 200)
-        bm25_scores: Dict[str, float] = {}
-        vector_scores: Dict[str, float] = {}
+        bm25_scores: dict[str, float] = {}
+        vector_scores: dict[str, float] = {}
         if mode in {"hybrid", "keyword"}:
             bm25_scores = {chunk_id: score for chunk_id, score in self.bm25_store.search(query, candidate_count)}
         if mode in {"hybrid", "vector"}:
@@ -129,7 +128,7 @@ class HybridSearchEngine:
         took_ms = int((time.time() - start_time) * 1000)
         return HybridSearchResult(took_ms=took_ms, total_candidates=len(candidates), results=results)
 
-    def _build_jump_link(self, chunk: Chunk) -> Dict[str, str]:
+    def _build_jump_link(self, chunk: Chunk) -> dict[str, str]:
         if chunk.provenance.run_id:
             return {"type": "run", "url": f"/dashboard/run.html?id={chunk.provenance.run_id}"}
         if chunk.doc_id.startswith("kb:"):

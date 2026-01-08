@@ -13,7 +13,7 @@ import re
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class ObsidianSync:
     
     研究ノートをObsidian vaultに自動同期
     """
-    
+
     PAPER_TEMPLATE = """---
 title: "{title}"
 authors: {authors}
@@ -90,7 +90,7 @@ papers_count: {papers_count}
 ## Summary
 {summary}
 """
-    
+
     def __init__(self, vault_path: str):
         """初期化.
         
@@ -100,16 +100,16 @@ papers_count: {papers_count}
         self.vault_path = Path(vault_path)
         self.papers_dir = self.vault_path / "Papers"
         self.runs_dir = self.vault_path / "Runs"
-        
+
         # ディレクトリ作成
         self.papers_dir.mkdir(parents=True, exist_ok=True)
         self.runs_dir.mkdir(parents=True, exist_ok=True)
-    
+
     def sync_paper(
         self,
-        paper: Dict[str, Any],
-        claims: Optional[List[Dict[str, Any]]] = None,
-        evidence: Optional[List[Dict[str, Any]]] = None,
+        paper: dict[str, Any],
+        claims: list[dict[str, Any]] | None = None,
+        evidence: list[dict[str, Any]] | None = None,
     ) -> SyncResult:
         """論文ノートを同期.
         
@@ -123,16 +123,16 @@ papers_count: {papers_count}
         """
         paper_id = paper.get("paper_id", "unknown")
         title = paper.get("title", "Untitled")
-        
+
         # ファイル名を安全にする
         safe_title = re.sub(r'[\\/*?:"<>|]', "", title)[:50]
         filename = f"{paper_id}_{safe_title}.md"
         filepath = self.papers_dir / filename
-        
+
         # コンテンツを生成
         claims_md = self._format_claims(claims, paper_id)
         evidence_md = self._format_evidence(evidence, paper_id)
-        
+
         content = self.PAPER_TEMPLATE.format(
             title=title,
             authors=json.dumps(paper.get("authors", [])),
@@ -147,15 +147,15 @@ papers_count: {papers_count}
             evidence=evidence_md,
             related="(Add related papers here)",
         )
-        
+
         return self._write_note(filepath, content)
-    
+
     def sync_run(
         self,
         run_id: str,
         query: str,
-        papers: List[Dict[str, Any]],
-        claims: Optional[List[Dict[str, Any]]] = None,
+        papers: list[dict[str, Any]],
+        claims: list[dict[str, Any]] | None = None,
         summary: str = "",
     ) -> SyncResult:
         """実行ノートを同期.
@@ -172,20 +172,20 @@ papers_count: {papers_count}
         """
         filename = f"{run_id}.md"
         filepath = self.runs_dir / filename
-        
+
         # 論文リスト
         papers_list = ""
         for paper in papers[:20]:
             paper_id = paper.get("paper_id", "")
             title = paper.get("title", "")
             papers_list += f"- [[{paper_id}]] - {title}\n"
-        
+
         # 主要な発見
         findings = ""
         if claims:
             for claim in claims[:10]:
                 findings += f"- {claim.get('claim_text', '')[:100]}\n"
-        
+
         content = self.RUN_TEMPLATE.format(
             run_id=run_id,
             query=query,
@@ -196,90 +196,90 @@ papers_count: {papers_count}
             findings=findings or "No key findings extracted.",
             summary=summary or "No summary generated.",
         )
-        
+
         return self._write_note(filepath, content)
-    
+
     def _write_note(self, filepath: Path, content: str) -> SyncResult:
         """ノートを書き込み."""
         try:
             # 既存ファイルをチェック
             if filepath.exists():
-                with open(filepath, 'r', encoding='utf-8') as f:
+                with open(filepath, encoding='utf-8') as f:
                     existing = f.read()
-                
+
                 # ハッシュで変更をチェック
                 if hashlib.md5(existing.encode()).hexdigest() == \
                    hashlib.md5(content.encode()).hexdigest():
                     return SyncResult("unchanged", str(filepath), "No changes")
-                
+
                 # 更新
                 with open(filepath, 'w', encoding='utf-8') as f:
                     f.write(content)
-                
+
                 logger.info(f"Updated note: {filepath}")
                 return SyncResult("updated", str(filepath), "Note updated")
-            
+
             else:
                 # 新規作成
                 with open(filepath, 'w', encoding='utf-8') as f:
                     f.write(content)
-                
+
                 logger.info(f"Created note: {filepath}")
                 return SyncResult("created", str(filepath), "Note created")
-        
+
         except Exception as e:
             logger.error(f"Failed to write note: {e}")
             return SyncResult("error", str(filepath), str(e))
-    
+
     def _format_claims(
         self,
-        claims: Optional[List[Dict[str, Any]]],
+        claims: list[dict[str, Any]] | None,
         paper_id: str,
     ) -> str:
         """主張をフォーマット."""
         if not claims:
             return "No claims extracted."
-        
+
         paper_claims = [c for c in claims if c.get("paper_id") == paper_id]
-        
+
         if not paper_claims:
             return "No claims extracted."
-        
+
         lines = []
         for claim in paper_claims[:10]:
             claim_type = claim.get("claim_type", "unknown")
             claim_text = claim.get("claim_text", "")
             lines.append(f"- **[{claim_type}]** {claim_text}")
-        
+
         return "\n".join(lines)
-    
+
     def _format_evidence(
         self,
-        evidence: Optional[List[Dict[str, Any]]],
+        evidence: list[dict[str, Any]] | None,
         paper_id: str,
     ) -> str:
         """根拠をフォーマット."""
         if not evidence:
             return "No evidence linked."
-        
+
         paper_evidence = [e for e in evidence if e.get("paper_id") == paper_id]
-        
+
         if not paper_evidence:
             return "No evidence linked."
-        
+
         lines = []
         for ev in paper_evidence[:10]:
             source = ev.get("source", "unknown")
             text = ev.get("evidence_text", "")[:200]
             lines.append(f"- [{source}] {text}...")
-        
+
         return "\n".join(lines)
-    
-    def get_sync_stats(self) -> Dict[str, int]:
+
+    def get_sync_stats(self) -> dict[str, int]:
         """同期統計を取得."""
         papers_count = len(list(self.papers_dir.glob("*.md")))
         runs_count = len(list(self.runs_dir.glob("*.md")))
-        
+
         return {
             "papers_synced": papers_count,
             "runs_synced": runs_count,

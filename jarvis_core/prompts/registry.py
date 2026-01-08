@@ -9,10 +9,10 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass
@@ -29,7 +29,7 @@ class PromptEntry:
     def prompt_hash(self) -> str:
         """Compute hash of template."""
         return hashlib.sha256(self.template.encode()).hexdigest()[:16]
-    
+
     def to_dict(self) -> dict:
         return {
             "prompt_id": self.prompt_id,
@@ -49,7 +49,7 @@ class PromptUsage:
     timestamp: str
     input_tokens: int = 0
     output_tokens: int = 0
-    
+
     def to_dict(self) -> dict:
         return {
             "prompt_id": self.prompt_id,
@@ -64,9 +64,9 @@ class PromptUsage:
 class PromptRegistry:
     """Central registry for prompts."""
 
-    def __init__(self, templates_dir: Optional[Path] = None):
-        self._prompts: Dict[str, PromptEntry] = {}
-        self._usage_log: List[PromptUsage] = []
+    def __init__(self, templates_dir: Path | None = None):
+        self._prompts: dict[str, PromptEntry] = {}
+        self._usage_log: list[PromptUsage] = []
         self._templates_dir = templates_dir
         self._register_defaults()
         if templates_dir and templates_dir.exists():
@@ -74,7 +74,7 @@ class PromptRegistry:
 
     def _register_defaults(self) -> None:
         """Register default prompts for all categories."""
-        
+
         # === Search Category ===
         self.register(PromptEntry(
             prompt_id="search_composer",
@@ -366,12 +366,12 @@ Output JSON:
             import yaml
         except ImportError:
             return
-        
+
         for yaml_file in templates_dir.glob("*.yaml"):
             try:
-                with open(yaml_file, "r", encoding="utf-8") as f:
+                with open(yaml_file, encoding="utf-8") as f:
                     data = yaml.safe_load(f)
-                
+
                 if isinstance(data, dict):
                     self.register(PromptEntry(
                         prompt_id=data.get("prompt_id", yaml_file.stem),
@@ -413,7 +413,7 @@ Output JSON:
     ) -> str:
         """Render a prompt with variables."""
         entry = self.get(prompt_id, version)
-        
+
         if record_usage:
             self._usage_log.append(PromptUsage(
                 prompt_id=prompt_id,
@@ -421,21 +421,21 @@ Output JSON:
                 prompt_hash=entry.prompt_hash,
                 timestamp=datetime.now(timezone.utc).isoformat(),
             ))
-        
+
         return entry.template.format(**kwargs)
 
     def list_all(self) -> list[str]:
         """List all registered prompt IDs."""
         return list(self._prompts.keys())
-    
+
     def list_by_category(self, category: str) -> list[PromptEntry]:
         """List prompts by category."""
         return [p for p in self._prompts.values() if p.category == category]
-    
-    def get_usage_log(self) -> List[PromptUsage]:
+
+    def get_usage_log(self) -> list[PromptUsage]:
         """Get usage log."""
         return self._usage_log
-    
+
     def save_usage_log(self, filepath: Path) -> None:
         """Save usage log to prompts_used.json."""
         with open(filepath, "w", encoding="utf-8") as f:
@@ -445,12 +445,12 @@ Output JSON:
                 indent=2,
                 ensure_ascii=False
             )
-    
+
     def clear_usage_log(self) -> None:
         """Clear usage log for new run."""
         self._usage_log = []
-    
-    def export_catalog(self) -> Dict[str, Any]:
+
+    def export_catalog(self) -> dict[str, Any]:
         """Export all prompts as catalog."""
         return {
             key: entry.to_dict()
@@ -459,7 +459,7 @@ Output JSON:
 
 
 # Global registry
-_registry: Optional[PromptRegistry] = None
+_registry: PromptRegistry | None = None
 
 
 def get_registry() -> PromptRegistry:

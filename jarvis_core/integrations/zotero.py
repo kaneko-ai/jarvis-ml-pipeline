@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -23,9 +23,9 @@ class ZoteroConfig:
 
 class ZoteroClient:
     """Zotero API client for reference management."""
-    
+
     BASE_URL = "https://api.zotero.org"
-    
+
     def __init__(self, config: ZoteroConfig):
         """Initialize Zotero client.
         
@@ -37,18 +37,18 @@ class ZoteroClient:
             "Zotero-API-Key": config.api_key,
             "Zotero-API-Version": "3",
         }
-    
+
     def _get_library_url(self) -> str:
         """Get the library URL based on type."""
         if self._config.library_type == "user":
             return f"{self.BASE_URL}/users/{self._config.user_id}"
         return f"{self.BASE_URL}/groups/{self._config.user_id}"
-    
+
     def get_items(
         self,
-        collection_key: Optional[str] = None,
+        collection_key: str | None = None,
         limit: int = 100,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get items from Zotero library.
         
         Args:
@@ -62,17 +62,17 @@ class ZoteroClient:
             import requests
         except ImportError:
             raise ImportError("requests is required for Zotero integration")
-        
+
         url = f"{self._get_library_url()}/items"
         params = {"limit": limit, "format": "json"}
         if collection_key:
             params["collection"] = collection_key
-        
+
         response = requests.get(url, headers=self._headers, params=params)
         response.raise_for_status()
         return response.json()
-    
-    def create_item(self, item_data: Dict[str, Any]) -> Dict[str, Any]:
+
+    def create_item(self, item_data: dict[str, Any]) -> dict[str, Any]:
         """Create a new item in Zotero.
         
         Args:
@@ -85,25 +85,25 @@ class ZoteroClient:
             import requests
         except ImportError:
             raise ImportError("requests is required for Zotero integration")
-        
+
         url = f"{self._get_library_url()}/items"
         response = requests.post(url, headers=self._headers, json=[item_data])
         response.raise_for_status()
         return response.json()
-    
-    def get_collections(self) -> List[Dict[str, Any]]:
+
+    def get_collections(self) -> list[dict[str, Any]]:
         """Get all collections in the library."""
         try:
             import requests
         except ImportError:
             raise ImportError("requests is required for Zotero integration")
-        
+
         url = f"{self._get_library_url()}/collections"
         response = requests.get(url, headers=self._headers)
         response.raise_for_status()
         return response.json()
-    
-    def search(self, query: str, limit: int = 25) -> List[Dict[str, Any]]:
+
+    def search(self, query: str, limit: int = 25) -> list[dict[str, Any]]:
         """Search items in library.
         
         Args:
@@ -117,14 +117,14 @@ class ZoteroClient:
             import requests
         except ImportError:
             raise ImportError("requests is required for Zotero integration")
-        
+
         url = f"{self._get_library_url()}/items"
         params = {"q": query, "limit": limit, "format": "json"}
         response = requests.get(url, headers=self._headers, params=params)
         response.raise_for_status()
         return response.json()
-    
-    def item_to_paper(self, zotero_item: Dict[str, Any]) -> Dict[str, Any]:
+
+    def item_to_paper(self, zotero_item: dict[str, Any]) -> dict[str, Any]:
         """Convert Zotero item to JARVIS paper format.
         
         Args:
@@ -144,8 +144,8 @@ class ZoteroClient:
             "journal": data.get("publicationTitle", ""),
             "source": "zotero",
         }
-    
-    def paper_to_item(self, paper: Dict[str, Any]) -> Dict[str, Any]:
+
+    def paper_to_item(self, paper: dict[str, Any]) -> dict[str, Any]:
         """Convert JARVIS paper to Zotero item format.
         
         Args:

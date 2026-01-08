@@ -1,9 +1,6 @@
 """Checklist rules for lab submission QA."""
 from __future__ import annotations
 
-from typing import Dict, List
-
-
 CHECKLISTS = [
     {
         "id": "no_term_variants",
@@ -33,15 +30,15 @@ CHECKLISTS = [
 ]
 
 
-def _dose_dependent_consistent(normalized_text: Dict[str, object]) -> bool:
+def _dose_dependent_consistent(normalized_text: dict[str, object]) -> bool:
     combined = " ".join(str(value) for value in normalized_text.values())
     if "濃度依存" not in combined:
         return True
     return "濃度依存的" in combined and "濃度依存性" not in combined
 
 
-def run_checklists(qa_result: Dict[str, object]) -> List[Dict[str, object]]:
-    results: List[Dict[str, object]] = []
+def run_checklists(qa_result: dict[str, object]) -> list[dict[str, object]]:
+    results: list[dict[str, object]] = []
     for item in CHECKLISTS:
         passed = item["check"](qa_result)
         results.append({

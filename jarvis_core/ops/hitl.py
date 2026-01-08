@@ -11,11 +11,11 @@ from __future__ import annotations
 
 import json
 import logging
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -43,14 +43,14 @@ class ReviewItem:
     item_id: str
     run_id: str
     review_type: ReviewType
-    content: Dict[str, Any]
+    content: dict[str, Any]
     status: ReviewStatus = ReviewStatus.PENDING
     priority: int = 5  # 1-10, 10 = highest
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
-    assigned_to: Optional[str] = None
-    reviewed_at: Optional[str] = None
+    assigned_to: str | None = None
+    reviewed_at: str | None = None
     reviewer_notes: str = ""
-    feedback: Dict[str, Any] = field(default_factory=dict)
+    feedback: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -60,16 +60,16 @@ class Feedback:
     item_id: str
     reviewer: str
     rating: int  # 1-5
-    accuracy_score: Optional[float] = None
-    completeness_score: Optional[float] = None
+    accuracy_score: float | None = None
+    completeness_score: float | None = None
     comments: str = ""
-    corrections: Dict[str, Any] = field(default_factory=dict)
+    corrections: dict[str, Any] = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
 
 
 class ReviewQueue:
     """レビューキュー."""
-    
+
     def __init__(self, queue_path: str = "artifacts/review_queue.jsonl"):
         """
         初期化.
@@ -80,12 +80,12 @@ class ReviewQueue:
         self.queue_path = Path(queue_path)
         self.queue_path.parent.mkdir(parents=True, exist_ok=True)
         self._item_counter = 0
-    
+
     def add_item(
         self,
         run_id: str,
         review_type: ReviewType,
-        content: Dict[str, Any],
+        content: dict[str, Any],
         priority: int = 5
     ) -> ReviewItem:
         """
@@ -101,7 +101,7 @@ class ReviewQueue:
             レビューアイテム
         """
         self._item_counter += 1
-        
+
         item = ReviewItem(
             item_id=f"REV-{run_id[:8]}-{self._item_counter:04d}",
             run_id=run_id,
@@ -109,29 +109,29 @@ class ReviewQueue:
             content=content,
             priority=priority
         )
-        
+
         self._save_item(item)
         logger.info(f"Review item added: {item.item_id}")
-        
+
         return item
-    
+
     def _save_item(self, item: ReviewItem):
         """アイテムを保存."""
         data = asdict(item)
         data["review_type"] = item.review_type.value
         data["status"] = item.status.value
-        
+
         with open(self.queue_path, 'a', encoding='utf-8') as f:
             f.write(json.dumps(data, ensure_ascii=False) + '\n')
-    
-    def get_pending_items(self, limit: int = 10) -> List[ReviewItem]:
+
+    def get_pending_items(self, limit: int = 10) -> list[ReviewItem]:
         """未処理アイテムを取得."""
         items = []
-        
+
         if not self.queue_path.exists():
             return items
-        
-        with open(self.queue_path, 'r', encoding='utf-8') as f:
+
+        with open(self.queue_path, encoding='utf-8') as f:
             for line in f:
                 if line.strip():
                     data = json.loads(line)
@@ -145,24 +145,24 @@ class ReviewQueue:
                             priority=data.get("priority", 5)
                         )
                         items.append(item)
-        
+
         # 優先度でソート
         items.sort(key=lambda x: x.priority, reverse=True)
         return items[:limit]
-    
+
     def assign_item(self, item_id: str, reviewer: str) -> bool:
         """アイテムを割り当て."""
         # 実際の実装では、状態を更新
         logger.info(f"Item {item_id} assigned to {reviewer}")
         return True
-    
+
     def submit_review(
         self,
         item_id: str,
         status: ReviewStatus,
         reviewer: str,
         notes: str = "",
-        feedback: Optional[Dict[str, Any]] = None
+        feedback: dict[str, Any] | None = None
     ) -> bool:
         """
         レビューを提出.
@@ -185,17 +185,17 @@ class ReviewQueue:
             "feedback": feedback or {},
             "reviewed_at": datetime.now().isoformat()
         }
-        
+
         with open(self.queue_path, 'a', encoding='utf-8') as f:
             f.write(json.dumps(review_result, ensure_ascii=False) + '\n')
-        
+
         logger.info(f"Review submitted for {item_id}: {status.value}")
         return True
 
 
 class FeedbackCollector:
     """フィードバック収集器."""
-    
+
     def __init__(self, feedback_path: str = "artifacts/feedback.jsonl"):
         """
         初期化.
@@ -206,16 +206,16 @@ class FeedbackCollector:
         self.feedback_path = Path(feedback_path)
         self.feedback_path.parent.mkdir(parents=True, exist_ok=True)
         self._feedback_counter = 0
-    
+
     def collect(
         self,
         item_id: str,
         reviewer: str,
         rating: int,
-        accuracy_score: Optional[float] = None,
-        completeness_score: Optional[float] = None,
+        accuracy_score: float | None = None,
+        completeness_score: float | None = None,
         comments: str = "",
-        corrections: Optional[Dict[str, Any]] = None
+        corrections: dict[str, Any] | None = None
     ) -> Feedback:
         """
         フィードバックを収集.
@@ -233,7 +233,7 @@ class FeedbackCollector:
             フィードバック
         """
         self._feedback_counter += 1
-        
+
         feedback = Feedback(
             feedback_id=f"FB-{self._feedback_counter:06d}",
             item_id=item_id,
@@ -244,21 +244,21 @@ class FeedbackCollector:
             comments=comments,
             corrections=corrections or {}
         )
-        
+
         with open(self.feedback_path, 'a', encoding='utf-8') as f:
             f.write(json.dumps(asdict(feedback), ensure_ascii=False) + '\n')
-        
+
         return feedback
-    
-    def get_statistics(self) -> Dict[str, Any]:
+
+    def get_statistics(self) -> dict[str, Any]:
         """統計を取得."""
         if not self.feedback_path.exists():
             return {"total": 0, "avg_rating": 0}
-        
+
         ratings = []
         accuracy_scores = []
-        
-        with open(self.feedback_path, 'r', encoding='utf-8') as f:
+
+        with open(self.feedback_path, encoding='utf-8') as f:
             for line in f:
                 if line.strip():
                     data = json.loads(line)
@@ -266,7 +266,7 @@ class FeedbackCollector:
                         ratings.append(data["rating"])
                     if data.get("accuracy_score"):
                         accuracy_scores.append(data["accuracy_score"])
-        
+
         return {
             "total": len(ratings),
             "avg_rating": sum(ratings) / len(ratings) if ratings else 0,
@@ -275,8 +275,8 @@ class FeedbackCollector:
 
 
 # グローバルインスタンス
-_review_queue: Optional[ReviewQueue] = None
-_feedback_collector: Optional[FeedbackCollector] = None
+_review_queue: ReviewQueue | None = None
+_feedback_collector: FeedbackCollector | None = None
 
 
 def get_review_queue() -> ReviewQueue:

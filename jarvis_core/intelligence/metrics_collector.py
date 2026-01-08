@@ -11,13 +11,13 @@ from __future__ import annotations
 
 import json
 import logging
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .decision_item import DecisionStore
-from .outcome_tracker import OutcomeTracker, OutcomeStatus
+from .outcome_tracker import OutcomeStatus, OutcomeTracker
 
 logger = logging.getLogger(__name__)
 
@@ -32,23 +32,23 @@ class JudgmentMetrics:
     total_decisions: int           # 総判断数
     accept_count: int              # Accept数
     reject_count: int              # Reject数
-    
+
     # Accept系指標
     accept_success_rate: float     # 採用して成功した率
     accept_failure_rate: float     # 採用して失敗した率
-    
+
     # Reject系指標
     reject_correct_rate: float     # 捨てて正解だった率
-    
+
     # 後悔指標
     regret_rate: float             # 後悔率（採用すべきでなかった + 捨てるべきでなかった）
-    
+
     generated_at: str = field(default_factory=lambda: datetime.now().isoformat())
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """辞書に変換."""
         return asdict(self)
-    
+
     def to_markdown(self) -> str:
         """Markdown形式で出力."""
         return f"""# 判断成績表: {self.period}
@@ -72,12 +72,12 @@ class MetricsCollector:
     
     月次で判断の成績表を生成。
     """
-    
+
     def __init__(
         self,
         storage_path: str = "data/metrics",
-        decision_store: Optional[DecisionStore] = None,
-        outcome_tracker: Optional[OutcomeTracker] = None
+        decision_store: DecisionStore | None = None,
+        outcome_tracker: OutcomeTracker | None = None
     ):
         """
         初期化.
@@ -91,8 +91,8 @@ class MetricsCollector:
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self.decision_store = decision_store or DecisionStore()
         self.outcome_tracker = outcome_tracker or OutcomeTracker()
-    
-    def collect(self, period: Optional[str] = None) -> JudgmentMetrics:
+
+    def collect(self, period: str | None = None) -> JudgmentMetrics:
         """
         成績表を収集.
         
@@ -104,33 +104,33 @@ class MetricsCollector:
         """
         if period is None:
             period = datetime.now().strftime("%Y-%m")
-        
+
         decisions = self.decision_store.list_all()
         outcomes = self.outcome_tracker._outcomes
-        
+
         # 期間でフィルタ
         period_decisions = [
             d for d in decisions
             if d.timestamp.startswith(period)
         ]
-        
+
         total = len(period_decisions)
         accept_count = len([d for d in period_decisions if d.decision == "accept"])
         reject_count = len([d for d in period_decisions if d.decision == "reject"])
-        
+
         # Outcome集計
         outcome_map = {o.decision_id: o for o in outcomes}
-        
+
         accept_success = 0
         accept_failure = 0
         reject_correct = 0
         regret = 0
-        
+
         for d in period_decisions:
             outcome = outcome_map.get(d.decision_id)
             if not outcome:
                 continue
-            
+
             if d.decision == "accept":
                 if outcome.status == OutcomeStatus.SUCCESS:
                     accept_success += 1
@@ -144,13 +144,13 @@ class MetricsCollector:
                 elif outcome.status == OutcomeStatus.FAILURE:
                     # 捨てるべきでなかった
                     regret += 1
-        
+
         # 率計算
         accept_success_rate = accept_success / accept_count if accept_count > 0 else 0.0
         accept_failure_rate = accept_failure / accept_count if accept_count > 0 else 0.0
         reject_correct_rate = reject_correct / reject_count if reject_count > 0 else 0.0
         regret_rate = regret / total if total > 0 else 0.0
-        
+
         metrics = JudgmentMetrics(
             period=period,
             total_decisions=total,
@@ -161,33 +161,33 @@ class MetricsCollector:
             reject_correct_rate=reject_correct_rate,
             regret_rate=regret_rate,
         )
-        
+
         # 保存
         self._save(metrics)
-        
+
         logger.info(f"Collected metrics for {period}: success_rate={accept_success_rate:.1%}")
         return metrics
-    
+
     def _save(self, metrics: JudgmentMetrics) -> None:
         """成績表を保存."""
         # JSON
         json_path = self.storage_path / f"metrics_{metrics.period}.json"
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(metrics.to_dict(), f, ensure_ascii=False, indent=2)
-        
+
         # Markdown
         md_path = self.storage_path / f"metrics_{metrics.period}.md"
         with open(md_path, 'w', encoding='utf-8') as f:
             f.write(metrics.to_markdown())
-    
-    def load_history(self, months: int = 6) -> List[JudgmentMetrics]:
+
+    def load_history(self, months: int = 6) -> list[JudgmentMetrics]:
         """過去の成績表を読み込み."""
         metrics_files = sorted(self.storage_path.glob("metrics_*.json"))[-months:]
-        
+
         history = []
         for f in metrics_files:
-            with open(f, 'r', encoding='utf-8') as fp:
+            with open(f, encoding='utf-8') as fp:
                 data = json.load(fp)
                 history.append(JudgmentMetrics(**data))
-        
+
         return history

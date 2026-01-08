@@ -4,10 +4,10 @@ Per RP-02, this defines the structure for ATS-compatible telemetry events.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional, Dict, Any
+from typing import Any
 
 
 class EventType(Enum):
@@ -59,23 +59,23 @@ class TelemetryEvent:
     event_type: str  # COGNITIVE, ACTION, COORDINATION
 
     # Optional context
-    task_id: Optional[str] = None
-    subtask_id: Optional[str] = None
-    agent: Optional[str] = None
-    tool: Optional[str] = None
-    message: Optional[str] = None
+    task_id: str | None = None
+    subtask_id: str | None = None
+    agent: str | None = None
+    tool: str | None = None
+    message: str | None = None
 
     # Payload (no chain-of-thought!)
-    payload: Dict[str, Any] = field(default_factory=dict)
+    payload: dict[str, Any] = field(default_factory=dict)
 
     # Reproducibility fields
-    prompt_hash: Optional[str] = None
-    tool_input_hash: Optional[str] = None
-    cache_hit: Optional[bool] = None
-    
+    prompt_hash: str | None = None
+    tool_input_hash: str | None = None
+    cache_hit: bool | None = None
+
     # Contract v2 fields (for backward compatibility)
-    status: Optional[str] = None
-    error_type: Optional[str] = None
+    status: str | None = None
+    error_type: str | None = None
 
     def to_dict(self) -> dict:
         """Convert to JSON-serializable dict."""
@@ -94,9 +94,9 @@ class TelemetryEvent:
         event: str,
         event_type: str,
         level: str = "INFO",
-        message: Optional[str] = None,
+        message: str | None = None,
         **kwargs,
-    ) -> "TelemetryEvent":
+    ) -> TelemetryEvent:
         """Factory method for creating events."""
         return cls(
             ts=datetime.now(),

@@ -5,9 +5,8 @@ Per RP-30, provides diff comparison for replay validation.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Tuple
 
-from ..artifacts import ClaimSet, Claim
+from ..artifacts import ClaimSet
 
 
 @dataclass
@@ -18,7 +17,7 @@ class ClaimDiff:
     diff_type: str  # added, removed, changed
     original: str = ""
     new: str = ""
-    citation_diff: List[Tuple[str, str]] = None  # (added/removed, chunk_id)
+    citation_diff: list[tuple[str, str]] = None  # (added/removed, chunk_id)
 
     def __post_init__(self):
         if self.citation_diff is None:
@@ -29,9 +28,9 @@ class ClaimDiff:
 class ClaimSetDiff:
     """Difference between two ClaimSets."""
 
-    added: List[ClaimDiff]
-    removed: List[ClaimDiff]
-    changed: List[ClaimDiff]
+    added: list[ClaimDiff]
+    removed: list[ClaimDiff]
+    changed: list[ClaimDiff]
     unchanged_count: int
 
     @property

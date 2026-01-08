@@ -4,11 +4,10 @@ Per RP-138, enforces budget limits across all layers.
 """
 from __future__ import annotations
 
+import threading
 import time
 from dataclasses import dataclass
-from typing import Optional
 from enum import Enum
-import threading
 
 
 class BudgetType(Enum):
@@ -58,7 +57,7 @@ class BudgetExceeded(Exception):
 class BudgetManager:
     """Manages budget limits across all layers."""
 
-    def __init__(self, limits: Optional[BudgetLimits] = None):
+    def __init__(self, limits: BudgetLimits | None = None):
         self.limits = limits or BudgetLimits()
         self.usage = BudgetUsage()
         self._start_time = time.time()
@@ -70,7 +69,7 @@ class BudgetManager:
         self.usage.seconds_used = elapsed
         return elapsed <= self.limits.max_seconds
 
-    def check_all(self) -> tuple[bool, Optional[BudgetType]]:
+    def check_all(self) -> tuple[bool, BudgetType | None]:
         """Check all budgets. Returns (ok, exceeded_type)."""
         with self._lock:
             # Time
@@ -154,7 +153,7 @@ class BudgetManager:
 
 
 # Global budget manager
-_budget_manager: Optional[BudgetManager] = None
+_budget_manager: BudgetManager | None = None
 
 
 def get_budget_manager() -> BudgetManager:

@@ -11,11 +11,10 @@ from __future__ import annotations
 import gzip
 import hashlib
 import json
-import os
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass
@@ -23,9 +22,9 @@ class QueryPackage:
     """検索クエリパッケージ."""
     query: str
     source: str = "pubmed"
-    filters: Dict[str, Any] = field(default_factory=dict)
+    filters: dict[str, Any] = field(default_factory=dict)
     max_results: int = 20
-    
+
     @property
     def query_hash(self) -> str:
         """クエリのハッシュ値."""
@@ -39,8 +38,8 @@ class SearchResultItem:
     doc_id: str
     rank: int
     score: float = 0.0
-    pmid: Optional[str] = None
-    pmcid: Optional[str] = None
+    pmid: str | None = None
+    pmcid: str | None = None
     title: str = ""
 
 
@@ -51,7 +50,7 @@ class RetrievedContent:
     content_hash: str
     title: str = ""
     abstract: str = ""
-    sections: Dict[str, str] = field(default_factory=dict)
+    sections: dict[str, str] = field(default_factory=dict)
     retrieval_status: str = "full"  # full, abstract_only, failed, cached
 
 
@@ -73,7 +72,7 @@ class ModelIO:
     model_id: str
     model_version: str = ""
     prompt_hash: str = ""
-    params: Dict[str, Any] = field(default_factory=dict)
+    params: dict[str, Any] = field(default_factory=dict)
     output_hash: str = ""
 
 
@@ -83,15 +82,15 @@ class Snapshot:
     run_id: str
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
     snapshot_version: str = "1"
-    query_package: Optional[QueryPackage] = None
-    search_results: List[SearchResultItem] = field(default_factory=list)
-    retrieved_content: List[RetrievedContent] = field(default_factory=list)
-    chunk_mapping: List[ChunkMapping] = field(default_factory=list)
-    model_io: List[ModelIO] = field(default_factory=list)
+    query_package: QueryPackage | None = None
+    search_results: list[SearchResultItem] = field(default_factory=list)
+    retrieved_content: list[RetrievedContent] = field(default_factory=list)
+    chunk_mapping: list[ChunkMapping] = field(default_factory=list)
+    model_io: list[ModelIO] = field(default_factory=list)
     is_degraded: bool = False
-    degraded_reasons: List[str] = field(default_factory=list)
-    
-    def to_dict(self) -> Dict[str, Any]:
+    degraded_reasons: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
         """辞書に変換."""
         return {
             "run_id": self.run_id,
@@ -111,16 +110,16 @@ class Snapshot:
                 "reasons": self.degraded_reasons
             }
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Snapshot":
+    def from_dict(cls, data: dict[str, Any]) -> Snapshot:
         """辞書から生成."""
         snapshot = cls(
             run_id=data["run_id"],
             created_at=data.get("created_at", ""),
             snapshot_version=data.get("snapshot_version", "1")
         )
-        
+
         # QueryPackage
         if data.get("query_package"):
             qp = data["query_package"]
@@ -130,35 +129,35 @@ class Snapshot:
                 filters=qp.get("filters", {}),
                 max_results=qp.get("max_results", 20)
             )
-        
+
         # Search results
         if data.get("search_results", {}).get("results"):
             for r in data["search_results"]["results"]:
                 snapshot.search_results.append(SearchResultItem(**r))
-        
+
         # Retrieved content
         for c in data.get("retrieved_content", []):
             snapshot.retrieved_content.append(RetrievedContent(**c))
-        
+
         # Chunk mapping
         for m in data.get("chunk_mapping", []):
             snapshot.chunk_mapping.append(ChunkMapping(**m))
-        
+
         # Model IO
         for io in data.get("model_io", []):
             snapshot.model_io.append(ModelIO(**io))
-        
+
         # Degraded
         if data.get("degraded"):
             snapshot.is_degraded = data["degraded"].get("is_degraded", False)
             snapshot.degraded_reasons = data["degraded"].get("reasons", [])
-        
+
         return snapshot
 
 
 class SnapshotManager:
     """スナップショット管理."""
-    
+
     def __init__(self, base_path: str = "artifacts", compress: bool = True):
         """
         初期化.
@@ -169,13 +168,13 @@ class SnapshotManager:
         """
         self.base_path = Path(base_path)
         self.compress = compress
-    
+
     def _get_snapshot_path(self, run_id: str) -> Path:
         """スナップショットパスを取得."""
         dir_path = self.base_path / run_id / "snapshot"
         filename = "snapshot.json.gz" if self.compress else "snapshot.json"
         return dir_path / filename
-    
+
     def save(self, snapshot: Snapshot) -> Path:
         """
         スナップショットを保存.
@@ -188,19 +187,19 @@ class SnapshotManager:
         """
         path = self._get_snapshot_path(snapshot.run_id)
         path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         data = json.dumps(snapshot.to_dict(), ensure_ascii=False, indent=2)
-        
+
         if self.compress:
             with gzip.open(path, 'wt', encoding='utf-8') as f:
                 f.write(data)
         else:
             with open(path, 'w', encoding='utf-8') as f:
                 f.write(data)
-        
+
         return path
-    
-    def load(self, run_id: str) -> Optional[Snapshot]:
+
+    def load(self, run_id: str) -> Snapshot | None:
         """
         スナップショットを読み込み.
         
@@ -211,7 +210,7 @@ class SnapshotManager:
             スナップショット（存在しない場合None）
         """
         path = self._get_snapshot_path(run_id)
-        
+
         if not path.exists():
             # 非圧縮版も試す
             alt_path = path.parent / "snapshot.json"
@@ -219,34 +218,34 @@ class SnapshotManager:
                 path = alt_path
             else:
                 return None
-        
+
         try:
             if path.suffix == '.gz':
                 with gzip.open(path, 'rt', encoding='utf-8') as f:
                     data = json.load(f)
             else:
-                with open(path, 'r', encoding='utf-8') as f:
+                with open(path, encoding='utf-8') as f:
                     data = json.load(f)
-            
+
             return Snapshot.from_dict(data)
-        
+
         except Exception as e:
             print(f"Failed to load snapshot: {e}")
             return None
-    
+
     def exists(self, run_id: str) -> bool:
         """スナップショットが存在するか."""
         path = self._get_snapshot_path(run_id)
         alt_path = path.parent / "snapshot.json"
         return path.exists() or alt_path.exists()
-    
+
     def get_content_hash(self, content: str) -> str:
         """コンテンツのハッシュを計算."""
         return hashlib.sha256(content.encode()).hexdigest()
 
 
 # グローバルマネージャ
-_manager: Optional[SnapshotManager] = None
+_manager: SnapshotManager | None = None
 
 
 def get_snapshot_manager(base_path: str = "artifacts") -> SnapshotManager:

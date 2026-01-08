@@ -6,8 +6,6 @@ import os
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
-
 
 LOCK_DIR = Path("data/locks")
 LOCK_DIR.mkdir(parents=True, exist_ok=True)
@@ -26,17 +24,17 @@ class LockHandle:
             return
 
 
-def _read_lock(path: Path) -> Optional[dict]:
+def _read_lock(path: Path) -> dict | None:
     if not path.exists():
         return None
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
     except Exception:
         return None
 
 
-def acquire_schedule_lock(schedule_id: str, ttl_seconds: int, margin_seconds: int = 60) -> Optional[LockHandle]:
+def acquire_schedule_lock(schedule_id: str, ttl_seconds: int, margin_seconds: int = 60) -> LockHandle | None:
     key = f"lock:schedule:{schedule_id}"
     path = LOCK_DIR / f"{schedule_id}.lock"
     expires_at = time.time() + ttl_seconds + margin_seconds

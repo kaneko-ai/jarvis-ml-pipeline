@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -34,8 +34,8 @@ class ResearchQuestion:
     context: str
     priority: int  # 1-5 (5が最高)
     reasoning: str
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """辞書に変換."""
         return {
             "type": self.question_type.value,
@@ -54,7 +54,7 @@ class QuestionGenerator:
     - 前提を洗い出し
     - 次の仮説を提示
     """
-    
+
     # 問い生成テンプレート
     QUESTION_TEMPLATES = {
         QuestionType.UNVERIFIED: [
@@ -83,13 +83,13 @@ class QuestionGenerator:
             "短期的に解決可能な課題は？",
         ],
     }
-    
+
     def generate(
         self,
         topic: str,
-        context: Optional[str] = None,
-        existing_knowledge: Optional[List[str]] = None
-    ) -> List[ResearchQuestion]:
+        context: str | None = None,
+        existing_knowledge: list[str] | None = None
+    ) -> list[ResearchQuestion]:
         """
         問いを生成.
         
@@ -102,39 +102,39 @@ class QuestionGenerator:
             ResearchQuestion リスト
         """
         questions = []
-        
+
         # 各タイプの問いを生成
         for q_type in QuestionType:
             q = self._generate_for_type(q_type, topic, context, existing_knowledge)
             if q:
                 questions.append(q)
-        
+
         # 優先度でソート
         questions.sort(key=lambda x: x.priority, reverse=True)
-        
+
         logger.info(f"Generated {len(questions)} questions for topic: {topic}")
         return questions
-    
+
     def _generate_for_type(
         self,
         q_type: QuestionType,
         topic: str,
-        context: Optional[str],
-        existing_knowledge: Optional[List[str]]
-    ) -> Optional[ResearchQuestion]:
+        context: str | None,
+        existing_knowledge: list[str] | None
+    ) -> ResearchQuestion | None:
         """タイプ別に問いを生成."""
         templates = self.QUESTION_TEMPLATES.get(q_type, [])
         if not templates:
             return None
-        
+
         # トピックに応じて問いを選択（プレースホルダー）
         # 本番ではLLMで生成
         template = templates[0]
         question = f"【{topic}】{template}"
-        
+
         # 優先度決定（簡易）
         priority = self._calc_priority(q_type, topic, existing_knowledge)
-        
+
         return ResearchQuestion(
             question_type=q_type,
             question=question,
@@ -142,12 +142,12 @@ class QuestionGenerator:
             priority=priority,
             reasoning=f"Generated from {q_type.value} template",
         )
-    
+
     def _calc_priority(
         self,
         q_type: QuestionType,
         topic: str,
-        existing_knowledge: Optional[List[str]]
+        existing_knowledge: list[str] | None
     ) -> int:
         """優先度を計算."""
         # 基本優先度
@@ -158,27 +158,27 @@ class QuestionGenerator:
             QuestionType.UNVERIFIED: 3,
             QuestionType.ASSUMPTION: 2,
         }
-        
+
         priority = base_priority.get(q_type, 3)
-        
+
         # 既存知識が少ないほど優先度上げる
         if not existing_knowledge or len(existing_knowledge) < 3:
             priority = min(5, priority + 1)
-        
+
         return priority
-    
-    def format_for_output(self, questions: List[ResearchQuestion]) -> str:
+
+    def format_for_output(self, questions: list[ResearchQuestion]) -> str:
         """出力用にフォーマット."""
         if not questions:
             return "No questions generated."
-        
+
         lines = ["# Research Questions\n"]
-        
+
         for i, q in enumerate(questions, 1):
             lines.append(f"## {i}. [{q.question_type.value.upper()}] (Priority: {q.priority})")
             lines.append(f"**{q.question}**")
-            lines.append(f"")
+            lines.append("")
             lines.append(f"*Reasoning*: {q.reasoning}")
             lines.append("")
-        
+
         return "\n".join(lines)

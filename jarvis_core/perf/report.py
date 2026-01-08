@@ -8,7 +8,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -21,21 +21,21 @@ class PerfReport:
     workflow: str = ""
 
     # Span statistics
-    span_stats: Dict[str, dict] = field(default_factory=dict)
+    span_stats: dict[str, dict] = field(default_factory=dict)
     total_duration_ms: float = 0.0
 
     # SLO status
-    slo_violations: List[str] = field(default_factory=list)
+    slo_violations: list[str] = field(default_factory=list)
     slo_status: str = "passed"  # passed, warning, failed
 
     # Budget usage
-    budget_usage: Dict[str, dict] = field(default_factory=dict)
+    budget_usage: dict[str, dict] = field(default_factory=dict)
 
     # Cache statistics
-    cache_stats: Dict[str, Any] = field(default_factory=dict)
+    cache_stats: dict[str, Any] = field(default_factory=dict)
 
     # Index statistics
-    index_stats: Dict[str, dict] = field(default_factory=dict)
+    index_stats: dict[str, dict] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         """Convert to fixed-schema dict."""
@@ -67,11 +67,11 @@ class PerfReport:
 def generate_perf_report(
     run_id: str,
     workflow: str = "",
-    span_tracker: Optional[Any] = None,
-    slo_status: Optional[Any] = None,
-    budget_manager: Optional[Any] = None,
-    cache: Optional[Any] = None,
-    index_pipeline: Optional[Any] = None,
+    span_tracker: Any | None = None,
+    slo_status: Any | None = None,
+    budget_manager: Any | None = None,
+    cache: Any | None = None,
+    index_pipeline: Any | None = None,
 ) -> PerfReport:
     """Generate performance report from components.
 

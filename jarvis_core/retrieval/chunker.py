@@ -1,8 +1,8 @@
 """Deterministic chunker for retrieval indexing."""
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable, List, Optional
 
 from jarvis_core.retrieval.schema import Chunk, ChunkMeta, Provenance, stable_hash, utc_now_iso
 
@@ -14,11 +14,11 @@ class ChunkRule:
 
 
 class Chunker:
-    def __init__(self, rule: Optional[ChunkRule] = None):
+    def __init__(self, rule: ChunkRule | None = None):
         self.rule = rule or ChunkRule()
 
-    def _split_text(self, text: str) -> List[str]:
-        chunks: List[str] = []
+    def _split_text(self, text: str) -> list[str]:
+        chunks: list[str] = []
         clean = text.replace("\r\n", "\n").replace("\r", "\n")
         paragraphs = [p.strip() for p in clean.split("\n\n") if p.strip()]
         buffer = ""
@@ -35,10 +35,10 @@ class Chunker:
             chunks.append(buffer)
         return self._apply_overlap(chunks)
 
-    def _apply_overlap(self, chunks: List[str]) -> List[str]:
+    def _apply_overlap(self, chunks: list[str]) -> list[str]:
         if not chunks or self.rule.overlap_chars <= 0:
             return chunks
-        overlapped: List[str] = []
+        overlapped: list[str] = []
         prev_tail = ""
         for chunk in chunks:
             if prev_tail:
@@ -57,15 +57,15 @@ class Chunker:
         text: str,
         source_type: str,
         provenance: Provenance,
-        meta: Optional[ChunkMeta] = None,
-        updated_at: Optional[str] = None,
+        meta: ChunkMeta | None = None,
+        updated_at: str | None = None,
     ) -> Iterable[Chunk]:
         if not provenance or not provenance.file_path and not provenance.run_id:
             return []
         meta = meta or ChunkMeta()
         updated_at = updated_at or utc_now_iso()
         segments = self._split_text(text)
-        chunks: List[Chunk] = []
+        chunks: list[Chunk] = []
         for index, segment in enumerate(segments):
             locator = f"chunk={index}"
             stable_seed = f"{doc_id}|{index}|{segment}"

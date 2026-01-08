@@ -1,8 +1,8 @@
 """Embedding provider abstraction for retrieval."""
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable, List
 
 import numpy as np
 
@@ -41,7 +41,7 @@ class HashEmbeddingProvider(EmbeddingProvider):
         return vec / norm
 
     def embed(self, texts: Iterable[str]) -> EmbeddingResult:
-        vectors: List[np.ndarray] = []
+        vectors: list[np.ndarray] = []
         for text in texts:
             vectors.append(self._hash_to_vec(text))
         return EmbeddingResult(vectors=np.vstack(vectors), model=self.model_name)

@@ -3,16 +3,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any
 
 
 @dataclass
 class ScoreResult:
     score: float
     tier: str
-    breakdown: Dict[str, float]
+    breakdown: dict[str, float]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "score": self.score,
             "tier": self.tier,
@@ -21,8 +21,8 @@ class ScoreResult:
 
 
 def score_paper(
-    paper: Dict[str, Any],
-    claims: List[Dict[str, Any]],
+    paper: dict[str, Any],
+    claims: list[dict[str, Any]],
     query: str = "",
     domain: str = "",
 ) -> ScoreResult:
@@ -45,7 +45,7 @@ def score_paper(
     )
 
 
-def _score_transparency(paper: Dict[str, Any], claims: List[Dict[str, Any]]) -> float:
+def _score_transparency(paper: dict[str, Any], claims: list[dict[str, Any]]) -> float:
     score = 0.0
     oa_status = paper.get("oa_status")
     if oa_status and oa_status != "closed":
@@ -57,7 +57,7 @@ def _score_transparency(paper: Dict[str, Any], claims: List[Dict[str, Any]]) -> 
     return min(score, 30.0)
 
 
-def _score_reliability(paper: Dict[str, Any]) -> float:
+def _score_reliability(paper: dict[str, Any]) -> float:
     score = 0.0
     if paper.get("journal"):
         score += 10.0
@@ -70,7 +70,7 @@ def _score_reliability(paper: Dict[str, Any]) -> float:
     return min(score, 25.0)
 
 
-def _score_relevance(paper: Dict[str, Any], query: str, domain: str) -> float:
+def _score_relevance(paper: dict[str, Any], query: str, domain: str) -> float:
     score = 0.0
     haystack = " ".join([paper.get("title") or "", paper.get("abstract") or ""]).lower()
     if query:
@@ -86,7 +86,7 @@ def _score_relevance(paper: Dict[str, Any], query: str, domain: str) -> float:
     return min(score, 25.0)
 
 
-def _score_evidence_strength(claims: List[Dict[str, Any]]) -> float:
+def _score_evidence_strength(claims: list[dict[str, Any]]) -> float:
     if not claims:
         return 0.0
     avg = 0.0

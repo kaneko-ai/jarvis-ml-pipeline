@@ -4,15 +4,15 @@ Per V4-M01, this explains why papers are similar.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..paper_vector import PaperVector
 
 
 def explain_similarity(
-    paper1: "PaperVector",
-    paper2: "PaperVector",
+    paper1: PaperVector,
+    paper2: PaperVector,
 ) -> dict:
     """Explain why two papers are similar.
 
@@ -74,7 +74,7 @@ def explain_similarity(
     }
 
 
-def _generate_explanation(reasons: List[dict]) -> str:
+def _generate_explanation(reasons: list[dict]) -> str:
     """Generate human-readable explanation."""
     if not reasons:
         return "類似性の根拠が見つかりませんでした。"

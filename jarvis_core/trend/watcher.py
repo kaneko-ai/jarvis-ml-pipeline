@@ -11,10 +11,10 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from .ranker import TrendRanker, RankScore
-from .sources.base import TrendSource, TrendItem
+from .ranker import RankScore, TrendRanker
+from .sources.base import TrendItem, TrendSource
 
 logger = logging.getLogger(__name__)
 
@@ -26,52 +26,52 @@ class TrendReport:
     generated_at: str
     period_start: str
     period_end: str
-    items: List[TrendItem] = field(default_factory=list)
-    ranked_items: List[tuple[TrendItem, RankScore]] = field(default_factory=list)
-    issues: List[Dict[str, Any]] = field(default_factory=list)
-    
+    items: list[TrendItem] = field(default_factory=list)
+    ranked_items: list[tuple[TrendItem, RankScore]] = field(default_factory=list)
+    issues: list[dict[str, Any]] = field(default_factory=list)
+
     def to_markdown(self) -> str:
         """Markdown形式でレポートを生成."""
         lines = [
             f"# Trend Report: {self.report_id}",
-            f"",
+            "",
             f"**Generated**: {self.generated_at}",
             f"**Period**: {self.period_start} ~ {self.period_end}",
-            f"",
-            f"## Top Trends",
-            f"",
+            "",
+            "## Top Trends",
+            "",
         ]
-        
+
         for i, (item, score) in enumerate(self.ranked_items[:10], 1):
             lines.append(f"### {i}. {item.title}")
-            lines.append(f"")
+            lines.append("")
             lines.append(f"- **Source**: {item.source}")
             lines.append(f"- **Score**: {score.total:.2f}")
             lines.append(f"- **Novelty**: {score.novelty:.2f}")
             lines.append(f"- **Relevance**: {score.relevance:.2f}")
             if item.abstract:
-                lines.append(f"")
+                lines.append("")
                 lines.append(f"> {item.abstract[:300]}...")
-            lines.append(f"")
-        
+            lines.append("")
+
         if self.issues:
-            lines.append(f"## Improvement Issues")
-            lines.append(f"")
+            lines.append("## Improvement Issues")
+            lines.append("")
             for issue in self.issues[:5]:
                 lines.append(f"- **{issue.get('title', 'N/A')}**: {issue.get('description', '')}")
-        
+
         return "\n".join(lines)
-    
+
     def save(self, output_dir: str = "reports/trends") -> Path:
         """レポートを保存."""
         path = Path(output_dir)
         path.mkdir(parents=True, exist_ok=True)
-        
+
         # Markdown
         md_path = path / f"{self.report_id}.md"
         with open(md_path, 'w', encoding='utf-8') as f:
             f.write(self.to_markdown())
-        
+
         # JSON
         json_path = path / f"{self.report_id}.json"
         with open(json_path, 'w', encoding='utf-8') as f:
@@ -83,7 +83,7 @@ class TrendReport:
                 "items_count": len(self.items),
                 "issues": self.issues,
             }, f, ensure_ascii=False, indent=2)
-        
+
         return md_path
 
 
@@ -92,11 +92,11 @@ class TrendWatcher:
     
     arXiv / PubMed / Zenn / DAIR.AI 等から並列収集。
     """
-    
+
     def __init__(
         self,
-        sources: Optional[List[TrendSource]] = None,
-        ranker: Optional[TrendRanker] = None
+        sources: list[TrendSource] | None = None,
+        ranker: TrendRanker | None = None
     ):
         """
         初期化.
@@ -107,17 +107,17 @@ class TrendWatcher:
         """
         self.sources = sources or []
         self.ranker = ranker or TrendRanker()
-    
+
     def add_source(self, source: TrendSource) -> None:
         """ソースを追加."""
         self.sources.append(source)
-    
+
     def collect(
         self,
-        queries: List[str],
+        queries: list[str],
         max_per_source: int = 50,
         period_days: int = 7
-    ) -> List[TrendItem]:
+    ) -> list[TrendItem]:
         """
         全ソースからトレンドを収集.
         
@@ -129,8 +129,8 @@ class TrendWatcher:
         Returns:
             TrendItemリスト
         """
-        all_items: List[TrendItem] = []
-        
+        all_items: list[TrendItem] = []
+
         for source in self.sources:
             try:
                 items = source.fetch(queries, max_results=max_per_source)
@@ -138,7 +138,7 @@ class TrendWatcher:
                 logger.info(f"Collected {len(items)} items from {source.name}")
             except Exception as e:
                 logger.error(f"Failed to collect from {source.name}: {e}")
-        
+
         # 重複除去
         seen_ids = set()
         unique_items = []
@@ -146,13 +146,13 @@ class TrendWatcher:
             if item.id not in seen_ids:
                 seen_ids.add(item.id)
                 unique_items.append(item)
-        
+
         logger.info(f"Total unique items: {len(unique_items)}")
         return unique_items
-    
+
     def generate_report(
         self,
-        items: List[TrendItem],
+        items: list[TrendItem],
         period_start: str,
         period_end: str
     ) -> TrendReport:
@@ -169,10 +169,10 @@ class TrendWatcher:
         """
         # ランキング
         ranked = self.ranker.rank(items)
-        
+
         # Issue生成
         issues = self._generate_issues(ranked[:10])
-        
+
         report = TrendReport(
             report_id=f"trend_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
             generated_at=datetime.now().isoformat(),
@@ -182,16 +182,16 @@ class TrendWatcher:
             ranked_items=ranked,
             issues=issues,
         )
-        
+
         return report
-    
+
     def _generate_issues(
         self,
-        top_items: List[tuple[TrendItem, RankScore]]
-    ) -> List[Dict[str, Any]]:
+        top_items: list[tuple[TrendItem, RankScore]]
+    ) -> list[dict[str, Any]]:
         """改善Issueを生成（DoD駆動）."""
         issues = []
-        
+
         for item, score in top_items:
             if score.relevance > 0.7:
                 issues.append({
@@ -205,5 +205,5 @@ class TrendWatcher:
                         "Decision logged to Experience",
                     ],
                 })
-        
+
         return issues

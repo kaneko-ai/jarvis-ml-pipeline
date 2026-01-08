@@ -1,7 +1,7 @@
 """Route papers into conceptual topics."""
 from __future__ import annotations
 
-from typing import Iterable, List, Set
+from collections.abc import Iterable
 
 from .normalizer import TermNormalizer
 
@@ -12,9 +12,9 @@ class TopicRouter:
     def __init__(self, normalizer: TermNormalizer):
         self.normalizer = normalizer
 
-    def _match_topics(self, text: str) -> Set[str]:
+    def _match_topics(self, text: str) -> set[str]:
         normalized_text = self.normalizer.normalize_text(text)
-        matches: Set[str] = set()
+        matches: set[str] = set()
         for canonical, synonyms in self.normalizer.synonyms.items():
             if canonical and canonical in normalized_text:
                 matches.add(canonical)
@@ -25,8 +25,8 @@ class TopicRouter:
                     break
         return matches
 
-    def classify(self, text_blocks: Iterable[str], tags: Iterable[str]) -> List[str]:
-        matched: Set[str] = set()
+    def classify(self, text_blocks: Iterable[str], tags: Iterable[str]) -> list[str]:
+        matched: set[str] = set()
         for tag in tags:
             normalized = self.normalizer.normalize_term(tag)
             if normalized:

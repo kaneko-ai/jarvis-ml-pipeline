@@ -2,9 +2,8 @@
 
 Core tests for reliability, database, and infra modules.
 """
+
 import pytest
-import time
-import threading
 
 pytestmark = pytest.mark.core
 
@@ -83,7 +82,7 @@ class TestRetry:
 
     def test_retry_on_failure(self):
         """Should retry on failure."""
-        from jarvis_core.reliability import retry_with_backoff, RetryConfig
+        from jarvis_core.reliability import RetryConfig, retry_with_backoff
 
         config = RetryConfig(max_retries=2, base_delay=0.01)
         call_count = 0
@@ -106,7 +105,7 @@ class TestRateLimiter:
 
     def test_allows_within_limit(self):
         """Should allow requests within limit."""
-        from jarvis_core.reliability.rate_limiter import RateLimiter, RateLimitConfig
+        from jarvis_core.reliability.rate_limiter import RateLimitConfig, RateLimiter
 
         config = RateLimitConfig(requests_per_second=100, burst_size=10)
         limiter = RateLimiter(config)
@@ -116,7 +115,7 @@ class TestRateLimiter:
 
     def test_blocks_over_limit(self):
         """Should block requests over limit."""
-        from jarvis_core.reliability.rate_limiter import RateLimiter, RateLimitConfig
+        from jarvis_core.reliability.rate_limiter import RateLimitConfig, RateLimiter
 
         config = RateLimitConfig(requests_per_second=1, burst_size=2)
         limiter = RateLimiter(config)
@@ -124,7 +123,7 @@ class TestRateLimiter:
         # Exhaust burst
         assert limiter.is_allowed("user1")
         assert limiter.is_allowed("user1")
-        
+
         # Should be blocked
         result = limiter.check("user1")
         assert not result.allowed
@@ -145,7 +144,7 @@ class TestHealthCheck:
 
     def test_readiness_with_checks(self):
         """Readiness should run all checks."""
-        from jarvis_core.reliability.health import HealthChecker, HealthStatus, CheckResult
+        from jarvis_core.reliability.health import CheckResult, HealthChecker, HealthStatus
 
         checker = HealthChecker()
 

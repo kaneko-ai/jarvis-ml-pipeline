@@ -5,10 +5,8 @@ Per RP-02, this provides robust logging to events.jsonl.
 from __future__ import annotations
 
 import json
-import os
-from pathlib import Path
-from typing import Optional
 import threading
+from pathlib import Path
 
 from .schema import TelemetryEvent
 
@@ -80,7 +78,7 @@ class JsonlTelemetryLogger:
 
 
 # Global logger instance
-_global_logger: Optional[JsonlTelemetryLogger] = None
+_global_logger: JsonlTelemetryLogger | None = None
 
 
 def init_logger(run_id: str, logs_dir: str = "logs/runs") -> JsonlTelemetryLogger:
@@ -90,6 +88,6 @@ def init_logger(run_id: str, logs_dir: str = "logs/runs") -> JsonlTelemetryLogge
     return _global_logger
 
 
-def get_logger() -> Optional[JsonlTelemetryLogger]:
+def get_logger() -> JsonlTelemetryLogger | None:
     """Get global logger if initialized."""
     return _global_logger

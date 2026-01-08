@@ -1,24 +1,22 @@
 """Suggestion engine for feedback risk mitigation."""
 from __future__ import annotations
 
-from typing import Dict, List
-
 from .schema import FeedbackEntry
 
 
 class SuggestionEngine:
     """Generate before/after suggestions for high-risk segments."""
 
-    def __init__(self, history: List[FeedbackEntry]):
+    def __init__(self, history: list[FeedbackEntry]):
         self.history = history
 
-    def suggest(self, text: str, categories: List[str]) -> List[Dict[str, str]]:
-        suggestions: List[Dict[str, str]] = []
+    def suggest(self, text: str, categories: list[str]) -> list[dict[str, str]]:
+        suggestions: list[dict[str, str]] = []
         for category in categories:
             suggestions.extend(self._category_suggestions(text, category))
         return suggestions[:3]
 
-    def _category_suggestions(self, text: str, category: str) -> List[Dict[str, str]]:
+    def _category_suggestions(self, text: str, category: str) -> list[dict[str, str]]:
         templates = {
             "evidence": [
                 {

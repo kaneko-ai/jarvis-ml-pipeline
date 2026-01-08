@@ -2,17 +2,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Any
 
 
 @dataclass
 class EvidenceItem:
     chunk_id: str
-    locator: Dict[str, Any]
+    locator: dict[str, Any]
     quote: str
     score: float
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "chunk_id": self.chunk_id,
             "locator": self.locator,
@@ -27,11 +27,11 @@ class ClaimUnit:
     paper_id: str
     claim_text: str
     claim_type: str
-    evidence: List[EvidenceItem] = field(default_factory=list)
+    evidence: list[EvidenceItem] = field(default_factory=list)
     generated_at: str = ""
-    model_info: Dict[str, Any] = field(default_factory=dict)
+    model_info: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "claim_id": self.claim_id,
             "paper_id": self.paper_id,

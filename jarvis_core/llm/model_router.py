@@ -7,9 +7,9 @@ from __future__ import annotations
 
 import logging
 import os
+from collections.abc import Generator
 from dataclasses import dataclass
 from enum import Enum
-from typing import Generator, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ class RoutingDecision:
     task_type: TaskType
     model_config: ModelConfig
     reason: str
-    fallback: Optional[ModelConfig] = None
+    fallback: ModelConfig | None = None
 
 
 # Default model configurations
@@ -99,7 +99,7 @@ class ModelRouter:
     def __init__(
         self,
         primary_provider: ModelProvider = ModelProvider.OLLAMA,
-        fallback_chain: Optional[List[ModelProvider]] = None,
+        fallback_chain: list[ModelProvider] | None = None,
         local_first: bool = True,
     ):
         self.primary_provider = primary_provider
@@ -112,18 +112,18 @@ class ModelRouter:
         """Check if a provider is available."""
         if provider in self._availability_cache:
             return self._availability_cache[provider]
-        
+
         available = self._check_provider(provider)
         self._availability_cache[provider] = available
         return available
-    
+
     def _check_provider(self, provider: ModelProvider) -> bool:
         """Actually check provider availability."""
         if provider == ModelProvider.RULE:
             return True
 
         if provider == ModelProvider.GEMINI:
-            return bool(os.environ.get("GOOGLE_API_KEY") or 
+            return bool(os.environ.get("GOOGLE_API_KEY") or
                        os.environ.get("GEMINI_API_KEY"))
 
         if provider == ModelProvider.OLLAMA:
@@ -134,7 +134,7 @@ class ModelRouter:
             except Exception as e:
                 logger.debug(f"Ollama not available: {e}")
                 return False
-        
+
         if provider == ModelProvider.LLAMACPP:
             try:
                 from jarvis_core.llm.llamacpp_adapter import LlamaCppAdapter
@@ -145,12 +145,12 @@ class ModelRouter:
                 return False
 
         return False
-    
+
     def get_adapter(self, provider: ModelProvider):
         """Get or create adapter for provider."""
         if provider in self._adapters:
             return self._adapters[provider]
-        
+
         if provider == ModelProvider.OLLAMA:
             from jarvis_core.llm.ollama_adapter import OllamaAdapter
             self._adapters[provider] = OllamaAdapter()
@@ -159,10 +159,10 @@ class ModelRouter:
             self._adapters[provider] = LlamaCppAdapter()
         else:
             return None
-        
+
         return self._adapters[provider]
-    
-    def find_available_provider(self) -> Optional[ModelProvider]:
+
+    def find_available_provider(self) -> ModelProvider | None:
         """Find first available provider from fallback chain."""
         for provider in self.fallback_chain:
             if self.check_availability(provider):
@@ -174,7 +174,7 @@ class ModelRouter:
         self,
         task_type: TaskType,
         complexity: str = "low",
-        budget_tokens: Optional[int] = None,
+        budget_tokens: int | None = None,
         prefer_local: bool = True,
     ) -> RoutingDecision:
         """Route a task to appropriate model.
@@ -232,7 +232,7 @@ class ModelRouter:
             model_config=DEFAULT_MODELS[ModelProvider.RULE],
             reason="No provider available, using rule-based",
         )
-    
+
     def generate(
         self,
         prompt: str,
@@ -243,20 +243,20 @@ class ModelRouter:
         """Generate text using best available provider."""
         decision = self.route(TaskType.GENERATE)
         adapter = self.get_adapter(decision.model_config.provider)
-        
+
         if adapter is None:
             raise RuntimeError(f"No adapter for {decision.model_config.provider}")
-        
+
         return adapter.generate(
             prompt,
             max_tokens=max_tokens,
             temperature=temperature,
             **kwargs
         )
-    
+
     def chat(
         self,
-        messages: List[dict],
+        messages: list[dict],
         max_tokens: int = 1024,
         temperature: float = 0.7,
         **kwargs
@@ -264,17 +264,17 @@ class ModelRouter:
         """Chat using best available provider."""
         decision = self.route(TaskType.CHAT)
         adapter = self.get_adapter(decision.model_config.provider)
-        
+
         if adapter is None:
             raise RuntimeError(f"No adapter for {decision.model_config.provider}")
-        
+
         return adapter.chat(
             messages,
             max_tokens=max_tokens,
             temperature=temperature,
             **kwargs
         )
-    
+
     def generate_stream(
         self,
         prompt: str,
@@ -285,10 +285,10 @@ class ModelRouter:
         """Streaming generation."""
         decision = self.route(TaskType.GENERATE)
         adapter = self.get_adapter(decision.model_config.provider)
-        
+
         if adapter is None:
             raise RuntimeError(f"No adapter for {decision.model_config.provider}")
-        
+
         if hasattr(adapter, 'generate_stream'):
             yield from adapter.generate_stream(
                 prompt,
@@ -307,7 +307,7 @@ class ModelRouter:
 
 
 # Global router
-_router: Optional[ModelRouter] = None
+_router: ModelRouter | None = None
 
 
 def get_router(local_first: bool = True) -> ModelRouter:

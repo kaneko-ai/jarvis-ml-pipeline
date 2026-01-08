@@ -8,7 +8,6 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Any
 
 
 @dataclass
@@ -18,10 +17,10 @@ class TraceStep:
     step_id: str
     name: str
     started_at: datetime
-    ended_at: Optional[datetime] = None
+    ended_at: datetime | None = None
     status: str = "running"  # running, success, failed
-    artifact_id: Optional[str] = None
-    error: Optional[str] = None
+    artifact_id: str | None = None
+    error: str | None = None
     metadata: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
@@ -38,7 +37,7 @@ class TraceStep:
         }
 
     @property
-    def duration_ms(self) -> Optional[int]:
+    def duration_ms(self) -> int | None:
         if self.ended_at and self.started_at:
             return int((self.ended_at - self.started_at).total_seconds() * 1000)
         return None
@@ -51,8 +50,8 @@ class RunTrace:
         self.workflow = workflow
         self.run_id = run_id or datetime.now().strftime("%Y%m%d_%H%M%S")
         self.started_at = datetime.now()
-        self.ended_at: Optional[datetime] = None
-        self.steps: List[TraceStep] = []
+        self.ended_at: datetime | None = None
+        self.steps: list[TraceStep] = []
         self.status = "running"
         self._step_counter = 0
 
@@ -109,7 +108,7 @@ class RunTrace:
         }
 
     @property
-    def duration_ms(self) -> Optional[int]:
+    def duration_ms(self) -> int | None:
         if self.ended_at:
             return int((self.ended_at - self.started_at).total_seconds() * 1000)
         return None
@@ -127,7 +126,7 @@ class RunTrace:
 
 
 # Global trace for current run
-_current_trace: Optional[RunTrace] = None
+_current_trace: RunTrace | None = None
 
 
 def start_trace(workflow: str) -> RunTrace:
@@ -137,7 +136,7 @@ def start_trace(workflow: str) -> RunTrace:
     return _current_trace
 
 
-def get_current_trace() -> Optional[RunTrace]:
+def get_current_trace() -> RunTrace | None:
     """Get current trace."""
     return _current_trace
 

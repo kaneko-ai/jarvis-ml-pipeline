@@ -5,7 +5,7 @@ Per V4-B2, this detects misalignment between claims and facts.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..artifacts.schema import ArtifactBase, Fact
@@ -18,8 +18,8 @@ class AlignmentResult:
     claim_text: str
     status: str  # "aligned", "partial", "misaligned"
     evidence_coverage: float  # 0-1
-    matched_facts: List[str]
-    issues: List[str]
+    matched_facts: list[str]
+    issues: list[str]
 
     def to_dict(self) -> dict:
         return {
@@ -57,7 +57,7 @@ class ClaimFactChecker:
     def check_alignment(
         self,
         claim: str,
-        facts: List["Fact"],
+        facts: list[Fact],
         min_coverage: float = 0.3,
     ) -> AlignmentResult:
         """Check if claim aligns with supporting facts.
@@ -116,8 +116,8 @@ class ClaimFactChecker:
 
     def check_artifact(
         self,
-        artifact: "ArtifactBase",
-    ) -> List[AlignmentResult]:
+        artifact: ArtifactBase,
+    ) -> list[AlignmentResult]:
         """Check all inferences in an artifact against facts.
 
         Args:
@@ -139,9 +139,9 @@ class ClaimFactChecker:
 
 
 def check_claim_fact_alignment(
-    claims: List[str],
-    facts: List["Fact"],
-) -> List[AlignmentResult]:
+    claims: list[str],
+    facts: list[Fact],
+) -> list[AlignmentResult]:
     """Convenience function to check multiple claims.
 
     Args:

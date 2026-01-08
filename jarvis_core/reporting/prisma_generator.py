@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -20,22 +20,22 @@ class PRISMAStats:
     records_identified_database: int = 0
     records_identified_other: int = 0
     records_removed_duplicates: int = 0
-    
+
     # Screening
     records_screened: int = 0
     records_excluded_title_abstract: int = 0
-    
+
     # Eligibility
     reports_sought: int = 0
     reports_not_retrieved: int = 0
     reports_assessed: int = 0
     reports_excluded: int = 0
-    exclusion_reasons: Dict[str, int] = field(default_factory=dict)
-    
+    exclusion_reasons: dict[str, int] = field(default_factory=dict)
+
     # Included
     studies_included_review: int = 0
     studies_included_synthesis: int = 0
-    
+
     def calculate_totals(self) -> None:
         """Calculate derived fields."""
         total_identified = self.records_identified_database + self.records_identified_other
@@ -51,12 +51,12 @@ class PRISMADiagram:
     title: str
     date: str
     stats: PRISMAStats
-    databases_searched: List[str] = field(default_factory=list)
-    other_sources: List[str] = field(default_factory=list)
+    databases_searched: list[str] = field(default_factory=list)
+    other_sources: list[str] = field(default_factory=list)
     search_query: str = ""
     notes: str = ""
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         return {
             "title": self.title,
             "date": self.date,
@@ -89,7 +89,7 @@ class PRISMADiagram:
 
 class PRISMAGenerator:
     """Generates PRISMA 2020 flow diagrams."""
-    
+
     MERMAID_TEMPLATE = """
 flowchart TD
     subgraph Identification
@@ -165,23 +165,23 @@ flowchart TD
         self,
         stats: PRISMAStats,
         title: str = "Systematic Review",
-        databases: Optional[List[str]] = None,
+        databases: list[str] | None = None,
     ) -> PRISMADiagram:
         """Generate a PRISMA diagram from statistics."""
         stats.calculate_totals()
-        
+
         return PRISMADiagram(
             title=title,
             date=datetime.now().strftime("%Y-%m-%d"),
             stats=stats,
             databases_searched=databases or ["PubMed", "Semantic Scholar", "OpenAlex"],
         )
-    
+
     def to_mermaid(self, diagram: PRISMADiagram) -> str:
         """Generate Mermaid diagram code."""
         s = diagram.stats
         total = s.records_identified_database + s.records_identified_other
-        
+
         return self.MERMAID_TEMPLATE.format(
             db_records=s.records_identified_database,
             other_records=s.records_identified_other,
@@ -195,21 +195,21 @@ flowchart TD
             included=s.studies_included_review,
             synthesis=s.studies_included_synthesis,
         )
-    
+
     def to_markdown(self, diagram: PRISMADiagram) -> str:
         """Generate Markdown report."""
         s = diagram.stats
         total = s.records_identified_database + s.records_identified_other
-        
+
         # Format exclusion reasons
         if s.exclusion_reasons:
             reasons = "\n".join(
-                f"- {reason}: {count}" 
+                f"- {reason}: {count}"
                 for reason, count in s.exclusion_reasons.items()
             )
         else:
             reasons = "- No exclusion reasons recorded"
-        
+
         return self.MARKDOWN_TEMPLATE.format(
             title=diagram.title,
             date=diagram.date,
@@ -228,12 +228,12 @@ flowchart TD
             included=s.studies_included_review,
             synthesis=s.studies_included_synthesis,
         )
-    
+
     def from_pipeline_results(
         self,
-        search_results: List[Dict],
-        screened_results: List[Dict],
-        included_results: List[Dict],
+        search_results: list[dict],
+        screened_results: list[dict],
+        included_results: list[dict],
         title: str = "Systematic Review",
     ) -> PRISMADiagram:
         """Generate PRISMA from pipeline results."""
@@ -241,7 +241,7 @@ flowchart TD
         total_searched = len(search_results)
         total_screened = len(screened_results)
         total_included = len(included_results)
-        
+
         # Estimate duplicates (if same DOI)
         seen_dois = set()
         duplicates = 0
@@ -251,7 +251,7 @@ flowchart TD
                 if doi in seen_dois:
                     duplicates += 1
                 seen_dois.add(doi)
-        
+
         stats = PRISMAStats(
             records_identified_database=total_searched,
             records_identified_other=0,
@@ -265,14 +265,14 @@ flowchart TD
             studies_included_review=total_included,
             studies_included_synthesis=total_included,
         )
-        
+
         return self.generate(stats, title)
 
 
 def generate_prisma(
-    search_results: List[Dict],
-    screened_results: List[Dict],
-    included_results: List[Dict],
+    search_results: list[dict],
+    screened_results: list[dict],
+    included_results: list[dict],
     title: str = "Systematic Review",
     output_format: str = "markdown",
 ) -> str:
@@ -292,7 +292,7 @@ def generate_prisma(
     diagram = generator.from_pipeline_results(
         search_results, screened_results, included_results, title
     )
-    
+
     if output_format == "mermaid":
         return generator.to_mermaid(diagram)
     return generator.to_markdown(diagram)

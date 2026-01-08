@@ -4,14 +4,12 @@ Per RP-166, handles Windows/WSL path and encoding differences.
 """
 from __future__ import annotations
 
-import os
 import re
 import sys
 from pathlib import Path
-from typing import Union
 
 
-def normalize_path(path: Union[str, Path]) -> Path:
+def normalize_path(path: str | Path) -> Path:
     """Normalize path for cross-platform compatibility.
 
     Args:
@@ -50,7 +48,7 @@ def normalize_line_endings(text: str) -> str:
     return text.replace("\r\n", "\n").replace("\r", "\n")
 
 
-def read_text_normalized(filepath: Union[str, Path]) -> str:
+def read_text_normalized(filepath: str | Path) -> str:
     """Read text file with normalized encoding and line endings.
 
     Args:
@@ -64,7 +62,7 @@ def read_text_normalized(filepath: Union[str, Path]) -> str:
     return normalize_line_endings(text)
 
 
-def write_text_normalized(filepath: Union[str, Path], text: str) -> None:
+def write_text_normalized(filepath: str | Path, text: str) -> None:
     """Write text file with UTF-8 encoding and Unix line endings.
 
     Args:
@@ -79,7 +77,7 @@ def write_text_normalized(filepath: Union[str, Path], text: str) -> None:
         f.write(text)
 
 
-def path_to_uri(path: Union[str, Path]) -> str:
+def path_to_uri(path: str | Path) -> str:
     """Convert path to file:// URI.
 
     Args:

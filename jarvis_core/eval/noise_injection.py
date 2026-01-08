@@ -5,9 +5,7 @@ Per RP-122, injects noise to test retrieval robustness.
 from __future__ import annotations
 
 import random
-import hashlib
 from dataclasses import dataclass
-from typing import List, Optional
 
 
 @dataclass
@@ -16,7 +14,7 @@ class NoiseConfig:
 
     noise_ratio: float = 0.2  # Ratio of noise documents
     seed: int = 42
-    noise_sources: List[str] = None  # Pool of noise texts
+    noise_sources: list[str] = None  # Pool of noise texts
 
     def __post_init__(self):
         if self.noise_sources is None:
@@ -42,15 +40,15 @@ DEFAULT_NOISE_TEXTS = [
 class NoisyRetrievalResult:
     """Result with noise injection details."""
 
-    original_docs: List[str]
-    noise_docs: List[str]
-    combined_docs: List[str]
-    noise_indices: List[int]
+    original_docs: list[str]
+    noise_docs: list[str]
+    combined_docs: list[str]
+    noise_indices: list[int]
 
 
 def inject_noise(
-    documents: List[str],
-    config: Optional[NoiseConfig] = None,
+    documents: list[str],
+    config: NoiseConfig | None = None,
 ) -> NoisyRetrievalResult:
     """Inject noise documents into retrieval results.
 
@@ -100,8 +98,8 @@ def inject_noise(
 
 
 def evaluate_noise_robustness(
-    clean_claims: List[str],
-    noisy_claims: List[str],
+    clean_claims: list[str],
+    noisy_claims: list[str],
 ) -> dict:
     """Evaluate robustness to noise.
 

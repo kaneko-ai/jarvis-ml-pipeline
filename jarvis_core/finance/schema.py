@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 ASSUMPTION_NOTE = "（推測です）"
 
@@ -14,8 +13,8 @@ class IncomeItem:
     type: str
     amount: float
     note: str = ASSUMPTION_NOTE
-    prob: Optional[float] = None
-    hours: Optional[float] = None
+    prob: float | None = None
+    hours: float | None = None
 
     def expected_amount(self) -> float:
         if self.prob is None:
@@ -42,8 +41,8 @@ class MonthlyCashflow:
     """Monthly cashflow projection."""
 
     month: str
-    income: List[IncomeItem] = field(default_factory=list)
-    expenses: List[ExpenseItem] = field(default_factory=list)
+    income: list[IncomeItem] = field(default_factory=list)
+    expenses: list[ExpenseItem] = field(default_factory=list)
     savings_start: float = 0.0
 
     def expected_income(self) -> float:
@@ -62,7 +61,7 @@ class MonthlyCashflow:
         return self.savings_start + self.downside_income() - self.total_expenses()
 
 
-def ensure_notes(cashflows: List[MonthlyCashflow]) -> None:
+def ensure_notes(cashflows: list[MonthlyCashflow]) -> None:
     """Ensure all entries have notes (assumptions)."""
     for month in cashflows:
         for income in month.income:

@@ -1,7 +1,7 @@
 # llm.py
-from dataclasses import dataclass
-from typing import List, Literal
 import os
+from dataclasses import dataclass
+from typing import Literal
 
 from google import genai
 from google.genai import errors
@@ -30,12 +30,12 @@ class LLMClient:
         self.client = genai.Client(api_key=api_key)
         self.model = model
 
-    def chat(self, messages: List[Message]) -> str:
+    def chat(self, messages: list[Message]) -> str:
         """
         単純なチャットラッパー。
         system / user / assistant を簡単なタグ付きテキストに連結して投げる。
         """
-        prompt_parts: List[str] = []
+        prompt_parts: list[str] = []
         for m in messages:
             prefix = {
                 "system": "[SYSTEM]",

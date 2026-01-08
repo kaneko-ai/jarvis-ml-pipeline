@@ -5,7 +5,6 @@ Per RP-171, exports papers for NotebookLM learning flow.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Optional
 from pathlib import Path
 
 
@@ -14,14 +13,14 @@ class NotebookLMExport:
     """Export for NotebookLM."""
 
     title: str
-    chapters: List[dict]
+    chapters: list[dict]
     summary: str
-    review_questions: List[str]
+    review_questions: list[str]
 
 
 def export_for_notebooklm(
     paper_data: dict,
-    output_path: Optional[str] = None,
+    output_path: str | None = None,
 ) -> str:
     """Export paper data for NotebookLM.
 
@@ -117,7 +116,7 @@ def _generate_review_summary(paper_data: dict) -> str:
     return "\n".join(points)
 
 
-def _generate_review_questions(paper_data: dict) -> List[str]:
+def _generate_review_questions(paper_data: dict) -> list[str]:
     """Generate review questions from paper content."""
     questions = []
 
@@ -137,9 +136,9 @@ def _generate_review_questions(paper_data: dict) -> List[str]:
 
 
 def export_batch_for_notebooklm(
-    papers: List[dict],
+    papers: list[dict],
     output_dir: str,
-) -> List[str]:
+) -> list[str]:
     """Export multiple papers for NotebookLM.
 
     Args:

@@ -39,7 +39,9 @@ class TestRemediationCatalog:
     def test_duplicate_action_error(self):
         """Registering duplicate ID should raise error."""
         from jarvis_core.runtime.remediation import (
-            ActionCatalog, DuplicateActionError, IncreaseTopK
+            ActionCatalog,
+            DuplicateActionError,
+            IncreaseTopK,
         )
 
         catalog = ActionCatalog()

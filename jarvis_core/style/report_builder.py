@@ -1,20 +1,21 @@
 """Build QA reports for lab submission readiness."""
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Dict, List, Optional
-import json
 import importlib.util
+import json
+from pathlib import Path
 
+from .checklists import run_checklists
+from .figure_table_registry import scan_text
+from .scientific_linter import lint_text
 from .term_normalizer import (
     load_style_guide as _load_style_guide,
-    normalize_markdown,
+)
+from .term_normalizer import (
     normalize_docx_paragraphs,
+    normalize_markdown,
     normalize_pptx_slides,
 )
-from .scientific_linter import lint_text
-from .figure_table_registry import scan_text
-from .checklists import run_checklists
 
 STYLE_GUIDE_PATH = Path(__file__).with_name("lab_style_guide.yaml")
 
@@ -28,22 +29,22 @@ if PPTX_AVAILABLE:
     import pptx
 
 
-def load_style_guide(path: Path = STYLE_GUIDE_PATH) -> Dict[str, object]:
+def load_style_guide(path: Path = STYLE_GUIDE_PATH) -> dict[str, object]:
     return _load_style_guide(path)
 
 
-def _load_docx_text(docx_path: Path) -> List[str]:
+def _load_docx_text(docx_path: Path) -> list[str]:
     if not DOCX_AVAILABLE:
         return []
     document = docx.Document(str(docx_path))
     return [p.text for p in document.paragraphs]
 
 
-def _load_pptx_text(pptx_path: Path) -> List[str]:
+def _load_pptx_text(pptx_path: Path) -> list[str]:
     if not PPTX_AVAILABLE:
         return []
     presentation = pptx.Presentation(str(pptx_path))
-    slides_text: List[str] = []
+    slides_text: list[str] = []
     for slide in presentation.slides:
         slide_text = []
         for shape in slide.shapes:
@@ -53,8 +54,8 @@ def _load_pptx_text(pptx_path: Path) -> List[str]:
     return slides_text
 
 
-def _count_by_issue_type(issues: List[Dict[str, object]]) -> Dict[str, int]:
-    counts: Dict[str, int] = {}
+def _count_by_issue_type(issues: list[dict[str, object]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
     for issue in issues:
         issue_type = issue.get("issue_type") or issue.get("type")
         if not issue_type:
@@ -75,17 +76,17 @@ def _summarize_conclusion(text: str) -> int:
 def run_qa_gate(
     run_id: str,
     run_dir: Path,
-    targets: Optional[List[str]] = None,
+    targets: list[str] | None = None,
     output_base: Path = Path("data/runs"),
-) -> Dict[str, object]:
+) -> dict[str, object]:
     """Run QA gate and generate reports."""
     style_guide = load_style_guide()
     targets = targets or ["md", "docx", "pptx"]
 
-    issues: List[Dict[str, object]] = []
-    normalized: Dict[str, object] = {}
-    replacements: List[Dict[str, str]] = []
-    lint_issues: List[Dict[str, object]] = []
+    issues: list[dict[str, object]] = []
+    normalized: dict[str, object] = {}
+    replacements: list[dict[str, str]] = []
+    lint_issues: list[dict[str, object]] = []
 
     md_text = ""
     if "md" in targets:
@@ -139,7 +140,7 @@ def run_qa_gate(
     counts = _count_by_issue_type(issues)
     conclusion_sentences = _summarize_conclusion(md_text) if md_text else 0
 
-    qa_result: Dict[str, object] = {
+    qa_result: dict[str, object] = {
         "run_id": run_id,
         "ready_to_submit": ready_to_submit,
         "error_count": error_count,
@@ -184,7 +185,7 @@ def run_qa_gate(
     return qa_result
 
 
-def _build_markdown_report(qa_result: Dict[str, object]) -> str:
+def _build_markdown_report(qa_result: dict[str, object]) -> str:
     lines = [
         f"# QA Report: {qa_result.get('run_id')}",
         "",
@@ -219,7 +220,7 @@ def _build_markdown_report(qa_result: Dict[str, object]) -> str:
     return "\n".join(lines)
 
 
-def _build_html_report(qa_result: Dict[str, object]) -> str:
+def _build_html_report(qa_result: dict[str, object]) -> str:
     title = f"QA Report: {qa_result.get('run_id')}"
     rows = "".join(
         f"<li>[{issue.get('severity')}] {issue.get('issue_type')}: {issue.get('message') or issue.get('original')}"

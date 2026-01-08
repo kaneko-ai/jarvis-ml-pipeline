@@ -16,9 +16,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from jarvis_core.pipelines.mvp_pipeline import (
+    Constraints,
     MVPPipeline,
     PipelineInput,
-    Constraints,
     Reproducibility,
 )
 
@@ -54,9 +54,9 @@ def main():
         default="runs",
         help="Output directory",
     )
-    
+
     args = parser.parse_args()
-    
+
     # 入力を構築
     input = PipelineInput(
         goal=args.goal,
@@ -71,11 +71,11 @@ def main():
             pipeline_version="mvp-v1",
         ),
     )
-    
+
     # パイプライン実行
     pipeline = MVPPipeline(runs_dir=args.runs_dir)
     bundle = pipeline.run(input)
-    
+
     # 結果表示
     print()
     print("=" * 60)
@@ -87,7 +87,7 @@ def main():
     print(f"Evidence: {len(bundle.evidence)}")
     print(f"Warnings: {len(bundle.warnings)}")
     print()
-    
+
     # Bundle内容確認
     output_dir = Path(args.runs_dir) / bundle.run_id
     print("Generated files:")

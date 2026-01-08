@@ -1,5 +1,5 @@
 """Database package."""
-from .pool import ConnectionPool, PoolConfig, PoolStats, PooledConnection
+from .pool import ConnectionPool, PoolConfig, PooledConnection, PoolStats
 
 __all__ = [
     "ConnectionPool",

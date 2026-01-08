@@ -5,10 +5,9 @@ import json
 import threading
 import traceback
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from jarvis_core.obs.log_schema import build_log_event
-
 
 _LOG_LOCK = threading.Lock()
 SYSTEM_LOG_PATH = Path("data/ops/system.log.jsonl")
@@ -18,7 +17,7 @@ def _run_log_path(run_id: str) -> Path:
     return Path("data/runs") / run_id / "logs" / "events.jsonl"
 
 
-def _append_jsonl(path: Path, rows: List[Dict[str, Any]]) -> None:
+def _append_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with _LOG_LOCK:
         with open(path, "a", encoding="utf-8") as f:
@@ -41,9 +40,9 @@ class ObservabilityLogger:
         level: str,
         event: str,
         message: str,
-        step: Optional[str] = None,
-        data: Optional[Dict[str, Any]] = None,
-        err: Optional[Dict[str, str]] = None,
+        step: str | None = None,
+        data: dict[str, Any] | None = None,
+        err: dict[str, str] | None = None,
     ) -> None:
         payload = build_log_event(
             level=level,
@@ -59,19 +58,19 @@ class ObservabilityLogger:
         _append_jsonl(_run_log_path(self.run_id), [payload])
         _append_jsonl(SYSTEM_LOG_PATH, [payload])
 
-    def info(self, message: str, *, step: Optional[str] = None, data: Optional[Dict[str, Any]] = None) -> None:
+    def info(self, message: str, *, step: str | None = None, data: dict[str, Any] | None = None) -> None:
         self._write(level="INFO", event="info", message=message, step=step, data=data)
 
-    def warning(self, message: str, *, step: Optional[str] = None, data: Optional[Dict[str, Any]] = None) -> None:
+    def warning(self, message: str, *, step: str | None = None, data: dict[str, Any] | None = None) -> None:
         self._write(level="WARN", event="warning", message=message, step=step, data=data)
 
     def error(
         self,
         message: str,
         *,
-        step: Optional[str] = None,
-        data: Optional[Dict[str, Any]] = None,
-        exc: Optional[BaseException] = None,
+        step: str | None = None,
+        data: dict[str, Any] | None = None,
+        exc: BaseException | None = None,
     ) -> None:
         err_payload = None
         if exc:
@@ -81,13 +80,13 @@ class ObservabilityLogger:
             }
         self._write(level="ERROR", event="error", message=message, step=step, data=data, err=err_payload)
 
-    def step_start(self, step: str, message: str = "step start", data: Optional[Dict[str, Any]] = None) -> None:
+    def step_start(self, step: str, message: str = "step start", data: dict[str, Any] | None = None) -> None:
         self._write(level="INFO", event="step_start", message=message, step=step, data=data)
 
-    def step_end(self, step: str, message: str = "step end", data: Optional[Dict[str, Any]] = None) -> None:
+    def step_end(self, step: str, message: str = "step end", data: dict[str, Any] | None = None) -> None:
         self._write(level="INFO", event="step_end", message=message, step=step, data=data)
 
-    def progress(self, step: str, percent: int, data: Optional[Dict[str, Any]] = None) -> None:
+    def progress(self, step: str, percent: int, data: dict[str, Any] | None = None) -> None:
         payload = {"percent": percent}
         if data:
             payload.update(data)
@@ -99,11 +98,11 @@ def get_logger(run_id: str, job_id: str, component: str, step: str = "") -> Obse
     return ObservabilityLogger(run_id=run_id, job_id=job_id, component=component, step=step)
 
 
-def tail_logs(run_id: str, limit: int = 200) -> List[Dict[str, Any]]:
+def tail_logs(run_id: str, limit: int = 200) -> list[dict[str, Any]]:
     """Return the last N log entries for a run."""
     path = _run_log_path(run_id)
     if not path.exists() or limit <= 0:
         return []
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         lines = [line for line in f if line.strip()]
     return [json.loads(line) for line in lines[-limit:]]

@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import re
 import zipfile
+from collections.abc import Iterable
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
-from xml.etree import ElementTree
 from difflib import SequenceMatcher
+from pathlib import Path
+from xml.etree import ElementTree
 
 
 @dataclass
@@ -17,9 +17,9 @@ class SectionDiff:
 
 @dataclass
 class DiffReport:
-    docx_sections: List[SectionDiff]
-    md_sections: List[SectionDiff]
-    pptx_sections: List[SectionDiff]
+    docx_sections: list[SectionDiff]
+    md_sections: list[SectionDiff]
+    pptx_sections: list[SectionDiff]
 
     def is_empty(self) -> bool:
         return not (self.docx_sections or self.md_sections or self.pptx_sections)
@@ -33,12 +33,12 @@ _PPTX_NS = {
 }
 
 
-def extract_docx_sections(path: Path) -> Tuple[List[Tuple[str, str]], int]:
+def extract_docx_sections(path: Path) -> tuple[list[tuple[str, str]], int]:
     paragraphs = _extract_docx_paragraphs(path)
-    sections: List[Tuple[str, str]] = []
+    sections: list[tuple[str, str]] = []
     heading_count = 0
     current_heading = "本文"
-    buffer: List[str] = []
+    buffer: list[str] = []
 
     for text, is_heading in paragraphs:
         if is_heading:
@@ -57,8 +57,8 @@ def extract_docx_sections(path: Path) -> Tuple[List[Tuple[str, str]], int]:
     return sections, heading_count
 
 
-def _extract_docx_paragraphs(path: Path) -> List[Tuple[str, bool]]:
-    paragraphs: List[Tuple[str, bool]] = []
+def _extract_docx_paragraphs(path: Path) -> list[tuple[str, bool]]:
+    paragraphs: list[tuple[str, bool]] = []
     if not path or not path.exists():
         return paragraphs
 
@@ -79,8 +79,8 @@ def _extract_docx_paragraphs(path: Path) -> List[Tuple[str, bool]]:
     return paragraphs
 
 
-def extract_pptx_slides(path: Path) -> List[Tuple[str, str]]:
-    slides: List[Tuple[str, str]] = []
+def extract_pptx_slides(path: Path) -> list[tuple[str, str]]:
+    slides: list[tuple[str, str]] = []
     if not path or not path.exists():
         return slides
 
@@ -99,16 +99,16 @@ def extract_pptx_slides(path: Path) -> List[Tuple[str, str]]:
     return slides
 
 
-def extract_md_sections(path: Path) -> List[Tuple[str, str]]:
+def extract_md_sections(path: Path) -> list[tuple[str, str]]:
     if not path or not path.exists():
         return []
 
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         lines = [line.rstrip() for line in f]
 
-    sections: List[Tuple[str, str]] = []
+    sections: list[tuple[str, str]] = []
     current_heading = "本文"
-    buffer: List[str] = []
+    buffer: list[str] = []
     for line in lines:
         if line.startswith("#"):
             if buffer:
@@ -123,12 +123,12 @@ def extract_md_sections(path: Path) -> List[Tuple[str, str]]:
     return sections
 
 
-def diff_sections(old_sections: Iterable[Tuple[str, str]], new_sections: Iterable[Tuple[str, str]]) -> List[SectionDiff]:
+def diff_sections(old_sections: Iterable[tuple[str, str]], new_sections: Iterable[tuple[str, str]]) -> list[SectionDiff]:
     old_map = {title: content for title, content in old_sections}
     new_map = {title: content for title, content in new_sections}
     all_titles = list(dict.fromkeys(list(new_map.keys()) + list(old_map.keys())))
 
-    diffs: List[SectionDiff] = []
+    diffs: list[SectionDiff] = []
     for title in all_titles:
         old_text = old_map.get(title, "")
         new_text = new_map.get(title, "")
@@ -147,12 +147,12 @@ def diff_sections(old_sections: Iterable[Tuple[str, str]], new_sections: Iterabl
 
 
 def generate_diff_report(
-    current_docx: Optional[Path],
-    previous_docx: Optional[Path],
-    current_md: Optional[Path],
-    previous_md: Optional[Path],
-    current_pptx: Optional[Path],
-    previous_pptx: Optional[Path],
+    current_docx: Path | None,
+    previous_docx: Path | None,
+    current_md: Path | None,
+    previous_md: Path | None,
+    current_pptx: Path | None,
+    previous_pptx: Path | None,
 ) -> DiffReport:
     docx_sections = []
     if current_docx:
@@ -184,7 +184,7 @@ def _summarize_text_change(label: str, text: str) -> str:
     return f"{label}"
 
 
-def _slide_sort_key(name: str) -> Tuple[int, str]:
+def _slide_sort_key(name: str) -> tuple[int, str]:
     number = _slide_number_from_name(name)
     return (number, name)
 

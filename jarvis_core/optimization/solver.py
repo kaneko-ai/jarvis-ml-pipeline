@@ -2,10 +2,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List
 
-from jarvis_core.finance.schema import MonthlyCashflow
 from jarvis_core.finance.scenarios import ScenarioResult
+from jarvis_core.finance.schema import MonthlyCashflow
 from jarvis_core.optimization.constraints import ConstraintReport, evaluate_constraints
 from jarvis_core.time.schema import TimeSchema
 
@@ -23,14 +22,14 @@ class ScenarioEvaluation:
     recommendation: str
 
 
-def _bankruptcy_risk(cashflows: List[MonthlyCashflow]) -> float:
+def _bankruptcy_risk(cashflows: list[MonthlyCashflow]) -> float:
     if not cashflows:
         return 0.0
     risky_months = sum(1 for m in cashflows if m.downside_balance_end() < 0)
     return risky_months / len(cashflows)
 
 
-def _minimum_balance(cashflows: List[MonthlyCashflow]) -> float:
+def _minimum_balance(cashflows: list[MonthlyCashflow]) -> float:
     if not cashflows:
         return 0.0
     return min(m.expected_balance_end() for m in cashflows)
@@ -84,11 +83,11 @@ def evaluate_scenario(
 
 
 def optimize(
-    scenarios: Dict[str, ScenarioResult],
+    scenarios: dict[str, ScenarioResult],
     time_schema: TimeSchema,
     research_required: float | None = None,
     delay_cost: float = 0.0,
-) -> Dict[str, ScenarioEvaluation]:
+) -> dict[str, ScenarioEvaluation]:
     evaluations = {
         scenario_id: evaluate_scenario(result, time_schema, research_required, delay_cost)
         for scenario_id, result in scenarios.items()
@@ -96,7 +95,7 @@ def optimize(
     return evaluations
 
 
-def choose_best(evaluations: Dict[str, ScenarioEvaluation]) -> ScenarioEvaluation:
+def choose_best(evaluations: dict[str, ScenarioEvaluation]) -> ScenarioEvaluation:
     """Pick a scenario with lowest risk and highest balance."""
     candidates = sorted(
         evaluations.values(),

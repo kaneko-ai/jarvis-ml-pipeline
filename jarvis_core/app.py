@@ -8,14 +8,12 @@ from __future__ import annotations
 
 import json
 import uuid
-import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from .task import Task, TaskCategory
 from .run_config import RunConfig
+from .task import Task, TaskCategory
 
 
 class TelemetryMissingError(Exception):
@@ -28,7 +26,7 @@ class ContractViolationError(Exception):
     pass
 
 
-def _run_feedback_analysis(text: str) -> Optional[dict]:
+def _run_feedback_analysis(text: str) -> dict | None:
     if not text.strip():
         return None
     from jarvis_core.feedback.feature_extractor import FeedbackFeatureExtractor
@@ -72,8 +70,8 @@ def _run_feedback_analysis(text: str) -> Optional[dict]:
     }
 
 
-def _top_categories(items: List[dict]) -> List[str]:
-    tally: Dict[str, float] = {}
+def _top_categories(items: list[dict]) -> list[str]:
+    tally: dict[str, float] = {}
     for item in items:
         for category in item["top_categories"]:
             key = category["category"]
@@ -92,12 +90,12 @@ class AppResult:
     citations: list
     warnings: list
     gate_passed: bool = False
-    eval_result: Optional[dict] = None
+    eval_result: dict | None = None
 
 
 def run_task(
-    task_dict: Dict[str, Any],
-    run_config_dict: Optional[Dict[str, Any]] = None,
+    task_dict: dict[str, Any],
+    run_config_dict: dict[str, Any] | None = None,
 ) -> AppResult:
     """Execute a task through the unified pipeline.
 
@@ -121,14 +119,14 @@ def run_task(
         TelemetryMissingError: If events.jsonl was not generated.
         ContractViolationError: If required artifacts are missing.
     """
+    from .eval.quality_gate import QualityGateVerifier
+    from .evidence import EvidenceStore
     from .executor import ExecutionEngine
     from .llm import LLMClient
     from .planner import Planner
     from .router import Router
-    from .evidence import EvidenceStore
-    from .telemetry import init_logger
     from .storage import RunStore
-    from .eval.quality_gate import QualityGateVerifier
+    from .telemetry import init_logger
 
     # Generate run_id
     run_id = str(uuid.uuid4())
@@ -202,12 +200,12 @@ def run_task(
 
     # Execute with guaranteed artifact generation
     answer = ""
-    citations: List[Dict[str, Any]] = []
-    warnings: List[str] = []
-    execution_error: Optional[str] = None
-    papers: List[Dict[str, Any]] = []
-    claims: List[Dict[str, Any]] = []
-    evidence: List[Dict[str, Any]] = []
+    citations: list[dict[str, Any]] = []
+    warnings: list[str] = []
+    execution_error: str | None = None
+    papers: list[dict[str, Any]] = []
+    claims: list[dict[str, Any]] = []
+    evidence: list[dict[str, Any]] = []
 
     try:
         subtasks = engine.run(task)
@@ -292,7 +290,7 @@ def run_task(
 
     # === AG-03: Use BundleAssembler for 10-file contract compliance ===
     from .bundle import BundleAssembler
-    
+
     assembler = BundleAssembler(store.run_dir)
     context = {
         "run_id": run_id,
@@ -304,7 +302,7 @@ def run_task(
         "seed": config.seed,
         "model": config.model,
     }
-    
+
     if execution_error:
         # 失敗時: FAILURE_REQUIRED + 可能な成果物
         # FailReasonをdict化（JSON直列化のため）
@@ -327,7 +325,7 @@ def run_task(
             "evidence": evidence,
             "answer": answer,
             "citations": citations,
-            "warnings": [{"code": "GENERAL", "message": w, "severity": "warning"} 
+            "warnings": [{"code": "GENERAL", "message": w, "severity": "warning"}
                         if isinstance(w, str) else w for w in warnings],
             "feedback_risk": feedback_report,
         }
@@ -339,14 +337,14 @@ def run_task(
             ],
         }
         assembler.build(context, artifacts, quality_report)
-    
+
     qa_result = None
     try:
         from .style import run_qa_gate
         qa_result = run_qa_gate(run_id=run_id, run_dir=store.run_dir)
     except Exception as exc:
         warnings.append(f"QA gate failed: {exc}")
-    
+
     if qa_result:
         eval_summary_path = store.run_dir / "eval_summary.json"
         if eval_summary_path.exists():
@@ -360,7 +358,7 @@ def run_task(
             eval_summary_path.write_text(json.dumps(eval_data, indent=2, ensure_ascii=False), encoding="utf-8")
         from .output.manifest import export_manifest
         export_manifest(store.run_dir)
-    
+
     # eval_dataを取得（BundleAssemblerが生成したものを読む）
     eval_data = store.load_eval() or {}
 
@@ -395,10 +393,10 @@ def init_app():
     """Initialize application global services."""
     from jarvis_core.network.listener import NetworkChangeListener
     from jarvis_core.sync.auto_sync import on_network_restored
-    
+
     # Initialize network listener
     listener = NetworkChangeListener()
     listener.add_callback(on_network_restored)
     listener.start()
-    
+
     return listener

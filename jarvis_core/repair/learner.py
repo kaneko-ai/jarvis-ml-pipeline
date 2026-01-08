@@ -10,7 +10,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass
@@ -21,8 +21,8 @@ class RepairRecord:
     success: bool
     attempts: int
     timestamp: str
-    context: Dict[str, Any] = field(default_factory=dict)
-    
+    context: dict[str, Any] = field(default_factory=dict)
+
     def to_dict(self) -> dict:
         return {
             "fail_reason": self.fail_reason,
@@ -32,9 +32,9 @@ class RepairRecord:
             "timestamp": self.timestamp,
             "context": self.context,
         }
-    
+
     @classmethod
-    def from_dict(cls, d: dict) -> "RepairRecord":
+    def from_dict(cls, d: dict) -> RepairRecord:
         return cls(
             fail_reason=d.get("fail_reason", ""),
             repair_action=d.get("repair_action", ""),
@@ -53,7 +53,7 @@ class RepairStrategy:
     avg_attempts: float
     total_uses: int
     recommended: bool = False
-    
+
     def to_dict(self) -> dict:
         return {
             "action": self.action,
@@ -69,32 +69,32 @@ class SelfRepairLearner:
     
     過去の修復結果から最適な戦略を学習。
     """
-    
-    def __init__(self, history_path: Optional[Path] = None):
+
+    def __init__(self, history_path: Path | None = None):
         self.history_path = history_path or Path("logs/repair_history.jsonl")
-        self._records: List[RepairRecord] = []
+        self._records: list[RepairRecord] = []
         self._load_history()
-    
+
     def _load_history(self) -> None:
         """履歴を読み込み."""
         if not self.history_path.exists():
             return
-        
+
         try:
-            with open(self.history_path, "r", encoding="utf-8") as f:
+            with open(self.history_path, encoding="utf-8") as f:
                 for line in f:
                     if line.strip():
                         self._records.append(RepairRecord.from_dict(json.loads(line)))
         except Exception:
             pass
-    
+
     def record(
         self,
         fail_reason: str,
         repair_action: str,
         success: bool,
         attempts: int = 1,
-        context: Optional[Dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> None:
         """修復結果を記録."""
         record = RepairRecord(
@@ -105,38 +105,38 @@ class SelfRepairLearner:
             timestamp=datetime.now(timezone.utc).isoformat(),
             context=context or {},
         )
-        
+
         self._records.append(record)
-        
+
         # 永続化
         self.history_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.history_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(record.to_dict(), ensure_ascii=False) + "\n")
-    
-    def get_best_strategy(self, fail_reason: str) -> Optional[RepairStrategy]:
+
+    def get_best_strategy(self, fail_reason: str) -> RepairStrategy | None:
         """最適な修復戦略を取得."""
         strategies = self.analyze_strategies(fail_reason)
-        
+
         if not strategies:
             return None
-        
+
         # 成功率が最高の戦略
         best = max(strategies, key=lambda s: s.success_rate)
         best.recommended = True
-        
+
         return best
-    
-    def analyze_strategies(self, fail_reason: str) -> List[RepairStrategy]:
+
+    def analyze_strategies(self, fail_reason: str) -> list[RepairStrategy]:
         """fail_reasonに対する戦略を分析."""
         # 該当する記録を抽出
         relevant = [r for r in self._records if r.fail_reason == fail_reason]
-        
+
         if not relevant:
             return []
-        
+
         # アクション別に集計
-        action_stats: Dict[str, Dict[str, Any]] = {}
-        
+        action_stats: dict[str, dict[str, Any]] = {}
+
         for record in relevant:
             action = record.repair_action
             if action not in action_stats:
@@ -145,14 +145,14 @@ class SelfRepairLearner:
                     "failures": 0,
                     "total_attempts": 0,
                 }
-            
+
             if record.success:
                 action_stats[action]["successes"] += 1
             else:
                 action_stats[action]["failures"] += 1
-            
+
             action_stats[action]["total_attempts"] += record.attempts
-        
+
         # 戦略リストに変換
         strategies = []
         for action, stats in action_stats.items():
@@ -163,40 +163,40 @@ class SelfRepairLearner:
                 avg_attempts=stats["total_attempts"] / total if total > 0 else 0,
                 total_uses=total,
             ))
-        
+
         # 成功率順でソート
         strategies.sort(key=lambda s: s.success_rate, reverse=True)
-        
+
         return strategies
-    
-    def get_statistics(self) -> Dict[str, Any]:
+
+    def get_statistics(self) -> dict[str, Any]:
         """全体統計を取得."""
         total = len(self._records)
         successes = sum(1 for r in self._records if r.success)
-        
-        by_reason: Dict[str, Dict[str, int]] = {}
+
+        by_reason: dict[str, dict[str, int]] = {}
         for record in self._records:
             if record.fail_reason not in by_reason:
                 by_reason[record.fail_reason] = {"success": 0, "failure": 0}
-            
+
             if record.success:
                 by_reason[record.fail_reason]["success"] += 1
             else:
                 by_reason[record.fail_reason]["failure"] += 1
-        
+
         return {
             "total_records": total,
             "success_rate": successes / total if total > 0 else 0,
             "by_reason": by_reason,
         }
-    
+
     def recommend_actions(
         self,
-        fail_reasons: List[str],
-    ) -> List[Dict[str, Any]]:
+        fail_reasons: list[str],
+    ) -> list[dict[str, Any]]:
         """複数のfail_reasonに対する推奨アクションを取得."""
         recommendations = []
-        
+
         for reason in fail_reasons:
             best = self.get_best_strategy(reason)
             if best:
@@ -211,7 +211,7 @@ class SelfRepairLearner:
                     "recommended_action": None,
                     "expected_success_rate": 0,
                 })
-        
+
         return recommendations
 
 

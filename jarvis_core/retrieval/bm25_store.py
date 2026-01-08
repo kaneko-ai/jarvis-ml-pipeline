@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 import sqlite3
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, List, Tuple
 
 
 @dataclass
@@ -38,7 +38,7 @@ class BM25Store:
             conn.execute("DROP TABLE IF EXISTS docs")
         self.initialize()
 
-    def add_documents(self, rows: Iterable[Tuple[str, str, str, str, str, str]]) -> None:
+    def add_documents(self, rows: Iterable[tuple[str, str, str, str, str, str]]) -> None:
         self.initialize()
         with self._connect() as conn:
             conn.executemany(
@@ -46,7 +46,7 @@ class BM25Store:
                 rows,
             )
 
-    def search(self, query: str, top_k: int = 20) -> List[Tuple[str, float]]:
+    def search(self, query: str, top_k: int = 20) -> list[tuple[str, float]]:
         self.initialize()
         if not query.strip():
             return []

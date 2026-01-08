@@ -1,9 +1,9 @@
 """Vector store with simple numpy persistence."""
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, List, Tuple
 
 import numpy as np
 
@@ -11,12 +11,12 @@ import numpy as np
 @dataclass
 class VectorStore:
     index_path: Path
-    chunk_ids: List[str]
+    chunk_ids: list[str]
     vectors: np.ndarray
     model_name: str
 
     @classmethod
-    def load(cls, index_path: Path) -> "VectorStore":
+    def load(cls, index_path: Path) -> VectorStore:
         if not index_path.exists():
             return cls(index_path=index_path, chunk_ids=[], vectors=np.zeros((0, 1), dtype=np.float32), model_name="")
         data = np.load(index_path, allow_pickle=True)
@@ -46,7 +46,7 @@ class VectorStore:
             self.chunk_ids.extend(chunk_ids)
             self.vectors = np.vstack([self.vectors, vectors])
 
-    def search(self, query_vector: np.ndarray, top_k: int = 20) -> List[Tuple[str, float]]:
+    def search(self, query_vector: np.ndarray, top_k: int = 20) -> list[tuple[str, float]]:
         if self.vectors.size == 0:
             return []
         query = query_vector.reshape(1, -1)

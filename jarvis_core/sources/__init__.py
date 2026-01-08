@@ -9,9 +9,9 @@ Provides clients for:
 - Unpaywall
 """
 
-from .pubmed_client import PubMedClient, PubMedArticle
-from .semantic_scholar_client import SemanticScholarClient, S2Paper
 from .openalex_client import OpenAlexClient, OpenAlexWork
+from .pubmed_client import PubMedArticle, PubMedClient
+from .semantic_scholar_client import S2Paper, SemanticScholarClient
 from .unified_source_client import UnifiedSourceClient
 
 __all__ = [

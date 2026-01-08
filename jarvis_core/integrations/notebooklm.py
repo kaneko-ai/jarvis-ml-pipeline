@@ -7,19 +7,18 @@ Per RP19, this creates a document optimized for NotebookLM's understanding.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..result import EvidenceQAResult
-    from ..claim import ClaimSet
-    from ..reference import Reference
     from ..evidence import EvidenceStore
+    from ..reference import Reference
+    from ..result import EvidenceQAResult
 
 
 def export_notebooklm(
-    result: "EvidenceQAResult",
-    references: List["Reference"],
-    store: "EvidenceStore" | None = None,
+    result: EvidenceQAResult,
+    references: list[Reference],
+    store: EvidenceStore | None = None,
 ) -> str:
     """Export Evidence Bundle for NotebookLM.
 
@@ -70,7 +69,7 @@ def export_notebooklm(
     lines.append("")
 
     # Group chunks by reference
-    ref_evidence: dict[str, List[str]] = {}
+    ref_evidence: dict[str, list[str]] = {}
     for ref in references:
         ref_evidence[ref.id] = []
         if store:

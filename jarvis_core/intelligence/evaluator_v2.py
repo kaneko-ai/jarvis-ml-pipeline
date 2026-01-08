@@ -9,9 +9,9 @@ Phase 1: 5軸評価（Relevance/Novelty/Evidence/Effort/Risk）
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class AxisScore:
     axis: EvaluationAxis
     score: int  # 0-5
     reason: str  # 理由1文
-    
+
     def __post_init__(self):
         if not 0 <= self.score <= 5:
             raise ValueError(f"Score must be 0-5, got {self.score}")
@@ -48,7 +48,7 @@ class ScoreBreakdown:
     evidence: AxisScore
     effort: AxisScore
     risk: AxisScore
-    
+
     @property
     def total(self) -> int:
         """合計スコア."""
@@ -59,13 +59,13 @@ class ScoreBreakdown:
             self.effort.score +
             self.risk.score
         )
-    
+
     @property
     def average(self) -> float:
         """平均スコア."""
         return self.total / 5.0
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """辞書に変換."""
         return {
             "relevance": {"score": self.relevance.score, "reason": self.relevance.reason},
@@ -76,9 +76,9 @@ class ScoreBreakdown:
             "total": self.total,
             "average": self.average,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ScoreBreakdown":
+    def from_dict(cls, data: dict[str, Any]) -> ScoreBreakdown:
         """辞書から生成."""
         return cls(
             relevance=AxisScore(EvaluationAxis.RELEVANCE, data["relevance"]["score"], data["relevance"]["reason"]),
@@ -94,7 +94,7 @@ class IntelligentEvaluator:
     
     5軸評価を必須出力。
     """
-    
+
     # 評価基準ガイド
     AXIS_GUIDE = {
         EvaluationAxis.RELEVANCE: {
@@ -133,12 +133,12 @@ class IntelligentEvaluator:
             1: "OS構造・データ破壊",
         },
     }
-    
+
     def evaluate(
         self,
         title: str,
         description: str,
-        context: Optional[Dict[str, Any]] = None
+        context: dict[str, Any] | None = None
     ) -> ScoreBreakdown:
         """
         5軸評価を実行.
@@ -153,7 +153,7 @@ class IntelligentEvaluator:
         """
         # ルールベース評価（プレースホルダー）
         # 本番はLLMで評価
-        
+
         relevance = self._evaluate_axis(
             EvaluationAxis.RELEVANCE,
             title, description, context
@@ -174,7 +174,7 @@ class IntelligentEvaluator:
             EvaluationAxis.RISK,
             title, description, context
         )
-        
+
         breakdown = ScoreBreakdown(
             relevance=relevance,
             novelty=novelty,
@@ -182,20 +182,20 @@ class IntelligentEvaluator:
             effort=effort,
             risk=risk,
         )
-        
+
         logger.info(f"Evaluated '{title}': total={breakdown.total}, avg={breakdown.average:.1f}")
         return breakdown
-    
+
     def _evaluate_axis(
         self,
         axis: EvaluationAxis,
         title: str,
         description: str,
-        context: Optional[Dict[str, Any]]
+        context: dict[str, Any] | None
     ) -> AxisScore:
         """単一軸を評価."""
         text = f"{title} {description}".lower()
-        
+
         # ルールベース（プレースホルダー）
         if axis == EvaluationAxis.RELEVANCE:
             score = self._score_relevance(text)
@@ -207,24 +207,24 @@ class IntelligentEvaluator:
             score = self._score_effort(text)
         else:  # RISK
             score = self._score_risk(text)
-        
+
         reason = self.AXIS_GUIDE[axis].get(score, "評価中")
-        
+
         return AxisScore(axis=axis, score=score, reason=reason)
-    
+
     def _score_relevance(self, text: str) -> int:
         """関連度をスコアリング."""
         core_keywords = ["evaluator", "memory", "decision", "judge", "ranking"]
         matches = sum(1 for kw in core_keywords if kw in text)
         return min(5, 2 + matches)
-    
+
     def _score_novelty(self, text: str) -> int:
         """新規性をスコアリング."""
         new_keywords = ["new", "novel", "first", "初", "新規"]
         matches = sum(1 for kw in new_keywords if kw in text)
         return min(5, 3 + matches)
-    
-    def _score_evidence(self, text: str, context: Optional[Dict]) -> int:
+
+    def _score_evidence(self, text: str, context: dict | None) -> int:
         """根拠をスコアリング."""
         if context and context.get("has_paper"):
             return 4
@@ -233,7 +233,7 @@ class IntelligentEvaluator:
         if "github" in text:
             return 3
         return 2
-    
+
     def _score_effort(self, text: str) -> int:
         """導入コストをスコアリング."""
         if "minor" in text or "小" in text:
@@ -241,7 +241,7 @@ class IntelligentEvaluator:
         if "破壊" in text or "breaking" in text:
             return 1
         return 3
-    
+
     def _score_risk(self, text: str) -> int:
         """リスクをスコアリング."""
         if "破壊" in text or "danger" in text:

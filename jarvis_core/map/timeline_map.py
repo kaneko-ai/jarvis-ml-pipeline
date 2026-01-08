@@ -4,15 +4,15 @@ Per V4-M06, this integrates clusters with temporal evolution.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..paper_vector import PaperVector
 
 
 def build_timeline_map(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
 ) -> dict:
     """Build timeline-integrated cluster map.
 

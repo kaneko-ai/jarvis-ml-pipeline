@@ -6,30 +6,28 @@ No mocks - uses real dummy data.
 import sys
 from pathlib import Path
 
-import pytest
-
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from jarvis_core.paper_vector import (
-    PaperVector,
-    MetadataVector,
-    ConceptVector,
-    MethodVector,
-    BiologicalAxisVector,
-    TemporalVector,
-    ImpactVector,
-)
-from jarvis_core.gap_analysis import score_research_gaps
 from jarvis_core.chain_builder import build_research_chain
 from jarvis_core.competing_hypothesis import generate_competing_hypotheses
-from jarvis_core.paradigm import detect_paradigm_shift
-from jarvis_core.heatmap import build_concept_heatmap, get_trending_concepts
-from jarvis_core.method_trend import track_method_evolution
-from jarvis_core.feasibility import score_feasibility
 from jarvis_core.failure_predictor import predict_failure_modes
+from jarvis_core.feasibility import score_feasibility
+from jarvis_core.gap_analysis import score_research_gaps
+from jarvis_core.heatmap import build_concept_heatmap
+from jarvis_core.method_trend import track_method_evolution
 from jarvis_core.model_system import suggest_model_system
+from jarvis_core.paper_vector import (
+    BiologicalAxisVector,
+    ConceptVector,
+    ImpactVector,
+    MetadataVector,
+    MethodVector,
+    PaperVector,
+    TemporalVector,
+)
+from jarvis_core.paradigm import detect_paradigm_shift
 
 
 def _create_test_vectors():

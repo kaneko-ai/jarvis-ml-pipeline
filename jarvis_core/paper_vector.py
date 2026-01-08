@@ -17,15 +17,14 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List, Literal, Dict, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
-    from .result import EvidenceQAResult
     from .reference import Reference
+    from .result import EvidenceQAResult
 
 
 # Schema version for compatibility tracking
@@ -47,7 +46,7 @@ class MetadataVector:
     year: int | None = None
     journal: str | None = None
     publication_type: Literal["original", "review", "preprint", "other"] = "other"
-    species: List[str] = field(default_factory=list)
+    species: list[str] = field(default_factory=list)
     data_scale: Literal["single", "bulk", "single-cell", "multi-omics", "unknown"] = "unknown"
 
     def to_dict(self) -> dict:
@@ -60,7 +59,7 @@ class MetadataVector:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "MetadataVector":
+    def from_dict(cls, data: dict) -> MetadataVector:
         return cls(
             year=data.get("year"),
             journal=data.get("journal"),
@@ -77,16 +76,16 @@ class ConceptVector:
     concepts: dict mapping normalized concept terms to importance scores (0-1).
     """
 
-    concepts: Dict[str, float] = field(default_factory=dict)
+    concepts: dict[str, float] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return {"concepts": self.concepts}
 
     @classmethod
-    def from_dict(cls, data: dict) -> "ConceptVector":
+    def from_dict(cls, data: dict) -> ConceptVector:
         return cls(concepts=data.get("concepts", {}))
 
-    def top_concepts(self, k: int = 5) -> List[tuple[str, float]]:
+    def top_concepts(self, k: int = 5) -> list[tuple[str, float]]:
         """Get top k concepts by score."""
         sorted_items = sorted(self.concepts.items(), key=lambda x: x[1], reverse=True)
         return sorted_items[:k]
@@ -99,13 +98,13 @@ class MethodVector:
     methods: dict mapping method names to presence/importance scores (0-1).
     """
 
-    methods: Dict[str, float] = field(default_factory=dict)
+    methods: dict[str, float] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return {"methods": self.methods}
 
     @classmethod
-    def from_dict(cls, data: dict) -> "MethodVector":
+    def from_dict(cls, data: dict) -> MethodVector:
         return cls(methods=data.get("methods", {}))
 
 
@@ -131,7 +130,7 @@ class BiologicalAxisVector:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "BiologicalAxisVector":
+    def from_dict(cls, data: dict) -> BiologicalAxisVector:
         return cls(
             immune_activation=data.get("immune_activation", 0.0),
             metabolism_signal=data.get("metabolism_signal", 0.0),
@@ -161,7 +160,7 @@ class TemporalVector:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "TemporalVector":
+    def from_dict(cls, data: dict) -> TemporalVector:
         return cls(
             novelty=data.get("novelty", 0.5),
             paradigm_shift=data.get("paradigm_shift", 0.0),
@@ -192,7 +191,7 @@ class ImpactVector:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "ImpactVector":
+    def from_dict(cls, data: dict) -> ImpactVector:
         return cls(
             citation_proxy=data.get("citation_proxy", 0.0),
             downstream_density=data.get("downstream_density", 0.0),
@@ -209,7 +208,7 @@ class EmbeddingVector:
     """
 
     model: str = "dummy"
-    vector: List[float] = field(default_factory=list)
+    vector: list[float] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -218,7 +217,7 @@ class EmbeddingVector:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "EmbeddingVector":
+    def from_dict(cls, data: dict) -> EmbeddingVector:
         return cls(
             model=data.get("model", "dummy"),
             vector=data.get("vector", []),
@@ -275,7 +274,7 @@ class PaperVector:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "PaperVector":
+    def from_dict(cls, data: dict) -> PaperVector:
         """Create from dictionary."""
         generated_at = data.get("generated_at")
         if isinstance(generated_at, str):
@@ -323,9 +322,9 @@ class PaperVector:
         return str(file_path)
 
     @classmethod
-    def load(cls, file_path: str) -> "PaperVector":
+    def load(cls, file_path: str) -> PaperVector:
         """Load from JSON file."""
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             data = json.load(f)
         return cls.from_dict(data)
 
@@ -335,7 +334,7 @@ def _update_index(out_path: Path, paper_id: str, source_locator: str) -> None:
     index_path = out_path / "index.json"
 
     if index_path.exists():
-        with open(index_path, "r", encoding="utf-8") as f:
+        with open(index_path, encoding="utf-8") as f:
             index = json.load(f)
     else:
         index = {"papers": [], "version": VECTOR_SCHEMA_VERSION}
@@ -358,7 +357,7 @@ def generate_paper_id(source_locator: str) -> str:
     return h[:12]
 
 
-def extract_concepts_from_text(text: str) -> Dict[str, float]:
+def extract_concepts_from_text(text: str) -> dict[str, float]:
     """Extract concept keywords from text (simplified).
 
     In production, this would use NLP/NER.
@@ -384,7 +383,7 @@ def extract_concepts_from_text(text: str) -> Dict[str, float]:
     return concepts
 
 
-def extract_methods_from_text(text: str) -> Dict[str, float]:
+def extract_methods_from_text(text: str) -> dict[str, float]:
     """Extract method keywords from text (simplified)."""
     methods = {}
 
@@ -405,8 +404,8 @@ def extract_methods_from_text(text: str) -> Dict[str, float]:
 
 
 def extract_paper_vector_from_result(
-    result: "EvidenceQAResult",
-    reference: "Reference" | None = None,
+    result: EvidenceQAResult,
+    reference: Reference | None = None,
 ) -> PaperVector:
     """Extract PaperVector from EvidenceQAResult.
 
@@ -474,10 +473,10 @@ def extract_paper_vector_from_result(
 # ==================== Filter API ====================
 
 def filter_by_year(
-    vectors: List[PaperVector],
+    vectors: list[PaperVector],
     min_year: int | None = None,
     max_year: int | None = None,
-) -> List[PaperVector]:
+) -> list[PaperVector]:
     """Filter papers by publication year.
 
     Args:
@@ -502,10 +501,10 @@ def filter_by_year(
 
 
 def filter_by_concept(
-    vectors: List[PaperVector],
+    vectors: list[PaperVector],
     concept: str,
     min_score: float = 0.1,
-) -> List[PaperVector]:
+) -> list[PaperVector]:
     """Filter papers by concept presence.
 
     Args:
@@ -528,12 +527,12 @@ def filter_by_concept(
 
 
 def filter_by_year_and_concept(
-    vectors: List[PaperVector],
+    vectors: list[PaperVector],
     concept: str,
     min_year: int | None = None,
     max_year: int | None = None,
     min_score: float = 0.1,
-) -> List[PaperVector]:
+) -> list[PaperVector]:
     """Filter by both year and concept.
 
     Args:
@@ -550,7 +549,7 @@ def filter_by_year_and_concept(
     return filter_by_concept(year_filtered, concept, min_score)
 
 
-def load_all_vectors(vectors_dir: str) -> List[PaperVector]:
+def load_all_vectors(vectors_dir: str) -> list[PaperVector]:
     """Load all paper vectors from a directory.
 
     Args:

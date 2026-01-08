@@ -10,14 +10,15 @@ from __future__ import annotations
 
 import hashlib
 import math
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import List, Callable, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .sources import ChunkResult
 
 
-def dummy_embed(text: str, dim: int = 64) -> List[float]:
+def dummy_embed(text: str, dim: int = 64) -> list[float]:
     """Create a deterministic embedding from text hash.
 
     This is for testing purposes only. In production,
@@ -51,7 +52,7 @@ def dummy_embed(text: str, dim: int = 64) -> List[float]:
     return vector
 
 
-def cosine_similarity(a: List[float], b: List[float]) -> float:
+def cosine_similarity(a: list[float], b: list[float]) -> float:
     """Compute cosine similarity between two vectors."""
     if len(a) != len(b):
         return 0.0
@@ -74,7 +75,7 @@ class IndexedChunk:
     locator: str
     text: str
     preview: str
-    vector: List[float]
+    vector: list[float]
 
 
 class VectorRetriever:
@@ -86,7 +87,7 @@ class VectorRetriever:
 
     def __init__(
         self,
-        embed_fn: Callable[[str], List[float]] | None = None,
+        embed_fn: Callable[[str], list[float]] | None = None,
         dim: int = 64,
     ):
         """Initialize the retriever.
@@ -97,9 +98,9 @@ class VectorRetriever:
         """
         self.embed_fn = embed_fn or (lambda text: dummy_embed(text, dim))
         self.dim = dim
-        self.index: List[IndexedChunk] = []
+        self.index: list[IndexedChunk] = []
 
-    def build(self, chunks: List["ChunkResult"]) -> None:
+    def build(self, chunks: list[ChunkResult]) -> None:
         """Build the index from chunks.
 
         Args:
@@ -119,7 +120,7 @@ class VectorRetriever:
                 )
             )
 
-    def search(self, query: str, k: int = 5) -> List["ChunkResult"]:
+    def search(self, query: str, k: int = 5) -> list[ChunkResult]:
         """Search for similar chunks.
 
         Args:
@@ -160,11 +161,11 @@ class VectorRetriever:
 
 
 def get_relevant_chunks_vector(
-    chunks: List["ChunkResult"],
+    chunks: list[ChunkResult],
     query: str,
     k: int = 5,
-    embed_fn: Callable[[str], List[float]] | None = None,
-) -> List["ChunkResult"]:
+    embed_fn: Callable[[str], list[float]] | None = None,
+) -> list[ChunkResult]:
     """Convenience function for vector-based retrieval.
 
     Args:

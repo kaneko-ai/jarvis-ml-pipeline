@@ -10,7 +10,7 @@ for academic documents.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Literal
+from typing import Literal
 
 from .reference import Reference
 
@@ -118,7 +118,7 @@ def format_apa(ref: Reference, index: int) -> str:
 
 
 def format_references(
-    refs: List[Reference],
+    refs: list[Reference],
     style: Literal["vancouver", "apa"] = "vancouver",
 ) -> str:
     """Format a list of references in the specified style.
@@ -130,7 +130,7 @@ def format_references(
     Returns:
         Formatted reference list as a string.
     """
-    lines: List[str] = []
+    lines: list[str] = []
 
     formatter = format_vancouver if style == "vancouver" else format_apa
 
@@ -141,7 +141,7 @@ def format_references(
 
 
 def format_references_markdown(
-    refs: List[Reference],
+    refs: list[Reference],
     style: Literal["vancouver", "apa"] = "vancouver",
 ) -> str:
     """Generate markdown reference list.

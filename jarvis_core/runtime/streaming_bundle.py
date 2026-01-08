@@ -5,12 +5,11 @@ Per V4.2 Sprint 2, this provides incremental bundle writing and checkpoint/resum
 from __future__ import annotations
 
 import json
-import os
+import shutil
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-import shutil
+from typing import Any
 
 
 @dataclass
@@ -19,9 +18,9 @@ class Checkpoint:
 
     checkpoint_id: str
     created_at: datetime
-    completed_tasks: List[str]
-    pending_tasks: List[str]
-    task_results: Dict[str, Any]
+    completed_tasks: list[str]
+    pending_tasks: list[str]
+    task_results: dict[str, Any]
     manifest_hash: str
     metadata: dict = field(default_factory=dict)
 
@@ -37,7 +36,7 @@ class Checkpoint:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "Checkpoint":
+    def from_dict(cls, data: dict) -> Checkpoint:
         return cls(
             checkpoint_id=data["checkpoint_id"],
             created_at=datetime.fromisoformat(data["created_at"]),
@@ -103,9 +102,9 @@ class StreamingBundle:
 
     def save_checkpoint(
         self,
-        completed_tasks: List[str],
-        pending_tasks: List[str],
-        task_results: Dict[str, Any],
+        completed_tasks: list[str],
+        pending_tasks: list[str],
+        task_results: dict[str, Any],
         manifest_hash: str,
     ) -> Checkpoint:
         """Save checkpoint for resume capability.
@@ -136,12 +135,12 @@ class StreamingBundle:
 
         return checkpoint
 
-    def load_checkpoint(self) -> Optional[Checkpoint]:
+    def load_checkpoint(self) -> Checkpoint | None:
         """Load existing checkpoint if available."""
         if not self.checkpoint_file.exists():
             return None
 
-        with open(self.checkpoint_file, "r", encoding="utf-8") as f:
+        with open(self.checkpoint_file, encoding="utf-8") as f:
             data = json.load(f)
 
         return Checkpoint.from_dict(data)
@@ -171,7 +170,7 @@ class StreamingBundle:
         # Create final bundle.json
         artifacts = []
         for path in self.artifacts_dir.glob("*.json"):
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 artifacts.append(json.load(f))
 
         bundle_data = {

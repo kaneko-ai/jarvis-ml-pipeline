@@ -5,15 +5,14 @@ Per RP-533, implements Slack notifications and alerts.
 from __future__ import annotations
 
 import os
-import json
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any
 from enum import Enum
+from typing import Any
 
 
 class MessageType(Enum):
     """Slack message types."""
-    
+
     INFO = "info"
     SUCCESS = "success"
     WARNING = "warning"
@@ -24,13 +23,13 @@ class MessageType(Enum):
 @dataclass
 class SlackMessage:
     """A Slack message."""
-    
+
     channel: str
     text: str
     message_type: MessageType = MessageType.INFO
-    attachments: List[Dict[str, Any]] = field(default_factory=list)
-    blocks: List[Dict[str, Any]] = field(default_factory=list)
-    thread_ts: Optional[str] = None
+    attachments: list[dict[str, Any]] = field(default_factory=list)
+    blocks: list[dict[str, Any]] = field(default_factory=list)
+    thread_ts: str | None = None
 
 
 class SlackClient:
@@ -42,27 +41,27 @@ class SlackClient:
     - Thread replies
     - Rich formatting
     """
-    
+
     def __init__(
         self,
-        token: Optional[str] = None,
+        token: str | None = None,
         default_channel: str = "#jarvis-alerts",
     ):
         self.token = token or os.getenv("SLACK_BOT_TOKEN", "")
         self.default_channel = default_channel
         self._enabled = bool(self.token)
-    
+
     def is_enabled(self) -> bool:
         """Check if Slack is configured."""
         return self._enabled
-    
+
     def send_message(
         self,
         text: str,
-        channel: Optional[str] = None,
+        channel: str | None = None,
         message_type: MessageType = MessageType.INFO,
         **kwargs,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Send a message to Slack.
         
         Args:
@@ -76,13 +75,13 @@ class SlackClient:
         """
         if not self._enabled:
             return None
-        
+
         channel = channel or self.default_channel
-        
+
         # Build message with formatting based on type
         color = self._get_color(message_type)
         emoji = self._get_emoji(message_type)
-        
+
         payload = {
             "channel": channel,
             "text": f"{emoji} {text}",
@@ -94,17 +93,17 @@ class SlackClient:
             ],
             **kwargs,
         }
-        
+
         return self._post("chat.postMessage", payload)
-    
+
     def send_alert(
         self,
         title: str,
         description: str,
         severity: str = "warning",
-        fields: Optional[Dict[str, str]] = None,
-        channel: Optional[str] = None,
-    ) -> Optional[Dict[str, Any]]:
+        fields: dict[str, str] | None = None,
+        channel: str | None = None,
+    ) -> dict[str, Any] | None:
         """Send an alert to Slack.
         
         Args:
@@ -119,12 +118,12 @@ class SlackClient:
         """
         if not self._enabled:
             return None
-        
+
         channel = channel or self.default_channel
         message_type = self._severity_to_type(severity)
         color = self._get_color(message_type)
         emoji = self._get_emoji(message_type)
-        
+
         blocks = [
             {
                 "type": "header",
@@ -142,7 +141,7 @@ class SlackClient:
                 }
             },
         ]
-        
+
         if fields:
             field_blocks = []
             for key, value in fields.items():
@@ -150,29 +149,29 @@ class SlackClient:
                     "type": "mrkdwn",
                     "text": f"*{key}:*\n{value}",
                 })
-            
+
             blocks.append({
                 "type": "section",
                 "fields": field_blocks[:10],  # Max 10 fields
             })
-        
+
         payload = {
             "channel": channel,
             "text": f"{emoji} {title}: {description}",
             "blocks": blocks,
             "attachments": [{"color": color, "blocks": []}],
         }
-        
+
         return self._post("chat.postMessage", payload)
-    
+
     def send_pipeline_update(
         self,
         pipeline_id: str,
         status: str,
         progress: float,
-        message: Optional[str] = None,
-        channel: Optional[str] = None,
-    ) -> Optional[Dict[str, Any]]:
+        message: str | None = None,
+        channel: str | None = None,
+    ) -> dict[str, Any] | None:
         """Send pipeline status update.
         
         Args:
@@ -186,22 +185,22 @@ class SlackClient:
             API response.
         """
         progress_bar = self._make_progress_bar(progress)
-        
+
         text = f"Pipeline `{pipeline_id}`: {status}\n{progress_bar}"
         if message:
             text += f"\n{message}"
-        
+
         message_type = MessageType.SUCCESS if status == "completed" else MessageType.INFO
-        
+
         return self.send_message(text, channel, message_type)
-    
+
     def _make_progress_bar(self, progress: float, width: int = 20) -> str:
         """Create ASCII progress bar."""
         filled = int(progress * width)
         empty = width - filled
         bar = "█" * filled + "░" * empty
         return f"[{bar}] {int(progress * 100)}%"
-    
+
     def _get_color(self, message_type: MessageType) -> str:
         """Get color for message type."""
         colors = {
@@ -212,7 +211,7 @@ class SlackClient:
             MessageType.ALERT: "#9C27B0",
         }
         return colors.get(message_type, "#2196F3")
-    
+
     def _get_emoji(self, message_type: MessageType) -> str:
         """Get emoji for message type."""
         emojis = {
@@ -223,7 +222,7 @@ class SlackClient:
             MessageType.ALERT: "🚨",
         }
         return emojis.get(message_type, "ℹ️")
-    
+
     def _severity_to_type(self, severity: str) -> MessageType:
         """Convert severity to message type."""
         mapping = {
@@ -234,12 +233,12 @@ class SlackClient:
             "critical": MessageType.ALERT,
         }
         return mapping.get(severity.lower(), MessageType.INFO)
-    
+
     def _post(
         self,
         endpoint: str,
-        payload: Dict[str, Any],
-    ) -> Optional[Dict[str, Any]]:
+        payload: dict[str, Any],
+    ) -> dict[str, Any] | None:
         """Post to Slack API.
         
         Args:
@@ -260,7 +259,7 @@ class SlackClient:
 
 
 # Global client
-_slack_client: Optional[SlackClient] = None
+_slack_client: SlackClient | None = None
 
 
 def get_slack_client() -> SlackClient:
@@ -273,8 +272,8 @@ def get_slack_client() -> SlackClient:
 
 def notify_slack(
     text: str,
-    channel: Optional[str] = None,
+    channel: str | None = None,
     message_type: MessageType = MessageType.INFO,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """Quick notification helper."""
     return get_slack_client().send_message(text, channel, message_type)

@@ -4,14 +4,14 @@ Per RP41, this detects paradigm shifts in research fields.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def detect_paradigm_shift(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     concept: str,
 ) -> dict | None:
     """Detect paradigm shifts for a concept.

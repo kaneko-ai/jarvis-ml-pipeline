@@ -1,9 +1,9 @@
 """Truth package."""
-from .enforce import enforce_fact_evidence, downgrade_to_inference
 from .alignment import check_alignment_v2
-from .relevance import score_relevance
-from .contradiction import detect_contradictions
 from .confidence import calibrate_confidence
+from .contradiction import detect_contradictions
+from .enforce import downgrade_to_inference, enforce_fact_evidence
+from .relevance import score_relevance
 
 __all__ = [
     "enforce_fact_evidence",

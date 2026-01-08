@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
-from typing import Dict, List
 
 from jarvis_core.finance.schema import (
     ASSUMPTION_NOTE,
@@ -19,10 +18,10 @@ from jarvis_core.time.calendar_builder import build_months
 class ScenarioResult:
     scenario_id: str
     name: str
-    cashflows: List[MonthlyCashflow]
+    cashflows: list[MonthlyCashflow]
 
 
-def _base_expenses() -> List[ExpenseItem]:
+def _base_expenses() -> list[ExpenseItem]:
     return [
         ExpenseItem(type="rent", amount=70000, note=ASSUMPTION_NOTE),
         ExpenseItem(type="food", amount=40000, note=ASSUMPTION_NOTE),
@@ -32,7 +31,7 @@ def _base_expenses() -> List[ExpenseItem]:
     ]
 
 
-def _scenario_income(scenario_id: str) -> List[IncomeItem]:
+def _scenario_income(scenario_id: str) -> list[IncomeItem]:
     if scenario_id == "S1":
         return [
             IncomeItem(type="DC1", amount=200000, prob=0.75, note=ASSUMPTION_NOTE),
@@ -57,17 +56,17 @@ def build_scenarios(
     months: int = 36,
     start_month: str | None = None,
     savings_start: float = 300000,
-) -> Dict[str, ScenarioResult]:
+) -> dict[str, ScenarioResult]:
     start = start_month or date.today().strftime("%Y-%m")
     month_labels = build_months(start, months)
-    scenarios: Dict[str, ScenarioResult] = {}
+    scenarios: dict[str, ScenarioResult] = {}
     for scenario_id, name in [
         ("S1", "DC1採択（RAなし）"),
         ("S2", "DC1不採択＋RA/TA"),
         ("S3", "奨学金＋バイト併用"),
         ("S4", "最悪ケース（奨学金なし、収入不安定）"),
     ]:
-        cashflows: List[MonthlyCashflow] = []
+        cashflows: list[MonthlyCashflow] = []
         current_savings = savings_start
         for month in month_labels:
             income = _scenario_income(scenario_id)

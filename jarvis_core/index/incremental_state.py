@@ -9,7 +9,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Set, Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -18,7 +18,7 @@ class DocumentState:
 
     doc_hash: str
     processed_at: datetime
-    stages_completed: Set[str] = field(default_factory=set)
+    stages_completed: set[str] = field(default_factory=set)
     chunk_count: int = 0
 
     def to_dict(self) -> dict:
@@ -30,7 +30,7 @@ class DocumentState:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "DocumentState":
+    def from_dict(cls, data: dict) -> DocumentState:
         return cls(
             doc_hash=data["doc_hash"],
             processed_at=datetime.fromisoformat(data["processed_at"]),
@@ -42,10 +42,10 @@ class DocumentState:
 class IncrementalState:
     """Manages incremental processing state."""
 
-    def __init__(self, state_path: Optional[str] = None):
+    def __init__(self, state_path: str | None = None):
         self.state_path = Path(state_path) if state_path else None
-        self.documents: Dict[str, DocumentState] = {}
-        self.chunk_hashes: Set[str] = set()
+        self.documents: dict[str, DocumentState] = {}
+        self.chunk_hashes: set[str] = set()
 
         if self.state_path and self.state_path.exists():
             self._load()
@@ -55,7 +55,7 @@ class IncrementalState:
         if not self.state_path or not self.state_path.exists():
             return
 
-        with open(self.state_path, "r", encoding="utf-8") as f:
+        with open(self.state_path, encoding="utf-8") as f:
             data = json.load(f)
 
         for doc_hash, doc_data in data.get("documents", {}).items():

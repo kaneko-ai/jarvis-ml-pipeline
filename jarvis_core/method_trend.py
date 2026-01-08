@@ -4,15 +4,15 @@ Per RP44, this tracks method evolution over time.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def track_method_evolution(
-    vectors: List["PaperVector"],
-) -> List[dict]:
+    vectors: list[PaperVector],
+) -> list[dict]:
     """Track method evolution by year.
 
     Args:
@@ -71,7 +71,7 @@ def track_method_evolution(
 
 
 def get_method_summary(
-    evolution: List[dict],
+    evolution: list[dict],
 ) -> str:
     """Summarize method evolution.
 

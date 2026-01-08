@@ -4,15 +4,15 @@ Per Ψ-6, this manages multiple student research portfolios.
 """
 from __future__ import annotations
 
-from typing import List, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def analyze_student_portfolio(
-    portfolios: Dict[str, List["PaperVector"]],
-) -> List[dict]:
+    portfolios: dict[str, list[PaperVector]],
+) -> list[dict]:
     """Analyze multiple student research portfolios.
 
     Args:

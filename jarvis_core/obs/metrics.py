@@ -5,8 +5,7 @@ import json
 import threading
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-
+from typing import Any
 
 _METRICS_LOCK = threading.Lock()
 OPS_DIR = Path("data/ops")
@@ -18,14 +17,14 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _parse_ts(value: str) -> Optional[datetime]:
+def _parse_ts(value: str) -> datetime | None:
     try:
         return datetime.fromisoformat(value.replace("Z", "+00:00"))
     except ValueError:
         return None
 
 
-def _append_metric(event: Dict[str, Any]) -> None:
+def _append_metric(event: dict[str, Any]) -> None:
     OPS_DIR.mkdir(parents=True, exist_ok=True)
     payload = {"ts": _now(), **event}
     with _METRICS_LOCK:
@@ -49,8 +48,8 @@ def record_run_end(
     job_id: str,
     status: str,
     duration_ms: float,
-    error_type: Optional[str] = None,
-    error_message: Optional[str] = None,
+    error_type: str | None = None,
+    error_message: str | None = None,
 ) -> None:
     _append_metric(
         {
@@ -87,7 +86,7 @@ def record_progress(run_id: str, step: str, percent: int) -> None:
     )
 
 
-def record_counts(run_id: str, counts: Dict[str, Any]) -> None:
+def record_counts(run_id: str, counts: dict[str, Any]) -> None:
     _append_metric(
         {
             "type": "counts",
@@ -105,11 +104,11 @@ def record_cron_heartbeat() -> None:
     _append_metric({"type": "cron_heartbeat"})
 
 
-def _load_metrics_since(days: int) -> List[Dict[str, Any]]:
+def _load_metrics_since(days: int) -> list[dict[str, Any]]:
     if not METRICS_PATH.exists():
         return []
     cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-    with open(METRICS_PATH, "r", encoding="utf-8") as f:
+    with open(METRICS_PATH, encoding="utf-8") as f:
         lines = [line for line in f if line.strip()]
     events = []
     for line in lines:
@@ -120,8 +119,8 @@ def _load_metrics_since(days: int) -> List[Dict[str, Any]]:
     return events
 
 
-def _load_latest_counts(events: List[Dict[str, Any]]) -> Dict[str, int]:
-    counts: Dict[str, int] = {}
+def _load_latest_counts(events: list[dict[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
     for event in events:
         if event.get("type") == "counts":
             for key, value in event.get("counts", {}).items():
@@ -129,21 +128,21 @@ def _load_latest_counts(events: List[Dict[str, Any]]) -> Dict[str, int]:
     return counts
 
 
-def _read_jobs() -> List[Dict[str, Any]]:
+def _read_jobs() -> list[dict[str, Any]]:
     jobs_dir = Path("data/jobs")
     if not jobs_dir.exists():
         return []
     jobs = []
     for path in jobs_dir.glob("job_*.json"):
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 jobs.append(json.load(f))
         except json.JSONDecodeError:
             continue
     return jobs
 
 
-def get_summary() -> Dict[str, Any]:
+def get_summary() -> dict[str, Any]:
     events_24h = _load_metrics_since(1)
     events_7d = _load_metrics_since(7)
     run_events = [e for e in events_7d if e.get("type") == "run_end"]
@@ -156,7 +155,7 @@ def get_summary() -> Dict[str, Any]:
     runs_in_progress = sum(1 for job in jobs if job.get("status") == "running")
     queue_depth = sum(1 for job in jobs if job.get("status") == "queued")
 
-    durations_by_step: Dict[str, List[float]] = {}
+    durations_by_step: dict[str, list[float]] = {}
     for event in events_7d:
         if event.get("type") == "step_end":
             step = event.get("step", "unknown")
@@ -171,7 +170,7 @@ def get_summary() -> Dict[str, Any]:
     heartbeat = None
     if CRON_HEARTBEAT_PATH.exists():
         try:
-            with open(CRON_HEARTBEAT_PATH, "r", encoding="utf-8") as f:
+            with open(CRON_HEARTBEAT_PATH, encoding="utf-8") as f:
                 heartbeat = json.load(f).get("ts")
         except json.JSONDecodeError:
             heartbeat = None
@@ -191,19 +190,19 @@ def get_summary() -> Dict[str, Any]:
     }
 
 
-def get_run_metrics(days: int = 7) -> List[Dict[str, Any]]:
+def get_run_metrics(days: int = 7) -> list[dict[str, Any]]:
     events = _load_metrics_since(days)
     return [e for e in events if e.get("type") == "run_end"]
 
 
-def get_counts_events(days: int = 7) -> List[Dict[str, Any]]:
+def get_counts_events(days: int = 7) -> list[dict[str, Any]]:
     events = _load_metrics_since(days)
     return [e for e in events if e.get("type") == "counts"]
 
 
-def get_top_errors(days: int = 30, limit: int = 5) -> List[Dict[str, Any]]:
+def get_top_errors(days: int = 30, limit: int = 5) -> list[dict[str, Any]]:
     events = _load_metrics_since(days)
-    errors: Dict[str, int] = {}
+    errors: dict[str, int] = {}
     for event in events:
         if event.get("type") == "run_end" and event.get("status") == "failed":
             label = event.get("error_type") or "UnknownError"

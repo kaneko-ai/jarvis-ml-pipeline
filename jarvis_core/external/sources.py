@@ -3,11 +3,11 @@
 Tracks origin, retrieval time, and licensing of external data
 (IF, citation counts, Altmetrics, etc.)
 """
-from pathlib import Path
-from typing import Dict, Any, List, Optional
-import json
 import datetime
+import json
 import logging
+from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ def log_external_source(
     field: str,
     value: Any,
     source: str,
-    license_type: Optional[str] = None
+    license_type: str | None = None
 ) -> None:
     """Log external data source.
     
@@ -31,14 +31,14 @@ def log_external_source(
         license_type: License type (e.g., 'CC-BY', 'proprietary')
     """
     sources_file = run_dir / "external_sources.json"
-    
+
     # Load existing
     if sources_file.exists():
-        with open(sources_file, "r", encoding="utf-8") as f:
+        with open(sources_file, encoding="utf-8") as f:
             sources = json.load(f)
     else:
         sources = []
-    
+
     # Add entry
     entry = {
         "paper_id": paper_id,
@@ -49,9 +49,9 @@ def log_external_source(
         "license": license_type,
         "status": "success" if value is not None else "missing"
     }
-    
+
     sources.append(entry)
-    
+
     # Save
     with open(sources_file, "w", encoding="utf-8") as f:
         json.dump(sources, f, indent=2, ensure_ascii=False)
@@ -73,30 +73,30 @@ def check_data_usage_allowed(
         True if allowed to use
     """
     sources_file = run_dir / "external_sources.json"
-    
+
     if not sources_file.exists():
         return False
-    
-    with open(sources_file, "r", encoding="utf-8") as f:
+
+    with open(sources_file, encoding="utf-8") as f:
         sources = json.load(f)
-    
+
     # Find entry
     for entry in sources:
         if entry["paper_id"] == paper_id and entry["field"] == field:
             # Must have successful retrieval
             if entry["status"] != "success":
                 return False
-            
+
             # Must have valid value
             if entry["value"] is None:
                 return False
-            
+
             return True
-    
+
     return False
 
 
-def get_license_log(run_dir: Path) -> List[Dict[str, Any]]:
+def get_license_log(run_dir: Path) -> list[dict[str, Any]]:
     """Get license log for all papers.
     
     Args:
@@ -106,16 +106,16 @@ def get_license_log(run_dir: Path) -> List[Dict[str, Any]]:
         List of license entries
     """
     license_file = run_dir / "license_log.jsonl"
-    
+
     if not license_file.exists():
         return []
-    
+
     licenses = []
-    with open(license_file, "r", encoding="utf-8") as f:
+    with open(license_file, encoding="utf-8") as f:
         for line in f:
             if line.strip():
                 licenses.append(json.loads(line))
-    
+
     return licenses
 
 
@@ -136,7 +136,7 @@ def log_license(
         fulltext_store_allowed: Whether fulltext storage is allowed
     """
     license_file = run_dir / "license_log.jsonl"
-    
+
     entry = {
         "paper_id": paper_id,
         "source_url": source_url,
@@ -144,6 +144,6 @@ def log_license(
         "fulltext_store_allowed": fulltext_store_allowed,
         "timestamp": datetime.datetime.now().isoformat()
     }
-    
+
     with open(license_file, "a", encoding="utf-8") as f:
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")

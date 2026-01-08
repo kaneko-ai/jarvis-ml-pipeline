@@ -3,12 +3,9 @@
 Per RP11, these tests verify the complete E2E flow:
 PDF/URL → ingest → retrieve → answer → citations → success
 """
-import types
-from pathlib import Path
 import sys
+from pathlib import Path
 from unittest.mock import MagicMock, patch
-
-import pytest
 
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,12 +15,11 @@ if str(ROOT) not in sys.path:
 from jarvis_core.evidence import EvidenceStore
 from jarvis_core.evidence_qa import (
     EvidenceQAAgent,
-    run_evidence_qa,
     _detect_input_type,
     _ingest_input,
+    run_evidence_qa,
 )
 from jarvis_core.sources import ExecutionContext
-
 
 SAMPLE_PDF = ROOT / "tests" / "fixtures" / "sample.pdf"
 
@@ -175,7 +171,7 @@ class TestRunEvidenceQA:
             # First, let's extract actual chunk content
             store = EvidenceStore()
             ctx = ExecutionContext(evidence_store=store)
-            
+
             from jarvis_core.pdf_extractor import ingest_pdf
             results = ingest_pdf(str(SAMPLE_PDF), store)
 

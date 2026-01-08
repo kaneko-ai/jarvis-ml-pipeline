@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import List, Optional
 
 TEMPLATE_VERSION = "p4-obsidian-1.0"
 
@@ -11,23 +10,23 @@ def format_frontmatter(
     *,
     paper_id: str,
     title: str,
-    year: Optional[int],
-    journal: Optional[str],
-    doi: Optional[str],
-    pmid: Optional[str],
-    pmcid: Optional[str],
+    year: int | None,
+    journal: str | None,
+    doi: str | None,
+    pmid: str | None,
+    pmcid: str | None,
     oa_status: str,
     tier: str,
     score: float,
-    tags: List[str],
+    tags: list[str],
     source_run: str,
-    created_at: Optional[str] = None,
+    created_at: str | None = None,
 ) -> str:
     """Format YAML frontmatter for a paper note."""
     created = created_at or datetime.now(timezone.utc).isoformat()
     tags_yaml = "[" + ", ".join(f'"{t}"' for t in tags) + "]"
     journal_value = journal or ""
-    def _yaml_value(value: Optional[str]) -> str:
+    def _yaml_value(value: str | None) -> str:
         if value is None or value == "":
             return "null"
         return f"\"{value}\""
@@ -62,7 +61,7 @@ def format_section(title: str, body: str) -> str:
     return f"## {title}\n\n{body.strip()}\n"
 
 
-def format_bullet_list(items: List[str]) -> str:
+def format_bullet_list(items: list[str]) -> str:
     if not items:
         return "- (none)"
     return "\n".join(f"- {item}" for item in items)

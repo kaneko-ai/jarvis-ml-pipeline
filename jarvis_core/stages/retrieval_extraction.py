@@ -12,13 +12,10 @@ pass / NotImplementedError / 空return は禁止。
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
-from typing import Any, Dict
 
-from jarvis_core.contracts.types import Artifacts, Claim, EvidenceLink, Paper, TaskContext
-from jarvis_core.pipelines.stage_registry import register_stage
+from jarvis_core.contracts.types import Artifacts, Claim, EvidenceLink, TaskContext
 from jarvis_core.ops import log_audit
-
+from jarvis_core.pipelines.stage_registry import register_stage
 
 # ============================================
 # RETRIEVAL ステージ群
@@ -28,22 +25,22 @@ from jarvis_core.ops import log_audit
 def stage_query_expand(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """クエリ展開ステージ。"""
     goal = context.goal
-    
+
     # 同義語展開
     synonyms = {
         "cancer": ["tumor", "neoplasm", "malignancy"],
         "treatment": ["therapy", "intervention"],
         "immune": ["immunological", "immunity"],
     }
-    
+
     expanded = [goal]
     for term, syns in synonyms.items():
         if term in goal.lower():
             for syn in syns:
                 expanded.append(goal.lower().replace(term, syn))
-    
+
     artifacts.metadata["expanded_queries"] = list(set(expanded))
-    
+
     # Provenance: 展開ログ
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
@@ -57,10 +54,10 @@ def stage_query_expand(context: TaskContext, artifacts: Artifacts) -> Artifacts:
         )],
         claim_type="log"
     ))
-    
-    log_audit("retrieval.query_expand", "completed", 
+
+    log_audit("retrieval.query_expand", "completed",
               details={"original": goal, "expanded_count": len(expanded)})
-    
+
     return artifacts
 
 
@@ -68,15 +65,15 @@ def stage_query_expand(context: TaskContext, artifacts: Artifacts) -> Artifacts:
 def stage_query_decompose(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """クエリ分解ステージ。"""
     import re
-    
+
     goal = context.goal
-    
+
     # AND/OR分割
     parts = re.split(r'\s+(?:AND|OR)\s+', goal, flags=re.IGNORECASE)
     parts = [p.strip() for p in parts if p.strip()]
-    
+
     artifacts.metadata["query_parts"] = parts
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"Query decomposed into {len(parts)} parts",
@@ -86,7 +83,7 @@ def stage_query_decompose(context: TaskContext, artifacts: Artifacts) -> Artifac
         )],
         claim_type="log"
     ))
-    
+
     log_audit("retrieval.query_decompose", "completed")
     return artifacts
 
@@ -100,10 +97,10 @@ def stage_search_bm25(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     環境変数 USE_MOCK_PUBMED=1 でモックモードに切替可能。
     """
     import os
-    
+
     goal = context.goal
     use_mock = os.environ.get("USE_MOCK_PUBMED", "0") == "1"
-    
+
     if use_mock:
         # モックモード（CIやオフライン用）
         artifacts.metadata["bm25_results"] = [
@@ -115,35 +112,35 @@ def stage_search_bm25(context: TaskContext, artifacts: Artifacts) -> Artifacts:
         # 実APIモード
         try:
             from jarvis_core.connectors.pubmed import get_pubmed_connector
-            
+
             connector = get_pubmed_connector()
             papers = connector.search_and_fetch(goal, max_results=20)
-            
+
             # 結果をartifactsに追加
             bm25_results = []
             for i, paper in enumerate(papers):
                 # PaperDocをPaperに変換して追加
                 artifacts.add_paper(paper.to_paper())
-                
+
                 bm25_results.append({
                     "doc_id": f"pmid:{paper.pmid}",
                     "score": 1.0 - (i * 0.05),  # 順位ベースのスコア
                     "pmcid": paper.pmcid,
                     "is_oa": paper.is_oa
                 })
-            
+
             artifacts.metadata["bm25_results"] = bm25_results
             artifacts.metadata["search_source"] = "pubmed_api"
             artifacts.metadata["search_query"] = goal
-            
+
         except Exception as e:
             # エラー時はモックにフォールバック
             artifacts.metadata["bm25_results"] = []
             artifacts.metadata["search_source"] = "error"
             artifacts.metadata["search_error"] = str(e)
-    
+
     result_count = len(artifacts.metadata.get("bm25_results", []))
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"PubMed search executed: {result_count} results for '{goal[:50]}'",
@@ -153,7 +150,7 @@ def stage_search_bm25(context: TaskContext, artifacts: Artifacts) -> Artifacts:
         )],
         claim_type="log"
     ))
-    
+
     log_audit("retrieval.search_bm25", "completed",
               details={"results": result_count, "source": artifacts.metadata.get("search_source")})
     return artifacts
@@ -168,7 +165,7 @@ def stage_embed_sectionwise(context: TaskContext, artifacts: Artifacts) -> Artif
             # 簡易埋め込み
             text = paper.title if section == "title" else (paper.abstract or "")
             artifacts.embeddings[chunk_id] = [hash(text) % 1000 / 1000.0]
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"Embedded {len(artifacts.papers)} papers",
@@ -178,7 +175,7 @@ def stage_embed_sectionwise(context: TaskContext, artifacts: Artifacts) -> Artif
         )],
         claim_type="log"
     ))
-    
+
     log_audit("retrieval.embed_sectionwise", "completed")
     return artifacts
 
@@ -187,11 +184,11 @@ def stage_embed_sectionwise(context: TaskContext, artifacts: Artifacts) -> Artif
 def stage_rerank_crossencoder(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """CrossEncoderリランクステージ。"""
     results = artifacts.metadata.get("bm25_results", [])
-    
+
     # リランク（スコア調整）
     reranked = sorted(results, key=lambda x: x["score"], reverse=True)
     artifacts.metadata["reranked_results"] = reranked
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"Reranked {len(reranked)} results",
@@ -201,7 +198,7 @@ def stage_rerank_crossencoder(context: TaskContext, artifacts: Artifacts) -> Art
         )],
         claim_type="log"
     ))
-    
+
     log_audit("retrieval.rerank_crossencoder", "completed")
     return artifacts
 
@@ -212,15 +209,15 @@ def stage_dedup(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     original_count = len(artifacts.papers)
     seen = set()
     unique = []
-    
+
     for paper in artifacts.papers:
         if paper.doc_id not in seen:
             seen.add(paper.doc_id)
             unique.append(paper)
-    
+
     artifacts.papers = unique
     removed = original_count - len(unique)
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"Removed {removed} duplicates",
@@ -230,7 +227,7 @@ def stage_dedup(context: TaskContext, artifacts: Artifacts) -> Artifacts:
         )],
         claim_type="log"
     ))
-    
+
     log_audit("retrieval.dedup", "completed", details={"removed": removed})
     return artifacts
 
@@ -241,7 +238,7 @@ def stage_cluster_map(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     artifacts.metadata["clusters"] = [
         {"cluster_id": 0, "papers": [p.doc_id for p in artifacts.papers[:5]]},
     ]
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text="Clustering completed",
@@ -251,7 +248,7 @@ def stage_cluster_map(context: TaskContext, artifacts: Artifacts) -> Artifacts:
         )],
         claim_type="log"
     ))
-    
+
     log_audit("retrieval.cluster_map", "completed")
     return artifacts
 
@@ -266,11 +263,11 @@ def stage_pico_extract(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     for paper in artifacts.papers:
         artifacts.metadata[f"{paper.doc_id}_pico"] = {
             "P": "patients",
-            "I": "intervention", 
+            "I": "intervention",
             "C": "control",
             "O": "outcome"
         }
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"PICO extracted for {len(artifacts.papers)} papers",
@@ -280,7 +277,7 @@ def stage_pico_extract(context: TaskContext, artifacts: Artifacts) -> Artifacts:
         )],
         claim_type="log"
     ))
-    
+
     log_audit("screening.pico_extract", "completed")
     return artifacts
 
@@ -290,7 +287,7 @@ def stage_domain_routing(context: TaskContext, artifacts: Artifacts) -> Artifact
     """ドメインルーティングステージ。"""
     domain = context.domain
     artifacts.metadata["routed_domain"] = domain
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"Routed to domain: {domain}",
@@ -300,7 +297,7 @@ def stage_domain_routing(context: TaskContext, artifacts: Artifacts) -> Artifact
         )],
         claim_type="log"
     ))
-    
+
     log_audit("screening.domain_routing", "completed")
     return artifacts
 
@@ -316,9 +313,9 @@ def stage_study_type_classify(context: TaskContext, artifacts: Artifacts) -> Art
             study_type = "in_vivo"
         else:
             study_type = "in_vitro"
-        
+
         artifacts.metadata[f"{paper.doc_id}_study_type"] = study_type
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text="Study types classified",
@@ -328,7 +325,7 @@ def stage_study_type_classify(context: TaskContext, artifacts: Artifacts) -> Art
         )],
         claim_type="log"
     ))
-    
+
     log_audit("screening.study_type_classify", "completed")
     return artifacts
 
@@ -340,7 +337,7 @@ def stage_oa_check(context: TaskContext, artifacts: Artifacts) -> Artifacts:
         # 簡易判定
         is_oa = paper.doi is not None and "10.1038" in (paper.doi or "")
         artifacts.metadata[f"{paper.doc_id}_is_oa"] = is_oa
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text="OA status checked",
@@ -350,7 +347,7 @@ def stage_oa_check(context: TaskContext, artifacts: Artifacts) -> Artifacts:
         )],
         claim_type="log"
     ))
-    
+
     log_audit("screening.oa_check", "completed")
     return artifacts
 
@@ -359,17 +356,17 @@ def stage_oa_check(context: TaskContext, artifacts: Artifacts) -> Artifacts:
 def stage_filter_rules(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """除外ルール適用ステージ。"""
     original_count = len(artifacts.papers)
-    
+
     # 除外ルール適用
     filtered = []
     for paper in artifacts.papers:
         # 例: タイトルが短すぎるものを除外
         if len(paper.title) >= 10:
             filtered.append(paper)
-    
+
     artifacts.papers = filtered
     removed = original_count - len(filtered)
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"Filtered {removed} papers by rules",
@@ -379,7 +376,7 @@ def stage_filter_rules(context: TaskContext, artifacts: Artifacts) -> Artifacts:
         )],
         claim_type="log"
     ))
-    
+
     log_audit("screening.filter_rules", "completed", details={"removed": removed})
     return artifacts
 
@@ -392,15 +389,15 @@ def stage_filter_rules(context: TaskContext, artifacts: Artifacts) -> Artifacts:
 def stage_extract_claims(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """Claim抽出ステージ。"""
     import re
-    
+
     for paper in artifacts.papers:
         text = paper.abstract or ""
-        
+
         # パターンベース抽出
         patterns = [
             r"(?:we|results?)\s+(?:show|demonstrate|found)\s+that\s+([^.]+\.)",
         ]
-        
+
         for pattern in patterns:
             matches = re.findall(pattern, text, re.IGNORECASE)
             for match in matches:
@@ -418,8 +415,8 @@ def stage_extract_claims(context: TaskContext, artifacts: Artifacts) -> Artifact
                     )],
                     claim_type="fact"
                 ))
-    
-    log_audit("extraction.claims", "completed", 
+
+    log_audit("extraction.claims", "completed",
               details={"claims_count": len(artifacts.claims)})
     return artifacts
 
@@ -440,7 +437,7 @@ def stage_evidence_link(context: TaskContext, artifacts: Artifacts) -> Artifacts
                 text="No evidence found"
             ))
             claim.claim_type = "hypothesis"  # Downgrade
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text="Evidence linking completed",
@@ -450,7 +447,7 @@ def stage_evidence_link(context: TaskContext, artifacts: Artifacts) -> Artifacts
         )],
         claim_type="log"
     ))
-    
+
     log_audit("extraction.evidence_link", "completed")
     return artifacts
 
@@ -459,17 +456,17 @@ def stage_evidence_link(context: TaskContext, artifacts: Artifacts) -> Artifacts
 def stage_extract_numeric(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """数値抽出ステージ。"""
     import re
-    
+
     numerics = []
     for paper in artifacts.papers:
         text = paper.abstract or ""
-        
+
         patterns = {
             "sample_size": r"n\s*=\s*(\d+)",
             "p_value": r"p\s*[<>=]\s*([0-9.]+)",
             "percentage": r"(\d+(?:\.\d+)?)\s*%",
         }
-        
+
         for num_type, pattern in patterns.items():
             matches = re.findall(pattern, text, re.IGNORECASE)
             for match in matches:
@@ -478,9 +475,9 @@ def stage_extract_numeric(context: TaskContext, artifacts: Artifacts) -> Artifac
                     "type": num_type,
                     "value": match
                 })
-    
+
     artifacts.metadata["numerics"] = numerics
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"Extracted {len(numerics)} numeric values",
@@ -490,7 +487,7 @@ def stage_extract_numeric(context: TaskContext, artifacts: Artifacts) -> Artifac
         )],
         claim_type="log"
     ))
-    
+
     log_audit("extraction.numeric", "completed")
     return artifacts
 
@@ -500,15 +497,15 @@ def stage_extract_methods(context: TaskContext, artifacts: Artifacts) -> Artifac
     """Methods抽出ステージ。"""
     methods = []
     keywords = ["PCR", "Western blot", "ELISA", "RNA-seq", "flow cytometry"]
-    
+
     for paper in artifacts.papers:
         text = paper.abstract or ""
         for kw in keywords:
             if kw.lower() in text.lower():
                 methods.append({"doc_id": paper.doc_id, "method": kw})
-    
+
     artifacts.metadata["methods"] = methods
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"Extracted {len(methods)} methods",
@@ -518,7 +515,7 @@ def stage_extract_methods(context: TaskContext, artifacts: Artifacts) -> Artifac
         )],
         claim_type="log"
     ))
-    
+
     log_audit("extraction.methods", "completed")
     return artifacts
 
@@ -528,15 +525,15 @@ def stage_extract_stats(context: TaskContext, artifacts: Artifacts) -> Artifacts
     """統計手法抽出ステージ。"""
     stats = []
     keywords = ["t-test", "ANOVA", "chi-square", "regression", "Kaplan-Meier"]
-    
+
     for paper in artifacts.papers:
         text = paper.abstract or ""
         for kw in keywords:
             if kw.lower() in text.lower():
                 stats.append({"doc_id": paper.doc_id, "stat": kw})
-    
+
     artifacts.metadata["stats"] = stats
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"Extracted {len(stats)} statistical methods",
@@ -546,7 +543,7 @@ def stage_extract_stats(context: TaskContext, artifacts: Artifacts) -> Artifacts
         )],
         claim_type="log"
     ))
-    
+
     log_audit("extraction.stats", "completed")
     return artifacts
 
@@ -555,22 +552,22 @@ def stage_extract_stats(context: TaskContext, artifacts: Artifacts) -> Artifacts
 def stage_extract_limitations(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """Limitations抽出ステージ。"""
     import re
-    
+
     limitations = []
     patterns = [
         r"(?:limitation|drawback)[s]?[^.]*\.?",
         r"small sample size",
     ]
-    
+
     for paper in artifacts.papers:
         text = paper.abstract or ""
         for pattern in patterns:
             matches = re.findall(pattern, text, re.IGNORECASE)
             for match in matches:
                 limitations.append({"doc_id": paper.doc_id, "limitation": match[:200]})
-    
+
     artifacts.metadata["limitations"] = limitations
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"Extracted {len(limitations)} limitations",
@@ -580,7 +577,7 @@ def stage_extract_limitations(context: TaskContext, artifacts: Artifacts) -> Art
         )],
         claim_type="log"
     ))
-    
+
     log_audit("extraction.limitations", "completed")
     return artifacts
 
@@ -589,7 +586,7 @@ def stage_extract_limitations(context: TaskContext, artifacts: Artifacts) -> Art
 def stage_extract_figures(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """Figure要点抽出ステージ。"""
     artifacts.metadata["figures"] = []
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text="Figure extraction completed",
@@ -599,7 +596,7 @@ def stage_extract_figures(context: TaskContext, artifacts: Artifacts) -> Artifac
         )],
         claim_type="log"
     ))
-    
+
     log_audit("extraction.figures", "completed")
     return artifacts
 
@@ -608,7 +605,7 @@ def stage_extract_figures(context: TaskContext, artifacts: Artifacts) -> Artifac
 def stage_extract_citations(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """Citation context抽出ステージ。"""
     artifacts.metadata["citations"] = []
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text="Citation extraction completed",
@@ -618,6 +615,6 @@ def stage_extract_citations(context: TaskContext, artifacts: Artifacts) -> Artif
         )],
         claim_type="log"
     ))
-    
+
     log_audit("extraction.citations", "completed")
     return artifacts

@@ -16,14 +16,13 @@ Hard Rules:
 
 from __future__ import annotations
 
-import json
 import hashlib
-from abc import ABC, abstractmethod
+import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 
 class IssueType(Enum):
@@ -65,18 +64,18 @@ class Issue:
 class DeconstructResult:
     """Result of the DECONSTRUCT phase."""
     core_intent: str
-    key_entities: List[str]
-    context: Dict[str, Any]
-    output_requirements: List[str]
-    constraints: List[str]
-    missing_info: List[str]
-    ambiguities: List[str]
+    key_entities: list[str]
+    context: dict[str, Any]
+    output_requirements: list[str]
+    constraints: list[str]
+    missing_info: list[str]
+    ambiguities: list[str]
 
 
 @dataclass
 class DiagnoseResult:
     """Result of the DIAGNOSE phase."""
-    issues: List[Issue]
+    issues: list[Issue]
     clarity_score: float  # 0-1
     completeness_score: float  # 0-1
     specificity_score: float  # 0-1
@@ -90,11 +89,11 @@ class DevelopResult:
     """Result of the DEVELOP phase."""
     original_prompt: str
     optimized_prompt: str
-    techniques_applied: List[str]
+    techniques_applied: list[str]
     role_assigned: str
     context_enhanced: bool
     structure_improved: bool
-    changes_summary: List[str]
+    changes_summary: list[str]
 
 
 @dataclass
@@ -104,9 +103,9 @@ class DeliverResult:
     target_worker: str  # antigravity, codex, llm
     prompt: str
     expected_output_format: str
-    success_criteria: List[str]
-    prohibited_actions: List[str]
-    test_requirements: List[str]
+    success_criteria: list[str]
+    prohibited_actions: list[str]
+    test_requirements: list[str]
     timeout_seconds: int
     priority: int
 
@@ -118,10 +117,10 @@ class SupervisionLog:
     run_id: str
     supervisor: str = "Lyra"
     phase: str = ""
-    issue_detected: Optional[str] = None
-    action: Optional[str] = None
+    issue_detected: str | None = None
+    action: str | None = None
     confidence: float = 0.0
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
 
 
 class LyraSupervisor:
@@ -130,7 +129,7 @@ class LyraSupervisor:
     
     Operating Loop: DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat
     """
-    
+
     SYSTEM_PROMPT = '''You are Lyra, the Prompt & Reasoning Supervisor for JARVIS Research OS.
 
 Your mission:
@@ -146,21 +145,21 @@ Hard rules:
 
 Operating loop:
 DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
-    
-    def __init__(self, audit_dir: Optional[Path] = None):
+
+    def __init__(self, audit_dir: Path | None = None):
         self.audit_dir = audit_dir or Path("artifacts/lyra_audit")
         self.audit_dir.mkdir(parents=True, exist_ok=True)
-        self.logs: List[SupervisionLog] = []
+        self.logs: list[SupervisionLog] = []
         self.run_id = self._generate_run_id()
-    
+
     def _generate_run_id(self) -> str:
         """Generate unique run ID."""
         now = datetime.utcnow().isoformat()
         return hashlib.sha256(now.encode()).hexdigest()[:12]
-    
-    def _log(self, phase: str, issue: Optional[str] = None, 
-             action: Optional[str] = None, confidence: float = 0.0,
-             details: Optional[Dict] = None) -> None:
+
+    def _log(self, phase: str, issue: str | None = None,
+             action: str | None = None, confidence: float = 0.0,
+             details: dict | None = None) -> None:
         """Add entry to audit log."""
         log = SupervisionLog(
             timestamp=datetime.utcnow().isoformat(),
@@ -172,17 +171,17 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
             details=details or {}
         )
         self.logs.append(log)
-        
+
         # Append to audit.jsonl
         log_file = self.audit_dir / f"audit_{self.run_id}.jsonl"
         with open(log_file, "a", encoding="utf-8") as f:
             f.write(json.dumps(log.__dict__, ensure_ascii=False) + "\n")
-    
+
     # =========================================================================
     # PHASE 1: DECONSTRUCT
     # =========================================================================
-    
-    def deconstruct(self, instruction: str, context: Optional[Dict] = None) -> DeconstructResult:
+
+    def deconstruct(self, instruction: str, context: dict | None = None) -> DeconstructResult:
         """
         DECONSTRUCT phase: Extract core intent, entities, and identify gaps.
         
@@ -194,7 +193,7 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
             DeconstructResult with extracted information
         """
         context = context or {}
-        
+
         # Extract core components
         core_intent = self._extract_core_intent(instruction)
         entities = self._extract_entities(instruction)
@@ -202,7 +201,7 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
         constraints = self._extract_constraints(instruction)
         missing = self._identify_missing_info(instruction, context)
         ambiguities = self._identify_ambiguities(instruction)
-        
+
         result = DeconstructResult(
             core_intent=core_intent,
             key_entities=entities,
@@ -212,15 +211,15 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
             missing_info=missing,
             ambiguities=ambiguities
         )
-        
-        self._log("DECONSTRUCT", 
+
+        self._log("DECONSTRUCT",
                   f"Found {len(ambiguities)} ambiguities, {len(missing)} missing items",
                   "Analysis complete",
                   confidence=0.85,
                   details={"entities": len(entities), "constraints": len(constraints)})
-        
+
         return result
-    
+
     def _extract_core_intent(self, instruction: str) -> str:
         """Extract the core intent from instruction."""
         # Simple heuristic: first sentence or line
@@ -230,11 +229,11 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
             if line and not line.startswith("#"):
                 return line[:200]
         return instruction[:200]
-    
-    def _extract_entities(self, instruction: str) -> List[str]:
+
+    def _extract_entities(self, instruction: str) -> list[str]:
         """Extract key entities from instruction."""
         entities = []
-        
+
         # Technical terms patterns
         keywords = [
             "plugin", "module", "function", "class", "API", "endpoint",
@@ -242,18 +241,18 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
             "provenance", "evidence", "claim", "embedding", "rerank",
             "extraction", "summarization", "scoring", "evaluation"
         ]
-        
+
         instruction_lower = instruction.lower()
         for kw in keywords:
             if kw.lower() in instruction_lower:
                 entities.append(kw)
-        
+
         return list(set(entities))
-    
-    def _extract_output_requirements(self, instruction: str) -> List[str]:
+
+    def _extract_output_requirements(self, instruction: str) -> list[str]:
         """Extract output requirements."""
         requirements = []
-        
+
         patterns = [
             ("必ず", "mandatory requirement"),
             ("返す", "return value"),
@@ -264,17 +263,17 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
             ("スキーマ", "schema compliance"),
             ("evidence_links", "provenance required"),
         ]
-        
+
         for pattern, req in patterns:
             if pattern in instruction:
                 requirements.append(req)
-        
+
         return requirements
-    
-    def _extract_constraints(self, instruction: str) -> List[str]:
+
+    def _extract_constraints(self, instruction: str) -> list[str]:
         """Extract constraints from instruction."""
         constraints = []
-        
+
         patterns = [
             ("禁止", "prohibition"),
             ("してはならない", "must not"),
@@ -284,20 +283,20 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
             ("≥", "minimum threshold"),
             ("≤", "maximum threshold"),
         ]
-        
+
         for pattern, constraint in patterns:
             if pattern in instruction:
                 constraints.append(constraint)
-        
+
         return constraints
-    
-    def _identify_missing_info(self, instruction: str, context: Dict) -> List[str]:
+
+    def _identify_missing_info(self, instruction: str, context: dict) -> list[str]:
         """Identify missing information."""
         missing = []
-        
+
         # Check for essential elements
         checks = [
-            ("success_criteria" not in instruction.lower() and "成功条件" not in instruction, 
+            ("success_criteria" not in instruction.lower() and "成功条件" not in instruction,
              "Success criteria not specified"),
             ("test" not in instruction.lower() and "テスト" not in instruction,
              "Test requirements not specified"),
@@ -306,17 +305,17 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
             ("error" not in instruction.lower() and "エラー" not in instruction,
              "Error handling not specified"),
         ]
-        
+
         for condition, msg in checks:
             if condition:
                 missing.append(msg)
-        
+
         return missing
-    
-    def _identify_ambiguities(self, instruction: str) -> List[str]:
+
+    def _identify_ambiguities(self, instruction: str) -> list[str]:
         """Identify ambiguous phrases."""
         ambiguities = []
-        
+
         vague_phrases = [
             ("適切に", "What does '適切に' mean specifically?"),
             ("必要に応じて", "When is it '必要'? Define conditions."),
@@ -328,20 +327,20 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
             ("good", "Define quality metrics"),
             ("better", "Define comparison baseline"),
         ]
-        
+
         instruction_lower = instruction.lower()
         for phrase, question in vague_phrases:
             if phrase.lower() in instruction_lower:
                 ambiguities.append(question)
-        
+
         return ambiguities
-    
+
     # =========================================================================
     # PHASE 2: DIAGNOSE
     # =========================================================================
-    
-    def diagnose(self, deconstruct_result: DeconstructResult, 
-                 implementation: Optional[str] = None) -> DiagnoseResult:
+
+    def diagnose(self, deconstruct_result: DeconstructResult,
+                 implementation: str | None = None) -> DiagnoseResult:
         """
         DIAGNOSE phase: Audit for clarity gaps, ambiguity, and completeness.
         
@@ -352,8 +351,8 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
         Returns:
             DiagnoseResult with issues and scores
         """
-        issues: List[Issue] = []
-        
+        issues: list[Issue] = []
+
         # Check for ambiguities
         for amb in deconstruct_result.ambiguities:
             issues.append(Issue(
@@ -361,12 +360,12 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
                 severity=Severity.HIGH,
                 location="instruction",
                 description=amb,
-                evidence=f"Vague phrase detected",
+                evidence="Vague phrase detected",
                 expected="Explicit, measurable criteria",
-                suggestion=f"Replace with specific definition",
+                suggestion="Replace with specific definition",
                 confidence=0.85
             ))
-        
+
         # Check for missing info
         for missing in deconstruct_result.missing_info:
             issues.append(Issue(
@@ -379,7 +378,7 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
                 suggestion="Add the missing specification",
                 confidence=0.80
             ))
-        
+
         # Check provenance requirement
         if "evidence" not in str(deconstruct_result.output_requirements).lower():
             issues.append(Issue(
@@ -392,24 +391,24 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
                 suggestion="Add: 'Output must include evidence_links with doc_id, section, chunk_id, span'",
                 confidence=0.95
             ))
-        
+
         # Calculate scores
         clarity = 1.0 - (len(deconstruct_result.ambiguities) * 0.15)
         completeness = 1.0 - (len(deconstruct_result.missing_info) * 0.1)
         specificity = len(deconstruct_result.constraints) * 0.1
         structure = 0.7 if len(deconstruct_result.output_requirements) > 0 else 0.3
-        
+
         clarity = max(0, min(1, clarity))
         completeness = max(0, min(1, completeness))
         specificity = max(0, min(1, specificity))
-        
+
         overall = (clarity + completeness + specificity + structure) / 4
-        
+
         # Determine if execution should be blocked
         critical_issues = [i for i in issues if i.severity == Severity.CRITICAL]
         high_issues = [i for i in issues if i.severity == Severity.HIGH]
         blocks = len(critical_issues) > 0 or len(high_issues) >= 3
-        
+
         result = DiagnoseResult(
             issues=issues,
             clarity_score=clarity,
@@ -419,20 +418,20 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
             overall_score=overall,
             blocks_execution=blocks
         )
-        
+
         self._log("DIAGNOSE",
                   f"{len(issues)} issues found, {len(critical_issues)} critical",
                   "Blocks execution" if blocks else "Passes with warnings",
                   confidence=overall,
                   details={"clarity": clarity, "completeness": completeness})
-        
+
         return result
-    
+
     # =========================================================================
     # PHASE 3: DEVELOP
     # =========================================================================
-    
-    def develop(self, original_prompt: str, 
+
+    def develop(self, original_prompt: str,
                 diagnose_result: DiagnoseResult,
                 task_type: str = "technical") -> DevelopResult:
         """
@@ -448,10 +447,10 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
         """
         techniques = []
         changes = []
-        
+
         # Start with original
         optimized = original_prompt
-        
+
         # Apply techniques based on task type
         if task_type == "technical":
             techniques.extend(["constraint-based", "precision-focus"])
@@ -465,13 +464,13 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
         else:  # complex
             techniques.extend(["chain-of-thought", "systematic-framework"])
             role = "systems architect with holistic perspective"
-        
+
         # Add role assignment if missing
         if "あなたは" not in optimized and "You are" not in optimized:
             role_prefix = f"You are a {role}.\n\n"
             optimized = role_prefix + optimized
             changes.append("Added role assignment")
-        
+
         # Add provenance requirement if missing
         if "evidence_links" not in optimized:
             provenance_section = """
@@ -492,7 +491,7 @@ Outputs without evidence_links will be REJECTED.
             optimized += provenance_section
             changes.append("Added provenance requirement")
             techniques.append("provenance-enforcement")
-        
+
         # Add success criteria if missing
         if "成功条件" not in optimized and "success criteria" not in optimized.lower():
             success_section = """
@@ -507,7 +506,7 @@ Outputs without evidence_links will be REJECTED.
             optimized += success_section
             changes.append("Added success criteria")
             techniques.append("explicit-success-criteria")
-        
+
         # Add prohibited actions
         if "禁止" not in optimized and "prohibited" not in optimized.lower():
             prohibited_section = """
@@ -521,7 +520,7 @@ Outputs without evidence_links will be REJECTED.
 """
             optimized += prohibited_section
             changes.append("Added prohibited actions")
-        
+
         result = DevelopResult(
             original_prompt=original_prompt,
             optimized_prompt=optimized,
@@ -531,19 +530,19 @@ Outputs without evidence_links will be REJECTED.
             structure_improved=len(changes) > 0,
             changes_summary=changes
         )
-        
+
         self._log("DEVELOP",
                   None,
                   f"Applied {len(techniques)} techniques, made {len(changes)} changes",
                   confidence=0.90,
                   details={"techniques": techniques, "changes": changes})
-        
+
         return result
-    
+
     # =========================================================================
     # PHASE 4: DELIVER
     # =========================================================================
-    
+
     def deliver(self, develop_result: DevelopResult,
                 target_worker: str = "antigravity",
                 priority: int = 1,
@@ -561,7 +560,7 @@ Outputs without evidence_links will be REJECTED.
             DeliverResult ready for execution
         """
         task_id = f"task-{self.run_id}-{datetime.utcnow().strftime('%H%M%S')}"
-        
+
         result = DeliverResult(
             task_id=task_id,
             target_worker=target_worker,
@@ -587,21 +586,21 @@ Outputs without evidence_links will be REJECTED.
             timeout_seconds=timeout,
             priority=priority
         )
-        
+
         self._log("DELIVER",
                   None,
                   f"Task {task_id} dispatched to {target_worker}",
                   confidence=0.95,
                   details={"task_id": task_id, "priority": priority})
-        
+
         return result
-    
+
     # =========================================================================
     # FULL LOOP
     # =========================================================================
-    
-    def supervise(self, instruction: str, 
-                  context: Optional[Dict] = None,
+
+    def supervise(self, instruction: str,
+                  context: dict | None = None,
                   target_worker: str = "antigravity",
                   task_type: str = "technical") -> DeliverResult:
         """
@@ -618,10 +617,10 @@ Outputs without evidence_links will be REJECTED.
         """
         # Phase 1: DECONSTRUCT
         deconstruct = self.deconstruct(instruction, context)
-        
+
         # Phase 2: DIAGNOSE
         diagnose = self.diagnose(deconstruct)
-        
+
         # If critical issues, raise before developing
         if diagnose.blocks_execution:
             critical = [i for i in diagnose.issues if i.severity == Severity.CRITICAL]
@@ -630,16 +629,16 @@ Outputs without evidence_links will be REJECTED.
                       "Requires human intervention",
                       confidence=0.99)
             # Still develop a corrected version
-        
+
         # Phase 3: DEVELOP
         develop = self.develop(instruction, diagnose, task_type)
-        
+
         # Phase 4: DELIVER
         deliver = self.deliver(develop, target_worker)
-        
+
         return deliver
-    
-    def get_audit_summary(self) -> Dict[str, Any]:
+
+    def get_audit_summary(self) -> dict[str, Any]:
         """Get summary of all supervision logs."""
         return {
             "run_id": self.run_id,
@@ -657,13 +656,13 @@ Outputs without evidence_links will be REJECTED.
 
 
 # Factory function
-def get_lyra_supervisor(audit_dir: Optional[Path] = None) -> LyraSupervisor:
+def get_lyra_supervisor(audit_dir: Path | None = None) -> LyraSupervisor:
     """Get Lyra supervisor instance."""
     return LyraSupervisor(audit_dir)
 
 
 # Singleton for global access
-_lyra_instance: Optional[LyraSupervisor] = None
+_lyra_instance: LyraSupervisor | None = None
 
 def get_lyra() -> LyraSupervisor:
     """Get global Lyra supervisor instance."""

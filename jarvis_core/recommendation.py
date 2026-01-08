@@ -5,13 +5,13 @@ Uses concept similarity, novelty, and future potential.
 """
 from __future__ import annotations
 
-from typing import List, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
-def _concept_similarity(a: Dict[str, float], b: List[str]) -> float:
+def _concept_similarity(a: dict[str, float], b: list[str]) -> float:
     """Calculate similarity between concepts dict and target concepts."""
     if not b:
         return 0.0
@@ -24,11 +24,11 @@ def _concept_similarity(a: Dict[str, float], b: List[str]) -> float:
 
 
 def recommend_papers(
-    vectors: List["PaperVector"],
-    target_concepts: List[str],
+    vectors: list[PaperVector],
+    target_concepts: list[str],
     year_range: tuple[int, int] | None = None,
     top_k: int = 10,
-) -> List[dict]:
+) -> list[dict]:
     """Recommend papers based on concepts and attributes.
 
     Score formula:

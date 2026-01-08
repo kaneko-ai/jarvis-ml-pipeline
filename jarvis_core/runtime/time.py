@@ -4,12 +4,10 @@ Per PR-66, provides freezable time for reproducibility.
 """
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Optional
 import threading
+from datetime import datetime, timezone
 
-
-_frozen_time: Optional[datetime] = None
+_frozen_time: datetime | None = None
 _lock = threading.Lock()
 
 
@@ -45,7 +43,7 @@ class FrozenTime:
 
     def __init__(self, dt: datetime):
         self.dt = dt
-        self._previous: Optional[datetime] = None
+        self._previous: datetime | None = None
 
     def __enter__(self):
         global _frozen_time
@@ -61,7 +59,7 @@ class FrozenTime:
         return False
 
 
-def frozen_time(dt: Optional[datetime] = None) -> FrozenTime:
+def frozen_time(dt: datetime | None = None) -> FrozenTime:
     """Create a frozen time context.
 
     Usage:

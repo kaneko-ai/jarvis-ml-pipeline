@@ -4,11 +4,11 @@ Per RP-03, this provides tool-level caching for reproducibility.
 """
 from __future__ import annotations
 
-import json
 import hashlib
-from pathlib import Path
-from typing import Any, Optional
+import json
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 
 class DiskCache:
@@ -39,7 +39,7 @@ class DiskCache:
         tool_dir.mkdir(parents=True, exist_ok=True)
         return tool_dir / f"{input_hash}.json"
 
-    def get(self, tool_name: str, inputs: Any) -> Optional[Any]:
+    def get(self, tool_name: str, inputs: Any) -> Any | None:
         """Get cached result.
 
         Args:
@@ -54,7 +54,7 @@ class DiskCache:
 
         if cache_path.exists():
             try:
-                with open(cache_path, "r", encoding="utf-8") as f:
+                with open(cache_path, encoding="utf-8") as f:
                     data = json.load(f)
                 self.hit_count += 1
                 return data.get("result")
@@ -106,7 +106,7 @@ class DiskCache:
             return True
         return False
 
-    def clear(self, tool_name: Optional[str] = None) -> int:
+    def clear(self, tool_name: str | None = None) -> int:
         """Clear cache.
 
         Args:

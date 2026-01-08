@@ -1,7 +1,7 @@
 """Telemetry package for structured logging."""
-from .schema import TelemetryEvent, EventType
+from .hashing import input_hash, normalize_text, prompt_hash
 from .logger import JsonlTelemetryLogger, get_logger, init_logger
-from .hashing import prompt_hash, input_hash, normalize_text
+from .schema import EventType, TelemetryEvent
 
 __all__ = [
     "TelemetryEvent",

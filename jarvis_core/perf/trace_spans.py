@@ -5,10 +5,8 @@ Per V4-C01, this provides workflow→module→stage measurement.
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
-from datetime import datetime
-from typing import List, Dict, Optional
 from contextlib import contextmanager
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -17,14 +15,14 @@ class Span:
 
     span_id: str
     name: str
-    parent_id: Optional[str]
+    parent_id: str | None
     start_time: float
-    end_time: Optional[float] = None
+    end_time: float | None = None
     item_count: int = 0
     metadata: dict = field(default_factory=dict)
 
     @property
-    def duration_ms(self) -> Optional[float]:
+    def duration_ms(self) -> float | None:
         if self.end_time:
             return (self.end_time - self.start_time) * 1000
         return None
@@ -46,8 +44,8 @@ class SpanTracker:
     """Track execution spans for performance analysis."""
 
     def __init__(self):
-        self.spans: List[Span] = []
-        self._span_stack: List[str] = []
+        self.spans: list[Span] = []
+        self._span_stack: list[str] = []
         self._span_counter = 0
 
     def start_span(
@@ -131,7 +129,7 @@ class SpanTracker:
 
 
 # Global tracker
-_tracker: Optional[SpanTracker] = None
+_tracker: SpanTracker | None = None
 
 
 def init_tracker() -> SpanTracker:
@@ -159,6 +157,6 @@ def end_span(span_id: str, item_count: int = 0) -> None:
     get_tracker().end_span(span_id, item_count)
 
 
-def get_current_spans() -> List[Span]:
+def get_current_spans() -> list[Span]:
     """Get current spans."""
     return get_tracker().spans

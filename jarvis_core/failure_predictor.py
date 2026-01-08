@@ -4,7 +4,7 @@ Per RP47, this predicts potential failure modes for experiments.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 
 def predict_failure_modes(
     hypothesis: str,
-    vectors: List["PaperVector"],
-) -> List[str]:
+    vectors: list[PaperVector],
+) -> list[str]:
     """Predict potential failure modes for a hypothesis.
 
     Args:

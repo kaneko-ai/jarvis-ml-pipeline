@@ -6,13 +6,10 @@ Per RP22, these tests verify:
 - Reference enrichment
 - Failure handling (graceful)
 """
-import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-import sys
 import json
-
-import pytest
+import sys
+from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,12 +19,11 @@ if str(ROOT) not in sys.path:
 from jarvis_core.reference import Reference, resolve_references
 from jarvis_core.resolvers.crossref_resolver import (
     CrossRefResult,
-    search_crossref,
     resolve_crossref,
+    search_crossref,
 )
 from jarvis_core.resolvers.pubmed_resolver import (
     PubMedResult,
-    search_pubmed,
     resolve_pubmed,
 )
 

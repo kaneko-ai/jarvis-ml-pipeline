@@ -5,16 +5,15 @@ FACTs without evidence are automatically downgraded to INFERENCE.
 """
 from __future__ import annotations
 
-from typing import List, Tuple, TYPE_CHECKING
-from dataclasses import replace
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..artifacts.schema import ArtifactBase, Fact, Inference
 
 
 def enforce_fact_evidence(
-    facts: List["Fact"],
-) -> Tuple[List["Fact"], List["Inference"], List[str]]:
+    facts: list[Fact],
+) -> tuple[list[Fact], list[Inference], list[str]]:
     """Enforce evidence requirement on facts.
 
     Args:
@@ -46,7 +45,7 @@ def enforce_fact_evidence(
     return valid_facts, downgraded, flags
 
 
-def downgrade_to_inference(fact: "Fact") -> "Inference":
+def downgrade_to_inference(fact: Fact) -> Inference:
     """Downgrade a single fact to inference.
 
     Args:
@@ -64,7 +63,7 @@ def downgrade_to_inference(fact: "Fact") -> "Inference":
     )
 
 
-def enforce_artifact_truth(artifact: "ArtifactBase") -> "ArtifactBase":
+def enforce_artifact_truth(artifact: ArtifactBase) -> ArtifactBase:
     """Enforce truth requirements on an artifact.
 
     Args:

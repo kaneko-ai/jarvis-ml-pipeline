@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
-from typing import Dict, Optional
 
 from jarvis_core.reliability.rate_limiter import TokenBucket
 
@@ -21,10 +20,10 @@ DEFAULT_LIMITS = {
 
 
 class DomainRateLimiter:
-    def __init__(self, limits: Optional[Dict[str, DomainLimit]] = None):
+    def __init__(self, limits: dict[str, DomainLimit] | None = None):
         self.limits = limits or DEFAULT_LIMITS
-        self._buckets: Dict[str, TokenBucket] = {}
-        self._backoff_until: Dict[str, float] = {}
+        self._buckets: dict[str, TokenBucket] = {}
+        self._backoff_until: dict[str, float] = {}
 
     def _bucket(self, domain: str) -> TokenBucket:
         if domain not in self._buckets:

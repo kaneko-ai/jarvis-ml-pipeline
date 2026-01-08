@@ -12,9 +12,7 @@ class TestFailureSignalNormalization:
 
     def test_failure_signal_creation(self):
         """Basic FailureSignal creation."""
-        from jarvis_core.runtime.failure_signal import (
-            FailureSignal, FailureCode, FailureStage
-        )
+        from jarvis_core.runtime.failure_signal import FailureCode, FailureSignal, FailureStage
 
         signal = FailureSignal(
             code=FailureCode.FETCH_PDF_FAILED,
@@ -27,9 +25,7 @@ class TestFailureSignalNormalization:
 
     def test_from_exception(self):
         """Create signal from exception."""
-        from jarvis_core.runtime.failure_signal import (
-            FailureSignal, FailureCode, FailureStage
-        )
+        from jarvis_core.runtime.failure_signal import FailureCode, FailureSignal, FailureStage
 
         exc = TimeoutError("Request timed out")
         signal = FailureSignal.from_exception(exc, FailureStage.FETCH)
@@ -39,9 +35,7 @@ class TestFailureSignalNormalization:
 
     def test_to_dict(self):
         """Signal should serialize to dict."""
-        from jarvis_core.runtime.failure_signal import (
-            FailureSignal, FailureCode, FailureStage
-        )
+        from jarvis_core.runtime.failure_signal import FailureCode, FailureSignal, FailureStage
 
         signal = FailureSignal(
             code=FailureCode.MODEL_ERROR,

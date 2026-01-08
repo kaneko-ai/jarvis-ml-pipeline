@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List
 
 from .schema import RationaleValue, RiskFactorInput
 
@@ -13,7 +12,7 @@ class RiskFactorDefinition:
     description: str
 
 
-DEFAULT_RISK_FACTORS: List[RiskFactorDefinition] = [
+DEFAULT_RISK_FACTORS: list[RiskFactorDefinition] = [
     RiskFactorDefinition("Technical Risk", "技術難度・実装の不確実性"),
     RiskFactorDefinition("Data Risk", "データが得られない確率"),
     RiskFactorDefinition("Resource Risk", "設備・試薬・計算資源の不足"),
@@ -24,7 +23,7 @@ DEFAULT_RISK_FACTORS: List[RiskFactorDefinition] = [
 ]
 
 
-def default_risk_inputs() -> List[RiskFactorInput]:
+def default_risk_inputs() -> list[RiskFactorInput]:
     """Create default risk factor inputs with neutral values."""
     default_score = RationaleValue(
         value=0.5,

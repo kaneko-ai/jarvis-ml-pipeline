@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -21,9 +21,9 @@ class MendeleyConfig:
 
 class MendeleyClient:
     """Mendeley API client for reference management."""
-    
+
     BASE_URL = "https://api.mendeley.com"
-    
+
     def __init__(self, config: MendeleyConfig):
         """Initialize Mendeley client.
         
@@ -35,12 +35,12 @@ class MendeleyClient:
             "Authorization": f"Bearer {config.access_token}",
             "Accept": "application/vnd.mendeley-document.1+json",
         }
-    
+
     def get_documents(
         self,
-        folder_id: Optional[str] = None,
+        folder_id: str | None = None,
         limit: int = 100,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get documents from Mendeley library.
         
         Args:
@@ -54,17 +54,17 @@ class MendeleyClient:
             import requests
         except ImportError:
             raise ImportError("requests is required for Mendeley integration")
-        
+
         url = f"{self.BASE_URL}/documents"
         params = {"limit": limit}
         if folder_id:
             params["folder_id"] = folder_id
-        
+
         response = requests.get(url, headers=self._headers, params=params)
         response.raise_for_status()
         return response.json()
-    
-    def create_document(self, document: Dict[str, Any]) -> Dict[str, Any]:
+
+    def create_document(self, document: dict[str, Any]) -> dict[str, Any]:
         """Create a new document in Mendeley.
         
         Args:
@@ -77,13 +77,13 @@ class MendeleyClient:
             import requests
         except ImportError:
             raise ImportError("requests is required for Mendeley integration")
-        
+
         url = f"{self.BASE_URL}/documents"
         response = requests.post(url, headers=self._headers, json=document)
         response.raise_for_status()
         return response.json()
-    
-    def search(self, query: str, limit: int = 25) -> List[Dict[str, Any]]:
+
+    def search(self, query: str, limit: int = 25) -> list[dict[str, Any]]:
         """Search Mendeley catalog.
         
         Args:
@@ -97,14 +97,14 @@ class MendeleyClient:
             import requests
         except ImportError:
             raise ImportError("requests is required for Mendeley integration")
-        
+
         url = f"{self.BASE_URL}/search/catalog"
         params = {"query": query, "limit": limit}
         response = requests.get(url, headers=self._headers, params=params)
         response.raise_for_status()
         return response.json()
-    
-    def document_to_paper(self, mendeley_doc: Dict[str, Any]) -> Dict[str, Any]:
+
+    def document_to_paper(self, mendeley_doc: dict[str, Any]) -> dict[str, Any]:
         """Convert Mendeley document to JARVIS paper format.
         
         Args:
@@ -118,7 +118,7 @@ class MendeleyClient:
             name = f"{author.get('last_name', '')} {author.get('first_name', '')}".strip()
             if name:
                 authors.append(name)
-        
+
         return {
             "id": mendeley_doc.get("id"),
             "title": mendeley_doc.get("title", ""),
@@ -129,8 +129,8 @@ class MendeleyClient:
             "journal": mendeley_doc.get("source", ""),
             "source": "mendeley",
         }
-    
-    def paper_to_document(self, paper: Dict[str, Any]) -> Dict[str, Any]:
+
+    def paper_to_document(self, paper: dict[str, Any]) -> dict[str, Any]:
         """Convert JARVIS paper to Mendeley document format.
         
         Args:
@@ -147,7 +147,7 @@ class MendeleyClient:
                     "first_name": " ".join(parts[:-1]) if len(parts) > 1 else "",
                     "last_name": parts[-1],
                 })
-        
+
         return {
             "type": "journal",
             "title": paper.get("title", ""),

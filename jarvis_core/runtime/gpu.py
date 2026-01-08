@@ -5,14 +5,12 @@ Per RP-414, implements GPU acceleration for embeddings and inference.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Dict, Any, Optional
-import os
 
 
 @dataclass
 class GPUInfo:
     """GPU device information."""
-    
+
     device_id: int
     name: str
     memory_total_mb: int
@@ -28,16 +26,16 @@ class GPUAccelerator:
     - vLLM integration
     - GPU scheduling
     """
-    
+
     def __init__(
         self,
         prefer_gpu: bool = True,
-        device_id: Optional[int] = None,
+        device_id: int | None = None,
     ):
         self.prefer_gpu = prefer_gpu
         self.device_id = device_id
         self._cuda_available = self._check_cuda()
-    
+
     def _check_cuda(self) -> bool:
         """Check CUDA availability."""
         try:
@@ -45,12 +43,12 @@ class GPUAccelerator:
             return torch.cuda.is_available()
         except ImportError:
             return False
-    
+
     @property
     def is_gpu_available(self) -> bool:
         """Check if GPU is available."""
         return self._cuda_available
-    
+
     def get_device(self) -> str:
         """Get compute device string.
         
@@ -62,26 +60,26 @@ class GPUAccelerator:
                 return f"cuda:{self.device_id}"
             return "cuda"
         return "cpu"
-    
-    def list_gpus(self) -> List[GPUInfo]:
+
+    def list_gpus(self) -> list[GPUInfo]:
         """List available GPUs.
         
         Returns:
             List of GPU info.
         """
         gpus = []
-        
+
         if not self._cuda_available:
             return gpus
-        
+
         try:
             import torch
-            
+
             for i in range(torch.cuda.device_count()):
                 props = torch.cuda.get_device_properties(i)
                 memory_total = props.total_memory // (1024 * 1024)
                 memory_used = torch.cuda.memory_allocated(i) // (1024 * 1024)
-                
+
                 gpus.append(GPUInfo(
                     device_id=i,
                     name=props.name,
@@ -91,28 +89,28 @@ class GPUAccelerator:
                 ))
         except Exception:
             pass
-        
+
         return gpus
-    
-    def select_best_gpu(self) -> Optional[int]:
+
+    def select_best_gpu(self) -> int | None:
         """Select best available GPU.
         
         Returns:
             Best GPU device ID or None.
         """
         gpus = self.list_gpus()
-        
+
         if not gpus:
             return None
-        
+
         # Select GPU with most free memory
         best = max(
             gpus,
             key=lambda g: g.memory_total_mb - g.memory_used_mb,
         )
-        
+
         return best.device_id
-    
+
     def optimize_batch_size(
         self,
         item_size_mb: float,
@@ -129,22 +127,22 @@ class GPUAccelerator:
         """
         if not self._cuda_available:
             return 32  # CPU default
-        
+
         gpus = self.list_gpus()
         if not gpus:
             return 32
-        
+
         gpu = gpus[self.device_id or 0]
         free_memory = gpu.memory_total_mb - gpu.memory_used_mb - model_memory_mb
-        
+
         # Reserve 20% for safety
         usable = free_memory * 0.8
-        
+
         batch_size = int(usable / item_size_mb)
-        
+
         # Clamp to reasonable range
         return max(1, min(batch_size, 512))
-    
+
     def create_embedder(
         self,
         model_name: str = "all-MiniLM-L6-v2",
@@ -159,20 +157,20 @@ class GPUAccelerator:
         """
         try:
             from sentence_transformers import SentenceTransformer
-            
+
             device = self.get_device()
             model = SentenceTransformer(model_name, device=device)
-            
+
             return model
         except ImportError:
             return None
-    
+
     def embed_batch(
         self,
-        texts: List[str],
+        texts: list[str],
         embedder,
-        batch_size: Optional[int] = None,
-    ) -> List[List[float]]:
+        batch_size: int | None = None,
+    ) -> list[list[float]]:
         """Embed texts with GPU acceleration.
         
         Args:
@@ -185,12 +183,12 @@ class GPUAccelerator:
         """
         if batch_size is None:
             batch_size = self.optimize_batch_size(0.1, 500)
-        
+
         embeddings = embedder.encode(
             texts,
             batch_size=batch_size,
             show_progress_bar=False,
             convert_to_numpy=True,
         )
-        
+
         return [emb.tolist() for emb in embeddings]

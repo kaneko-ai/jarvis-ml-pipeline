@@ -3,11 +3,9 @@ from __future__ import annotations
 
 import math
 import random
-from typing import Dict, List, Tuple
 
-from .schema import Assumption, Option
 from .risk_factors import default_risk_inputs
-
+from .schema import Assumption, Option
 
 TASK_KEYWORDS = {
     "setup": ["立ち上げ", "setup", "環境", "構築"],
@@ -41,7 +39,7 @@ def _assign_task(assumption: Assumption) -> str:
     return "general"
 
 
-def _weighted_risk(option: Option) -> Tuple[float, List[Dict[str, float]]]:
+def _weighted_risk(option: Option) -> tuple[float, list[dict[str, float]]]:
     risk_inputs = option.risk_factors or default_risk_inputs()
     total_weight = sum(risk.weight.value for risk in risk_inputs) or 1.0
     weighted_score = sum(risk.score.value * risk.weight.value for risk in risk_inputs) / total_weight
@@ -59,7 +57,7 @@ def _weighted_risk(option: Option) -> Tuple[float, List[Dict[str, float]]]:
     return weighted_score, contributions
 
 
-def _percentile(values: List[float], percentile: float) -> float:
+def _percentile(values: list[float], percentile: float) -> float:
     if not values:
         return 0.0
     sorted_values = sorted(values)
@@ -72,7 +70,7 @@ def _percentile(values: List[float], percentile: float) -> float:
     return sorted_values[low_index] * (1 - weight) + sorted_values[high_index] * weight
 
 
-def _correlation(xs: List[float], ys: List[int]) -> float:
+def _correlation(xs: list[float], ys: list[int]) -> float:
     if not xs or not ys:
         return 0.0
     mean_x = sum(xs) / len(xs)
@@ -87,16 +85,16 @@ def _correlation(xs: List[float], ys: List[int]) -> float:
 
 def simulate_option(
     option: Option,
-    assumptions: List[Assumption],
+    assumptions: list[Assumption],
     iterations: int = 5000,
-) -> Dict[str, object]:
+) -> dict[str, object]:
     """Simulate an option and return Monte Carlo results."""
-    task_samples: Dict[str, List[float]] = {}
-    assumption_samples: Dict[str, List[float]] = {a.assumption_id: [] for a in assumptions}
-    successes: List[int] = []
-    success_scores: List[float] = []
-    papers: List[float] = []
-    presentations: List[float] = []
+    task_samples: dict[str, list[float]] = {}
+    assumption_samples: dict[str, list[float]] = {a.assumption_id: [] for a in assumptions}
+    successes: list[int] = []
+    success_scores: list[float] = []
+    papers: list[float] = []
+    presentations: list[float] = []
 
     risk_score, contributions = _weighted_risk(option)
 

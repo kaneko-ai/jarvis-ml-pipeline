@@ -1,13 +1,13 @@
 """Observability package."""
 from .stack import (
-    Tracer,
-    Span,
+    Logger,
     Metric,
     MetricsCollector,
-    Logger,
-    get_tracer,
-    get_metrics,
+    Span,
+    Tracer,
     get_logger,
+    get_metrics,
+    get_tracer,
 )
 
 __all__ = [

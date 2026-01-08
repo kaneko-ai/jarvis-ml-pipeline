@@ -9,7 +9,6 @@ import json
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional
 
 
 class GoldsetLabel(Enum):
@@ -31,8 +30,8 @@ class GoldsetEntry:
     claim_id: str
     claim_text: str
     expected_label: GoldsetLabel
-    evidence_text: Optional[str] = None
-    source_locator: Optional[str] = None
+    evidence_text: str | None = None
+    source_locator: str | None = None
     notes: str = ""
     metadata: dict = field(default_factory=dict)
 
@@ -48,7 +47,7 @@ class GoldsetEntry:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "GoldsetEntry":
+    def from_dict(cls, data: dict) -> GoldsetEntry:
         return cls(
             claim_id=data["claim_id"],
             claim_text=data["claim_text"],
@@ -60,7 +59,7 @@ class GoldsetEntry:
         )
 
 
-def validate_goldset(entries: List[GoldsetEntry]) -> tuple[bool, List[str]]:
+def validate_goldset(entries: list[GoldsetEntry]) -> tuple[bool, list[str]]:
     """Validate a goldset.
 
     Args:
@@ -93,7 +92,7 @@ def validate_goldset(entries: List[GoldsetEntry]) -> tuple[bool, List[str]]:
     return len(issues) == 0, issues
 
 
-def load_goldset(path: str) -> List[GoldsetEntry]:
+def load_goldset(path: str) -> list[GoldsetEntry]:
     """Load goldset from JSONL file.
 
     Args:
@@ -103,7 +102,7 @@ def load_goldset(path: str) -> List[GoldsetEntry]:
         List of goldset entries.
     """
     entries = []
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if line:
@@ -112,7 +111,7 @@ def load_goldset(path: str) -> List[GoldsetEntry]:
     return entries
 
 
-def save_goldset(entries: List[GoldsetEntry], path: str) -> None:
+def save_goldset(entries: list[GoldsetEntry], path: str) -> None:
     """Save goldset to JSONL file.
 
     Args:
@@ -125,7 +124,7 @@ def save_goldset(entries: List[GoldsetEntry], path: str) -> None:
             f.write(json.dumps(entry.to_dict(), ensure_ascii=False) + "\n")
 
 
-def create_sample_goldset() -> List[GoldsetEntry]:
+def create_sample_goldset() -> list[GoldsetEntry]:
     """Create sample goldset for testing."""
     return [
         GoldsetEntry(

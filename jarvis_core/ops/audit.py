@@ -7,11 +7,10 @@ JARVIS Audit Module - 監査ログ
 from __future__ import annotations
 
 import json
-import os
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass
@@ -22,14 +21,14 @@ class AuditEntry:
     stage: str
     action: str
     actor: str = "system"
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
     provenance_rate: float = 0.0
     success: bool = True
-    error: Optional[str] = None
-    
-    def to_dict(self) -> Dict[str, Any]:
+    error: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
-    
+
     def to_json(self) -> str:
         return json.dumps(self.to_dict(), ensure_ascii=False)
 
@@ -40,18 +39,18 @@ class AuditLogger:
     
     全ての実行を記録し、説明可能性を担保。
     """
-    
-    def __init__(self, log_dir: Optional[Path] = None):
+
+    def __init__(self, log_dir: Path | None = None):
         self.log_dir = log_dir or Path("artifacts/audit")
         self.log_dir.mkdir(parents=True, exist_ok=True)
-        self.entries: List[AuditEntry] = []
+        self.entries: list[AuditEntry] = []
         self.run_id = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    
-    def log(self, stage: str, action: str, 
-            details: Optional[Dict] = None,
+
+    def log(self, stage: str, action: str,
+            details: dict | None = None,
             provenance_rate: float = 0.0,
             success: bool = True,
-            error: Optional[str] = None) -> AuditEntry:
+            error: str | None = None) -> AuditEntry:
         """監査ログを記録."""
         entry = AuditEntry(
             timestamp=datetime.utcnow().isoformat(),
@@ -63,27 +62,27 @@ class AuditLogger:
             success=success,
             error=error
         )
-        
+
         self.entries.append(entry)
         self._write_entry(entry)
-        
+
         return entry
-    
+
     def _write_entry(self, entry: AuditEntry) -> None:
         """エントリをファイルに書き込み."""
         log_file = self.log_dir / f"audit_{self.run_id}.jsonl"
         with open(log_file, "a", encoding="utf-8") as f:
             f.write(entry.to_json() + "\n")
-    
-    def get_summary(self) -> Dict[str, Any]:
+
+    def get_summary(self) -> dict[str, Any]:
         """サマリーを取得."""
         if not self.entries:
             return {"run_id": self.run_id, "entries": 0}
-        
+
         stages = list(set(e.stage for e in self.entries))
         errors = [e for e in self.entries if not e.success]
         avg_provenance = sum(e.provenance_rate for e in self.entries) / len(self.entries)
-        
+
         return {
             "run_id": self.run_id,
             "entries": len(self.entries),
@@ -93,7 +92,7 @@ class AuditLogger:
             "start_time": self.entries[0].timestamp,
             "end_time": self.entries[-1].timestamp
         }
-    
+
     def export_html(self) -> str:
         """HTML形式でエクスポート."""
         html = f"""<!DOCTYPE html>
@@ -134,11 +133,11 @@ class AuditLogger:
             <td class="{status_class}">{status_text}</td>
         </tr>
 """
-        
+
         html += """    </table>
 </body>
 </html>"""
-        
+
         return html
 
 
@@ -148,7 +147,7 @@ class FailureDiagnoser:
     
     パイプライン失敗の原因を分類。
     """
-    
+
     FAILURE_TYPES = {
         "provenance": ["evidence", "provenance", "根拠"],
         "timeout": ["timeout", "timed out", "タイムアウト"],
@@ -157,11 +156,11 @@ class FailureDiagnoser:
         "dependency": ["import", "module", "dependency", "依存"],
         "network": ["connection", "network", "API", "ネットワーク"],
     }
-    
-    def diagnose(self, error_message: str) -> Dict[str, Any]:
+
+    def diagnose(self, error_message: str) -> dict[str, Any]:
         """失敗を診断."""
         error_lower = error_message.lower()
-        
+
         for failure_type, keywords in self.FAILURE_TYPES.items():
             if any(kw.lower() in error_lower for kw in keywords):
                 return {
@@ -169,13 +168,13 @@ class FailureDiagnoser:
                     "keywords_matched": [kw for kw in keywords if kw.lower() in error_lower],
                     "recommendation": self._get_recommendation(failure_type)
                 }
-        
+
         return {
             "type": "unknown",
             "keywords_matched": [],
             "recommendation": "エラーメッセージを確認してください"
         }
-    
+
     def _get_recommendation(self, failure_type: str) -> str:
         """推奨対応を取得."""
         recommendations = {
@@ -195,8 +194,8 @@ class CacheOptimizer:
     
     キャッシュのヒット率と効率を監視。
     """
-    
-    def __init__(self, cache_dir: Optional[Path] = None):
+
+    def __init__(self, cache_dir: Path | None = None):
         self.cache_dir = cache_dir or Path("artifacts/cache")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.stats = {
@@ -204,51 +203,50 @@ class CacheOptimizer:
             "misses": 0,
             "size_bytes": 0
         }
-    
+
     def record_hit(self) -> None:
         """キャッシュヒットを記録."""
         self.stats["hits"] += 1
-    
+
     def record_miss(self) -> None:
         """キャッシュミスを記録."""
         self.stats["misses"] += 1
-    
+
     def get_hit_rate(self) -> float:
         """ヒット率を取得."""
         total = self.stats["hits"] + self.stats["misses"]
         return self.stats["hits"] / total if total > 0 else 0.0
-    
-    def get_stats(self) -> Dict[str, Any]:
+
+    def get_stats(self) -> dict[str, Any]:
         """統計を取得."""
         return {
             **self.stats,
             "hit_rate": self.get_hit_rate()
         }
-    
-    def optimize(self) -> Dict[str, Any]:
+
+    def optimize(self) -> dict[str, Any]:
         """キャッシュを最適化."""
-        import shutil
-        
+
         # Calculate cache size
         total_size = 0
         file_count = 0
-        
+
         if self.cache_dir.exists():
             for f in self.cache_dir.rglob("*"):
                 if f.is_file():
                     total_size += f.stat().st_size
                     file_count += 1
-        
+
         self.stats["size_bytes"] = total_size
-        
+
         # If cache too large (> 1GB), clear old entries
         MAX_SIZE = 1024 * 1024 * 1024  # 1GB
         cleared = False
-        
+
         if total_size > MAX_SIZE:
             # Clear oldest files (would implement LRU in production)
             cleared = True
-        
+
         return {
             "total_size_mb": total_size / (1024 * 1024),
             "file_count": file_count,
@@ -258,7 +256,7 @@ class CacheOptimizer:
 
 
 # グローバルインスタンス
-_audit_logger: Optional[AuditLogger] = None
+_audit_logger: AuditLogger | None = None
 
 
 def get_audit_logger() -> AuditLogger:

@@ -4,8 +4,7 @@ Per V4.2 Sprint 3, this redacts PII from text.
 """
 from __future__ import annotations
 
-from typing import List, Dict, Any
-from .pii_scan import PIIScanner, PIIMatch, PIIType
+from .pii_scan import PIIScanner
 
 
 class Redactor:
@@ -19,7 +18,7 @@ class Redactor:
         self.scanner = PIIScanner()
         self.replacement_char = replacement_char
         self.preserve_format = preserve_format
-        self.redaction_log: List[Dict] = []
+        self.redaction_log: list[dict] = []
 
     def redact_text(self, text: str) -> str:
         """Redact PII from text.

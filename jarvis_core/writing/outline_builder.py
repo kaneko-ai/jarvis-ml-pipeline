@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, List, Optional
 
 from .citation_formatter import EvidenceLocator, format_evidence_locator, has_weak_evidence
 
@@ -14,10 +14,10 @@ class ClaimDatum:
     """Normalized claim information for drafting."""
 
     text: str
-    evidence: List[EvidenceLocator]
+    evidence: list[EvidenceLocator]
     weak: bool = False
-    score: Optional[float] = None
-    claim_id: Optional[str] = None
+    score: float | None = None
+    claim_id: str | None = None
 
 
 @dataclass
@@ -25,15 +25,15 @@ class Section:
     """Draft section container."""
 
     title: str
-    paragraphs: List[str]
+    paragraphs: list[str]
 
 
 def load_template(path: Path) -> dict:
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
-def _sorted_claims(claims: Iterable[ClaimDatum]) -> List[ClaimDatum]:
+def _sorted_claims(claims: Iterable[ClaimDatum]) -> list[ClaimDatum]:
     claims_list = list(claims)
     scored = [c for c in claims_list if c.score is not None]
     if scored:
@@ -58,8 +58,8 @@ def _fallback_paragraph(label: str) -> str:
 def build_research_plan_sections(
     claims: Iterable[ClaimDatum],
     overview_text: str,
-    references: List[str],
-) -> List[Section]:
+    references: list[str],
+) -> list[Section]:
     ordered = _sorted_claims(claims)
     top_claim = ordered[0] if ordered else None
 
@@ -84,14 +84,14 @@ def build_research_plan_sections(
         [_paragraph_from_claim(hypothesis_claim, prefix="仮説: ")] if hypothesis_claim else [_fallback_paragraph("仮説を設定してください。")]
     )
 
-    aim_paragraphs: List[str] = []
+    aim_paragraphs: list[str] = []
     for idx in range(3):
         if idx < len(ordered):
             aim_paragraphs.append(_paragraph_from_claim(ordered[idx], prefix=f"Aim {idx + 1}: "))
         else:
             aim_paragraphs.append(_fallback_paragraph(f"Aim {idx + 1}: [[YOUR_DATA_HERE]]"))
 
-    approach_paragraphs: List[str] = []
+    approach_paragraphs: list[str] = []
     for idx in range(3):
         claim = ordered[idx] if idx < len(ordered) else top_claim
         if claim:
@@ -138,8 +138,8 @@ def build_research_plan_sections(
 
 def build_thesis_outline_sections(
     claims: Iterable[ClaimDatum],
-    references: List[str],
-) -> List[Section]:
+    references: list[str],
+) -> list[Section]:
     ordered = _sorted_claims(claims)
     top_claim = ordered[0] if ordered else None
 
@@ -158,7 +158,7 @@ def build_thesis_outline_sections(
         _fallback_paragraph("[[LAB_TERMS_CHECK]] ラボ用語整合の確認"),
     ]
 
-    results_paragraphs: List[str] = []
+    results_paragraphs: list[str] = []
     for idx, claim in enumerate(ordered[:5], start=1):
         results_paragraphs.append(_paragraph_from_claim(claim, prefix=f"結果{idx}: "))
     if not results_paragraphs:
@@ -187,10 +187,10 @@ def build_thesis_outline_sections(
 
 def build_thesis_draft_sections(
     claims: Iterable[ClaimDatum],
-    references: List[str],
-) -> List[Section]:
+    references: list[str],
+) -> list[Section]:
     sections = build_thesis_outline_sections(claims, references)
-    expanded_sections: List[Section] = []
+    expanded_sections: list[Section] = []
     for section in sections:
         if section.title.startswith("結果"):
             expanded_sections.append(section)

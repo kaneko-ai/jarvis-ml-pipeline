@@ -4,9 +4,7 @@ Per PR-101, prevents path traversal attacks.
 """
 from __future__ import annotations
 
-import os
 from pathlib import Path
-from typing import Optional
 
 
 class PathTraversalError(Exception):

@@ -12,7 +12,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .evaluator_v2 import ScoreBreakdown
 
@@ -50,11 +50,11 @@ class JudgmentDecision:
     status: DecisionStatus
     scores: ScoreBreakdown
     decision_reason: str
-    reject_reason: Optional[RejectReason] = None
-    reject_detail: Optional[str] = None
+    reject_reason: RejectReason | None = None
+    reject_detail: str | None = None
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """辞書に変換."""
         result = {
             "item_id": self.item_id,
@@ -80,7 +80,7 @@ class DecisionMaker:
     THEN ACCEPT
     ELSE REJECT
     """
-    
+
     # 閾値（固定）
     THRESHOLDS = {
         "relevance": 4,
@@ -88,7 +88,7 @@ class DecisionMaker:
         "effort": 3,
         "risk": 3,
     }
-    
+
     def decide(
         self,
         item_id: str,
@@ -108,7 +108,7 @@ class DecisionMaker:
         """
         # 判断ルール適用
         failures = self._check_thresholds(scores)
-        
+
         if not failures:
             status = DecisionStatus.ACCEPT
             reason = self._generate_accept_reason(scores)
@@ -118,7 +118,7 @@ class DecisionMaker:
             status = DecisionStatus.REJECT
             reject_reason, reject_detail = self._classify_reject(failures, scores)
             reason = f"Rejected: {reject_reason.value}"
-        
+
         decision = JudgmentDecision(
             item_id=item_id,
             title=title,
@@ -128,14 +128,14 @@ class DecisionMaker:
             reject_reason=reject_reason,
             reject_detail=reject_detail,
         )
-        
+
         logger.info(f"Decision for '{title}': {status.value}")
         return decision
-    
-    def _check_thresholds(self, scores: ScoreBreakdown) -> List[str]:
+
+    def _check_thresholds(self, scores: ScoreBreakdown) -> list[str]:
         """閾値チェック."""
         failures = []
-        
+
         if scores.relevance.score < self.THRESHOLDS["relevance"]:
             failures.append("relevance")
         if scores.evidence.score < self.THRESHOLDS["evidence"]:
@@ -144,12 +144,12 @@ class DecisionMaker:
             failures.append("effort")
         if scores.risk.score < self.THRESHOLDS["risk"]:
             failures.append("risk")
-        
+
         return failures
-    
+
     def _classify_reject(
         self,
-        failures: List[str],
+        failures: list[str],
         scores: ScoreBreakdown
     ) -> tuple[RejectReason, str]:
         """Reject理由を分類."""
@@ -174,20 +174,20 @@ class DecisionMaker:
                 RejectReason.RISK_TOO_HIGH,
                 f"Risk score {scores.risk.score} < {self.THRESHOLDS['risk']}"
             )
-        
+
         return (RejectReason.PREMATURE, "Does not meet criteria")
-    
+
     def _generate_accept_reason(self, scores: ScoreBreakdown) -> str:
         """Accept理由を生成."""
         strengths = []
-        
+
         if scores.relevance.score >= 4:
             strengths.append(f"High relevance ({scores.relevance.score})")
         if scores.evidence.score >= 4:
             strengths.append(f"Strong evidence ({scores.evidence.score})")
         if scores.novelty.score >= 4:
             strengths.append(f"Novel ({scores.novelty.score})")
-        
+
         if strengths:
             return "Accepted: " + ", ".join(strengths)
         return f"Accepted: Meets all thresholds (avg={scores.average:.1f})"

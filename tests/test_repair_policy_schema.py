@@ -2,8 +2,9 @@
 
 Per RP-183.
 """
-import pytest
 import json
+
+import pytest
 
 pytestmark = pytest.mark.core
 

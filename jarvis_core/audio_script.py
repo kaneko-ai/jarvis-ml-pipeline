@@ -7,16 +7,16 @@ Per RP25, this creates a script structured for verbal presentation.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .result import EvidenceQAResult
     from .reference import Reference
+    from .result import EvidenceQAResult
 
 
 def export_podcast_script(
-    result: "EvidenceQAResult",
-    references: List["Reference"] | None = None,
+    result: EvidenceQAResult,
+    references: list[Reference] | None = None,
     duration_target: str = "5-7 min",
 ) -> str:
     """Generate a podcast-style script from research results.

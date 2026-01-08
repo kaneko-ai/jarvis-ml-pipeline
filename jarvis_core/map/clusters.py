@@ -4,15 +4,15 @@ Per V4-M03, this builds cluster maps for field overview.
 """
 from __future__ import annotations
 
-from typing import List, Dict, TYPE_CHECKING
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..paper_vector import PaperVector
 
 
 def build_cluster_map(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     num_clusters: int = 5,
 ) -> dict:
     """Build cluster map from papers.

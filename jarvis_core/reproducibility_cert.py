@@ -4,7 +4,7 @@ Per Ψ-3, this certifies reproducibility of hypotheses.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 def certify_reproducibility(
     hypothesis: str,
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
 ) -> dict:
     """Certify reproducibility score for a hypothesis.
 

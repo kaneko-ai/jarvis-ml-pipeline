@@ -1,19 +1,19 @@
 """JARVIS Contracts Module - I/O契約"""
 from .types import (
+    Artifacts,
+    ArtifactsDelta,
     # Enums
     CachePolicy,
+    Claim,
     DeviceType,
+    EvidenceLink,
+    Metrics,
+    Paper,
+    ResultBundle,
     # Core types
     RuntimeConfig,
-    TaskContext,
-    EvidenceLink,
-    Claim,
-    Paper,
     Score,
-    Artifacts,
-    Metrics,
-    ResultBundle,
-    ArtifactsDelta,
+    TaskContext,
 )
 
 __all__ = [

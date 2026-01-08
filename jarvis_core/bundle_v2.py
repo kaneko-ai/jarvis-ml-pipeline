@@ -11,10 +11,10 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from .artifacts.schema import ArtifactBase, Provenance
-from .audit.report import generate_audit_report, AuditReport
+from .artifacts.schema import ArtifactBase
+from .audit.report import AuditReport, generate_audit_report
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -26,18 +26,18 @@ class BundleV2:
     VERSION = "2.0"
 
     def __init__(self):
-        self.artifacts: List[ArtifactBase] = []
-        self.vectors: List["PaperVector"] = []
-        self.evidence_chunks: Dict[str, str] = {}
-        self.scoring_snapshot: Dict[str, Any] = {}
+        self.artifacts: list[ArtifactBase] = []
+        self.vectors: list[PaperVector] = []
+        self.evidence_chunks: dict[str, str] = {}
+        self.scoring_snapshot: dict[str, Any] = {}
         self.created_at: datetime = datetime.now()
-        self.metadata: Dict[str, Any] = {}
+        self.metadata: dict[str, Any] = {}
 
     def add_artifact(self, artifact: ArtifactBase) -> None:
         """Add an artifact to the bundle."""
         self.artifacts.append(artifact)
 
-    def add_vector(self, vector: "PaperVector") -> None:
+    def add_vector(self, vector: PaperVector) -> None:
         """Add a paper vector to the bundle."""
         self.vectors.append(vector)
 
@@ -45,11 +45,11 @@ class BundleV2:
         """Add evidence chunk."""
         self.evidence_chunks[chunk_id] = text
 
-    def set_scoring_snapshot(self, snapshot: Dict[str, Any]) -> None:
+    def set_scoring_snapshot(self, snapshot: dict[str, Any]) -> None:
         """Set scoring registry snapshot."""
         self.scoring_snapshot = snapshot
 
-    def generate_audit(self) -> List[AuditReport]:
+    def generate_audit(self) -> list[AuditReport]:
         """Generate audit reports for all artifacts."""
         return [generate_audit_report(a) for a in self.artifacts]
 
@@ -106,7 +106,7 @@ class BundleV2:
         return str(out_path)
 
     @classmethod
-    def load(cls, bundle_path: str) -> "BundleV2":
+    def load(cls, bundle_path: str) -> BundleV2:
         """Load bundle from directory."""
         path = Path(bundle_path)
         bundle = cls()
@@ -114,7 +114,7 @@ class BundleV2:
         # Load bundle.json
         bundle_file = path / "bundle.json"
         if bundle_file.exists():
-            with open(bundle_file, "r", encoding="utf-8") as f:
+            with open(bundle_file, encoding="utf-8") as f:
                 data = json.load(f)
                 bundle.metadata = data.get("metadata", {})
                 bundle.scoring_snapshot = data.get("scoring_snapshot", {})
@@ -131,9 +131,9 @@ class BundleV2:
 
 
 def create_bundle_v2(
-    artifacts: List[ArtifactBase],
-    vectors: List["PaperVector"] = None,
-    metadata: Dict[str, Any] = None,
+    artifacts: list[ArtifactBase],
+    vectors: list[PaperVector] = None,
+    metadata: dict[str, Any] = None,
 ) -> BundleV2:
     """Factory function to create Bundle v2.
 

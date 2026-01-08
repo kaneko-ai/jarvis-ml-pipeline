@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Any
+from typing import Any
 
 from .llm import LLMClient, Message
 
@@ -25,8 +25,8 @@ class AgentResult:
 
     status: str  # "success" | "fail" | "partial"
     answer: str
-    citations: List[Citation] = field(default_factory=list)
-    meta: Dict[str, Any] | None = None
+    citations: list[Citation] = field(default_factory=list)
+    meta: dict[str, Any] | None = None
 
 
 class BaseAgent:
@@ -43,7 +43,7 @@ class BaseAgent:
 
     def run_sampling(
         self, llm: LLMClient, task: str, n_candidates: int
-    ) -> List[AgentResult]:
+    ) -> list[AgentResult]:
         """
         Verbalized Sampling:
         - n_candidates 個の案をJSON形式で生成させる
@@ -77,7 +77,7 @@ class BaseAgent:
             single = self.run_single(llm, task)
             return [single]
 
-        results: List[AgentResult] = []
+        results: list[AgentResult] = []
         for item in parsed[:n_candidates]:
             answer = self._extract_answer(item.get("answer", ""))
             if answer:

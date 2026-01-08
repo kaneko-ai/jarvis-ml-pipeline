@@ -1,6 +1,6 @@
-from pathlib import Path
 import sys
 import types
+from pathlib import Path
 
 # Stub google modules before importing executor/router to avoid optional dependency errors
 google_stub = types.ModuleType("google")

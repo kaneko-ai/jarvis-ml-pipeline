@@ -6,13 +6,13 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
 from enum import Enum
+from typing import Any
 
 
 class QueryType(Enum):
     """Types of research queries."""
-    
+
     MECHANISM = "mechanism"  # How does X work?
     COMPARISON = "comparison"  # X vs Y
     TREATMENT = "treatment"  # How to treat X?
@@ -26,33 +26,33 @@ class QueryType(Enum):
 @dataclass
 class ParsedEntity:
     """An extracted entity from query."""
-    
+
     text: str
     entity_type: str  # gene, disease, drug, etc.
-    normalized: Optional[str] = None
+    normalized: str | None = None
     confidence: float = 1.0
 
 
 @dataclass
 class TimeRange:
     """Time range constraint."""
-    
-    start_year: Optional[int] = None
-    end_year: Optional[int] = None
+
+    start_year: int | None = None
+    end_year: int | None = None
     description: str = ""
 
 
 @dataclass
 class ParsedQuery:
     """Result of query parsing."""
-    
+
     original: str
     query_type: QueryType
-    entities: List[ParsedEntity] = field(default_factory=list)
-    time_range: Optional[TimeRange] = None
-    keywords: List[str] = field(default_factory=list)
+    entities: list[ParsedEntity] = field(default_factory=list)
+    time_range: TimeRange | None = None
+    keywords: list[str] = field(default_factory=list)
     intent_description: str = ""
-    constraints: Dict[str, Any] = field(default_factory=dict)
+    constraints: dict[str, Any] = field(default_factory=dict)
 
 
 class QueryUnderstanding:
@@ -63,7 +63,7 @@ class QueryUnderstanding:
     - Extracts entities (diseases, genes, drugs)
     - Parses time range (past 5 years, since 2020)
     """
-    
+
     # Query type patterns
     TYPE_PATTERNS = [
         (r"(?i)\bhow\s+does\b|\bmechanism\b|\bpathway\b", QueryType.MECHANISM),
@@ -73,7 +73,7 @@ class QueryUnderstanding:
         (r"(?i)\bwhat\s+is\b|\bdefine\b|\bdefinition\b", QueryType.DEFINITION),
         (r"(?i)\breview\b|\boverview\b|\bsummary\b|\bstate\s+of\b", QueryType.REVIEW),
     ]
-    
+
     # Time range patterns
     TIME_PATTERNS = [
         (r"(?i)past\s+(\d+)\s+years?", "past_years"),
@@ -84,17 +84,17 @@ class QueryUnderstanding:
         (r"(?i)in\s+(\d{4})", "in_year"),
         (r"(?i)recent|latest|new", "recent"),
     ]
-    
+
     # Entity patterns (simplified)
     ENTITY_PATTERNS = [
         (r"\b([A-Z][A-Z0-9]{2,})\b", "gene"),  # Gene symbols like CD73, EGFR
         (r"(?i)\b(cancer|tumor|carcinoma|lymphoma|leukemia)\b", "disease"),
         (r"(?i)\b(\w+inib|\w+mab|\w+zumab)\b", "drug"),  # Drug suffixes
     ]
-    
+
     def __init__(self, current_year: int = 2024):
         self.current_year = current_year
-    
+
     def parse(self, query: str) -> ParsedQuery:
         """Parse a query.
         
@@ -108,33 +108,33 @@ class QueryUnderstanding:
             original=query,
             query_type=self._classify_type(query),
         )
-        
+
         # Extract entities
         result.entities = self._extract_entities(query)
-        
+
         # Parse time range
         result.time_range = self._parse_time_range(query)
-        
+
         # Extract keywords
         result.keywords = self._extract_keywords(query)
-        
+
         # Generate intent description
         result.intent_description = self._describe_intent(result)
-        
+
         return result
-    
+
     def _classify_type(self, query: str) -> QueryType:
         """Classify query type."""
         for pattern, query_type in self.TYPE_PATTERNS:
             if re.search(pattern, query):
                 return query_type
         return QueryType.UNKNOWN
-    
-    def _extract_entities(self, query: str) -> List[ParsedEntity]:
+
+    def _extract_entities(self, query: str) -> list[ParsedEntity]:
         """Extract entities from query."""
         entities = []
         seen = set()
-        
+
         for pattern, entity_type in self.ENTITY_PATTERNS:
             for match in re.finditer(pattern, query):
                 text = match.group(1)
@@ -144,10 +144,10 @@ class QueryUnderstanding:
                         text=text,
                         entity_type=entity_type,
                     ))
-        
+
         return entities
-    
-    def _parse_time_range(self, query: str) -> Optional[TimeRange]:
+
+    def _parse_time_range(self, query: str) -> TimeRange | None:
         """Parse time range from query."""
         for pattern, range_type in self.TIME_PATTERNS:
             match = re.search(pattern, query)
@@ -194,10 +194,10 @@ class QueryUnderstanding:
                         end_year=self.current_year,
                         description="Recent (past 3 years)",
                     )
-        
+
         return None
-    
-    def _extract_keywords(self, query: str) -> List[str]:
+
+    def _extract_keywords(self, query: str) -> list[str]:
         """Extract important keywords."""
         # Remove stopwords and extract significant terms
         stopwords = {
@@ -213,17 +213,17 @@ class QueryUnderstanding:
             "very", "just", "what", "how", "why", "when", "where",
             "which", "who", "whom", "this", "that", "these", "those",
         }
-        
+
         # Tokenize and filter
         words = re.findall(r"\b\w+\b", query.lower())
         keywords = [w for w in words if w not in stopwords and len(w) > 2]
-        
+
         return list(dict.fromkeys(keywords))  # Dedupe while preserving order
-    
+
     def _describe_intent(self, parsed: ParsedQuery) -> str:
         """Generate human-readable intent description."""
         parts = []
-        
+
         # Query type
         type_desc = {
             QueryType.MECHANISM: "Understanding the mechanism of",
@@ -236,14 +236,14 @@ class QueryUnderstanding:
             QueryType.UNKNOWN: "Searching for",
         }
         parts.append(type_desc.get(parsed.query_type, "Searching for"))
-        
+
         # Entities
         if parsed.entities:
             entity_names = [e.text for e in parsed.entities[:3]]
             parts.append(", ".join(entity_names))
-        
+
         # Time range
         if parsed.time_range:
             parts.append(f"({parsed.time_range.description})")
-        
+
         return " ".join(parts)

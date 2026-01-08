@@ -6,24 +6,22 @@ Per RP23, these tests verify:
 - VectorRetriever build/search
 - ExecutionContext integration
 """
-from pathlib import Path
 import sys
-
-import pytest
+from pathlib import Path
 
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from jarvis_core.evidence import EvidenceStore
+from jarvis_core.sources import ChunkResult, ExecutionContext
 from jarvis_core.vector_index import (
-    dummy_embed,
-    cosine_similarity,
     VectorRetriever,
+    cosine_similarity,
+    dummy_embed,
     get_relevant_chunks_vector,
 )
-from jarvis_core.sources import ChunkResult, ExecutionContext
-from jarvis_core.evidence import EvidenceStore
 
 
 class TestDummyEmbed:

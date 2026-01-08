@@ -3,9 +3,8 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
-from typing import Dict
 
-from .schema import DecisionComparison, DISCLAIMER_TEXT
+from .schema import DISCLAIMER_TEXT, DecisionComparison
 
 
 def build_markdown_report(comparison: DecisionComparison) -> str:
@@ -61,7 +60,7 @@ def build_html_report(markdown_report: str) -> str:
     )
 
 
-def write_report_files(comparison: DecisionComparison, output_dir: Path) -> Dict[str, Path]:
+def write_report_files(comparison: DecisionComparison, output_dir: Path) -> dict[str, Path]:
     """Write markdown and HTML reports to disk."""
     output_dir.mkdir(parents=True, exist_ok=True)
     markdown = build_markdown_report(comparison)

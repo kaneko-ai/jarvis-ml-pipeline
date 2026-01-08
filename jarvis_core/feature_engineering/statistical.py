@@ -3,14 +3,14 @@
 Extracts features related to statistical strength and study design quality
 to improve ranking of evidence.
 """
-import re
-from typing import Dict, Any, Optional
 import logging
+import re
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-def extract_sample_size(text: str) -> Optional[int]:
+def extract_sample_size(text: str) -> int | None:
     """Extract sample size (N) from text.
     
     Args:
@@ -27,7 +27,7 @@ def extract_sample_size(text: str) -> Optional[int]:
         r"(\d+) participants",
         r"(\d+) cases"
     ]
-    
+
     for pattern in patterns:
         matches = re.findall(pattern, text, re.IGNORECASE)
         if matches:
@@ -37,11 +37,11 @@ def extract_sample_size(text: str) -> Optional[int]:
                 return max(nums)
             except ValueError:
                 continue
-    
+
     return None
 
 
-def extract_p_value(text: str) -> Optional[float]:
+def extract_p_value(text: str) -> float | None:
     """Extract smallest p-value mentioned.
     
     Args:
@@ -53,7 +53,7 @@ def extract_p_value(text: str) -> Optional[float]:
     # Patterns for p-values
     # p < 0.05, p=0.001, etc.
     pattern = r"p\s*[<>=]\s*([0]\.\d+|0\.\d+e-\d+)"
-    
+
     matches = re.findall(pattern, text, re.IGNORECASE)
     if matches:
         try:
@@ -61,7 +61,7 @@ def extract_p_value(text: str) -> Optional[float]:
             return min(p_values)
         except ValueError:
             pass
-            
+
     return None
 
 
@@ -75,29 +75,29 @@ def detect_study_design(text: str) -> str:
         Design type (rct, cohort, case_control, preclinical, review, unknown)
     """
     text_lower = text.lower()
-    
+
     if "meta-analysis" in text_lower or "systematic review" in text_lower:
         return "meta_analysis"
-    
+
     if "randomized" in text_lower and "trial" in text_lower:
         return "rct"
-    
+
     if "cohort" in text_lower or "longitudinal" in text_lower:
         return "cohort"
-    
+
     if "case-control" in text_lower or "retrospective" in text_lower:
         return "case_control"
-        
+
     if "in vivo" in text_lower or "mice" in text_lower or "xenograft" in text_lower:
         return "preclinical"
-        
+
     if "review" in text_lower:
         return "review"
-        
+
     return "unknown"
 
 
-def extract_statistical_features(paper: Dict[str, Any]) -> Dict[str, float]:
+def extract_statistical_features(paper: dict[str, Any]) -> dict[str, float]:
     """Extract statistical features from paper.
     
     Args:
@@ -114,14 +114,14 @@ def extract_statistical_features(paper: Dict[str, Any]) -> Dict[str, float]:
             "statistical_significance": 0.0,
             "study_design_score": 0.0
         }
-    
+
     # 1. Sample Size
     n = extract_sample_size(text)
     import math
     # Log transform N (cap at N=1000 -> 3.0)
     log_n = math.log10(n) if n and n > 0 else 0.0
     log_n = min(log_n, 4.0) / 4.0  # Normalize to 0-1 range (assuming max N=10000)
-    
+
     # 2. P-value
     p = extract_p_value(text)
     # Score: 1.0 for p<0.001, 0.8 for p<0.01, 0.5 for p<0.05, 0.0 otherwise
@@ -136,7 +136,7 @@ def extract_statistical_features(paper: Dict[str, Any]) -> Dict[str, float]:
             sig_score = 0.2
     else:
         sig_score = 0.0
-        
+
     # 3. Study Design
     design = detect_study_design(text)
     # Hierarchy of evidence
@@ -150,7 +150,7 @@ def extract_statistical_features(paper: Dict[str, Any]) -> Dict[str, float]:
         "unknown": 0.2
     }
     design_score = design_scores.get(design, 0.2)
-    
+
     return {
         "has_stats": 1.0 if (n is not None or p is not None) else 0.0,
         "log_sample_size": log_n,

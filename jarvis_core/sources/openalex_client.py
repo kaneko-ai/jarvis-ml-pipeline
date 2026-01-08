@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import requests
 
@@ -23,17 +23,17 @@ class OpenAlexWork:
     openalex_id: str
     title: str
     abstract: str = ""
-    authors: List[str] = field(default_factory=list)
-    publication_year: Optional[int] = None
+    authors: list[str] = field(default_factory=list)
+    publication_year: int | None = None
     publication_date: str = ""
     venue: str = ""
     cited_by_count: int = 0
-    doi: Optional[str] = None
-    pmid: Optional[str] = None
-    concepts: List[str] = field(default_factory=list)
-    open_access_url: Optional[str] = None
-    
-    def to_dict(self) -> Dict[str, Any]:
+    doi: str | None = None
+    pmid: str | None = None
+    concepts: list[str] = field(default_factory=list)
+    open_access_url: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
         return {
             "openalex_id": self.openalex_id,
             "title": self.title,
@@ -55,44 +55,44 @@ class OpenAlexClient:
     
     Completely free, 100k requests per day with polite pool.
     """
-    
+
     def __init__(
         self,
-        email: Optional[str] = None,
+        email: str | None = None,
         rate_limit: float = 0.1,  # 10 requests/second
     ):
         self.email = email
         self.rate_limit = rate_limit
         self._last_request_time = 0.0
         self._session = requests.Session()
-        
+
         # Polite pool with email gets higher rate limit
         if email:
             self._session.headers["User-Agent"] = f"JARVIS-Research-OS ({email})"
-    
+
     def _rate_limit_wait(self) -> None:
         """Wait for rate limiting."""
         elapsed = time.time() - self._last_request_time
         if elapsed < self.rate_limit:
             time.sleep(self.rate_limit - elapsed)
         self._last_request_time = time.time()
-    
-    def _build_params(self, **kwargs) -> Dict[str, Any]:
+
+    def _build_params(self, **kwargs) -> dict[str, Any]:
         """Build request parameters."""
         params = {k: v for k, v in kwargs.items() if v is not None}
         if self.email:
             params["mailto"] = self.email
         return params
-    
+
     def search(
         self,
         query: str,
         per_page: int = 25,
         page: int = 1,
         filter_open_access: bool = False,
-        from_year: Optional[int] = None,
-        to_year: Optional[int] = None,
-    ) -> List[OpenAlexWork]:
+        from_year: int | None = None,
+        to_year: int | None = None,
+    ) -> list[OpenAlexWork]:
         """Search for works.
         
         Args:
@@ -107,9 +107,9 @@ class OpenAlexClient:
             List of OpenAlexWork objects.
         """
         self._rate_limit_wait()
-        
+
         url = f"{OPENALEX_API_BASE}/works"
-        
+
         # Build filter
         filters = []
         if filter_open_access:
@@ -118,28 +118,28 @@ class OpenAlexClient:
             filters.append(f"from_publication_date:{from_year}-01-01")
         if to_year:
             filters.append(f"to_publication_date:{to_year}-12-31")
-        
+
         params = self._build_params(
             search=query,
             per_page=min(per_page, 200),
             page=page,
             filter=",".join(filters) if filters else None,
         )
-        
+
         try:
             response = self._session.get(url, params=params, timeout=30)
             response.raise_for_status()
             data = response.json()
-            
+
             works = [self._parse_work(w) for w in data.get("results", [])]
             logger.info(f"OpenAlex search '{query[:50]}...' returned {len(works)} results")
             return works
-            
+
         except requests.RequestException as e:
             logger.error(f"OpenAlex search error: {e}")
             return []
-    
-    def get_work(self, work_id: str) -> Optional[OpenAlexWork]:
+
+    def get_work(self, work_id: str) -> OpenAlexWork | None:
         """Get work by ID.
         
         Args:
@@ -150,28 +150,28 @@ class OpenAlexClient:
             OpenAlexWork or None.
         """
         self._rate_limit_wait()
-        
+
         # Handle DOI format
         if work_id.startswith("10."):
             work_id = f"https://doi.org/{work_id}"
-        
+
         url = f"{OPENALEX_API_BASE}/works/{work_id}"
         params = self._build_params()
-        
+
         try:
             response = self._session.get(url, params=params, timeout=30)
             response.raise_for_status()
             return self._parse_work(response.json())
-            
+
         except requests.RequestException as e:
             logger.error(f"OpenAlex get work error: {e}")
             return None
-    
+
     def get_citing_works(
         self,
         work_id: str,
         per_page: int = 25,
-    ) -> List[OpenAlexWork]:
+    ) -> list[OpenAlexWork]:
         """Get works that cite this work.
         
         Args:
@@ -182,29 +182,29 @@ class OpenAlexClient:
             List of citing works.
         """
         self._rate_limit_wait()
-        
+
         url = f"{OPENALEX_API_BASE}/works"
         params = self._build_params(
             filter=f"cites:{work_id}",
             per_page=min(per_page, 200),
         )
-        
+
         try:
             response = self._session.get(url, params=params, timeout=30)
             response.raise_for_status()
             data = response.json()
-            
+
             return [self._parse_work(w) for w in data.get("results", [])]
-            
+
         except requests.RequestException as e:
             logger.error(f"OpenAlex citing works error: {e}")
             return []
-    
+
     def get_related_works(
         self,
         work_id: str,
         per_page: int = 10,
-    ) -> List[OpenAlexWork]:
+    ) -> list[OpenAlexWork]:
         """Get related works.
         
         Args:
@@ -215,22 +215,22 @@ class OpenAlexClient:
             List of related works.
         """
         self._rate_limit_wait()
-        
+
         url = f"{OPENALEX_API_BASE}/works/{work_id}/related_works"
         params = self._build_params(per_page=min(per_page, 200))
-        
+
         try:
             response = self._session.get(url, params=params, timeout=30)
             response.raise_for_status()
             data = response.json()
-            
+
             return [self._parse_work(w) for w in data.get("results", [])]
-            
+
         except requests.RequestException as e:
             logger.error(f"OpenAlex related works error: {e}")
             return []
-    
-    def _parse_work(self, data: Dict[str, Any]) -> OpenAlexWork:
+
+    def _parse_work(self, data: dict[str, Any]) -> OpenAlexWork:
         """Parse work from API response."""
         # Extract authors
         authors = []
@@ -238,28 +238,28 @@ class OpenAlexClient:
             author = authorship.get("author", {})
             if author.get("display_name"):
                 authors.append(author["display_name"])
-        
+
         # Extract venue
         venue = ""
         locations = data.get("primary_location") or {}
         source = locations.get("source") or {}
         venue = source.get("display_name", "")
-        
+
         # Extract concepts
         concepts = []
         for concept in data.get("concepts", [])[:5]:
             if concept.get("display_name"):
                 concepts.append(concept["display_name"])
-        
+
         # Extract IDs
         ids = data.get("ids", {})
         doi = ids.get("doi", "").replace("https://doi.org/", "") if ids.get("doi") else None
         pmid = ids.get("pmid", "").replace("https://pubmed.ncbi.nlm.nih.gov/", "") if ids.get("pmid") else None
-        
+
         # Open access URL
         open_access = data.get("open_access", {})
         oa_url = open_access.get("oa_url")
-        
+
         # Abstract (inverted index format)
         abstract = ""
         abstract_inverted = data.get("abstract_inverted_index", {})
@@ -271,7 +271,7 @@ class OpenAlexClient:
                     word_positions.append((pos, word))
             word_positions.sort()
             abstract = " ".join(word for _, word in word_positions)
-        
+
         return OpenAlexWork(
             openalex_id=data.get("id", "").replace("https://openalex.org/", ""),
             title=data.get("title", ""),

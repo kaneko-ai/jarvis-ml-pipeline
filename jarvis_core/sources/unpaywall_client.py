@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import requests
 
@@ -20,14 +20,14 @@ UNPAYWALL_BASE_URL = "https://api.unpaywall.org/v2"
 @dataclass
 class OALocation:
     """Open Access location information."""
-    
+
     url: str
     is_pdf: bool = False
-    version: Optional[str] = None  # "publishedVersion", "acceptedVersion", etc.
-    host_type: Optional[str] = None  # "publisher", "repository"
-    license: Optional[str] = None
-    
-    def to_dict(self) -> Dict[str, Any]:
+    version: str | None = None  # "publishedVersion", "acceptedVersion", etc.
+    host_type: str | None = None  # "publisher", "repository"
+    license: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "url": self.url,
@@ -41,36 +41,36 @@ class OALocation:
 @dataclass
 class UnpaywallResult:
     """Result from Unpaywall API."""
-    
+
     doi: str
     is_oa: bool
-    title: Optional[str] = None
-    best_oa_location: Optional[OALocation] = None
-    oa_locations: List[OALocation] = field(default_factory=list)
-    oa_status: Optional[str] = None  # "gold", "green", "hybrid", "bronze", "closed"
-    publisher: Optional[str] = None
-    journal: Optional[str] = None
-    
-    def get_pdf_url(self) -> Optional[str]:
+    title: str | None = None
+    best_oa_location: OALocation | None = None
+    oa_locations: list[OALocation] = field(default_factory=list)
+    oa_status: str | None = None  # "gold", "green", "hybrid", "bronze", "closed"
+    publisher: str | None = None
+    journal: str | None = None
+
+    def get_pdf_url(self) -> str | None:
         """Get the best PDF URL if available."""
         # First try best_oa_location
         if self.best_oa_location and self.best_oa_location.is_pdf:
             return self.best_oa_location.url
-        
+
         # Look through all locations for a PDF
         for loc in self.oa_locations:
             if loc.is_pdf:
                 return loc.url
-        
+
         # Return any URL if no direct PDF found
         if self.best_oa_location:
             return self.best_oa_location.url
         if self.oa_locations:
             return self.oa_locations[0].url
-        
+
         return None
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "doi": self.doi,
@@ -95,7 +95,7 @@ class UnpaywallClient:
         >>> if result.is_oa:
         ...     print(f"PDF available: {result.get_pdf_url()}")
     """
-    
+
     def __init__(
         self,
         email: str,
@@ -109,8 +109,8 @@ class UnpaywallClient:
         """
         self._email = email
         self._timeout = timeout
-    
-    def get_oa_status(self, doi: str) -> Optional[UnpaywallResult]:
+
+    def get_oa_status(self, doi: str) -> UnpaywallResult | None:
         """Get open access status for a DOI.
         
         Args:
@@ -122,30 +122,30 @@ class UnpaywallClient:
         # Clean the DOI
         doi = doi.replace("https://doi.org/", "").replace("http://doi.org/", "")
         doi = doi.strip()
-        
+
         url = f"{UNPAYWALL_BASE_URL}/{doi}"
         params = {"email": self._email}
-        
+
         try:
             response = requests.get(url, params=params, timeout=self._timeout)
-            
+
             if response.status_code == 404:
                 logger.debug(f"DOI not found in Unpaywall: {doi}")
                 return UnpaywallResult(
                     doi=doi,
                     is_oa=False,
                 )
-            
+
             response.raise_for_status()
             data = response.json()
-            
+
             return self._parse_result(data)
-            
+
         except requests.RequestException as e:
             logger.error(f"Unpaywall API request failed for {doi}: {e}")
             return None
-    
-    def get_oa_status_batch(self, dois: List[str]) -> Dict[str, UnpaywallResult]:
+
+    def get_oa_status_batch(self, dois: list[str]) -> dict[str, UnpaywallResult]:
         """Get open access status for multiple DOIs.
         
         Args:
@@ -160,25 +160,25 @@ class UnpaywallClient:
             if result:
                 results[doi] = result
         return results
-    
-    def _parse_result(self, data: Dict[str, Any]) -> UnpaywallResult:
+
+    def _parse_result(self, data: dict[str, Any]) -> UnpaywallResult:
         """Parse Unpaywall API response."""
         doi = data.get("doi", "")
         is_oa = data.get("is_oa", False)
-        
+
         # Parse best OA location
         best_oa = None
         best_loc_data = data.get("best_oa_location")
         if best_loc_data:
             best_oa = self._parse_location(best_loc_data)
-        
+
         # Parse all OA locations
         oa_locations = []
         for loc_data in data.get("oa_locations", []):
             loc = self._parse_location(loc_data)
             if loc:
                 oa_locations.append(loc)
-        
+
         return UnpaywallResult(
             doi=doi,
             is_oa=is_oa,
@@ -189,13 +189,13 @@ class UnpaywallClient:
             publisher=data.get("publisher"),
             journal=data.get("journal_name"),
         )
-    
-    def _parse_location(self, loc_data: Dict[str, Any]) -> Optional[OALocation]:
+
+    def _parse_location(self, loc_data: dict[str, Any]) -> OALocation | None:
         """Parse an OA location."""
         url = loc_data.get("url_for_pdf") or loc_data.get("url")
         if not url:
             return None
-        
+
         return OALocation(
             url=url,
             is_pdf=bool(loc_data.get("url_for_pdf")),

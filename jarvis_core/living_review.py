@@ -5,14 +5,14 @@ Per Issue Ω-8, this generates and updates living reviews.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def generate_living_review(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     topic: str,
 ) -> dict:
     """Generate a living review that can be updated.
@@ -99,7 +99,7 @@ def generate_living_review(
     }
 
 
-def _extract_key_concepts(papers: List["PaperVector"]) -> List[str]:
+def _extract_key_concepts(papers: list[PaperVector]) -> list[str]:
     """Extract key concepts from papers."""
     concept_counts = {}
     for p in papers:
@@ -112,7 +112,7 @@ def _extract_key_concepts(papers: List["PaperVector"]) -> List[str]:
 
 def update_living_review(
     existing: dict,
-    new_vectors: List["PaperVector"],
+    new_vectors: list[PaperVector],
 ) -> dict:
     """Update an existing living review with new papers.
 

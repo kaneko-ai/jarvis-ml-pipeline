@@ -8,14 +8,12 @@ import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import yaml
 
 from .changelog_generator import generate_changelog
-from .diff_engine import generate_diff_report, extract_docx_sections, extract_pptx_slides
+from .diff_engine import extract_docx_sections, extract_pptx_slides, generate_diff_report
 from .email_generator import generate_email_draft
-
 
 DATA_RUNS_DIR = Path("data/runs")
 LOGS_RUNS_DIR = Path("logs/runs")
@@ -37,7 +35,7 @@ class SubmissionResult:
     email_body: str
 
 
-def is_ready_to_submit(run_id: str) -> Tuple[bool, str]:
+def is_ready_to_submit(run_id: str) -> tuple[bool, str]:
     run_dir = _resolve_run_dir(run_id)
     if run_dir is None:
         return False, "run not found"
@@ -48,7 +46,7 @@ def build_submission_package(
     run_id: str,
     submission_version: str,
     recipient_type: str,
-    previous_package_path: Optional[str] = None,
+    previous_package_path: str | None = None,
 ) -> SubmissionResult:
     run_dir = _resolve_run_dir(run_id)
     if run_dir is None:
@@ -142,7 +140,7 @@ def build_submission_package(
     )
 
 
-def _resolve_run_dir(run_id: str) -> Optional[Path]:
+def _resolve_run_dir(run_id: str) -> Path | None:
     candidate = DATA_RUNS_DIR / run_id
     if candidate.exists():
         return candidate
@@ -152,12 +150,12 @@ def _resolve_run_dir(run_id: str) -> Optional[Path]:
     return None
 
 
-def _load_yaml(path: Path) -> Dict[str, object]:
-    with open(path, "r", encoding="utf-8") as f:
+def _load_yaml(path: Path) -> dict[str, object]:
+    with open(path, encoding="utf-8") as f:
         return yaml.safe_load(f) or {}
 
 
-def _ensure_structure(submission_root: Path) -> Dict[str, Path]:
+def _ensure_structure(submission_root: Path) -> dict[str, Path]:
     structure = {
         "documents": submission_root / "01_documents",
         "slides": submission_root / "02_slides",
@@ -171,8 +169,8 @@ def _ensure_structure(submission_root: Path) -> Dict[str, Path]:
     return structure
 
 
-def _discover_artifacts(run_dir: Path) -> Dict[str, Optional[Path]]:
-    artifacts: Dict[str, Optional[Path]] = {
+def _discover_artifacts(run_dir: Path) -> dict[str, Path | None]:
+    artifacts: dict[str, Path | None] = {
         "thesis_docx": None,
         "thesis_pdf": None,
         "slides_pptx": None,
@@ -206,7 +204,7 @@ def _discover_artifacts(run_dir: Path) -> Dict[str, Optional[Path]]:
     return artifacts
 
 
-def _apply_naming_rules(files: Dict[str, str], context: Dict[str, str]) -> Dict[str, str]:
+def _apply_naming_rules(files: dict[str, str], context: dict[str, str]) -> dict[str, str]:
     named = {}
     for key, template in files.items():
         named[key] = template.format(**context)
@@ -214,11 +212,11 @@ def _apply_naming_rules(files: Dict[str, str], context: Dict[str, str]) -> Dict[
 
 
 def _copy_artifacts(
-    artifacts: Dict[str, Optional[Path]],
-    structure: Dict[str, Path],
-    named_files: Dict[str, str],
-) -> Dict[str, Optional[Path]]:
-    copied: Dict[str, Optional[Path]] = {}
+    artifacts: dict[str, Path | None],
+    structure: dict[str, Path],
+    named_files: dict[str, str],
+) -> dict[str, Path | None]:
+    copied: dict[str, Path | None] = {}
     mapping = {
         "thesis_docx": ("documents", named_files.get("thesis_docx")),
         "thesis_pdf": ("documents", named_files.get("thesis_pdf")),
@@ -241,9 +239,9 @@ def _copy_artifacts(
 def _write_submission_manifest(
     run_id: str,
     submission_version: str,
-    artifacts: Dict[str, Optional[Path]],
-    structure: Dict[str, Path],
-    named_files: Dict[str, str],
+    artifacts: dict[str, Path | None],
+    structure: dict[str, Path],
+    named_files: dict[str, str],
 ) -> Path:
     manifest_path = structure["manifest"] / named_files["manifest"]
     payload = {
@@ -257,11 +255,11 @@ def _write_submission_manifest(
 
 
 def _build_attachment_list(
-    structure: Dict[str, Path],
-    named_files: Dict[str, str],
-    copied: Dict[str, Optional[Path]],
+    structure: dict[str, Path],
+    named_files: dict[str, str],
+    copied: dict[str, Path | None],
     manifest_path: Path,
-) -> List[str]:
+) -> list[str]:
     attachments = []
     for key in ["thesis_docx", "thesis_pdf", "slides_pptx", "qa_report"]:
         target = named_files.get(key)
@@ -276,11 +274,11 @@ def _build_attachment_list(
 
 
 def _run_checklist(
-    checklist_config: Dict[str, object],
+    checklist_config: dict[str, object],
     run_dir: Path,
-    artifacts: Dict[str, Optional[Path]],
-    attachments: List[str],
-) -> Dict[str, object]:
+    artifacts: dict[str, Path | None],
+    attachments: list[str],
+) -> dict[str, object]:
     checks = []
     blocked = False
 
@@ -302,11 +300,11 @@ def _run_checklist(
 
 
 def _run_single_check(
-    item: Dict[str, object],
+    item: dict[str, object],
     run_dir: Path,
-    artifacts: Dict[str, Optional[Path]],
-    attachments: List[str],
-) -> Dict[str, object]:
+    artifacts: dict[str, Path | None],
+    attachments: list[str],
+) -> dict[str, object]:
     check_type = item.get("type")
     status = "pass"
     details = ""
@@ -376,7 +374,7 @@ def _run_single_check(
     }
 
 
-def _infer_reason_category(check_id: Optional[str]) -> str:
+def _infer_reason_category(check_id: str | None) -> str:
     if not check_id:
         return "その他"
     if "qa" in check_id:
@@ -390,7 +388,7 @@ def _infer_reason_category(check_id: Optional[str]) -> str:
     return "その他"
 
 
-def _check_p6_ready(run_dir: Path) -> Tuple[bool, str]:
+def _check_p6_ready(run_dir: Path) -> tuple[bool, str]:
     candidates = [
         run_dir / "p6_ready.json",
         run_dir / "ready.json",
@@ -405,7 +403,7 @@ def _check_p6_ready(run_dir: Path) -> Tuple[bool, str]:
     return False, "ready flag not found"
 
 
-def _extract_qa_summary(run_dir: Path) -> Dict[str, object]:
+def _extract_qa_summary(run_dir: Path) -> dict[str, object]:
     data = {}
     candidates = [
         run_dir / "qa_summary.json",
@@ -426,7 +424,7 @@ def _extract_qa_summary(run_dir: Path) -> Dict[str, object]:
     }
 
 
-def _extract_impact_summary(run_dir: Path) -> Dict[str, object]:
+def _extract_impact_summary(run_dir: Path) -> dict[str, object]:
     impact_path = run_dir / "impact_summary.json"
     if not impact_path.exists():
         return {"has_impact": False, "details": ""}
@@ -437,7 +435,7 @@ def _extract_impact_summary(run_dir: Path) -> Dict[str, object]:
     }
 
 
-def _extract_metric_from_files(run_dir: Path, filenames: List[str], key: str) -> Optional[object]:
+def _extract_metric_from_files(run_dir: Path, filenames: list[str], key: str) -> object | None:
     for name in filenames:
         path = run_dir / name
         if path.exists():
@@ -446,9 +444,9 @@ def _extract_metric_from_files(run_dir: Path, filenames: List[str], key: str) ->
     return None
 
 
-def _safe_load_json(path: Path) -> Dict[str, object]:
+def _safe_load_json(path: Path) -> dict[str, object]:
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
     except json.JSONDecodeError:
         return {}
@@ -456,8 +454,8 @@ def _safe_load_json(path: Path) -> Dict[str, object]:
 
 def _build_diff_report(
     submission_version: str,
-    artifacts: Dict[str, Optional[Path]],
-    previous_package_path: Optional[str],
+    artifacts: dict[str, Path | None],
+    previous_package_path: str | None,
     run_id: str,
 ):
     previous_files, temp_dir = _resolve_previous_files(submission_version, previous_package_path, run_id)
@@ -477,9 +475,9 @@ def _build_diff_report(
 
 def _resolve_previous_files(
     submission_version: str,
-    previous_package_path: Optional[str],
+    previous_package_path: str | None,
     run_id: str,
-) -> Tuple[Dict[str, Optional[Path]], Optional[Path]]:
+) -> tuple[dict[str, Path | None], Path | None]:
     if previous_package_path:
         previous_path = Path(previous_package_path)
         if previous_path.exists():
@@ -495,7 +493,7 @@ def _resolve_previous_files(
     return {"thesis_docx": None, "slides_pptx": None, "report_md": None}, None
 
 
-def _find_previous_submission_dir(submission_version: str, run_id: str) -> Optional[Path]:
+def _find_previous_submission_dir(submission_version: str, run_id: str) -> Path | None:
     base_dir = DATA_RUNS_DIR / run_id / SUBMISSION_DIRNAME
     if not base_dir.exists():
         return None
@@ -507,7 +505,7 @@ def _find_previous_submission_dir(submission_version: str, run_id: str) -> Optio
     return base_dir / target if target else None
 
 
-def _closest_previous_version(current: str, versions: List[str]) -> Optional[str]:
+def _closest_previous_version(current: str, versions: list[str]) -> str | None:
     current_key = _version_key(current)
     candidates = [v for v in versions if _version_key(v) < current_key]
     if not candidates:
@@ -515,12 +513,12 @@ def _closest_previous_version(current: str, versions: List[str]) -> Optional[str
     return max(candidates, key=_version_key)
 
 
-def _version_key(version: str) -> Tuple[int, ...]:
+def _version_key(version: str) -> tuple[int, ...]:
     parts = re.split(r"[._-]", version)
     return tuple(int(part) if part.isdigit() else 0 for part in parts)
 
 
-def _extract_from_zip(zip_path: Path) -> Tuple[Dict[str, Optional[Path]], Path]:
+def _extract_from_zip(zip_path: Path) -> tuple[dict[str, Path | None], Path]:
     temp_dir = Path(tempfile.mkdtemp(prefix="submission_prev_"))
     with zipfile.ZipFile(zip_path) as zf:
         zf.extractall(temp_dir)
@@ -536,7 +534,7 @@ def _write_email_draft(folder: Path, draft) -> Path:
     return path
 
 
-def _write_check_report(json_paths: List[Path], md_paths: List[Path], report: Dict[str, object]) -> None:
+def _write_check_report(json_paths: list[Path], md_paths: list[Path], report: dict[str, object]) -> None:
     payload = json.dumps(report, ensure_ascii=False, indent=2)
     lines = ["# Submission Check Report", "", f"Blocked: {report.get('blocked')}", "", "## Checks"]
     for item in report.get("checks", []):

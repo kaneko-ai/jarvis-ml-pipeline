@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +22,8 @@ class ExtractedClaim:
     claim_type: str  # finding, method, hypothesis, conclusion
     confidence: float
     source_text: str
-    source_location: Dict[str, Any]  # section, paragraph, sentence
-    evidence_refs: List[str]
+    source_location: dict[str, Any]  # section, paragraph, sentence
+    evidence_refs: list[str]
 
 
 class ClaimExtractor:
@@ -31,9 +31,9 @@ class ClaimExtractor:
     
     Gemini/GPT/ローカルLLMを使用して主張を抽出
     """
-    
+
     CLAIM_TYPES = ["finding", "method", "hypothesis", "conclusion"]
-    
+
     EXTRACTION_PROMPT = """
 以下のテキストから、科学的主張（Claims）を抽出してください。
 
@@ -51,17 +51,17 @@ JSON形式で出力してください：
   {{"claim_text": "...", "claim_type": "finding", "confidence": 0.8, "evidence": "..."}}
 ]
 """
-    
+
     def __init__(self, llm_client=None):
         """初期化."""
         self.llm_client = llm_client
-    
+
     def extract_claims(
         self,
         text: str,
         source_id: str = "",
         section: str = "",
-    ) -> List[ExtractedClaim]:
+    ) -> list[ExtractedClaim]:
         """テキストから主張を抽出.
         
         Args:
@@ -76,20 +76,20 @@ JSON形式で出力してください：
             return self._extract_with_llm(text, source_id, section)
         else:
             return self._extract_rule_based(text, source_id, section)
-    
+
     def _extract_with_llm(
         self,
         text: str,
         source_id: str,
         section: str,
-    ) -> List[ExtractedClaim]:
+    ) -> list[ExtractedClaim]:
         """LLMで抽出."""
         prompt = self.EXTRACTION_PROMPT.format(text=text[:2000])
-        
+
         try:
             response = self.llm_client.generate(prompt)
             claims_data = self._parse_llm_response(response)
-            
+
             claims = []
             for i, data in enumerate(claims_data):
                 claims.append(ExtractedClaim(
@@ -101,17 +101,17 @@ JSON形式で出力してください：
                     source_location={"section": section},
                     evidence_refs=[],
                 ))
-            
+
             return claims
-        
+
         except Exception as e:
             logger.error(f"LLM extraction failed: {e}")
             return self._extract_rule_based(text, source_id, section)
-    
-    def _parse_llm_response(self, response: str) -> List[Dict]:
+
+    def _parse_llm_response(self, response: str) -> list[dict]:
         """LLMレスポンスをパース."""
         import json
-        
+
         # JSON部分を抽出
         match = re.search(r'\[.*\]', response, re.DOTALL)
         if match:
@@ -119,21 +119,21 @@ JSON形式で出力してください：
                 return json.loads(match.group())
             except json.JSONDecodeError:
                 pass
-        
+
         return []
-    
+
     def _extract_rule_based(
         self,
         text: str,
         source_id: str,
         section: str,
-    ) -> List[ExtractedClaim]:
+    ) -> list[ExtractedClaim]:
         """ルールベースで抽出."""
         claims = []
-        
+
         # 文に分割
         sentences = re.split(r'(?<=[.!?])\s+', text)
-        
+
         # 主張パターン
         claim_patterns = [
             (r"(?i)(we found|we observed|we demonstrated|our results show)", "finding"),
@@ -141,7 +141,7 @@ JSON形式で出力してください：
             (r"(?i)(we conclude|in conclusion|these findings suggest)", "conclusion"),
             (r"(?i)(we used|we performed|we analyzed)", "method"),
         ]
-        
+
         claim_count = 0
         for sentence in sentences:
             for pattern, claim_type in claim_patterns:
@@ -157,6 +157,6 @@ JSON形式で出力してください：
                     ))
                     claim_count += 1
                     break
-        
+
         logger.info(f"Extracted {len(claims)} claims (rule-based)")
         return claims

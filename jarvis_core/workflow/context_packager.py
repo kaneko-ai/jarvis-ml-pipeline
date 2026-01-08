@@ -8,12 +8,10 @@ PDF知見統合（LayerX）: コンテキスト爆発対策
 
 from __future__ import annotations
 
-import json
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +23,7 @@ class LogEntry:
     step_id: str
     score: float
     output_summary: str
-    error: Optional[str] = None
+    error: str | None = None
     timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
 
 
@@ -47,7 +45,7 @@ class ContextPackager:
     2. モグラ叩き → 差分表を生成
     3. 回帰 → 回帰検知
     """
-    
+
     def __init__(
         self,
         bottom_k_percent: float = 50.0,
@@ -65,20 +63,20 @@ class ContextPackager:
         self.bottom_k_percent = bottom_k_percent
         self.max_entries = max_entries
         self.summary_max_chars = summary_max_chars
-        self._logs: List[LogEntry] = []
-        self._best_score: Optional[float] = None
-        self._best_run_id: Optional[str] = None
-    
+        self._logs: list[LogEntry] = []
+        self._best_score: float | None = None
+        self._best_run_id: str | None = None
+
     def add_log(self, entry: LogEntry):
         """ログを追加."""
         self._logs.append(entry)
-        
+
         # ベストスコア更新
         if self._best_score is None or entry.score > self._best_score:
             self._best_score = entry.score
             self._best_run_id = entry.run_id
-    
-    def get_bottom_k_logs(self) -> List[LogEntry]:
+
+    def get_bottom_k_logs(self) -> list[LogEntry]:
         """
         下位K%のログを取得.
         
@@ -86,16 +84,16 @@ class ContextPackager:
         """
         if not self._logs:
             return []
-        
+
         sorted_logs = sorted(self._logs, key=lambda x: x.score)
         k = max(1, int(len(sorted_logs) * self.bottom_k_percent / 100))
         return sorted_logs[:min(k, self.max_entries)]
-    
+
     def generate_score_diff(
-        self, 
-        current_scores: Dict[str, float],
-        prev_best_scores: Optional[Dict[str, float]] = None
-    ) -> List[ScoreDiff]:
+        self,
+        current_scores: dict[str, float],
+        prev_best_scores: dict[str, float] | None = None
+    ) -> list[ScoreDiff]:
         """
         スコア差分表を生成.
         
@@ -103,13 +101,13 @@ class ContextPackager:
         """
         if prev_best_scores is None:
             return []
-        
+
         diffs = []
         for metric, current in current_scores.items():
             prev = prev_best_scores.get(metric, 0.0)
             diff = current - prev
             is_regression = diff < 0
-            
+
             diffs.append(ScoreDiff(
                 metric=metric,
                 prev_best=prev,
@@ -117,11 +115,11 @@ class ContextPackager:
                 diff=diff,
                 is_regression=is_regression
             ))
-        
+
         return diffs
-    
+
     def detect_regression(
-        self, 
+        self,
         current_score: float,
         threshold: float = 0.0
     ) -> bool:
@@ -137,14 +135,14 @@ class ContextPackager:
         """
         if self._best_score is None:
             return False
-        
+
         return current_score < (self._best_score - threshold)
-    
+
     def package_for_generator(
         self,
-        current_scores: Dict[str, float],
-        prev_best_scores: Optional[Dict[str, float]] = None
-    ) -> Dict[str, Any]:
+        current_scores: dict[str, float],
+        prev_best_scores: dict[str, float] | None = None
+    ) -> dict[str, Any]:
         """
         Generatorに渡すコンテキストをパッケージング.
         
@@ -152,10 +150,10 @@ class ContextPackager:
         """
         bottom_logs = self.get_bottom_k_logs()
         score_diffs = self.generate_score_diff(current_scores, prev_best_scores)
-        
+
         # 回帰したケースをハイライト
         regression_cases = [d for d in score_diffs if d.is_regression]
-        
+
         return {
             "bottom_logs": [
                 {
@@ -187,7 +185,7 @@ class ContextPackager:
             "best_score": self._best_score,
             "best_run_id": self._best_run_id,
         }
-    
+
     def clear(self):
         """ログをクリア."""
         self._logs = []

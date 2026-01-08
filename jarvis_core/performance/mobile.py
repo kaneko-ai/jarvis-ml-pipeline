@@ -1,9 +1,8 @@
 """JARVIS Performance & Mobile Module - Phase 5 Features (41-50)"""
-import json
 import hashlib
-from typing import Dict, List, Optional, Callable
+import json
+from collections.abc import Callable
 from dataclasses import dataclass
-from functools import wraps
 from datetime import datetime, timedelta
 
 
@@ -12,13 +11,13 @@ from datetime import datetime, timedelta
 # ============================================
 class VirtualScroller:
     """Virtual scrolling for large data sets."""
-    
-    def __init__(self, items: List, page_size: int = 50):
+
+    def __init__(self, items: list, page_size: int = 50):
         self.items = items
         self.page_size = page_size
         self.current_page = 0
-    
-    def get_visible_items(self, scroll_top: int, container_height: int, item_height: int = 50) -> Dict:
+
+    def get_visible_items(self, scroll_top: int, container_height: int, item_height: int = 50) -> dict:
         """Get items visible in the viewport.
         
         Args:
@@ -31,7 +30,7 @@ class VirtualScroller:
         """
         start_index = max(0, scroll_top // item_height - 5)  # Buffer
         end_index = min(len(self.items), (scroll_top + container_height) // item_height + 5)
-        
+
         return {
             "items": self.items[start_index:end_index],
             "start_index": start_index,
@@ -40,8 +39,8 @@ class VirtualScroller:
             "total_height": len(self.items) * item_height,
             "offset_y": start_index * item_height
         }
-    
-    def get_page(self, page: int = 0) -> List:
+
+    def get_page(self, page: int = 0) -> list:
         """Get paginated items.
         
         Args:
@@ -63,19 +62,19 @@ class WorkerTask:
     """Background worker task."""
     id: str
     task_type: str
-    data: Dict
+    data: dict
     status: str = "pending"
-    result: Optional[Dict] = None
+    result: dict | None = None
     progress: int = 0
 
 
 class BackgroundWorkerManager:
     """Manage background processing tasks."""
-    
+
     def __init__(self):
-        self.tasks: Dict[str, WorkerTask] = {}
-    
-    def create_task(self, task_type: str, data: Dict) -> str:
+        self.tasks: dict[str, WorkerTask] = {}
+
+    def create_task(self, task_type: str, data: dict) -> str:
         """Create a new background task.
         
         Args:
@@ -92,8 +91,8 @@ class BackgroundWorkerManager:
             data=data
         )
         return task_id
-    
-    def get_task_status(self, task_id: str) -> Optional[Dict]:
+
+    def get_task_status(self, task_id: str) -> dict | None:
         """Get task status.
         
         Args:
@@ -104,7 +103,7 @@ class BackgroundWorkerManager:
         """
         if task_id not in self.tasks:
             return None
-        
+
         task = self.tasks[task_id]
         return {
             "id": task.id,
@@ -113,8 +112,8 @@ class BackgroundWorkerManager:
             "progress": task.progress,
             "result": task.result
         }
-    
-    def complete_task(self, task_id: str, result: Dict):
+
+    def complete_task(self, task_id: str, result: dict):
         """Mark task as complete.
         
         Args:
@@ -132,13 +131,13 @@ class BackgroundWorkerManager:
 # ============================================
 class LocalCache:
     """Local caching system (simulates IndexedDB)."""
-    
+
     def __init__(self, max_size: int = 1000):
-        self._cache: Dict[str, Dict] = {}
+        self._cache: dict[str, dict] = {}
         self._max_size = max_size
-        self._access_order: List[str] = []
-    
-    def set(self, key: str, value: Dict, ttl_minutes: int = 60) -> bool:
+        self._access_order: list[str] = []
+
+    def set(self, key: str, value: dict, ttl_minutes: int = 60) -> bool:
         """Cache a value.
         
         Args:
@@ -153,7 +152,7 @@ class LocalCache:
         if len(self._cache) >= self._max_size:
             oldest = self._access_order.pop(0)
             del self._cache[oldest]
-        
+
         self._cache[key] = {
             "value": value,
             "expires": (datetime.now() + timedelta(minutes=ttl_minutes)).isoformat(),
@@ -161,8 +160,8 @@ class LocalCache:
         }
         self._access_order.append(key)
         return True
-    
-    def get(self, key: str) -> Optional[Dict]:
+
+    def get(self, key: str) -> dict | None:
         """Get cached value.
         
         Args:
@@ -173,24 +172,24 @@ class LocalCache:
         """
         if key not in self._cache:
             return None
-        
+
         entry = self._cache[key]
         if datetime.fromisoformat(entry["expires"]) < datetime.now():
             del self._cache[key]
             return None
-        
+
         # Update access order
         self._access_order.remove(key)
         self._access_order.append(key)
-        
+
         return entry["value"]
-    
+
     def clear(self):
         """Clear all cache."""
         self._cache.clear()
         self._access_order.clear()
-    
-    def stats(self) -> Dict:
+
+    def stats(self) -> dict:
         """Get cache statistics."""
         return {
             "size": len(self._cache),
@@ -204,16 +203,16 @@ class LocalCache:
 # ============================================
 class ServiceWorkerConfig:
     """Generate service worker configuration."""
-    
+
     def __init__(self, cache_name: str = "jarvis-cache-v1"):
         self.cache_name = cache_name
         self.static_assets = []
         self.api_routes = []
-    
+
     def add_static_asset(self, url: str):
         """Add static asset to cache."""
         self.static_assets.append(url)
-    
+
     def add_api_route(self, pattern: str, strategy: str = "network-first"):
         """Add API route with caching strategy.
         
@@ -222,7 +221,7 @@ class ServiceWorkerConfig:
             strategy: cache-first, network-first, stale-while-revalidate
         """
         self.api_routes.append({"pattern": pattern, "strategy": strategy})
-    
+
     def generate_sw_config(self) -> str:
         """Generate service worker JavaScript config."""
         return f"""
@@ -247,11 +246,11 @@ self.addEventListener('fetch', (event) => {{
 # ============================================
 class LazyLoader:
     """Lazy loading manager for images and content."""
-    
+
     def __init__(self):
         self.loaded_items: set = set()
-        self.queue: List[str] = []
-    
+        self.queue: list[str] = []
+
     def should_load(self, item_id: str, viewport_start: int, viewport_end: int, item_position: int) -> bool:
         """Check if item should be loaded.
         
@@ -266,17 +265,17 @@ class LazyLoader:
         """
         if item_id in self.loaded_items:
             return False
-        
+
         # Load if in viewport or near it
         buffer = 200  # pixels
         in_range = viewport_start - buffer <= item_position <= viewport_end + buffer
-        
+
         if in_range:
             self.loaded_items.add(item_id)
             return True
-        
+
         return False
-    
+
     def generate_placeholder(self, width: int, height: int) -> str:
         """Generate placeholder HTML.
         
@@ -295,9 +294,9 @@ class LazyLoader:
 # ============================================
 class PWAHelper:
     """PWA installation and management helpers."""
-    
+
     @staticmethod
-    def generate_manifest(config: Dict) -> Dict:
+    def generate_manifest(config: dict) -> dict:
         """Generate PWA manifest.
         
         Args:
@@ -319,9 +318,9 @@ class PWAHelper:
                 {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png"}
             ]
         }
-    
+
     @staticmethod
-    def check_installability() -> Dict:
+    def check_installability() -> dict:
         """Check PWA installability requirements."""
         return {
             "has_manifest": True,
@@ -337,7 +336,7 @@ class PWAHelper:
 # ============================================
 class GestureHandler:
     """Handle touch gestures for mobile."""
-    
+
     GESTURES = {
         "swipe_left": "next_page",
         "swipe_right": "prev_page",
@@ -346,9 +345,9 @@ class GestureHandler:
         "pinch_out": "zoom_in",
         "double_tap": "toggle_fullscreen"
     }
-    
-    def detect_gesture(self, start_x: int, start_y: int, end_x: int, end_y: int, 
-                       duration_ms: int) -> Optional[str]:
+
+    def detect_gesture(self, start_x: int, start_y: int, end_x: int, end_y: int,
+                       duration_ms: int) -> str | None:
         """Detect gesture from touch points.
         
         Args:
@@ -361,21 +360,21 @@ class GestureHandler:
         """
         dx = end_x - start_x
         dy = end_y - start_y
-        
+
         min_distance = 50
         max_duration = 500
-        
+
         if duration_ms > max_duration:
             return None
-        
+
         if abs(dx) > abs(dy) and abs(dx) > min_distance:
             return "swipe_left" if dx < 0 else "swipe_right"
         elif abs(dy) > abs(dx) and abs(dy) > min_distance:
             return "swipe_down" if dy > 0 else "swipe_up"
-        
+
         return None
-    
-    def get_action(self, gesture: str) -> Optional[str]:
+
+    def get_action(self, gesture: str) -> str | None:
         """Get action for gesture.
         
         Args:
@@ -392,13 +391,13 @@ class GestureHandler:
 # ============================================
 class PullToRefresh:
     """Pull to refresh handler."""
-    
+
     def __init__(self, threshold: int = 80):
         self.threshold = threshold
         self.pull_distance = 0
         self.refreshing = False
-    
-    def on_pull(self, distance: int) -> Dict:
+
+    def on_pull(self, distance: int) -> dict:
         """Handle pull gesture.
         
         Args:
@@ -409,14 +408,14 @@ class PullToRefresh:
         """
         self.pull_distance = min(distance, self.threshold * 1.5)
         progress = min(distance / self.threshold, 1.0)
-        
+
         return {
             "progress": round(progress * 100),
             "should_refresh": distance >= self.threshold,
             "pull_distance": self.pull_distance
         }
-    
-    def trigger_refresh(self, callback: Optional[Callable] = None) -> bool:
+
+    def trigger_refresh(self, callback: Callable | None = None) -> bool:
         """Trigger refresh action.
         
         Args:
@@ -427,7 +426,7 @@ class PullToRefresh:
         """
         if self.refreshing:
             return False
-        
+
         self.refreshing = True
         if callback:
             callback()
@@ -441,10 +440,10 @@ class PullToRefresh:
 # ============================================
 class BottomNavigation:
     """Mobile bottom navigation configuration."""
-    
+
     def __init__(self):
         self.items = []
-    
+
     def add_item(self, id: str, label: str, icon: str, route: str):
         """Add navigation item.
         
@@ -460,7 +459,7 @@ class BottomNavigation:
             "icon": icon,
             "route": route
         })
-    
+
     def generate_html(self) -> str:
         """Generate navigation HTML."""
         items_html = "".join([
@@ -468,9 +467,9 @@ class BottomNavigation:
             f'{item["icon"]}<span>{item["label"]}</span></a>'
             for item in self.items
         ])
-        
+
         return f'<nav class="bottom-nav">{items_html}</nav>'
-    
+
     def generate_css(self) -> str:
         """Generate navigation CSS."""
         return """
@@ -504,14 +503,14 @@ class BottomNavigation:
 # ============================================
 class ShareManager:
     """Native share API helper."""
-    
+
     @staticmethod
     def can_share() -> bool:
         """Check if Web Share API is available."""
         return True  # Would check navigator.share in browser
-    
+
     @staticmethod
-    def share_data(title: str, text: str, url: str) -> Dict:
+    def share_data(title: str, text: str, url: str) -> dict:
         """Prepare share data.
         
         Args:
@@ -527,9 +526,9 @@ class ShareManager:
             "text": text,
             "url": url
         }
-    
+
     @staticmethod
-    def share_paper(paper: Dict) -> Dict:
+    def share_paper(paper: dict) -> dict:
         """Share a paper.
         
         Args:
@@ -543,9 +542,9 @@ class ShareManager:
             "text": f"{paper.get('title')} by {paper.get('authors', 'Unknown')}",
             "url": f"https://pubmed.ncbi.nlm.nih.gov/{paper.get('pmid', '')}"
         }
-    
+
     @staticmethod
-    def share_results(count: int, query: str) -> Dict:
+    def share_results(count: int, query: str) -> dict:
         """Share search results.
         
         Args:
@@ -556,14 +555,14 @@ class ShareManager:
             Share data
         """
         return {
-            "title": f"JARVIS Search Results",
+            "title": "JARVIS Search Results",
             "text": f"Found {count} papers for '{query}'",
             "url": f"https://jarvis.example.com/search?q={query}"
         }
 
 
 # Factory functions
-def get_virtual_scroller(items: List) -> VirtualScroller:
+def get_virtual_scroller(items: list) -> VirtualScroller:
     return VirtualScroller(items)
 
 def get_local_cache() -> LocalCache:
@@ -586,12 +585,12 @@ if __name__ == "__main__":
     vs = VirtualScroller(items)
     visible = vs.get_visible_items(500, 300, 50)
     print(f"Visible: {visible['start_index']}-{visible['end_index']} of {visible['total_items']}")
-    
+
     print("\n=== Local Cache ===")
     cache = LocalCache()
     cache.set("test", {"data": "value"}, ttl_minutes=5)
     print(f"Cache stats: {cache.stats()}")
-    
+
     print("\n=== Share Manager ===")
     sm = ShareManager()
     share_data = sm.share_paper({"title": "Test Paper", "authors": "Smith J", "pmid": "12345"})

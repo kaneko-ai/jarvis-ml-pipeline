@@ -1,6 +1,6 @@
 """Security package for PII handling and redaction."""
+from .pii_scan import PIIMatch, PIIScanner
 from .redaction import Redactor, redact_text
-from .pii_scan import PIIScanner, PIIMatch
 from .storage_policy import StoragePolicy, check_storage_policy
 
 __all__ = [

@@ -11,7 +11,7 @@ Organized by category for maintainability.
 """
 from __future__ import annotations
 
-from typing import List, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 # Σ-1〜Σ-7: 思考・仮説系
 # =========================
 
-def score_hypothesis(hypothesis: str, vectors: List["PaperVector"]) -> dict:
+def score_hypothesis(hypothesis: str, vectors: list[PaperVector]) -> dict:
     """Σ-1: Score a hypothesis based on evidence."""
     if not hypothesis or not vectors:
         return {"score": 0.5, "estimated": True}
@@ -37,7 +37,7 @@ def score_hypothesis(hypothesis: str, vectors: List["PaperVector"]) -> dict:
     }
 
 
-def analyze_hypothesis_dependencies(hypotheses: List[str], vectors: List["PaperVector"]) -> List[dict]:
+def analyze_hypothesis_dependencies(hypotheses: list[str], vectors: list[PaperVector]) -> list[dict]:
     """Σ-2: Analyze dependencies between hypotheses."""
     deps = []
     for i, h1 in enumerate(hypotheses):
@@ -60,7 +60,7 @@ def generate_negative_hypothesis(hypothesis: str) -> str:
     return f"It is NOT the case that {hypothesis}"
 
 
-def estimate_hypothesis_lifetime(hypothesis: str, vectors: List["PaperVector"]) -> dict:
+def estimate_hypothesis_lifetime(hypothesis: str, vectors: list[PaperVector]) -> dict:
     """Σ-4: Estimate how long a hypothesis will remain relevant."""
     if not vectors:
         return {"years_remaining": 5, "estimated": True}
@@ -75,7 +75,7 @@ def estimate_hypothesis_lifetime(hypothesis: str, vectors: List["PaperVector"]) 
     return {"years_remaining": years_remaining, "latest_year": max(years), "estimated": True}
 
 
-def detect_consensus(vectors: List["PaperVector"], concept: str) -> dict:
+def detect_consensus(vectors: list[PaperVector], concept: str) -> dict:
     """Σ-5: Detect consensus on a concept."""
     if not vectors:
         return {"consensus": False, "agreement": 0.0}
@@ -92,7 +92,7 @@ def detect_consensus(vectors: List["PaperVector"], concept: str) -> dict:
     return {"consensus": agreement > 0.7, "agreement": round(agreement, 2), "sample_size": len(relevant)}
 
 
-def find_counter_evidence(hypothesis: str, vectors: List["PaperVector"]) -> List[dict]:
+def find_counter_evidence(hypothesis: str, vectors: list[PaperVector]) -> list[dict]:
     """Σ-6: Find counter-evidence for a hypothesis."""
     counters = []
     for v in vectors:
@@ -105,7 +105,7 @@ def find_counter_evidence(hypothesis: str, vectors: List["PaperVector"]) -> List
     return counters[:5]
 
 
-def generate_hypothesis_diagram(hypotheses: List[str]) -> dict:
+def generate_hypothesis_diagram(hypotheses: list[str]) -> dict:
     """Σ-7: Generate hypothesis relationship diagram data."""
     nodes = [{"id": i, "label": h[:30]} for i, h in enumerate(hypotheses)]
     edges = []
@@ -118,7 +118,7 @@ def generate_hypothesis_diagram(hypotheses: List[str]) -> dict:
 # Σ-8〜Σ-13: 分析・可視化系
 # =========================
 
-def build_impact_heatmap(vectors: List["PaperVector"]) -> Dict[str, Dict[str, float]]:
+def build_impact_heatmap(vectors: list[PaperVector]) -> dict[str, dict[str, float]]:
     """Σ-8: Build impact heatmap by year and concept."""
     heatmap = {}
     for v in vectors:
@@ -130,7 +130,7 @@ def build_impact_heatmap(vectors: List["PaperVector"]) -> Dict[str, Dict[str, fl
     return heatmap
 
 
-def analyze_cluster_dynamics(vectors: List["PaperVector"]) -> List[dict]:
+def analyze_cluster_dynamics(vectors: list[PaperVector]) -> list[dict]:
     """Σ-9: Analyze cluster dynamics over time."""
     by_year = {}
     for v in vectors:
@@ -147,7 +147,7 @@ def analyze_cluster_dynamics(vectors: List["PaperVector"]) -> List[dict]:
     return dynamics
 
 
-def infer_causal_direction(c1: str, c2: str, vectors: List["PaperVector"]) -> dict:
+def infer_causal_direction(c1: str, c2: str, vectors: list[PaperVector]) -> dict:
     """Σ-10: Infer causal direction between concepts."""
     c1_years = []
     c2_years = []
@@ -169,7 +169,7 @@ def infer_causal_direction(c1: str, c2: str, vectors: List["PaperVector"]) -> di
         return {"direction": f"{c2} → {c1}", "estimated": True}
 
 
-def map_method_failures(vectors: List["PaperVector"]) -> Dict[str, float]:
+def map_method_failures(vectors: list[PaperVector]) -> dict[str, float]:
     """Σ-11: Map method failure rates (estimated)."""
     methods = {}
     for v in vectors:
@@ -186,7 +186,7 @@ def map_method_failures(vectors: List["PaperVector"]) -> Dict[str, float]:
     return failure_map
 
 
-def map_journal_trends(vectors: List["PaperVector"]) -> Dict[str, int]:
+def map_journal_trends(vectors: list[PaperVector]) -> dict[str, int]:
     """Σ-12: Map journal publication trends."""
     journals = {}
     for v in vectors:
@@ -195,7 +195,7 @@ def map_journal_trends(vectors: List["PaperVector"]) -> Dict[str, int]:
     return dict(sorted(journals.items(), key=lambda x: x[1], reverse=True)[:10])
 
 
-def map_research_density(vectors: List["PaperVector"]) -> Dict[str, float]:
+def map_research_density(vectors: list[PaperVector]) -> dict[str, float]:
     """Σ-13: Map research density by concept."""
     densities = {}
     total = len(vectors)
@@ -209,7 +209,7 @@ def map_research_density(vectors: List["PaperVector"]) -> Dict[str, float]:
 # Σ-14〜Σ-19: 実験・設計系
 # =========================
 
-def score_protocol_difficulty(methods: List[str]) -> float:
+def score_protocol_difficulty(methods: list[str]) -> float:
     """Σ-14: Score protocol difficulty."""
     DIFFICULTY = {"scRNA-seq": 0.9, "CRISPR": 0.8, "Western blot": 0.3, "qPCR": 0.2}
     if not methods:
@@ -218,7 +218,7 @@ def score_protocol_difficulty(methods: List[str]) -> float:
     return round(sum(scores) / len(scores), 2)
 
 
-def assess_reproducibility_risk(vectors: List["PaperVector"]) -> dict:
+def assess_reproducibility_risk(vectors: list[PaperVector]) -> dict:
     """Σ-15: Assess reproducibility risk."""
     if not vectors:
         return {"risk": 0.5, "estimated": True}
@@ -232,7 +232,7 @@ def assess_reproducibility_risk(vectors: List["PaperVector"]) -> dict:
     return {"risk": round(risk, 2), "method_count": len(all_methods), "estimated": True}
 
 
-def enumerate_controls(experiment_type: str) -> List[str]:
+def enumerate_controls(experiment_type: str) -> list[str]:
     """Σ-16: Enumerate required controls."""
     CONTROLS = {
         "knockout": ["wild-type", "scramble", "heterozygous"],
@@ -261,7 +261,7 @@ def validate_stats_method(data_type: str, comparison: str) -> str:
     return "Consult statistician"
 
 
-def explain_model_reasoning(model: str, vectors: List["PaperVector"]) -> str:
+def explain_model_reasoning(model: str, vectors: list[PaperVector]) -> str:
     """Σ-19: Explain model system reasoning."""
     count = sum(1 for v in vectors if model.lower() in str(v.metadata.species).lower())
     return f"{model}は{count}論文で使用。関連研究との整合性あり。" if count else f"{model}の使用実績なし"
@@ -271,7 +271,7 @@ def explain_model_reasoning(model: str, vectors: List["PaperVector"]) -> str:
 # Σ-20〜Σ-25: 論文・発表補助
 # =========================
 
-def plan_figures(vectors: List["PaperVector"]) -> List[dict]:
+def plan_figures(vectors: list[PaperVector]) -> list[dict]:
     """Σ-20: Plan figure structure (no generation)."""
     figures = [
         {"id": 1, "type": "overview", "description": "研究全体像"},
@@ -291,14 +291,14 @@ def structure_graphical_abstract() -> dict:
     }
 
 
-def check_supplement_completeness(sections: List[str]) -> List[str]:
+def check_supplement_completeness(sections: list[str]) -> list[str]:
     """Σ-22: Check supplement completeness."""
     REQUIRED = ["methods_detail", "raw_data", "statistics"]
     missing = [r for r in REQUIRED if r not in sections]
     return missing
 
 
-def detect_discussion_gaps(claims: List[str], discussion: str) -> List[str]:
+def detect_discussion_gaps(claims: list[str], discussion: str) -> list[str]:
     """Σ-23: Detect gaps in discussion."""
     gaps = []
     for claim in claims:
@@ -307,7 +307,7 @@ def detect_discussion_gaps(claims: List[str], discussion: str) -> List[str]:
     return gaps
 
 
-def flag_risky_sentences(sentences: List[str]) -> List[dict]:
+def flag_risky_sentences(sentences: list[str]) -> list[dict]:
     """Σ-24: Flag risky statements."""
     RISK_WORDS = ["prove", "definitive", "always", "never"]
     flagged = []
@@ -318,7 +318,7 @@ def flag_risky_sentences(sentences: List[str]) -> List[dict]:
     return flagged
 
 
-def detect_citation_bias(vectors: List["PaperVector"]) -> dict:
+def detect_citation_bias(vectors: list[PaperVector]) -> dict:
     """Σ-25: Detect citation bias."""
     years = [v.metadata.year for v in vectors if v.metadata.year]
     if not years:
@@ -337,7 +337,7 @@ def detect_citation_bias(vectors: List["PaperVector"]) -> dict:
 # Σ-26〜Σ-30: 継続・運用系
 # =========================
 
-def detect_research_drift(old_vectors: List["PaperVector"], new_vectors: List["PaperVector"]) -> dict:
+def detect_research_drift(old_vectors: list[PaperVector], new_vectors: list[PaperVector]) -> dict:
     """Σ-26: Detect research drift over time."""
     old_concepts = set()
     new_concepts = set()
@@ -357,7 +357,7 @@ def detect_research_drift(old_vectors: List["PaperVector"], new_vectors: List["P
     }
 
 
-def generate_periodic_review(vectors: List["PaperVector"], period: str = "quarterly") -> dict:
+def generate_periodic_review(vectors: list[PaperVector], period: str = "quarterly") -> dict:
     """Σ-27: Generate periodic review summary."""
     return {
         "period": period,
@@ -367,7 +367,7 @@ def generate_periodic_review(vectors: List["PaperVector"], period: str = "quarte
     }
 
 
-def assess_field_saturation(vectors: List["PaperVector"], concept: str) -> dict:
+def assess_field_saturation(vectors: list[PaperVector], concept: str) -> dict:
     """Σ-28: Assess field saturation."""
     relevant = [v for v in vectors for c in v.concept.concepts if concept.lower() in c.lower()]
     novelty_avg = sum(v.temporal.novelty for v in relevant) / max(len(relevant), 1)
@@ -380,14 +380,14 @@ def assess_field_saturation(vectors: List["PaperVector"], concept: str) -> dict:
     }
 
 
-def detect_new_concepts(old_vectors: List["PaperVector"], new_vectors: List["PaperVector"]) -> List[str]:
+def detect_new_concepts(old_vectors: list[PaperVector], new_vectors: list[PaperVector]) -> list[str]:
     """Σ-29: Detect newly emerging concepts."""
     old_concepts = set(c for v in old_vectors for c in v.concept.concepts)
     new_concepts = set(c for v in new_vectors for c in v.concept.concepts)
     return list(new_concepts - old_concepts)
 
 
-def sync_research_log(vectors: List["PaperVector"]) -> dict:
+def sync_research_log(vectors: list[PaperVector]) -> dict:
     """Σ-30: Sync research log status."""
     return {
         "total": len(vectors),

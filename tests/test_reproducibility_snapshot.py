@@ -7,35 +7,33 @@ M2: 再現性完備のテスト
 - degradedフラグ
 """
 
-import json
-import pytest
-from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import pytest
+
 from jarvis_core.ops.snapshot import (
-    Snapshot,
-    SnapshotManager,
-    QueryPackage,
-    SearchResultItem,
-    RetrievedContent,
     ChunkMapping,
     ModelIO,
-    get_snapshot_manager,
+    QueryPackage,
+    RetrievedContent,
+    SearchResultItem,
+    Snapshot,
+    SnapshotManager,
 )
 
 
 class TestSnapshotCreation:
     """スナップショット作成テスト."""
-    
+
     def test_query_package_hash(self):
         """QueryPackageのハッシュが決定的であること."""
         qp1 = QueryPackage(query="CD73 cancer", source="pubmed")
         qp2 = QueryPackage(query="CD73 cancer", source="pubmed")
         qp3 = QueryPackage(query="CD73 tumor", source="pubmed")
-        
+
         assert qp1.query_hash == qp2.query_hash
         assert qp1.query_hash != qp3.query_hash
-    
+
     def test_snapshot_to_dict(self):
         """Snapshotが正しく辞書に変換されること."""
         snapshot = Snapshot(
@@ -45,13 +43,13 @@ class TestSnapshotCreation:
                 SearchResultItem(doc_id="pmid:12345", rank=1, score=0.95)
             ]
         )
-        
+
         data = snapshot.to_dict()
-        
+
         assert data["run_id"] == "test_run_1"
         assert data["query_package"]["query"] == "test query"
         assert len(data["search_results"]["results"]) == 1
-    
+
     def test_snapshot_from_dict(self):
         """Snapshotが辞書から正しく復元されること."""
         data = {
@@ -64,9 +62,9 @@ class TestSnapshotCreation:
             },
             "degraded": {"is_degraded": True, "reasons": ["API timeout"]}
         }
-        
+
         snapshot = Snapshot.from_dict(data)
-        
+
         assert snapshot.run_id == "test_run_2"
         assert snapshot.query_package.query == "test"
         assert len(snapshot.search_results) == 1
@@ -76,65 +74,65 @@ class TestSnapshotCreation:
 
 class TestSnapshotManager:
     """スナップショットマネージャテスト."""
-    
+
     def test_save_and_load(self):
         """保存と読込が正しく動作すること."""
         with TemporaryDirectory() as tmpdir:
             manager = SnapshotManager(base_path=tmpdir, compress=False)
-            
+
             snapshot = Snapshot(
                 run_id="test_save_load",
                 query_package=QueryPackage(query="save load test")
             )
-            
+
             # 保存
             path = manager.save(snapshot)
             assert path.exists()
-            
+
             # 読込
             loaded = manager.load("test_save_load")
             assert loaded is not None
             assert loaded.run_id == "test_save_load"
             assert loaded.query_package.query == "save load test"
-    
+
     def test_save_compressed(self):
         """圧縮保存が動作すること."""
         with TemporaryDirectory() as tmpdir:
             manager = SnapshotManager(base_path=tmpdir, compress=True)
-            
+
             snapshot = Snapshot(run_id="compressed_test")
             path = manager.save(snapshot)
-            
+
             assert path.suffix == ".gz"
             assert path.exists()
-    
+
     def test_exists(self):
         """存在確認が正しく動作すること."""
         with TemporaryDirectory() as tmpdir:
             manager = SnapshotManager(base_path=tmpdir, compress=False)
-            
+
             assert manager.exists("nonexistent") is False
-            
+
             snapshot = Snapshot(run_id="exists_test")
             manager.save(snapshot)
-            
+
             assert manager.exists("exists_test") is True
-    
+
     def test_content_hash(self):
         """コンテンツハッシュが決定的であること."""
         manager = SnapshotManager()
-        
+
         hash1 = manager.get_content_hash("Hello World")
         hash2 = manager.get_content_hash("Hello World")
         hash3 = manager.get_content_hash("Hello World!")
-        
+
         assert hash1 == hash2
         assert hash1 != hash3
 
 
 class TestReproducibility:
     """再現性テスト."""
-    
+
     def test_same_query_same_hash(self):
         """同一クエリは同一ハッシュを生成すること."""
         qp1 = QueryPackage(
@@ -143,16 +141,16 @@ class TestReproducibility:
             filters={"date_from": "2020-01-01"},
             max_results=20
         )
-        
+
         qp2 = QueryPackage(
             query="CD73 inhibitor tumor",
             source="pubmed",
             filters={"date_from": "2020-01-01"},
             max_results=20
         )
-        
+
         assert qp1.query_hash == qp2.query_hash
-    
+
     def test_snapshot_roundtrip(self):
         """スナップショットのラウンドトリップが一致すること."""
         original = Snapshot(
@@ -181,11 +179,11 @@ class TestReproducibility:
                 )
             ]
         )
-        
+
         # 辞書経由でラウンドトリップ
         data = original.to_dict()
         restored = Snapshot.from_dict(data)
-        
+
         assert restored.run_id == original.run_id
         assert len(restored.search_results) == len(original.search_results)
         assert len(restored.retrieved_content) == len(original.retrieved_content)
@@ -195,23 +193,23 @@ class TestReproducibility:
 
 class TestDegradedRun:
     """degradedランテスト."""
-    
+
     def test_degraded_flag_required(self):
         """degradedフラグが正しく設定されること."""
         snapshot = Snapshot(run_id="degraded_test")
-        
+
         # 初期状態
         assert snapshot.is_degraded is False
         assert len(snapshot.degraded_reasons) == 0
-        
+
         # degraded設定
         snapshot.is_degraded = True
         snapshot.degraded_reasons.append("API rate limit exceeded")
-        
+
         data = snapshot.to_dict()
         assert data["degraded"]["is_degraded"] is True
         assert "API rate limit exceeded" in data["degraded"]["reasons"]
-    
+
     def test_degraded_preserved_on_roundtrip(self):
         """degraded状態がラウンドトリップで保持されること."""
         original = Snapshot(
@@ -219,10 +217,10 @@ class TestDegradedRun:
             is_degraded=True,
             degraded_reasons=["Partial retrieval", "Model timeout"]
         )
-        
+
         data = original.to_dict()
         restored = Snapshot.from_dict(data)
-        
+
         assert restored.is_degraded is True
         assert len(restored.degraded_reasons) == 2
 

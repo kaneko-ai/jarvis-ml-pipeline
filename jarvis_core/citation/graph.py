@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 from jarvis_core.citation.context_extractor import CitationContext
 from jarvis_core.citation.stance_classifier import CitationStance, StanceResult
@@ -20,14 +20,14 @@ logger = logging.getLogger(__name__)
 @dataclass
 class CitationEdge:
     """An edge in the citation graph."""
-    
+
     source_id: str  # Citing paper
     target_id: str  # Cited paper
     stance: CitationStance = CitationStance.MENTION
     confidence: float = 0.0
-    contexts: List[CitationContext] = field(default_factory=list)
-    
-    def to_dict(self) -> Dict[str, Any]:
+    contexts: list[CitationContext] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "source_id": self.source_id,
@@ -41,19 +41,19 @@ class CitationEdge:
 @dataclass
 class PaperNode:
     """A node in the citation graph."""
-    
+
     paper_id: str
-    title: Optional[str] = None
-    year: Optional[int] = None
-    authors: List[str] = field(default_factory=list)
-    
+    title: str | None = None
+    year: int | None = None
+    authors: list[str] = field(default_factory=list)
+
     # Citation statistics
     cited_by_count: int = 0
     cites_count: int = 0
     support_count: int = 0
     contrast_count: int = 0
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "paper_id": self.paper_id,
@@ -83,22 +83,22 @@ class CitationGraph:
         >>> print(papers_cited)
         ['paper_B', 'paper_C']
     """
-    
+
     def __init__(self):
         """Initialize the citation graph."""
-        self._nodes: Dict[str, PaperNode] = {}
-        self._edges: Dict[Tuple[str, str], CitationEdge] = {}
-        
+        self._nodes: dict[str, PaperNode] = {}
+        self._edges: dict[tuple[str, str], CitationEdge] = {}
+
         # Index for fast lookups
-        self._outgoing: Dict[str, Set[str]] = defaultdict(set)  # paper -> papers it cites
-        self._incoming: Dict[str, Set[str]] = defaultdict(set)  # paper -> papers citing it
-    
+        self._outgoing: dict[str, set[str]] = defaultdict(set)  # paper -> papers it cites
+        self._incoming: dict[str, set[str]] = defaultdict(set)  # paper -> papers citing it
+
     def add_node(
         self,
         paper_id: str,
-        title: Optional[str] = None,
-        year: Optional[int] = None,
-        authors: Optional[List[str]] = None,
+        title: str | None = None,
+        year: int | None = None,
+        authors: list[str] | None = None,
     ) -> PaperNode:
         """Add a paper node to the graph.
         
@@ -127,16 +127,16 @@ class CitationGraph:
                 node.year = year
             if authors:
                 node.authors = authors
-        
+
         return self._nodes[paper_id]
-    
+
     def add_edge(
         self,
         source_id: str,
         target_id: str,
         stance: CitationStance = CitationStance.MENTION,
         confidence: float = 0.0,
-        context: Optional[CitationContext] = None,
+        context: CitationContext | None = None,
     ) -> CitationEdge:
         """Add a citation edge to the graph.
         
@@ -153,9 +153,9 @@ class CitationGraph:
         # Ensure nodes exist
         self.add_node(source_id)
         self.add_node(target_id)
-        
+
         edge_key = (source_id, target_id)
-        
+
         if edge_key not in self._edges:
             self._edges[edge_key] = CitationEdge(
                 source_id=source_id,
@@ -163,68 +163,68 @@ class CitationGraph:
                 stance=stance,
                 confidence=confidence,
             )
-            
+
             # Update indices
             self._outgoing[source_id].add(target_id)
             self._incoming[target_id].add(source_id)
-            
+
             # Update node statistics
             self._nodes[source_id].cites_count += 1
             self._nodes[target_id].cited_by_count += 1
-            
+
             if stance == CitationStance.SUPPORT:
                 self._nodes[target_id].support_count += 1
             elif stance == CitationStance.CONTRAST:
                 self._nodes[target_id].contrast_count += 1
-        
+
         edge = self._edges[edge_key]
-        
+
         if context:
             edge.contexts.append(context)
-        
+
         return edge
-    
-    def get_node(self, paper_id: str) -> Optional[PaperNode]:
+
+    def get_node(self, paper_id: str) -> PaperNode | None:
         """Get a paper node by ID."""
         return self._nodes.get(paper_id)
-    
-    def get_edge(self, source_id: str, target_id: str) -> Optional[CitationEdge]:
+
+    def get_edge(self, source_id: str, target_id: str) -> CitationEdge | None:
         """Get an edge by source and target IDs."""
         return self._edges.get((source_id, target_id))
-    
-    def get_citations(self, paper_id: str) -> List[str]:
+
+    def get_citations(self, paper_id: str) -> list[str]:
         """Get papers cited by a given paper."""
         return list(self._outgoing.get(paper_id, set()))
-    
-    def get_cited_by(self, paper_id: str) -> List[str]:
+
+    def get_cited_by(self, paper_id: str) -> list[str]:
         """Get papers that cite a given paper."""
         return list(self._incoming.get(paper_id, set()))
-    
-    def get_supporting_citations(self, paper_id: str) -> List[str]:
+
+    def get_supporting_citations(self, paper_id: str) -> list[str]:
         """Get papers that cite with support stance."""
         citing_papers = self._incoming.get(paper_id, set())
         supporting = []
-        
+
         for citing_id in citing_papers:
             edge = self._edges.get((citing_id, paper_id))
             if edge and edge.stance == CitationStance.SUPPORT:
                 supporting.append(citing_id)
-        
+
         return supporting
-    
-    def get_contrasting_citations(self, paper_id: str) -> List[str]:
+
+    def get_contrasting_citations(self, paper_id: str) -> list[str]:
         """Get papers that cite with contrast stance."""
         citing_papers = self._incoming.get(paper_id, set())
         contrasting = []
-        
+
         for citing_id in citing_papers:
             edge = self._edges.get((citing_id, paper_id))
             if edge and edge.stance == CitationStance.CONTRAST:
                 contrasting.append(citing_id)
-        
+
         return contrasting
-    
-    def get_top_cited(self, limit: int = 10) -> List[Tuple[str, int]]:
+
+    def get_top_cited(self, limit: int = 10) -> list[tuple[str, int]]:
         """Get top cited papers.
         
         Args:
@@ -239,8 +239,8 @@ class CitationGraph:
         ]
         papers_by_citations.sort(key=lambda x: x[1], reverse=True)
         return papers_by_citations[:limit]
-    
-    def get_controversial_papers(self, min_contrast: int = 2) -> List[str]:
+
+    def get_controversial_papers(self, min_contrast: int = 2) -> list[str]:
         """Get papers with significant contrasting citations.
         
         Args:
@@ -254,8 +254,8 @@ class CitationGraph:
             for node in self._nodes.values()
             if node.contrast_count >= min_contrast
         ]
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert graph to dictionary."""
         return {
             "nodes": [node.to_dict() for node in self._nodes.values()],
@@ -265,12 +265,12 @@ class CitationGraph:
                 "edge_count": len(self._edges),
             },
         }
-    
+
     @property
     def node_count(self) -> int:
         """Number of nodes in the graph."""
         return len(self._nodes)
-    
+
     @property
     def edge_count(self) -> int:
         """Number of edges in the graph."""
@@ -278,8 +278,8 @@ class CitationGraph:
 
 
 def build_citation_graph(
-    contexts: List[CitationContext],
-    stance_results: Optional[List[StanceResult]] = None,
+    contexts: list[CitationContext],
+    stance_results: list[StanceResult] | None = None,
 ) -> CitationGraph:
     """Build a citation graph from contexts and stance results.
     
@@ -294,15 +294,15 @@ def build_citation_graph(
         CitationGraph with citations added
     """
     graph = CitationGraph()
-    
+
     for i, context in enumerate(contexts):
         stance = CitationStance.MENTION
         confidence = 0.0
-        
+
         if stance_results and i < len(stance_results):
             stance = stance_results[i].stance
             confidence = stance_results[i].confidence
-        
+
         graph.add_edge(
             source_id=context.citing_paper_id,
             target_id=context.cited_paper_id,
@@ -310,5 +310,5 @@ def build_citation_graph(
             confidence=confidence,
             context=context,
         )
-    
+
     return graph

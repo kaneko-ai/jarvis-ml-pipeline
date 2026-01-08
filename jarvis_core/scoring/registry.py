@@ -6,7 +6,7 @@ All scores must be registered and normalized to 0-1.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Literal, Optional
+from typing import Literal
 
 
 @dataclass
@@ -39,8 +39,8 @@ class ScoreDefinition:
 class ScoreRegistry:
     """Central registry for all score definitions."""
 
-    _instance: Optional["ScoreRegistry"] = None
-    _definitions: Dict[str, ScoreDefinition] = {}
+    _instance: ScoreRegistry | None = None
+    _definitions: dict[str, ScoreDefinition] = {}
 
     def __new__(cls):
         if cls._instance is None:
@@ -154,7 +154,7 @@ class ScoreRegistry:
         """Register a score definition."""
         self._definitions[definition.name] = definition
 
-    def get(self, name: str) -> Optional[ScoreDefinition]:
+    def get(self, name: str) -> ScoreDefinition | None:
         """Get score definition by name."""
         return self._definitions.get(name)
 
@@ -194,7 +194,7 @@ def normalize_score(name: str, raw_value: float) -> float:
     return _registry.normalize(name, raw_value)
 
 
-def get_score_info(name: str) -> Optional[ScoreDefinition]:
+def get_score_info(name: str) -> ScoreDefinition | None:
     """Get score definition from global registry."""
     return _registry.get(name)
 
@@ -204,7 +204,7 @@ def register_score(definition: ScoreDefinition) -> None:
     _registry.register(definition)
 
 
-def validate_score_names(scores: Dict[str, float]) -> list[str]:
+def validate_score_names(scores: dict[str, float]) -> list[str]:
     """Validate that all score names are registered.
 
     Returns list of unregistered names.

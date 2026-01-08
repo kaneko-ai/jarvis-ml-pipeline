@@ -2,19 +2,18 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from jarvis_core.scheduler import engine, idempotency, locks, store
-from jarvis_core.scheduler.schema import ScheduleModel
 
 
 class RunPlan:
-    def __init__(self, schedule: Dict[str, Any], run: Dict[str, Any]):
+    def __init__(self, schedule: dict[str, Any], run: dict[str, Any]):
         self.schedule = schedule
         self.run = run
 
 
-def build_payload(schedule: Dict[str, Any]) -> Dict[str, Any]:
+def build_payload(schedule: dict[str, Any]) -> dict[str, Any]:
     query = schedule.get("query", {})
     return {
         "query": " ".join(query.get("keywords") or []),
@@ -28,11 +27,11 @@ def build_payload(schedule: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def plan_due_runs(now: Optional[datetime] = None, force: bool = False) -> List[RunPlan]:
+def plan_due_runs(now: datetime | None = None, force: bool = False) -> list[RunPlan]:
     now = now or datetime.now(timezone.utc)
     schedules = store.list_schedules()
     due = engine.due_schedules(schedules, now=now)
-    plans: List[RunPlan] = []
+    plans: list[RunPlan] = []
 
     for schedule in due:
         schedule_id = schedule.get("schedule_id")
@@ -63,7 +62,7 @@ def mark_run_running(run_id: str) -> None:
         store.update_schedule_status(run["schedule_id"], "running")
 
 
-def mark_run_finished(run_id: str, status: str, error: Optional[str] = None) -> None:
+def mark_run_finished(run_id: str, status: str, error: str | None = None) -> None:
     run = store.update_run(run_id, status=status, error=error)
     if run:
         store.update_schedule_status(run["schedule_id"], status, error=error)

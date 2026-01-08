@@ -6,10 +6,9 @@ from __future__ import annotations
 
 import json
 import shutil
-from pathlib import Path
-from datetime import datetime, timedelta
-from typing import List, Optional
 from dataclasses import dataclass
+from datetime import datetime, timedelta
+from pathlib import Path
 
 
 @dataclass
@@ -26,20 +25,20 @@ class RetentionPolicy:
 class CleanupResult:
     """Result of a cleanup operation."""
 
-    deleted_runs: List[str]
+    deleted_runs: list[str]
     deleted_size_bytes: int
     kept_runs: int
-    errors: List[str]
+    errors: list[str]
 
 
-def get_run_age(run_dir: Path) -> Optional[timedelta]:
+def get_run_age(run_dir: Path) -> timedelta | None:
     """Get age of a run from its events.jsonl."""
     events_file = run_dir / "events.jsonl"
     if not events_file.exists():
         return None
 
     try:
-        with open(events_file, "r", encoding="utf-8") as f:
+        with open(events_file, encoding="utf-8") as f:
             first_line = f.readline()
         if first_line:
             event = json.loads(first_line)
@@ -71,7 +70,7 @@ def is_important_run(run_dir: Path) -> bool:
 
 def apply_retention_policy(
     runs_dir: str,
-    policy: Optional[RetentionPolicy] = None,
+    policy: RetentionPolicy | None = None,
     dry_run: bool = False,
 ) -> CleanupResult:
     """Apply retention policy to runs directory."""
@@ -122,7 +121,7 @@ def apply_retention_policy(
         # Check total size
         if total_size > policy.max_size_gb * 1024 * 1024 * 1024:
             should_delete = True
-            reason = f"total size exceeded"
+            reason = "total size exceeded"
 
         if should_delete:
             if dry_run:

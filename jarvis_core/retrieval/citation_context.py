@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
 
 
 @dataclass
@@ -25,7 +24,7 @@ class CitationWindow:
     """A window of text around citations."""
 
     text: str
-    citations: List[str]
+    citations: list[str]
     start_char: int
     end_char: int
 
@@ -39,7 +38,7 @@ CITATION_PATTERNS = [
 ]
 
 
-def find_citations(text: str) -> List[Tuple[str, int, int]]:
+def find_citations(text: str) -> list[tuple[str, int, int]]:
     """Find all citations in text.
 
     Returns:
@@ -60,7 +59,7 @@ def find_citations(text: str) -> List[Tuple[str, int, int]]:
 def extract_citation_context(
     text: str,
     window_chars: int = 200,
-) -> List[CitationContext]:
+) -> list[CitationContext]:
     """Extract context around each citation.
 
     Args:
@@ -99,7 +98,7 @@ def extract_citation_context(
 def extract_citation_windows(
     text: str,
     window_sentences: int = 2,
-) -> List[CitationWindow]:
+) -> list[CitationWindow]:
     """Extract windows of sentences containing citations.
 
     Args:
@@ -153,7 +152,7 @@ class CitationContextRetriever:
         self,
         query: str,
         top_k: int = 5,
-    ) -> List[Tuple[str, CitationContext, float]]:
+    ) -> list[tuple[str, CitationContext, float]]:
         """Search citation contexts.
 
         Simple BM25-like scoring on context text.

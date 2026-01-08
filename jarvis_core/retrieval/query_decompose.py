@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import List, Optional
 from enum import Enum
 
 
@@ -26,8 +25,8 @@ class DecomposedQuery:
 
     original: str
     category: QueryCategory
-    sub_queries: List[str]
-    entities: List[str]
+    sub_queries: list[str]
+    entities: list[str]
     confidence: float
 
 
@@ -97,7 +96,7 @@ def detect_category(query: str) -> tuple[QueryCategory, float]:
     return best_category, max(0.3, best_score)
 
 
-def extract_entities(query: str) -> List[str]:
+def extract_entities(query: str) -> list[str]:
     """Extract known entities from query."""
     entities = []
     query_upper = query.upper()
@@ -112,8 +111,8 @@ def extract_entities(query: str) -> List[str]:
 def generate_sub_queries(
     query: str,
     category: QueryCategory,
-    entities: List[str],
-) -> List[str]:
+    entities: list[str],
+) -> list[str]:
     """Generate sub-queries based on category and entities."""
     sub_queries = [query]  # Always include original
 

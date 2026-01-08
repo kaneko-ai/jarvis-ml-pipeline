@@ -5,7 +5,6 @@ Per V4.2 Sprint 3, this estimates quality gain from processing choices.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 
 
 @dataclass
@@ -13,7 +12,7 @@ class QualityEstimator:
     """Estimates quality improvements from processing choices."""
 
     # Base quality by method
-    base_quality: Dict[str, float] = field(default_factory=lambda: {
+    base_quality: dict[str, float] = field(default_factory=lambda: {
         "bm25_only": 0.6,
         "dense_only": 0.7,
         "hybrid": 0.85,

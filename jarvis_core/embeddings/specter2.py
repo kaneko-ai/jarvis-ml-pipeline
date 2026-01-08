@@ -7,7 +7,6 @@ Per JARVIS_COMPLETION_INSTRUCTION Task 1.2.1
 from __future__ import annotations
 
 import logging
-from typing import List, Optional
 
 import numpy as np
 
@@ -16,9 +15,9 @@ logger = logging.getLogger(__name__)
 
 class SPECTER2Embedding:
     """AllenAI SPECTER2 for scientific document embedding."""
-    
+
     MODEL_NAME = "allenai/specter2"
-    
+
     def __init__(self, device: str = "auto"):
         """Initialize SPECTER2 embedding model.
         
@@ -27,7 +26,7 @@ class SPECTER2Embedding:
         """
         self._model = None
         self._device = device
-    
+
     def _load_model(self):
         """Lazy load the model."""
         if self._model is None:
@@ -38,7 +37,7 @@ class SPECTER2Embedding:
                     "sentence-transformers is required for SPECTER2. "
                     "Install with: pip install sentence-transformers"
                 )
-            
+
             device = self._device
             if device == "auto":
                 try:
@@ -46,14 +45,14 @@ class SPECTER2Embedding:
                     device = "cuda" if torch.cuda.is_available() else "cpu"
                 except ImportError:
                     device = "cpu"
-            
+
             logger.info(f"Loading SPECTER2 model on {device}...")
             self._model = SentenceTransformer(self.MODEL_NAME, device=device)
             logger.info("SPECTER2 model loaded.")
-        
+
         return self._model
-    
-    def embed(self, texts: List[str]) -> np.ndarray:
+
+    def embed(self, texts: list[str]) -> np.ndarray:
         """Embed a list of texts.
         
         Args:
@@ -64,7 +63,7 @@ class SPECTER2Embedding:
         """
         model = self._load_model()
         return model.encode(texts, show_progress_bar=False)
-    
+
     def embed_paper(self, title: str, abstract: str) -> np.ndarray:
         """Embed a paper using SPECTER2 recommended format.
         
@@ -79,7 +78,7 @@ class SPECTER2Embedding:
         """
         text = f"{title} [SEP] {abstract}"
         return self.embed([text])[0]
-    
+
     @property
     def dimension(self) -> int:
         """Return embedding dimension."""

@@ -7,9 +7,9 @@ Supports:
 
 Set LLM_PROVIDER environment variable to switch providers.
 """
-from dataclasses import dataclass
-from typing import List, Literal
 import os
+from dataclasses import dataclass
+from typing import Literal
 
 Role = Literal["system", "user", "assistant"]
 
@@ -68,7 +68,7 @@ class LLMClient:
         if "gemini" in self.model.lower():
             self.model = os.getenv("OLLAMA_MODEL", "llama3.2")
 
-    def chat(self, messages: List[Message]) -> str:
+    def chat(self, messages: list[Message]) -> str:
         """Send chat messages and return response text.
 
         Args:
@@ -84,11 +84,11 @@ class LLMClient:
         else:
             raise ValueError(f"Unknown provider: {self.provider}")
 
-    def _chat_gemini(self, messages: List[Message]) -> str:
+    def _chat_gemini(self, messages: list[Message]) -> str:
         """Chat via Gemini API."""
         from google.genai import errors
 
-        prompt_parts: List[str] = []
+        prompt_parts: list[str] = []
         for m in messages:
             prefix = {
                 "system": "[SYSTEM]",
@@ -114,7 +114,7 @@ class LLMClient:
 
         return response.text or ""
 
-    def _chat_ollama(self, messages: List[Message]) -> str:
+    def _chat_ollama(self, messages: list[Message]) -> str:
         """Chat via Ollama API.
 
         Uses the /api/chat endpoint with streaming disabled.

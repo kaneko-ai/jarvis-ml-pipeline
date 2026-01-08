@@ -4,7 +4,6 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import yaml
 
@@ -13,11 +12,11 @@ from .schema import FeedbackEntry
 
 @dataclass
 class RiskResult:
-    location: Dict[str, int]
+    location: dict[str, int]
     risk_score: float
     risk_level: str
-    top_categories: List[Dict[str, float]]
-    reasons: List[str]
+    top_categories: list[dict[str, float]]
+    reasons: list[str]
 
 
 class FeedbackRiskModel:
@@ -29,14 +28,14 @@ class FeedbackRiskModel:
 
     def score(
         self,
-        features: Dict[str, float],
-        history: List[FeedbackEntry],
+        features: dict[str, float],
+        history: list[FeedbackEntry],
         section: str = "unknown",
-    ) -> Dict[str, object]:
+    ) -> dict[str, object]:
         base = self.config.get("base", 0.0)
         weights = self.config.get("weights", {})
         linear = base
-        reasons: List[str] = []
+        reasons: list[str] = []
 
         for key, weight in weights.items():
             value = features.get(key, 0.0)
@@ -72,9 +71,9 @@ class FeedbackRiskModel:
 
     def _category_probs(
         self,
-        features: Dict[str, float],
-        history: List[FeedbackEntry],
-    ) -> List[Dict[str, float]]:
+        features: dict[str, float],
+        history: list[FeedbackEntry],
+    ) -> list[dict[str, float]]:
         category_rules = self.config.get("category_rules", {})
         scores = {category: rule.get("base", 0.1) for category, rule in category_rules.items()}
 
@@ -93,8 +92,8 @@ class FeedbackRiskModel:
         ]
         return normalized[:3]
 
-    def _history_bias(self, history: List[FeedbackEntry], section: str) -> Tuple[List[str], float]:
-        reasons: List[str] = []
+    def _history_bias(self, history: list[FeedbackEntry], section: str) -> tuple[list[str], float]:
+        reasons: list[str] = []
         bias = 0.0
         if not history:
             return reasons, bias
@@ -104,7 +103,7 @@ class FeedbackRiskModel:
             bias += min(0.4, 0.1 * len(same_section))
         return reasons, bias
 
-    def _reason_from_feature(self, key: str, value: float) -> Optional[str]:
+    def _reason_from_feature(self, key: str, value: float) -> str | None:
         mapping = {
             "error_count": f"P6 lint errorが{int(value)}件あります",
             "warn_count": f"P6 lint warningが{int(value)}件あります",
@@ -115,9 +114,9 @@ class FeedbackRiskModel:
         }
         return mapping.get(key)
 
-    def _load_config(self) -> Dict[str, object]:
+    def _load_config(self) -> dict[str, object]:
         if self.config_path.exists():
-            with open(self.config_path, "r", encoding="utf-8") as f:
+            with open(self.config_path, encoding="utf-8") as f:
                 return yaml.safe_load(f)
         return {
             "base": 0.0,

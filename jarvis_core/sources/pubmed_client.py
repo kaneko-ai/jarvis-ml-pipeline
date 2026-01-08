@@ -9,8 +9,7 @@ import logging
 import time
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
-from urllib.parse import urlencode
+from typing import Any
 
 import requests
 
@@ -29,15 +28,15 @@ class PubMedArticle:
     pmid: str
     title: str
     abstract: str = ""
-    authors: List[str] = field(default_factory=list)
+    authors: list[str] = field(default_factory=list)
     journal: str = ""
     pub_date: str = ""
-    doi: Optional[str] = None
-    pmc_id: Optional[str] = None
-    keywords: List[str] = field(default_factory=list)
-    mesh_terms: List[str] = field(default_factory=list)
-    
-    def to_dict(self) -> Dict[str, Any]:
+    doi: str | None = None
+    pmc_id: str | None = None
+    keywords: list[str] = field(default_factory=list)
+    mesh_terms: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
         return {
             "pmid": self.pmid,
             "title": self.title,
@@ -57,11 +56,11 @@ class PubMedClient:
     
     Free API with rate limiting (3 requests/second without API key).
     """
-    
+
     def __init__(
         self,
-        api_key: Optional[str] = None,
-        email: Optional[str] = None,
+        api_key: str | None = None,
+        email: str | None = None,
         tool_name: str = "jarvis-research-os",
         rate_limit: float = 0.34,  # ~3 requests/second
     ):
@@ -71,15 +70,15 @@ class PubMedClient:
         self.rate_limit = rate_limit
         self._last_request_time = 0.0
         self._session = requests.Session()
-    
+
     def _rate_limit_wait(self) -> None:
         """Wait for rate limiting."""
         elapsed = time.time() - self._last_request_time
         if elapsed < self.rate_limit:
             time.sleep(self.rate_limit - elapsed)
         self._last_request_time = time.time()
-    
-    def _build_params(self, **kwargs) -> Dict[str, str]:
+
+    def _build_params(self, **kwargs) -> dict[str, str]:
         """Build request parameters with common fields."""
         params = {
             "tool": self.tool_name,
@@ -90,13 +89,13 @@ class PubMedClient:
         if self.api_key:
             params["api_key"] = self.api_key
         return params
-    
+
     def search(
         self,
         query: str,
         max_results: int = 20,
         sort: str = "relevance",
-    ) -> List[str]:
+    ) -> list[str]:
         """Search PubMed and return PMIDs.
         
         Args:
@@ -108,7 +107,7 @@ class PubMedClient:
             List of PMIDs.
         """
         self._rate_limit_wait()
-        
+
         params = self._build_params(
             db="pubmed",
             term=query,
@@ -116,21 +115,21 @@ class PubMedClient:
             sort=sort,
             retmode="json",
         )
-        
+
         try:
             response = self._session.get(ESEARCH_URL, params=params, timeout=30)
             response.raise_for_status()
             data = response.json()
-            
+
             id_list = data.get("esearchresult", {}).get("idlist", [])
             logger.info(f"PubMed search '{query[:50]}...' returned {len(id_list)} results")
             return id_list
-            
+
         except requests.RequestException as e:
             logger.error(f"PubMed search error: {e}")
             return []
-    
-    def fetch(self, pmids: List[str]) -> List[PubMedArticle]:
+
+    def fetch(self, pmids: list[str]) -> list[PubMedArticle]:
         """Fetch article details by PMIDs.
         
         Args:
@@ -141,55 +140,55 @@ class PubMedClient:
         """
         if not pmids:
             return []
-        
+
         self._rate_limit_wait()
-        
+
         params = self._build_params(
             db="pubmed",
             id=",".join(pmids),
             retmode="xml",
         )
-        
+
         try:
             response = self._session.get(EFETCH_URL, params=params, timeout=60)
             response.raise_for_status()
-            
+
             articles = self._parse_pubmed_xml(response.text)
             logger.info(f"Fetched {len(articles)} articles from PubMed")
             return articles
-            
+
         except requests.RequestException as e:
             logger.error(f"PubMed fetch error: {e}")
             return []
-    
-    def _parse_pubmed_xml(self, xml_text: str) -> List[PubMedArticle]:
+
+    def _parse_pubmed_xml(self, xml_text: str) -> list[PubMedArticle]:
         """Parse PubMed XML response."""
         articles = []
-        
+
         try:
             root = ET.fromstring(xml_text)
-            
+
             for article_elem in root.findall(".//PubmedArticle"):
                 articles.append(self._parse_article(article_elem))
-                
+
         except ET.ParseError as e:
             logger.error(f"XML parse error: {e}")
-        
+
         return articles
-    
+
     def _parse_article(self, elem: ET.Element) -> PubMedArticle:
         """Parse single article element."""
         medline = elem.find("MedlineCitation")
         article = medline.find("Article") if medline is not None else None
-        
+
         # PMID
         pmid_elem = medline.find("PMID") if medline else None
         pmid = pmid_elem.text if pmid_elem is not None else ""
-        
+
         # Title
         title_elem = article.find("ArticleTitle") if article else None
         title = title_elem.text if title_elem is not None else ""
-        
+
         # Abstract
         abstract_parts = []
         if article:
@@ -203,7 +202,7 @@ class PubMedClient:
                     else:
                         abstract_parts.append(content)
         abstract = " ".join(abstract_parts)
-        
+
         # Authors
         authors = []
         if article:
@@ -217,14 +216,14 @@ class PubMedClient:
                         if first is not None and first.text:
                             name = f"{name} {first.text}"
                         authors.append(name)
-        
+
         # Journal
         journal = ""
         if article:
             journal_elem = article.find("Journal/Title")
             if journal_elem is not None:
                 journal = journal_elem.text or ""
-        
+
         # Date
         pub_date = ""
         if article:
@@ -236,7 +235,7 @@ class PubMedClient:
                     pub_date = year.text or ""
                     if month is not None and month.text:
                         pub_date = f"{pub_date}-{month.text}"
-        
+
         # DOI
         doi = None
         if article:
@@ -244,7 +243,7 @@ class PubMedClient:
                 if id_elem.get("EIdType") == "doi":
                     doi = id_elem.text
                     break
-        
+
         # MeSH terms
         mesh_terms = []
         if medline:
@@ -253,7 +252,7 @@ class PubMedClient:
                 for mesh in mesh_list.findall("MeshHeading/DescriptorName"):
                     if mesh.text:
                         mesh_terms.append(mesh.text)
-        
+
         return PubMedArticle(
             pmid=pmid,
             title=title,
@@ -264,12 +263,12 @@ class PubMedClient:
             doi=doi,
             mesh_terms=mesh_terms,
         )
-    
+
     def search_and_fetch(
         self,
         query: str,
         max_results: int = 20,
-    ) -> List[PubMedArticle]:
+    ) -> list[PubMedArticle]:
         """Search and fetch articles in one call.
         
         Args:

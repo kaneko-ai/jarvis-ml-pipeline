@@ -7,7 +7,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..bundle_v2 import BundleV2
@@ -25,14 +25,14 @@ class ObsidianSync:
         self.vault_path = Path(vault_path)
         self.index_file = self.vault_path / "JARVIS_INDEX.md"
         self.hash_file = self.vault_path / ".jarvis_hashes.json"
-        self.hashes: Dict[str, str] = {}
+        self.hashes: dict[str, str] = {}
 
         self._load_hashes()
 
     def _load_hashes(self):
         """Load existing hashes."""
         if self.hash_file.exists():
-            with open(self.hash_file, "r", encoding="utf-8") as f:
+            with open(self.hash_file, encoding="utf-8") as f:
                 self.hashes = json.load(f)
 
     def _save_hashes(self):
@@ -73,7 +73,7 @@ class ObsidianSync:
 
         return "updated" if old_exists else "created"
 
-    def sync_bundle(self, bundle: "BundleV2") -> dict:
+    def sync_bundle(self, bundle: BundleV2) -> dict:
         """Sync entire bundle to vault.
 
         Args:
@@ -98,7 +98,7 @@ class ObsidianSync:
 
         return results
 
-    def _generate_index(self, bundle: "BundleV2") -> str:
+    def _generate_index(self, bundle: BundleV2) -> str:
         """Generate index note."""
         lines = [
             "# JARVIS Research Index",
@@ -141,7 +141,7 @@ class ObsidianSync:
         return "\n".join(lines)
 
 
-def sync_to_obsidian(bundle: "BundleV2", vault_path: str) -> dict:
+def sync_to_obsidian(bundle: BundleV2, vault_path: str) -> dict:
     """Convenience function to sync bundle to Obsidian."""
     syncer = ObsidianSync(vault_path)
     return syncer.sync_bundle(bundle)

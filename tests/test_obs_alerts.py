@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import os
-from pathlib import Path
-
 from jarvis_core.obs.alerts import engine as alert_engine
 from jarvis_core.obs.alerts.schema import AlertRule, save_rules
 

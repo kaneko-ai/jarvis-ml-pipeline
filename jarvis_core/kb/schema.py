@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass
@@ -18,12 +18,12 @@ class EvidenceRef:
 class ClaimEntry:
     claim_id: str
     text: str
-    evidence: List[EvidenceRef] = field(default_factory=list)
+    evidence: list[EvidenceRef] = field(default_factory=list)
     evidence_strength: str = "low"
     tier: str = "C"
     conflict: bool = False
     needs_followup: bool = False
-    note: Optional[str] = None
+    note: str | None = None
 
 
 @dataclass
@@ -31,13 +31,13 @@ class PaperMeta:
     pmid: str
     title: str
     doi: str = ""
-    year: Optional[int] = None
+    year: int | None = None
     journal: str = ""
     oa: str = "unknown"
     tier: str = "C"
     score: float = 0.0
     run_id: str = ""
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     updated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
@@ -50,12 +50,12 @@ class TopicMeta:
 @dataclass
 class RunSummary:
     run_id: str
-    papers: List[str] = field(default_factory=list)
-    topics: List[str] = field(default_factory=list)
+    papers: list[str] = field(default_factory=list)
+    topics: list[str] = field(default_factory=list)
     updated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
-def format_front_matter(data: Dict[str, Any]) -> str:
+def format_front_matter(data: dict[str, Any]) -> str:
     """Create a minimal YAML front matter string."""
     def render_value(value: Any) -> str:
         if isinstance(value, list):
@@ -78,7 +78,7 @@ def format_front_matter(data: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def parse_front_matter(text: str) -> tuple[Dict[str, Any], str]:
+def parse_front_matter(text: str) -> tuple[dict[str, Any], str]:
     """Parse YAML-ish front matter and return (data, body)."""
     if not text.startswith("---"):
         return {}, text
@@ -92,7 +92,7 @@ def parse_front_matter(text: str) -> tuple[Dict[str, Any], str]:
         return {}, text
     fm_lines = parts[1:end_idx]
     body = "\n".join(parts[end_idx + 1 :]).lstrip("\n")
-    data: Dict[str, Any] = {}
+    data: dict[str, Any] = {}
     for line in fm_lines:
         if not line.strip() or ":" not in line:
             continue

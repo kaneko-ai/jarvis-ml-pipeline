@@ -5,7 +5,6 @@ Per RP-23, provides citation-ready output formatting.
 from __future__ import annotations
 
 import json
-from typing import Optional
 
 from ..artifacts import ClaimSet, ClaimType
 
@@ -17,7 +16,7 @@ def render_claimset_json(claimset: ClaimSet, indent: int = 2) -> str:
 
 def render_claimset_markdown(
     claimset: ClaimSet,
-    evidence_map: Optional[dict] = None,
+    evidence_map: dict | None = None,
 ) -> str:
     """Render ClaimSet as citation-ready Markdown.
 

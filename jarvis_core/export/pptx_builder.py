@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List
 
 try:
     from pptx import Presentation
@@ -14,9 +13,8 @@ except ImportError:  # pragma: no cover
     Inches = None
     Pt = None
 
-from ..writing.utils import load_overview
 from ..writing.outline_builder import ClaimDatum
-
+from ..writing.utils import load_overview
 
 SLIDE_WIDTH = Inches(10) if Inches else None
 SLIDE_HEIGHT = Inches(7.5) if Inches else None
@@ -32,7 +30,7 @@ def _slide_footer(slide, text: str) -> None:
     run.font.size = Pt(10)
 
 
-def _add_bullets(presentation: "Presentation", title: str, bullets: List[str]):
+def _add_bullets(presentation: Presentation, title: str, bullets: list[str]):
     layout = presentation.slide_layouts[1]
     content_slide = presentation.slides.add_slide(layout)
     content_slide.shapes.title.text = title
@@ -52,7 +50,7 @@ def _evidence_footer_text(claim: ClaimDatum | None) -> str:
     return f"Evidence: {ev.paper_id}/{ev.chunk_id}"
 
 
-def build_pptx_from_slides(run_dir: Path, claims: List[ClaimDatum], output_path: Path) -> Path:
+def build_pptx_from_slides(run_dir: Path, claims: list[ClaimDatum], output_path: Path) -> Path:
     if not PPTX_AVAILABLE:
         raise RuntimeError("python-pptx is not installed. Please add python-pptx to requirements.")
 

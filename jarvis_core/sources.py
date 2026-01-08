@@ -11,10 +11,9 @@ EvidenceStore with real content.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Literal
+from typing import Literal
 
 from .evidence import EvidenceStore
-
 
 SourceType = Literal["local", "url", "pdf"]
 
@@ -67,7 +66,7 @@ class Chunker:
         self.chunk_size = chunk_size
         self.overlap = overlap
 
-    def split(self, text: str) -> List[str]:
+    def split(self, text: str) -> list[str]:
         """Split text into chunks.
 
         Args:
@@ -79,7 +78,7 @@ class Chunker:
         if not text.strip():
             return []
 
-        chunks: List[str] = []
+        chunks: list[str] = []
         start = 0
         text_len = len(text)
 
@@ -135,7 +134,7 @@ def ingest(
     store: EvidenceStore,
     chunker: Chunker | None = None,
     preview_length: int = 100,
-) -> List[ChunkResult]:
+) -> list[ChunkResult]:
     """Ingest a document into EvidenceStore.
 
     This is the main entry point for populating EvidenceStore with
@@ -154,7 +153,7 @@ def ingest(
         chunker = Chunker()
 
     chunks = chunker.split(document.text)
-    results: List[ChunkResult] = []
+    results: list[ChunkResult] = []
 
     for i, chunk_text in enumerate(chunks):
         locator = f"{document.locator_base}#chunk:{i}"
@@ -193,17 +192,17 @@ class ExecutionContext:
     """
 
     evidence_store: EvidenceStore
-    available_chunks: List[ChunkResult] = field(default_factory=list)
+    available_chunks: list[ChunkResult] = field(default_factory=list)
 
-    def add_chunks(self, chunks: List[ChunkResult]) -> None:
+    def add_chunks(self, chunks: list[ChunkResult]) -> None:
         """Add chunks to available list."""
         self.available_chunks.extend(chunks)
 
-    def get_chunk_ids(self) -> List[str]:
+    def get_chunk_ids(self) -> list[str]:
         """Get list of available chunk_ids."""
         return [c.chunk_id for c in self.available_chunks]
 
-    def get_chunks_preview(self) -> List[dict]:
+    def get_chunks_preview(self) -> list[dict]:
         """Get list of chunks with preview info for agent prompts."""
         return [
             {
@@ -218,7 +217,7 @@ class ExecutionContext:
         self,
         query: str,
         k: int = 8,
-    ) -> List[ChunkResult]:
+    ) -> list[ChunkResult]:
         """Get relevant chunks for a query using retrieval.
 
         Uses BM25 retrieval if there are many chunks,
@@ -244,7 +243,7 @@ class ExecutionContext:
         self,
         query: str,
         k: int = 8,
-    ) -> List[dict]:
+    ) -> list[dict]:
         """Get relevant chunks preview for agent prompts.
 
         Args:
@@ -268,7 +267,7 @@ class ExecutionContext:
         self,
         query: str,
         k: int = 8,
-    ) -> List[ChunkResult]:
+    ) -> list[ChunkResult]:
         """Get relevant chunks using vector similarity.
 
         Uses embedding-based semantic search instead of BM25.

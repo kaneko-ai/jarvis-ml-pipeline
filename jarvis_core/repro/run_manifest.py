@@ -3,22 +3,22 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Dict
+from typing import Any
 
 
 @dataclass
 class RunManifest:
     run_id: str
     timestamp: str
-    targets: Dict[str, Any]
-    resolver_versions: Dict[str, str]
-    model_info: Dict[str, Any]
-    index_version: Dict[str, Any]
-    input_counts: Dict[str, int]
-    output_counts: Dict[str, int]
-    warnings_summary: Dict[str, Any] = field(default_factory=dict)
+    targets: dict[str, Any]
+    resolver_versions: dict[str, str]
+    model_info: dict[str, Any]
+    index_version: dict[str, Any]
+    input_counts: dict[str, int]
+    output_counts: dict[str, int]
+    warnings_summary: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "run_id": self.run_id,
             "timestamp": self.timestamp,
@@ -34,13 +34,13 @@ class RunManifest:
 
 def create_run_manifest(
     run_id: str,
-    targets: Dict[str, Any],
-    resolver_versions: Dict[str, str],
-    model_info: Dict[str, Any],
-    index_version: Dict[str, Any],
-    input_counts: Dict[str, int],
-    output_counts: Dict[str, int],
-    warnings_summary: Dict[str, Any],
+    targets: dict[str, Any],
+    resolver_versions: dict[str, str],
+    model_info: dict[str, Any],
+    index_version: dict[str, Any],
+    input_counts: dict[str, int],
+    output_counts: dict[str, int],
+    warnings_summary: dict[str, Any],
 ) -> RunManifest:
     return RunManifest(
         run_id=run_id,

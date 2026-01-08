@@ -1,8 +1,6 @@
 """Merge updates into existing notes while preserving manual edits."""
 from __future__ import annotations
 
-from typing import Dict, Tuple
-
 
 def _replace_between(text: str, start: str, end: str, replacement: str) -> str:
     if start in text and end in text:
@@ -12,7 +10,7 @@ def _replace_between(text: str, start: str, end: str, replacement: str) -> str:
     return ""
 
 
-def merge_sections(existing: str, sections: Dict[str, Tuple[str, str, str]]) -> str:
+def merge_sections(existing: str, sections: dict[str, tuple[str, str, str]]) -> str:
     """Merge multiple sections.
 
     sections: name -> (start_marker, end_marker, new_content)

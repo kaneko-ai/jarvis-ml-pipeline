@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable, Mapping
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Iterable, List, Mapping, Optional
 
 from .citations import format_evidence_items
 from .dedup import dedup_claims
@@ -13,7 +13,6 @@ from .normalizer import TermNormalizer
 from .quality_tags import assign_quality_tags
 from .schema import format_front_matter, parse_front_matter
 from .topic_router import TopicRouter
-
 
 AUTO_CLAIMS_START = "<!-- AUTO-CLAIMS-START -->"
 AUTO_CLAIMS_END = "<!-- AUTO-CLAIMS-END -->"
@@ -31,25 +30,25 @@ def _load_json(path: Path) -> dict:
     if not path.exists():
         return {}
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
     except json.JSONDecodeError:
         return {}
 
 
-def _load_jsonl(path: Path) -> List[dict]:
+def _load_jsonl(path: Path) -> list[dict]:
     if not path.exists():
         return []
-    rows: List[dict] = []
-    with open(path, "r", encoding="utf-8") as f:
+    rows: list[dict] = []
+    with open(path, encoding="utf-8") as f:
         for line in f:
             if line.strip():
                 rows.append(json.loads(line))
     return rows
 
 
-def _gather_claims(run_dir: Path) -> List[dict]:
-    claims: List[dict] = []
+def _gather_claims(run_dir: Path) -> list[dict]:
+    claims: list[dict] = []
     direct = run_dir / "claims.jsonl"
     if direct.exists():
         claims.extend(_load_jsonl(direct))
@@ -60,7 +59,7 @@ def _gather_claims(run_dir: Path) -> List[dict]:
     return claims
 
 
-def _gather_papers(run_dir: Path) -> List[dict]:
+def _gather_papers(run_dir: Path) -> list[dict]:
     rank_path = run_dir / "research_rank.json"
     if rank_path.exists():
         data = _load_json(rank_path)
@@ -83,7 +82,7 @@ def _normalize_pmid(paper: Mapping) -> str:
     return str(paper_id) if paper_id else "unknown"
 
 
-def _paper_tags(paper: Mapping) -> List[str]:
+def _paper_tags(paper: Mapping) -> list[str]:
     tags = paper.get("tags") or paper.get("keywords") or []
     if isinstance(tags, str):
         tags = [item.strip() for item in tags.split(",") if item.strip()]
@@ -151,7 +150,7 @@ def _base_topic_body(topic: str) -> str:
     )
 
 
-def ingest_run(run_dir: Path, kb_root: Path = Path("data/kb"), run_id: Optional[str] = None) -> dict:
+def ingest_run(run_dir: Path, kb_root: Path = Path("data/kb"), run_id: str | None = None) -> dict:
     """Ingest run artifacts into KB."""
     run_id = run_id or run_dir.name
     _ensure_kb_dirs(kb_root)
@@ -163,7 +162,7 @@ def ingest_run(run_dir: Path, kb_root: Path = Path("data/kb"), run_id: Optional[
     claims = _gather_claims(run_dir)
     claims = dedup_claims(claims)
 
-    claims_by_paper: Dict[str, List[dict]] = {}
+    claims_by_paper: dict[str, list[dict]] = {}
     for claim in claims:
         paper_id = claim.get("paper_id") or claim.get("paperId") or claim.get("pmid") or ""
         if not paper_id:
@@ -241,7 +240,7 @@ def ingest_run(run_dir: Path, kb_root: Path = Path("data/kb"), run_id: Optional[
         }
         updated_topics.update(topics)
 
-    topic_updates: Dict[str, dict] = {}
+    topic_updates: dict[str, dict] = {}
     for topic in updated_topics:
         topic_note_path = kb_root / "notes" / "topics" / f"{topic}.md"
         summary_lines = [

@@ -5,12 +5,11 @@ Per V4.2 Sprint 2, this provides L1 memory / L2 disk caching.
 from __future__ import annotations
 
 import json
-import hashlib
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional, Dict
-from datetime import datetime
+from typing import Any
 
 
 class CacheLevel(Enum):
@@ -51,10 +50,10 @@ class MultiLevelCache:
 
     def __init__(
         self,
-        l2_path: Optional[str] = None,
+        l2_path: str | None = None,
         l1_max_size: int = 1000,
     ):
-        self.l1_cache: Dict[str, Any] = {}
+        self.l1_cache: dict[str, Any] = {}
         self.l1_max_size = l1_max_size
         self.l2_path = Path(l2_path) if l2_path else None
         self.stats = CacheStats()
@@ -69,7 +68,7 @@ class MultiLevelCache:
         subdir.mkdir(exist_ok=True)
         return subdir / f"{key}.json"
 
-    def get(self, key: str) -> tuple[Optional[Any], CacheLevel]:
+    def get(self, key: str) -> tuple[Any | None, CacheLevel]:
         """Get value from cache.
 
         Args:
@@ -88,7 +87,7 @@ class MultiLevelCache:
             l2_file = self._l2_key_path(key)
             if l2_file.exists():
                 try:
-                    with open(l2_file, "r", encoding="utf-8") as f:
+                    with open(l2_file, encoding="utf-8") as f:
                         data = json.load(f)
                     value = data.get("value")
 

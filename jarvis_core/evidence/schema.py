@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class EvidenceLevel(Enum):
@@ -20,24 +20,24 @@ class EvidenceLevel(Enum):
     Level 4: Case series
     Level 5: Expert opinion
     """
-    
+
     LEVEL_1A = "1a"  # 系統的レビュー（均質なRCT）
     LEVEL_1B = "1b"  # 個別のRCT（狭い信頼区間）
     LEVEL_1C = "1c"  # 全か無かの研究
-    
+
     LEVEL_2A = "2a"  # 系統的レビュー（均質なコホート研究）
     LEVEL_2B = "2b"  # 個別のコホート研究
     LEVEL_2C = "2c"  # 結果研究・生態学的研究
-    
+
     LEVEL_3A = "3a"  # 系統的レビュー（均質な症例対照研究）
     LEVEL_3B = "3b"  # 個別の症例対照研究
-    
+
     LEVEL_4 = "4"    # 症例シリーズ
-    
+
     LEVEL_5 = "5"    # 専門家意見
-    
+
     UNKNOWN = "unknown"
-    
+
     @property
     def numeric_rank(self) -> int:
         """Get numeric rank (1=highest, 5=lowest)."""
@@ -50,7 +50,7 @@ class EvidenceLevel(Enum):
             "unknown": 11,
         }
         return rank_map.get(self.value, 11)
-    
+
     @property
     def description(self) -> str:
         """Get human-readable description."""
@@ -68,24 +68,24 @@ class EvidenceLevel(Enum):
             "unknown": "不明",
         }
         return descriptions.get(self.value, "不明")
-    
-    def __lt__(self, other: "EvidenceLevel") -> bool:
+
+    def __lt__(self, other: EvidenceLevel) -> bool:
         return self.numeric_rank < other.numeric_rank
 
 
 class StudyType(Enum):
     """Types of research studies."""
-    
+
     # Systematic reviews and meta-analyses
     SYSTEMATIC_REVIEW = "systematic_review"
     META_ANALYSIS = "meta_analysis"
-    
+
     # Experimental studies
     RCT = "randomized_controlled_trial"
     CLUSTER_RCT = "cluster_randomized_trial"
     CROSSOVER_TRIAL = "crossover_trial"
     NON_RANDOMIZED_TRIAL = "non_randomized_trial"
-    
+
     # Observational studies
     COHORT_PROSPECTIVE = "prospective_cohort"
     COHORT_RETROSPECTIVE = "retrospective_cohort"
@@ -93,13 +93,13 @@ class StudyType(Enum):
     CROSS_SECTIONAL = "cross_sectional"
     CASE_SERIES = "case_series"
     CASE_REPORT = "case_report"
-    
+
     # Other
     NARRATIVE_REVIEW = "narrative_review"
     EXPERT_OPINION = "expert_opinion"
     GUIDELINE = "clinical_guideline"
     UNKNOWN = "unknown"
-    
+
     @property
     def default_evidence_level(self) -> EvidenceLevel:
         """Get default evidence level for this study type."""
@@ -127,27 +127,27 @@ class StudyType(Enum):
 @dataclass
 class EvidenceGrade:
     """Complete evidence grading result."""
-    
+
     level: EvidenceLevel
     study_type: StudyType
     confidence: float  # 0.0 to 1.0
-    
+
     # Optional details
-    sample_size: Optional[int] = None
-    population: Optional[str] = None
-    intervention: Optional[str] = None
-    comparator: Optional[str] = None
-    outcome: Optional[str] = None
-    
+    sample_size: int | None = None
+    population: str | None = None
+    intervention: str | None = None
+    comparator: str | None = None
+    outcome: str | None = None
+
     # Quality assessment
-    risk_of_bias: Optional[str] = None  # "low", "moderate", "high"
-    quality_notes: List[str] = field(default_factory=list)
-    
+    risk_of_bias: str | None = None  # "low", "moderate", "high"
+    quality_notes: list[str] = field(default_factory=list)
+
     # Classification source
     classifier_source: str = "unknown"  # "rule", "llm", "ensemble"
-    raw_scores: Dict[str, float] = field(default_factory=dict)
-    
-    def to_dict(self) -> Dict[str, Any]:
+    raw_scores: dict[str, float] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "level": self.level.value,
@@ -164,9 +164,9 @@ class EvidenceGrade:
             "classifier_source": self.classifier_source,
             "raw_scores": self.raw_scores,
         }
-    
+
     @classmethod
-    def unknown(cls) -> "EvidenceGrade":
+    def unknown(cls) -> EvidenceGrade:
         """Create an unknown grade."""
         return cls(
             level=EvidenceLevel.UNKNOWN,
@@ -180,16 +180,16 @@ class EvidenceGrade:
 @dataclass
 class PICOExtraction:
     """PICO (Population, Intervention, Comparator, Outcome) extraction."""
-    
-    population: Optional[str] = None
-    intervention: Optional[str] = None
-    comparator: Optional[str] = None
-    outcome: Optional[str] = None
-    
+
+    population: str | None = None
+    intervention: str | None = None
+    comparator: str | None = None
+    outcome: str | None = None
+
     # Additional details
-    study_duration: Optional[str] = None
-    setting: Optional[str] = None
-    
+    study_duration: str | None = None
+    setting: str | None = None
+
     def is_complete(self) -> bool:
         """Check if all PICO components are present."""
         return all([
@@ -198,8 +198,8 @@ class PICOExtraction:
             self.comparator,
             self.outcome,
         ])
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "population": self.population,

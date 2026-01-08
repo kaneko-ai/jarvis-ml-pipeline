@@ -4,9 +4,9 @@ Per RP-183, defines the contract for automatic repair loop behavior.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field, asdict
-from typing import List, Dict, Any, Optional
 import json
+from dataclasses import asdict, dataclass, field
+from typing import Any
 
 
 @dataclass
@@ -20,7 +20,7 @@ class RepairPolicy:
     max_attempts: int = 3
     max_wall_time_sec: float = 300.0
     max_tool_calls: int = 50
-    allowed_actions: List[str] = field(default_factory=lambda: [
+    allowed_actions: list[str] = field(default_factory=lambda: [
         "SWITCH_FETCH_ADAPTER",
         "INCREASE_TOP_K",
         "TIGHTEN_MMR",
@@ -28,11 +28,11 @@ class RepairPolicy:
         "BUDGET_REBALANCE",
         "MODEL_ROUTER_SAFE_SWITCH",
     ])
-    stop_on: Dict[str, Any] = field(default_factory=lambda: {
+    stop_on: dict[str, Any] = field(default_factory=lambda: {
         "consecutive_no_improvement": 2,
         "same_failure_repeated": 3,
     })
-    budget_overrides: Optional[Dict[str, Any]] = None
+    budget_overrides: dict[str, Any] | None = None
 
     def __post_init__(self):
         """Validate policy after initialization."""
@@ -59,7 +59,7 @@ class RepairPolicy:
         if not isinstance(self.stop_on, dict):
             raise ValueError("stop_on must be a dict")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return asdict(self)
 
@@ -68,7 +68,7 @@ class RepairPolicy:
         return json.dumps(self.to_dict(), indent=2)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "RepairPolicy":
+    def from_dict(cls, data: dict[str, Any]) -> RepairPolicy:
         """Create from dictionary."""
         return cls(
             max_attempts=data.get("max_attempts", 3),
@@ -80,7 +80,7 @@ class RepairPolicy:
         )
 
     @classmethod
-    def from_json(cls, json_str: str) -> "RepairPolicy":
+    def from_json(cls, json_str: str) -> RepairPolicy:
         """Deserialize from JSON."""
         return cls.from_dict(json.loads(json_str))
 

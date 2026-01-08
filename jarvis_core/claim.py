@@ -13,7 +13,7 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Literal
+from typing import Literal
 
 
 @dataclass
@@ -44,7 +44,7 @@ class ReviewNote:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "ReviewNote":
+    def from_dict(cls, data: dict) -> ReviewNote:
         """Create from dictionary."""
         created_at = data.get("created_at")
         if isinstance(created_at, str):
@@ -75,13 +75,13 @@ class Claim:
 
     id: str
     text: str
-    citations: List[str] = field(default_factory=list)
+    citations: list[str] = field(default_factory=list)
     valid: bool = True
-    validation_notes: List[str] = field(default_factory=list)
-    reviews: List[ReviewNote] = field(default_factory=list)
+    validation_notes: list[str] = field(default_factory=list)
+    reviews: list[ReviewNote] = field(default_factory=list)
 
     @classmethod
-    def create(cls, text: str, citations: List[str] | None = None) -> "Claim":
+    def create(cls, text: str, citations: list[str] | None = None) -> Claim:
         """Create a new claim with auto-generated ID.
 
         Args:
@@ -129,7 +129,7 @@ class Claim:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "Claim":
+    def from_dict(cls, data: dict) -> Claim:
         """Create from dictionary."""
         reviews = [ReviewNote.from_dict(r) for r in data.get("reviews", [])]
         return cls(
@@ -150,13 +150,13 @@ class ClaimSet:
         claims: List of Claim objects.
     """
 
-    claims: List[Claim] = field(default_factory=list)
+    claims: list[Claim] = field(default_factory=list)
 
     def add(self, claim: Claim) -> None:
         """Add a claim to the set."""
         self.claims.append(claim)
 
-    def add_new(self, text: str, citations: List[str] | None = None) -> Claim:
+    def add_new(self, text: str, citations: list[str] | None = None) -> Claim:
         """Create and add a new claim.
 
         Args:
@@ -170,15 +170,15 @@ class ClaimSet:
         self.claims.append(claim)
         return claim
 
-    def get_valid_claims(self) -> List[Claim]:
+    def get_valid_claims(self) -> list[Claim]:
         """Get only valid claims."""
         return [c for c in self.claims if c.valid]
 
-    def get_invalid_claims(self) -> List[Claim]:
+    def get_invalid_claims(self) -> list[Claim]:
         """Get only invalid claims."""
         return [c for c in self.claims if not c.valid]
 
-    def get_all_citations(self) -> List[str]:
+    def get_all_citations(self) -> list[str]:
         """Get all unique chunk_ids from all claims."""
         all_ids: set[str] = set()
         for claim in self.claims:
@@ -194,7 +194,7 @@ class ClaimSet:
         Returns:
             Combined answer text.
         """
-        lines: List[str] = []
+        lines: list[str] = []
 
         for claim in self.claims:
             if claim.valid:
@@ -219,7 +219,7 @@ class ClaimSet:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "ClaimSet":
+    def from_dict(cls, data: dict) -> ClaimSet:
         """Create from dictionary."""
         claims = [Claim.from_dict(c) for c in data.get("claims", [])]
         return cls(claims=claims)

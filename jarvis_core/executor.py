@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Callable, List, Any, Optional
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 
-from .budget import BudgetSpec, BudgetTracker, BudgetPolicy
+from .budget import BudgetPolicy, BudgetSpec, BudgetTracker
 from .evidence import EvidenceStore
 from .planner import Planner
 from .retry import RetryPolicy
@@ -15,7 +16,6 @@ logger = logging.getLogger("jarvis_core.executor")
 
 if TYPE_CHECKING:  # pragma: no cover - type checking only
     from .router import Router
-    from .agents import AgentResult, Citation
 
 
 class ExecutionEngine:
@@ -32,7 +32,7 @@ class ExecutionEngine:
     def __init__(
         self,
         planner: Planner,
-        router: "Router",
+        router: Router,
         retry_policy: RetryPolicy | None = None,
         validator: Callable[[object], EvaluationResult] | None = None,
         evidence_store: EvidenceStore | None = None,
@@ -45,16 +45,16 @@ class ExecutionEngine:
         self.evidence_store = evidence_store or EvidenceStore()
         self.budget_spec = budget_spec or BudgetSpec()
         self.budget_policy = BudgetPolicy()
-        self._current_tracker: Optional[BudgetTracker] = None
+        self._current_tracker: BudgetTracker | None = None
 
-    def run(self, root_task: Task) -> List[Task]:
+    def run(self, root_task: Task) -> list[Task]:
         """Plan and execute a root task, returning executed subtasks."""
         # Budget tracker initialization
         self._current_tracker = BudgetTracker()
         self._current_tracker.log("run_start", task_id=root_task.task_id)
 
         subtasks = self.planner.plan(root_task)
-        executed: List[Task] = []
+        executed: list[Task] = []
 
         for subtask in subtasks:
             if subtask.status == TaskStatus.PENDING:

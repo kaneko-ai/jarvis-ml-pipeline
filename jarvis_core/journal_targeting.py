@@ -4,7 +4,7 @@ Per RP34, this suggests journals based on paper attributes.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -44,9 +44,9 @@ JOURNAL_PROFILES = {
 
 
 def suggest_journals(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     top_k: int = 5,
-) -> List[dict]:
+) -> list[dict]:
     """Suggest target journals based on paper attributes.
 
     Args:

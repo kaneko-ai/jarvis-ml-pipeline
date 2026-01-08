@@ -10,14 +10,14 @@ This module provides:
 - Ensemble grading with confidence scores
 """
 
+from jarvis_core.evidence.ensemble import EnsembleClassifier, grade_evidence
+from jarvis_core.evidence.llm_classifier import LLMBasedClassifier
+from jarvis_core.evidence.rule_classifier import RuleBasedClassifier
 from jarvis_core.evidence.schema import (
-    EvidenceLevel,
     EvidenceGrade,
+    EvidenceLevel,
     StudyType,
 )
-from jarvis_core.evidence.rule_classifier import RuleBasedClassifier
-from jarvis_core.evidence.llm_classifier import LLMBasedClassifier
-from jarvis_core.evidence.ensemble import EnsembleClassifier, grade_evidence
 
 # English descriptions for evidence levels (CEBM Oxford 2011)
 EVIDENCE_LEVEL_DESCRIPTIONS_EN = {

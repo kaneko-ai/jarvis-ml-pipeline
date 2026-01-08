@@ -3,10 +3,10 @@ from __future__ import annotations
 
 import json
 import zipfile
+from collections.abc import Iterable
 from dataclasses import dataclass
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Iterable, List, Optional
 
 from .schema import parse_front_matter
 
@@ -27,7 +27,7 @@ def _load_index(kb_root: Path) -> dict:
     if not index_path.exists():
         return {}
     try:
-        with open(index_path, "r", encoding="utf-8") as f:
+        with open(index_path, encoding="utf-8") as f:
             return json.load(f)
     except json.JSONDecodeError:
         return {}
@@ -55,8 +55,8 @@ def _note_updated_within(path: Path, start: datetime, end: datetime) -> bool:
     return start <= updated <= end
 
 
-def _collect_week_notes(kb_root: Path, start: datetime, end: datetime, topics: Optional[Iterable[str]] = None) -> List[PackFile]:
-    notes: List[PackFile] = []
+def _collect_week_notes(kb_root: Path, start: datetime, end: datetime, topics: Iterable[str] | None = None) -> list[PackFile]:
+    notes: list[PackFile] = []
     papers_dir = kb_root / "notes" / "papers"
     topics_dir = kb_root / "notes" / "topics"
 
@@ -74,9 +74,9 @@ def _collect_week_notes(kb_root: Path, start: datetime, end: datetime, topics: O
     return notes
 
 
-def _build_readme(week_label: str, notes: List[PackFile]) -> str:
+def _build_readme(week_label: str, notes: list[PackFile]) -> str:
     note_list = "\n".join(f"- {file.arcname}" for file in notes) or "- 対象ノートなし"
-    return """# Weekly Learning Pack ({week_label})
+    return f"""# Weekly Learning Pack ({week_label})
 
 ## 今週のトップ3論点
 - 主要論点1（要更新）
@@ -96,7 +96,7 @@ def _build_readme(week_label: str, notes: List[PackFile]) -> str:
 - このパック全体を教材として、10分のポッドキャスト概要を作成する
 - 新規知見と未確定事項を明確に分けて話す
 - エビデンスへの参照（PMID/Claim）を明示する
-""".format(week_label=week_label, note_list=note_list)
+"""
 
 
 def _build_notebooklm_prompt(week_label: str) -> str:
@@ -111,8 +111,8 @@ def _build_notebooklm_prompt(week_label: str) -> str:
 def generate_weekly_pack(
     kb_root: Path = Path("data/kb"),
     packs_root: Path = Path("data/packs/weekly"),
-    now: Optional[datetime] = None,
-    topics: Optional[Iterable[str]] = None,
+    now: datetime | None = None,
+    topics: Iterable[str] | None = None,
 ) -> Path:
     now = now or datetime.now(timezone.utc)
     week_label = _iso_week_label(now)

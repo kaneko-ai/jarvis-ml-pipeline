@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import List, Dict, Set, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -20,7 +20,7 @@ class KnowledgeEdge:
     target: str
     relation: str
     weight: float
-    evidence_papers: List[str] = field(default_factory=list)
+    evidence_papers: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -30,18 +30,18 @@ class KnowledgeNode:
     id: str
     label: str
     node_type: str  # concept, method, paper
-    attributes: Dict = field(default_factory=dict)
+    attributes: dict = field(default_factory=dict)
 
 
 class HybridKnowledgeGraph:
     """Hybrid knowledge graph with vectors and edges."""
 
     def __init__(self):
-        self.nodes: Dict[str, KnowledgeNode] = {}
-        self.edges: List[KnowledgeEdge] = []
-        self.vectors: Dict[str, "PaperVector"] = {}
+        self.nodes: dict[str, KnowledgeNode] = {}
+        self.edges: list[KnowledgeEdge] = []
+        self.vectors: dict[str, PaperVector] = {}
 
-    def add_paper_vector(self, pv: "PaperVector") -> None:
+    def add_paper_vector(self, pv: PaperVector) -> None:
         """Add a paper vector to the graph."""
         self.vectors[pv.paper_id] = pv
 
@@ -70,7 +70,7 @@ class HybridKnowledgeGraph:
                 evidence_papers=[pv.paper_id],
             ))
 
-    def build_from_vectors(self, vectors: List["PaperVector"]) -> None:
+    def build_from_vectors(self, vectors: list[PaperVector]) -> None:
         """Build graph from list of paper vectors."""
         for pv in vectors:
             self.add_paper_vector(pv)
@@ -80,7 +80,7 @@ class HybridKnowledgeGraph:
 
     def _build_concept_edges(self) -> None:
         """Build edges between concepts based on co-occurrence."""
-        concept_papers: Dict[str, Set[str]] = {}
+        concept_papers: dict[str, set[str]] = {}
 
         for pv in self.vectors.values():
             for concept in pv.concept.concepts:
@@ -122,7 +122,7 @@ class HybridKnowledgeGraph:
         if id1 not in self.nodes or id2 not in self.nodes:
             return -1
 
-        adjacency: Dict[str, Set[str]] = {}
+        adjacency: dict[str, set[str]] = {}
         for edge in self.edges:
             if edge.source not in adjacency:
                 adjacency[edge.source] = set()
@@ -175,7 +175,7 @@ class HybridKnowledgeGraph:
         }
 
 
-def build_knowledge_graph(vectors: List["PaperVector"]) -> HybridKnowledgeGraph:
+def build_knowledge_graph(vectors: list[PaperVector]) -> HybridKnowledgeGraph:
     """Build a hybrid knowledge graph from vectors."""
     graph = HybridKnowledgeGraph()
     graph.build_from_vectors(vectors)

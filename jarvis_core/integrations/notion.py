@@ -9,16 +9,16 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..result import EvidenceQAResult
     from ..reference import Reference
+    from ..result import EvidenceQAResult
 
 
 def export_notion(
-    result: "EvidenceQAResult",
-    references: List["Reference"],
+    result: EvidenceQAResult,
+    references: list[Reference],
 ) -> str:
     """Export Evidence Bundle for Notion.
 

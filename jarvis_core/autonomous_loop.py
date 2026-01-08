@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -19,18 +19,18 @@ class LoopIteration:
 
     iteration: int
     gap_analysis: dict
-    hypotheses: List[dict]
-    experiments: List[dict]
+    hypotheses: list[dict]
+    experiments: list[dict]
     evaluation: dict
-    human_intervention_points: List[str]
+    human_intervention_points: list[str]
 
 
 @dataclass
 class ResearchLoopResult:
     """Result of autonomous research loop."""
 
-    iterations: List[LoopIteration]
-    final_recommendations: List[str]
+    iterations: list[LoopIteration]
+    final_recommendations: list[str]
     convergence_achieved: bool
     total_hypotheses_generated: int
     total_experiments_proposed: int
@@ -39,8 +39,8 @@ class ResearchLoopResult:
 
 
 def run_autonomous_research_loop(
-    vectors: List["PaperVector"],
-    focus_concepts: List[str],
+    vectors: list[PaperVector],
+    focus_concepts: list[str],
     max_iterations: int = 3,
 ) -> dict:
     """Run autonomous research loop.
@@ -55,10 +55,9 @@ def run_autonomous_research_loop(
     Returns:
         Loop result dict with all iterations.
     """
+    from .feasibility import score_feasibility
     from .gap_analysis import score_research_gaps
     from .hypothesis import generate_hypotheses
-    from .chain_builder import build_research_chain
-    from .feasibility import score_feasibility
 
     if not vectors or not focus_concepts:
         return {

@@ -7,10 +7,10 @@ Labels: human-annotated relevance grades
 Usage:
     python jarvis_cli.py train-ranker --dataset evals/golden_sets/cd73_set_v1.jsonl
 """
-from typing import Any, Dict, List, Optional
 import json
 import logging
 from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -25,18 +25,18 @@ except ImportError:
 
 class LGBMRanker:
     """LightGBM-based ranking model for paper scoring."""
-    
+
     def __init__(self):
-        self.model: Optional[Any] = None
-        self.feature_names: List[str] = [
+        self.model: Any | None = None
+        self.feature_names: list[str] = [
             "model_tier_score",
             "evidence_type_score",
             "causal_strength_score",
             "reproducibility_score",
             "tme_relevance_score"
         ]
-    
-    def _convert_features(self, rubric_features: Dict) -> List[float]:
+
+    def _convert_features(self, rubric_features: dict) -> list[float]:
         """Convert rubric features to numeric scores.
         
         Mapping (example for model_tier):
@@ -61,7 +61,7 @@ class LGBMRanker:
         tme_map = {
             "high": 1.0, "limited": 0.5, "none": 0.0
         }
-        
+
         return [
             tier_map.get(rubric_features.get("model_tier", "unknown"), 0.0),
             evidence_map.get(rubric_features.get("evidence_type", "unknown"), 0.0),
@@ -69,8 +69,8 @@ class LGBMRanker:
             repro_map.get(rubric_features.get("reproducibility", "single"), 0.0),
             tme_map.get(rubric_features.get("tme_relevance", "none"), 0.0),
         ]
-    
-    def train(self, dataset_path: Path, output_path: Optional[Path] = None):
+
+    def train(self, dataset_path: Path, output_path: Path | None = None):
         """Train ranker on golden dataset.
         
         Args:
@@ -79,22 +79,22 @@ class LGBMRanker:
         """
         if not HAS_LGBM:
             raise ImportError("LightGBM is required for training. Install with: pip install lightgbm")
-        
+
         # Load dataset
         papers = []
-        with open(dataset_path, "r", encoding="utf-8") as f:
+        with open(dataset_path, encoding="utf-8") as f:
             for line in f:
                 if line.strip():
                     papers.append(json.loads(line))
-        
+
         if len(papers) < 3:
             raise ValueError(f"Need at least 3 labeled papers, got {len(papers)}")
-        
+
         # For demo: generate mock features
         # In production, features would come from extract_features stage
         X = []
         y = []
-        
+
         for paper in papers:
             # Mock features based on rank (inverse relationship for demo)
             rank = paper.get("overall_rank", 999)
@@ -106,20 +106,20 @@ class LGBMRanker:
                 max(0, 0.6 - rank * 0.1),   # tme_relevance
             ]
             X.append(mock_features)
-            
+
             # Label: use relevance_grade (higher = better)
             relevance = paper.get("relevance_grade", 1)
             y.append(relevance)
-        
+
         X = np.array(X)
         y = np.array(y)
-        
+
         # Group (all papers in one query group for simplicity)
         group = [len(papers)]
-        
+
         # Train LightGBM ranker
         train_data = lgb.Dataset(X, label=y, group=group, feature_name=self.feature_names)
-        
+
         params = {
             "objective": "lambdarank",
             "metric": "ndcg",
@@ -128,23 +128,23 @@ class LGBMRanker:
             "learning_rate": 0.1,
             "verbose": -1
         }
-        
+
         self.model = lgb.train(params, train_data, num_boost_round=50)
-        
+
         logger.info(f"Trained LightGBM ranker on {len(papers)} papers")
-        
+
         # Save model
         if output_path:
             self.model.save_model(str(output_path))
             logger.info(f"Model saved to {output_path}")
-        
+
         return {
             "num_papers": len(papers),
             "feature_names": self.feature_names,
             "model_saved": str(output_path) if output_path else None
         }
-    
-    def predict(self, features_list: List[Dict]) -> List[float]:
+
+    def predict(self, features_list: list[dict]) -> list[float]:
         """Predict ranking scores for a list of papers.
         
         Args:
@@ -155,21 +155,21 @@ class LGBMRanker:
         """
         if not self.model:
             raise ValueError("Model not trained. Call train() first.")
-        
+
         X = np.array([self._convert_features(f) for f in features_list])
         scores = self.model.predict(X)
         return scores.tolist()
-    
+
     def load(self, model_path: Path):
         """Load pre-trained model."""
         if not HAS_LGBM:
             raise ImportError("LightGBM is required. Install with: pip install lightgbm")
-        
+
         self.model = lgb.Booster(model_file=str(model_path))
         logger.info(f"Loaded model from {model_path}")
 
 
-def get_ranker(model_path: Optional[Path] = None) -> LGBMRanker:
+def get_ranker(model_path: Path | None = None) -> LGBMRanker:
     """Get ranker instance, optionally loading pre-trained model."""
     ranker = LGBMRanker()
     if model_path and model_path.exists():

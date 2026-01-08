@@ -4,14 +4,14 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 from difflib import SequenceMatcher
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 from jarvis_core.metadata.normalize import normalize_title
 
 
 @dataclass
 class DedupResult:
-    canonical_papers: List[Dict[str, Any]]
+    canonical_papers: list[dict[str, Any]]
     merged_count: int
 
 
@@ -21,12 +21,12 @@ class DedupEngine:
     def __init__(self, similarity_threshold: float = 0.92) -> None:
         self.similarity_threshold = similarity_threshold
 
-    def deduplicate(self, papers: List[Dict[str, Any]]) -> DedupResult:
-        canonical: List[Dict[str, Any]] = []
+    def deduplicate(self, papers: list[dict[str, Any]]) -> DedupResult:
+        canonical: list[dict[str, Any]] = []
         merged_count = 0
-        seen_doi: Dict[str, Dict[str, Any]] = {}
-        seen_pmid: Dict[str, Dict[str, Any]] = {}
-        seen_title: Dict[str, Dict[str, Any]] = {}
+        seen_doi: dict[str, dict[str, Any]] = {}
+        seen_pmid: dict[str, dict[str, Any]] = {}
+        seen_title: dict[str, dict[str, Any]] = {}
 
         for paper in papers:
             paper = dict(paper)
@@ -51,7 +51,7 @@ class DedupEngine:
 
         return DedupResult(canonical_papers=canonical, merged_count=merged_count)
 
-    def _canonical_id(self, paper: Dict[str, Any]) -> str:
+    def _canonical_id(self, paper: dict[str, Any]) -> str:
         if paper.get("doi"):
             return f"doi:{paper['doi']}"
         if paper.get("pmid"):
@@ -64,12 +64,12 @@ class DedupEngine:
 
     def _match_existing(
         self,
-        paper: Dict[str, Any],
-        canonical: List[Dict[str, Any]],
-        seen_doi: Dict[str, Dict[str, Any]],
-        seen_pmid: Dict[str, Dict[str, Any]],
-        seen_title: Dict[str, Dict[str, Any]],
-    ) -> Dict[str, Any] | None:
+        paper: dict[str, Any],
+        canonical: list[dict[str, Any]],
+        seen_doi: dict[str, dict[str, Any]],
+        seen_pmid: dict[str, dict[str, Any]],
+        seen_title: dict[str, dict[str, Any]],
+    ) -> dict[str, Any] | None:
         doi = paper.get("doi")
         if doi and doi in seen_doi:
             return seen_doi[doi]

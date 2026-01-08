@@ -17,7 +17,7 @@ import logging
 import re
 import uuid
 from pathlib import Path
-from typing import List, Literal
+from typing import Literal
 
 from .agents import AgentResult, BaseAgent, Citation
 from .evidence import EvidenceStore
@@ -115,7 +115,7 @@ class EvidenceQAAgent(BaseAgent):
         answer, status, chunk_ids, claims = self._parse_response(response, relevant_chunks)
 
         # Build citations from chunk_ids
-        citations: List[Citation] = []
+        citations: list[Citation] = []
         for chunk_id in chunk_ids:
             # Find matching chunk info
             chunk_info = next(
@@ -142,8 +142,8 @@ class EvidenceQAAgent(BaseAgent):
     def _parse_response(
         self,
         response: str,
-        available_chunks: List[dict],
-    ) -> tuple[str, str, List[str], "ClaimSet"]:
+        available_chunks: list[dict],
+    ) -> tuple[str, str, list[str], ClaimSet]:
         """Parse LLM response to extract claims, answer, status, and chunk_ids.
 
         Args:
@@ -156,7 +156,7 @@ class EvidenceQAAgent(BaseAgent):
         from .claim import Claim, ClaimSet
 
         claims = ClaimSet()
-        chunk_ids: List[str] = []
+        chunk_ids: list[str] = []
         available_ids = {c["chunk_id"] for c in available_chunks}
 
         # Parse numbered claims from response
@@ -194,7 +194,7 @@ class EvidenceQAAgent(BaseAgent):
         self,
         line: str,
         available_ids: set,
-    ) -> tuple[str, List[str]]:
+    ) -> tuple[str, list[str]]:
         """Extract claim text and chunk_id references from a line.
 
         Args:
@@ -204,9 +204,8 @@ class EvidenceQAAgent(BaseAgent):
         Returns:
             Tuple of (claim_text, list_of_chunk_ids).
         """
-        import re
 
-        refs: List[str] = []
+        refs: list[str] = []
 
         # Find all [chunk_id] patterns
         for chunk_id in available_ids:
@@ -244,7 +243,7 @@ def _ingest_input(
     input_path: str,
     store: EvidenceStore,
     context: ExecutionContext,
-) -> List[ChunkResult]:
+) -> list[ChunkResult]:
     """Ingest an input into EvidenceStore.
 
     Args:
@@ -288,7 +287,7 @@ def _ingest_input(
 def run_evidence_qa(
     *,
     query: str,
-    inputs: List[str],
+    inputs: list[str],
     category: str = "generic",
     llm: LLMClient | None = None,
 ) -> str:
@@ -326,10 +325,10 @@ def run_evidence_qa(
 def run_evidence_qa_result(
     *,
     query: str,
-    inputs: List[str],
+    inputs: list[str],
     category: str = "generic",
     llm: LLMClient | None = None,
-) -> "EvidenceQAResult":
+) -> EvidenceQAResult:
     """Run evidence-based QA pipeline with structured result.
 
     This returns a structured result with answer, status, citations,
@@ -388,7 +387,7 @@ def run_evidence_qa_result(
     agent = EvidenceQAAgent(llm)
 
     # Track the agent result for structured output
-    agent_result_holder: List[AgentResult] = []
+    agent_result_holder: list[AgentResult] = []
 
     class EvidenceQARouter:
         """Simple router that always uses EvidenceQAAgent."""
@@ -420,7 +419,7 @@ def run_evidence_qa_result(
     # Get the final status from the executed task
     # Note: ExecutionEngine may have modified the status
     final_status = "partial"  # Default
-    citations: List[Citation] = []
+    citations: list[Citation] = []
 
     if agent_result_holder:
         agent_result = agent_result_holder[-1]
@@ -442,8 +441,8 @@ def run_evidence_qa_result(
 
 # Export the EvidenceStore for bundle export
 def get_evidence_store_for_bundle(
-    inputs: List[str],
-) -> "EvidenceStore":
+    inputs: list[str],
+) -> EvidenceStore:
     """Create and populate an EvidenceStore from inputs.
 
     This is a utility for bundle export when you need

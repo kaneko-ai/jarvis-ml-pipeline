@@ -12,12 +12,10 @@ from __future__ import annotations
 import json
 import uuid
 from pathlib import Path
-from typing import Any, Dict
 
 from jarvis_core.contracts.types import Artifacts, Claim, EvidenceLink, TaskContext
-from jarvis_core.pipelines.stage_registry import register_stage
 from jarvis_core.ops import log_audit
-
+from jarvis_core.pipelines.stage_registry import register_stage
 
 # ============================================
 # OUTPUT ステージ群
@@ -35,7 +33,7 @@ def stage_output_render_dashboard(context: TaskContext, artifacts: Artifacts) ->
         "scores_count": len(artifacts.scores),
         "widgets": []
     }
-    
+
     # Summary widget
     if artifacts.summaries:
         dashboard["widgets"].append({
@@ -43,7 +41,7 @@ def stage_output_render_dashboard(context: TaskContext, artifacts: Artifacts) ->
             "title": "概要",
             "data": list(artifacts.summaries.values())[:3]
         })
-    
+
     # Scores widget
     if artifacts.scores:
         dashboard["widgets"].append({
@@ -51,9 +49,9 @@ def stage_output_render_dashboard(context: TaskContext, artifacts: Artifacts) ->
             "title": "スコア",
             "data": {k: v.value for k, v in list(artifacts.scores.items())[:10]}
         })
-    
+
     artifacts.metadata["dashboard"] = dashboard
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text="Dashboard rendered",
@@ -63,7 +61,7 @@ def stage_output_render_dashboard(context: TaskContext, artifacts: Artifacts) ->
         )],
         claim_type="log"
     ))
-    
+
     log_audit("output.render_dashboard", "completed")
     return artifacts
 
@@ -72,7 +70,7 @@ def stage_output_render_dashboard(context: TaskContext, artifacts: Artifacts) ->
 def stage_output_evidence_highlight(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """根拠ハイライトステージ。"""
     highlights = []
-    
+
     for claim in artifacts.claims:
         if claim.evidence:
             for ev in claim.evidence:
@@ -84,9 +82,9 @@ def stage_output_evidence_highlight(context: TaskContext, artifacts: Artifacts) 
                     "end": ev.end,
                     "text": ev.text[:100] if ev.text else ""
                 })
-    
+
     artifacts.metadata["evidence_highlights"] = highlights
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"Generated {len(highlights)} evidence highlights",
@@ -96,7 +94,7 @@ def stage_output_evidence_highlight(context: TaskContext, artifacts: Artifacts) 
         )],
         claim_type="log"
     ))
-    
+
     log_audit("output.evidence_highlight", "completed")
     return artifacts
 
@@ -105,7 +103,7 @@ def stage_output_evidence_highlight(context: TaskContext, artifacts: Artifacts) 
 def stage_output_score_bar(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """スコアバー生成ステージ。"""
     score_bars = []
-    
+
     for score_key, score in artifacts.scores.items():
         score_bars.append({
             "key": score_key,
@@ -113,9 +111,9 @@ def stage_output_score_bar(context: TaskContext, artifacts: Artifacts) -> Artifa
             "percentage": int(score.value * 100),
             "explanation": score.explanation
         })
-    
+
     artifacts.metadata["score_bars"] = score_bars
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"Generated {len(score_bars)} score bars",
@@ -125,7 +123,7 @@ def stage_output_score_bar(context: TaskContext, artifacts: Artifacts) -> Artifa
         )],
         claim_type="log"
     ))
-    
+
     log_audit("output.score_bar", "completed")
     return artifacts
 
@@ -138,7 +136,7 @@ def stage_output_comparison_view(context: TaskContext, artifacts: Artifacts) -> 
         "enabled": bool(comparison),
         "data": comparison
     }
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text="Comparison view generated",
@@ -148,7 +146,7 @@ def stage_output_comparison_view(context: TaskContext, artifacts: Artifacts) -> 
         )],
         claim_type="log"
     ))
-    
+
     log_audit("output.comparison_view", "completed")
     return artifacts
 
@@ -158,13 +156,13 @@ def stage_output_design_view(context: TaskContext, artifacts: Artifacts) -> Arti
     """実験設計ビュー出力ステージ。"""
     proposals = artifacts.metadata.get("experiment_proposals", [])
     protocols = artifacts.metadata.get("protocols", [])
-    
+
     artifacts.metadata["design_view"] = {
         "proposals": proposals,
         "protocols": protocols,
         "total_proposals": len(proposals)
     }
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text="Design view generated",
@@ -174,7 +172,7 @@ def stage_output_design_view(context: TaskContext, artifacts: Artifacts) -> Arti
         )],
         claim_type="log"
     ))
-    
+
     log_audit("output.design_view", "completed")
     return artifacts
 
@@ -193,8 +191,9 @@ def stage_output_export_bundle(context: TaskContext, artifacts: Artifacts) -> Ar
     - quality_report: 品質レポート
     """
     from datetime import datetime
+
     from jarvis_core.evaluation import get_quality_gates
-    
+
     # Quality Gateを実行
     gates = get_quality_gates()
     quality_report = gates.run_all(
@@ -203,7 +202,7 @@ def stage_output_export_bundle(context: TaskContext, artifacts: Artifacts) -> Ar
         completed_stages=10,
         validate_evidence_spans=False  # export時は軽量化
     )
-    
+
     # Evidence linksを収集
     evidence_links = []
     for claim in artifacts.claims:
@@ -218,7 +217,7 @@ def stage_output_export_bundle(context: TaskContext, artifacts: Artifacts) -> Ar
                 "confidence": ev.confidence,
                 "text": ev.text[:200] if ev.text else None
             })
-    
+
     # Claims形式化
     claims_data = []
     for claim in artifacts.claims:
@@ -230,7 +229,7 @@ def stage_output_export_bundle(context: TaskContext, artifacts: Artifacts) -> Ar
             "has_evidence": claim.has_evidence(),
             "evidence_count": len(claim.evidence)
         })
-    
+
     # 完全なバンドル
     bundle = {
         "version": "1.0",
@@ -245,7 +244,7 @@ def stage_output_export_bundle(context: TaskContext, artifacts: Artifacts) -> Ar
         },
         "papers": [
             {
-                "doc_id": p.doc_id, 
+                "doc_id": p.doc_id,
                 "title": p.title,
                 "pmid": p.pmid,
                 "abstract": (p.abstract or "")[:500]
@@ -254,23 +253,23 @@ def stage_output_export_bundle(context: TaskContext, artifacts: Artifacts) -> Ar
         ],
         "claims": claims_data,
         "evidence_links": evidence_links,
-        "scores": {k: {"value": v.value, "explanation": v.explanation} 
+        "scores": {k: {"value": v.value, "explanation": v.explanation}
                    for k, v in artifacts.scores.items()},
         "summaries": dict(artifacts.summaries),
         "quality_report": quality_report.to_dict()
     }
-    
+
     artifacts.metadata["export_bundle"] = bundle
-    
+
     # ファイル出力
     output_dir = Path("artifacts") / context.run_id
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     bundle_path = output_dir / "export_bundle.json"
     try:
         with open(bundle_path, "w", encoding="utf-8") as f:
             json.dump(bundle, f, ensure_ascii=False, indent=2)
-        
+
         # docs_store.json も生成（原文断片）
         docs_store = {}
         for p in artifacts.papers:
@@ -280,15 +279,15 @@ def stage_output_export_bundle(context: TaskContext, artifacts: Artifacts) -> Ar
                 "sections": p.sections,
                 "chunks": p.chunks
             }
-        
+
         docs_store_path = output_dir / "docs_store.json"
         with open(docs_store_path, "w", encoding="utf-8") as f:
             json.dump(docs_store, f, ensure_ascii=False, indent=2)
-            
+
     except Exception as e:
         # CI環境ではスキップ
         artifacts.metadata["export_bundle_error"] = str(e)
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"Export bundle created: {len(claims_data)} claims, {len(evidence_links)} evidence links",
@@ -298,7 +297,7 @@ def stage_output_export_bundle(context: TaskContext, artifacts: Artifacts) -> Ar
         )],
         claim_type="log"
     ))
-    
+
     log_audit("output.export_bundle", "completed",
               details={"claims": len(claims_data), "evidence_links": len(evidence_links)})
     return artifacts
@@ -312,17 +311,17 @@ def stage_output_export_bundle(context: TaskContext, artifacts: Artifacts) -> Ar
 def stage_quality_gate_provenance_check(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """根拠率チェック（≥95%必須）。"""
     from jarvis_core.evaluation import get_quality_gates
-    
+
     gates = get_quality_gates()
     result = gates.check_provenance(artifacts.claims)
-    
+
     artifacts.metadata["provenance_check"] = {
         "passed": result.passed,
         "threshold": result.threshold,
         "actual": result.actual,
         "message": result.message
     }
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"Provenance check: {result.actual:.1%} (threshold: {result.threshold:.1%})",
@@ -332,7 +331,7 @@ def stage_quality_gate_provenance_check(context: TaskContext, artifacts: Artifac
         )],
         claim_type="log"
     ))
-    
+
     log_audit("quality_gate.provenance_check", "completed",
               details={"passed": result.passed, "rate": result.actual})
     return artifacts
@@ -342,17 +341,17 @@ def stage_quality_gate_provenance_check(context: TaskContext, artifacts: Artifac
 def stage_quality_gate_final_audit(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """最終監査ステージ。"""
     from jarvis_core.ops import get_audit_logger
-    
+
     logger = get_audit_logger()
     summary = logger.get_summary()
-    
+
     artifacts.metadata["final_audit"] = {
         "run_id": summary.get("run_id"),
         "entries": summary.get("entries", 0),
         "errors": summary.get("errors", 0),
         "avg_provenance_rate": summary.get("avg_provenance_rate", 0)
     }
-    
+
     artifacts.add_claim(Claim(
         claim_id=f"c-{uuid.uuid4().hex[:8]}",
         claim_text=f"Final audit: {summary.get('entries', 0)} entries, {summary.get('errors', 0)} errors",
@@ -362,7 +361,7 @@ def stage_quality_gate_final_audit(context: TaskContext, artifacts: Artifacts) -
         )],
         claim_type="log"
     ))
-    
+
     log_audit("quality_gate.final_audit", "completed",
               provenance_rate=summary.get("avg_provenance_rate", 0))
     return artifacts

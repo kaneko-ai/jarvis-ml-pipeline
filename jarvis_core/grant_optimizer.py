@@ -4,15 +4,15 @@ Per Issue Ω-2, this estimates grant success probability.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def optimize_grant_proposal(
-    research_vectors: List["PaperVector"],
-    grant_keywords: List[str],
+    research_vectors: list[PaperVector],
+    grant_keywords: list[str],
     grant_type: str = "general",
 ) -> dict:
     """Estimate grant/fellowship success probability.
@@ -88,7 +88,7 @@ def optimize_grant_proposal(
     }
 
 
-def suggest_grant_improvements(result: dict) -> List[str]:
+def suggest_grant_improvements(result: dict) -> list[str]:
     """Suggest improvements for grant proposal."""
     suggestions = []
 

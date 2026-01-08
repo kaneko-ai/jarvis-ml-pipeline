@@ -13,11 +13,11 @@ import hashlib
 import json
 import logging
 import re
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class Permission(Enum):
 
 
 # ロールごとのパーミッション
-ROLE_PERMISSIONS: Dict[Role, Set[Permission]] = {
+ROLE_PERMISSIONS: dict[Role, set[Permission]] = {
     Role.ADMIN: {Permission.READ, Permission.WRITE, Permission.EXECUTE, Permission.DELETE, Permission.ADMIN},
     Role.RESEARCHER: {Permission.READ, Permission.WRITE, Permission.EXECUTE},
     Role.REVIEWER: {Permission.READ, Permission.EXECUTE},
@@ -56,12 +56,12 @@ class AccessLogEntry:
     action: str
     resource: str
     granted: bool
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
 
 
 class AccessControl:
     """アクセス制御."""
-    
+
     def __init__(self, audit_path: str = "audit/access_log.jsonl"):
         """
         初期化.
@@ -71,20 +71,20 @@ class AccessControl:
         """
         self.audit_path = Path(audit_path)
         self.audit_path.parent.mkdir(parents=True, exist_ok=True)
-        self._user_roles: Dict[str, Role] = {}
-    
+        self._user_roles: dict[str, Role] = {}
+
     def set_user_role(self, user_id: str, role: Role):
         """ユーザーロールを設定."""
         self._user_roles[user_id] = role
         self._log_access(user_id, "role_assigned", f"role:{role.value}", True)
-    
+
     def get_user_role(self, user_id: str) -> Role:
         """ユーザーロールを取得."""
         return self._user_roles.get(user_id, Role.READONLY)
-    
+
     def check_permission(
-        self, 
-        user_id: str, 
+        self,
+        user_id: str,
         permission: Permission,
         resource: str = ""
     ) -> bool:
@@ -102,16 +102,16 @@ class AccessControl:
         role = self.get_user_role(user_id)
         permissions = ROLE_PERMISSIONS.get(role, set())
         granted = permission in permissions
-        
+
         self._log_access(user_id, permission.value, resource, granted)
-        
+
         return granted
-    
+
     def _log_access(
-        self, 
-        user_id: str, 
-        action: str, 
-        resource: str, 
+        self,
+        user_id: str,
+        action: str,
+        resource: str,
         granted: bool
     ):
         """アクセスをログ."""
@@ -122,7 +122,7 @@ class AccessControl:
             resource=resource,
             granted=granted
         )
-        
+
         with open(self.audit_path, 'a', encoding='utf-8') as f:
             f.write(json.dumps(asdict(entry), ensure_ascii=False) + '\n')
 
@@ -136,20 +136,20 @@ class DeletionRequest:
     target_id: str
     reason: str
     requested_at: str = field(default_factory=lambda: datetime.now().isoformat())
-    completed_at: Optional[str] = None
+    completed_at: str | None = None
     status: str = "pending"  # pending, approved, completed, rejected
 
 
 class GDPRCompliance:
     """GDPR対応."""
-    
+
     # 個人情報パターン
     PII_PATTERNS = [
         (r'\b[A-Z][a-z]+ [A-Z][a-z]+\b', 'name'),  # 人名
         (r'\b\d{3}[-.]?\d{3}[-.]?\d{4}\b', 'phone'),  # 電話番号
         (r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', 'email'),  # メール
     ]
-    
+
     def __init__(self, requests_path: str = "audit/gdpr_requests.jsonl"):
         """
         初期化.
@@ -160,8 +160,8 @@ class GDPRCompliance:
         self.requests_path = Path(requests_path)
         self.requests_path.parent.mkdir(parents=True, exist_ok=True)
         self._request_counter = 0
-    
-    def detect_pii(self, text: str) -> List[Dict[str, Any]]:
+
+    def detect_pii(self, text: str) -> list[dict[str, Any]]:
         """
         PIIを検出.
         
@@ -172,7 +172,7 @@ class GDPRCompliance:
             検出されたPIIリスト
         """
         findings = []
-        
+
         for pattern, pii_type in self.PII_PATTERNS:
             matches = re.findall(pattern, text)
             for match in matches:
@@ -181,9 +181,9 @@ class GDPRCompliance:
                     "value_hash": hashlib.sha256(match.encode()).hexdigest()[:8],
                     "location": text.find(match)
                 })
-        
+
         return findings
-    
+
     def anonymize_text(self, text: str) -> str:
         """
         テキストを匿名化.
@@ -195,12 +195,12 @@ class GDPRCompliance:
             匿名化されたテキスト
         """
         anonymized = text
-        
+
         for pattern, pii_type in self.PII_PATTERNS:
             anonymized = re.sub(pattern, f'[{pii_type.upper()}_REDACTED]', anonymized)
-        
+
         return anonymized
-    
+
     def create_deletion_request(
         self,
         requester: str,
@@ -221,7 +221,7 @@ class GDPRCompliance:
             削除リクエスト
         """
         self._request_counter += 1
-        
+
         request = DeletionRequest(
             request_id=f"GDPR-{self._request_counter:04d}",
             requester=requester,
@@ -229,14 +229,14 @@ class GDPRCompliance:
             target_id=target_id,
             reason=reason
         )
-        
+
         with open(self.requests_path, 'a', encoding='utf-8') as f:
             f.write(json.dumps(asdict(request), ensure_ascii=False) + '\n')
-        
+
         logger.info(f"GDPR deletion request created: {request.request_id}")
-        
+
         return request
-    
+
     def process_deletion_request(
         self,
         request_id: str,
@@ -256,23 +256,23 @@ class GDPRCompliance:
         """
         # 実際の実装では、対象データを削除/匿名化
         status = "completed" if approved else "rejected"
-        
+
         completion_entry = {
             "request_id": request_id,
             "status": status,
             "processor": processor,
             "completed_at": datetime.now().isoformat()
         }
-        
+
         with open(self.requests_path, 'a', encoding='utf-8') as f:
             f.write(json.dumps(completion_entry, ensure_ascii=False) + '\n')
-        
+
         return True
 
 
 # グローバルインスタンス
-_access_control: Optional[AccessControl] = None
-_gdpr: Optional[GDPRCompliance] = None
+_access_control: AccessControl | None = None
+_gdpr: GDPRCompliance | None = None
 
 
 def get_access_control() -> AccessControl:

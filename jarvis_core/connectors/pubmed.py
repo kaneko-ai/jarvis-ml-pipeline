@@ -14,7 +14,7 @@ import time
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 from xml.etree import ElementTree as ET
 
 
@@ -37,19 +37,19 @@ class PaperDoc:
     pmid: str
     title: str
     abstract: str = ""
-    pmcid: Optional[str] = None
-    doi: Optional[str] = None
-    authors: List[str] = field(default_factory=list)
+    pmcid: str | None = None
+    doi: str | None = None
+    authors: list[str] = field(default_factory=list)
     journal: str = ""
     pub_date: str = ""
-    sections: Dict[str, str] = field(default_factory=dict)
-    references: List[Dict[str, Any]] = field(default_factory=list)
-    identifiers: Dict[str, str] = field(default_factory=dict)
-    chunks: Dict[str, str] = field(default_factory=dict)
-    char_spans: Dict[str, tuple] = field(default_factory=dict)
+    sections: dict[str, str] = field(default_factory=dict)
+    references: list[dict[str, Any]] = field(default_factory=list)
+    identifiers: dict[str, str] = field(default_factory=dict)
+    chunks: dict[str, str] = field(default_factory=dict)
+    char_spans: dict[str, tuple] = field(default_factory=dict)
     is_oa: bool = False
-    fulltext_source: Optional[str] = None
-    
+    fulltext_source: str | None = None
+
     def to_paper(self):
         """jarvis_core.contracts.types.Paper に変換."""
         from jarvis_core.contracts.types import Paper
@@ -65,18 +65,18 @@ class PaperDoc:
             sections=self.sections,
             chunks=self.chunks
         )
-    
+
     def generate_chunks(self, chunk_size: int = 500) -> None:
         """セクションからチャンクを生成."""
         chunk_id = 0
-        
+
         # タイトルチャンク
         if self.title:
             cid = f"chunk_{chunk_id}"
             self.chunks[cid] = self.title
             self.char_spans[cid] = (0, len(self.title))
             chunk_id += 1
-        
+
         # アブストラクトチャンク
         if self.abstract:
             for i in range(0, len(self.abstract), chunk_size):
@@ -85,7 +85,7 @@ class PaperDoc:
                 self.chunks[cid] = text
                 self.char_spans[cid] = (i, i + len(text))
                 chunk_id += 1
-        
+
         # セクションチャンク
         for section_name, section_text in self.sections.items():
             for i in range(0, len(section_text), chunk_size):
@@ -102,10 +102,10 @@ class PubMedConnector:
     
     実APIを使用してPubMed検索・詳細取得を実行。
     """
-    
+
     BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
-    
-    def __init__(self, api_key: Optional[str] = None, email: Optional[str] = None):
+
+    def __init__(self, api_key: str | None = None, email: str | None = None):
         """
         初期化.
         
@@ -117,31 +117,31 @@ class PubMedConnector:
         self.email = email or os.environ.get("NCBI_EMAIL", "jarvis@example.com")
         self._last_request_time = 0
         self._request_interval = 0.34 if self.api_key else 1.0  # API keyありで3req/s
-    
+
     def _rate_limit(self):
         """レート制限."""
         elapsed = time.time() - self._last_request_time
         if elapsed < self._request_interval:
             time.sleep(self._request_interval - elapsed)
         self._last_request_time = time.time()
-    
+
     def _make_request(self, url: str, timeout: int = 30) -> bytes:
         """HTTP GETリクエスト."""
         self._rate_limit()
-        
+
         req = urllib.request.Request(url, headers={
             "User-Agent": "JARVIS-ResearchOS/1.0"
         })
-        
+
         with urllib.request.urlopen(req, timeout=timeout) as response:
             return response.read()
-    
+
     def search(
-        self, 
-        query: str, 
+        self,
+        query: str,
         retmax: int = 20,
-        filters: Optional[Dict[str, str]] = None
-    ) -> List[str]:
+        filters: dict[str, str] | None = None
+    ) -> list[str]:
         """
         PubMed検索.
         
@@ -161,15 +161,15 @@ class PubMedConnector:
             "sort": "relevance",
             "email": self.email
         }
-        
+
         if self.api_key:
             params["api_key"] = self.api_key
-        
+
         if filters:
             params.update(filters)
-        
+
         url = f"{self.BASE_URL}/esearch.fcgi?{urllib.parse.urlencode(params)}"
-        
+
         try:
             data = self._make_request(url)
             result = json.loads(data.decode("utf-8"))
@@ -177,8 +177,8 @@ class PubMedConnector:
         except Exception as e:
             print(f"PubMed search error: {e}")
             return []
-    
-    def fetch_details(self, pmids: List[str]) -> List[PaperDoc]:
+
+    def fetch_details(self, pmids: list[str]) -> list[PaperDoc]:
         """
         論文詳細を取得.
         
@@ -190,7 +190,7 @@ class PubMedConnector:
         """
         if not pmids:
             return []
-        
+
         # efetchでXML取得（より詳細な情報）
         params = {
             "db": "pubmed",
@@ -199,26 +199,26 @@ class PubMedConnector:
             "rettype": "abstract",
             "email": self.email
         }
-        
+
         if self.api_key:
             params["api_key"] = self.api_key
-        
+
         url = f"{self.BASE_URL}/efetch.fcgi?{urllib.parse.urlencode(params)}"
-        
+
         try:
             data = self._make_request(url)
             return self._parse_pubmed_xml(data)
         except Exception as e:
             print(f"PubMed fetch error: {e}")
             return []
-    
-    def _parse_pubmed_xml(self, xml_data: bytes) -> List[PaperDoc]:
+
+    def _parse_pubmed_xml(self, xml_data: bytes) -> list[PaperDoc]:
         """PubMed XMLをパース."""
         papers = []
-        
+
         try:
             root = ET.fromstring(xml_data)
-            
+
             for article in root.findall(".//PubmedArticle"):
                 try:
                     paper = self._parse_article(article)
@@ -229,25 +229,25 @@ class PubMedConnector:
                     continue
         except ET.ParseError as e:
             print(f"XML parse error: {e}")
-        
+
         return papers
-    
-    def _parse_article(self, article: ET.Element) -> Optional[PaperDoc]:
+
+    def _parse_article(self, article: ET.Element) -> PaperDoc | None:
         """個別記事をパース."""
         medline = article.find(".//MedlineCitation")
         if medline is None:
             return None
-        
+
         # PMID
         pmid_elem = medline.find(".//PMID")
         pmid = pmid_elem.text if pmid_elem is not None else ""
         if not pmid:
             return None
-        
+
         # タイトル
         title_elem = medline.find(".//ArticleTitle")
         title = title_elem.text if title_elem is not None else ""
-        
+
         # アブストラクト
         abstract_parts = []
         for abs_elem in medline.findall(".//AbstractText"):
@@ -258,7 +258,7 @@ class PubMedConnector:
             else:
                 abstract_parts.append(text)
         abstract = " ".join(abstract_parts)
-        
+
         # 著者
         authors = []
         for author in medline.findall(".//Author"):
@@ -269,31 +269,31 @@ class PubMedConnector:
                 if initials is not None:
                     name += f" {initials.text}"
                 authors.append(name)
-        
+
         # ジャーナル
         journal_elem = medline.find(".//Journal/Title")
         journal = journal_elem.text if journal_elem is not None else ""
-        
+
         # 日付
         pub_date = ""
         year_elem = medline.find(".//PubDate/Year")
         if year_elem is not None:
             pub_date = year_elem.text or ""
-        
+
         # DOI
         doi = None
         for eid in article.findall(".//ArticleId"):
             if eid.get("IdType") == "doi":
                 doi = eid.text
                 break
-        
+
         # PMCID
         pmcid = None
         for eid in article.findall(".//ArticleId"):
             if eid.get("IdType") == "pmc":
                 pmcid = eid.text
                 break
-        
+
         paper = PaperDoc(
             pmid=pmid,
             title=title,
@@ -306,18 +306,18 @@ class PubMedConnector:
             identifiers={"pmid": pmid, "doi": doi or "", "pmcid": pmcid or ""},
             is_oa=pmcid is not None
         )
-        
+
         # チャンク生成
         paper.generate_chunks()
-        
+
         return paper
-    
+
     def search_and_fetch(
-        self, 
-        query: str, 
+        self,
+        query: str,
         max_results: int = 20,
-        filters: Optional[Dict[str, str]] = None
-    ) -> List[PaperDoc]:
+        filters: dict[str, str] | None = None
+    ) -> list[PaperDoc]:
         """
         検索と詳細取得を一括実行.
         
@@ -334,7 +334,7 @@ class PubMedConnector:
 
 
 # 便利関数
-_connector: Optional[PubMedConnector] = None
+_connector: PubMedConnector | None = None
 
 
 def get_pubmed_connector() -> PubMedConnector:
@@ -346,14 +346,14 @@ def get_pubmed_connector() -> PubMedConnector:
 
 
 def search_pubmed(
-    query: str, 
+    query: str,
     max_results: int = 20,
-    filters: Optional[Dict[str, str]] = None
-) -> List[str]:
+    filters: dict[str, str] | None = None
+) -> list[str]:
     """PubMed検索（便利関数）."""
     return get_pubmed_connector().search(query, max_results, filters)
 
 
-def fetch_paper_details(pmids: List[str]) -> List[PaperDoc]:
+def fetch_paper_details(pmids: list[str]) -> list[PaperDoc]:
     """論文詳細取得（便利関数）."""
     return get_pubmed_connector().fetch_details(pmids)

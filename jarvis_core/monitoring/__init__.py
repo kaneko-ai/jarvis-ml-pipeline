@@ -1,13 +1,13 @@
 """Monitoring package for JARVIS."""
 from .sentry import (
-    SentryClient,
-    SentryConfig,
     ErrorEvent,
     ErrorLevel,
-    init_sentry,
-    get_sentry,
+    SentryClient,
+    SentryConfig,
     capture_exception,
     capture_message,
+    get_sentry,
+    init_sentry,
     sentry_trace,
 )
 

@@ -6,15 +6,13 @@ Per JARVIS_COMPLETION_INSTRUCTION Task 2.1.2
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
-
-from jarvis_core.evidence.schema import EvidenceGrade, EvidenceLevel
+from jarvis_core.evidence.schema import EvidenceGrade
 
 
 class EvidenceVisualizer:
     """Visualizer for evidence grading results."""
-    
-    def generate_confidence_chart(self, grades: List[EvidenceGrade]) -> str:
+
+    def generate_confidence_chart(self, grades: list[EvidenceGrade]) -> str:
         """Generate Mermaid pie chart of evidence level distribution.
         
         Args:
@@ -23,17 +21,17 @@ class EvidenceVisualizer:
         Returns:
             Mermaid pie chart string
         """
-        level_counts: Dict[str, int] = {}
+        level_counts: dict[str, int] = {}
         for grade in grades:
             level = grade.level.value
             level_counts[level] = level_counts.get(level, 0) + 1
-        
+
         mermaid = "pie title Evidence Level Distribution\n"
         for level, count in level_counts.items():
             mermaid += f'    "{level}" : {count}\n'
-        
+
         return mermaid
-    
+
     def generate_confidence_bar(self, grade: EvidenceGrade) -> str:
         """Generate Mermaid bar chart for level probabilities.
         
@@ -48,7 +46,7 @@ class EvidenceVisualizer:
         if not probs:
             # Create default based on confidence
             probs = {grade.level.value: grade.confidence}
-        
+
         mermaid = "xychart-beta\n"
         mermaid += '    title "Level Probabilities"\n'
         keys_list = ['"' + str(k) + '"' for k in probs.keys()]
@@ -56,10 +54,10 @@ class EvidenceVisualizer:
         mermaid += '    y-axis "Probability" 0 --> 1\n'
         vals_list = [str(v) for v in probs.values()]
         mermaid += "    bar [" + ", ".join(vals_list) + "]\n"
-        
+
         return mermaid
-    
-    def generate_summary_table(self, grades: List[EvidenceGrade]) -> str:
+
+    def generate_summary_table(self, grades: list[EvidenceGrade]) -> str:
         """Generate markdown table summarizing grades.
         
         Args:
@@ -70,12 +68,12 @@ class EvidenceVisualizer:
         """
         table = "| Level | Confidence | Study Type | Method |\n"
         table += "|-------|------------|------------|--------|\n"
-        
+
         for grade in grades:
             level = grade.level.value if grade.level else "N/A"
             conf = f"{grade.confidence:.0%}" if grade.confidence else "N/A"
             study = grade.study_type.value if grade.study_type else "N/A"
             method = grade.classifier_source if grade.classifier_source else "N/A"
             table += f"| {level} | {conf} | {study} | {method} |\n"
-        
+
         return table

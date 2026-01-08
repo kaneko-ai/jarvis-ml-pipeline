@@ -4,9 +4,8 @@ Per RP-142, defines success/partial/fail status strictly.
 """
 from __future__ import annotations
 
-from enum import Enum
 from dataclasses import dataclass
-from typing import Optional, List
+from enum import Enum
 
 
 class RunStatus(Enum):
@@ -47,13 +46,13 @@ class StatusReason:
 
     status: RunStatus
     reason: str
-    gate_failures: List[str]
-    warnings: List[str]
+    gate_failures: list[str]
+    warnings: list[str]
 
 
 def determine_status(
     fatal_error: bool = False,
-    gate_results: Optional[dict] = None,
+    gate_results: dict | None = None,
     timeout: bool = False,
     budget_exceeded: bool = False,
 ) -> StatusReason:

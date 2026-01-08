@@ -6,12 +6,10 @@ Per RP12, these tests verify:
 - Backward compatibility of run_evidence_qa()
 """
 import json
+import sys
 import tempfile
 from pathlib import Path
-import sys
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import patch
 
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,10 +17,9 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from jarvis_core.agents import Citation
+from jarvis_core.bundle import _safe_filename, export_evidence_bundle
 from jarvis_core.evidence import EvidenceStore
 from jarvis_core.result import EvidenceQAResult
-from jarvis_core.bundle import export_evidence_bundle, _safe_filename
-
 
 SAMPLE_PDF = ROOT / "tests" / "fixtures" / "sample.pdf"
 
@@ -266,7 +263,7 @@ class TestBackwardCompatibility:
         with patch("jarvis_core.evidence_qa.LLMClient") as MockLLMClient:
             MockLLMClient.return_value.chat.return_value = "Consistent answer"
 
-            from jarvis_core.evidence_qa import run_evidence_qa, run_evidence_qa_result
+            from jarvis_core.evidence_qa import run_evidence_qa
 
             str_answer = run_evidence_qa(
                 query="Test",

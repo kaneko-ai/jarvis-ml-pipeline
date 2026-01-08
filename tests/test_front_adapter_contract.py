@@ -4,8 +4,6 @@ import json
 import re
 from pathlib import Path
 
-import pytest
-
 ROOT = Path(__file__).resolve().parents[1]
 API_MAP_PATH = ROOT / "jarvis_web" / "contracts" / "api_map_v1.json"
 ADAPTER_MANIFEST_PATH = ROOT / "dashboard" / "assets" / "adapter_manifest.js"

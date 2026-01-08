@@ -5,7 +5,7 @@ All 30 functions in one file for maintainability.
 """
 from __future__ import annotations
 
-from typing import List, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 # Λ-1〜Λ-5: 仮説・主張系
 # =========================
 
-def analyze_hypothesis_risks(hypothesis: str, vectors: List["PaperVector"]) -> dict:
+def analyze_hypothesis_risks(hypothesis: str, vectors: list[PaperVector]) -> dict:
     """Λ-1: 仮説リスク分解."""
     risks = []
     if not vectors:
@@ -25,7 +25,7 @@ def analyze_hypothesis_risks(hypothesis: str, vectors: List["PaperVector"]) -> d
     return {"hypothesis": hypothesis[:50], "risks": risks, "risk_count": len(risks)}
 
 
-def score_concept_competition(c1: str, c2: str, vectors: List["PaperVector"]) -> dict:
+def score_concept_competition(c1: str, c2: str, vectors: list[PaperVector]) -> dict:
     """Λ-2: Concept競合度スコア."""
     c1_count = sum(1 for v in vectors if c1 in v.concept.concepts)
     c2_count = sum(1 for v in vectors if c2 in v.concept.concepts)
@@ -34,7 +34,7 @@ def score_concept_competition(c1: str, c2: str, vectors: List["PaperVector"]) ->
     return {"concepts": [c1, c2], "competition_score": round(competition, 2)}
 
 
-def detect_theme_overlap(themes: List[str], vectors: List["PaperVector"]) -> List[dict]:
+def detect_theme_overlap(themes: list[str], vectors: list[PaperVector]) -> list[dict]:
     """Λ-3: テーマ被り検出."""
     overlaps = []
     for i, t1 in enumerate(themes):
@@ -50,7 +50,7 @@ def detect_claim_ambiguity(claim: str) -> dict:
     return {"claim": claim[:50], "ambiguity_score": len(found) / 5, "found_words": found}
 
 
-def warn_strong_assumptions(hypothesis: str) -> List[str]:
+def warn_strong_assumptions(hypothesis: str) -> list[str]:
     """Λ-5: 強すぎる前提警告."""
     strong_words = ["必ず", "絶対", "always", "definitely", "proves"]
     warnings = [w for w in strong_words if w in hypothesis.lower()]
@@ -61,14 +61,14 @@ def warn_strong_assumptions(hypothesis: str) -> List[str]:
 # Λ-6〜Λ-10: 実験設計系
 # =========================
 
-def build_experiment_dependency_graph(experiments: List[str]) -> dict:
+def build_experiment_dependency_graph(experiments: list[str]) -> dict:
     """Λ-6: 実験依存グラフ."""
     nodes = [{"id": i, "name": e[:30]} for i, e in enumerate(experiments)]
     edges = [{"from": i, "to": i+1} for i in range(len(experiments)-1)]
     return {"nodes": nodes, "edges": edges}
 
 
-def detect_experiment_bottleneck(experiments: List[str], durations: List[int]) -> dict:
+def detect_experiment_bottleneck(experiments: list[str], durations: list[int]) -> dict:
     """Λ-7: 実験ボトルネック検出."""
     if not experiments or not durations:
         return {"bottleneck": None}
@@ -76,7 +76,7 @@ def detect_experiment_bottleneck(experiments: List[str], durations: List[int]) -
     return {"bottleneck": experiments[max_idx], "duration": durations[max_idx]}
 
 
-def warn_control_shortage(methods: List[str]) -> List[str]:
+def warn_control_shortage(methods: list[str]) -> list[str]:
     """Λ-8: コントロール不足警告."""
     needed = []
     if "knockout" in str(methods).lower():
@@ -86,7 +86,7 @@ def warn_control_shortage(methods: List[str]) -> List[str]:
     return needed if needed else ["コントロール十分"]
 
 
-def optimize_experiment_order(experiments: List[str], costs: List[float]) -> List[str]:
+def optimize_experiment_order(experiments: list[str], costs: list[float]) -> list[str]:
     """Λ-9: 実験順序最適化."""
     if not experiments:
         return []
@@ -95,7 +95,7 @@ def optimize_experiment_order(experiments: List[str], costs: List[float]) -> Lis
     return [p[0] for p in paired]
 
 
-def detect_reproduction_failure_signs(vectors: List["PaperVector"]) -> List[str]:
+def detect_reproduction_failure_signs(vectors: list[PaperVector]) -> list[str]:
     """Λ-10: 再現失敗兆候検出."""
     signs = []
     if vectors:
@@ -111,7 +111,7 @@ def detect_reproduction_failure_signs(vectors: List["PaperVector"]) -> List[str]
 # Λ-11〜Λ-15: 論文補助系
 # =========================
 
-def detect_reviewer_fatigue_points(text: str) -> List[str]:
+def detect_reviewer_fatigue_points(text: str) -> list[str]:
     """Λ-11: Reviewer疲労ポイント."""
     points = []
     if len(text) > 10000:
@@ -121,14 +121,14 @@ def detect_reviewer_fatigue_points(text: str) -> List[str]:
     return points if points else ["問題なし"]
 
 
-def warn_misleading_expressions(text: str) -> List[str]:
+def warn_misleading_expressions(text: str) -> list[str]:
     """Λ-12: 誤解表現警告."""
     misleading = ["clearly shows", "undoubtedly", "明らかに", "確実に"]
     found = [m for m in misleading if m in text]
     return found if found else []
 
 
-def check_figure_claim_consistency(figures: List[str], claims: List[str]) -> dict:
+def check_figure_claim_consistency(figures: list[str], claims: list[str]) -> dict:
     """Λ-13: Figure-Claim整合性."""
     coverage = min(len(figures), len(claims)) / max(len(claims), 1)
     return {"consistency_score": round(coverage, 2), "figures": len(figures), "claims": len(claims)}
@@ -143,7 +143,7 @@ def warn_supplement_bloat(supplement_pages: int) -> str:
     return "適切"
 
 
-def evaluate_citation_balance(vectors: List["PaperVector"]) -> dict:
+def evaluate_citation_balance(vectors: list[PaperVector]) -> dict:
     """Λ-15: 引用バランス評価."""
     if not vectors:
         return {"balance": "unknown"}
@@ -159,7 +159,7 @@ def evaluate_citation_balance(vectors: List["PaperVector"]) -> dict:
 # Λ-16〜Λ-20: トレンド分析系
 # =========================
 
-def detect_rising_concepts(vectors: List["PaperVector"]) -> List[str]:
+def detect_rising_concepts(vectors: list[PaperVector]) -> list[str]:
     """Λ-16: 急上昇Concept検出."""
     recent_concepts = set()
     for v in vectors:
@@ -168,14 +168,14 @@ def detect_rising_concepts(vectors: List["PaperVector"]) -> List[str]:
     return list(recent_concepts)[:10]
 
 
-def predict_technique_lifespan(technique: str, vectors: List["PaperVector"]) -> dict:
+def predict_technique_lifespan(technique: str, vectors: list[PaperVector]) -> dict:
     """Λ-17: 技術流行寿命予測."""
     count = sum(1 for v in vectors if technique in v.method.methods)
     lifespan = min(10, 3 + count)
     return {"technique": technique, "predicted_lifespan_years": lifespan, "estimated": True}
 
 
-def detect_emerging_journals(vectors: List["PaperVector"]) -> List[str]:
+def detect_emerging_journals(vectors: list[PaperVector]) -> list[str]:
     """Λ-18: 新興ジャーナル検出."""
     journals = {}
     for v in vectors:
@@ -186,7 +186,7 @@ def detect_emerging_journals(vectors: List["PaperVector"]) -> List[str]:
     return [j for j, c in journals.items() if c >= 2][:5]
 
 
-def cluster_researchers(vectors: List["PaperVector"]) -> dict:
+def cluster_researchers(vectors: list[PaperVector]) -> dict:
     """Λ-19: 研究者クラスタ分析."""
     # Simplified: cluster by concept
     clusters = {}
@@ -198,7 +198,7 @@ def cluster_researchers(vectors: List["PaperVector"]) -> dict:
     return {"clusters": clusters}
 
 
-def detect_cross_field_citations(vectors: List["PaperVector"]) -> int:
+def detect_cross_field_citations(vectors: list[PaperVector]) -> int:
     """Λ-20: 分野横断引用検出."""
     # Count unique concept combinations
     pairs = set()
@@ -223,7 +223,7 @@ def classify_hypothesis_type(hypothesis: str) -> str:
     return "exploratory"
 
 
-def classify_thinking_style(vectors: List["PaperVector"]) -> str:
+def classify_thinking_style(vectors: list[PaperVector]) -> str:
     """Λ-22: 思考型分類."""
     if not vectors:
         return "unknown"
@@ -253,7 +253,7 @@ def alert_decision_delay(months_since_last_decision: int) -> str:
     return "ok"
 
 
-def detect_undervaluation(vectors: List["PaperVector"]) -> bool:
+def detect_undervaluation(vectors: list[PaperVector]) -> bool:
     """Λ-25: 成果過小評価検出."""
     if not vectors:
         return False
@@ -266,7 +266,7 @@ def detect_undervaluation(vectors: List["PaperVector"]) -> bool:
 # Λ-26〜Λ-30: 運用・継続系
 # =========================
 
-def restructure_for_obsidian(vectors: List["PaperVector"]) -> dict:
+def restructure_for_obsidian(vectors: list[PaperVector]) -> dict:
     """Λ-26: Obsidian知識再構成."""
     nodes = []
     for v in vectors:
@@ -277,7 +277,7 @@ def restructure_for_obsidian(vectors: List["PaperVector"]) -> dict:
     return {"obsidian_nodes": nodes, "total": len(nodes)}
 
 
-def optimize_for_notebooklm(vectors: List["PaperVector"]) -> dict:
+def optimize_for_notebooklm(vectors: list[PaperVector]) -> dict:
     """Λ-27: NotebookLM音声最適化."""
     summaries = []
     for v in vectors[:5]:
@@ -286,7 +286,7 @@ def optimize_for_notebooklm(vectors: List["PaperVector"]) -> dict:
     return {"audio_summaries": summaries}
 
 
-def generate_monthly_inventory(vectors: List["PaperVector"]) -> dict:
+def generate_monthly_inventory(vectors: list[PaperVector]) -> dict:
     """Λ-28: 月次研究棚卸し."""
     return {
         "total_papers": len(vectors),
@@ -296,7 +296,7 @@ def generate_monthly_inventory(vectors: List["PaperVector"]) -> dict:
     }
 
 
-def suggest_log_improvements(log_entries: int) -> List[str]:
+def suggest_log_improvements(log_entries: int) -> list[str]:
     """Λ-29: 研究ログ自己改善."""
     suggestions = []
     if log_entries < 10:
@@ -306,7 +306,7 @@ def suggest_log_improvements(log_entries: int) -> List[str]:
     return suggestions if suggestions else ["ログ運用良好"]
 
 
-def generate_monthly_strategy_brief(vectors: List["PaperVector"]) -> str:
+def generate_monthly_strategy_brief(vectors: list[PaperVector]) -> str:
     """Λ-30: 月次研究戦略ブリーフ."""
     if not vectors:
         return "データ蓄積中"

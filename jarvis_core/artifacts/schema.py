@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Dict, Any, Optional, Literal
 from enum import Enum
+from typing import Any, Literal
 
 
 class TruthLevel(Enum):
@@ -42,7 +42,7 @@ class Fact:
     """A fact backed by evidence. MUST have evidence_ref."""
 
     statement: str
-    evidence_refs: List[EvidenceRef]
+    evidence_refs: list[EvidenceRef]
     confidence: float = 1.0
 
     def __post_init__(self):
@@ -65,7 +65,7 @@ class Inference:
     statement: str
     method: str  # How it was derived
     confidence: float = 0.5
-    supporting_facts: List[str] = field(default_factory=list)
+    supporting_facts: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -104,9 +104,9 @@ class Provenance:
     created_at: datetime = field(default_factory=datetime.now)
     created_by: str = "jarvis"
     version: str = "4.0"
-    source_modules: List[str] = field(default_factory=list)
-    parameters: Dict[str, Any] = field(default_factory=dict)
-    seed: Optional[int] = None
+    source_modules: list[str] = field(default_factory=list)
+    parameters: dict[str, Any] = field(default_factory=dict)
+    seed: int | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -127,13 +127,13 @@ class ArtifactBase:
     """
 
     kind: str  # e.g., "gap_analysis", "grant_proposal", "hypothesis"
-    facts: List[Fact] = field(default_factory=list)
-    inferences: List[Inference] = field(default_factory=list)
-    recommendations: List[Recommendation] = field(default_factory=list)
-    metrics: Dict[str, float] = field(default_factory=dict)  # Normalized 0-1
-    confidence: Dict[str, float] = field(default_factory=dict)
+    facts: list[Fact] = field(default_factory=list)
+    inferences: list[Inference] = field(default_factory=list)
+    recommendations: list[Recommendation] = field(default_factory=list)
+    metrics: dict[str, float] = field(default_factory=dict)  # Normalized 0-1
+    confidence: dict[str, float] = field(default_factory=dict)
     provenance: Provenance = field(default_factory=Provenance)
-    raw_data: Dict[str, Any] = field(default_factory=dict)  # Original data
+    raw_data: dict[str, Any] = field(default_factory=dict)  # Original data
 
     def to_dict(self) -> dict:
         return {
@@ -156,7 +156,7 @@ class ArtifactBase:
             "evidence_coverage": sum(len(f.evidence_refs) for f in self.facts),
         }
 
-    def validate(self) -> List[str]:
+    def validate(self) -> list[str]:
         """Validate artifact structure."""
         issues = []
 
@@ -175,10 +175,10 @@ class ArtifactBase:
 
 def create_artifact(
     kind: str,
-    facts: List[Dict] = None,
-    inferences: List[Dict] = None,
-    recommendations: List[Dict] = None,
-    metrics: Dict[str, float] = None,
+    facts: list[dict] = None,
+    inferences: list[dict] = None,
+    recommendations: list[dict] = None,
+    metrics: dict[str, float] = None,
     source_module: str = None,
 ) -> ArtifactBase:
     """Factory function to create artifacts."""

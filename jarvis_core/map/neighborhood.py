@@ -4,13 +4,13 @@ Per V4-M04, this provides fast neighborhood exploration.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..paper_vector import PaperVector
 
 
-def calculate_distance(p1: "PaperVector", p2: "PaperVector") -> float:
+def calculate_distance(p1: PaperVector, p2: PaperVector) -> float:
     """Calculate distance between two papers."""
     # Concept overlap (inversed)
     c1 = set(p1.concept.concepts.keys())
@@ -38,10 +38,10 @@ def calculate_distance(p1: "PaperVector", p2: "PaperVector") -> float:
 
 
 def query_neighborhood(
-    center: "PaperVector",
-    all_papers: List["PaperVector"],
+    center: PaperVector,
+    all_papers: list[PaperVector],
     k: int = 10,
-) -> List[dict]:
+) -> list[dict]:
     """Query k nearest neighbors.
 
     Args:
@@ -77,10 +77,10 @@ def query_neighborhood(
 
 
 def expand_neighborhood(
-    seeds: List["PaperVector"],
-    all_papers: List["PaperVector"],
+    seeds: list[PaperVector],
+    all_papers: list[PaperVector],
     depth: int = 1,
-) -> List[str]:
+) -> list[str]:
     """Expand from seeds to discover related papers.
 
     Args:

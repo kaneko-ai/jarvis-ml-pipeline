@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 import shutil
 from pathlib import Path
-from typing import Optional
 
 
 class ArtifactStore:
@@ -16,7 +15,7 @@ class ArtifactStore:
         self.artifacts_dir = self.base_dir / run_id / "artifacts"
         self.artifacts_dir.mkdir(parents=True, exist_ok=True)
 
-    def save(self, name: str, data: bytes | str, metadata: Optional[dict] = None) -> str:
+    def save(self, name: str, data: bytes | str, metadata: dict | None = None) -> str:
         """Save an artifact.
 
         Returns:
@@ -36,14 +35,14 @@ class ArtifactStore:
 
         return str(artifact_path.relative_to(self.base_dir))
 
-    def load(self, name: str) -> Optional[bytes]:
+    def load(self, name: str) -> bytes | None:
         """Load an artifact."""
         artifact_path = self.artifacts_dir / name
         if artifact_path.exists():
             return artifact_path.read_bytes()
         return None
 
-    def load_text(self, name: str) -> Optional[str]:
+    def load_text(self, name: str) -> str | None:
         """Load a text artifact."""
         artifact_path = self.artifacts_dir / name
         if artifact_path.exists():
@@ -54,7 +53,7 @@ class ArtifactStore:
         """List all artifacts."""
         return [f.name for f in self.artifacts_dir.iterdir() if not f.name.endswith(".meta.json")]
 
-    def copy_from(self, source_path: str, name: Optional[str] = None) -> str:
+    def copy_from(self, source_path: str, name: str | None = None) -> str:
         """Copy file into artifact store."""
         src = Path(source_path)
         dest_name = name or src.name

@@ -9,7 +9,6 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional, List
 
 
 class BundleAssembler:
@@ -20,7 +19,7 @@ class BundleAssembler:
         assembler.build(context, artifacts)  # 成功時
         assembler.build_failure(context, error, partial)  # 失敗時
     """
-    
+
     # 必須10ファイル（BUNDLE_CONTRACT.md準拠）
     REQUIRED_ARTIFACTS = [
         "input.json",
@@ -34,7 +33,7 @@ class BundleAssembler:
         "warnings.jsonl",
         "report.md",
     ]
-    
+
     # 失敗時必須ファイル
     FAILURE_REQUIRED = [
         "result.json",
@@ -42,7 +41,7 @@ class BundleAssembler:
         "warnings.jsonl",
         "report.md",
     ]
-    
+
     def __init__(self, run_dir: Path):
         """初期化.
         
@@ -51,13 +50,13 @@ class BundleAssembler:
         """
         self.run_dir = Path(run_dir)
         self.run_dir.mkdir(parents=True, exist_ok=True)
-    
+
     def build(
         self,
         context: dict,
         artifacts: dict,
-        quality_report: Optional[dict] = None,
-    ) -> List[str]:
+        quality_report: dict | None = None,
+    ) -> list[str]:
         """成功時のBundle生成（10ファイル全て）.
         
         Args:
@@ -80,7 +79,7 @@ class BundleAssembler:
             生成されたファイルのリスト
         """
         generated = []
-        
+
         # 1. input.json
         self._save_json("input.json", {
             "goal": context.get("goal", ""),
@@ -89,7 +88,7 @@ class BundleAssembler:
             "timestamp": context.get("timestamp", datetime.now(timezone.utc).isoformat()),
         })
         generated.append("input.json")
-        
+
         # 2. run_config.json
         self._save_json("run_config.json", {
             "run_id": context.get("run_id", "unknown"),
@@ -99,56 +98,56 @@ class BundleAssembler:
             "model": context.get("model", "unknown"),
         })
         generated.append("run_config.json")
-        
+
         # 3. papers.jsonl
         papers = artifacts.get("papers", [])
         self._save_jsonl("papers.jsonl", self._ensure_paper_schema(papers))
         generated.append("papers.jsonl")
-        
+
         # 4. claims.jsonl
         claims = artifacts.get("claims", [])
         self._save_jsonl("claims.jsonl", self._ensure_claim_schema(claims))
         generated.append("claims.jsonl")
-        
+
         # 5. evidence.jsonl
         evidence = artifacts.get("evidence", [])
         self._save_jsonl("evidence.jsonl", self._ensure_evidence_schema(evidence))
         generated.append("evidence.jsonl")
-        
+
         # 6. scores.json
         scores = artifacts.get("scores", {})
         self._save_json("scores.json", self._ensure_scores_schema(scores))
         generated.append("scores.json")
-        
+
         # 7. result.json
         result = self._build_result(context, artifacts)
         self._save_json("result.json", result)
         generated.append("result.json")
-        
+
         # 8. eval_summary.json
         eval_summary = self._build_eval_summary(context, artifacts, quality_report)
         self._save_json("eval_summary.json", eval_summary)
         generated.append("eval_summary.json")
-        
+
         # 9. warnings.jsonl
         warnings = artifacts.get("warnings", [])
         self._save_jsonl("warnings.jsonl", self._ensure_warning_schema(warnings))
         generated.append("warnings.jsonl")
-        
+
         # 10. report.md
         report = self._build_report(context, artifacts, eval_summary)
         self._save_text("report.md", report)
         generated.append("report.md")
-        
+
         return generated
-    
+
     def build_failure(
         self,
         context: dict,
         error: str,
-        partial_artifacts: Optional[dict] = None,
-        fail_reasons: Optional[List[dict]] = None,
-    ) -> List[str]:
+        partial_artifacts: dict | None = None,
+        fail_reasons: list[dict] | None = None,
+    ) -> list[str]:
         """失敗時のBundle生成（FAILURE_REQUIREDのみ）.
         
         Args:
@@ -162,7 +161,7 @@ class BundleAssembler:
         """
         generated = []
         partial = partial_artifacts or {}
-        
+
         # input.json（あれば生成）
         if context.get("goal") or context.get("query"):
             self._save_json("input.json", {
@@ -172,7 +171,7 @@ class BundleAssembler:
                 "timestamp": context.get("timestamp", datetime.now(timezone.utc).isoformat()),
             })
             generated.append("input.json")
-        
+
         # run_config.json（最低限）
         self._save_json("run_config.json", {
             "run_id": context.get("run_id", "unknown"),
@@ -181,7 +180,7 @@ class BundleAssembler:
             "status": "failed",
         })
         generated.append("run_config.json")
-        
+
         # result.json（FAILURE_REQUIRED）
         result = {
             "run_id": context.get("run_id", "unknown"),
@@ -194,7 +193,7 @@ class BundleAssembler:
         }
         self._save_json("result.json", result)
         generated.append("result.json")
-        
+
         # eval_summary.json（FAILURE_REQUIRED）
         reasons = fail_reasons or [{"code": "EXECUTION_ERROR", "msg": error}]
         eval_summary = {
@@ -211,7 +210,7 @@ class BundleAssembler:
         }
         self._save_json("eval_summary.json", eval_summary)
         generated.append("eval_summary.json")
-        
+
         # warnings.jsonl（FAILURE_REQUIRED）
         warnings = partial.get("warnings", [])
         warnings.append({
@@ -221,16 +220,16 @@ class BundleAssembler:
         })
         self._save_jsonl("warnings.jsonl", self._ensure_warning_schema(warnings))
         generated.append("warnings.jsonl")
-        
+
         # report.md（FAILURE_REQUIRED）
         report = self._build_failure_report(context, error, reasons)
         self._save_text("report.md", report)
         generated.append("report.md")
-        
+
         return generated
-    
+
     # === Schema Enforcers ===
-    
+
     def _ensure_paper_schema(self, papers: list) -> list:
         """papers.jsonlの必須キーを保証."""
         result = []
@@ -242,7 +241,7 @@ class BundleAssembler:
                 **{k: v for k, v in p.items() if k not in ["paper_id", "title", "year"]}
             })
         return result
-    
+
     def _ensure_claim_schema(self, claims: list) -> list:
         """claims.jsonlの必須キーを保証."""
         result = []
@@ -254,7 +253,7 @@ class BundleAssembler:
                 **{k: v for k, v in c.items() if k not in ["claim_id", "paper_id", "claim_text"]}
             })
         return result
-    
+
     def _ensure_evidence_schema(self, evidence: list) -> list:
         """evidence.jsonlの必須キーを保証."""
         result = []
@@ -270,7 +269,7 @@ class BundleAssembler:
                 **{k: v for k, v in e.items() if k not in ["claim_id", "paper_id", "evidence_text", "locator"]}
             })
         return result
-    
+
     def _ensure_scores_schema(self, scores: dict) -> dict:
         """scores.jsonの必須キーを保証."""
         return {
@@ -278,7 +277,7 @@ class BundleAssembler:
             "rankings": scores.get("rankings", []),
             **{k: v for k, v in scores.items() if k not in ["features", "rankings"]}
         }
-    
+
     def _ensure_warning_schema(self, warnings: list) -> list:
         """warnings.jsonlの必須キーを保証."""
         result = []
@@ -291,9 +290,9 @@ class BundleAssembler:
                 "severity": w.get("severity", "warning"),
             })
         return result
-    
+
     # === Builders ===
-    
+
     def _build_result(self, context: dict, artifacts: dict) -> dict:
         """result.jsonを構築."""
         return {
@@ -302,46 +301,46 @@ class BundleAssembler:
             "status": "success",
             "answer": artifacts.get("answer", ""),
             "citations": artifacts.get("citations", []),
-            "warnings": [w.get("message", str(w)) if isinstance(w, dict) else w 
+            "warnings": [w.get("message", str(w)) if isinstance(w, dict) else w
                         for w in artifacts.get("warnings", [])],
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-    
+
     def _build_eval_summary(
         self,
         context: dict,
         artifacts: dict,
-        quality_report: Optional[dict],
+        quality_report: dict | None,
     ) -> dict:
         """eval_summary.jsonを構築."""
         citations = artifacts.get("citations", [])
         evidence = artifacts.get("evidence", [])
         warnings = artifacts.get("warnings", [])
         feedback_risk = artifacts.get("feedback_risk") or {}
-        
+
         # メトリクス計算
         citation_count = len(citations)
         evidence_count = len(evidence)
         warning_count = len(warnings)
-        
+
         # locator欠落チェック
         locator_missing = sum(
-            1 for e in evidence 
+            1 for e in evidence
             if not e.get("locator") or (isinstance(e.get("locator"), dict) and not e["locator"].get("section"))
         )
-        
+
         # 品質ゲート判定
         gate_passed = True
         fail_reasons = []
-        
+
         if citation_count == 0:
             gate_passed = False
             fail_reasons.append({"code": "CITATION_MISSING", "msg": "引用がゼロ"})
-        
+
         if locator_missing > 0:
             gate_passed = False
             fail_reasons.append({"code": "LOCATOR_MISSING", "msg": f"根拠位置情報がない: {locator_missing}件"})
-        
+
         # 外部品質レポートがあれば統合
         if quality_report:
             if not quality_report.get("gate_passed", True):
@@ -354,7 +353,7 @@ class BundleAssembler:
         if feedback_summary:
             ready_to_submit = feedback_summary.get("ready_to_submit", True)
             ready_with_risk = feedback_summary.get("ready_with_risk", False)
-        
+
         return {
             "run_id": context.get("run_id", "unknown"),
             "status": "pass" if gate_passed else "fail",
@@ -372,7 +371,7 @@ class BundleAssembler:
             },
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-    
+
     def _build_report(self, context: dict, artifacts: dict, eval_summary: dict) -> str:
         """report.mdを構築."""
         lines = [
@@ -389,7 +388,7 @@ class BundleAssembler:
             "## Metrics",
             "",
         ]
-        
+
         metrics = eval_summary.get("metrics", {})
         for key, value in metrics.items():
             lines.append(f"- **{key}:** {value}")
@@ -403,9 +402,9 @@ class BundleAssembler:
             top_categories = ", ".join(feedback_summary.get("top_categories", []))
             lines.append(f"- **Top Categories:** {top_categories or 'N/A'}")
             lines.append(f"- **Ready to Submit:** {eval_summary.get('ready_to_submit', True)}")
-        
+
         lines.extend(["", "---", "", "## Answer", "", artifacts.get("answer", "(no answer)"), ""])
-        
+
         # Fail reasons
         fail_reasons = eval_summary.get("fail_reasons", [])
         if fail_reasons:
@@ -414,11 +413,11 @@ class BundleAssembler:
                 code = fr.get("code", "UNKNOWN")
                 msg = fr.get("msg", str(fr))
                 lines.append(f"- **{code}:** {msg}")
-        
+
         lines.extend(["", "---", "", f"*Generated at {datetime.now(timezone.utc).isoformat()}*"])
-        
+
         return "\n".join(lines)
-    
+
     def _build_failure_report(self, context: dict, error: str, reasons: list) -> str:
         """失敗時のreport.mdを構築."""
         lines = [
@@ -437,31 +436,31 @@ class BundleAssembler:
             "## Fail Reasons",
             "",
         ]
-        
+
         for fr in reasons:
             code = fr.get("code", "UNKNOWN")
             msg = fr.get("msg", str(fr))
             lines.append(f"- **{code}:** {msg}")
-        
+
         lines.extend(["", "---", "", f"*Generated at {datetime.now(timezone.utc).isoformat()}*"])
-        
+
         return "\n".join(lines)
-    
+
     # === I/O ===
-    
+
     def _save_json(self, filename: str, data: dict) -> None:
         """JSONファイルを保存."""
         filepath = self.run_dir / filename
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
-    
+
     def _save_jsonl(self, filename: str, items: list) -> None:
         """JSONLファイルを保存."""
         filepath = self.run_dir / filename
         with open(filepath, "w", encoding="utf-8") as f:
             for item in items:
                 f.write(json.dumps(item, ensure_ascii=False) + "\n")
-    
+
     def _save_text(self, filename: str, content: str) -> None:
         """テキストファイルを保存."""
         filepath = self.run_dir / filename
@@ -484,11 +483,11 @@ def _safe_filename(name: str, max_len: int = 50) -> str:
     safe = str(name)
     for char in '<>:"/\\|?*':
         safe = safe.replace(char, "_")
-    
+
     # 長さ制限
     if len(safe) > max_len:
         safe = safe[:max_len]
-    
+
     return safe
 
 
@@ -510,13 +509,13 @@ def export_evidence_bundle(
     """
     from ..bibtex import export_bibtex
     from ..claim_export import (
-        export_claims_markdown,
         export_claims_json,
+        export_claims_markdown,
         export_claims_pptx_outline,
     )
     from ..integrations.notebooklm import export_notebooklm
-    from ..integrations.obsidian import export_obsidian
     from ..integrations.notion import export_notion
+    from ..integrations.obsidian import export_obsidian
     from ..reference import extract_references
     from ..reference_formatter import format_references_markdown
     from ..ris import export_ris

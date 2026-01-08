@@ -4,14 +4,14 @@ Per Issue Ω-6, this plans research career trajectory.
 """
 from __future__ import annotations
 
-from typing import List, Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def plan_career_strategy(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     current_stage: Literal["phd", "postdoc", "pi"] = "phd",
 ) -> dict:
     """Plan research career strategy.

@@ -1,15 +1,13 @@
 """Elicitation helper for decision inputs."""
 from __future__ import annotations
 
-from typing import Dict, List
-
 from pydantic import ValidationError
 
-from .schema import Assumption, DecisionInput, Option
 from .risk_factors import DEFAULT_RISK_FACTORS, default_risk_inputs
+from .schema import DecisionInput, Option
 
 
-def template_payload() -> Dict[str, object]:
+def template_payload() -> dict[str, object]:
     """Return a template payload for decision input."""
     return {
         "options": [
@@ -78,7 +76,7 @@ def template_payload() -> Dict[str, object]:
     }
 
 
-def validate_payload(payload: Dict[str, object]) -> Dict[str, object]:
+def validate_payload(payload: dict[str, object]) -> dict[str, object]:
     """Validate payload and return either parsed data or errors."""
     try:
         parsed = DecisionInput.parse_obj(payload)
@@ -95,7 +93,7 @@ def validate_payload(payload: Dict[str, object]) -> Dict[str, object]:
         }
 
 
-def normalize_risks(options: List[Option]) -> List[Option]:
+def normalize_risks(options: list[Option]) -> list[Option]:
     """Ensure each option has risk factors populated."""
     normalized = []
     for option in options:

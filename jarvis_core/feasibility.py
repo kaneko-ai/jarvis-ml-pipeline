@@ -4,7 +4,7 @@ Per RP45, this scores experimental feasibility.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 def score_feasibility(
     hypothesis: str,
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
 ) -> dict:
     """Score experimental feasibility for a hypothesis.
 

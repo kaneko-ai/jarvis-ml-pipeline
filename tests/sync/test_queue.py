@@ -1,9 +1,9 @@
-import pytest
-import os
 from unittest.mock import MagicMock, patch
-from jarvis_core.sync.schema import QueueItem, QueueItemStatus
+
 from jarvis_core.sync.manager import SyncQueueManager
+from jarvis_core.sync.schema import QueueItem, QueueItemStatus
 from jarvis_core.sync.storage import SyncQueueStorage
+
 
 def test_queue_item_creation():
     item = QueueItem(id="1", operation="test", params={"a": 1})
@@ -16,7 +16,7 @@ def test_storage_add_and_get(tmp_path):
     storage = SyncQueueStorage(db_path=db_path)
     item = QueueItem(id="1", operation="test", params={"a": 1})
     storage.add(item)
-    
+
     pending = storage.get_pending()
     assert len(pending) == 1
     assert pending[0].id == "1"
@@ -26,17 +26,17 @@ def test_manager_process_queue():
     with patch('jarvis_core.sync.manager.SyncQueueStorage') as mock_storage_cls:
         mock_storage = MagicMock()
         mock_storage_cls.return_value = mock_storage
-        
+
         item = QueueItem(id="1", operation="search", params={"query": "test"})
         mock_storage.get_pending.return_value = [item]
-        
+
         manager = SyncQueueManager()
         # Mock handler
         mock_handler = MagicMock()
         manager.register_handler("search", mock_handler)
-        
+
         results = manager.process_queue()
-        
+
         assert len(results) == 1
         assert results[0].status == QueueItemStatus.COMPLETED
         mock_handler.assert_called_once()
@@ -47,12 +47,12 @@ def test_manager_process_queue_no_handler():
      with patch('jarvis_core.sync.manager.SyncQueueStorage') as mock_storage_cls:
         mock_storage = MagicMock()
         mock_storage_cls.return_value = mock_storage
-        
+
         item = QueueItem(id="1", operation="unknown", params={})
         mock_storage.get_pending.return_value = [item]
-        
+
         manager = SyncQueueManager()
         results = manager.process_queue()
-        
+
         assert len(results) == 1
         assert results[0].status == QueueItemStatus.FAILED

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -15,15 +15,15 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ScoringWeights:
     """Weights for different scoring components."""
-    
+
     evidence_level: float = 0.25
     citation_support: float = 0.20
     methodology: float = 0.20
     recency: float = 0.10
     journal_impact: float = 0.15
     contradiction_penalty: float = 0.10
-    
-    def normalize(self) -> "ScoringWeights":
+
+    def normalize(self) -> ScoringWeights:
         """Normalize weights to sum to 1.0."""
         total = (
             self.evidence_level +
@@ -35,7 +35,7 @@ class ScoringWeights:
         )
         if total == 0:
             return self
-        
+
         return ScoringWeights(
             evidence_level=self.evidence_level / total,
             citation_support=self.citation_support / total,
@@ -49,10 +49,10 @@ class ScoringWeights:
 @dataclass
 class PaperScore:
     """Overall quality score for a paper."""
-    
+
     paper_id: str
     overall_score: float  # 0.0 to 1.0
-    
+
     # Component scores
     evidence_score: float = 0.0
     citation_score: float = 0.0
@@ -60,12 +60,12 @@ class PaperScore:
     recency_score: float = 0.0
     journal_score: float = 0.0
     contradiction_penalty: float = 0.0
-    
+
     # Metadata
     confidence: float = 0.0
-    components: Dict[str, float] = field(default_factory=dict)
-    
-    def to_dict(self) -> Dict[str, Any]:
+    components: dict[str, float] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "paper_id": self.paper_id,
@@ -78,7 +78,7 @@ class PaperScore:
             "contradiction_penalty": round(self.contradiction_penalty, 3),
             "confidence": round(self.confidence, 3),
         }
-    
+
     @property
     def grade(self) -> str:
         """Get letter grade."""
@@ -111,15 +111,15 @@ class PaperScorer:
         ... )
         >>> print(f"Score: {score.overall_score:.2f} ({score.grade})")
     """
-    
-    def __init__(self, weights: Optional[ScoringWeights] = None):
+
+    def __init__(self, weights: ScoringWeights | None = None):
         """Initialize the scorer.
         
         Args:
             weights: Custom scoring weights
         """
         self._weights = (weights or ScoringWeights()).normalize()
-    
+
     def score(
         self,
         paper_id: str,
@@ -155,7 +155,7 @@ class PaperScorer:
         recency_score = self._score_recency(publication_year)
         journal_score = self._score_journal(journal_impact_factor)
         contradiction_penalty = 0.3 if has_contradictions else 0.0
-        
+
         # Calculate weighted overall score
         overall = (
             evidence_score * self._weights.evidence_level +
@@ -165,14 +165,14 @@ class PaperScorer:
             journal_score * self._weights.journal_impact -
             contradiction_penalty * self._weights.contradiction_penalty
         )
-        
+
         overall = max(0.0, min(1.0, overall))
-        
+
         # Calculate confidence based on available data
         confidence = self._calculate_confidence(
             evidence_level, total_citations, journal_impact_factor
         )
-        
+
         return PaperScore(
             paper_id=paper_id,
             overall_score=overall,
@@ -184,12 +184,12 @@ class PaperScorer:
             contradiction_penalty=contradiction_penalty,
             confidence=confidence,
         )
-    
+
     def _score_evidence(self, level: int) -> float:
         """Score based on evidence level (1=best, 5=worst)."""
         scores = {1: 1.0, 2: 0.8, 3: 0.6, 4: 0.4, 5: 0.2}
         return scores.get(level, 0.2)
-    
+
     def _score_citations(
         self,
         support: int,
@@ -199,24 +199,24 @@ class PaperScorer:
         """Score based on citation analysis."""
         if total == 0:
             return 0.5  # Neutral if no data
-        
+
         # Higher support-to-contrast ratio is better
         if support + contrast == 0:
             return 0.5
-        
+
         ratio = support / (support + contrast)
-        
+
         # Also consider total citations (log scale)
         import math
         citation_factor = min(1.0, math.log10(total + 1) / 3)
-        
+
         return ratio * 0.7 + citation_factor * 0.3
-    
+
     def _score_recency(self, year: int) -> float:
         """Score based on publication recency."""
         current_year = 2026
         age = current_year - year
-        
+
         if age <= 2:
             return 1.0
         elif age <= 5:
@@ -225,7 +225,7 @@ class PaperScorer:
             return 0.6
         else:
             return 0.4
-    
+
     def _score_journal(self, impact_factor: float) -> float:
         """Score based on journal impact factor."""
         if impact_factor <= 0:
@@ -238,7 +238,7 @@ class PaperScorer:
             return 0.6
         else:
             return 0.4
-    
+
     def _calculate_confidence(
         self,
         evidence_level: int,
@@ -248,16 +248,16 @@ class PaperScorer:
         """Calculate confidence in the score."""
         # Higher confidence with more data
         confidence = 0.5
-        
+
         if evidence_level <= 3:
             confidence += 0.2
-        
+
         if total_citations >= 10:
             confidence += 0.2
-        
+
         if impact_factor > 0:
             confidence += 0.1
-        
+
         return min(1.0, confidence)
 
 

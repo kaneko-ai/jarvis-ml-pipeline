@@ -6,27 +6,26 @@ import sqlite3
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
 
 from jarvis_core.sync.schema import QueueItem, QueueItemStatus
 
 logger = logging.getLogger(__name__)
 
 class SyncQueueStorage:
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(self, db_path: Path | None = None):
         if db_path is None:
             db_path = Path.home() / ".jarvis" / "sync_queue.db"
-        
+
         self._db_path = Path(db_path)
         self._initialize_db()
-    
+
     def _get_connection(self) -> sqlite3.Connection:
         self._db_path.parent.mkdir(parents=True, exist_ok=True)
         conn = sqlite3.connect(self._db_path)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA journal_mode=WAL")
         return conn
-    
+
     def _initialize_db(self) -> None:
         with self._get_connection() as conn:
             conn.execute("""
@@ -50,7 +49,7 @@ class SyncQueueStorage:
         # If item needs ID:
         if not item.id:
             item.id = str(uuid.uuid4())
-            
+
         with self._get_connection() as conn:
             conn.execute(
                 """
@@ -73,7 +72,7 @@ class SyncQueueStorage:
             )
         logger.debug(f"Enqueued: {item.id} ({item.operation})")
 
-    def get_pending(self, limit: int = 100) -> List[QueueItem]:
+    def get_pending(self, limit: int = 100) -> list[QueueItem]:
         with self._get_connection() as conn:
             rows = conn.execute(
                 """
@@ -86,7 +85,7 @@ class SyncQueueStorage:
             ).fetchall()
             return [self._row_to_item(row) for row in rows]
 
-    def update_status(self, item_id: str, status: QueueItemStatus, error: Optional[str] = None) -> None:
+    def update_status(self, item_id: str, status: QueueItemStatus, error: str | None = None) -> None:
         now = datetime.now().isoformat()
         with self._get_connection() as conn:
             conn.execute(
@@ -111,15 +110,15 @@ class SyncQueueStorage:
             error=row["error"],
             result=json.loads(row["result"]) if row["result"] else None,
         )
-        
-    def get_queue_status(self) -> Dict[str, int]:
+
+    def get_queue_status(self) -> dict[str, int]:
         with self._get_connection() as conn:
             rows = conn.execute(
                 "SELECT status, COUNT(*) as count FROM sync_queue GROUP BY status"
             ).fetchall()
             return {row["status"]: row["count"] for row in rows}
 
-    def get_item(self, item_id: str) -> Optional[QueueItem]:
+    def get_item(self, item_id: str) -> QueueItem | None:
         with self._get_connection() as conn:
             row = conn.execute("SELECT * FROM sync_queue WHERE id = ?", (item_id,)).fetchone()
             return self._row_to_item(row) if row else None

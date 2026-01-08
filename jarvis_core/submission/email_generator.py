@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List
 
 import yaml
 
@@ -17,8 +16,8 @@ class EmailDraft:
 def generate_email_draft(
     templates_path: Path,
     recipient_type: str,
-    context: Dict[str, str],
-    attachments: List[str],
+    context: dict[str, str],
+    attachments: list[str],
 ) -> EmailDraft:
     templates = _load_templates(templates_path)
     if recipient_type not in templates:
@@ -38,7 +37,7 @@ def generate_email_draft(
     return EmailDraft(subject=subject, body=body, recipient_type=recipient_type)
 
 
-def _load_templates(path: Path) -> Dict[str, Dict[str, str]]:
-    with open(path, "r", encoding="utf-8") as f:
+def _load_templates(path: Path) -> dict[str, dict[str, str]]:
+    with open(path, encoding="utf-8") as f:
         data = yaml.safe_load(f) or {}
     return data

@@ -9,7 +9,7 @@ import logging
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -31,9 +31,9 @@ class StanceResult:
     stance: CitationStance
     confidence: float
     explanation: str
-    cue_words: List[str]
-    
-    def to_dict(self) -> Dict[str, Any]:
+    cue_words: list[str]
+
+    def to_dict(self) -> dict[str, Any]:
         return {
             "claim_id": self.claim_id,
             "evidence_id": self.evidence_id,
@@ -49,7 +49,7 @@ class RuleBasedStanceClassifier:
     
     Fast and deterministic, no external dependencies.
     """
-    
+
     # Linguistic cue word patterns
     SUPPORT_CUES = [
         r"\bconfirm(s|ed|ing)?\b",
@@ -67,7 +67,7 @@ class RuleBasedStanceClassifier:
         r"\bsimilar(ly)?\b",
         r"\bas expected\b",
     ]
-    
+
     CONTRADICT_CUES = [
         r"\bcontradict(s|ed|ing)?\b",
         r"\bconflict(s|ed|ing)?\b",
@@ -86,7 +86,7 @@ class RuleBasedStanceClassifier:
         r"\balthough\b",
         r"\bdespite\b",
     ]
-    
+
     EXTEND_CUES = [
         r"\bextend(s|ed|ing)?\b",
         r"\bbuild(s|ing)? on\b",
@@ -96,7 +96,7 @@ class RuleBasedStanceClassifier:
         r"\bexpand(s|ed|ing)?\b",
         r"\bbroaden(s|ed|ing)?\b",
     ]
-    
+
     def classify(
         self,
         claim_text: str,
@@ -107,25 +107,25 @@ class RuleBasedStanceClassifier:
         """Classify stance between claim and evidence."""
         text_lower = evidence_text.lower()
         claim_lower = claim_text.lower()
-        
+
         # Find cue words
         support_matches = self._find_cues(text_lower, self.SUPPORT_CUES)
         contradict_matches = self._find_cues(text_lower, self.CONTRADICT_CUES)
         extend_matches = self._find_cues(text_lower, self.EXTEND_CUES)
-        
+
         # Scoring
         support_score = len(support_matches) * 1.0
         contradict_score = len(contradict_matches) * 1.5  # Weight contradictions higher
         extend_score = len(extend_matches) * 0.5
-        
+
         # Check for negation of support
         if self._has_negated_support(text_lower):
             support_score -= 1.0
             contradict_score += 0.5
-        
+
         # Determine stance
         total = support_score + contradict_score + extend_score + 0.1
-        
+
         if contradict_score > support_score and contradict_score >= 1.0:
             stance = CitationStance.CONTRADICTS
             confidence = min(0.9, 0.5 + contradict_score / (total * 2))
@@ -142,7 +142,7 @@ class RuleBasedStanceClassifier:
             stance = CitationStance.NEUTRAL
             confidence = 0.3
             cues = []
-        
+
         return StanceResult(
             claim_id=claim_id,
             evidence_id=evidence_id,
@@ -151,8 +151,8 @@ class RuleBasedStanceClassifier:
             explanation=f"Found cues: {', '.join(cues[:3])}",
             cue_words=cues,
         )
-    
-    def _find_cues(self, text: str, patterns: List[str]) -> List[str]:
+
+    def _find_cues(self, text: str, patterns: list[str]) -> list[str]:
         """Find matching cue words."""
         matches = []
         for pattern in patterns:
@@ -162,7 +162,7 @@ class RuleBasedStanceClassifier:
                 if match:
                     matches.append(match.group())
         return matches
-    
+
     def _has_negated_support(self, text: str) -> bool:
         """Check for negated support phrases."""
         negation_patterns = [
@@ -180,7 +180,7 @@ class RuleBasedStanceClassifier:
 
 class LLMStanceClassifier:
     """LLM-based stance classifier using local models."""
-    
+
     STANCE_PROMPT = """Analyze the relationship between this claim and evidence.
 
 CLAIM: {claim}
@@ -194,7 +194,7 @@ Answer:"""
 
     def __init__(self):
         self._router = None
-    
+
     def _get_router(self):
         if self._router is None:
             try:
@@ -203,31 +203,31 @@ Answer:"""
             except ImportError:
                 pass
         return self._router
-    
+
     def classify(
         self,
         claim_text: str,
         evidence_text: str,
         claim_id: str = "",
         evidence_id: str = "",
-    ) -> Optional[StanceResult]:
+    ) -> StanceResult | None:
         """Classify stance using LLM."""
         router = self._get_router()
         if not router or not router.find_available_provider():
             return None
-        
+
         prompt = self.STANCE_PROMPT.format(
             claim=claim_text[:300],
             evidence=evidence_text[:500],
         )
-        
+
         try:
             response = router.generate(
                 prompt,
                 max_tokens=20,
                 temperature=0.0,
             ).strip().upper()
-            
+
             if "SUPPORT" in response:
                 stance = CitationStance.SUPPORTS
             elif "CONTRADICT" in response:
@@ -236,7 +236,7 @@ Answer:"""
                 stance = CitationStance.EXTENDS
             else:
                 stance = CitationStance.NEUTRAL
-            
+
             return StanceResult(
                 claim_id=claim_id,
                 evidence_id=evidence_id,
@@ -252,12 +252,12 @@ Answer:"""
 
 class EnsembleStanceClassifier:
     """Ensemble classifier combining rule-based and LLM approaches."""
-    
+
     def __init__(self, use_llm: bool = True):
         self.use_llm = use_llm
         self.rule_classifier = RuleBasedStanceClassifier()
         self.llm_classifier = LLMStanceClassifier() if use_llm else None
-    
+
     def classify(
         self,
         claim_text: str,
@@ -269,17 +269,17 @@ class EnsembleStanceClassifier:
         rule_result = self.rule_classifier.classify(
             claim_text, evidence_text, claim_id, evidence_id
         )
-        
+
         if not self.use_llm or not self.llm_classifier:
             return rule_result
-        
+
         llm_result = self.llm_classifier.classify(
             claim_text, evidence_text, claim_id, evidence_id
         )
-        
+
         if not llm_result:
             return rule_result
-        
+
         # If they agree, boost confidence
         if rule_result.stance == llm_result.stance:
             return StanceResult(
@@ -290,16 +290,16 @@ class EnsembleStanceClassifier:
                 explanation=f"Both classifiers agree: {rule_result.stance.value}",
                 cue_words=rule_result.cue_words,
             )
-        
+
         # If they disagree, prefer LLM for high-confidence, else rule-based
         if llm_result.confidence > rule_result.confidence:
             return llm_result
         return rule_result
-    
+
     def classify_batch(
         self,
-        pairs: List[Tuple[str, str, str, str]],  # (claim, evidence, claim_id, evidence_id)
-    ) -> List[StanceResult]:
+        pairs: list[tuple[str, str, str, str]],  # (claim, evidence, claim_id, evidence_id)
+    ) -> list[StanceResult]:
         """Classify multiple claim-evidence pairs."""
         return [
             self.classify(claim, evidence, claim_id, ev_id)
@@ -308,10 +308,10 @@ class EnsembleStanceClassifier:
 
 
 def analyze_citations(
-    claims: List[Dict],
-    evidence_list: List[Dict],
+    claims: list[dict],
+    evidence_list: list[dict],
     use_llm: bool = True,
-) -> Tuple[List[StanceResult], Dict[str, Any]]:
+) -> tuple[list[StanceResult], dict[str, Any]]:
     """Analyze citation stances for all claim-evidence pairs.
     
     Args:
@@ -323,15 +323,15 @@ def analyze_citations(
         Tuple of (results, summary_stats).
     """
     classifier = EnsembleStanceClassifier(use_llm=use_llm)
-    
+
     # Build claim lookup
     claim_map = {c.get("claim_id", c.get("id")): c for c in claims}
-    
+
     results = []
     for ev in evidence_list:
         claim_id = ev.get("claim_id", "")
         claim = claim_map.get(claim_id, {})
-        
+
         result = classifier.classify(
             claim_text=claim.get("claim_text", claim.get("text", "")),
             evidence_text=ev.get("text", ev.get("quote_span", "")),
@@ -339,17 +339,17 @@ def analyze_citations(
             evidence_id=ev.get("evidence_id", ev.get("id", "")),
         )
         results.append(result)
-    
+
     # Calculate statistics
     stance_counts = {s.value: 0 for s in CitationStance}
     for r in results:
         stance_counts[r.stance.value] += 1
-    
+
     stats = {
         "total_analyzed": len(results),
         "stance_distribution": stance_counts,
         "support_rate": stance_counts["supports"] / len(results) if results else 0,
         "contradiction_rate": stance_counts["contradicts"] / len(results) if results else 0,
     }
-    
+
     return results, stats

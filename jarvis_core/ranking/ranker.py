@@ -5,10 +5,9 @@
 """
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass
@@ -18,7 +17,7 @@ class RankingWeights:
     evidence: float = 0.3
     recency: float = 0.15
     methodology: float = 0.15
-    
+
     def to_dict(self) -> dict:
         return {
             "relevance": self.relevance,
@@ -26,22 +25,22 @@ class RankingWeights:
             "recency": self.recency,
             "methodology": self.methodology,
         }
-    
+
     @classmethod
-    def from_dict(cls, d: dict) -> "RankingWeights":
+    def from_dict(cls, d: dict) -> RankingWeights:
         return cls(
             relevance=d.get("relevance", 0.4),
             evidence=d.get("evidence", 0.3),
             recency=d.get("recency", 0.15),
             methodology=d.get("methodology", 0.15),
         )
-    
+
     @classmethod
-    def load(cls, filepath: Path) -> "RankingWeights":
+    def load(cls, filepath: Path) -> RankingWeights:
         """YAMLファイルから読み込み."""
         try:
             import yaml
-            with open(filepath, "r", encoding="utf-8") as f:
+            with open(filepath, encoding="utf-8") as f:
                 data = yaml.safe_load(f)
             return cls.from_dict(data)
         except:
@@ -55,9 +54,9 @@ class RankedItem:
     item_type: str  # paper, claim
     score: float
     rank: int
-    factors: Dict[str, float] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
+    factors: dict[str, float] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
     def to_dict(self) -> dict:
         return {
             "item_id": self.item_id,
@@ -72,9 +71,9 @@ class RankedItem:
 @dataclass
 class RankingResult:
     """ランキング結果."""
-    items: List[RankedItem] = field(default_factory=list)
-    weights_used: Optional[RankingWeights] = None
-    
+    items: list[RankedItem] = field(default_factory=list)
+    weights_used: RankingWeights | None = None
+
     def to_dict(self) -> dict:
         return {
             "items": [i.to_dict() for i in self.items],
@@ -87,20 +86,20 @@ class Ranker:
     
     複合スコアに基づいてアイテムをランク付け。
     """
-    
+
     def __init__(
         self,
-        weights: Optional[RankingWeights] = None,
+        weights: RankingWeights | None = None,
         current_year: int = 2024,
     ):
         self.weights = weights or RankingWeights()
         self.current_year = current_year
-    
+
     def rank_papers(
         self,
-        papers: List[Dict[str, Any]],
+        papers: list[dict[str, Any]],
         query: str = "",
-        evidence_counts: Optional[Dict[str, int]] = None,
+        evidence_counts: dict[str, int] | None = None,
     ) -> RankingResult:
         """論文をランク付け.
         
@@ -114,10 +113,10 @@ class Ranker:
         """
         evidence_counts = evidence_counts or {}
         ranked = []
-        
+
         for paper in papers:
             paper_id = paper.get("paper_id", "")
-            
+
             # 各因子を計算
             factors = {
                 "relevance": self._compute_relevance(paper, query),
@@ -125,7 +124,7 @@ class Ranker:
                 "recency": self._compute_recency(paper),
                 "methodology": self._compute_methodology(paper),
             }
-            
+
             # 重み付き総合スコア
             score = (
                 factors["relevance"] * self.weights.relevance +
@@ -133,7 +132,7 @@ class Ranker:
                 factors["recency"] * self.weights.recency +
                 factors["methodology"] * self.weights.methodology
             ) * 100  # 0-100スケール
-            
+
             ranked.append(RankedItem(
                 item_id=paper_id,
                 item_type="paper",
@@ -145,18 +144,18 @@ class Ranker:
                     "year": paper.get("year", 0),
                 },
             ))
-        
+
         # スコアでソートしてランク付け
         ranked.sort(key=lambda x: x.score, reverse=True)
         for i, item in enumerate(ranked):
             item.rank = i + 1
-        
+
         return RankingResult(items=ranked, weights_used=self.weights)
-    
+
     def rank_claims(
         self,
-        claims: List[Dict[str, Any]],
-        evidence: List[Dict[str, Any]],
+        claims: list[dict[str, Any]],
+        evidence: list[dict[str, Any]],
     ) -> RankingResult:
         """主張をランク付け.
         
@@ -172,29 +171,29 @@ class Ranker:
         for ev in evidence:
             claim_id = ev.get("claim_id", "")
             evidence_by_claim[claim_id] = evidence_by_claim.get(claim_id, 0) + 1
-        
+
         ranked = []
-        
+
         for claim in claims:
             claim_id = claim.get("claim_id", "")
-            
+
             # 因子計算
             ev_count = evidence_by_claim.get(claim_id, 0)
             confidence = claim.get("confidence", 0.5)
             claim_type = claim.get("claim_type", "fact")
-            
+
             factors = {
                 "evidence": min(1.0, ev_count / 3),  # 3根拠で最大
                 "confidence": confidence,
                 "type_weight": self._claim_type_weight(claim_type),
             }
-            
+
             score = (
                 factors["evidence"] * 0.5 +
                 factors["confidence"] * 0.3 +
                 factors["type_weight"] * 0.2
             ) * 100
-            
+
             ranked.append(RankedItem(
                 item_id=claim_id,
                 item_type="claim",
@@ -206,47 +205,47 @@ class Ranker:
                     "claim_type": claim_type,
                 },
             ))
-        
+
         # ソートとランク付け
         ranked.sort(key=lambda x: x.score, reverse=True)
         for i, item in enumerate(ranked):
             item.rank = i + 1
-        
+
         return RankingResult(items=ranked, weights_used=self.weights)
-    
-    def _compute_relevance(self, paper: Dict[str, Any], query: str) -> float:
+
+    def _compute_relevance(self, paper: dict[str, Any], query: str) -> float:
         """関連度を計算."""
         if not query:
             return 0.5
-        
+
         query_lower = query.lower()
         title = paper.get("title", "").lower()
         abstract = paper.get("abstract", "").lower()
-        
+
         # キーワードマッチ
         import re
         keywords = re.findall(r'\b[a-z]{3,}\b', query_lower)
         if not keywords:
             return 0.5
-        
+
         title_matches = sum(1 for kw in keywords if kw in title)
         abstract_matches = sum(1 for kw in keywords if kw in abstract)
-        
+
         title_score = title_matches / len(keywords)
         abstract_score = abstract_matches / len(keywords) * 0.5
-        
+
         return min(1.0, title_score + abstract_score)
-    
-    def _compute_evidence_factor(self, paper_id: str, evidence_counts: Dict[str, int]) -> float:
+
+    def _compute_evidence_factor(self, paper_id: str, evidence_counts: dict[str, int]) -> float:
         """根拠因子を計算."""
         count = evidence_counts.get(paper_id, 0)
         return min(1.0, count / 5)  # 5根拠で最大
-    
-    def _compute_recency(self, paper: Dict[str, Any]) -> float:
+
+    def _compute_recency(self, paper: dict[str, Any]) -> float:
         """新しさ因子を計算."""
         year = paper.get("year", 2020)
         age = self.current_year - year
-        
+
         if age <= 0:
             return 1.0
         elif age <= 2:
@@ -257,21 +256,21 @@ class Ranker:
             return 0.5
         else:
             return 0.3
-    
-    def _compute_methodology(self, paper: Dict[str, Any]) -> float:
+
+    def _compute_methodology(self, paper: dict[str, Any]) -> float:
         """方法論スコアを計算（簡易版）."""
         # 本番ではより詳細な評価が必要
         abstract = paper.get("abstract", "").lower()
-        
+
         indicators = ["randomized", "controlled", "clinical trial", "meta-analysis", "systematic review"]
         score = 0.5
-        
+
         for ind in indicators:
             if ind in abstract:
                 score += 0.1
-        
+
         return min(1.0, score)
-    
+
     def _claim_type_weight(self, claim_type: str) -> float:
         """主張タイプの重み."""
         weights = {
@@ -285,9 +284,9 @@ class Ranker:
 
 
 def rank_papers(
-    papers: List[Dict[str, Any]],
+    papers: list[dict[str, Any]],
     query: str = "",
-    weights: Optional[RankingWeights] = None,
+    weights: RankingWeights | None = None,
 ) -> RankingResult:
     """便利関数: 論文をランク付け."""
     ranker = Ranker(weights=weights)

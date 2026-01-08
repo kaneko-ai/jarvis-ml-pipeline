@@ -8,7 +8,7 @@ Per V4-T02, this provides strict alignment checking with:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..artifacts.schema import Fact
@@ -23,8 +23,8 @@ class AlignmentResult:
     score: float  # 0-1
     token_overlap: float
     locator_match: bool
-    mismatch_reasons: List[str]
-    matched_fact: Optional[str] = None
+    mismatch_reasons: list[str]
+    matched_fact: str | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -57,7 +57,7 @@ def calculate_token_overlap(text1: str, text2: str) -> float:
     return overlap / len(tokens1)
 
 
-def check_locator_match(claim_locator: str, fact_locators: List[str]) -> bool:
+def check_locator_match(claim_locator: str, fact_locators: list[str]) -> bool:
     """Check if locators are consistent."""
     if not claim_locator or not fact_locators:
         return False
@@ -72,7 +72,7 @@ def check_locator_match(claim_locator: str, fact_locators: List[str]) -> bool:
 
 def check_alignment_v2(
     claim: str,
-    facts: List["Fact"],
+    facts: list[Fact],
     claim_locator: str = "",
     min_overlap: float = 0.3,
 ) -> AlignmentResult:

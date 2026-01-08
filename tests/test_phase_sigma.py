@@ -5,57 +5,55 @@ Tests Σ-1 to Σ-30 modules.
 import sys
 from pathlib import Path
 
-import pytest
-
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from jarvis_core.paper_vector import (
-    PaperVector,
-    MetadataVector,
-    ConceptVector,
-    MethodVector,
     BiologicalAxisVector,
-    TemporalVector,
+    ConceptVector,
     ImpactVector,
+    MetadataVector,
+    MethodVector,
+    PaperVector,
+    TemporalVector,
 )
 from jarvis_core.sigma_modules import (
-    # Σ-1〜Σ-7
-    score_hypothesis,
+    analyze_cluster_dynamics,
     analyze_hypothesis_dependencies,
-    generate_negative_hypothesis,
-    estimate_hypothesis_lifetime,
-    detect_consensus,
-    find_counter_evidence,
-    generate_hypothesis_diagram,
+    assess_field_saturation,
+    assess_reproducibility_risk,
     # Σ-8〜Σ-13
     build_impact_heatmap,
-    analyze_cluster_dynamics,
-    infer_causal_direction,
-    map_method_failures,
-    map_journal_trends,
-    map_research_density,
-    # Σ-14〜Σ-19
-    score_protocol_difficulty,
-    assess_reproducibility_risk,
-    enumerate_controls,
     check_sample_size,
-    validate_stats_method,
-    explain_model_reasoning,
-    # Σ-20〜Σ-25
-    plan_figures,
-    structure_graphical_abstract,
     check_supplement_completeness,
-    detect_discussion_gaps,
-    flag_risky_sentences,
     detect_citation_bias,
+    detect_consensus,
+    detect_discussion_gaps,
+    detect_new_concepts,
     # Σ-26〜Σ-30
     detect_research_drift,
+    enumerate_controls,
+    estimate_hypothesis_lifetime,
+    explain_model_reasoning,
+    find_counter_evidence,
+    flag_risky_sentences,
+    generate_hypothesis_diagram,
+    generate_negative_hypothesis,
     generate_periodic_review,
-    assess_field_saturation,
-    detect_new_concepts,
+    infer_causal_direction,
+    map_journal_trends,
+    map_method_failures,
+    map_research_density,
+    # Σ-20〜Σ-25
+    plan_figures,
+    # Σ-1〜Σ-7
+    score_hypothesis,
+    # Σ-14〜Σ-19
+    score_protocol_difficulty,
+    structure_graphical_abstract,
     sync_research_log,
+    validate_stats_method,
 )
 
 

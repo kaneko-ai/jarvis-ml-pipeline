@@ -6,9 +6,9 @@ from __future__ import annotations
 
 import json
 import random
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Any
 
 
 @dataclass
@@ -23,7 +23,7 @@ class RunConfig:
     cache_dir: str = "cache"
 
     # Reproducibility
-    seed: Optional[int] = None
+    seed: int | None = None
 
     # Execution
     strict_mode: bool = False
@@ -34,14 +34,14 @@ class RunConfig:
     model: str = "gemini-2.0-flash"
 
     # Thresholds
-    thresholds: Dict[str, float] = field(default_factory=lambda: {
+    thresholds: dict[str, float] = field(default_factory=lambda: {
         "claim_precision": 0.85,
         "citation_precision": 0.9,
         "unsupported_claim_rate": 0.1,
     })
 
     # Additional config
-    extra: Dict[str, Any] = field(default_factory=dict)
+    extra: dict[str, Any] = field(default_factory=dict)
 
     def apply_seed(self) -> None:
         """Apply seed to random number generators."""
@@ -64,14 +64,14 @@ class RunConfig:
             json.dump(self.to_dict(), f, indent=2)
 
     @classmethod
-    def load(cls, path: str) -> "RunConfig":
+    def load(cls, path: str) -> RunConfig:
         """Load config from JSON file."""
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
         return cls(**data)
 
     @classmethod
-    def from_dict(cls, data: dict) -> "RunConfig":
+    def from_dict(cls, data: dict) -> RunConfig:
         """Create from dict."""
         return cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
 

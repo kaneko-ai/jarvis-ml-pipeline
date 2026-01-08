@@ -4,17 +4,17 @@ Per RP39, this scores research gaps to identify promising areas.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def score_research_gaps(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     concept: str,
     year_range: tuple[int, int] | None = None,
-) -> List[dict]:
+) -> list[dict]:
     """Score research gaps for a concept.
 
     Gap score formula:

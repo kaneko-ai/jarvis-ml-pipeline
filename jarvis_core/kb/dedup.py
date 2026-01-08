@@ -1,10 +1,10 @@
 """Deduplicate KB content."""
 from __future__ import annotations
 
-from typing import Iterable, List, Mapping
+from collections.abc import Iterable, Mapping
 
 
-def dedup_claims(claims: Iterable[Mapping]) -> List[Mapping]:
+def dedup_claims(claims: Iterable[Mapping]) -> list[Mapping]:
     seen = set()
     unique = []
     for claim in claims:

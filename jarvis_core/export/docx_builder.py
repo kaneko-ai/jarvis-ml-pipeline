@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable
 
 try:
     from docx import Document
@@ -12,7 +11,7 @@ except ImportError:  # pragma: no cover
     Document = None
 
 
-def _add_markdown_line(document: "Document", line: str) -> None:
+def _add_markdown_line(document: Document, line: str) -> None:
     if line.startswith("# "):
         document.add_heading(line[2:].strip(), level=1)
     elif line.startswith("## "):

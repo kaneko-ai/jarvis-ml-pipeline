@@ -8,12 +8,12 @@ from __future__ import annotations
 import importlib
 import importlib.util
 import logging
-import os
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Type
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -44,11 +44,11 @@ class PluginInfo:
     plugin_type: PluginType
     description: str = ""
     author: str = ""
-    dependencies: List[str] = field(default_factory=list)
+    dependencies: list[str] = field(default_factory=list)
     status: PluginStatus = PluginStatus.REGISTERED
     error_message: str = ""
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "version": self.version,
@@ -61,18 +61,18 @@ class PluginInfo:
 
 class Plugin(ABC):
     """Base class for all plugins."""
-    
+
     # Plugin metadata - override in subclass
     NAME: str = "base_plugin"
     VERSION: str = "1.0.0"
     PLUGIN_TYPE: PluginType = PluginType.CUSTOM
     DESCRIPTION: str = ""
     AUTHOR: str = ""
-    DEPENDENCIES: List[str] = []
-    
+    DEPENDENCIES: list[str] = []
+
     def __init__(self):
         self._initialized = False
-    
+
     @classmethod
     def get_info(cls) -> PluginInfo:
         """Get plugin info from class attributes."""
@@ -84,7 +84,7 @@ class Plugin(ABC):
             author=cls.AUTHOR,
             dependencies=cls.DEPENDENCIES,
         )
-    
+
     @abstractmethod
     def initialize(self) -> bool:
         """Initialize the plugin.
@@ -93,16 +93,16 @@ class Plugin(ABC):
             True if initialization successful.
         """
         pass
-    
+
     @abstractmethod
     def execute(self, **kwargs) -> Any:
         """Execute the plugin's main functionality."""
         pass
-    
+
     def cleanup(self) -> None:
         """Clean up plugin resources."""
         pass
-    
+
     @property
     def is_initialized(self) -> bool:
         return self._initialized
@@ -110,19 +110,19 @@ class Plugin(ABC):
 
 class SourcePlugin(Plugin):
     """Base class for data source plugins."""
-    
+
     PLUGIN_TYPE = PluginType.SOURCE
-    
+
     @abstractmethod
-    def search(self, query: str, **kwargs) -> List[Dict]:
+    def search(self, query: str, **kwargs) -> list[dict]:
         """Search for items."""
         pass
-    
+
     @abstractmethod
-    def fetch(self, item_id: str, **kwargs) -> Optional[Dict]:
+    def fetch(self, item_id: str, **kwargs) -> dict | None:
         """Fetch a specific item."""
         pass
-    
+
     def execute(self, action: str = "search", **kwargs) -> Any:
         """Execute source action."""
         if action == "search":
@@ -134,45 +134,45 @@ class SourcePlugin(Plugin):
 
 class AnalyzerPlugin(Plugin):
     """Base class for analyzer plugins."""
-    
+
     PLUGIN_TYPE = PluginType.ANALYZER
-    
+
     @abstractmethod
-    def analyze(self, data: Any, **kwargs) -> Dict[str, Any]:
+    def analyze(self, data: Any, **kwargs) -> dict[str, Any]:
         """Analyze data."""
         pass
-    
-    def execute(self, data: Any = None, **kwargs) -> Dict[str, Any]:
+
+    def execute(self, data: Any = None, **kwargs) -> dict[str, Any]:
         return self.analyze(data, **kwargs)
 
 
 class ExporterPlugin(Plugin):
     """Base class for exporter plugins."""
-    
+
     PLUGIN_TYPE = PluginType.EXPORTER
-    
+
     @abstractmethod
-    def export(self, data: Any, output_path: Optional[Path] = None, **kwargs) -> str:
+    def export(self, data: Any, output_path: Path | None = None, **kwargs) -> str:
         """Export data to format.
         
         Returns:
             Exported content or path to file.
         """
         pass
-    
+
     def execute(self, data: Any = None, **kwargs) -> str:
         return self.export(data, **kwargs)
 
 
 class PluginRegistry:
     """Central registry for all plugins."""
-    
+
     def __init__(self):
-        self._plugins: Dict[str, Type[Plugin]] = {}
-        self._instances: Dict[str, Plugin] = {}
-        self._hooks: Dict[str, List[Callable]] = {}
-    
-    def register(self, plugin_class: Type[Plugin]) -> bool:
+        self._plugins: dict[str, type[Plugin]] = {}
+        self._instances: dict[str, Plugin] = {}
+        self._hooks: dict[str, list[Callable]] = {}
+
+    def register(self, plugin_class: type[Plugin]) -> bool:
         """Register a plugin class.
         
         Args:
@@ -183,18 +183,18 @@ class PluginRegistry:
         """
         try:
             info = plugin_class.get_info()
-            
+
             if info.name in self._plugins:
                 logger.warning(f"Plugin {info.name} already registered, replacing")
-            
+
             self._plugins[info.name] = plugin_class
             logger.info(f"Registered plugin: {info.name} v{info.version}")
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to register plugin: {e}")
             return False
-    
+
     def unregister(self, name: str) -> bool:
         """Unregister a plugin."""
         if name in self._plugins:
@@ -202,22 +202,22 @@ class PluginRegistry:
             if name in self._instances:
                 self._instances[name].cleanup()
                 del self._instances[name]
-            
+
             del self._plugins[name]
             logger.info(f"Unregistered plugin: {name}")
             return True
         return False
-    
-    def get_plugin(self, name: str) -> Optional[Plugin]:
+
+    def get_plugin(self, name: str) -> Plugin | None:
         """Get an initialized plugin instance."""
         if name not in self._plugins:
             return None
-        
+
         if name not in self._instances:
             # Create and initialize instance
             plugin_class = self._plugins[name]
             instance = plugin_class()
-            
+
             try:
                 if instance.initialize():
                     instance._initialized = True
@@ -228,26 +228,26 @@ class PluginRegistry:
             except Exception as e:
                 logger.error(f"Plugin {name} initialization error: {e}")
                 return None
-        
+
         return self._instances[name]
-    
-    def list_plugins(self, plugin_type: Optional[PluginType] = None) -> List[PluginInfo]:
+
+    def list_plugins(self, plugin_type: PluginType | None = None) -> list[PluginInfo]:
         """List all registered plugins."""
         plugins = []
         for name, plugin_class in self._plugins.items():
             info = plugin_class.get_info()
-            
+
             if plugin_type and info.plugin_type != plugin_type:
                 continue
-            
+
             # Update status
             if name in self._instances:
                 info.status = PluginStatus.ACTIVE
-            
+
             plugins.append(info)
-        
+
         return plugins
-    
+
     def load_from_directory(self, directory: Path) -> int:
         """Load plugins from a directory.
         
@@ -258,15 +258,15 @@ class PluginRegistry:
             Number of plugins loaded.
         """
         loaded = 0
-        
+
         if not directory.exists():
             logger.warning(f"Plugin directory not found: {directory}")
             return 0
-        
+
         for file in directory.glob("*.py"):
             if file.name.startswith("_"):
                 continue
-            
+
             try:
                 spec = importlib.util.spec_from_file_location(
                     file.stem, file
@@ -274,29 +274,29 @@ class PluginRegistry:
                 if spec and spec.loader:
                     module = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(module)
-                    
+
                     # Find Plugin subclasses
                     for name in dir(module):
                         obj = getattr(module, name)
-                        if (isinstance(obj, type) and 
-                            issubclass(obj, Plugin) and 
+                        if (isinstance(obj, type) and
+                            issubclass(obj, Plugin) and
                             obj is not Plugin and
                             not name.startswith("_")):
                             if self.register(obj):
                                 loaded += 1
-                                
+
             except Exception as e:
                 logger.error(f"Failed to load plugin from {file}: {e}")
-        
+
         return loaded
-    
+
     def add_hook(self, hook_name: str, callback: Callable) -> None:
         """Add a hook callback."""
         if hook_name not in self._hooks:
             self._hooks[hook_name] = []
         self._hooks[hook_name].append(callback)
-    
-    def run_hook(self, hook_name: str, *args, **kwargs) -> List[Any]:
+
+    def run_hook(self, hook_name: str, *args, **kwargs) -> list[Any]:
         """Run all callbacks for a hook."""
         results = []
         for callback in self._hooks.get(hook_name, []):
@@ -309,7 +309,7 @@ class PluginRegistry:
 
 
 # Global registry
-_registry: Optional[PluginRegistry] = None
+_registry: PluginRegistry | None = None
 
 
 def get_registry() -> PluginRegistry:
@@ -320,7 +320,7 @@ def get_registry() -> PluginRegistry:
     return _registry
 
 
-def register_plugin(plugin_class: Type[Plugin]) -> Type[Plugin]:
+def register_plugin(plugin_class: type[Plugin]) -> type[Plugin]:
     """Decorator to register a plugin."""
     get_registry().register(plugin_class)
     return plugin_class

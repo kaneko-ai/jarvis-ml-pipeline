@@ -8,12 +8,12 @@ from jarvis_core.citation.context_extractor import (
     CitationContext,
     extract_citation_contexts,
 )
+from jarvis_core.citation.graph import CitationGraph, build_citation_graph
 from jarvis_core.citation.stance_classifier import (
     CitationStance,
     StanceClassifier,
     classify_citation_stance,
 )
-from jarvis_core.citation.graph import CitationGraph, build_citation_graph
 
 __all__ = [
     "CitationContext",

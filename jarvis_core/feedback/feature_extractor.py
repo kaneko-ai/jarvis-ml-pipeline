@@ -3,10 +3,8 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Optional
 
 from jarvis_core.style.scientific_linter import ScientificLinter
-
 
 SENTENCE_SPLIT = re.compile(r"[。\.\?!]+")
 EVIDENCE_MARKERS = re.compile(r"\[(\d+)\]|\(([^)]+,\s*\d{4})\)|\b(according to|because|since|therefore)\b", re.I)
@@ -19,21 +17,21 @@ AMBIGUOUS_TERMS = [
 
 @dataclass
 class FeatureRecord:
-    location: Dict[str, int]
+    location: dict[str, int]
     text: str
-    features: Dict[str, float]
+    features: dict[str, float]
     section: str
 
 
 class FeedbackFeatureExtractor:
     """Extract paragraph/slide-level features."""
 
-    def __init__(self, linter: Optional[ScientificLinter] = None):
+    def __init__(self, linter: ScientificLinter | None = None):
         self.linter = linter or ScientificLinter()
 
-    def extract(self, text: str, section: str = "unknown") -> List[FeatureRecord]:
+    def extract(self, text: str, section: str = "unknown") -> list[FeatureRecord]:
         paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
-        records: List[FeatureRecord] = []
+        records: list[FeatureRecord] = []
 
         for idx, paragraph in enumerate(paragraphs, start=1):
             lint = self.linter.lint_text(paragraph)

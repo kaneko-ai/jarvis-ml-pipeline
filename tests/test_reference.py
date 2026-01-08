@@ -6,12 +6,9 @@ Per RP14, these tests verify:
 - Vancouver/APA formatting
 - Bundle references.md generation
 """
-import tempfile
-from datetime import datetime
-from pathlib import Path
 import sys
-
-import pytest
+import tempfile
+from pathlib import Path
 
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,12 +16,11 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from jarvis_core.agents import Citation
-from jarvis_core.reference import Reference, extract_references, _parse_locator
+from jarvis_core.reference import Reference, _parse_locator, extract_references
 from jarvis_core.reference_formatter import (
-    format_vancouver,
     format_apa,
     format_references,
-    format_references_markdown,
+    format_vancouver,
 )
 
 
@@ -180,9 +176,9 @@ class TestBundleReferences:
 
     def test_bundle_includes_references_md(self):
         """Bundle should include references.md."""
+        from jarvis_core.bundle import export_evidence_bundle
         from jarvis_core.evidence import EvidenceStore
         from jarvis_core.result import EvidenceQAResult
-        from jarvis_core.bundle import export_evidence_bundle
 
         store = EvidenceStore()
         chunk_id = store.add_chunk(
@@ -213,9 +209,10 @@ class TestBundleReferences:
     def test_bundle_json_includes_references(self):
         """bundle.json should include references."""
         import json
+
+        from jarvis_core.bundle import export_evidence_bundle
         from jarvis_core.evidence import EvidenceStore
         from jarvis_core.result import EvidenceQAResult
-        from jarvis_core.bundle import export_evidence_bundle
 
         store = EvidenceStore()
         chunk_id = store.add_chunk("pdf", "pdf:test.pdf#page:5", "Content")

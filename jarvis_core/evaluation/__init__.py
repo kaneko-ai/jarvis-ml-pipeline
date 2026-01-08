@@ -1,8 +1,8 @@
 """JARVIS Evaluation Module"""
 from .gates import (
     QualityGateResult,
-    QualityReport,
     QualityGates,
+    QualityReport,
     get_quality_gates,
 )
 

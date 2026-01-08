@@ -5,7 +5,6 @@ Per RP-123, generates research-ready Markdown reports.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import List, Optional, Dict
 from datetime import datetime
 
 
@@ -20,9 +19,9 @@ class ReportSection:
 
 def render_claimset_report(
     query: str,
-    claims: List[dict],
-    evidence: Dict[str, dict],
-    metadata: Optional[dict] = None,
+    claims: list[dict],
+    evidence: dict[str, dict],
+    metadata: dict | None = None,
 ) -> str:
     """Render a ClaimSet as a research report.
 
@@ -111,8 +110,8 @@ def render_claimset_report(
 
 def render_comparison_report(
     query: str,
-    papers: List[dict],
-    comparison_matrix: Dict[str, Dict[str, str]],
+    papers: list[dict],
+    comparison_matrix: dict[str, dict[str, str]],
 ) -> str:
     """Render a paper comparison report.
 

@@ -3,14 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from .diff_engine import DiffReport
 
 
 @dataclass
 class ChangeLogResult:
-    summary_lines: List[str]
+    summary_lines: list[str]
     markdown: str
 
 
@@ -18,8 +17,8 @@ def generate_changelog(
     run_id: str,
     submission_version: str,
     diff_report: DiffReport,
-    checklist: Dict[str, object],
-    attachments: List[str],
+    checklist: dict[str, object],
+    attachments: list[str],
     output_path: Path,
 ) -> ChangeLogResult:
     summary_lines = _build_summary(diff_report, checklist)
@@ -27,7 +26,7 @@ def generate_changelog(
     impact = "Yes" if checklist.get("impact", {}).get("has_impact") else "No"
     impact_details = checklist.get("impact", {}).get("details", "")
 
-    lines: List[str] = []
+    lines: list[str] = []
     lines.append(f"# ChangeLog ver{submission_version}")
     lines.append("")
     lines.append(f"Run ID: {run_id}")
@@ -92,7 +91,7 @@ def generate_changelog(
     return ChangeLogResult(summary_lines=summary_lines, markdown=markdown)
 
 
-def _append_section_diffs(lines: List[str], label: str, diffs: List[object]) -> None:
+def _append_section_diffs(lines: list[str], label: str, diffs: list[object]) -> None:
     if not diffs:
         return
     lines.append(f"### {label}")
@@ -100,7 +99,7 @@ def _append_section_diffs(lines: List[str], label: str, diffs: List[object]) -> 
         lines.append(f"- {diff.section}: {diff.summary}")
 
 
-def _build_summary(diff_report: DiffReport, checklist: Dict[str, object]) -> List[str]:
+def _build_summary(diff_report: DiffReport, checklist: dict[str, object]) -> list[str]:
     summary = []
     changes = (
         len(diff_report.docx_sections)
@@ -121,7 +120,7 @@ def _build_summary(diff_report: DiffReport, checklist: Dict[str, object]) -> Lis
     return summary
 
 
-def _build_reason_groups(checklist: Dict[str, object]) -> Dict[str, List[str]]:
+def _build_reason_groups(checklist: dict[str, object]) -> dict[str, list[str]]:
     reasons = {}
     for item in checklist.get("checks", []):
         if item.get("status") != "pass":

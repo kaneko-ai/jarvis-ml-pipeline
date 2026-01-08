@@ -4,16 +4,16 @@ Per RP33, this visualizes knowledge evolution over time.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def build_timeline(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     concept: str,
-) -> List[dict]:
+) -> list[dict]:
     """Build timeline of knowledge evolution for a concept.
 
     Args:
@@ -50,7 +50,7 @@ def build_timeline(
     return entries
 
 
-def summarize_evolution(timeline: List[dict]) -> str:
+def summarize_evolution(timeline: list[dict]) -> str:
     """Summarize knowledge evolution from timeline.
 
     Args:

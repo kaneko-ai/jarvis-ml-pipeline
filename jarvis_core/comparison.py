@@ -5,13 +5,13 @@ Per RP30, this compares two papers and explains differences.
 from __future__ import annotations
 
 import math
-from typing import Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
-def compare_papers(a: "PaperVector", b: "PaperVector") -> dict:
+def compare_papers(a: PaperVector, b: PaperVector) -> dict:
     """Compare two papers and explain differences.
 
     Args:

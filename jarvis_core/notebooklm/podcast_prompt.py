@@ -3,18 +3,23 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
-from jarvis_core.notes.note_generator import _format_locator, _load_json, _load_jsonl, _compute_rankings, _assign_tiers
-
+from jarvis_core.notes.note_generator import (
+    _assign_tiers,
+    _compute_rankings,
+    _format_locator,
+    _load_json,
+    _load_jsonl,
+)
 
 VOCAB_GUIDE = "高校生〜学部生が説明できる語彙で、重要語は英語併記すること。"
 
 
 def _claim_lines(
-    claims: List[Dict[str, Any]],
-    evidence_by_claim: Dict[str, List[Dict[str, Any]]],
-) -> List[str]:
+    claims: list[dict[str, Any]],
+    evidence_by_claim: dict[str, list[dict[str, Any]]],
+) -> list[str]:
     lines = []
     for claim in claims:
         text = claim.get("claim_text", "").strip()
@@ -30,9 +35,9 @@ def _claim_lines(
 
 
 def build_single_paper_prompt(
-    paper: Dict[str, Any],
-    claims: List[Dict[str, Any]],
-    evidence_by_claim: Dict[str, List[Dict[str, Any]]],
+    paper: dict[str, Any],
+    claims: list[dict[str, Any]],
+    evidence_by_claim: dict[str, list[dict[str, Any]]],
 ) -> str:
     title = paper.get("title", "Untitled")
     return "\n".join(
@@ -66,9 +71,9 @@ def build_single_paper_prompt(
 
 
 def build_multi_paper_prompt(
-    papers: List[Dict[str, Any]],
-    claims_by_paper: Dict[str, List[Dict[str, Any]]],
-    evidence_by_claim: Dict[str, List[Dict[str, Any]]],
+    papers: list[dict[str, Any]],
+    claims_by_paper: dict[str, list[dict[str, Any]]],
+    evidence_by_claim: dict[str, list[dict[str, Any]]],
 ) -> str:
     lines = [
         "# Podcast Prompt: 3-5 Papers Synthesis",
@@ -107,9 +112,9 @@ def build_multi_paper_prompt(
 
 
 def build_script_outline(
-    papers: List[Dict[str, Any]],
-    claims_by_paper: Dict[str, List[Dict[str, Any]]],
-    evidence_by_claim: Dict[str, List[Dict[str, Any]]],
+    papers: list[dict[str, Any]],
+    claims_by_paper: dict[str, list[dict[str, Any]]],
+    evidence_by_claim: dict[str, list[dict[str, Any]]],
 ) -> str:
     lines = [
         "# Podcast Script Outline",
@@ -143,7 +148,7 @@ def generate_notebooklm_outputs(
     run_id: str,
     source_runs_dir: Path = Path("logs/runs"),
     output_base_dir: Path = Path("data/runs"),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     run_dir = source_runs_dir / run_id
     if not run_dir.exists():
         raise FileNotFoundError(f"Run directory not found: {run_dir}")
@@ -156,11 +161,11 @@ def generate_notebooklm_outputs(
     evidence = _load_jsonl(run_dir / "evidence.jsonl")
     scores = _load_json(run_dir / "scores.json")
 
-    claims_by_paper: Dict[str, List[Dict[str, Any]]] = {}
+    claims_by_paper: dict[str, list[dict[str, Any]]] = {}
     for claim in claims:
         claims_by_paper.setdefault(claim.get("paper_id", "unknown"), []).append(claim)
 
-    evidence_by_claim: Dict[str, List[Dict[str, Any]]] = {}
+    evidence_by_claim: dict[str, list[dict[str, Any]]] = {}
     for ev in evidence:
         evidence_by_claim.setdefault(ev.get("claim_id", "unknown"), []).append(ev)
 

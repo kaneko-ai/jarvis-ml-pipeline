@@ -1,14 +1,9 @@
 """JARVIS AI Co-Scientist Module - Phase 1 Features (101-120)
 All features are FREE - no paid APIs required.
 """
-import re
-import math
 import random
-from typing import Dict, List, Optional, Tuple, Set
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
 from collections import defaultdict
-import hashlib
+from datetime import datetime
 
 
 # ============================================
@@ -16,22 +11,22 @@ import hashlib
 # ============================================
 class HypothesisGenerator:
     """Generate research hypotheses from literature."""
-    
+
     HYPOTHESIS_TEMPLATES = [
         "{entity_a} may {relation} {entity_b} through {mechanism}",
         "Increased {factor} could lead to {outcome} in {context}",
         "{treatment} might be effective for {condition} by modulating {pathway}",
         "The relationship between {var1} and {var2} may be mediated by {mediator}",
     ]
-    
+
     def __init__(self):
-        self.knowledge_base: List[Dict] = []
-    
-    def add_paper(self, paper: Dict):
+        self.knowledge_base: list[dict] = []
+
+    def add_paper(self, paper: dict):
         """Add paper to knowledge base."""
         self.knowledge_base.append(paper)
-    
-    def generate_hypotheses(self, topic: str, n: int = 5) -> List[Dict]:
+
+    def generate_hypotheses(self, topic: str, n: int = 5) -> list[dict]:
         """Generate hypotheses from knowledge base.
         
         Args:
@@ -43,12 +38,12 @@ class HypothesisGenerator:
         """
         # Extract entities from topic
         entities = self._extract_entities(topic)
-        
+
         hypotheses = []
         for i in range(n):
             template = random.choice(self.HYPOTHESIS_TEMPLATES)
             hypothesis = self._fill_template(template, entities, topic)
-            
+
             hypotheses.append({
                 "id": f"H{i+1}",
                 "text": hypothesis,
@@ -58,10 +53,10 @@ class HypothesisGenerator:
                 "supporting_papers": self._find_support(topic)[:3],
                 "generated_at": datetime.now().isoformat()
             })
-        
+
         return sorted(hypotheses, key=lambda x: x["confidence"], reverse=True)
-    
-    def _extract_entities(self, text: str) -> Dict:
+
+    def _extract_entities(self, text: str) -> dict:
         """Extract entities from text."""
         words = text.split()
         return {
@@ -79,15 +74,15 @@ class HypothesisGenerator:
             "var2": words[-1] if len(words) > 1 else "Variable 2",
             "mediator": "intermediate factor"
         }
-    
-    def _fill_template(self, template: str, entities: Dict, topic: str) -> str:
+
+    def _fill_template(self, template: str, entities: dict, topic: str) -> str:
         """Fill template with entities."""
         result = template
         for key, value in entities.items():
             result = result.replace(f"{{{key}}}", value)
         return result
-    
-    def _find_support(self, topic: str) -> List[str]:
+
+    def _find_support(self, topic: str) -> list[str]:
         """Find supporting paper IDs."""
         topic_lower = topic.lower()
         supporting = []
@@ -102,15 +97,15 @@ class HypothesisGenerator:
 # ============================================
 class ResearchQuestionDecomposer:
     """Decompose complex research questions into sub-questions."""
-    
+
     DECOMPOSITION_PATTERNS = [
         ("what is the mechanism", ["identify key factors", "map relationships", "test causality"]),
         ("how does", ["characterize process", "measure effects", "determine conditions"]),
         ("why", ["identify causes", "exclude alternatives", "validate mechanism"]),
         ("treatment", ["efficacy evaluation", "safety assessment", "dose optimization"]),
     ]
-    
-    def decompose(self, question: str) -> Dict:
+
+    def decompose(self, question: str) -> dict:
         """Decompose research question.
         
         Args:
@@ -121,7 +116,7 @@ class ResearchQuestionDecomposer:
         """
         question_lower = question.lower()
         sub_questions = []
-        
+
         # Find matching pattern
         for pattern, subs in self.DECOMPOSITION_PATTERNS:
             if pattern in question_lower:
@@ -133,7 +128,7 @@ class ResearchQuestionDecomposer:
                         "dependencies": [f"SQ{j+1}" for j in range(i)]
                     })
                 break
-        
+
         # Default decomposition
         if not sub_questions:
             sub_questions = [
@@ -141,7 +136,7 @@ class ResearchQuestionDecomposer:
                 {"id": "SQ2", "question": f"Gap: What is unknown about {question[:30]}?", "priority": 2, "dependencies": ["SQ1"]},
                 {"id": "SQ3", "question": f"Approach: How to investigate {question[:30]}?", "priority": 1, "dependencies": ["SQ1", "SQ2"]}
             ]
-        
+
         return {
             "main_question": question,
             "sub_questions": sub_questions,
@@ -155,26 +150,26 @@ class ResearchQuestionDecomposer:
 # ============================================
 class LiteratureGapAnalyzer:
     """Analyze gaps in existing literature."""
-    
+
     def __init__(self):
-        self.papers: List[Dict] = []
-        self.topics_covered: Dict[str, int] = defaultdict(int)
-    
-    def add_papers(self, papers: List[Dict]):
+        self.papers: list[dict] = []
+        self.topics_covered: dict[str, int] = defaultdict(int)
+
+    def add_papers(self, papers: list[dict]):
         """Add papers to analysis."""
         self.papers.extend(papers)
         for paper in papers:
             keywords = self._extract_keywords(paper)
             for kw in keywords:
                 self.topics_covered[kw] += 1
-    
-    def _extract_keywords(self, paper: Dict) -> List[str]:
+
+    def _extract_keywords(self, paper: dict) -> list[str]:
         """Extract keywords from paper."""
         text = f"{paper.get('title', '')} {paper.get('abstract', '')}"
         words = text.lower().split()
         return [w for w in words if len(w) > 5][:10]
-    
-    def find_gaps(self, research_area: str) -> List[Dict]:
+
+    def find_gaps(self, research_area: str) -> list[dict]:
         """Find research gaps.
         
         Args:
@@ -184,12 +179,12 @@ class LiteratureGapAnalyzer:
             List of identified gaps
         """
         area_lower = research_area.lower()
-        
+
         # Analyze coverage
         related_topics = [k for k in self.topics_covered.keys() if area_lower in k or k in area_lower]
-        
+
         gaps = []
-        
+
         # Gap 1: Under-studied topics
         gaps.append({
             "type": "under_studied",
@@ -198,7 +193,7 @@ class LiteratureGapAnalyzer:
             "opportunity_score": 0.85,
             "suggested_approach": "Systematic investigation with novel methods"
         })
-        
+
         # Gap 2: Methodological
         gaps.append({
             "type": "methodological",
@@ -207,7 +202,7 @@ class LiteratureGapAnalyzer:
             "opportunity_score": 0.72,
             "suggested_approach": "Develop and validate new techniques"
         })
-        
+
         # Gap 3: Translation
         gaps.append({
             "type": "translational",
@@ -216,10 +211,10 @@ class LiteratureGapAnalyzer:
             "opportunity_score": 0.90,
             "suggested_approach": "Focus on clinically relevant models"
         })
-        
+
         return gaps
-    
-    def visualize_landscape(self) -> Dict:
+
+    def visualize_landscape(self) -> dict:
         """Generate landscape visualization data."""
         sorted_topics = sorted(self.topics_covered.items(), key=lambda x: x[1], reverse=True)[:20]
         return {
@@ -235,10 +230,10 @@ class LiteratureGapAnalyzer:
 # ============================================
 class ExperimentDesignerPro:
     """Advanced experiment design with power analysis."""
-    
+
     STUDY_TYPES = ["randomized_controlled", "cohort", "case_control", "cross_sectional"]
-    
-    def design_experiment(self, hypothesis: str, variables: Dict = None) -> Dict:
+
+    def design_experiment(self, hypothesis: str, variables: dict = None) -> dict:
         """Design complete experiment.
         
         Args:
@@ -249,17 +244,17 @@ class ExperimentDesignerPro:
             Complete experiment design
         """
         variables = variables or {}
-        
+
         # Power analysis
         effect_size = variables.get("expected_effect_size", 0.5)
         alpha = variables.get("alpha", 0.05)
         power = variables.get("power", 0.8)
-        
+
         # Calculate sample size (simplified formula)
         z_alpha = 1.96 if alpha == 0.05 else 2.58
         z_beta = 0.84 if power == 0.8 else 1.28
         n_per_group = int(2 * ((z_alpha + z_beta) / effect_size) ** 2) + 1
-        
+
         return {
             "hypothesis": hypothesis,
             "study_type": "randomized_controlled",
@@ -287,8 +282,8 @@ class ExperimentDesignerPro:
             "timeline": self._generate_timeline(n_per_group),
             "budget_estimate": self._estimate_budget(n_per_group)
         }
-    
-    def _generate_timeline(self, n: int) -> Dict:
+
+    def _generate_timeline(self, n: int) -> dict:
         """Generate experiment timeline."""
         return {
             "recruitment": f"{n // 10 + 1} months",
@@ -297,8 +292,8 @@ class ExperimentDesignerPro:
             "analysis": "2 months",
             "total": f"{n // 10 + 12} months"
         }
-    
-    def _estimate_budget(self, n: int) -> Dict:
+
+    def _estimate_budget(self, n: int) -> dict:
         """Estimate experiment budget (generic units)."""
         per_subject = 500  # arbitrary units
         return {
@@ -315,8 +310,8 @@ class ExperimentDesignerPro:
 # ============================================
 class HypothesisDebateSystem:
     """Multi-agent debate system for hypothesis evaluation."""
-    
-    def debate(self, hypothesis: str, rounds: int = 3) -> Dict:
+
+    def debate(self, hypothesis: str, rounds: int = 3) -> dict:
         """Run debate on hypothesis.
         
         Args:
@@ -327,23 +322,23 @@ class HypothesisDebateSystem:
             Debate transcript and verdict
         """
         debate_log = []
-        
+
         for i in range(rounds):
             # Pro arguments
             pro_arg = self._generate_pro_argument(hypothesis, i)
             debate_log.append({"round": i+1, "agent": "Pro", "argument": pro_arg})
-            
+
             # Con arguments
             con_arg = self._generate_con_argument(hypothesis, i)
             debate_log.append({"round": i+1, "agent": "Con", "argument": con_arg})
-            
+
             # Moderator synthesis
             mod_summary = self._moderate(pro_arg, con_arg)
             debate_log.append({"round": i+1, "agent": "Moderator", "argument": mod_summary})
-        
+
         # Final verdict
         verdict = self._render_verdict(debate_log)
-        
+
         return {
             "hypothesis": hypothesis,
             "debate_log": debate_log,
@@ -351,7 +346,7 @@ class HypothesisDebateSystem:
             "confidence": verdict["score"],
             "recommendation": "test" if verdict["score"] > 0.6 else "revise"
         }
-    
+
     def _generate_pro_argument(self, hypothesis: str, round_num: int) -> str:
         """Generate supporting argument."""
         pro_templates = [
@@ -360,7 +355,7 @@ class HypothesisDebateSystem:
             "The proposed mechanism aligns with established biological principles."
         ]
         return pro_templates[round_num % len(pro_templates)]
-    
+
     def _generate_con_argument(self, hypothesis: str, round_num: int) -> str:
         """Generate opposing argument."""
         con_templates = [
@@ -369,12 +364,12 @@ class HypothesisDebateSystem:
             "Confounding factors could explain the observed relationships."
         ]
         return con_templates[round_num % len(con_templates)]
-    
+
     def _moderate(self, pro: str, con: str) -> str:
         """Moderate the debate."""
-        return f"Both perspectives have merit. Pro argues for validity; Con raises methodological concerns."
-    
-    def _render_verdict(self, log: List[Dict]) -> Dict:
+        return "Both perspectives have merit. Pro argues for validity; Con raises methodological concerns."
+
+    def _render_verdict(self, log: list[dict]) -> dict:
         """Render final verdict."""
         return {
             "score": 0.72,
@@ -390,8 +385,8 @@ class HypothesisDebateSystem:
 
 class ResearchRoadmapGenerator:
     """Generate multi-year research roadmaps."""
-    
-    def generate(self, goal: str, years: int = 5) -> Dict:
+
+    def generate(self, goal: str, years: int = 5) -> dict:
         milestones = []
         for year in range(1, years + 1):
             milestones.append({
@@ -405,10 +400,10 @@ class ResearchRoadmapGenerator:
 
 class FundingOpportunityMatcher:
     """Match research to funding opportunities (FREE - public databases)."""
-    
+
     SOURCES = ["NIH Reporter", "NSF Awards", "EU Horizon", "Wellcome Trust"]
-    
-    def match(self, project: Dict) -> List[Dict]:
+
+    def match(self, project: dict) -> list[dict]:
         keywords = project.get("keywords", ["research"])
         return [
             {"source": "NIH Reporter", "match_score": 0.85, "deadline": "Rolling", "url": "https://reporter.nih.gov"},
@@ -419,8 +414,8 @@ class FundingOpportunityMatcher:
 
 class CollaboratorNetworkBuilder:
     """Build collaboration networks from public data."""
-    
-    def build_network(self, author_name: str) -> Dict:
+
+    def build_network(self, author_name: str) -> dict:
         return {
             "center": author_name,
             "collaborators": [
@@ -433,14 +428,14 @@ class CollaboratorNetworkBuilder:
 
 class ResearchImpactPredictor:
     """Predict paper impact using FREE heuristics."""
-    
-    def predict(self, paper: Dict) -> Dict:
+
+    def predict(self, paper: dict) -> dict:
         # Simple heuristics (no paid API)
         title_len = len(paper.get("title", ""))
         abstract_len = len(paper.get("abstract", ""))
-        
+
         score = min(1.0, (title_len / 100 + abstract_len / 500) / 2)
-        
+
         return {
             "predicted_citations_1y": int(score * 20),
             "predicted_citations_5y": int(score * 100),
@@ -451,19 +446,19 @@ class ResearchImpactPredictor:
 
 class NoveltyScoreCalculator:
     """Calculate novelty score using keyword analysis."""
-    
+
     def __init__(self):
-        self.seen_concepts: Set[str] = set()
-    
-    def add_concepts(self, concepts: List[str]):
+        self.seen_concepts: set[str] = set()
+
+    def add_concepts(self, concepts: list[str]):
         self.seen_concepts.update(concepts)
-    
-    def score(self, idea: str) -> Dict:
+
+    def score(self, idea: str) -> dict:
         idea_concepts = set(idea.lower().split())
-        
+
         overlap = len(idea_concepts & self.seen_concepts)
         novelty = 1.0 - (overlap / max(len(idea_concepts), 1))
-        
+
         return {
             "novelty_score": round(novelty, 2),
             "new_concepts": list(idea_concepts - self.seen_concepts)[:5],
@@ -473,17 +468,17 @@ class NoveltyScoreCalculator:
 
 class FeasibilityAnalyzer:
     """Analyze research feasibility."""
-    
-    def analyze(self, project: Dict) -> Dict:
+
+    def analyze(self, project: dict) -> dict:
         factors = {
             "technical": 0.75,
             "resource": 0.68,
             "timeline": 0.82,
             "expertise": 0.70
         }
-        
+
         overall = sum(factors.values()) / len(factors)
-        
+
         return {
             "overall_score": round(overall, 2),
             "factors": factors,
@@ -494,17 +489,17 @@ class FeasibilityAnalyzer:
 
 class EthicsChecker:
     """Check research ethics considerations."""
-    
+
     ETHICS_KEYWORDS = ["human", "animal", "patient", "clinical", "genetic", "privacy"]
-    
-    def check(self, project_description: str) -> Dict:
+
+    def check(self, project_description: str) -> dict:
         desc_lower = project_description.lower()
-        
+
         concerns = []
         for keyword in self.ETHICS_KEYWORDS:
             if keyword in desc_lower:
                 concerns.append(f"Review needed: {keyword} research")
-        
+
         return {
             "requires_irb": "human" in desc_lower or "patient" in desc_lower,
             "requires_iacuc": "animal" in desc_lower,
@@ -516,8 +511,8 @@ class EthicsChecker:
 
 class IRBDocumentGenerator:
     """Generate IRB document templates."""
-    
-    def generate(self, project: Dict) -> str:
+
+    def generate(self, project: dict) -> str:
         return f"""# IRB Application
 
 ## Study Title
@@ -551,14 +546,14 @@ class IRBDocumentGenerator:
 
 class TimelineOptimizer:
     """Optimize research timeline under constraints."""
-    
-    def optimize(self, tasks: List[Dict], constraints: Dict) -> Dict:
+
+    def optimize(self, tasks: list[dict], constraints: dict) -> dict:
         max_duration = constraints.get("max_months", 24)
-        
+
         # Simple scheduling
         scheduled = []
         current_month = 0
-        
+
         for task in sorted(tasks, key=lambda x: x.get("priority", 0), reverse=True):
             duration = task.get("duration_months", 3)
             if current_month + duration <= max_duration:
@@ -568,7 +563,7 @@ class TimelineOptimizer:
                     "end_month": current_month + duration
                 })
                 current_month += duration
-        
+
         return {
             "scheduled_tasks": scheduled,
             "total_duration": current_month,
@@ -578,10 +573,10 @@ class TimelineOptimizer:
 
 class LabResourceAllocator:
     """Allocate lab resources optimally."""
-    
-    def allocate(self, experiments: List[Dict], resources: Dict) -> Dict:
+
+    def allocate(self, experiments: list[dict], resources: dict) -> dict:
         allocations = []
-        
+
         for exp in experiments:
             allocation = {
                 "experiment": exp.get("name"),
@@ -589,23 +584,23 @@ class LabResourceAllocator:
                 "personnel_hours": min(exp.get("personnel_needed", 20), resources.get("personnel_hours", 200))
             }
             allocations.append(allocation)
-        
+
         return {"allocations": allocations, "utilization": 0.85}
 
 
 class ReproducibilityScorer:
     """Score research reproducibility."""
-    
+
     CRITERIA = ["data_available", "code_available", "protocol_detailed", "reagents_described", "statistics_complete"]
-    
-    def score(self, paper: Dict) -> Dict:
+
+    def score(self, paper: dict) -> dict:
         scores = {}
         for criterion in self.CRITERIA:
             # Simple heuristic check
             scores[criterion] = 1 if criterion.replace("_", " ") in str(paper).lower() else 0
-        
+
         total = sum(scores.values()) / len(scores)
-        
+
         return {
             "overall_score": round(total, 2),
             "criteria_scores": scores,
@@ -615,8 +610,8 @@ class ReproducibilityScorer:
 
 class PreregistrationGenerator:
     """Generate study pre-registration documents."""
-    
-    def generate(self, study: Dict) -> str:
+
+    def generate(self, study: dict) -> str:
         return f"""# Study Pre-registration
 
 ## Title
@@ -643,8 +638,8 @@ class PreregistrationGenerator:
 
 class NegativeResultPublisher:
     """Structure negative results for publication."""
-    
-    def format(self, result: Dict) -> Dict:
+
+    def format(self, result: dict) -> dict:
         return {
             "title": f"Null findings: {result.get('topic', 'Study')}",
             "sections": {
@@ -660,8 +655,8 @@ class NegativeResultPublisher:
 
 class ResearchPivotAdvisor:
     """Advise on research direction changes."""
-    
-    def advise(self, current_results: Dict, original_goal: str) -> Dict:
+
+    def advise(self, current_results: dict, original_goal: str) -> dict:
         return {
             "continue_current": {"recommendation": "Proceed with modifications", "confidence": 0.6},
             "pivot_options": [
@@ -675,22 +670,22 @@ class ResearchPivotAdvisor:
 
 class MentorMatcher:
     """Match mentors and mentees based on profiles."""
-    
-    def match(self, mentee_profile: Dict, mentor_pool: List[Dict]) -> List[Dict]:
+
+    def match(self, mentee_profile: dict, mentor_pool: list[dict]) -> list[dict]:
         matches = []
         mentee_interests = set(mentee_profile.get("interests", []))
-        
+
         for mentor in mentor_pool:
             mentor_expertise = set(mentor.get("expertise", []))
             overlap = len(mentee_interests & mentor_expertise)
-            
+
             if overlap > 0:
                 matches.append({
                     "mentor": mentor.get("name"),
                     "match_score": min(overlap / max(len(mentee_interests), 1), 1.0),
                     "shared_interests": list(mentee_interests & mentor_expertise)
                 })
-        
+
         return sorted(matches, key=lambda x: x["match_score"], reverse=True)[:5]
 
 
@@ -719,12 +714,12 @@ if __name__ == "__main__":
     hypos = hg.generate_hypotheses("cancer treatment machine learning", n=3)
     for h in hypos:
         print(f"  {h['id']}: {h['text'][:60]}... (conf: {h['confidence']})")
-    
+
     print("\n=== Research Question Decomposer Demo ===")
     rqd = ResearchQuestionDecomposer()
     result = rqd.decompose("What is the mechanism of drug resistance?")
     print(f"  Sub-questions: {result['total']}")
-    
+
     print("\n=== Experiment Designer Demo ===")
     ed = ExperimentDesignerPro()
     design = ed.design_experiment("Treatment X improves outcome Y")

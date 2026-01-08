@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Pattern
+from re import Pattern
 
 
 class PIIType(Enum):
@@ -56,7 +56,7 @@ class PIIScanner:
             ),
         }
 
-    def scan(self, text: str) -> List[PIIMatch]:
+    def scan(self, text: str) -> list[PIIMatch]:
         """Scan text for PII.
 
         Args:

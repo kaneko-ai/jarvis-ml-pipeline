@@ -5,20 +5,20 @@ is the final arbiter of AgentResult status.
 
 Note: Citations are now validated against EvidenceStore.
 """
+import sys
 import types
 from pathlib import Path
-import sys
 
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from jarvis_core.agents import Citation
 from jarvis_core.evidence import EvidenceStore
 from jarvis_core.executor import ExecutionEngine
 from jarvis_core.planner import Planner
 from jarvis_core.task import Task, TaskCategory, TaskStatus
-from jarvis_core.agents import Citation
 
 
 class DummyPlanner(Planner):

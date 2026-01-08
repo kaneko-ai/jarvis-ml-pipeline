@@ -4,16 +4,17 @@ Per V4.2 Sprint 3, this provides cheap candidate retrieval + expensive rerank.
 """
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import List, Dict, Any, Callable, Optional
+from typing import Any
 
 
 @dataclass
 class RetrievalResult:
     """Result of two-stage retrieval."""
 
-    candidates: List[Any]
-    reranked: List[Any]
+    candidates: list[Any]
+    reranked: list[Any]
     stage1_count: int
     stage2_count: int
     rerank_skipped: bool
@@ -24,8 +25,8 @@ class TwoStageRetriever:
 
     def __init__(
         self,
-        stage1_fn: Callable[[str, int], List[Any]],
-        stage2_fn: Optional[Callable[[str, List[Any]], List[Any]]] = None,
+        stage1_fn: Callable[[str, int], list[Any]],
+        stage2_fn: Callable[[str, list[Any]], list[Any]] | None = None,
         stage1_k: int = 100,
         stage2_k: int = 20,
         budget_threshold: float = 0.5,
@@ -59,7 +60,7 @@ class TwoStageRetriever:
         Returns:
             RetrievalResult with candidates and reranked.
         """
-        from ..perf.trace_spans import start_span, end_span
+        from ..perf.trace_spans import end_span, start_span
 
         # Stage 1: Cheap retrieval
         span1 = start_span("retrieval:stage1")
@@ -91,7 +92,7 @@ class TwoStageRetriever:
         )
 
 
-def simple_bm25_stage1(query: str, k: int) -> List[Dict[str, Any]]:
+def simple_bm25_stage1(query: str, k: int) -> list[dict[str, Any]]:
     """Simple BM25-like stage 1 retriever (placeholder)."""
     # In production, this would use actual BM25 index
     query_terms = set(query.lower().split())
@@ -102,7 +103,7 @@ def simple_bm25_stage1(query: str, k: int) -> List[Dict[str, Any]]:
     ]
 
 
-def simple_rerank_stage2(query: str, candidates: List[Any]) -> List[Any]:
+def simple_rerank_stage2(query: str, candidates: list[Any]) -> list[Any]:
     """Simple reranking (placeholder)."""
     # In production, this would use cross-encoder or similar
     # Sort by existing score (placeholder)

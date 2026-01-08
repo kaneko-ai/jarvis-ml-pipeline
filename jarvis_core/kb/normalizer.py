@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Dict, Iterable
 
 DEFAULT_SYNONYMS = {
     "cd73": ["nt5e", "ecto-5'-nucleotidase", "ecto5n"],
@@ -29,18 +29,18 @@ class TermNormalizer:
         self.synonym_path = synonym_path
         self.synonyms = self._load_synonyms(synonym_path)
 
-    def _load_synonyms(self, path: Path) -> Dict[str, list[str]]:
+    def _load_synonyms(self, path: Path) -> dict[str, list[str]]:
         path.parent.mkdir(parents=True, exist_ok=True)
         if not path.exists():
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(DEFAULT_SYNONYMS, f, ensure_ascii=False, indent=2)
             return {key.lower(): [item.lower() for item in values] for key, values in DEFAULT_SYNONYMS.items()}
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 data = json.load(f)
         except json.JSONDecodeError:
             data = {}
-        normalized: Dict[str, list[str]] = {}
+        normalized: dict[str, list[str]] = {}
         for key, values in data.items():
             normalized[key.lower()] = [str(item).lower() for item in values]
         return normalized

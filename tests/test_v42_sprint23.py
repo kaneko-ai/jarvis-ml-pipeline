@@ -2,7 +2,6 @@
 import sys
 import tempfile
 from pathlib import Path
-from datetime import datetime
 
 import pytest
 
@@ -79,8 +78,8 @@ class TestIncrementalIndex:
     """道E tests."""
 
     def test_skip_processed(self):
-        from jarvis_core.index.pipeline import IndexPipeline, PipelineStage
         from jarvis_core.index.incremental_state import IncrementalState
+        from jarvis_core.index.pipeline import IndexPipeline, PipelineStage
 
         pipeline = IndexPipeline()
         pipeline.register_stage(PipelineStage.INGEST, lambda x: x)
@@ -108,7 +107,7 @@ class TestMultiLevelCache:
     """道H tests."""
 
     def test_l1_cache(self):
-        from jarvis_core.cache.multi_level import MultiLevelCache, CacheLevel
+        from jarvis_core.cache.multi_level import CacheLevel, MultiLevelCache
 
         cache = MultiLevelCache()
         cache.put("key1", "value1", write_l2=False)
@@ -145,7 +144,7 @@ class TestCircuitBreaker:
         assert not breaker.can_execute()
 
     def test_classify_failure(self):
-        from jarvis_core.runtime.circuit_breaker import classify_failure, FailureReason
+        from jarvis_core.runtime.circuit_breaker import FailureReason, classify_failure
 
         assert classify_failure(TimeoutError("timed out")) == FailureReason.TIMEOUT
         assert classify_failure(ConnectionError("network")) == FailureReason.NETWORK

@@ -1,7 +1,7 @@
 """Jarvis Core package exports."""
 
-from .task import Task, TaskCategory, TaskPriority, TaskStatus
 from .registry import AgentRegistry
+from .task import Task, TaskCategory, TaskPriority, TaskStatus
 
 __all__ = [
     "run_jarvis",

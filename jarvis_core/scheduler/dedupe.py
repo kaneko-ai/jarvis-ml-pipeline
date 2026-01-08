@@ -4,10 +4,10 @@ from __future__ import annotations
 import json
 import re
 import threading
+from collections.abc import Iterable
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, List
-
+from typing import Any
 
 REGISTRY_PATH = Path("data/registry/papers_seen.jsonl")
 REGISTRY_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -20,7 +20,7 @@ def _normalize_title(title: str) -> str:
     return " ".join(normalized.split())
 
 
-def _fingerprint(record: Dict[str, Any]) -> str:
+def _fingerprint(record: dict[str, Any]) -> str:
     pmid = str(record.get("pmid") or "").strip()
     doi = str(record.get("doi") or "").strip().lower()
     title = _normalize_title(record.get("title") or "")
@@ -38,7 +38,7 @@ def _load_seen() -> set:
     if not REGISTRY_PATH.exists():
         return set()
     seen = set()
-    with open(REGISTRY_PATH, "r", encoding="utf-8") as f:
+    with open(REGISTRY_PATH, encoding="utf-8") as f:
         for line in f:
             if line.strip():
                 entry = json.loads(line)
@@ -46,8 +46,8 @@ def _load_seen() -> set:
     return seen
 
 
-def filter_new_papers(records: Iterable[Dict[str, Any]], force_refresh: bool = False) -> List[Dict[str, Any]]:
-    new_records: List[Dict[str, Any]] = []
+def filter_new_papers(records: Iterable[dict[str, Any]], force_refresh: bool = False) -> list[dict[str, Any]]:
+    new_records: list[dict[str, Any]] = []
     with _registry_lock:
         seen = _load_seen()
         for record in records:

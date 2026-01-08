@@ -4,14 +4,14 @@ Per Ψ-1, this calculates research return on investment.
 """
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .paper_vector import PaperVector
 
 
 def calculate_research_roi(
-    vectors: List["PaperVector"],
+    vectors: list[PaperVector],
     time_invested_months: float = 12,
 ) -> dict:
     """Calculate research ROI score.

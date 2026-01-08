@@ -5,10 +5,9 @@ Per RP-520, implements Cloud Run deployment automation.
 from __future__ import annotations
 
 import os
-import json
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any
 from enum import Enum
+from typing import Any
 
 
 class CloudRegion(Enum):
@@ -33,10 +32,10 @@ class CloudRunConfig:
     max_instances: int = 10
     concurrency: int = 80
     timeout: int = 300
-    env_vars: Dict[str, str] = field(default_factory=dict)
-    secrets: List[str] = field(default_factory=list)
+    env_vars: dict[str, str] = field(default_factory=dict)
+    secrets: list[str] = field(default_factory=list)
     allow_unauthenticated: bool = False
-    vpc_connector: Optional[str] = None
+    vpc_connector: str | None = None
 
 
 @dataclass
@@ -47,7 +46,7 @@ class DeploymentStatus:
     url: str
     status: str
     created_at: str
-    traffic: List[Dict[str, Any]] = field(default_factory=list)
+    traffic: list[dict[str, Any]] = field(default_factory=list)
 
 
 class CloudRunDeployer:
@@ -59,18 +58,18 @@ class CloudRunDeployer:
     - Rollback
     - IAM management
     """
-    
-    def __init__(self, config: Optional[CloudRunConfig] = None):
+
+    def __init__(self, config: CloudRunConfig | None = None):
         self.config = config or CloudRunConfig(
             project_id=os.getenv("GCP_PROJECT_ID", ""),
         )
-        self._deployments: Dict[str, DeploymentStatus] = {}
-    
+        self._deployments: dict[str, DeploymentStatus] = {}
+
     def deploy(
         self,
-        image: Optional[str] = None,
+        image: str | None = None,
         traffic_percent: int = 100,
-        tag: Optional[str] = None,
+        tag: str | None = None,
     ) -> DeploymentStatus:
         """Deploy to Cloud Run.
         
@@ -83,13 +82,13 @@ class CloudRunDeployer:
             Deployment status.
         """
         image = image or self.config.image
-        
+
         # In production, use gcloud SDK or API
         # gcloud run deploy {service} --image={image} --region={region}
-        
+
         revision = f"{self.config.service_name}-{self._generate_revision_id()}"
         url = f"https://{self.config.service_name}-{self._get_project_hash()}.a.run.app"
-        
+
         status = DeploymentStatus(
             service_name=self.config.service_name,
             revision=revision,
@@ -98,10 +97,10 @@ class CloudRunDeployer:
             created_at=self._get_timestamp(),
             traffic=[{"revision": revision, "percent": traffic_percent}],
         )
-        
+
         self._deployments[revision] = status
         return status
-    
+
     def canary_deploy(
         self,
         image: str,
@@ -117,7 +116,7 @@ class CloudRunDeployer:
             Deployment status.
         """
         return self.deploy(image, traffic_percent=canary_percent, tag="canary")
-    
+
     def promote_canary(self, revision: str) -> DeploymentStatus:
         """Promote canary to receive 100% traffic.
         
@@ -131,10 +130,10 @@ class CloudRunDeployer:
             status = self._deployments[revision]
             status.traffic = [{"revision": revision, "percent": 100}]
             return status
-        
+
         raise ValueError(f"Revision {revision} not found")
-    
-    def rollback(self, target_revision: Optional[str] = None) -> DeploymentStatus:
+
+    def rollback(self, target_revision: str | None = None) -> DeploymentStatus:
         """Rollback to a previous revision.
         
         Args:
@@ -146,28 +145,28 @@ class CloudRunDeployer:
         revisions = list(self._deployments.keys())
         if not revisions:
             raise ValueError("No revisions to rollback to")
-        
+
         if target_revision and target_revision in self._deployments:
             target = target_revision
         else:
             # Use second-to-last revision
             target = revisions[-2] if len(revisions) > 1 else revisions[-1]
-        
+
         status = self._deployments[target]
         status.traffic = [{"revision": target, "percent": 100}]
         return status
-    
+
     def get_service_url(self) -> str:
         """Get the service URL."""
         return f"https://{self.config.service_name}-{self._get_project_hash()}.a.run.app"
-    
-    def list_revisions(self) -> List[DeploymentStatus]:
+
+    def list_revisions(self) -> list[DeploymentStatus]:
         """List all revisions."""
         return list(self._deployments.values())
-    
+
     def set_iam_policy(
         self,
-        members: List[str],
+        members: list[str],
         role: str = "roles/run.invoker",
     ) -> bool:
         """Set IAM policy for the service.
@@ -181,7 +180,7 @@ class CloudRunDeployer:
         """
         # In production, use gcloud or API
         return True
-    
+
     def generate_deploy_command(self) -> str:
         """Generate gcloud deploy command."""
         cmd = [
@@ -196,15 +195,15 @@ class CloudRunDeployer:
             f"--concurrency={self.config.concurrency}",
             f"--timeout={self.config.timeout}",
         ]
-        
+
         if self.config.allow_unauthenticated:
             cmd.append("--allow-unauthenticated")
-        
+
         for key, value in self.config.env_vars.items():
             cmd.append(f"--set-env-vars={key}={value}")
-        
+
         return " ".join(cmd)
-    
+
     def generate_dockerfile(self) -> str:
         """Generate Dockerfile for Cloud Run."""
         return '''FROM python:3.11-slim
@@ -225,19 +224,19 @@ EXPOSE 8080
 
 CMD ["python", "-m", "jarvis_core.app"]
 '''
-    
+
     def _generate_revision_id(self) -> str:
         """Generate revision ID."""
         import time
         return f"rev-{int(time.time())}"
-    
+
     def _get_project_hash(self) -> str:
         """Get project hash for URL."""
         import hashlib
         return hashlib.sha256(
             self.config.project_id.encode()
         ).hexdigest()[:8]
-    
+
     def _get_timestamp(self) -> str:
         """Get current timestamp."""
         import time
@@ -245,7 +244,7 @@ CMD ["python", "-m", "jarvis_core.app"]
 
 
 # Global deployer
-_cloud_run_deployer: Optional[CloudRunDeployer] = None
+_cloud_run_deployer: CloudRunDeployer | None = None
 
 
 def get_cloud_run_deployer() -> CloudRunDeployer:

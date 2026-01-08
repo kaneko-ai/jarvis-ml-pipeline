@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from typing import Any
 from urllib.error import URLError
 from urllib.parse import quote
 from urllib.request import Request, urlopen
@@ -19,7 +19,7 @@ class OAEvidence:
     url_best_oa: str = ""
     checked_at: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "source": self.source,
             "pmcid": self.pmcid,
@@ -32,11 +32,11 @@ class OAEvidence:
 class OAResolver:
     """Resolve OA status using PMC and Unpaywall evidence."""
 
-    def __init__(self, unpaywall_email: Optional[str] = None, timeout: int = 15) -> None:
+    def __init__(self, unpaywall_email: str | None = None, timeout: int = 15) -> None:
         self.unpaywall_email = unpaywall_email
         self.timeout = timeout
 
-    def resolve(self, paper: Dict[str, Any]) -> Dict[str, Any]:
+    def resolve(self, paper: dict[str, Any]) -> dict[str, Any]:
         now = datetime.now(timezone.utc).isoformat()
         pmcid = (paper.get("pmcid") or "").strip()
         doi = (paper.get("doi") or "").strip()
@@ -76,7 +76,7 @@ class OAResolver:
             "oa_evidence": evidence.to_dict(),
         }
 
-    def _fetch_unpaywall(self, doi: str) -> Optional[Dict[str, Any]]:
+    def _fetch_unpaywall(self, doi: str) -> dict[str, Any] | None:
         if not self.unpaywall_email:
             return None
         try:

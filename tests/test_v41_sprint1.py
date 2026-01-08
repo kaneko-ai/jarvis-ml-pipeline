@@ -1,8 +1,8 @@
 """Tests for V4.1 Sprint 1 modules."""
 import sys
 import tempfile
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 import pytest
 
@@ -28,13 +28,17 @@ class TestGoldsetSchema:
         assert entry.claim_id == "test1"
 
     def test_validate_goldset(self):
-        from jarvis_core.eval.goldset_schema import validate_goldset, create_sample_goldset
+        from jarvis_core.eval.goldset_schema import create_sample_goldset, validate_goldset
         sample = create_sample_goldset()
         is_valid, issues = validate_goldset(sample)
         assert is_valid
 
     def test_save_load_goldset(self):
-        from jarvis_core.eval.goldset_schema import save_goldset, load_goldset, create_sample_goldset
+        from jarvis_core.eval.goldset_schema import (
+            create_sample_goldset,
+            load_goldset,
+            save_goldset,
+        )
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "goldset.jsonl"
             sample = create_sample_goldset()
@@ -110,7 +114,7 @@ class TestProvenanceGraph:
     """V4-B02 tests."""
 
     def test_add_nodes_edges(self):
-        from jarvis_core.provenance.graph import ProvenanceGraph, NodeType
+        from jarvis_core.provenance.graph import NodeType, ProvenanceGraph
         graph = ProvenanceGraph()
         graph.add_node("source1", NodeType.SOURCE)
         graph.add_node("chunk1", NodeType.CHUNK)
@@ -119,7 +123,7 @@ class TestProvenanceGraph:
         assert len(graph.edges) == 1
 
     def test_get_ancestors(self):
-        from jarvis_core.provenance.graph import ProvenanceGraph, NodeType
+        from jarvis_core.provenance.graph import NodeType, ProvenanceGraph
         graph = ProvenanceGraph()
         graph.add_node("source1", NodeType.SOURCE)
         graph.add_node("chunk1", NodeType.CHUNK)
@@ -153,7 +157,7 @@ class TestReplay:
     """V4-B04 tests."""
 
     def test_replay_result(self):
-        from jarvis_core.replay.reproduce import ReplayResult, DiffReason
+        from jarvis_core.replay.reproduce import ReplayResult
         result = ReplayResult(
             original_run_id="orig1",
             replay_run_id="replay1",
@@ -180,7 +184,7 @@ class TestSLOPolicy:
     """V4-C02 tests."""
 
     def test_check_slo(self):
-        from jarvis_core.perf.slo_policy import SLOPolicy, SLOStatus, check_slo
+        from jarvis_core.perf.slo_policy import SLOStatus, check_slo
         status = SLOStatus(elapsed_seconds=30, tokens_used=10000)
         is_passing, violations = check_slo(status, mode="quick")
         assert is_passing
@@ -190,14 +194,14 @@ class TestBudgetManager:
     """V4-C10 tests."""
 
     def test_budget_tracking(self):
-        from jarvis_core.runtime.budget import BudgetManager, BudgetLimits
+        from jarvis_core.runtime.budget import BudgetLimits, BudgetManager
         limits = BudgetLimits(max_tokens=1000)
         manager = BudgetManager(limits)
         manager.add_tokens(500)
         assert manager.usage.tokens_used == 500
 
     def test_budget_exceeded(self):
-        from jarvis_core.runtime.budget import BudgetManager, BudgetLimits, BudgetType
+        from jarvis_core.runtime.budget import BudgetLimits, BudgetManager, BudgetType
         limits = BudgetLimits(max_tokens=100)
         manager = BudgetManager(limits)
         manager.add_tokens(200)
@@ -210,7 +214,7 @@ class TestTriage:
     """V4-D01 tests."""
 
     def test_triage_by_risk(self):
-        from jarvis_core.review.triage import triage_by_risk, calculate_risk_score
+        from jarvis_core.review.triage import calculate_risk_score
 
         # Test risk calculation directly
         item_with_evidence = {"content": "test", "has_evidence": True, "confidence": 0.9}

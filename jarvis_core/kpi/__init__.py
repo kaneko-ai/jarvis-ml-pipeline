@@ -1,10 +1,10 @@
 """KPI package."""
 from .phase_kpi import (
-    PhaseLoop,
     KPILevel,
     KPIResult,
-    PhaseKPIResult,
     PhaseKPIEvaluator,
+    PhaseKPIResult,
+    PhaseLoop,
 )
 
 __all__ = [

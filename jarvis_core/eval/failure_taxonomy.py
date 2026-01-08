@@ -4,9 +4,8 @@ Per PR-93, classifies failures for analysis.
 """
 from __future__ import annotations
 
-from enum import Enum
 from dataclasses import dataclass
-from typing import Optional, List
+from enum import Enum
 
 
 class FailureCategory(Enum):
@@ -52,8 +51,8 @@ class ClassifiedFailure:
 
     category: FailureCategory
     message: str
-    step_id: Optional[int] = None
-    tool: Optional[str] = None
+    step_id: int | None = None
+    tool: str | None = None
     recoverable: bool = False
     suggestion: str = ""
 
@@ -124,7 +123,7 @@ def classify_eval_failure(failure: dict) -> ClassifiedFailure:
     )
 
 
-def get_failure_summary(failures: List[ClassifiedFailure]) -> dict:
+def get_failure_summary(failures: list[ClassifiedFailure]) -> dict:
     """Summarize failures by category."""
     summary = {}
     for f in failures:

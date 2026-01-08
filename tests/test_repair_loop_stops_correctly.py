@@ -12,8 +12,8 @@ class TestRepairLoopStopsCorrectly:
 
     def test_stops_on_success(self):
         """Loop should stop when quality is met."""
-        from jarvis_core.runtime.repair_policy import RepairPolicy
         from jarvis_core.runtime.repair_loop import RepairLoop, StopReason
+        from jarvis_core.runtime.repair_policy import RepairPolicy
 
         policy = RepairPolicy(max_attempts=5)
 
@@ -32,8 +32,8 @@ class TestRepairLoopStopsCorrectly:
 
     def test_stops_on_max_attempts(self):
         """Loop should stop at max_attempts."""
-        from jarvis_core.runtime.repair_policy import RepairPolicy
         from jarvis_core.runtime.repair_loop import RepairLoop, StopReason
+        from jarvis_core.runtime.repair_policy import RepairPolicy
 
         policy = RepairPolicy(max_attempts=2, allowed_actions=[])
 
@@ -56,8 +56,8 @@ class TestRepairLoopImprovesAndSucceeds:
 
     def test_improves_then_succeeds(self):
         """Loop should succeed after repair actions improve result."""
-        from jarvis_core.runtime.repair_policy import RepairPolicy
         from jarvis_core.runtime.repair_loop import RepairLoop, StopReason
+        from jarvis_core.runtime.repair_policy import RepairPolicy
 
         policy = RepairPolicy(max_attempts=5)
 

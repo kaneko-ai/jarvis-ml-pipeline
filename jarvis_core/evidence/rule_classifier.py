@@ -9,13 +9,13 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Pattern, Tuple
+from re import Pattern
 
 from jarvis_core.evidence.schema import (
     EvidenceGrade,
     EvidenceLevel,
-    StudyType,
     PICOExtraction,
+    StudyType,
 )
 
 logger = logging.getLogger(__name__)
@@ -24,9 +24,9 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ClassificationPattern:
     """A pattern for classifying study type."""
-    
+
     study_type: StudyType
-    patterns: List[Pattern]
+    patterns: list[Pattern]
     weight: float = 1.0
     requires_abstract: bool = False
 
@@ -46,7 +46,7 @@ class RuleBasedClassifier:
         >>> print(grade.level)
         EvidenceLevel.LEVEL_1B
     """
-    
+
     def __init__(self):
         """Initialize the classifier with patterns."""
         self._patterns = self._build_patterns()
@@ -55,8 +55,8 @@ class RuleBasedClassifier:
             r"(?:included|enrolled|recruited)\s+)(\d+(?:,\d+)?)",
             re.IGNORECASE
         )
-    
-    def _build_patterns(self) -> List[ClassificationPattern]:
+
+    def _build_patterns(self) -> list[ClassificationPattern]:
         """Build classification patterns."""
         return [
             # Meta-analysis / Systematic Review (Level 1a)
@@ -77,7 +77,7 @@ class RuleBasedClassifier:
                 ],
                 weight=1.0,
             ),
-            
+
             # RCT (Level 1b)
             ClassificationPattern(
                 study_type=StudyType.RCT,
@@ -100,7 +100,7 @@ class RuleBasedClassifier:
                 ],
                 weight=0.9,
             ),
-            
+
             # Cohort studies (Level 2b)
             ClassificationPattern(
                 study_type=StudyType.COHORT_PROSPECTIVE,
@@ -120,7 +120,7 @@ class RuleBasedClassifier:
                 ],
                 weight=0.8,
             ),
-            
+
             # Case-control (Level 3b)
             ClassificationPattern(
                 study_type=StudyType.CASE_CONTROL,
@@ -130,7 +130,7 @@ class RuleBasedClassifier:
                 ],
                 weight=0.7,
             ),
-            
+
             # Cross-sectional (Level 4)
             ClassificationPattern(
                 study_type=StudyType.CROSS_SECTIONAL,
@@ -141,7 +141,7 @@ class RuleBasedClassifier:
                 ],
                 weight=0.6,
             ),
-            
+
             # Case series / Case report (Level 4)
             ClassificationPattern(
                 study_type=StudyType.CASE_SERIES,
@@ -159,7 +159,7 @@ class RuleBasedClassifier:
                 ],
                 weight=0.4,
             ),
-            
+
             # Guidelines and reviews (Level 5)
             ClassificationPattern(
                 study_type=StudyType.GUIDELINE,
@@ -188,7 +188,7 @@ class RuleBasedClassifier:
                 weight=0.3,
             ),
         ]
-    
+
     def classify(
         self,
         title: str = "",
@@ -207,13 +207,13 @@ class RuleBasedClassifier:
         """
         # Combine text for matching
         combined_text = f"{title} {abstract} {full_text}".strip()
-        
+
         if not combined_text:
             return EvidenceGrade.unknown()
-        
+
         # Find matching patterns
-        matches: List[Tuple[StudyType, float]] = []
-        
+        matches: list[tuple[StudyType, float]] = []
+
         for pattern_config in self._patterns:
             for pattern in pattern_config.patterns:
                 if pattern.search(combined_text):
@@ -222,7 +222,7 @@ class RuleBasedClassifier:
                         pattern_config.weight,
                     ))
                     break  # Only count each pattern config once
-        
+
         if not matches:
             return EvidenceGrade(
                 level=EvidenceLevel.UNKNOWN,
@@ -230,27 +230,27 @@ class RuleBasedClassifier:
                 confidence=0.0,
                 classifier_source="rule",
             )
-        
+
         # Get the highest-weighted match
         matches.sort(key=lambda x: x[1], reverse=True)
         best_match = matches[0]
-        
+
         study_type = best_match[0]
         confidence = best_match[1]
-        
+
         # Boost confidence if multiple patterns match
         if len(matches) > 1:
             confidence = min(1.0, confidence + 0.1 * (len(matches) - 1))
-        
+
         # Extract sample size
         sample_size = self._extract_sample_size(combined_text)
-        
+
         # Adjust evidence level based on study characteristics
         level = study_type.default_evidence_level
-        
+
         # Store raw scores
         raw_scores = {m[0].value: m[1] for m in matches}
-        
+
         return EvidenceGrade(
             level=level,
             study_type=study_type,
@@ -259,8 +259,8 @@ class RuleBasedClassifier:
             classifier_source="rule",
             raw_scores=raw_scores,
         )
-    
-    def _extract_sample_size(self, text: str) -> Optional[int]:
+
+    def _extract_sample_size(self, text: str) -> int | None:
         """Extract sample size from text."""
         match = self._sample_size_pattern.search(text)
         if match:
@@ -271,7 +271,7 @@ class RuleBasedClassifier:
             except ValueError:
                 pass
         return None
-    
+
     def extract_pico(self, text: str) -> PICOExtraction:
         """Extract PICO components from text.
         
@@ -286,15 +286,15 @@ class RuleBasedClassifier:
         intervention = self._extract_intervention(text)
         comparator = self._extract_comparator(text)
         outcome = self._extract_outcome(text)
-        
+
         return PICOExtraction(
             population=population,
             intervention=intervention,
             comparator=comparator,
             outcome=outcome,
         )
-    
-    def _extract_population(self, text: str) -> Optional[str]:
+
+    def _extract_population(self, text: str) -> str | None:
         """Extract population/participants from text."""
         patterns = [
             re.compile(r"(?:patients|participants|subjects)\s+with\s+([^.]{10,80})", re.IGNORECASE),
@@ -305,8 +305,8 @@ class RuleBasedClassifier:
             if match:
                 return match.group(1).strip()
         return None
-    
-    def _extract_intervention(self, text: str) -> Optional[str]:
+
+    def _extract_intervention(self, text: str) -> str | None:
         """Extract intervention from text."""
         patterns = [
             re.compile(r"(?:treated\s+with|received|administered)\s+([^.]{5,60})", re.IGNORECASE),
@@ -317,8 +317,8 @@ class RuleBasedClassifier:
             if match:
                 return match.group(1).strip()
         return None
-    
-    def _extract_comparator(self, text: str) -> Optional[str]:
+
+    def _extract_comparator(self, text: str) -> str | None:
         """Extract comparator from text."""
         patterns = [
             re.compile(r"(?:compared\s+(?:to|with)|versus|vs\.?)\s+([^.]{5,60})", re.IGNORECASE),
@@ -332,8 +332,8 @@ class RuleBasedClassifier:
                     return "placebo"
                 return match.group(1).strip()
         return None
-    
-    def _extract_outcome(self, text: str) -> Optional[str]:
+
+    def _extract_outcome(self, text: str) -> str | None:
         """Extract primary outcome from text."""
         patterns = [
             re.compile(r"primary\s+(?:end\s*point|outcome)\s+(?:was|is)?\s*([^.]{10,80})", re.IGNORECASE),

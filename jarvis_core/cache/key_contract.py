@@ -8,7 +8,6 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional
 
 
 @dataclass
@@ -18,7 +17,7 @@ class CacheKeyContract:
     input_hash: str
     extractor_version: str = "1.0"
     model_version: str = ""
-    thresholds: Dict[str, float] = field(default_factory=dict)
+    thresholds: dict[str, float] = field(default_factory=dict)
     config_hash: str = ""
     stage: str = ""
 
@@ -52,7 +51,7 @@ class CacheKeyContract:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "CacheKeyContract":
+    def from_dict(cls, data: dict) -> CacheKeyContract:
         return cls(
             input_hash=data["input_hash"],
             extractor_version=data.get("extractor_version", "1.0"),
@@ -68,7 +67,7 @@ def compute_cache_key(
     stage: str = "",
     extractor_version: str = "1.0",
     model_version: str = "",
-    thresholds: Dict[str, float] = None,
+    thresholds: dict[str, float] = None,
     config_hash: str = "",
 ) -> str:
     """Compute cache key from components.

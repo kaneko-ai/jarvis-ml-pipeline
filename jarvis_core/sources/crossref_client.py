@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import requests
 
@@ -21,24 +21,24 @@ CROSSREF_BASE_URL = "https://api.crossref.org"
 @dataclass
 class CrossrefWork:
     """Represents a work from Crossref."""
-    
+
     doi: str
     title: str
-    authors: List[str] = field(default_factory=list)
-    published_date: Optional[datetime] = None
-    journal: Optional[str] = None
-    volume: Optional[str] = None
-    issue: Optional[str] = None
-    pages: Optional[str] = None
-    publisher: Optional[str] = None
-    abstract: Optional[str] = None
-    type: Optional[str] = None  # e.g., "journal-article"
-    issn: List[str] = field(default_factory=list)
-    url: Optional[str] = None
+    authors: list[str] = field(default_factory=list)
+    published_date: datetime | None = None
+    journal: str | None = None
+    volume: str | None = None
+    issue: str | None = None
+    pages: str | None = None
+    publisher: str | None = None
+    abstract: str | None = None
+    type: str | None = None  # e.g., "journal-article"
+    issn: list[str] = field(default_factory=list)
+    url: str | None = None
     references_count: int = 0
     cited_by_count: int = 0
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "doi": self.doi,
@@ -69,10 +69,10 @@ class CrossrefClient:
         >>> work = client.get_work("10.1038/nature12373")
         >>> print(work.title)
     """
-    
+
     def __init__(
         self,
-        mailto: Optional[str] = None,
+        mailto: str | None = None,
         timeout: float = 30.0,
     ):
         """Initialize the Crossref client.
@@ -86,8 +86,8 @@ class CrossrefClient:
         self._headers = {
             "User-Agent": f"JARVIS Research OS/1.0 (mailto:{mailto})" if mailto else "JARVIS Research OS/1.0",
         }
-    
-    def get_work(self, doi: str) -> Optional[CrossrefWork]:
+
+    def get_work(self, doi: str) -> CrossrefWork | None:
         """Get metadata for a DOI.
         
         Args:
@@ -99,32 +99,32 @@ class CrossrefClient:
         # Clean the DOI
         doi = doi.replace("https://doi.org/", "").replace("http://doi.org/", "")
         doi = doi.strip()
-        
+
         url = f"{CROSSREF_BASE_URL}/works/{doi}"
-        
+
         try:
             response = requests.get(url, timeout=self._timeout, headers=self._headers)
-            
+
             if response.status_code == 404:
                 logger.warning(f"DOI not found: {doi}")
                 return None
-            
+
             response.raise_for_status()
             data = response.json()
-            
+
             return self._parse_work(data.get("message", {}))
-            
+
         except requests.RequestException as e:
             logger.error(f"Crossref API request failed for {doi}: {e}")
             return None
-    
+
     def search(
         self,
         query: str,
         rows: int = 10,
         offset: int = 0,
-        filter_type: Optional[str] = None,
-    ) -> List[CrossrefWork]:
+        filter_type: str | None = None,
+    ) -> list[CrossrefWork]:
         """Search for works.
         
         Args:
@@ -141,40 +141,40 @@ class CrossrefClient:
             "rows": str(min(rows, 1000)),
             "offset": str(offset),
         }
-        
+
         if filter_type:
             params["filter"] = f"type:{filter_type}"
-        
+
         url = f"{CROSSREF_BASE_URL}/works"
-        
+
         try:
             response = requests.get(url, params=params, timeout=self._timeout, headers=self._headers)
             response.raise_for_status()
             data = response.json()
-            
+
             works = []
             for item in data.get("message", {}).get("items", []):
                 work = self._parse_work(item)
                 if work:
                     works.append(work)
-            
+
             return works
-            
+
         except requests.RequestException as e:
             logger.error(f"Crossref search failed: {e}")
             return []
-    
-    def _parse_work(self, item: Dict[str, Any]) -> Optional[CrossrefWork]:
+
+    def _parse_work(self, item: dict[str, Any]) -> CrossrefWork | None:
         """Parse a Crossref work item."""
         try:
             doi = item.get("DOI", "")
             if not doi:
                 return None
-            
+
             # Title
             title_list = item.get("title", [])
             title = title_list[0] if title_list else ""
-            
+
             # Authors
             authors = []
             for author in item.get("author", []):
@@ -185,7 +185,7 @@ class CrossrefClient:
                     name_parts.append(author["family"])
                 if name_parts:
                     authors.append(" ".join(name_parts))
-            
+
             # Published date
             published_date = None
             date_parts = item.get("published-print", {}).get("date-parts", [[]])
@@ -200,18 +200,18 @@ class CrossrefClient:
                     published_date = datetime(year, month, day)
                 except ValueError:
                     pass
-            
+
             # Journal
             container = item.get("container-title", [])
             journal = container[0] if container else None
-            
+
             # Abstract
             abstract = item.get("abstract", "")
             if abstract:
                 # Remove JATS tags
                 abstract = abstract.replace("<jats:p>", "").replace("</jats:p>", "")
                 abstract = abstract.replace("<jats:title>", "").replace("</jats:title>", "")
-            
+
             return CrossrefWork(
                 doi=doi,
                 title=title,
@@ -229,7 +229,7 @@ class CrossrefClient:
                 references_count=item.get("references-count", 0),
                 cited_by_count=item.get("is-referenced-by-count", 0),
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to parse Crossref work: {e}")
             return None

@@ -6,16 +6,16 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
-from typing import List, Set, Dict, Any
+from typing import Any
 
 
 @dataclass
 class DedupResult:
     """Result of deduplication."""
 
-    unique: List[Any]
-    duplicates: List[Any]
-    duplicate_pairs: List[tuple]  # (dup, original) pairs
+    unique: list[Any]
+    duplicates: list[Any]
+    duplicate_pairs: list[tuple]  # (dup, original) pairs
 
 
 class DedupFilter:
@@ -23,8 +23,8 @@ class DedupFilter:
 
     def __init__(self, similarity_threshold: float = 0.9):
         self.similarity_threshold = similarity_threshold
-        self.seen_hashes: Set[str] = set()
-        self.hash_to_item: Dict[str, Any] = {}
+        self.seen_hashes: set[str] = set()
+        self.hash_to_item: dict[str, Any] = {}
 
     def compute_hash(self, item: Any) -> str:
         """Compute hash for item."""
@@ -37,7 +37,7 @@ class DedupFilter:
 
         return hashlib.md5(content.encode()).hexdigest()
 
-    def compute_shingles(self, text: str, k: int = 3) -> Set[str]:
+    def compute_shingles(self, text: str, k: int = 3) -> set[str]:
         """Compute k-shingles for near-duplicate detection."""
         words = text.lower().split()
         if len(words) < k:
@@ -50,7 +50,7 @@ class DedupFilter:
 
         return shingles
 
-    def jaccard_similarity(self, set1: Set[str], set2: Set[str]) -> float:
+    def jaccard_similarity(self, set1: set[str], set2: set[str]) -> float:
         """Calculate Jaccard similarity."""
         if not set1 or not set2:
             return 0.0
@@ -72,7 +72,7 @@ class DedupFilter:
 
         return similarity >= self.similarity_threshold
 
-    def dedupe(self, items: List[Any], check_near: bool = False) -> DedupResult:
+    def dedupe(self, items: list[Any], check_near: bool = False) -> DedupResult:
         """Deduplicate items.
 
         Args:
@@ -123,10 +123,10 @@ class DedupFilter:
 
 
 def dedupe_chunks(
-    chunks: List[Any],
+    chunks: list[Any],
     check_near: bool = False,
     threshold: float = 0.9,
-) -> List[Any]:
+) -> list[Any]:
     """Convenience function to deduplicate chunks.
 
     Args:
