@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jarvis-research-os"
-version = "5.1.0"
-description = "JARVIS Research OS - AI-Powered Systematic Literature Review Assistant with Evidence Grading, Citation Analysis, and Contradiction Detection"
+version = "5.2.0"
+description = "JARVIS Research OS - AI-Powered Systematic Literature Review Assistant"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
@@ -39,14 +39,20 @@ classifiers = [
 dependencies = [
     "requests>=2.28.0",
     "pyyaml>=6.0",
-    "lightgbm>=4.0.0",  # Phase 2: Learning-to-Rank
-    "numpy>=1.24.0",     # Phase 2: Numerical operations
 ]
 
 [project.optional-dependencies]
+ml = [
+    "lightgbm>=4.0.0",
+    "numpy>=1.24.0",
+    "scikit-learn>=1.3.0",
+]
 pdf = [
     "pymupdf>=1.22.0",
     "pypdf2>=3.0",
+    "python-docx>=0.8.11",
+    "python-pptx>=0.6.21",
+    "reportlab>=4.0",
 ]
 llm = [
     "google-generativeai>=0.3.0",
@@ -62,33 +68,64 @@ web = [
 ]
 dev = [
     "pytest>=7.0",
-    "pytest-cov",
-    "black",
-    "ruff",
+    "pytest-cov>=4.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0",
+    "safety>=2.3.0",
+    "bandit>=1.7.0",
 ]
 all = [
-    "jarvis-research-os[pdf,llm,embedding,web]",
+    "jarvis-research-os[ml,pdf,llm,embedding,web]",
 ]
 
 [dependency-groups]
 dev = [
     "pytest>=7.0",
-    "pytest-cov",
-    "black",
-    "ruff",
+    "pytest-cov>=4.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0",
 ]
 
 [project.scripts]
 jarvis = "jarvis_cli:main"
 jarvis-screen = "jarvis_core.active_learning.cli:cmd_screen"
 
+[project.urls]
+Homepage = "https://github.com/kaneko-ai/jarvis-ml-pipeline"
+Documentation = "https://github.com/kaneko-ai/jarvis-ml-pipeline/docs"
+Repository = "https://github.com/kaneko-ai/jarvis-ml-pipeline"
+Issues = "https://github.com/kaneko-ai/jarvis-ml-pipeline/issues"
+
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["jarvis_core*", "jarvis_tools*"]
+include = ["jarvis_core*", "jarvis_tools*", "jarvis_web*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["jarvis_core"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
+fail_under = 80
 
 [tool.black]
 line-length = 100
@@ -96,5 +133,14 @@ target-version = ["py310", "py311", "py312"]
 
 [tool.ruff]
 line-length = 100
-select = ["E", "F", "W", "I"]
+select = ["E", "F", "W", "I", "B", "C4", "UP"]
 ignore = ["E501"]
+
+[tool.ruff.isort]
+known-first-party = ["jarvis_core", "jarvis_web", "jarvis_tools"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
