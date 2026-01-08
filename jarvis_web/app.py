@@ -54,22 +54,29 @@ if FASTAPI_AVAILABLE:
     from jarvis_web.routes.schedules import router as schedules_router
     from jarvis_web.routes.cron import router as cron_router
     from jarvis_web.routes.queue import router as queue_router
+    from jarvis_web.config import get_config
 
     app = FastAPI(
         title="JARVIS Research OS",
         description="API for paper survey and knowledge synthesis",
-        version="4.3.0",
+        version="5.2.0",
+        docs_url="/api/docs",
+        redoc_url="/api/redoc",
+        openapi_url="/api/openapi.json",
     )
 
     from jarvis_web.routes.finance import router as finance_router
     
-    # Add CORS middleware to allow cross-origin requests (for GitHub Pages dashboard)
+    # Get CORS config from environment-aware configuration
+    config = get_config()
+    
+    # Add CORS middleware with environment-specific settings
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # Allow all origins for local development
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_origins=config.cors.allow_origins,
+        allow_credentials=config.cors.allow_credentials,
+        allow_methods=config.cors.allow_methods,
+        allow_headers=config.cors.allow_headers,
     )
 
     app.include_router(research_router)
