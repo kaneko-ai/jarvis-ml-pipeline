@@ -7,7 +7,7 @@ accuracy, mse, rmse 等
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict
+from typing import Dict
 
 import numpy as np
 from sklearn.metrics import accuracy_score, mean_squared_error, r2_score
@@ -32,13 +32,13 @@ def calculate_metrics(
         メトリクス辞書
     """
     metrics = {}
-    
+
     if task == "classification":
         metrics["accuracy"] = accuracy_score(y_true, y_pred)
     else:  # regression
         metrics["mse"] = mean_squared_error(y_true, y_pred)
         metrics["rmse"] = np.sqrt(metrics["mse"])
         metrics["r2"] = r2_score(y_true, y_pred)
-    
+
     logger.info(f"Metrics: {metrics}")
     return metrics

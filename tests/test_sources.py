@@ -4,14 +4,6 @@ Per RP6, this tests the "standard entry point" for populating
 EvidenceStore with real content.
 """
 
-import sys
-from pathlib import Path
-
-# Ensure project root is on sys.path
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from jarvis_core.evidence import EvidenceStore
 from jarvis_core.sources import (
     Chunker,
@@ -20,6 +12,12 @@ from jarvis_core.sources import (
     SourceDocument,
     ingest,
 )
+from pathlib import Path
+
+# Ensure project root is on sys.path
+ROOT = Path(__file__).resolve().parents[1]
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 class TestChunker:
@@ -57,7 +55,6 @@ class TestChunker:
         chunks = chunker.split(text)
         # At least one chunk should end with a sentence boundary
         assert any(c.endswith(".") for c in chunks)
-
 
 class TestIngest:
     """Tests for the ingest function."""
@@ -138,7 +135,6 @@ class TestIngest:
         assert len(results[0].preview) <= 53  # 50 + "..."
         assert results[0].preview.endswith("...")
 
-
 class TestExecutionContext:
     """Tests for ExecutionContext."""
 
@@ -177,7 +173,6 @@ class TestExecutionContext:
         assert previews[0]["chunk_id"] == chunk_id
         assert previews[0]["locator"] == "pdf:test.pdf#chunk:0"
         assert previews[0]["preview"] == "PDF content"
-
 
 class TestIntegration:
     """Integration tests for the full pipeline."""

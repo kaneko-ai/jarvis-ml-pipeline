@@ -26,27 +26,27 @@ def main():
         theme = " ".join(sys.argv[1:])
     else:
         theme = "大規模言語モデルの評価手法"
-    
+
     print("=" * 60)
     print("JARVIS Research Partner Mode")
     print("=" * 60)
     print()
     print(f"Theme: {theme}")
     print()
-    
+
     # Research Partner初期化
     partner = ResearchPartner()
-    
+
     # 相談実行
     result = partner.consult(
         theme=theme,
         constraints="時間制約あり（1週間）",
         current_situation="論文が多すぎて優先順位が不明",
     )
-    
+
     # 結果出力
     print(result.to_markdown())
-    
+
     # 最終チェック
     print("-" * 60)
     print("【最終チェック】")

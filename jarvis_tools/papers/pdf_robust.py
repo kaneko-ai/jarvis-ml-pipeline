@@ -5,9 +5,8 @@ Per RP-108, provides PDF extraction with fallback chain.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, List, Callable
+from typing import Optional, List
 from enum import Enum
-from pathlib import Path
 
 from jarvis_core.runtime.result import Result, ErrorRecord
 

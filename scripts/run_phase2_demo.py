@@ -82,43 +82,43 @@ def run_demo():
     print("JARVIS Phase2 デモ: 類似判断検索の自動実行")
     print("=" * 60)
     print()
-    
+
     # Goldsetインデックス初期化
     goldset_index = GoldsetIndex()
     print(f"[INFO] Goldset: {len(goldset_index.list_all())} 件ロード済み")
-    
+
     # DecisionStore初期化
     decision_store = DecisionStore()
     print(f"[INFO] DecisionStore: {len(decision_store.list_all())} 件既存")
-    
+
     # MandatorySearchJudge初期化
     judge = MandatorySearchJudge(goldset_index=goldset_index)
-    
+
     print()
     print("-" * 60)
     print("判断を開始します...")
     print("-" * 60)
     print()
-    
+
     results = []
-    
+
     for issue in DEMO_ISSUES:
         print(f"\n### Issue: {issue['id']}")
         print(f"Context: {issue['context']}")
-        
+
         # Phase2判断を実行
         result = judge.judge(
             issue_id=issue["id"],
             issue_context=issue["context"],
             description=issue.get("description", ""),
         )
-        
+
         # 結果を表示
         print(f"Decision: {result.decision.status.value}")
         if result.similar_search.similar_judgments:
             top_similar = result.similar_search.similar_judgments[0]
             print(f"類似判断: {top_similar.entry.context[:40]}... ({top_similar.similarity:.2f})")
-        
+
         # DecisionItemとして保存
         decision_item = DecisionItem(
             decision_id=f"demo_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{issue['id']}",
@@ -128,18 +128,18 @@ def run_demo():
             reason=result.decision.decision_reason,
         )
         decision_store.add(decision_item)
-        
+
         results.append(result)
-    
+
     print()
     print("=" * 60)
     print("デモ完了")
     print("=" * 60)
-    
+
     # サマリー
     accept_count = sum(1 for r in results if r.decision.status.value == "accept")
     reject_count = sum(1 for r in results if r.decision.status.value == "reject")
-    
+
     print(f"""
 結果サマリー:
 - 総判断数: {len(results)}
@@ -151,14 +151,14 @@ Phase3（自己評価）の条件:
 - DecisionItem: {len(decision_store.list_all())} / 20件以上
 - 類似判断検索: {len(results)} / 10回以上
 """)
-    
+
     # 判断レポート出力（1件目のみ詳細）
     print()
     print("-" * 60)
     print("判断レポート例（Issue 1）:")
     print("-" * 60)
     print(results[0].format_full_output())
-    
+
     return results
 
 

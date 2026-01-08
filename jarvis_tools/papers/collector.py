@@ -7,8 +7,6 @@ from __future__ import annotations
 import json
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlencode
 from urllib.request import urlopen, Request
@@ -33,7 +31,7 @@ class CollectedPaper:
     is_oa: bool = False
     pdf_url: str = ""
     xml_url: str = ""
-    
+
     def to_dict(self) -> dict:
         return {
             "paper_id": self.pmcid or f"PMID:{self.pmid}",
@@ -58,7 +56,7 @@ class CollectionResult:
     collected: int = 0
     query: str = ""
     warnings: List[Dict[str, Any]] = field(default_factory=list)
-    
+
     def to_dict(self) -> dict:
         return {
             "papers": [p.to_dict() for p in self.papers],
@@ -74,7 +72,7 @@ class PubMedCollector:
     
     E-utilities APIを使用してPubMed/PMCから論文を収集。
     """
-    
+
     def __init__(
         self,
         api_key: Optional[str] = None,
@@ -85,7 +83,7 @@ class PubMedCollector:
         self.email = email
         self.delay = delay
         self._last_request = 0.0
-    
+
     def search(
         self,
         query: str,
@@ -103,12 +101,12 @@ class PubMedCollector:
             CollectionResult
         """
         result = CollectionResult(query=query)
-        
+
         # OAフィルタ追加
         search_query = query
         if oa_only:
             search_query = f"({query}) AND (free full text[filter])"
-        
+
         # Step 1: esearch でPMID取得
         try:
             pmids = self._esearch(search_query, max_results)
@@ -119,10 +117,10 @@ class PubMedCollector:
                 "message": str(e),
             })
             return result
-        
+
         if not pmids:
             return result
-        
+
         # Step 2: efetch でメタデータ取得
         try:
             papers = self._efetch(pmids)
@@ -133,9 +131,9 @@ class PubMedCollector:
                 "code": "FETCH_ERROR",
                 "message": str(e),
             })
-        
+
         return result
-    
+
     def _esearch(self, query: str, retmax: int) -> List[str]:
         """E-Search APIでPMIDリストを取得."""
         params = {
@@ -145,100 +143,100 @@ class PubMedCollector:
             "retmode": "json",
             "email": self.email,
         }
-        
+
         if self.api_key:
             params["api_key"] = self.api_key
-        
+
         self._rate_limit()
-        
+
         url = f"{PUBMED_ESEARCH}?{urlencode(params)}"
         req = Request(url, headers={"User-Agent": "JARVIS-ML-Pipeline/1.0"})
-        
+
         with urlopen(req, timeout=30) as response:
             data = json.loads(response.read().decode())
-        
+
         result = data.get("esearchresult", {})
         pmids = result.get("idlist", [])
-        
+
         return pmids
-    
+
     def _efetch(self, pmids: List[str]) -> List[CollectedPaper]:
         """E-Fetch APIで詳細情報を取得."""
         papers = []
-        
+
         # バッチ処理（最大200件ずつ）
         for i in range(0, len(pmids), 200):
             batch = pmids[i:i+200]
-            
+
             params = {
                 "db": "pubmed",
                 "id": ",".join(batch),
                 "retmode": "xml",
                 "email": self.email,
             }
-            
+
             if self.api_key:
                 params["api_key"] = self.api_key
-            
+
             self._rate_limit()
-            
+
             url = f"{PUBMED_EFETCH}?{urlencode(params)}"
             req = Request(url, headers={"User-Agent": "JARVIS-ML-Pipeline/1.0"})
-            
+
             try:
                 with urlopen(req, timeout=60) as response:
                     xml_content = response.read().decode()
-                
+
                 batch_papers = self._parse_pubmed_xml(xml_content)
                 papers.extend(batch_papers)
             except Exception:
                 # バッチ失敗時はスキップ
                 continue
-        
+
         return papers
-    
+
     def _parse_pubmed_xml(self, xml_content: str) -> List[CollectedPaper]:
         """PubMed XMLをパース."""
         import re
-        
+
         papers = []
-        
+
         # 簡易XMLパース（完全なXMLパーサーを使うべきだが、軽量化のため）
         article_pattern = r'<PubmedArticle>(.*?)</PubmedArticle>'
-        
+
         for match in re.finditer(article_pattern, xml_content, re.DOTALL):
             article_xml = match.group(1)
-            
+
             # PMID
             pmid_match = re.search(r'<PMID[^>]*>(\d+)</PMID>', article_xml)
             pmid = pmid_match.group(1) if pmid_match else ""
-            
+
             # Title
             title_match = re.search(r'<ArticleTitle>(.*?)</ArticleTitle>', article_xml, re.DOTALL)
             title = title_match.group(1) if title_match else ""
             title = re.sub(r'<[^>]+>', '', title)  # HTMLタグ除去
-            
+
             # Abstract
             abstract_match = re.search(r'<AbstractText[^>]*>(.*?)</AbstractText>', article_xml, re.DOTALL)
             abstract = abstract_match.group(1) if abstract_match else ""
             abstract = re.sub(r'<[^>]+>', '', abstract)
-            
+
             # Year
             year_match = re.search(r'<PubDate>.*?<Year>(\d{4})</Year>', article_xml, re.DOTALL)
             year = int(year_match.group(1)) if year_match else 0
-            
+
             # Journal
             journal_match = re.search(r'<Title>(.*?)</Title>', article_xml)
             journal = journal_match.group(1) if journal_match else ""
-            
+
             # DOI
             doi_match = re.search(r'<ArticleId IdType="doi">(.*?)</ArticleId>', article_xml)
             doi = doi_match.group(1) if doi_match else ""
-            
+
             # PMC ID
             pmcid_match = re.search(r'<ArticleId IdType="pmc">(PMC\d+)</ArticleId>', article_xml)
             pmcid = pmcid_match.group(1) if pmcid_match else ""
-            
+
             papers.append(CollectedPaper(
                 pmid=pmid,
                 pmcid=pmcid,
@@ -249,9 +247,9 @@ class PubMedCollector:
                 doi=doi,
                 is_oa=bool(pmcid),
             ))
-        
+
         return papers
-    
+
     def _rate_limit(self):
         """レート制限."""
         elapsed = time.time() - self._last_request

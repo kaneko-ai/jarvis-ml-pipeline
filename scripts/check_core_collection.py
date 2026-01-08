@@ -62,7 +62,7 @@ def main():
         print(f"   If this is intentional, update {BASELINE_FILE}")
         sys.exit(1)
 
-    print(f"\n✓ Core test count matches baseline")
+    print("\n✓ Core test count matches baseline")
     sys.exit(0)
 
 

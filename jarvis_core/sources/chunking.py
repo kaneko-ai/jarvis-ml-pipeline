@@ -4,6 +4,8 @@ This module provides:
 - SourceDocument: Abstraction for external sources (local, url, pdf)
 - Chunker: Splits documents into chunks for EvidenceStore
 - ingest(): Pipeline to register chunks in EvidenceStore
+- ChunkResult: Result of chunking
+- ExecutionContext: Context available during task execution
 
 Per RP6, this creates the "standard entry point" for populating
 EvidenceStore with real content.
@@ -14,7 +16,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal
 
-from .evidence import EvidenceStore
+from jarvis_core.evidence import EvidenceStore
 
 SourceType = Literal["local", "url", "pdf"]
 
@@ -227,7 +229,8 @@ class ExecutionContext:
         Returns:
             List of relevant ChunkResult.
         """
-        from .retriever import get_relevant_chunks as retrieve
+        # Avoid circular import by importing here
+        from jarvis_core.retriever import get_relevant_chunks as retrieve
 
         return retrieve(
             query=query,
@@ -276,7 +279,8 @@ class ExecutionContext:
         Returns:
             List of ChunkResult objects sorted by similarity.
         """
-        from .vector_index import get_relevant_chunks_vector
+        # Avoid circular import
+        from jarvis_core.vector_index import get_relevant_chunks_vector
 
         if not self.available_chunks:
             return []

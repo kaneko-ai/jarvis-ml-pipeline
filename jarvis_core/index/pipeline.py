@@ -8,7 +8,9 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
+from typing import Any, TYPE_CHECKING
+if TYPE_CHECKING:
+    from .incremental_state import IncrementalState
 
 
 class PipelineStage(Enum):

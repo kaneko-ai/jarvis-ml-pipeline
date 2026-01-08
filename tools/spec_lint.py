@@ -15,7 +15,7 @@ from __future__ import annotations
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, NamedTuple, Optional
+from typing import List, NamedTuple, Optional
 
 
 class Violation(NamedTuple):
@@ -71,29 +71,29 @@ def extract_authority(content: str) -> Optional[str]:
 def check_file(filepath: Path) -> List[Violation]:
     """ファイルをチェック."""
     violations = []
-    
+
     # 例外チェック
     if filepath.name in EXCEPTIONS:
         return violations
-    
+
     try:
         content = filepath.read_text(encoding="utf-8")
     except Exception as e:
         print(f"DEBUG: Failed to read {filepath}: {e}")
         return violations
-    
+
     authority = extract_authority(content)
     print(f"DEBUG: Checking {filepath}, Authority: {authority}")
-    
+
     # Authorityがない場合はスキップ（警告のみ）
     if authority is None:
         print(f"[WARN] No Authority Header: {filepath}")
         return violations
-    
+
     # Binding文書は強制語彙OK
     if authority not in NON_BINDING_LEVELS:
         return violations
-    
+
     # Non-binding文書で強制語彙をチェック
     lines = content.split("\n")
     print(f"DEBUG: Checking {len(lines)} lines")
@@ -102,7 +102,7 @@ def check_file(filepath: Path) -> List[Violation]:
         if i <= 3 and "Authority:" in line:
             print(f"DEBUG: Skipping header line {i}: {line}")
             continue
-        
+
         print(f"DEBUG: Line {i}: '{line}'")
         for pattern in FORCE_PATTERNS:
             match = pattern.search(line)
@@ -116,34 +116,34 @@ def check_file(filepath: Path) -> List[Violation]:
                     authority=authority,
                 ))
                 print(f"DEBUG: Size after append: {len(violations)}")
-    
+
     return violations
 
 
 def main() -> int:
     """メイン."""
     docs_dir = Path(__file__).parent.parent / "docs"
-    
+
     if not docs_dir.exists():
         print(f"[ERROR] docs directory not found: {docs_dir}")
         return 1
-    
+
     all_violations: List[Violation] = []
     checked = 0
-    
+
     for md_file in docs_dir.glob("**/*.md"):
         violations = check_file(md_file)
         all_violations.extend(violations)
         checked += 1
-    
+
     print(f"Checked {checked} files")
-    
+
     if all_violations:
         print(f"\n[FAIL] {len(all_violations)} violations found:\n")
         for v in all_violations:
             print(f"  {v.file}:{v.line} [{v.authority}] '{v.word}'")
         return 1
-    
+
     print("[PASS] No violations")
     return 0
 

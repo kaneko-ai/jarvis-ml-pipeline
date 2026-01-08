@@ -7,11 +7,9 @@ PyTorch Lightning による学習ループ
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 try:
     import pytorch_lightning as pl
@@ -20,7 +18,7 @@ except ImportError:
     LIGHTNING_AVAILABLE = False
     pl = None
 
-from .mlp_torch import MLP, create_mlp
+from .mlp_torch import MLP
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +34,7 @@ if LIGHTNING_AVAILABLE:
         - test_step: test metric
         - configure_optimizers: Adam (lr=1e-3)
         """
-        
+
         def __init__(
             self,
             input_dim: int,
@@ -50,10 +48,10 @@ if LIGHTNING_AVAILABLE:
             """初期化."""
             super().__init__()
             self.save_hyperparameters()
-            
+
             self.task = task
             self.lr = lr
-            
+
             self.model = MLP(
                 input_dim=input_dim,
                 output_dim=output_dim,
@@ -62,28 +60,28 @@ if LIGHTNING_AVAILABLE:
                 use_bn=use_bn,
                 task=task,
             )
-            
+
             # Loss
             if task == "classification":
                 self.loss_fn = nn.CrossEntropyLoss()
             else:
                 self.loss_fn = nn.MSELoss()
-        
+
         def forward(self, x: torch.Tensor) -> torch.Tensor:
             """順伝播."""
             return self.model(x)
-        
+
         def training_step(self, batch, batch_idx) -> torch.Tensor:
             """学習ステップ."""
             x, y = batch
             y_hat = self(x)
-            
+
             if self.task == "regression":
                 y = y.view(-1, 1)
                 y_hat = y_hat.view(-1, 1)
-            
+
             loss = self.loss_fn(y_hat, y)
-            
+
             # メトリクス
             if self.task == "classification":
                 preds = torch.argmax(y_hat, dim=1)
@@ -92,20 +90,20 @@ if LIGHTNING_AVAILABLE:
                 self.log("train_acc", acc, prog_bar=True)
             else:
                 self.log("train_loss", loss, prog_bar=True)
-            
+
             return loss
-        
+
         def validation_step(self, batch, batch_idx) -> torch.Tensor:
             """検証ステップ."""
             x, y = batch
             y_hat = self(x)
-            
+
             if self.task == "regression":
                 y = y.view(-1, 1)
                 y_hat = y_hat.view(-1, 1)
-            
+
             loss = self.loss_fn(y_hat, y)
-            
+
             if self.task == "classification":
                 preds = torch.argmax(y_hat, dim=1)
                 acc = (preds == y).float().mean()
@@ -113,20 +111,20 @@ if LIGHTNING_AVAILABLE:
                 self.log("val_acc", acc, prog_bar=True)
             else:
                 self.log("val_loss", loss, prog_bar=True)
-            
+
             return loss
-        
+
         def test_step(self, batch, batch_idx) -> torch.Tensor:
             """テストステップ."""
             x, y = batch
             y_hat = self(x)
-            
+
             if self.task == "regression":
                 y = y.view(-1, 1)
                 y_hat = y_hat.view(-1, 1)
-            
+
             loss = self.loss_fn(y_hat, y)
-            
+
             if self.task == "classification":
                 preds = torch.argmax(y_hat, dim=1)
                 acc = (preds == y).float().mean()
@@ -134,9 +132,9 @@ if LIGHTNING_AVAILABLE:
                 self.log("test_acc", acc)
             else:
                 self.log("test_loss", loss)
-            
+
             return loss
-        
+
         def configure_optimizers(self):
             """オプティマイザ設定."""
             return torch.optim.Adam(self.parameters(), lr=self.lr)

@@ -9,7 +9,6 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from datetime import datetime
 
 
 def load_events(events_file: Path) -> list:

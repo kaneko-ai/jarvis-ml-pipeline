@@ -18,6 +18,7 @@ from jarvis_core.evidence.schema import (
     EvidenceLevel,
     StudyType,
 )
+from jarvis_core.evidence.store import Chunk, EvidenceStore
 
 # English descriptions for evidence levels (CEBM Oxford 2011)
 EVIDENCE_LEVEL_DESCRIPTIONS_EN = {
@@ -43,4 +44,6 @@ __all__ = [
     "EnsembleClassifier",
     "grade_evidence",
     "EVIDENCE_LEVEL_DESCRIPTIONS_EN",
+    "Chunk",
+    "EvidenceStore",
 ]

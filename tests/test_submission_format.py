@@ -4,6 +4,7 @@ Tabular Submission Format Tests
 提出CSVの形式検証
 """
 
+from pipelines.tabular.submission import make_submission, validate_submission
 import tempfile
 from pathlib import Path
 
@@ -11,8 +12,6 @@ import pytest
 
 np = pytest.importorskip("numpy")
 pd = pytest.importorskip("pandas")
-
-from pipelines.tabular.submission import make_submission, validate_submission
 
 
 class TestMakeSubmission:
@@ -53,7 +52,6 @@ class TestMakeSubmission:
             df = pd.read_csv(out_path)
             assert list(df["class"]) == [1, 2, 3]
 
-
 class TestValidateSubmission:
     """validate_submission テスト."""
 
@@ -85,7 +83,6 @@ class TestValidateSubmission:
 
             with pytest.raises(ValueError, match="Row count mismatch"):
                 validate_submission(str(path), "class", expected_rows=5)
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

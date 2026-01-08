@@ -3,13 +3,6 @@
 Tests Σ-1 to Σ-30 modules.
 """
 
-import sys
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from jarvis_core.paper_vector import (
     BiologicalAxisVector,
     ConceptVector,
@@ -56,6 +49,11 @@ from jarvis_core.sigma_modules import (
     sync_research_log,
     validate_stats_method,
 )
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 def _create_test_vectors():
@@ -81,7 +79,6 @@ def _create_test_vectors():
             impact=ImpactVector(future_potential=0.7),
         ),
     ]
-
 
 class TestSigma1_7:
     """思考・仮説系 (Σ-1〜Σ-7)."""
@@ -119,7 +116,6 @@ class TestSigma1_7:
         diagram = generate_hypothesis_diagram(["H1", "H2"])
         assert "nodes" in diagram
 
-
 class TestSigma8_13:
     """分析・可視化系 (Σ-8〜Σ-13)."""
 
@@ -153,7 +149,6 @@ class TestSigma8_13:
         density = map_research_density(vectors)
         assert isinstance(density, dict)
 
-
 class TestSigma14_19:
     """実験・設計系 (Σ-14〜Σ-19)."""
 
@@ -183,7 +178,6 @@ class TestSigma14_19:
         reasoning = explain_model_reasoning("mouse", vectors)
         assert len(reasoning) > 0
 
-
 class TestSigma20_25:
     """論文・発表補助 (Σ-20〜Σ-25)."""
 
@@ -212,7 +206,6 @@ class TestSigma20_25:
         vectors = _create_test_vectors()
         bias = detect_citation_bias(vectors)
         assert "recency_bias" in bias
-
 
 class TestSigma26_30:
     """継続・運用系 (Σ-26〜Σ-30)."""

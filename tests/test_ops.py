@@ -7,10 +7,6 @@ M4: 運用完備のテスト
 - メトリクス
 """
 
-from tempfile import TemporaryDirectory
-
-import pytest
-
 from jarvis_core.ops.checkpoint import (
     CheckpointManager,
     RunCheckpoint,
@@ -25,6 +21,9 @@ from jarvis_core.ops.rate_limiter import (
     RateLimiter,
     with_retry,
 )
+from tempfile import TemporaryDirectory
+
+import pytest
 
 
 class TestRateLimiter:
@@ -53,7 +52,6 @@ class TestRateLimiter:
 
         delay = limiter.get_retry_delay(10)  # 2^10 = 1024 > 10
         assert delay == 10.0
-
 
 class TestWithRetry:
     """リトライデコレータテスト."""
@@ -85,7 +83,6 @@ class TestWithRetry:
         result = flaky_func()
         assert result == "success"
         assert call_count[0] == 2
-
 
 class TestCheckpointManager:
     """チェックポイントマネージャーテスト."""
@@ -142,7 +139,6 @@ class TestCheckpointManager:
 
             resume_point = manager.get_resume_point("test_run")
             assert resume_point == 3
-
 
 class TestMetricsCollector:
     """メトリクスコレクターテスト."""
@@ -206,7 +202,6 @@ class TestMetricsCollector:
             assert metrics["quality"]["provenance_rate"] == 0.95
             assert metrics["quality"]["pico_consistency_rate"] == 0.88
             assert metrics["quality"]["gate_results"]["provenance"] is True
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

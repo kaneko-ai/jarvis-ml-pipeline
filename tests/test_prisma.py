@@ -34,13 +34,13 @@ class TestPRISMASchema:
         from jarvis_core.prisma.schema import ExclusionReason, PRISMAData
 
         data = PRISMAData(
-            identification_database=1000,
-            identification_other=50,
+            records_from_databases=1000,
+            records_from_other_sources=50,
             duplicates_removed=200,
             records_screened=850,
             records_excluded_screening=500,
-            full_text_assessed=350,
-            full_text_excluded=100,
+            reports_assessed=350,
+            reports_excluded=100,
             studies_included=250,
             exclusion_reasons=[
                 ExclusionReason("Not relevant", 300, "screening"),
@@ -48,7 +48,7 @@ class TestPRISMASchema:
             ],
         )
 
-        assert data.identification_database == 1000
+        assert data.records_from_databases == 1000
         assert data.studies_included == 250
         assert len(data.exclusion_reasons) == 2
 
@@ -57,25 +57,25 @@ class TestPRISMASchema:
         from jarvis_core.prisma.schema import PRISMAData
 
         data = PRISMAData(
-            identification_database=100,
-            identification_other=0,
+            records_from_databases=100,
+            records_from_other_sources=0,
             duplicates_removed=10,
             records_screened=90,
             records_excluded_screening=40,
-            full_text_assessed=50,
-            full_text_excluded=20,
+            reports_assessed=50,
+            reports_excluded=20,
             studies_included=30,
         )
 
         # Validate flow consistency
-        total_identified = data.identification_database + data.identification_other
+        total_identified = data.records_from_databases + data.records_from_other_sources
         after_duplicates = total_identified - data.duplicates_removed
         assert after_duplicates == data.records_screened
 
         after_screening = data.records_screened - data.records_excluded_screening
-        assert after_screening == data.full_text_assessed
+        assert after_screening == data.reports_assessed
 
-        after_eligibility = data.full_text_assessed - data.full_text_excluded
+        after_eligibility = data.reports_assessed - data.reports_excluded
         assert after_eligibility == data.studies_included
 
     def test_prisma_data_to_dict(self):
@@ -83,19 +83,19 @@ class TestPRISMASchema:
         from jarvis_core.prisma.schema import PRISMAData
 
         data = PRISMAData(
-            identification_database=500,
-            identification_other=25,
+            records_from_databases=500,
+            records_from_other_sources=25,
             duplicates_removed=75,
             records_screened=450,
             records_excluded_screening=200,
-            full_text_assessed=250,
-            full_text_excluded=50,
+            reports_assessed=250,
+            reports_excluded=50,
             studies_included=200,
         )
 
         result = data.to_dict()
 
-        assert result["identification_database"] == 500
+        assert result["records_from_databases"] == 500
         assert result["studies_included"] == 200
         assert "exclusion_reasons" in result
 
@@ -104,19 +104,19 @@ class TestPRISMASchema:
         from jarvis_core.prisma.schema import PRISMAData
 
         input_dict = {
-            "identification_database": 300,
-            "identification_other": 10,
+            "records_from_databases": 300,
+            "records_from_other_sources": 10,
             "duplicates_removed": 30,
             "records_screened": 280,
             "records_excluded_screening": 100,
-            "full_text_assessed": 180,
-            "full_text_excluded": 30,
+            "reports_assessed": 180,
+            "reports_excluded": 30,
             "studies_included": 150,
         }
 
         data = PRISMAData.from_dict(input_dict)
 
-        assert data.identification_database == 300
+        assert data.records_from_databases == 300
         assert data.studies_included == 150
 
 
@@ -137,20 +137,20 @@ class TestPRISMAGenerator:
 
         generator = PRISMAGenerator()
         data = PRISMAData(
-            identification_database=1000,
-            identification_other=50,
+            records_from_databases=1000,
+            records_from_other_sources=50,
             duplicates_removed=200,
             records_screened=850,
             records_excluded_screening=500,
-            full_text_assessed=350,
-            full_text_excluded=100,
+            reports_assessed=350,
+            reports_excluded=100,
             studies_included=250,
         )
 
         mermaid = generator.generate_mermaid(data)
 
         assert "flowchart TD" in mermaid or "graph TD" in mermaid
-        assert "1000" in mermaid  # identification_database
+        assert "1000" in mermaid  # records_from_databases
         assert "250" in mermaid  # studies_included
         assert "Identification" in mermaid or "identification" in mermaid.lower()
 
@@ -161,13 +161,13 @@ class TestPRISMAGenerator:
 
         generator = PRISMAGenerator()
         data = PRISMAData(
-            identification_database=500,
-            identification_other=0,
+            records_from_databases=500,
+            records_from_other_sources=0,
             duplicates_removed=50,
             records_screened=450,
             records_excluded_screening=200,
-            full_text_assessed=250,
-            full_text_excluded=100,
+            reports_assessed=250,
+            reports_excluded=100,
             studies_included=150,
             exclusion_reasons=[
                 ExclusionReason("Not RCT", 50, "eligibility"),
@@ -188,13 +188,13 @@ class TestPRISMAGenerator:
 
         generator = PRISMAGenerator()
         data = PRISMAData(
-            identification_database=100,
-            identification_other=10,
+            records_from_databases=100,
+            records_from_other_sources=10,
             duplicates_removed=20,
             records_screened=90,
             records_excluded_screening=40,
-            full_text_assessed=50,
-            full_text_excluded=10,
+            reports_assessed=50,
+            reports_excluded=10,
             studies_included=40,
         )
 
@@ -211,13 +211,13 @@ class TestPRISMAGenerator:
 
         generator = PRISMAGenerator()
         data = PRISMAData(
-            identification_database=100,
-            identification_other=0,
+            records_from_databases=100,
+            records_from_other_sources=0,
             duplicates_removed=10,
             records_screened=90,
             records_excluded_screening=30,
-            full_text_assessed=60,
-            full_text_excluded=10,
+            reports_assessed=60,
+            reports_excluded=10,
             studies_included=50,
         )
 
@@ -236,13 +236,13 @@ class TestPRISMAGenerator:
 
         generator = PRISMAGenerator()
         data = PRISMAData(
-            identification_database=200,
-            identification_other=20,
+            records_from_databases=200,
+            records_from_other_sources=20,
             duplicates_removed=40,
             records_screened=180,
             records_excluded_screening=80,
-            full_text_assessed=100,
-            full_text_excluded=30,
+            reports_assessed=100,
+            reports_excluded=30,
             studies_included=70,
         )
 
@@ -261,13 +261,13 @@ class TestGeneratePrismaFlowFunction:
         from jarvis_core.prisma.schema import PRISMAData
 
         data = PRISMAData(
-            identification_database=500,
-            identification_other=50,
+            records_from_databases=500,
+            records_from_other_sources=50,
             duplicates_removed=100,
             records_screened=450,
             records_excluded_screening=200,
-            full_text_assessed=250,
-            full_text_excluded=75,
+            reports_assessed=250,
+            reports_excluded=75,
             studies_included=175,
         )
 
@@ -281,13 +281,13 @@ class TestGeneratePrismaFlowFunction:
         from jarvis_core.prisma.schema import PRISMAData
 
         data = PRISMAData(
-            identification_database=100,
-            identification_other=0,
+            records_from_databases=100,
+            records_from_other_sources=0,
             duplicates_removed=10,
             records_screened=90,
             records_excluded_screening=30,
-            full_text_assessed=60,
-            full_text_excluded=10,
+            reports_assessed=60,
+            reports_excluded=10,
             studies_included=50,
         )
 
@@ -300,13 +300,13 @@ class TestGeneratePrismaFlowFunction:
         from jarvis_core.prisma import generate_prisma_flow
 
         data_dict = {
-            "identification_database": 250,
-            "identification_other": 25,
+            "records_from_databases": 250,
+            "records_from_other_sources": 25,
             "duplicates_removed": 50,
             "records_screened": 225,
             "records_excluded_screening": 100,
-            "full_text_assessed": 125,
-            "full_text_excluded": 25,
+            "reports_assessed": 125,
+            "reports_excluded": 25,
             "studies_included": 100,
         }
 
@@ -324,24 +324,24 @@ class TestPRISMA2020Compliance:
 
         # PRISMA 2020 requires these flow diagram elements
         required_attributes = [
-            "identification_database",
-            "identification_other",
+            "records_from_databases",
+            "records_from_other_sources",
             "duplicates_removed",
             "records_screened",
             "records_excluded_screening",
-            "full_text_assessed",
-            "full_text_excluded",
+            "reports_assessed",
+            "reports_excluded",
             "studies_included",
         ]
 
         data = PRISMAData(
-            identification_database=0,
-            identification_other=0,
+            records_from_databases=0,
+            records_from_other_sources=0,
             duplicates_removed=0,
             records_screened=0,
             records_excluded_screening=0,
-            full_text_assessed=0,
-            full_text_excluded=0,
+            reports_assessed=0,
+            reports_excluded=0,
             studies_included=0,
         )
 
@@ -354,20 +354,20 @@ class TestPRISMA2020Compliance:
 
         # PRISMA 2020 supports multiple database sources
         data = PRISMAData(
-            identification_database=1000,
-            identification_other=200,
-            identification_registers=50,  # Optional: clinical trial registers
+            records_from_databases=1000,
+            records_from_other_sources=200,
+            records_from_registers=50,  # Optional: clinical trial registers
             duplicates_removed=150,
             records_screened=1100,
             records_excluded_screening=600,
-            full_text_assessed=500,
-            full_text_excluded=100,
+            reports_assessed=500,
+            reports_excluded=100,
             studies_included=400,
             database_sources=["PubMed", "Embase", "Cochrane"],
         )
 
         assert (
-            data.identification_database + data.identification_other
+            data.records_from_databases + data.records_from_other_sources
             >= data.records_screened + data.duplicates_removed
         )
 

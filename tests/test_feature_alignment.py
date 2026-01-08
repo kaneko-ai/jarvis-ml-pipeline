@@ -4,6 +4,8 @@ Tabular Feature Alignment Tests
 列順固定、特徴量整合のテスト
 """
 
+from pipelines.tabular.io import load_train_test
+from pipelines.tabular.preprocess import fit_transform, transform
 import tempfile
 from pathlib import Path
 
@@ -11,9 +13,6 @@ import pytest
 
 np = pytest.importorskip("numpy")
 pd = pytest.importorskip("pandas")
-
-from pipelines.tabular.io import load_train_test
-from pipelines.tabular.preprocess import fit_transform, transform
 
 
 class TestFeatureAlignment:
@@ -84,7 +83,6 @@ class TestFeatureAlignment:
         # dtypeがfloat32であること
         assert X_train_scaled.dtype == np.float32
         assert X_test_scaled.dtype == np.float32
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

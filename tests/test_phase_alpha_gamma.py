@@ -4,13 +4,6 @@ Tests all research design and analysis engines.
 No mocks - uses real dummy data.
 """
 
-import sys
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from jarvis_core.chain_builder import build_research_chain
 from jarvis_core.competing_hypothesis import generate_competing_hypotheses
 from jarvis_core.failure_predictor import predict_failure_modes
@@ -29,6 +22,11 @@ from jarvis_core.paper_vector import (
     TemporalVector,
 )
 from jarvis_core.paradigm import detect_paradigm_shift
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 def _create_test_vectors():
@@ -65,7 +63,6 @@ def _create_test_vectors():
         ),
     ]
 
-
 class TestGapAnalysis:
     """RP39 tests."""
 
@@ -95,7 +92,6 @@ class TestGapAnalysis:
         r1 = score_research_gaps(vectors, "CD73")
         r2 = score_research_gaps(vectors, "CD73")
         assert r1[0]["gap_score"] == r2[0]["gap_score"]
-
 
 class TestChainBuilder:
     """RP38 tests."""
@@ -129,7 +125,6 @@ class TestChainBuilder:
         r2 = build_research_chain(["CD73"], vectors)
         assert r1[0]["hypothesis"] == r2[0]["hypothesis"]
 
-
 class TestCompetingHypothesis:
     """RP40 tests."""
 
@@ -154,7 +149,6 @@ class TestCompetingHypothesis:
         results = generate_competing_hypotheses("phenomenon", [])
         assert results == []
 
-
 class TestParadigm:
     """RP41 tests."""
 
@@ -173,7 +167,6 @@ class TestParadigm:
         vectors = [_create_test_vectors()[0]]
         result = detect_paradigm_shift(vectors, "CD73")
         assert result is None
-
 
 class TestHeatmap:
     """RP43 tests."""
@@ -203,7 +196,6 @@ class TestHeatmap:
         heatmap = build_concept_heatmap(vectors)
         assert "None" not in heatmap
 
-
 class TestMethodTrend:
     """RP44 tests."""
 
@@ -226,7 +218,6 @@ class TestMethodTrend:
         evolution = track_method_evolution(vectors)
         assert len(evolution) == 1
 
-
 class TestFeasibility:
     """RP45 tests."""
 
@@ -248,7 +239,6 @@ class TestFeasibility:
         result = score_feasibility("Completely unknown topic", vectors)
         assert result["difficulty"] >= 0.5
 
-
 class TestFailurePredictor:
     """RP47 tests."""
 
@@ -265,7 +255,6 @@ class TestFailurePredictor:
     def test_empty_safe(self):
         results = predict_failure_modes("", [])
         assert results == []
-
 
 class TestModelSystem:
     """RP46 tests."""

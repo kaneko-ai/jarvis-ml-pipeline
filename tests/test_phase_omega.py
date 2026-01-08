@@ -3,13 +3,6 @@
 Tests Ω-1 to Ω-10 modules.
 """
 
-import sys
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from jarvis_core.autonomous_loop import get_intervention_summary, run_autonomous_research_loop
 from jarvis_core.career_planner import plan_career_strategy
 from jarvis_core.cross_field import find_cross_field_opportunities
@@ -29,6 +22,11 @@ from jarvis_core.paper_vector import (
 )
 from jarvis_core.pi_support import evaluate_research_themes, generate_pi_summary
 from jarvis_core.reviewer_persona import generate_all_reviewer_feedback, generate_reviewer_feedback
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 def _create_test_vectors():
@@ -65,7 +63,6 @@ def _create_test_vectors():
         ),
     ]
 
-
 class TestAutonomousLoop:
     """Ω-1 tests."""
 
@@ -91,7 +88,6 @@ class TestAutonomousLoop:
         result = run_autonomous_research_loop([], ["CD73"])
         assert result["status"] == "no_input"
 
-
 class TestCrossField:
     """Ω-5 tests."""
 
@@ -103,7 +99,6 @@ class TestCrossField:
     def test_empty_safe(self):
         opps = find_cross_field_opportunities([])
         assert opps == []
-
 
 class TestFailureSimulator:
     """Ω-7 tests."""
@@ -124,7 +119,6 @@ class TestFailureSimulator:
         tree = simulate_failure_tree("test", vectors)
         assert len(tree["mitigation_strategies"]) > 0
 
-
 class TestLivingReview:
     """Ω-8 tests."""
 
@@ -139,7 +133,6 @@ class TestLivingReview:
         review = generate_living_review(vectors, "CD73")
         updated = update_living_review(review, vectors)
         assert updated["version"] == 2
-
 
 class TestKnowledgeGraph:
     """Ω-9 tests."""
@@ -156,7 +149,6 @@ class TestKnowledgeGraph:
         sim = graph.get_hybrid_similarity("p1", "p2")
         assert 0 <= sim <= 1
 
-
 class TestGrantOptimizer:
     """Ω-2 tests."""
 
@@ -170,7 +162,6 @@ class TestGrantOptimizer:
         result = {"alignment": 0.3, "novelty": 0.3, "risks": ["予備データ不足"]}
         suggestions = suggest_grant_improvements(result)
         assert len(suggestions) > 0
-
 
 class TestReviewerPersona:
     """Ω-3 tests."""
@@ -186,7 +177,6 @@ class TestReviewerPersona:
         all_fb = generate_all_reviewer_feedback(vectors)
         assert len(all_fb) == 3
 
-
 class TestLabOptimizer:
     """Ω-4 tests."""
 
@@ -194,7 +184,6 @@ class TestLabOptimizer:
         vectors = _create_test_vectors()
         result = optimize_lab_resources("CD73 experiment", vectors)
         assert "path" in result
-
 
 class TestCareerPlanner:
     """Ω-6 tests."""
@@ -204,7 +193,6 @@ class TestCareerPlanner:
         plan = plan_career_strategy(vectors, "phd")
         assert plan["stage"] == "phd"
         assert len(plan["recommendations"]) > 0
-
 
 class TestPISupport:
     """Ω-10 tests."""

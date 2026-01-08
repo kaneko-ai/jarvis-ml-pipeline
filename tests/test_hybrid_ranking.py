@@ -1,8 +1,7 @@
-import shutil
-from pathlib import Path
-
 from jarvis_core.retrieval.hybrid_search import HybridSearchEngine
 from jarvis_core.retrieval.indexer import RetrievalIndexer
+import shutil
+from pathlib import Path
 
 
 def test_hybrid_ranking_returns_kb_topic(tmp_path):

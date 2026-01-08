@@ -10,7 +10,6 @@ import logging
 from typing import Tuple
 
 import numpy as np
-import pandas as pd
 from sklearn.model_selection import train_test_split
 
 logger = logging.getLogger(__name__)
@@ -41,10 +40,10 @@ def split_data(
         (X_train, X_val, X_test, y_train, y_val, y_test)
     """
     assert abs(train_ratio + val_ratio + test_ratio - 1.0) < 1e-6, "Ratios must sum to 1"
-    
+
     # 再現性のためseed固定
     np.random.seed(seed)
-    
+
     # まず train と (val+test) に分割
     val_test_ratio = val_ratio + test_ratio
     X_train, X_temp, y_train, y_temp = train_test_split(
@@ -53,7 +52,7 @@ def split_data(
         random_state=seed,
         stratify=y if is_classification(y) else None,
     )
-    
+
     # 次に val と test に分割
     val_in_temp = val_ratio / val_test_ratio
     X_val, X_test, y_val, y_test = train_test_split(
@@ -62,11 +61,11 @@ def split_data(
         random_state=seed,
         stratify=y_temp if is_classification(y_temp) else None,
     )
-    
+
     logger.info(
         f"Split: train={len(X_train)}, val={len(X_val)}, test={len(X_test)}"
     )
-    
+
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 

@@ -11,7 +11,7 @@ import logging
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -26,46 +26,46 @@ class RunReport:
     submission_checks: Dict[str, bool]
     config_path: str
     timestamp: str
-    
+
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
-    
+
     def to_markdown(self) -> str:
         """Markdown形式で出力."""
         lines = [
             f"# Run Report: {self.run_id}",
-            f"",
+            "",
             f"**Task**: {self.task}",
             f"**Timestamp**: {self.timestamp}",
             f"**Config**: {self.config_path}",
-            f"",
-            f"## Dataset",
-            f"| Key | Value |",
-            f"|-----|-------|",
+            "",
+            "## Dataset",
+            "| Key | Value |",
+            "|-----|-------|",
         ]
-        
+
         for k, v in self.dataset.items():
             lines.append(f"| {k} | {v} |")
-        
+
         lines.extend([
-            f"",
-            f"## Metrics",
-            f"| Metric | Value |",
-            f"|--------|-------|",
+            "",
+            "## Metrics",
+            "| Metric | Value |",
+            "|--------|-------|",
         ])
-        
+
         for k, v in self.metrics.items():
             lines.append(f"| {k} | {v:.4f} |")
-        
+
         lines.extend([
-            f"",
-            f"## Submission Checks",
+            "",
+            "## Submission Checks",
         ])
-        
+
         for k, v in self.submission_checks.items():
             status = "✅" if v else "❌"
             lines.append(f"- {k}: {status}")
-        
+
         return "\n".join(lines)
 
 
@@ -102,20 +102,20 @@ def generate_report(
         config_path=config_path,
         timestamp=datetime.now().isoformat(),
     )
-    
+
     out_path = Path(output_dir)
     out_path.mkdir(parents=True, exist_ok=True)
-    
+
     # JSON保存
     json_path = out_path / "report.json"
     with open(json_path, 'w', encoding='utf-8') as f:
         json.dump(report.to_dict(), f, indent=2, ensure_ascii=False)
-    
+
     # Markdown保存
     md_path = out_path / "report.md"
     with open(md_path, 'w', encoding='utf-8') as f:
         f.write(report.to_markdown())
-    
+
     logger.info(f"Report saved: {out_path}")
-    
+
     return report

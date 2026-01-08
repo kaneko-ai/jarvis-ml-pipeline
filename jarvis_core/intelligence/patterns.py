@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from typing import Optional
 
 from .decision_item import DecisionItem, DecisionPattern, DecisionStore
 

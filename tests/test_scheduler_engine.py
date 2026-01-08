@@ -1,6 +1,5 @@
-from datetime import datetime, timezone
-
 from jarvis_core.scheduler import engine
+from datetime import datetime, timezone
 
 
 def test_engine_due_and_next_run():

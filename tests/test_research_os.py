@@ -4,30 +4,29 @@ JARVIS Research OS Tests
 Provider、Trend Watcher、BibTeX、Memory、Multi-Judgeのテスト
 """
 
-from tempfile import TemporaryDirectory
-
-import pytest
-
-# Evaluator tests
 from jarvis_core.evaluation.multi_judge import (
     MultiJudgeEvaluator,
 )
-
-# Memory tests
 from jarvis_core.memory.hindsight import (
     HindsightMemory,
     MemoryType,
 )
 from jarvis_core.providers.api_llm import APILLMProvider
-
-# Provider tests
 from jarvis_core.providers.base import ProviderConfig, ProviderType
 from jarvis_core.providers.local_llm import LocalLLMProvider
 from jarvis_core.trend.ranker import TrendRanker
+from jarvis_core.trend.sources import TrendItem
+from tempfile import TemporaryDirectory
+
+import pytest
+
+# Evaluator tests
+
+# Memory tests
+
+# Provider tests
 
 # Trend tests
-from jarvis_core.trend.sources import TrendItem
-
 
 class TestProviders:
     """Provider tests."""
@@ -57,7 +56,6 @@ class TestProviders:
         provider = LocalLLMProvider(config)
         assert provider.provider_type == ProviderType.LOCAL
 
-
 class TestTrendRanker:
     """TrendRanker tests."""
 
@@ -86,7 +84,6 @@ class TestTrendRanker:
         # arXiv + ML関連は上位に
         assert ranked[0][0].id == "1"
         assert ranked[0][1].total > ranked[1][1].total
-
 
 class TestHindsightMemory:
     """HindsightMemory tests."""
@@ -161,7 +158,6 @@ class TestHindsightMemory:
             assert world.memory_type == MemoryType.WORLD
             assert world.verified is True
 
-
 class TestMultiJudgeEvaluator:
     """MultiJudgeEvaluator tests."""
 
@@ -190,7 +186,6 @@ class TestMultiJudgeEvaluator:
 
         assert result.disqualified is True
         assert result.final_approved is False
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

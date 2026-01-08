@@ -103,7 +103,6 @@ def cmd_build_index(args):
 
 def cmd_train_ranker(args):
     """Train LightGBM ranker on golden dataset (Phase 2)."""
-    from pathlib import Path
     from jarvis_core.ranking.lgbm_ranker import LGBMRanker
 
     dataset_path = Path(args.dataset)
@@ -135,18 +134,17 @@ def cmd_train_ranker(args):
 
 def cmd_import(args):
     """Import references from RIS/BibTeX/Zotero (Sprint 20)."""
-    from pathlib import Path
     from jarvis_core.integrations.ris_bibtex import (
         import_references, references_to_jsonl
     )
-    
+
     input_path = Path(args.input)
     output_path = Path(args.output)
-    
+
     if not input_path.exists():
         print(f"Error: Input file not found: {input_path}", file=sys.stderr)
         sys.exit(1)
-    
+
     try:
         if args.format == "zotero":
             from jarvis_core.plugins.zotero_integration import ZoteroClient
@@ -154,9 +152,9 @@ def cmd_import(args):
             refs = client.get_all_items()
         else:
             refs = import_references(input_path, args.format)
-        
+
         references_to_jsonl(refs, output_path)
-        
+
         if args.json:
             print(json.dumps({"imported": len(refs), "output": str(output_path)}))
         else:
@@ -168,21 +166,20 @@ def cmd_import(args):
 
 def cmd_export(args):
     """Export references to RIS/BibTeX/PRISMA (Sprint 20)."""
-    from pathlib import Path
     from jarvis_core.integrations.ris_bibtex import (
         jsonl_to_references, export_references
     )
-    
+
     input_path = Path(args.input)
     output_path = Path(args.output)
-    
+
     if not input_path.exists():
         print(f"Error: Input file not found: {input_path}", file=sys.stderr)
         sys.exit(1)
-    
+
     try:
         refs = jsonl_to_references(input_path)
-        
+
         if args.format == "prisma":
             from jarvis_core.prisma import PRISMAData, generate_prisma_flow
             data = PRISMAData(
@@ -193,7 +190,7 @@ def cmd_export(args):
             output_path.write_text(content, encoding="utf-8")
         else:
             export_references(refs, output_path, args.format)
-        
+
         if args.json:
             print(json.dumps({"exported": len(refs), "output": str(output_path)}))
         else:
@@ -207,16 +204,16 @@ def cmd_model(args):
     """Manage LLM models (Phase 1: Model Management CLI)."""
     import os
     import requests
-    
+
     ollama_url = os.environ.get("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
-    
+
     if args.action == "list":
         try:
             resp = requests.get(f"{ollama_url}/api/tags", timeout=10)
             if resp.status_code == 200:
                 data = resp.json()
                 models = data.get("models", [])
-                
+
                 if args.json:
                     print(json.dumps({"models": models}, indent=2))
                 else:
@@ -236,12 +233,12 @@ def cmd_model(args):
             print(f"  URL: {ollama_url}", file=sys.stderr)
             print("  Start with: ollama serve", file=sys.stderr)
             sys.exit(1)
-    
+
     elif args.action == "pull":
         if not args.name:
             print("Error: Model name required. Example: jarvis model pull llama3.2", file=sys.stderr)
             sys.exit(1)
-        
+
         print(f"Pulling model '{args.name}'...")
         try:
             resp = requests.post(
@@ -257,12 +254,12 @@ def cmd_model(args):
         except requests.exceptions.ConnectionError:
             print("Error: Cannot connect to Ollama", file=sys.stderr)
             sys.exit(1)
-    
+
     elif args.action == "info":
         if not args.name:
             print("Error: Model name required", file=sys.stderr)
             sys.exit(1)
-        
+
         try:
             resp = requests.post(
                 f"{ollama_url}/api/show",
@@ -279,7 +276,7 @@ def cmd_model(args):
                     print(f"Parameters: {data.get('details', {}).get('parameter_size', 'N/A')}")
                     print(f"Quantization: {data.get('details', {}).get('quantization_level', 'N/A')}")
             else:
-                print(f"Error: Model not found", file=sys.stderr)
+                print("Error: Model not found", file=sys.stderr)
                 sys.exit(1)
         except requests.exceptions.ConnectionError:
             print("Error: Cannot connect to Ollama", file=sys.stderr)
@@ -288,31 +285,30 @@ def cmd_model(args):
 
 def cmd_cache(args):
     """Manage cache (Phase 1: Cache Management CLI)."""
-    from pathlib import Path
     import os
     import shutil
-    
+
     cache_dir = Path(os.environ.get("JARVIS_CACHE_DIR", Path.home() / ".jarvis" / "cache"))
-    
+
     if args.action == "stats":
         if not cache_dir.exists():
             print("Cache directory does not exist yet.")
             return
-        
+
         # Calculate stats
         total_size = 0
         file_count = 0
         dir_count = 0
-        
+
         for item in cache_dir.rglob("*"):
             if item.is_file():
                 total_size += item.stat().st_size
                 file_count += 1
             elif item.is_dir():
                 dir_count += 1
-        
+
         size_mb = total_size / (1024 * 1024)
-        
+
         if args.json:
             print(json.dumps({
                 "cache_dir": str(cache_dir),
@@ -327,18 +323,18 @@ def cmd_cache(args):
             print(f"Size: {size_mb:.2f} MB")
             print(f"Files: {file_count}")
             print(f"Directories: {dir_count}")
-    
+
     elif args.action == "clear":
         if not cache_dir.exists():
             print("Cache directory does not exist.")
             return
-        
+
         if not args.force:
             confirm = input(f"Clear all cache at {cache_dir}? [y/N] ").strip().lower()
             if confirm != "y":
                 print("Cancelled.")
                 return
-        
+
         try:
             shutil.rmtree(cache_dir)
             cache_dir.mkdir(parents=True, exist_ok=True)
@@ -346,7 +342,7 @@ def cmd_cache(args):
         except Exception as e:
             print(f"Error clearing cache: {e}", file=sys.stderr)
             sys.exit(1)
-    
+
     elif args.action == "path":
         print(cache_dir)
 
@@ -411,14 +407,14 @@ def cmd_show_run(args):
 
         # Show result status
         if result:
-            print(f"\n=== Result ===")
+            print("\n=== Result ===")
             print(f"Status: {result.get('status')}")
             if result.get("warnings"):
                 print(f"Warnings: {len(result.get('warnings', []))} items")
 
         # Show eval and fail reasons
         if eval_summary:
-            print(f"\n=== Evaluation ===")
+            print("\n=== Evaluation ===")
             print(f"Gate Passed: {eval_summary.get('gate_passed', 'N/A')}")
 
             fail_reasons = eval_summary.get("fail_reasons", [])
@@ -438,7 +434,7 @@ def main():
     )
     # Global options
     parser.add_argument("--offline", action="store_true", help="Run in offline mode (no network access)")
-    
+
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # === run command ===
@@ -520,7 +516,7 @@ def main():
 
     # === sync command ===
     sync_parser = subparsers.add_parser("sync", help="Process pending sync queue items")
-    
+
     # === sync-status command ===
     sync_status_parser = subparsers.add_parser("sync-status", help="Show sync queue status")
 
@@ -531,10 +527,10 @@ def main():
     if offline_mode:
         from jarvis_core.network.degradation import DegradationManager, DegradationLevel
         from jarvis_core.ui.status import get_status_banner
-        
+
         manager = DegradationManager.get_instance()
         manager.set_level(DegradationLevel.OFFLINE)
-        
+
         # Display banner if command is executed
         banner = get_status_banner()
         if banner and args.command:

@@ -4,10 +4,6 @@ JARVIS Intelligence Tests
 Phase 1-4: 知能密度向上のテスト
 """
 
-from tempfile import TemporaryDirectory
-
-import pytest
-
 from jarvis_core.intelligence.action_planner import (
     ActionPlanner,
 )
@@ -15,33 +11,35 @@ from jarvis_core.intelligence.decision import (
     DecisionMaker,
     DecisionStatus,
 )
-
-# Phase 2
 from jarvis_core.intelligence.decision_item import (
     DecisionItem,
     DecisionPattern,
     DecisionStore,
 )
-
-# Phase 1
 from jarvis_core.intelligence.evaluator_v2 import (
     AxisScore,
     EvaluationAxis,
     IntelligentEvaluator,
     ScoreBreakdown,
 )
-
-# Phase 3
 from jarvis_core.intelligence.outcome_tracker import (
     OutcomeRecord,
     OutcomeStatus,
 )
-
-# Phase 4
 from jarvis_core.intelligence.question_generator import (
     QuestionGenerator,
 )
+from tempfile import TemporaryDirectory
 
+import pytest
+
+# Phase 2
+
+# Phase 1
+
+# Phase 3
+
+# Phase 4
 
 class TestPhase1Evaluator:
     """Phase 1: 5軸評価テスト."""
@@ -73,7 +71,6 @@ class TestPhase1Evaluator:
         evaluator = IntelligentEvaluator()
         breakdown = evaluator.evaluate("Test Evaluator", "Improve evaluation system")
         assert breakdown.total > 0
-
 
 class TestPhase1Decision:
     """Phase 1: 判断テスト."""
@@ -109,7 +106,6 @@ class TestPhase1Decision:
         assert decision.status == DecisionStatus.REJECT
         assert decision.reject_reason is not None
 
-
 class TestPhase2DecisionItem:
     """Phase 2: DecisionItem テスト."""
 
@@ -132,7 +128,6 @@ class TestPhase2DecisionItem:
             assert retrieved is not None
             assert retrieved.context == "Test context"
 
-
 class TestPhase3Outcome:
     """Phase 3: Outcome テスト."""
 
@@ -147,7 +142,6 @@ class TestPhase3Outcome:
         )
 
         assert record.status == OutcomeStatus.SUCCESS
-
 
 class TestPhase4ActionPlan:
     """Phase 4: ActionPlanner テスト."""
@@ -173,7 +167,6 @@ class TestPhase4ActionPlan:
         questions = generator.generate("Test Topic")
 
         assert len(questions) > 0
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

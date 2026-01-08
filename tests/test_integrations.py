@@ -7,8 +7,12 @@ Per RP19, these tests verify:
 - Bundle includes all integration files
 """
 
+from jarvis_core.claim import ClaimSet
+from jarvis_core.integrations.notebooklm import export_notebooklm
+from jarvis_core.integrations.notion import export_notion
+from jarvis_core.integrations.obsidian import _safe_filename, export_obsidian
+from jarvis_core.reference import Reference
 import json
-import sys
 import tempfile
 from pathlib import Path
 
@@ -19,14 +23,8 @@ pytestmark = pytest.mark.core
 
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
-from jarvis_core.claim import ClaimSet
-from jarvis_core.integrations.notebooklm import export_notebooklm
-from jarvis_core.integrations.notion import export_notion
-from jarvis_core.integrations.obsidian import _safe_filename, export_obsidian
-from jarvis_core.reference import Reference
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 class TestNotebookLM:
@@ -84,7 +82,6 @@ class TestNotebookLM:
 
         assert "First claim" in output
         assert "Key Findings" in output
-
 
 class TestObsidian:
     """Tests for Obsidian export."""
@@ -167,7 +164,6 @@ class TestObsidian:
             content = claim_files[0].read_text(encoding="utf-8")
             assert "[[" in content  # Contains wikilinks
 
-
 class TestNotion:
     """Tests for Notion export."""
 
@@ -210,7 +206,6 @@ class TestNotion:
 
         assert len(data["claims"]) == 1
         assert data["claims"][0]["text"] == "Test claim."
-
 
 class TestBundleIntegrations:
     """Tests for bundle integration exports."""

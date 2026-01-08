@@ -3,13 +3,6 @@
 Tests Ψ-1 to Ψ-30 modules.
 """
 
-import sys
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from jarvis_core.career_engines import (
     monitor_burnout_risk,
     plan_international_mobility,
@@ -61,6 +54,11 @@ from jarvis_core.thinking_engines import (
     simulate_hypothesis_evolution,
     simulate_research_debate,
 )
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 def _create_test_vectors():
@@ -87,7 +85,6 @@ def _create_test_vectors():
         ),
     ]
 
-
 class TestROIEngine:
     def test_calculates_roi(self):
         vectors = _create_test_vectors()
@@ -98,7 +95,6 @@ class TestROIEngine:
     def test_empty_input(self):
         result = calculate_research_roi([], 12)
         assert result["roi_score"] == 0.0
-
 
 class TestNegativeResults:
     def test_vault_operations(self):
@@ -119,14 +115,12 @@ class TestNegativeResults:
         analysis = analyze_negative_results(results)
         assert analysis["total"] == 1
 
-
 class TestReproducibilityCert:
     def test_certifies(self):
         vectors = _create_test_vectors()
         result = certify_reproducibility("CD73 hypothesis", vectors)
         assert "reproducibility_score" in result
         assert result["estimated"] is True
-
 
 class TestLabToStartup:
     def test_translates(self):
@@ -135,13 +129,11 @@ class TestLabToStartup:
         assert "startup_hypothesis" in result
         assert "moat_reason" in result
 
-
 class TestClinicalReadiness:
     def test_assesses(self):
         vectors = _create_test_vectors()
         result = assess_clinical_readiness(vectors)
         assert 0 <= result["readiness_level"] <= 5
-
 
 class TestStudentPortfolio:
     def test_analyzes(self):
@@ -150,13 +142,11 @@ class TestStudentPortfolio:
         assert len(result) == 1
         assert "risk_rank" in result[0]
 
-
 class TestKillSwitch:
     def test_recommends(self):
         vectors = _create_test_vectors()
         result = recommend_kill_switch("theme1", vectors)
         assert result["recommendation"] in ["continue", "pivot", "stop"]
-
 
 class TestLabCulture:
     def test_detects(self):
@@ -164,20 +154,17 @@ class TestLabCulture:
         result = detect_lab_culture_risk(vectors)
         assert "culture_risk_index" in result
 
-
 class TestPISuccession:
     def test_plans(self):
         vectors = _create_test_vectors()
         result = plan_pi_succession(vectors)
         assert "future_theme_map" in result
 
-
 class TestFundingCliff:
     def test_predicts(self):
         vectors = _create_test_vectors()
         result = predict_funding_cliff(vectors, 24)
         assert "months_to_cliff" in result
-
 
 class TestLogicCitation:
     def test_argument_map(self):
@@ -203,7 +190,6 @@ class TestLogicCitation:
         vectors = _create_test_vectors()
         result = predict_paper_longevity(vectors[0])
         assert result["estimated"] is True
-
 
 class TestThinkingEngines:
     def test_counterfactual(self):
@@ -231,7 +217,6 @@ class TestThinkingEngines:
         result = simulate_hypothesis_evolution(["H1", "H2"], vectors)
         assert "surviving_hypotheses" in result
 
-
 class TestCareerEngines:
     def test_burnout(self):
         vectors = _create_test_vectors()
@@ -257,7 +242,6 @@ class TestCareerEngines:
         vectors = _create_test_vectors()
         result = simulate_reputation_trajectory(vectors, 3)
         assert len(result["reputation_curve"]) == 4
-
 
 class TestMetaScience:
     def test_field_collapse(self):

@@ -8,7 +8,7 @@ import json
 import time
 import argparse
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Dict, Any
 from datetime import datetime
 
 

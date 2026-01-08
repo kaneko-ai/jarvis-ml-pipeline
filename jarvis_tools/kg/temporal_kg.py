@@ -4,15 +4,15 @@ Per RP-323, implements time-aware knowledge graph.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import List, Dict, Set, Optional, Tuple
+from dataclasses import dataclass
+from typing import List, Dict, Optional, Tuple
 from datetime import datetime
 from enum import Enum
 
 
 class TemporalRelation(Enum):
     """Temporal relation types."""
-    
+
     BEFORE = "before"
     AFTER = "after"
     DURING = "during"
@@ -22,7 +22,7 @@ class TemporalRelation(Enum):
 @dataclass
 class TemporalTriple:
     """A triple with temporal bounds."""
-    
+
     subject: str
     predicate: str
     object: str
@@ -35,7 +35,7 @@ class TemporalTriple:
 @dataclass
 class KnowledgeChange:
     """A change in knowledge over time."""
-    
+
     entity: str
     attribute: str
     old_value: str
@@ -52,12 +52,12 @@ class TemporalKnowledgeGraph:
     - Time-point queries ("as of 2020")
     - Knowledge evolution visualization
     """
-    
+
     def __init__(self):
         self._triples: List[TemporalTriple] = []
         self._index_subject: Dict[str, List[int]] = {}
         self._index_object: Dict[str, List[int]] = {}
-    
+
     def add_triple(
         self,
         subject: str,
@@ -91,21 +91,21 @@ class TemporalKnowledgeGraph:
             source_paper=source_paper,
             confidence=confidence,
         )
-        
+
         idx = len(self._triples)
         self._triples.append(triple)
-        
+
         # Index
         if subject not in self._index_subject:
             self._index_subject[subject] = []
         self._index_subject[subject].append(idx)
-        
+
         if obj not in self._index_object:
             self._index_object[obj] = []
         self._index_object[obj].append(idx)
-        
+
         return triple
-    
+
     def query_as_of(
         self,
         entity: str,
@@ -123,28 +123,28 @@ class TemporalKnowledgeGraph:
             Valid triples at that time.
         """
         results = []
-        
+
         indices = set()
         indices.update(self._index_subject.get(entity, []))
         indices.update(self._index_object.get(entity, []))
-        
+
         for idx in indices:
             triple = self._triples[idx]
-            
+
             # Check temporal validity
             if triple.valid_from and triple.valid_from > as_of:
                 continue
             if triple.valid_to and triple.valid_to < as_of:
                 continue
-            
+
             # Check predicate filter
             if predicate and triple.predicate != predicate:
                 continue
-            
+
             results.append(triple)
-        
+
         return results
-    
+
     def query_range(
         self,
         entity: str,
@@ -162,23 +162,23 @@ class TemporalKnowledgeGraph:
             Triples overlapping the range.
         """
         results = []
-        
+
         indices = set()
         indices.update(self._index_subject.get(entity, []))
         indices.update(self._index_object.get(entity, []))
-        
+
         for idx in indices:
             triple = self._triples[idx]
-            
+
             # Check overlap
             t_start = triple.valid_from or datetime.min
             t_end = triple.valid_to or datetime.max
-            
+
             if t_start <= end and t_end >= start:
                 results.append(triple)
-        
+
         return results
-    
+
     def track_changes(
         self,
         entity: str,
@@ -197,15 +197,15 @@ class TemporalKnowledgeGraph:
             t for t in self._triples
             if t.subject == entity and t.predicate == predicate
         ]
-        
+
         # Sort by valid_from
         triples.sort(key=lambda t: t.valid_from or datetime.min)
-        
+
         changes = []
         for i in range(1, len(triples)):
             prev = triples[i - 1]
             curr = triples[i]
-            
+
             if prev.object != curr.object:
                 changes.append(KnowledgeChange(
                     entity=entity,
@@ -215,9 +215,9 @@ class TemporalKnowledgeGraph:
                     change_date=curr.valid_from or datetime.now(),
                     source=curr.source_paper or "",
                 ))
-        
+
         return changes
-    
+
     def get_timeline(
         self,
         entity: str,
@@ -231,18 +231,18 @@ class TemporalKnowledgeGraph:
             Timeline events.
         """
         events = []
-        
+
         indices = set()
         indices.update(self._index_subject.get(entity, []))
         indices.update(self._index_object.get(entity, []))
-        
+
         for idx in indices:
             triple = self._triples[idx]
-            
+
             if triple.valid_from:
                 events.append((triple.valid_from, "started", triple))
             if triple.valid_to:
                 events.append((triple.valid_to, "ended", triple))
-        
+
         events.sort(key=lambda x: x[0])
         return events

@@ -12,16 +12,15 @@ import hashlib
 import json
 import os
 import re
-import shutil
 import tempfile
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import List, Optional
 
 try:
     from fastapi import FastAPI, HTTPException, Depends, UploadFile, File
-    from fastapi.responses import FileResponse
+    from fastapi.responses import FileResponse, JSONResponse
     from fastapi.middleware.cors import CORSMiddleware
     from pydantic import BaseModel
 
@@ -66,7 +65,6 @@ if FASTAPI_AVAILABLE:
         openapi_url="/api/openapi.json",
     )
 
-    from jarvis_web.routes.finance import router as finance_router
 
     # Get CORS config from environment-aware configuration
     config = get_config()
@@ -488,7 +486,6 @@ if FASTAPI_AVAILABLE:
         """Start a new paper survey run."""
         import uuid
         from jarvis_core.app import run_task
-        from jarvis_core.export.package_builder import build_run_package
 
         run_id = str(uuid.uuid4())
 
@@ -672,7 +669,7 @@ async def _handle_upload(files: List[UploadFile], file_type: str) -> UploadRespo
                 }
             )
 
-        except Exception as e:
+        except Exception:
             rejected += 1
 
     # Save updated hashes

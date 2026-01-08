@@ -4,11 +4,6 @@ JARVIS Workflow Tests
 PDF知見統合: Workflow基盤のテスト
 """
 
-from pathlib import Path
-from tempfile import TemporaryDirectory
-
-import pytest
-
 from jarvis_core.evaluation.fitness import (
     FitnessGate,
     FitnessScore,
@@ -31,6 +26,10 @@ from jarvis_core.workflow.spec import (
     StepSpec,
     WorkflowSpec,
 )
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+import pytest
 
 
 class TestWorkflowSpec:
@@ -83,7 +82,6 @@ class TestWorkflowSpec:
         assert spec.mode == Mode.STEP
         assert len(spec.steps) == 1
 
-
 class TestWorkflowRunner:
     """WorkflowRunner tests."""
 
@@ -121,7 +119,6 @@ class TestWorkflowRunner:
             assert loaded.run_id == "test123"
             assert loaded.workflow_id == "test_wf"
 
-
 class TestContextPackager:
     """ContextPackager tests."""
 
@@ -148,7 +145,6 @@ class TestContextPackager:
         assert packager.detect_regression(0.85) is True
         assert packager.detect_regression(0.95) is False
 
-
 class TestRepeatedSampler:
     """RepeatedSampler tests."""
 
@@ -171,7 +167,6 @@ class TestRepeatedSampler:
 
         assert best is not None
         assert best.score == 0.7
-
 
 class TestFitness:
     """Fitness tests."""
@@ -216,7 +211,6 @@ class TestFitness:
 
         assert passed is False
         assert len(failures) == 3
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

@@ -12,9 +12,13 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import TypedDict
+from typing import TypedDict, TYPE_CHECKING
 
 from .sources import SourceDocument
+
+if TYPE_CHECKING:
+    from jarvis_core.evidence import EvidenceStore
+    from jarvis_core.sources import ChunkResult, ExecutionContext
 
 logger = logging.getLogger("jarvis_core.pdf_extractor")
 
@@ -150,7 +154,7 @@ def ingest_pdf(
     Returns:
         List of all ChunkResults from the PDF.
     """
-    from .sources import ChunkResult, ingest
+    from .sources import ingest
 
     documents = load_pdf_as_documents(pdf_path)
     all_results: list[ChunkResult] = []

@@ -18,7 +18,11 @@ import logging
 import re
 import uuid
 from pathlib import Path
-from typing import Literal
+from typing import Literal, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .claim import ClaimSet
+    from .result import EvidenceQAResult
 
 from .agents import AgentResult, BaseAgent, Citation
 from .evidence import EvidenceStore

@@ -5,20 +5,18 @@ citations. ExecutionEngine validates citations against EvidenceStore
 and regenerates quotes from it (agent quotes are not trusted).
 """
 
-import sys
-import types
-from pathlib import Path
-
-# Ensure project root is on sys.path
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from jarvis_core.agents import Citation
 from jarvis_core.evidence import EvidenceStore
 from jarvis_core.executor import ExecutionEngine
 from jarvis_core.planner import Planner
 from jarvis_core.task import Task, TaskCategory
+import types
+from pathlib import Path
+
+# Ensure project root is on sys.path
+ROOT = Path(__file__).resolve().parents[1]
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 class TestEvidenceStoreBasic:
@@ -66,13 +64,11 @@ class TestEvidenceStoreBasic:
         store = EvidenceStore()
         assert store.get_chunk("nonexistent-id") is None
 
-
 class DummyPlanner(Planner):
     """Planner that returns the task itself as the only subtask."""
 
     def plan(self, task: Task):
         return [task]
-
 
 class DummyRouter:
     """Router that returns a configurable AgentResult-like object."""
@@ -95,14 +91,12 @@ class DummyRouter:
             meta={},
         )
 
-
 def make_task() -> Task:
     return Task(
         task_id="test-task",
         title="Test evidence store",
         category=TaskCategory.GENERIC,
     )
-
 
 class TestEvidenceStoreIntegration:
     """Integration tests for EvidenceStore with ExecutionEngine."""

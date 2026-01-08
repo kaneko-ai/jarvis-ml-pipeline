@@ -35,26 +35,26 @@ def make_submission(
         出力ファイルパス
     """
     pred_array = np.array(predictions)
-    
+
     # オフセット適用
     if label_offset != 0:
         pred_array = pred_array + label_offset
         logger.info(f"Applied label offset: {label_offset}")
-    
+
     # DataFrame作成
     submission_df = pd.DataFrame({target_col: pred_array})
-    
+
     # CSV出力（index=False, 改行=\n）
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     submission_df.to_csv(path, index=False, lineterminator='\n')
-    
+
     logger.info(f"Submission saved: {path} ({len(submission_df)} rows)")
-    
+
     # 検証
     validate_submission(path, target_col, expected_rows=len(pred_array))
-    
+
     return path
 
 
@@ -80,27 +80,27 @@ def validate_submission(
         ValueError: 検証失敗
     """
     path = Path(submission_path)
-    
+
     if not path.exists():
         raise ValueError(f"Submission file not found: {path}")
-    
+
     # 再読み込み
     df = pd.read_csv(path)
-    
+
     # 列名チェック
     if list(df.columns) != [target_col]:
         raise ValueError(
             f"Column name mismatch. Expected: ['{target_col}'], "
             f"Got: {list(df.columns)}"
         )
-    
+
     # 行数チェック
     if expected_rows is not None and len(df) != expected_rows:
         raise ValueError(
             f"Row count mismatch. Expected: {expected_rows}, "
             f"Got: {len(df)}"
         )
-    
+
     # クラス値チェック（分類）
     if expected_classes is not None:
         unique_values = set(df[target_col].unique())
@@ -110,12 +110,12 @@ def validate_submission(
                 f"Unexpected class values. Expected: {expected_set}, "
                 f"Got: {unique_values}"
             )
-    
+
     # 改行チェック
     with open(path, 'rb') as f:
         content = f.read()
         if b'\r\n' in content:
             logger.warning("Windows line endings detected. Should use \\n only.")
-    
+
     logger.info(f"Submission validated: {path}")
     return True

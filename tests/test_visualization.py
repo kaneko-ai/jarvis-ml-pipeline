@@ -1,7 +1,5 @@
 """Comprehensive tests for visualization module."""
 
-import pytest
-
 from jarvis_core.visualization.advanced import (
     BubbleChartGenerator,
     ForceGraphGenerator,
@@ -14,6 +12,7 @@ from jarvis_core.visualization.advanced import (
     get_treemap_generator,
     get_trend_predictor,
 )
+import pytest
 
 
 class TestSankeyGenerator:
@@ -36,7 +35,6 @@ class TestSankeyGenerator:
         result = sg.generate_topic_flow(categories)
         assert len(result["nodes"]) > 0
 
-
 class TestForceGraphGenerator:
     """Test force graph generator."""
 
@@ -53,7 +51,6 @@ class TestForceGraphGenerator:
         result = fg.generate_citation_network(papers)
         assert len(result["nodes"]) == 1
 
-
 class TestBubbleChartGenerator:
     """Test bubble chart generator."""
 
@@ -65,7 +62,6 @@ class TestBubbleChartGenerator:
         assert "x" in result[0]
         assert "y" in result[0]
         assert "r" in result[0]
-
 
 class TestTreemapGenerator:
     """Test treemap generator."""
@@ -82,7 +78,6 @@ class TestTreemapGenerator:
         tm = TreemapGenerator()
         result = tm.generate_journal_treemap(papers)
         assert len(result["children"]) == 2
-
 
 class TestTrendPredictor:
     """Test trend predictor."""
@@ -113,7 +108,6 @@ class TestTrendPredictor:
         hot = tp.get_hot_topics(2)
         assert len(hot) <= 2
 
-
 class TestFactoryFunctions:
     """Test factory functions."""
 
@@ -131,7 +125,6 @@ class TestFactoryFunctions:
 
     def test_get_trend_predictor(self):
         assert isinstance(get_trend_predictor(), TrendPredictor)
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

@@ -1,6 +1,5 @@
 """Tests for V4.1 Sprint 1 modules."""
 
-import sys
 import tempfile
 from datetime import datetime
 from pathlib import Path
@@ -11,8 +10,8 @@ import pytest
 pytestmark = pytest.mark.core
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 class TestGoldsetSchema:

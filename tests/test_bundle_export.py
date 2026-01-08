@@ -6,24 +6,21 @@ Per RP12, these tests verify:
 - Backward compatibility of run_evidence_qa()
 """
 
+from jarvis_core.agents import Citation
+from jarvis_core.bundle import _safe_filename, export_evidence_bundle
+from jarvis_core.evidence import EvidenceStore
+from jarvis_core.result import EvidenceQAResult
 import json
-import sys
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
-from jarvis_core.agents import Citation
-from jarvis_core.bundle import _safe_filename, export_evidence_bundle
-from jarvis_core.evidence import EvidenceStore
-from jarvis_core.result import EvidenceQAResult
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 SAMPLE_PDF = ROOT / "tests" / "fixtures" / "sample.pdf"
-
 
 class TestEvidenceQAResult:
     """Tests for EvidenceQAResult dataclass."""
@@ -92,7 +89,6 @@ class TestEvidenceQAResult:
         assert result.status == "success"
         assert len(result.citations) == 1
 
-
 class TestSafeFilename:
     """Tests for filename sanitization."""
 
@@ -102,7 +98,6 @@ class TestSafeFilename:
     def test_safe_filename_limits_length(self):
         long_name = "a" * 100
         assert len(_safe_filename(long_name)) == 50
-
 
 class TestExportEvidenceBundle:
     """Tests for bundle export."""
@@ -221,7 +216,6 @@ class TestExportEvidenceBundle:
             evidence_files = list(evidence_dir.glob("*.txt"))
             content = evidence_files[0].read_text(encoding="utf-8")
             assert "authoritative text from EvidenceStore" in content
-
 
 class TestBackwardCompatibility:
     """Tests for backward compatibility."""

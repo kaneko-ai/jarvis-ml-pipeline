@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import subprocess
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 
 def get_changed_files(base_branch: str = "main") -> List[str]:

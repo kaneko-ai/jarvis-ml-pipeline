@@ -40,11 +40,11 @@ def fit_transform(
         (変換後データ, scaler)
     """
     X = X_train.values.astype(np.float32)
-    
+
     if scaler is not None:
         X = scaler.fit_transform(X)
         logger.info("StandardScaler fitted and applied")
-    
+
     return X, scaler
 
 
@@ -63,10 +63,10 @@ def transform(
         変換後データ
     """
     X_arr = X.values.astype(np.float32)
-    
+
     if scaler is not None:
         X_arr = scaler.transform(X_arr)
-    
+
     return X_arr
 
 
@@ -74,10 +74,10 @@ def save_scaler(scaler: StandardScaler, output_path: str) -> Path:
     """Scalerを保存."""
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     with open(path, 'wb') as f:
         pickle.dump(scaler, f)
-    
+
     logger.info(f"Scaler saved: {path}")
     return path
 

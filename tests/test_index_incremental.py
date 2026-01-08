@@ -1,7 +1,6 @@
+from jarvis_core.retrieval.indexer import RetrievalIndexer
 import shutil
 from pathlib import Path
-
-from jarvis_core.retrieval.indexer import RetrievalIndexer
 
 
 def test_index_incremental(tmp_path):

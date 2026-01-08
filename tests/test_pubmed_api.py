@@ -1,7 +1,5 @@
 """Tests for PubMed API client."""
 
-import pytest
-
 from jarvis_core.integrations.pubmed import (
     MockPubMedClient,
     PaperResult,
@@ -9,6 +7,7 @@ from jarvis_core.integrations.pubmed import (
     get_pubmed_client,
     search_papers,
 )
+import pytest
 
 
 class TestPaperResult:
@@ -59,7 +58,6 @@ class TestPaperResult:
         assert len(data["abstract"]) < 250
         assert data["abstract"].endswith("...")
 
-
 class TestMockPubMedClient:
     """Test mock PubMed client."""
 
@@ -94,7 +92,6 @@ class TestMockPubMedClient:
         titles = [r["title"] for r in results]
         assert any(query in t.lower() for t in titles)
 
-
 class TestPubMedClient:
     """Test real PubMed client (structure only, no network)."""
 
@@ -110,7 +107,6 @@ class TestPubMedClient:
         """Test base URL is correct."""
         client = PubMedClient()
         assert "eutils.ncbi.nlm.nih.gov" in client.BASE_URL
-
 
 class TestSearchPapers:
     """Test search_papers convenience function."""
@@ -129,7 +125,6 @@ class TestSearchPapers:
         if results:
             assert isinstance(results[0], dict)
 
-
 class TestGetPubMedClient:
     """Test client factory function."""
 
@@ -142,7 +137,6 @@ class TestGetPubMedClient:
         """Test getting real client."""
         client = get_pubmed_client(use_mock=False)
         assert isinstance(client, PubMedClient)
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

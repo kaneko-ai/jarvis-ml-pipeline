@@ -4,12 +4,10 @@ Per RP-103, fetches papers from publisher URLs via DOI resolution.
 """
 from __future__ import annotations
 
-import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional, List
-from urllib.parse import urlparse
 
-from .fetch_policy import FetchPolicy, DEFAULT_FETCH_POLICY, PolicyViolationError
+from .fetch_policy import FetchPolicy, DEFAULT_FETCH_POLICY
 
 
 @dataclass

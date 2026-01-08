@@ -6,18 +6,16 @@ Per RP15, these tests verify:
 - Bundle includes .bib/.ris files
 """
 
-import sys
+from jarvis_core.bibtex_utils import _escape_bibtex, export_bibtex, format_bibtex_entry
+from jarvis_core.reference import Reference
+from jarvis_core.ris import export_ris, format_ris_entry
 import tempfile
 from pathlib import Path
 
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
-from jarvis_core.bibtex_utils import _escape_bibtex, export_bibtex, format_bibtex_entry
-from jarvis_core.reference import Reference
-from jarvis_core.ris import export_ris, format_ris_entry
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 class TestBibTeX:
@@ -71,7 +69,6 @@ class TestBibTeX:
         """Should handle empty list."""
         output = export_bibtex([])
         assert "No references" in output
-
 
 class TestRIS:
     """Tests for RIS export."""
@@ -127,7 +124,6 @@ class TestRIS:
         # Each entry has TY and ER
         assert output.count("TY  - GEN") == 2
         assert output.count("ER  - ") == 2
-
 
 class TestBundleBibliography:
     """Tests for bundle .bib/.ris generation."""

@@ -7,18 +7,17 @@ Tabular Models - PyTorch MLP
 from __future__ import annotations
 
 import logging
-from typing import List, Optional
+from typing import List
 
 import torch
 import torch.nn as nn
-import numpy as np
 
 logger = logging.getLogger(__name__)
 
 
 class MLP(nn.Module):
     """Multi-Layer Perceptron for tabular data."""
-    
+
     def __init__(
         self,
         input_dim: int,
@@ -40,11 +39,11 @@ class MLP(nn.Module):
             task: classification or regression
         """
         super().__init__()
-        
+
         self.task = task
         layers = []
         prev_dim = input_dim
-        
+
         for hidden_dim in hidden_dims:
             layers.append(nn.Linear(prev_dim, hidden_dim))
             if use_bn:
@@ -52,11 +51,11 @@ class MLP(nn.Module):
             layers.append(nn.ReLU())
             layers.append(nn.Dropout(dropout))
             prev_dim = hidden_dim
-        
+
         layers.append(nn.Linear(prev_dim, output_dim))
-        
+
         self.network = nn.Sequential(*layers)
-    
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """順伝播."""
         return self.network(x)

@@ -4,10 +4,6 @@ JARVIS M7 HITL & Integration Tests
 M7: Human-in-the-loopとエコシステム統合のテスト
 """
 
-from tempfile import TemporaryDirectory
-
-import pytest
-
 from jarvis_core.ops.hitl import (
     FeedbackCollector,
     ReviewQueue,
@@ -21,6 +17,9 @@ from jarvis_core.ops.integration import (
     WebhookEvent,
     WebhookManager,
 )
+from tempfile import TemporaryDirectory
+
+import pytest
 
 
 class TestReviewQueue:
@@ -67,7 +66,6 @@ class TestReviewQueue:
 
             assert result is True
 
-
 class TestFeedbackCollector:
     """フィードバック収集テスト."""
 
@@ -100,7 +98,6 @@ class TestFeedbackCollector:
 
             assert stats["total"] == 3
             assert stats["avg_rating"] == 4.0
-
 
 class TestWebhookManager:
     """Webhookマネージャーテスト."""
@@ -139,7 +136,6 @@ class TestWebhookManager:
 
         assert "wh2" not in triggered
 
-
 class TestPluginAPIRegistry:
     """プラグインAPIレジストリテスト."""
 
@@ -165,7 +161,6 @@ class TestPluginAPIRegistry:
         assert spec["openapi"] == "3.0.0"
         assert "/api/data" in spec["paths"]
 
-
 class TestExternalServiceConnector:
     """外部サービスコネクターテスト."""
 
@@ -188,7 +183,6 @@ class TestExternalServiceConnector:
 
         services = connector.list_services()
         assert len(services) == 2
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

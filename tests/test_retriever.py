@@ -3,14 +3,6 @@
 Per RP9, tests that relevant chunks are returned for queries.
 """
 
-import sys
-from pathlib import Path
-
-# Ensure project root is on sys.path
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from jarvis_core.evidence import EvidenceStore
 from jarvis_core.retriever import (
     BM25Retriever,
@@ -18,6 +10,12 @@ from jarvis_core.retriever import (
     tokenize,
 )
 from jarvis_core.sources import ChunkResult, ExecutionContext, SourceDocument, ingest
+from pathlib import Path
+
+# Ensure project root is on sys.path
+ROOT = Path(__file__).resolve().parents[1]
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 class TestTokenize:
@@ -41,7 +39,6 @@ class TestTokenize:
         """Should handle Japanese text."""
         tokens = tokenize("これはテストです")
         assert len(tokens) > 0
-
 
 class TestBM25Retriever:
     """Tests for BM25Retriever."""
@@ -113,7 +110,6 @@ class TestBM25Retriever:
         for result in results:
             assert self.store.has_chunk(result.chunk_id)
 
-
 class TestGetRelevantChunks:
     """Tests for convenience function."""
 
@@ -164,7 +160,6 @@ class TestGetRelevantChunks:
         for r in results:
             assert store.has_chunk(r.chunk_id)
 
-
 class TestExecutionContextRetrieval:
     """Tests for ExecutionContext retrieval integration."""
 
@@ -196,7 +191,6 @@ class TestExecutionContextRetrieval:
         assert "chunk_id" in previews[0]
         assert "locator" in previews[0]
         assert "preview" in previews[0]
-
 
 class TestIntegration:
     """Integration tests for full retrieval pipeline."""

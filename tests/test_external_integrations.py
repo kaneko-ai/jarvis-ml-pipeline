@@ -1,7 +1,5 @@
 """Tests for external integrations - Phase 3."""
 
-import pytest
-
 from jarvis_core.integrations.external import (
     ArXivClient,
     GitHubIssueCreator,
@@ -15,6 +13,7 @@ from jarvis_core.integrations.external import (
     get_semantic_scholar_client,
     get_slack_notifier,
 )
+import pytest
 
 
 class TestSlackIntegration:
@@ -39,7 +38,6 @@ class TestSlackIntegration:
         assert notifier.config.webhook_url == "https://test.com"
         assert notifier.config.channel == "#test"
 
-
 class TestNotionIntegration:
     """Test Notion integration."""
 
@@ -55,7 +53,6 @@ class TestNotionIntegration:
         sync = NotionSync(config)
         assert sync.config == config
 
-
 class TestORCIDIntegration:
     """Test ORCID integration."""
 
@@ -63,7 +60,6 @@ class TestORCIDIntegration:
         """Test ORCID client initialization."""
         client = ORCIDClient()
         assert client.BASE_URL == "https://pub.orcid.org/v3.0"
-
 
 class TestArXivIntegration:
     """Test arXiv integration."""
@@ -92,7 +88,6 @@ class TestArXivIntegration:
         client = get_arxiv_client()
         assert isinstance(client, ArXivClient)
 
-
 class TestSemanticScholarIntegration:
     """Test Semantic Scholar integration."""
 
@@ -114,7 +109,6 @@ class TestSemanticScholarIntegration:
         client = get_semantic_scholar_client("key123")
         assert client.api_key == "key123"
 
-
 class TestGitHubIssueCreator:
     """Test GitHub issue creator."""
 
@@ -124,7 +118,6 @@ class TestGitHubIssueCreator:
         assert creator.token == "ghp_test"
         assert creator.owner == "kaneko-ai"
         assert creator.repo == "jarvis-ml-pipeline"
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

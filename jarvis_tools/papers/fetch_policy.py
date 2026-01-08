@@ -5,7 +5,7 @@ Per RP-103/106, defines unified fetch policy rules.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict
+from typing import List, Optional
 from enum import Enum
 
 

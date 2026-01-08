@@ -3,14 +3,6 @@
 Tests all PaperVector-based analysis engines.
 """
 
-import sys
-from pathlib import Path
-
-# Ensure project root is on sys.path
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from jarvis_core.comparison import compare_papers
 from jarvis_core.education import translate_for_level
 from jarvis_core.hypothesis import generate_hypotheses
@@ -29,6 +21,12 @@ from jarvis_core.recommendation import recommend_papers
 from jarvis_core.rehearsal import generate_rehearsal
 from jarvis_core.timeline import build_timeline, summarize_evolution
 from jarvis_core.visualization.positioning import get_position_description, project_to_3d
+from pathlib import Path
+
+# Ensure project root is on sys.path
+ROOT = Path(__file__).resolve().parents[1]
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 def _create_test_vectors():
@@ -76,7 +74,6 @@ def _create_test_vectors():
         ),
     ]
 
-
 class TestRecommendation:
     """Tests for RP29 Recommendation."""
 
@@ -99,7 +96,6 @@ class TestRecommendation:
         """Should handle empty input."""
         assert recommend_papers([], ["CD73"]) == []
 
-
 class TestComparison:
     """Tests for RP30 Comparison."""
 
@@ -119,7 +115,6 @@ class TestComparison:
 
         # They have different methods
         assert result["method_only_a"] or result["method_only_b"]
-
 
 class TestPositioning:
     """Tests for RP31 3D Positioning."""
@@ -156,7 +151,6 @@ class TestPositioning:
         assert "免疫活性化" in desc
         assert "TME" in desc
 
-
 class TestHypothesis:
     """Tests for RP32 Hypothesis Generator."""
 
@@ -172,7 +166,6 @@ class TestHypothesis:
     def test_empty_input(self):
         """Should handle empty input."""
         assert generate_hypotheses([], ["CD73"]) == []
-
 
 class TestTimeline:
     """Tests for RP33 Timeline."""
@@ -195,7 +188,6 @@ class TestTimeline:
 
         assert len(summary) > 0
 
-
 class TestJournalTargeting:
     """Tests for RP34 Journal Targeting."""
 
@@ -216,7 +208,6 @@ class TestJournalTargeting:
         scores = [r["fit_score"] for r in results]
         assert scores == sorted(scores, reverse=True)
 
-
 class TestRehearsal:
     """Tests for RP35 Rehearsal."""
 
@@ -228,7 +219,6 @@ class TestRehearsal:
         assert "questions" in result
         assert "tough_questions" in result
         assert len(result["questions"]) > 0
-
 
 class TestEducation:
     """Tests for RP36 Education."""
@@ -254,7 +244,6 @@ class TestEducation:
 
         assert "大学院生向け" in result
         assert "批判的評価" in result
-
 
 class TestMemory:
     """Tests for RP37 Memory."""

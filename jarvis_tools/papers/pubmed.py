@@ -5,11 +5,10 @@ Per RP-04, extracted from run_pipeline.py for reuse.
 from __future__ import annotations
 
 import os
-import time
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
-from typing import List, Dict, Any, Optional
+from typing import List, Optional
 
 from .models import PaperRecord
 
