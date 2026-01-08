@@ -1,0 +1,13 @@
+embedding:
+  default_model: "general"  # Options: general, scientific
+  models:
+    general:
+      name: "all-MiniLM-L6-v2"
+      dimension: 384
+    scientific:
+      name: "allenai/specter2"
+      dimension: 768
+
+vector_store:
+  type: "faiss"  # Options: faiss, chroma
+  index_type: "flat"  # Options: flat, ivf

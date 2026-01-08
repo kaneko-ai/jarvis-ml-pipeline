@@ -1,19 +1,16 @@
 """JARVIS Sync Module.
 
 Offline sync queue and reconciliation.
-Per JARVIS_COMPLETION_PLAN_v3 Task 1.5.5-1.5.6
+Per JARVIS_COMPLETION_PLAN_v3 Task 1.5
 """
 
-from jarvis_core.sync.queue import (
-    SyncQueue,
-    SyncItem,
-    SyncItemStatus,
-    QueueStats,
-)
+from jarvis_core.sync.schema import QueueItem, QueueItemStatus
+from jarvis_core.sync.storage import SyncQueueStorage
+from jarvis_core.sync.manager import SyncQueueManager
 
 __all__ = [
-    "SyncQueue",
-    "SyncItem",
-    "SyncItemStatus",
-    "QueueStats",
+    "QueueItem",
+    "QueueItemStatus",
+    "SyncQueueStorage",
+    "SyncQueueManager",
 ]
