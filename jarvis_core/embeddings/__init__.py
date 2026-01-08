@@ -10,11 +10,30 @@ from jarvis_core.embeddings.sentence_transformer import (
 )
 from jarvis_core.embeddings.bm25 import BM25Index
 from jarvis_core.embeddings.hybrid import HybridSearch, FusionMethod
+from jarvis_core.embeddings.specter2 import SPECTER2Embedding
+
+
+def get_embedding_model(model_type: str = "general"):
+    """Get embedding model by type.
+    
+    Args:
+        model_type: "general" or "scientific"
+        
+    Returns:
+        Embedding model instance
+    """
+    if model_type == "scientific":
+        return SPECTER2Embedding()
+    return SentenceTransformerEmbedding()
+
 
 __all__ = [
     "SentenceTransformerEmbedding",
     "get_default_embedding_model",
+    "get_embedding_model",
     "BM25Index",
     "HybridSearch",
     "FusionMethod",
+    "SPECTER2Embedding",
 ]
+

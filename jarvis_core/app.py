@@ -389,3 +389,16 @@ def run_task(
         gate_passed=verify_result.gate_passed,
         eval_result=eval_data,
     )
+
+
+def init_app():
+    """Initialize application global services."""
+    from jarvis_core.network.listener import NetworkChangeListener
+    from jarvis_core.sync.auto_sync import on_network_restored
+    
+    # Initialize network listener
+    listener = NetworkChangeListener()
+    listener.add_callback(on_network_restored)
+    listener.start()
+    
+    return listener

@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import os
 from pathlib import Path
 
 
@@ -435,6 +436,9 @@ def main():
         description="JARVIS Research OS CLI",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
+    # Global options
+    parser.add_argument("--offline", action="store_true", help="Run in offline mode (no network access)")
+    
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # === run command ===
@@ -514,7 +518,28 @@ def main():
     cache_parser.add_argument("--force", "-f", action="store_true", help="Force clear without confirmation")
     cache_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
+    # === sync command ===
+    sync_parser = subparsers.add_parser("sync", help="Process pending sync queue items")
+    
+    # === sync-status command ===
+    sync_status_parser = subparsers.add_parser("sync-status", help="Show sync queue status")
+
     args = parser.parse_args()
+
+    # Handle global flags
+    offline_mode = args.offline or os.environ.get("JARVIS_OFFLINE", "").lower() == "true"
+    if offline_mode:
+        from jarvis_core.network.degradation import DegradationManager, DegradationLevel
+        from jarvis_core.ui.status import get_status_banner
+        
+        manager = DegradationManager.get_instance()
+        manager.set_level(DegradationLevel.OFFLINE)
+        
+        # Display banner if command is executed
+        banner = get_status_banner()
+        if banner and args.command:
+             # Use stderr or standard print
+             print(f"\n{banner}\n", file=sys.stderr)
 
     # Legacy mode: if no subcommand but --goal provided
     if not args.command:
@@ -543,6 +568,20 @@ def main():
         cmd_model(args)
     elif args.command == "cache":
         cmd_cache(args)
+    elif args.command == "sync":
+        from jarvis_core.sync.manager import SyncQueueManager
+        manager = SyncQueueManager()
+        results = manager.process_queue()
+        completed = sum(1 for r in results if r.status.value == "completed")
+        failed = sum(1 for r in results if r.status.value == "failed")
+        print(f"Sync complete: {completed} succeeded, {failed} failed")
+    elif args.command == "sync-status":
+        from jarvis_core.sync.manager import SyncQueueManager
+        manager = SyncQueueManager()
+        status = manager.get_queue_status()
+        print("Sync Queue Status:")
+        for k, v in status.items():
+            print(f"  {k}: {v}")
 
 
 if __name__ == "__main__":

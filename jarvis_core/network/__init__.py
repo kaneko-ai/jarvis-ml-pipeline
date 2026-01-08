@@ -16,4 +16,23 @@ __all__ = [
     "NetworkStatus",
     "is_online",
     "get_network_status",
+    "DegradationLevel",
+    "DegradationManager",
+    "get_degradation_manager",
+    "degradation_aware",
+    "degradation_aware_with_queue",
+    "OfflineError",
+    "OfflineQueuedError",
 ]
+
+from jarvis_core.network.degradation import (
+    DegradationLevel,
+    DegradationManager,
+    get_degradation_manager,
+)
+from jarvis_core.network.api_wrapper import (
+    degradation_aware,
+    degradation_aware_with_queue,
+    OfflineError,
+    OfflineQueuedError,
+)
