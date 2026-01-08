@@ -60,12 +60,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: pip
+
+      - name: Install uv
+        run: pip install uv
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.lock
-          pip install pytest pytest-cov
+        run: uv sync --dev
 
       - name: Wait for services
         run: |
@@ -85,7 +85,7 @@ jobs:
 
       - name: Run full test suite
         run: |
-          pytest -m "core" --tb=short -v || true
+          uv run pytest -m "core" --tb=short -v --continue-on-collection-errors || true
 
       - name: Upload test results
         if: always()
@@ -116,4 +116,4 @@ jobs:
 
       - name: Test image
         run: |
-          docker run --rm jarvis:test python -c "import jarvis_core; print('OK')"
+          docker run --rm --entrypoint python jarvis:test -c "import jarvis_core; print('OK')"
