@@ -4,7 +4,7 @@ Per RP-14, provides diversity-aware reranking.
 """
 from __future__ import annotations
 
-from typing import List, Tuple, Callable, Optional
+from typing import List, Tuple
 
 
 def jaccard_similarity(tokens1: set, tokens2: set) -> float:

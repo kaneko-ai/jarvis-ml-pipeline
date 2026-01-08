@@ -1,5 +1,6 @@
 """Unit tests for LLM provider switching."""
 
+from jarvis_core.llm_utils import LLMClient, Message  # noqa: E402
 import os
 import sys
 import types
@@ -10,17 +11,14 @@ from unittest.mock import MagicMock, patch
 google_stub = types.ModuleType("google")
 google_genai_stub = types.ModuleType("google.genai")
 
-
 class _DummyErrors:
     class ServerError(Exception): ...
 
     class ClientError(Exception): ...
 
-
 class _DummyClient:
     def __init__(self, api_key=None):
         self.models = MagicMock()
-
 
 google_genai_stub.errors = _DummyErrors
 google_genai_stub.Client = _DummyClient
@@ -30,10 +28,8 @@ sys.modules["google.genai"] = google_genai_stub
 
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
-from jarvis_core.llm_utils import LLMClient, Message  # noqa: E402
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 class TestOllamaProvider:
@@ -86,7 +82,6 @@ class TestOllamaProvider:
             client = LLMClient(model="llama3.2", provider="ollama")
             assert client._ollama_base_url == "http://custom:8080"
 
-
 class TestGeminiProvider:
     """Tests for Gemini provider (mocked)."""
 
@@ -109,7 +104,6 @@ class TestGeminiProvider:
                 client = LLMClient(provider="gemini")
                 assert client.provider == "gemini"
                 mock_client.assert_called_once_with(api_key="test-key")
-
 
 class TestProviderSwitching:
     """Tests for provider switching logic."""

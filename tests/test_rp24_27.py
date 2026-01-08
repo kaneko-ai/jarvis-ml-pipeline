@@ -7,21 +7,19 @@ Per requirements:
 - RP27: Collaborative Review (ReviewNote)
 """
 
-import sys
+from jarvis_core.audio_script import export_podcast_script
+from jarvis_core.claim import Claim, ClaimSet, ReviewNote
+from jarvis_core.logging.run_log import diff_runs, load_run, save_run
+from jarvis_core.result import EvidenceQAResult
+from jarvis_core.review_mode import ReviewResult, _generate_review_index
 import tempfile
 from datetime import datetime
 from pathlib import Path
 
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
-from jarvis_core.audio_script import export_podcast_script
-from jarvis_core.claim import Claim, ClaimSet, ReviewNote
-from jarvis_core.logging.run_log import diff_runs, load_run, save_run
-from jarvis_core.result import EvidenceQAResult
-from jarvis_core.review_mode import ReviewResult, _generate_review_index
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 class TestReviewNote:
@@ -78,7 +76,6 @@ class TestReviewNote:
         assert len(claim.reviews) == 1
         assert claim.reviews[0].note_type == "todo"
 
-
 class TestReviewMode:
     """Tests for Multi-Query Review Mode (RP24)."""
 
@@ -113,7 +110,6 @@ class TestReviewMode:
 
         assert "Query 1" in index
         assert "Research Review" in index
-
 
 class TestPodcastScript:
     """Tests for Podcast Script Generator (RP25)."""
@@ -154,7 +150,6 @@ class TestPodcastScript:
         assert "ANSWER" in script
         assert "EVIDENCE" in script
         assert "CONCLUSION" in script
-
 
 class TestRunLog:
     """Tests for Research Log (RP26)."""

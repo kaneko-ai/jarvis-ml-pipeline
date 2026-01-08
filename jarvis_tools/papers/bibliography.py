@@ -5,7 +5,7 @@ Per RP-24, provides BibTeX and CSL-JSON export.
 from __future__ import annotations
 
 import json
-from typing import List, Optional
+from typing import List
 
 from .models import PaperRecord
 

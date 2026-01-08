@@ -1,7 +1,5 @@
 """Tests for additional integrations module."""
 
-import pytest
-
 from jarvis_core.integrations.additional import (
     Annotation,
     AnnotationManager,
@@ -19,6 +17,7 @@ from jarvis_core.integrations.additional import (
     get_dashboard_manager,
     get_obsidian_exporter,
 )
+import pytest
 
 
 class TestZoteroClient:
@@ -28,7 +27,6 @@ class TestZoteroClient:
         config = ZoteroConfig(api_key="test", user_id="123")
         assert config.api_key == "test"
         assert config.library_type == "user"
-
 
 class TestGoogleDriveExporter:
     """Test Google Drive integration."""
@@ -43,14 +41,12 @@ class TestGoogleDriveExporter:
         result = exporter.export_papers([{"title": "Test"}])
         assert result is not None
 
-
 class TestDiscordBot:
     """Test Discord integration."""
 
     def test_config(self):
         config = DiscordConfig(bot_token="token", channel_id="123")
         assert config.bot_token == "token"
-
 
 class TestObsidianExporter:
     """Test Obsidian export."""
@@ -75,7 +71,6 @@ class TestObsidianExporter:
         paper = {"title": "Test Paper Title"}
         filename = exporter.export_paper(paper)
         assert filename.endswith(".md")
-
 
 class TestDashboardManager:
     """Test dashboard manager."""
@@ -107,7 +102,6 @@ class TestDashboardManager:
         dm.load_layout("test")
         assert len(dm.widgets) == 1
 
-
 class TestSplitViewManager:
     """Test split view manager."""
 
@@ -128,7 +122,6 @@ class TestSplitViewManager:
         svm.set_layout("quad")
         assert len(svm.panes) == 4
 
-
 class TestFullScreenManager:
     """Test fullscreen manager."""
 
@@ -138,7 +131,6 @@ class TestFullScreenManager:
         assert result["is_fullscreen"] is True
         result = fsm.toggle()
         assert result["is_fullscreen"] is False
-
 
 class TestAnnotationManager:
     """Test annotation manager."""
@@ -177,7 +169,6 @@ class TestAnnotationManager:
         export = am.export_annotations("p1")
         assert "annotations" in export
 
-
 class TestThreeDAnimationConfig:
     """Test 3D animation config."""
 
@@ -186,7 +177,6 @@ class TestThreeDAnimationConfig:
         result = config.generate_config()
         assert "particles" in result
         assert "waves" in result
-
 
 class TestFactoryFunctions:
     """Test factory functions."""
@@ -199,7 +189,6 @@ class TestFactoryFunctions:
 
     def test_get_annotation_manager(self):
         assert isinstance(get_annotation_manager(), AnnotationManager)
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

@@ -12,7 +12,7 @@ import re
 
 class RelationType(Enum):
     """Biomedical relation types."""
-    
+
     TREATS = "treats"
     CAUSES = "causes"
     INHIBITS = "inhibits"
@@ -28,7 +28,7 @@ class RelationType(Enum):
 @dataclass
 class ExtractedRelation:
     """An extracted relation."""
-    
+
     subject: str
     subject_type: str
     relation: RelationType
@@ -76,7 +76,7 @@ class RelationExtractor:
     - Confidence scoring
     - Multiple relation types
     """
-    
+
     def __init__(
         self,
         model=None,
@@ -84,7 +84,7 @@ class RelationExtractor:
     ):
         self.model = model
         self.min_confidence = min_confidence
-    
+
     def extract(
         self,
         text: str,
@@ -100,21 +100,21 @@ class RelationExtractor:
             List of extracted relations.
         """
         relations = []
-        
+
         # Pattern-based extraction
         for rel_type, patterns in RELATION_PATTERNS.items():
             for pattern in patterns:
                 for match in re.finditer(pattern, text, re.IGNORECASE):
                     subj = match.group(1).strip()
                     obj = match.group(2).strip()
-                    
+
                     # Validate entities
                     if len(subj) < 2 or len(obj) < 2:
                         continue
-                    
+
                     # Calculate confidence
                     confidence = self._calculate_confidence(match, text)
-                    
+
                     if confidence >= self.min_confidence:
                         relations.append(ExtractedRelation(
                             subject=subj,
@@ -126,17 +126,17 @@ class RelationExtractor:
                             evidence=match.group(0),
                             source_span=(match.start(), match.end()),
                         ))
-        
+
         # Model-based extraction (if available)
         if self.model:
             model_relations = self._model_extract(text)
             relations.extend(model_relations)
-        
+
         # Deduplicate
         relations = self._deduplicate(relations)
-        
+
         return relations
-    
+
     def _calculate_confidence(
         self,
         match,
@@ -144,38 +144,38 @@ class RelationExtractor:
     ) -> float:
         """Calculate extraction confidence."""
         confidence = 0.7
-        
+
         # Boost for exact verb matches
         matched_text = match.group(0).lower()
         exact_verbs = ["inhibits", "activates", "treats", "causes"]
         if any(v in matched_text for v in exact_verbs):
             confidence += 0.1
-        
+
         # Boost for sentence boundary
         start = match.start()
         if start == 0 or text[start - 1] in ".!?":
             confidence += 0.1
-        
+
         return min(confidence, 1.0)
-    
+
     def _infer_type(self, entity: str) -> str:
         """Infer entity type."""
         entity_lower = entity.lower()
-        
+
         # Gene/protein patterns
         if re.match(r"^[A-Z][A-Z0-9]{1,5}$", entity):
             return "gene"
-        
+
         # Drug patterns
         if entity_lower.endswith(("inib", "mab", "zumab", "ine")):
             return "drug"
-        
+
         # Disease patterns
         if any(kw in entity_lower for kw in ["cancer", "disease", "syndrome", "oma"]):
             return "disease"
-        
+
         return "entity"
-    
+
     def _model_extract(
         self,
         text: str,
@@ -183,7 +183,7 @@ class RelationExtractor:
         """Extract using ML model."""
         # Placeholder - would use PubMedBERT or similar
         return []
-    
+
     def _deduplicate(
         self,
         relations: List[ExtractedRelation],
@@ -191,15 +191,15 @@ class RelationExtractor:
         """Remove duplicate relations."""
         seen = set()
         unique = []
-        
+
         for rel in relations:
             key = (rel.subject.lower(), rel.relation, rel.object.lower())
             if key not in seen:
                 seen.add(key)
                 unique.append(rel)
-        
+
         return unique
-    
+
     def to_triples(
         self,
         relations: List[ExtractedRelation],

@@ -4,7 +4,7 @@ import json
 import pathlib
 import re
 from datetime import datetime, timezone
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List
 
 
 STOPWORDS = {

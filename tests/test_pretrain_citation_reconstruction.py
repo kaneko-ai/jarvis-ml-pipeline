@@ -9,17 +9,16 @@ JARVIS Pretrain Citation Reconstruction Tests
 - JSONL 追記が正しい
 """
 
+import jarvis_core.stages  # noqa: F401
+from jarvis_core.contracts.types import Artifacts, TaskContext
+from jarvis_core.pipelines.executor import PipelineConfig
+from jarvis_core.pipelines.stage_registry import get_stage_registry
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 # Stage imports
-import jarvis_core.stages  # noqa: F401
-from jarvis_core.contracts.types import Artifacts, TaskContext
-from jarvis_core.pipelines.executor import PipelineConfig
-from jarvis_core.pipelines.stage_registry import get_stage_registry
-
 
 class TestLeakageFilter:
     """リークフィルターテスト。"""
@@ -87,7 +86,6 @@ class TestLeakageFilter:
         filtered_ids = [d["ref_id"] for d in filtered]
         assert "R2" in filtered_ids
 
-
 class TestNoLeakageGate:
     """リーク禁止ゲートテスト。"""
 
@@ -140,7 +138,6 @@ class TestNoLeakageGate:
         assert gate_result["passed"] is True
         assert gate_result["save_to_training"] is True
 
-
 class TestMatchScore:
     """マッチスコアテスト。"""
 
@@ -174,7 +171,6 @@ class TestMatchScore:
         assert "faithfulness" in match_score
         assert "total" in match_score
         assert 0 <= match_score["total"] <= 1
-
 
 class TestSchemaCompliance:
     """スキーマ準拠テスト。"""
@@ -221,7 +217,6 @@ class TestSchemaCompliance:
         assert "predicted_conclusions" in reconstruction
         assert "notes" in reconstruction
 
-
 class TestStoreTrainingRecord:
     """学習レコード保存テスト。"""
 
@@ -264,7 +259,6 @@ class TestStoreTrainingRecord:
         # 保存フラグを確認（エラーなく完了）
         assert "training_record_saved" in result.metadata
 
-
 class TestPipelineStagesRegistered:
     """パイプラインステージ登録テスト。"""
 
@@ -301,7 +295,6 @@ class TestPipelineStagesRegistered:
             config = PipelineConfig.from_yaml(config_path)
             assert config.name == "pretrain_citation_reconstruction"
             assert len(config.stages) >= 10
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

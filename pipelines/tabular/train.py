@@ -7,7 +7,7 @@ Tabular Train Module
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
 
@@ -42,7 +42,7 @@ def train_model(
         (model, metrics_dict)
     """
     params = model_params or {}
-    
+
     if task == "classification":
         if model_type == "logistic_regression":
             model = BaselineLogisticRegression(
@@ -59,17 +59,17 @@ def train_model(
             )
         else:
             raise ValueError(f"Unknown regression model: {model_type}")
-    
+
     # 学習
     model.fit(X_train, y_train)
-    
+
     # メトリクス計算
     metrics = {}
     metrics["train_score"] = model.score(X_train, y_train)
-    
+
     if X_val is not None and y_val is not None:
         metrics["val_score"] = model.score(X_val, y_val)
-    
+
     logger.info(f"Training complete: {metrics}")
-    
+
     return model, metrics

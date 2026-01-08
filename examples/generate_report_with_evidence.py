@@ -4,7 +4,6 @@ Demonstrates how to use the Phase 2 Report Generator
 to create  reports with automatic evidence annotations.
 """
 from jarvis_core.report.generator import generate_report_with_evidence
-import json
 
 
 # Sample data (would come from actual pipeline execution)
@@ -106,21 +105,21 @@ SAMPLE_PAPERS = [
 def main():
     """Generate and display sample report."""
     print("Generating Phase 2 Report with Evidence IDs...\n")
-    
+
     report = generate_report_with_evidence(
         query=SAMPLE_QUERY,
         claims=SAMPLE_CLAIMS,
         evidence=SAMPLE_EVIDENCE,
         papers=SAMPLE_PAPERS
     )
-    
+
     print(report)
-    
+
     # Save to file
     output_file = "sample_report_phase2.md"
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(report)
-    
+
     print(f"\n✅ Report saved to: {output_file}")
 
 

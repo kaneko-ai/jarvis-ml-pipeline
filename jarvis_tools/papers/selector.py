@@ -4,7 +4,6 @@
 """
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
@@ -19,7 +18,7 @@ class SelectionCriteria:
     domain_keywords: List[str] = field(default_factory=list)
     exclude_types: List[str] = field(default_factory=list)  # review, commentary等
     prefer_oa: bool = True
-    
+
     @classmethod
     def for_immuno_onco(cls) -> "SelectionCriteria":
         """免疫腫瘍学向けデフォルト."""
@@ -32,7 +31,7 @@ class SelectionCriteria:
             ],
             exclude_types=["review", "meta-analysis", "commentary", "letter", "editorial"],
         )
-    
+
     @classmethod
     def for_antibody_discovery(cls) -> "SelectionCriteria":
         """抗体創薬向けデフォルト."""
@@ -54,7 +53,7 @@ class SelectionResult:
     include: bool
     relevance_score: float
     reasons: List[str] = field(default_factory=list)
-    
+
     def to_dict(self) -> dict:
         return {
             "paper_id": self.paper_id,
@@ -70,7 +69,7 @@ class SelectionSummary:
     results: List[SelectionResult] = field(default_factory=list)
     included: int = 0
     excluded: int = 0
-    
+
     def to_dict(self) -> dict:
         return {
             "results": [r.to_dict() for r in self.results],
@@ -84,10 +83,10 @@ class PaperSelector:
     
     基準に基づいて論文を選抜。
     """
-    
+
     def __init__(self, criteria: Optional[SelectionCriteria] = None):
         self.criteria = criteria or SelectionCriteria.for_immuno_onco()
-    
+
     def select(self, papers: List[Dict[str, Any]]) -> SelectionSummary:
         """論文を選抜.
         
@@ -98,21 +97,21 @@ class PaperSelector:
             SelectionSummary
         """
         summary = SelectionSummary()
-        
+
         for paper in papers:
             result = self._evaluate_paper(paper)
             summary.results.append(result)
-            
+
             if result.include:
                 summary.included += 1
             else:
                 summary.excluded += 1
-        
+
         # 関連度スコアでソート
         summary.results.sort(key=lambda r: r.relevance_score, reverse=True)
-        
+
         return summary
-    
+
     def select_top_k(
         self,
         papers: List[Dict[str, Any]],
@@ -124,22 +123,22 @@ class PaperSelector:
             選抜された論文リスト
         """
         summary = self.select(papers)
-        
+
         # include=Trueの上位k件
         selected_ids = [
             r.paper_id for r in summary.results
             if r.include
         ][:k]
-        
+
         return [p for p in papers if p.get("paper_id") in selected_ids]
-    
+
     def _evaluate_paper(self, paper: Dict[str, Any]) -> SelectionResult:
         """単一論文を評価."""
         paper_id = paper.get("paper_id", "")
         reasons = []
         score = 0.0
         include = True
-        
+
         # 年フィルタ
         year = paper.get("year", 0)
         if year < self.criteria.min_year:
@@ -151,7 +150,7 @@ class PaperSelector:
         else:
             # 新しいほど高スコア
             score += min(1.0, (year - self.criteria.min_year) / 10) * 0.2
-        
+
         # アブストラクト必須
         abstract = paper.get("abstract", "")
         if self.criteria.require_abstract:
@@ -159,27 +158,27 @@ class PaperSelector:
                 reasons.append(f"アブストラクトが短い: {len(abstract)} chars")
                 if include:
                     score -= 0.3
-        
+
         # ドメインキーワードマッチ
         title = paper.get("title", "").lower()
         abstract_lower = abstract.lower()
         text = title + " " + abstract_lower
-        
+
         keyword_matches = 0
         for kw in self.criteria.domain_keywords:
             if kw.lower() in text:
                 keyword_matches += 1
-        
+
         if self.criteria.domain_keywords:
             keyword_ratio = keyword_matches / len(self.criteria.domain_keywords)
             score += keyword_ratio * 0.5
-            
+
             if keyword_matches == 0:
                 reasons.append("ドメインキーワードなし")
                 include = False
             else:
                 reasons.append(f"キーワードマッチ: {keyword_matches}件")
-        
+
         # 除外タイプ
         title_lower = title.lower()
         for exclude_type in self.criteria.exclude_types:
@@ -187,22 +186,22 @@ class PaperSelector:
                 reasons.append(f"除外タイプ: {exclude_type}")
                 include = False
                 break
-        
+
         # OA優先
         if self.criteria.prefer_oa:
             is_oa = paper.get("is_oa", paper.get("open_access", False))
             if is_oa:
                 score += 0.1
                 reasons.append("OA論文")
-        
+
         # スコアを0-10に正規化
         final_score = max(0, min(10, score * 10))
-        
+
         if include:
             reasons.insert(0, "選抜")
         else:
             reasons.insert(0, "除外")
-        
+
         return SelectionResult(
             paper_id=paper_id,
             include=include,
@@ -232,6 +231,6 @@ def select_top_papers(
         criteria = SelectionCriteria.for_antibody_discovery()
     else:
         criteria = SelectionCriteria()
-    
+
     selector = PaperSelector(criteria)
     return selector.select_top_k(papers, k)

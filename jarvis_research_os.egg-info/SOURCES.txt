@@ -25,7 +25,6 @@ jarvis_core/cross_field.py
 jarvis_core/disk_cache.py
 jarvis_core/education.py
 jarvis_core/errors.py
-jarvis_core/evidence.py
 jarvis_core/evidence_qa.py
 jarvis_core/executor.py
 jarvis_core/failure_predictor.py
@@ -79,7 +78,6 @@ jarvis_core/roi_engine.py
 jarvis_core/router.py
 jarvis_core/run_config.py
 jarvis_core/sigma_modules.py
-jarvis_core/sources.py
 jarvis_core/student_portfolio.py
 jarvis_core/task.py
 jarvis_core/thinking_engines.py
@@ -219,6 +217,7 @@ jarvis_core/evidence/llm_classifier.py
 jarvis_core/evidence/locator_verify.py
 jarvis_core/evidence/rule_classifier.py
 jarvis_core/evidence/schema.py
+jarvis_core/evidence/store.py
 jarvis_core/evidence/visualizer.py
 jarvis_core/executor/tabular_executor.py
 jarvis_core/export/__init__.py
@@ -530,6 +529,7 @@ jarvis_core/security/redaction.py
 jarvis_core/security/storage_policy.py
 jarvis_core/sources/__init__.py
 jarvis_core/sources/arxiv_client.py
+jarvis_core/sources/chunking.py
 jarvis_core/sources/crossref_client.py
 jarvis_core/sources/openalex_client.py
 jarvis_core/sources/pubmed_client.py

@@ -2,13 +2,12 @@
 JARVIS Budget Policy Tests
 """
 
-import pytest
-
 from jarvis_core.budget import (
     BudgetPolicy,
     BudgetSpec,
     BudgetTracker,
 )
+import pytest
 
 
 class TestBudgetSpec:
@@ -47,7 +46,6 @@ class TestBudgetSpec:
         assert spec.max_tool_calls == 50
         assert spec.max_search_results == 20
 
-
 class TestBudgetTracker:
     """BudgetTracker tests."""
 
@@ -73,7 +71,6 @@ class TestBudgetTracker:
 
         assert tracker.degraded is True
         assert "budget_low" in tracker.degrade_reasons
-
 
 class TestBudgetPolicy:
     """BudgetPolicy tests."""
@@ -124,7 +121,6 @@ class TestBudgetPolicy:
         decision = policy.decide(spec, tracker)
 
         assert decision.allow_retry is False
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

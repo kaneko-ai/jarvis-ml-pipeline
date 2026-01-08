@@ -4,10 +4,9 @@ Per RP-112, splits text into sentences with stable IDs.
 """
 from __future__ import annotations
 
-import re
 import hashlib
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List
 
 
 @dataclass

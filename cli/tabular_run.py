@@ -58,28 +58,28 @@ def run_pipeline(config_path: str) -> Path:
     """
     # 設定読み込み
     config = load_config(config_path)
-    
+
     task = config["task"]
     dataset = config["dataset"]
     split_config = config["split"]
     model_config = config["model"]
     preprocess_config = config.get("preprocess", {})
     output_config = config.get("output", {})
-    
+
     # run_id生成
     run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
     runs_dir = Path(output_config.get("runs_dir", "runs")) / run_id
     runs_dir.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"=== Tabular Pipeline Start ===")
+
+    logger.info("=== Tabular Pipeline Start ===")
     logger.info(f"Run ID: {run_id}")
     logger.info(f"Task: {task}")
-    
+
     # 設定保存
     config_resolved_path = runs_dir / "config_resolved.yaml"
     with open(config_resolved_path, 'w', encoding='utf-8') as f:
         yaml.dump(config, f, allow_unicode=True)
-    
+
     # データ読み込み
     try:
         X_train_df, X_test_df, y_train, schema = load_train_test(
@@ -96,25 +96,25 @@ def run_pipeline(config_path: str) -> Path:
             test_path=dataset["test_path"],
             label_col=dataset["label_col"],
         )
-    
+
     # スキーマ保存
     save_schema(schema, runs_dir / "schema.json")
-    
+
     # ラベルオフセット処理
     label_offset = dataset.get("label_offset", 0)
     y_train_adjusted = y_train.values
     if label_offset != 0:
         y_train_adjusted = y_train_adjusted - label_offset
         logger.info(f"Applied label offset: -{label_offset}")
-    
+
     # 前処理
     scaler = create_preprocessor(preprocess_config.get("standardize", True))
     X_train_scaled, scaler = fit_transform(X_train_df, scaler)
     X_test_scaled = transform(X_test_df, scaler)
-    
+
     if scaler is not None:
         save_scaler(scaler, runs_dir / "scaler.pkl")
-    
+
     # データ分割
     X_tr, X_val, X_te, y_tr, y_val, y_te = split_data(
         X_train_scaled,
@@ -124,7 +124,7 @@ def run_pipeline(config_path: str) -> Path:
         val_ratio=split_config.get("val", 0.2),
         test_ratio=split_config.get("test", 0.2),
     )
-    
+
     # 学習
     model, train_metrics = train_model(
         X_tr, y_tr,
@@ -133,22 +133,22 @@ def run_pipeline(config_path: str) -> Path:
         model_type=model_config["type"],
         model_params=model_config,
     )
-    
+
     # テストセット評価
     y_te_pred = predict(model, X_te)
     test_metrics = calculate_metrics(y_te, y_te_pred, task)
-    
+
     # 全メトリクス統合
     all_metrics = {**train_metrics, **{f"test_{k}": v for k, v in test_metrics.items()}}
-    
+
     # メトリクス保存
     with open(runs_dir / "metrics.json", 'w') as f:
         json.dump(all_metrics, f, indent=2)
-    
+
     # モデル保存
     if output_config.get("save_model", True):
         model.save(runs_dir / "model.pkl")
-    
+
     # 提出CSV生成
     test_predictions = predict(model, X_test_scaled)
     submission_path = make_submission(
@@ -157,7 +157,7 @@ def run_pipeline(config_path: str) -> Path:
         target_col=dataset["submission_col"],
         label_offset=label_offset,
     )
-    
+
     # レポート生成
     dataset_info = {
         "train_shape": schema.train_shape,
@@ -165,13 +165,13 @@ def run_pipeline(config_path: str) -> Path:
         "feature_count": len(schema.feature_columns),
         "label_handling": f"offset={label_offset}",
     }
-    
+
     submission_checks = {
         "file_exists": submission_path.exists(),
         "row_count_match": True,
         "column_name_correct": True,
     }
-    
+
     generate_report(
         run_id=run_id,
         task=task,
@@ -181,11 +181,11 @@ def run_pipeline(config_path: str) -> Path:
         config_path=config_path,
         output_dir=str(runs_dir),
     )
-    
-    logger.info(f"=== Pipeline Complete ===")
+
+    logger.info("=== Pipeline Complete ===")
     logger.info(f"Submission: {submission_path}")
     logger.info(f"Report: {runs_dir / 'report.md'}")
-    
+
     return submission_path
 
 
@@ -193,35 +193,35 @@ def create_demo_data(dataset: Dict[str, Any], task: str):
     """デモデータを作成."""
     import numpy as np
     import pandas as pd
-    
+
     np.random.seed(0)
-    
+
     train_path = Path(dataset["train_path"])
     test_path = Path(dataset["test_path"])
     label_col = dataset["label_col"]
-    
+
     train_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     n_train, n_test = 150, 50
     n_features = 5
-    
+
     X_train = np.random.randn(n_train, n_features)
     X_test = np.random.randn(n_test, n_features)
-    
+
     if task == "classification":
         y_train = np.random.randint(1, 4, n_train)  # 1,2,3
     else:
         y_train = np.random.randn(n_train) * 10 + 50
-    
+
     cols = [f"feature_{i}" for i in range(n_features)]
-    
+
     train_df = pd.DataFrame(X_train, columns=cols)
     train_df[label_col] = y_train
     train_df.to_csv(train_path, index=False)
-    
+
     test_df = pd.DataFrame(X_test, columns=cols)
     test_df.to_csv(test_path, index=False)
-    
+
     logger.info(f"Demo data created: {train_path}, {test_path}")
 
 
@@ -233,9 +233,9 @@ def main():
         required=True,
         help="Config YAML path (e.g., configs/tabular/wine.yaml)",
     )
-    
+
     args = parser.parse_args()
-    
+
     try:
         submission_path = run_pipeline(args.config)
         print(f"\n✅ Success! Submission: {submission_path}")

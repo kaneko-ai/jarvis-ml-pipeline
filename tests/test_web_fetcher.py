@@ -3,17 +3,6 @@
 Per RP8, these tests use mocks to avoid network dependencies.
 """
 
-import sys
-from pathlib import Path
-from unittest.mock import MagicMock, patch
-
-import pytest
-
-# Ensure project root is on sys.path
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from jarvis_core.evidence import EvidenceStore
 from jarvis_core.html_extractor import extract_main_text, extract_title
 from jarvis_core.sources import ExecutionContext
@@ -24,6 +13,15 @@ from jarvis_core.web_fetcher import (
     ingest_url,
     load_url_as_document,
 )
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+# Ensure project root is on sys.path
+ROOT = Path(__file__).resolve().parents[1]
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 class TestExtractMainText:
@@ -74,7 +72,6 @@ class TestExtractMainText:
         text = extract_main_text(html)
         assert "     " not in text  # No excessive spaces
 
-
 class TestExtractTitle:
     """Tests for title extraction."""
 
@@ -89,7 +86,6 @@ class TestExtractTitle:
         html = "<html><head></head><body>Hello</body></html>"
         title = extract_title(html)
         assert title is None
-
 
 class TestFetchUrl:
     """Tests for URL fetching (mocked)."""
@@ -152,7 +148,6 @@ class TestFetchUrl:
             with pytest.raises(FetchError, match="Unsupported content type"):
                 fetch_url("https://example.com/data.json")
 
-
 class TestLoadUrlAsDocument:
     """Tests for URL to SourceDocument conversion."""
 
@@ -184,7 +179,6 @@ class TestLoadUrlAsDocument:
 
         with pytest.raises(FetchError, match="PDF"):
             load_url_as_document("https://example.com/doc.pdf", html="", meta=meta)
-
 
 class TestIngestUrl:
     """Tests for URL ingestion into EvidenceStore."""

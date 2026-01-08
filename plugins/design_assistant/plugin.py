@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 import uuid
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from jarvis_core.contracts.types import (
     Artifacts, ArtifactsDelta, Claim, EvidenceLink, RuntimeConfig, TaskContext
@@ -74,7 +74,7 @@ class GapAnalyzer:
     
     既存研究から研究ギャップを特定。
     """
-    
+
     GAP_INDICATORS = {
         "knowledge": [
             "unknown", "unclear", "remains to be", "not well understood",
@@ -93,12 +93,12 @@ class GapAnalyzer:
             "survival", "quality of life"
         ]
     }
-    
-    def analyze(self, claims: List[Claim], 
+
+    def analyze(self, claims: List[Claim],
                 sections: Dict[str, str]) -> List[Gap]:
         """ギャップを分析."""
         gaps = []
-        
+
         # Analyze discussion/limitation sections
         for section_name, section_text in sections.items():
             if any(s in section_name.lower() for s in ["discussion", "limitation", "future"]):
@@ -124,16 +124,16 @@ class GapAnalyzer:
                                         )]
                                     ))
                                     break
-        
+
         return gaps[:10]  # Limit
-    
+
     def _prioritize(self, gap_type: str, text: str) -> str:
         """ギャップの優先度を決定."""
         high_priority = ["urgent", "critical", "essential", "crucial", "immediate"]
         low_priority = ["minor", "potential", "may", "might", "could"]
-        
+
         text_lower = text.lower()
-        
+
         if any(h in text_lower for h in high_priority):
             return "high"
         elif any(l in text_lower for l in low_priority):
@@ -148,7 +148,7 @@ class ExperimentDesigner:
     
     ギャップに基づいて実験を提案。
     """
-    
+
     DESIGN_TEMPLATES = {
         "knowledge": {
             "design_type": "exploratory",
@@ -171,11 +171,11 @@ class ExperimentDesigner:
             "expected_outcomes": ["long-term effects", "survival analysis"]
         }
     }
-    
+
     def design_from_gap(self, gap: Gap, context: TaskContext) -> ExperimentProposal:
         """ギャップから実験を設計."""
         template = self.DESIGN_TEMPLATES.get(gap.type, self.DESIGN_TEMPLATES["knowledge"])
-        
+
         return ExperimentProposal(
             proposal_id=f"exp-{uuid.uuid4().hex[:8]}",
             title=f"Investigation of: {gap.description[:100]}",
@@ -196,7 +196,7 @@ class ExperimentDesigner:
             ],
             gaps_addressed=[gap.gap_id]
         )
-    
+
     def _generate_hypothesis(self, gap: Gap, context: TaskContext) -> str:
         """仮説を生成."""
         domain = context.domain
@@ -210,13 +210,13 @@ class ProtocolGenerator:
     
     実験提案からプロトコルを生成。
     """
-    
+
     def generate(self, proposal: ExperimentProposal) -> Protocol:
         """プロトコルを生成."""
         steps = []
         materials = []
         controls = []
-        
+
         # Design-specific steps
         if proposal.design_type == "RCT":
             steps = [
@@ -228,7 +228,7 @@ class ProtocolGenerator:
                 "6. Analyze data using pre-specified statistical plan"
             ]
             controls = ["Placebo or standard care control", "Blinding of assessors"]
-            
+
         elif proposal.design_type == "cohort":
             steps = [
                 "1. Define eligible population",
@@ -239,7 +239,7 @@ class ProtocolGenerator:
                 "6. Conduct survival/regression analysis"
             ]
             controls = ["Matched controls", "Adjustment for confounders"]
-            
+
         elif proposal.design_type in ["in_vitro", "exploratory"]:
             steps = [
                 "1. Prepare cell lines/samples",
@@ -251,7 +251,7 @@ class ProtocolGenerator:
             ]
             materials = ["Cell culture media", "Reagents", "Antibodies"]
             controls = ["Negative control", "Positive control", "Technical replicates"]
-        
+
         return Protocol(
             protocol_id=f"prot-{uuid.uuid4().hex[:8]}",
             title=proposal.title,
@@ -274,32 +274,32 @@ class StatisticalDesigner:
     
     検出力分析、サンプルサイズ計算。
     """
-    
-    def calculate_sample_size(self, 
+
+    def calculate_sample_size(self,
                               effect_size: float = 0.5,
                               alpha: float = 0.05,
                               power: float = 0.8,
                               analysis_type: str = "t-test") -> StatisticalDesign:
         """サンプルサイズを計算."""
         import math
-        
+
         # Simplified calculation for t-test
         if analysis_type == "t-test":
             # n per group = 2 * ((z_alpha + z_beta) / d)^2
             # Using approximations
             z_alpha = 1.96 if alpha == 0.05 else 2.58
             z_beta = 0.84 if power == 0.8 else 1.28
-            
+
             n_per_group = 2 * ((z_alpha + z_beta) / effect_size) ** 2
             total_n = int(math.ceil(n_per_group * 2))
-            
+
         elif analysis_type == "chi-square":
             n_per_group = 4 / (effect_size ** 2)
             total_n = int(math.ceil(n_per_group * 2))
-            
+
         else:
             total_n = 100  # Default
-        
+
         return StatisticalDesign(
             design_id=f"stat-{uuid.uuid4().hex[:8]}",
             primary_outcome="To be specified",
@@ -325,11 +325,11 @@ class RiskDiagnoser:
     
     研究設計のリスクを評価。
     """
-    
+
     def diagnose(self, proposal: ExperimentProposal) -> Dict[str, Any]:
         """設計リスクを診断."""
         risks = []
-        
+
         # Sample size
         if proposal.sample_size_estimate < 30:
             risks.append({
@@ -337,7 +337,7 @@ class RiskDiagnoser:
                 "severity": "high",
                 "message": "Sample size may be too small for meaningful results"
             })
-        
+
         # Design type
         if proposal.design_type not in ["RCT", "randomized"]:
             risks.append({
@@ -345,7 +345,7 @@ class RiskDiagnoser:
                 "severity": "medium",
                 "message": "Non-randomized design may introduce selection bias"
             })
-        
+
         # Limitations count
         if len(proposal.limitations) > 3:
             risks.append({
@@ -353,7 +353,7 @@ class RiskDiagnoser:
                 "severity": "medium",
                 "message": "Multiple known limitations may affect validity"
             })
-        
+
         return {
             "overall_risk": "high" if any(r["severity"] == "high" for r in risks) else "medium",
             "risks": risks,
@@ -363,7 +363,7 @@ class RiskDiagnoser:
 
 class DesignPlugin:
     """Design統合プラグイン."""
-    
+
     def __init__(self):
         self.gap_analyzer = GapAnalyzer()
         self.designer = ExperimentDesigner()
@@ -371,10 +371,10 @@ class DesignPlugin:
         self.stat_designer = StatisticalDesigner()
         self.risk_diagnoser = RiskDiagnoser()
         self.is_active = False
-    
+
     def activate(self, runtime: RuntimeConfig, config: Dict[str, Any]) -> None:
         self.is_active = True
-    
+
     def run(self, context: TaskContext, artifacts: Artifacts) -> ArtifactsDelta:
         """実験設計を実行."""
         delta: ArtifactsDelta = {
@@ -384,13 +384,13 @@ class DesignPlugin:
             "statistical_designs": [],
             "risk_assessments": []
         }
-        
+
         # Analyze gaps from all papers
         all_gaps = []
         for paper in artifacts.papers:
             gaps = self.gap_analyzer.analyze(artifacts.claims, paper.sections)
             all_gaps.extend(gaps)
-        
+
         # Design experiments for top gaps
         for gap in all_gaps[:5]:
             delta["gaps"].append({
@@ -399,7 +399,7 @@ class DesignPlugin:
                 "type": gap.type,
                 "priority": gap.priority
             })
-            
+
             # Generate proposal
             proposal = self.designer.design_from_gap(gap, context)
             delta["proposals"].append({
@@ -409,7 +409,7 @@ class DesignPlugin:
                 "design_type": proposal.design_type,
                 "sample_size": proposal.sample_size_estimate
             })
-            
+
             # Generate protocol
             protocol = self.protocol_gen.generate(proposal)
             delta["protocols"].append({
@@ -418,7 +418,7 @@ class DesignPlugin:
                 "steps": protocol.steps,
                 "controls": protocol.controls
             })
-            
+
             # Statistical design
             stat = self.stat_designer.calculate_sample_size()
             delta["statistical_designs"].append({
@@ -427,7 +427,7 @@ class DesignPlugin:
                 "sample_size": stat.sample_size,
                 "power": stat.power
             })
-            
+
             # Risk assessment
             risk = self.risk_diagnoser.diagnose(proposal)
             delta["risk_assessments"].append({
@@ -435,16 +435,16 @@ class DesignPlugin:
                 "overall_risk": risk["overall_risk"],
                 "risks": risk["risks"]
             })
-            
+
             # Store in artifacts
             artifacts.designs.append({
                 "gap": gap.gap_id,
                 "proposal": proposal.proposal_id,
                 "protocol": protocol.protocol_id
             })
-        
+
         return delta
-    
+
     def deactivate(self) -> None:
         self.is_active = False
 

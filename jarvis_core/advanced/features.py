@@ -9,6 +9,7 @@ import random
 import re
 from collections import defaultdict
 from datetime import datetime, timedelta
+import time
 
 # ============================================
 # PHASE 6: ADVANCED ANALYTICS (201-220)

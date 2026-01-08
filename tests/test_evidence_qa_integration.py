@@ -4,15 +4,6 @@ Per RP11, these tests verify the complete E2E flow:
 PDF/URL → ingest → retrieve → answer → citations → success
 """
 
-import sys
-from pathlib import Path
-from unittest.mock import MagicMock, patch
-
-# Ensure project root is on sys.path
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from jarvis_core.evidence import EvidenceStore
 from jarvis_core.evidence_qa import (
     EvidenceQAAgent,
@@ -21,9 +12,15 @@ from jarvis_core.evidence_qa import (
     run_evidence_qa,
 )
 from jarvis_core.sources import ExecutionContext
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+# Ensure project root is on sys.path
+ROOT = Path(__file__).resolve().parents[1]
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 SAMPLE_PDF = ROOT / "tests" / "fixtures" / "sample.pdf"
-
 
 class TestDetectInputType:
     """Tests for input type detection."""
@@ -39,7 +36,6 @@ class TestDetectInputType:
     def test_detect_local(self):
         assert _detect_input_type("file.txt") == "local"
         assert _detect_input_type("/path/to/file") == "local"
-
 
 class TestIngestInput:
     """Tests for input ingestion."""
@@ -82,7 +78,6 @@ class TestIngestInput:
         assert len(results) > 0
         assert store.has_chunk(chunk_id)
         assert len(ctx.available_chunks) > 0
-
 
 class TestEvidenceQAAgent:
     """Tests for EvidenceQAAgent."""
@@ -161,7 +156,6 @@ class TestEvidenceQAAgent:
         assert len(result.citations) > 0
         assert any(c.chunk_id == chunk_id for c in result.citations)
 
-
 class TestRunEvidenceQA:
     """Integration tests for run_evidence_qa."""
 
@@ -210,7 +204,6 @@ class TestRunEvidenceQA:
             )
 
             assert isinstance(answer, str)
-
 
 class TestE2EWithMockedLLM:
     """E2E tests with properly mocked LLM that returns valid citations."""

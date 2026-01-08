@@ -6,9 +6,8 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from jarvis_core.storage import RunStore
+from typing import Any
 
 
 def get_structure_keys(data: Any, prefix: str = "") -> set[str]:
@@ -24,7 +23,6 @@ def get_structure_keys(data: Any, prefix: str = "") -> set[str]:
             # リストの最初の要素の構造のみチェック
             keys.update(get_structure_keys(data[0], f"{prefix}[0]"))
     return keys
-
 
 def normalize_for_diff(data: dict[str, Any]) -> dict[str, Any]:
     """再現性比較のためにデータを正規化.
@@ -43,7 +41,6 @@ def normalize_for_diff(data: dict[str, Any]) -> dict[str, Any]:
         return obj
 
     return _normalize(data)
-
 
 class TestReproducibilityStructure:
     """再現性構造テスト."""
@@ -137,7 +134,6 @@ class TestReproducibilityStructure:
 
         assert norm1 == norm2
 
-
 class TestMetricsNumericization:
     """Verify指標の数値化テスト."""
 
@@ -182,7 +178,6 @@ class TestMetricsNumericization:
 
         assert "assertion_count" in result.metrics
         assert result.metrics["assertion_count"] >= 1
-
 
 class TestPaperComparisonScore:
     """論文比較スコアテスト（最小実装）."""

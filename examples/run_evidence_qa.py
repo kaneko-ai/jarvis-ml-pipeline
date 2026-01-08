@@ -29,7 +29,6 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from jarvis_core.evidence_qa import (
-    run_evidence_qa,
     run_evidence_qa_result,
     get_evidence_store_for_bundle,
 )

@@ -6,15 +6,13 @@ Per RP13, these tests verify:
 - ClaimSet operations
 """
 
-import sys
+from jarvis_core.claim import Claim, ClaimSet
 from pathlib import Path
 
 # Ensure project root is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
-from jarvis_core.claim import Claim, ClaimSet
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 class TestClaim:
@@ -54,7 +52,6 @@ class TestClaim:
         assert claim.id == "claim_test"
         assert claim.text == "A claim"
         assert claim.valid is False
-
 
 class TestClaimSet:
     """Tests for ClaimSet."""

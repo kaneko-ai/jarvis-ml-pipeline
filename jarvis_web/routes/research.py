@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, HTTPException, Query
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.responses import PlainTextResponse
 
 from jarvis_core.scoring.paper_score import score_paper
 

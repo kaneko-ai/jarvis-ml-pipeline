@@ -19,7 +19,7 @@ class Claim:
     confidence: float = 0.0
     evidence_required: bool = True
     source_section: str = ""
-    
+
     def to_dict(self) -> dict:
         return {
             "claim_id": self.claim_id,
@@ -50,7 +50,7 @@ class ClaimExtractor:
     - conclusion: 結論
     - methodology: 方法論的主張
     """
-    
+
     # 主張タイプの検出パターン
     CLAIM_PATTERNS = {
         "result": [
@@ -85,7 +85,7 @@ class ClaimExtractor:
             r"were treated with",
         ],
     }
-    
+
     def __init__(
         self,
         min_confidence: float = 0.5,
@@ -93,7 +93,7 @@ class ClaimExtractor:
     ):
         self.min_confidence = min_confidence
         self.max_claims = max_claims_per_paper
-    
+
     def extract(
         self,
         text: str,
@@ -118,25 +118,25 @@ class ClaimExtractor:
             "total_claims": 0,
             "by_type": {},
         }
-        
+
         if not text:
             return result
-        
+
         # 文に分割
         sentences = self._split_sentences(text)
-        
+
         claim_count = 0
         for i, sentence in enumerate(sentences):
             if claim_count >= self.max_claims:
                 break
-            
+
             # 主張タイプを検出
             claim_type = self._detect_claim_type(sentence)
-            
+
             # 主張らしい文のみ抽出
             if self._is_claim_sentence(sentence, claim_type):
                 confidence = self._compute_confidence(sentence, claim_type)
-                
+
                 if confidence >= self.min_confidence:
                     claim = Claim(
                         claim_id=f"{paper_id}_claim_{claim_count}",
@@ -148,80 +148,80 @@ class ClaimExtractor:
                     )
                     result.claims.append(claim)
                     claim_count += 1
-                    
+
                     # 統計更新
                     result.stats["by_type"][claim_type] = result.stats["by_type"].get(claim_type, 0) + 1
-        
+
         result.stats["total_claims"] = len(result.claims)
-        
+
         return result
-    
+
     def _split_sentences(self, text: str) -> List[str]:
         """テキストを文に分割."""
         # 簡易的な文分割
         sentences = re.split(r'(?<=[.!?])\s+', text)
         return [s.strip() for s in sentences if len(s.strip()) > 20]
-    
+
     def _detect_claim_type(self, sentence: str) -> str:
         """文の主張タイプを検出."""
         sentence_lower = sentence.lower()
-        
+
         for claim_type, patterns in self.CLAIM_PATTERNS.items():
             for pattern in patterns:
                 if re.search(pattern, sentence_lower):
                     return claim_type
-        
+
         return "fact"  # デフォルト
-    
+
     def _is_claim_sentence(self, sentence: str, claim_type: str) -> bool:
         """主張として抽出すべき文か判定."""
         # 短すぎる文は除外
         if len(sentence) < 30:
             return False
-        
+
         # 参照のみの文は除外
         if re.match(r'^[\[\d\],\s]+$', sentence):
             return False
-        
+
         # 主張パターンにマッチするか
         sentence_lower = sentence.lower()
-        
+
         # 何らかの主張指標があるか
         claim_indicators = [
             "show", "indicate", "suggest", "demonstrate", "reveal",
             "found", "observed", "concluded", "determined", "established",
             "significant", "important", "novel", "first",
         ]
-        
+
         return any(ind in sentence_lower for ind in claim_indicators) or claim_type != "fact"
-    
+
     def _compute_confidence(self, sentence: str, claim_type: str) -> float:
         """主張の信頼度を計算."""
         confidence = 0.5
         sentence_lower = sentence.lower()
-        
+
         # 強い主張指標
         strong_indicators = ["significantly", "statistically", "demonstrated", "established"]
         if any(ind in sentence_lower for ind in strong_indicators):
             confidence += 0.2
-        
+
         # 弱い表現（不確実性）
         weak_indicators = ["may", "might", "could", "possibly", "potentially"]
         if any(ind in sentence_lower for ind in weak_indicators):
             confidence -= 0.1
-        
+
         # 数値データがあれば信頼度UP
         if re.search(r'\d+\.\d+|p\s*[<>=]\s*\d', sentence_lower):
             confidence += 0.15
-        
+
         # タイプ別調整
         if claim_type == "result":
             confidence += 0.1
         elif claim_type == "hypothesis":
             confidence -= 0.1
-        
+
         return max(0.0, min(1.0, confidence))
-    
+
     def to_jsonl(self, result: ExtractionResult) -> str:
         """結果をJSONL形式に変換."""
         import json

@@ -24,15 +24,15 @@ def run_phase3():
     print("JARVIS Phase3: 判断成績表の生成")
     print("=" * 60)
     print()
-    
+
     # DecisionStore読み込み
     decision_store = DecisionStore()
     decisions = decision_store.list_all()
     print(f"[INFO] DecisionStore: {len(decisions)} 件")
-    
+
     # OutcomeTracker初期化
     outcome_tracker = OutcomeTracker(decision_store=decision_store)
-    
+
     # デモ用: 一部のDecisionにOutcomeを付与
     print("\n[INFO] デモ用Outcome付与...")
     for i, d in enumerate(decisions[:10]):
@@ -47,7 +47,7 @@ def run_phase3():
             else:
                 status = OutcomeStatus.FAILURE
                 effect = "期待外れ"
-            
+
             record = OutcomeRecord(
                 decision_id=d.decision_id,
                 status=status,
@@ -56,23 +56,23 @@ def run_phase3():
                 would_repeat=(status != OutcomeStatus.FAILURE),
             )
             outcome_tracker.record(record)
-    
+
     # MetricsCollector
     print("\n[INFO] 成績表を生成中...")
     metrics_collector = MetricsCollector(
         decision_store=decision_store,
         outcome_tracker=outcome_tracker,
     )
-    
+
     # 今月の成績表
     metrics = metrics_collector.collect()
-    
+
     print()
     print("-" * 60)
     print("判断成績表")
     print("-" * 60)
     print(metrics.to_markdown())
-    
+
     # Outcomeサマリー
     outcome_summary = outcome_tracker.summarize()
     print("-" * 60)
@@ -83,12 +83,12 @@ def run_phase3():
     print(f"- Neutral: {outcome_summary['neutral']}")
     print(f"- Failure: {outcome_summary['failure']}")
     print(f"- Success Rate: {outcome_summary['success_rate']:.1%}")
-    
+
     print()
     print("=" * 60)
     print("Phase3 完了")
     print("=" * 60)
-    
+
     return metrics
 
 

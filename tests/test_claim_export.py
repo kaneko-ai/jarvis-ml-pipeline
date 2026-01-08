@@ -5,16 +5,6 @@ Per RP16, these tests verify:
 - Bundle includes claims.md, claims.json, slides_outline.txt
 """
 
-import json
-import sys
-import tempfile
-from pathlib import Path
-
-# Ensure project root is on sys.path
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from jarvis_core.claim import ClaimSet
 from jarvis_core.claim_export import (
     export_claims,
@@ -23,6 +13,14 @@ from jarvis_core.claim_export import (
     export_claims_pptx_outline,
 )
 from jarvis_core.reference import Reference
+import json
+import tempfile
+from pathlib import Path
+
+# Ensure project root is on sys.path
+ROOT = Path(__file__).resolve().parents[1]
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 class TestClaimExportMarkdown:
@@ -58,7 +56,6 @@ class TestClaimExportMarkdown:
 
         assert "Sources" in output
 
-
 class TestClaimExportJSON:
     """Tests for JSON export."""
 
@@ -92,7 +89,6 @@ class TestClaimExportJSON:
 
         assert data["claims"][0]["references"] == ["R1"]
 
-
 class TestClaimExportPPTX:
     """Tests for PPTX outline export."""
 
@@ -121,7 +117,6 @@ class TestClaimExportPPTX:
         assert "Valid claim" in output
         assert "Invalid claim" not in output
 
-
 class TestExportClaimsFunction:
     """Tests for the main export_claims function."""
 
@@ -149,7 +144,6 @@ class TestExportClaimsFunction:
 
         output = export_claims(cs, format="pptx_outline")
         assert "PRESENTATION OUTLINE" in output
-
 
 class TestBundleClaimsExport:
     """Tests for bundle claims export."""

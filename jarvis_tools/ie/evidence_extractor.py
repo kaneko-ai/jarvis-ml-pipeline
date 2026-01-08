@@ -27,7 +27,7 @@ class Locator:
     sentence_id: Optional[int] = None  # 反復1で必須化
     char_start: Optional[int] = None  # 反復1で必須化
     char_end: Optional[int] = None    # 反復1で必須化
-    
+
     def to_dict(self) -> dict:
         result = {
             "section": self.section,
@@ -43,7 +43,7 @@ class Locator:
             result["char_start"] = self.char_start
             result["char_end"] = self.char_end
         return result
-    
+
     @classmethod
     def from_dict(cls, d: dict) -> "Locator":
         return cls(
@@ -66,7 +66,7 @@ class Evidence:
     locator: Locator
     confidence: float = 0.0
     evidence_type: str = "direct"  # direct, indirect, inferred
-    
+
     def to_dict(self) -> dict:
         return {
             "claim_id": self.claim_id,
@@ -92,7 +92,7 @@ class EvidenceExtractor:
     主張テキストとチャンクを受け取り、
     関連する根拠を抽出・locator付与して返す。
     """
-    
+
     def __init__(
         self,
         llm_client: Optional[Any] = None,
@@ -104,7 +104,7 @@ class EvidenceExtractor:
         self.prompts = prompt_registry or PromptRegistry()
         self.min_confidence = min_confidence
         self.require_locator = require_locator
-    
+
     def extract(
         self,
         claims: List[Dict[str, Any]],
@@ -129,17 +129,17 @@ class EvidenceExtractor:
             "claims_without_evidence": 0,
             "locator_missing": 0,
         }
-        
+
         if not claims or not chunks:
             return result
-        
+
         for claim in claims:
             claim_id = claim.get("claim_id", "")
             claim_text = claim.get("claim_text", claim.get("text", ""))
-            
+
             if not claim_text:
                 continue
-            
+
             # 各チャンクから関連根拠を探す
             claim_evidence = self._find_evidence_for_claim(
                 claim_id=claim_id,
@@ -147,7 +147,7 @@ class EvidenceExtractor:
                 chunks=chunks,
                 paper_id=paper_id,
             )
-            
+
             if claim_evidence:
                 result.evidence.extend(claim_evidence)
                 result.stats["extracted_evidence"] += len(claim_evidence)
@@ -158,7 +158,7 @@ class EvidenceExtractor:
                     "message": f"No evidence found for claim: {claim_id}",
                     "severity": "warning",
                 })
-        
+
         # Locator欠落チェック
         for ev in result.evidence:
             if not ev.locator.section:
@@ -169,9 +169,9 @@ class EvidenceExtractor:
                         "message": f"Missing locator for evidence: {ev.claim_id}",
                         "severity": "warning",
                     })
-        
+
         return result
-    
+
     def _find_evidence_for_claim(
         self,
         claim_id: str,
@@ -187,30 +187,30 @@ class EvidenceExtractor:
         3. LLM検証（利用可能な場合）
         """
         evidence_list = []
-        
+
         # キーワード抽出（シンプルなアプローチ）
         keywords = self._extract_keywords(claim_text)
-        
+
         for chunk in chunks:
             chunk_text = chunk.get("text", "")
             chunk_id = chunk.get("chunk_id", "")
             section = chunk.get("section", "Unknown")
             paragraph = chunk.get("paragraph_index", 0)
-            
+
             # キーワードマッチング
             score = self._compute_relevance(claim_text, chunk_text, keywords)
-            
+
             if score >= self.min_confidence:
                 # 根拠テキストをクリーンアップ
                 evidence_text = self._extract_relevant_passage(claim_text, chunk_text)
-                
+
                 locator = Locator(
                     section=section,
                     paragraph=paragraph,
                     chunk_id=chunk_id,
                     page=chunk.get("page"),
                 )
-                
+
                 evidence = Evidence(
                     claim_id=claim_id,
                     paper_id=paper_id,
@@ -220,16 +220,16 @@ class EvidenceExtractor:
                     evidence_type="direct" if score > 0.8 else "indirect",
                 )
                 evidence_list.append(evidence)
-        
+
         # 信頼度でソートし、上位を返す
         evidence_list.sort(key=lambda e: e.confidence, reverse=True)
         return evidence_list[:3]  # 最大3件
-    
+
     def _extract_keywords(self, text: str) -> List[str]:
         """テキストからキーワードを抽出."""
         # 簡易的なキーワード抽出
         words = re.findall(r'\b[A-Za-z][A-Za-z0-9-]+\b', text.lower())
-        
+
         # ストップワード除去
         stopwords = {
             'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been',
@@ -240,10 +240,10 @@ class EvidenceExtractor:
             'then', 'else', 'for', 'with', 'by', 'from', 'to', 'of',
             'in', 'on', 'at', 'as', 'not', 'no', 'yes',
         }
-        
+
         keywords = [w for w in words if w not in stopwords and len(w) > 2]
         return list(set(keywords))
-    
+
     def _compute_relevance(
         self,
         claim_text: str,
@@ -253,49 +253,49 @@ class EvidenceExtractor:
         """関連度スコアを計算."""
         if not chunk_text:
             return 0.0
-        
+
         chunk_lower = chunk_text.lower()
-        
+
         # キーワードマッチ率
         if not keywords:
             return 0.0
-        
+
         matches = sum(1 for kw in keywords if kw in chunk_lower)
         keyword_score = matches / len(keywords)
-        
+
         # 長さペナルティ（極端に短いチャンクは避ける）
         length_factor = min(1.0, len(chunk_text) / 100)
-        
+
         # 最終スコア
         return keyword_score * 0.8 + length_factor * 0.2
-    
+
     def _extract_relevant_passage(self, claim_text: str, chunk_text: str) -> str:
         """チャンクから関連する文を抽出."""
         # 文に分割
         sentences = re.split(r'(?<=[.!?])\s+', chunk_text)
-        
+
         if len(sentences) <= 2:
             return chunk_text.strip()
-        
+
         # 主張のキーワードを含む文を優先
         keywords = self._extract_keywords(claim_text)
-        
+
         scored_sentences = []
         for sent in sentences:
             sent_lower = sent.lower()
             score = sum(1 for kw in keywords if kw in sent_lower)
             scored_sentences.append((score, sent))
-        
+
         # スコア上位2-3文を結合
         scored_sentences.sort(key=lambda x: x[0], reverse=True)
         top_sentences = [s[1] for s in scored_sentences[:3] if s[0] > 0]
-        
+
         if top_sentences:
             return " ".join(top_sentences).strip()
-        
+
         # フォールバック：最初の2文
         return " ".join(sentences[:2]).strip()
-    
+
     def to_jsonl(self, result: ExtractionResult) -> str:
         """結果をJSONL形式に変換."""
         lines = []

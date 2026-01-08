@@ -4,20 +4,18 @@ Per RP10, ExecutionEngine checks that citations are actually
 relevant to the answer content.
 """
 
-import sys
-import types
-from pathlib import Path
-
-# Ensure project root is on sys.path
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from jarvis_core.agents import Citation
 from jarvis_core.evidence import EvidenceStore
 from jarvis_core.executor import ExecutionEngine
 from jarvis_core.planner import Planner
 from jarvis_core.task import Task, TaskCategory
+import types
+from pathlib import Path
+
+# Ensure project root is on sys.path
+ROOT = Path(__file__).resolve().parents[1]
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 class DummyPlanner(Planner):
@@ -25,7 +23,6 @@ class DummyPlanner(Planner):
 
     def plan(self, task: Task):
         return [task]
-
 
 class DummyRouter:
     """Router that returns a configurable AgentResult-like object."""
@@ -48,14 +45,12 @@ class DummyRouter:
             meta={},
         )
 
-
 def make_task() -> Task:
     return Task(
         task_id="test-task",
         title="Test citation relevance",
         category=TaskCategory.GENERIC,
     )
-
 
 class TestCitationRelevance:
     """Tests for citation-answer relevance checking."""
@@ -191,7 +186,6 @@ class TestCitationRelevance:
         complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         # Should succeed because at least one citation is relevant
         assert complete_event["agent_status"] == "success"
-
 
 class TestCitationRelevanceEdgeCases:
     """Edge case tests for citation relevance."""

@@ -7,16 +7,6 @@ Per RP22, these tests verify:
 - Failure handling (graceful)
 """
 
-import json
-import sys
-from pathlib import Path
-from unittest.mock import MagicMock, patch
-
-# Ensure project root is on sys.path
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from jarvis_core.reference import Reference, resolve_references
 from jarvis_core.resolvers.crossref_resolver import (
     CrossRefResult,
@@ -27,6 +17,14 @@ from jarvis_core.resolvers.pubmed_resolver import (
     PubMedResult,
     resolve_pubmed,
 )
+import json
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+# Ensure project root is on sys.path
+ROOT = Path(__file__).resolve().parents[1]
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 class TestCrossRefResolver:
@@ -114,7 +112,6 @@ class TestCrossRefResolver:
         assert ref.doi == "10.1234/cd73"
         assert ref.year == 2022
 
-
 class TestPubMedResolver:
     """Tests for PubMed resolver."""
 
@@ -150,7 +147,6 @@ class TestPubMedResolver:
 
         assert ref.pmid == "98765432"
 
-
 class TestResolveReferences:
     """Tests for resolve_references function."""
 
@@ -182,7 +178,6 @@ class TestResolveReferences:
                 result = resolve_references(refs)
 
                 assert len(result) == 1
-
 
 class TestReferenceExtendedFields:
     """Tests for extended Reference fields."""

@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Type
 
 from jarvis_core.contracts.types import (
-    Artifacts, ArtifactsDelta, ResultBundle, RuntimeConfig, TaskContext
+    Artifacts, ArtifactsDelta, RuntimeConfig, TaskContext
 )
 
 
@@ -31,7 +31,7 @@ class PluginMetadata:
     hardware: Dict[str, Any] = field(default_factory=dict)
     config_schema: Optional[str] = None
     description: str = ""
-    
+
     @classmethod
     def from_json(cls, path: Path) -> "PluginMetadata":
         """Load from plugin.json."""
@@ -47,7 +47,7 @@ class PluginMetadata:
             config_schema=data.get("config_schema"),
             description=data.get("description", "")
         )
-    
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "name": self.name,
@@ -68,13 +68,13 @@ class BasePlugin(ABC):
     全プラグインはこのクラスを継承し、
     activate/run/deactivate を実装する。
     """
-    
+
     def __init__(self, metadata: PluginMetadata):
         self.metadata = metadata
         self.is_active = False
         self.runtime: Optional[RuntimeConfig] = None
         self.config: Dict[str, Any] = {}
-    
+
     @abstractmethod
     def activate(self, runtime: RuntimeConfig, config: Dict[str, Any]) -> None:
         """
@@ -85,7 +85,7 @@ class BasePlugin(ABC):
             config: プラグイン固有設定
         """
         pass
-    
+
     @abstractmethod
     def run(self, context: TaskContext, artifacts: Artifacts) -> ArtifactsDelta:
         """
@@ -99,14 +99,14 @@ class BasePlugin(ABC):
             成果物の差分（追加・更新された部分）
         """
         pass
-    
+
     @abstractmethod
     def deactivate(self) -> None:
         """
         プラグインを非アクティベート（GPU解放、キャッシュフラッシュ等）.
         """
         pass
-    
+
     def get_info(self) -> Dict[str, Any]:
         """プラグイン情報を取得."""
         return {
@@ -121,18 +121,18 @@ class PluginRegistry:
     
     登録されたプラグインを管理する。
     """
-    
+
     def __init__(self):
         self._plugins: Dict[str, Type[BasePlugin]] = {}
         self._instances: Dict[str, BasePlugin] = {}
         self._metadata: Dict[str, PluginMetadata] = {}
-    
-    def register(self, name: str, plugin_class: Type[BasePlugin], 
+
+    def register(self, name: str, plugin_class: Type[BasePlugin],
                  metadata: PluginMetadata) -> None:
         """プラグインを登録."""
         self._plugins[name] = plugin_class
         self._metadata[name] = metadata
-    
+
     def get(self, name: str) -> Optional[BasePlugin]:
         """インスタンスを取得（なければ作成）."""
         if name not in self._instances:
@@ -140,17 +140,17 @@ class PluginRegistry:
                 return None
             self._instances[name] = self._plugins[name](self._metadata[name])
         return self._instances[name]
-    
+
     def list_plugins(self) -> List[str]:
         """登録済みプラグイン名リスト."""
         return list(self._plugins.keys())
-    
+
     def list_by_type(self, plugin_type: str) -> List[str]:
         """タイプ別プラグインリスト."""
-        return [name for name, meta in self._metadata.items() 
+        return [name for name, meta in self._metadata.items()
                 if meta.type == plugin_type]
-    
-    def activate_all(self, runtime: RuntimeConfig, 
+
+    def activate_all(self, runtime: RuntimeConfig,
                      configs: Dict[str, Dict[str, Any]]) -> None:
         """全プラグインをアクティベート."""
         for name in self._plugins:
@@ -158,7 +158,7 @@ class PluginRegistry:
             if plugin:
                 config = configs.get(name, {})
                 plugin.activate(runtime, config)
-    
+
     def deactivate_all(self) -> None:
         """全プラグインを非アクティベート."""
         for instance in self._instances.values():
@@ -172,22 +172,22 @@ class PluginLoader:
     
     plugins/ ディレクトリからプラグインを動的に読み込む。
     """
-    
+
     def __init__(self, plugins_dir: Path):
         self.plugins_dir = plugins_dir
         self.registry = PluginRegistry()
-    
+
     def discover(self) -> List[PluginMetadata]:
         """利用可能なプラグインを検出."""
         plugins = []
-        
+
         if not self.plugins_dir.exists():
             return plugins
-        
+
         for plugin_dir in self.plugins_dir.iterdir():
             if not plugin_dir.is_dir():
                 continue
-            
+
             manifest = plugin_dir / "plugin.json"
             if manifest.exists():
                 try:
@@ -195,28 +195,28 @@ class PluginLoader:
                     plugins.append(metadata)
                 except Exception as e:
                     print(f"Failed to load plugin {plugin_dir.name}: {e}")
-        
+
         return plugins
-    
+
     def load(self, name: str) -> Optional[BasePlugin]:
         """プラグインを読み込み."""
         plugin_dir = self.plugins_dir / name
         manifest = plugin_dir / "plugin.json"
-        
+
         if not manifest.exists():
             return None
-        
+
         metadata = PluginMetadata.from_json(manifest)
-        
+
         # Dynamic import
         module_path = plugin_dir / "plugin.py"
         if not module_path.exists():
             return None
-        
+
         # For now, return None - actual dynamic import would be implemented
         # based on security and sandboxing requirements
         return None
-    
+
     def load_all(self) -> int:
         """全プラグインを読み込み."""
         count = 0
@@ -238,7 +238,7 @@ def get_plugin_registry() -> PluginRegistry:
     return _global_registry
 
 
-def register_plugin(name: str, plugin_class: Type[BasePlugin], 
+def register_plugin(name: str, plugin_class: Type[BasePlugin],
                     metadata: PluginMetadata) -> None:
     """プラグインをグローバルレジストリに登録."""
     get_plugin_registry().register(name, plugin_class, metadata)

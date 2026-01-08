@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import List, Set, Optional
+from typing import List, Set
 
 # Load synonyms from JSON
 _SYNONYM_FILE = Path(__file__).parent / "synonyms" / "immuno_synonyms.json"

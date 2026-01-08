@@ -1,7 +1,5 @@
 """Tests for AI features module."""
 
-import pytest
-
 from jarvis_core.ai.features import (
     AutoTagger,
     CitationGenerator,
@@ -15,6 +13,7 @@ from jarvis_core.ai.features import (
     get_keyword_extractor,
     get_sentiment_analyzer,
 )
+import pytest
 
 
 class TestAutoTagger:
@@ -57,7 +56,6 @@ class TestAutoTagger:
         assert "AI" in result["tags"]
         assert "Cancer" in result["tags"]
 
-
 class TestKeywordExtractor:
     """Test keyword extraction."""
 
@@ -84,7 +82,6 @@ class TestKeywordExtractor:
         phrases = extractor.extract_phrases(text, 2)
         assert len(phrases) > 0
 
-
 class TestSentimentAnalyzer:
     """Test sentiment analysis."""
 
@@ -110,7 +107,6 @@ class TestSentimentAnalyzer:
         text = "The experiment was conducted last Tuesday"
         result = analyzer.analyze(text)
         assert result["sentiment"] == "Neutral"
-
 
 class TestCitationGenerator:
     """Test citation generation."""
@@ -153,7 +149,6 @@ class TestCitationGenerator:
         assert "bibtex" in all_citations
         assert "chicago" in all_citations
 
-
 class TestPaperTranslator:
     """Test paper translation."""
 
@@ -169,7 +164,6 @@ class TestPaperTranslator:
         translator = PaperTranslator()
         result = translator.add_translations("Cancer treatment study")
         assert "がん" in result or "治療" in result
-
 
 class TestSimilarityCalculator:
     """Test similarity calculation."""
@@ -195,7 +189,6 @@ class TestSimilarityCalculator:
         assert "similarity_score" in result
         assert "similarity_level" in result
 
-
 class TestPaperQA:
     """Test paper Q&A."""
 
@@ -217,7 +210,6 @@ class TestPaperQA:
         answer = qa.answer("When was this published?")
         assert "2024" in answer
 
-
 class TestFactoryFunctions:
     """Test factory functions."""
 
@@ -232,7 +224,6 @@ class TestFactoryFunctions:
 
     def test_get_sentiment_analyzer(self):
         assert isinstance(get_sentiment_analyzer(), SentimentAnalyzer)
-
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

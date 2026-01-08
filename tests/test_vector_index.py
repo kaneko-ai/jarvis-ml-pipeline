@@ -7,14 +7,6 @@ Per RP23, these tests verify:
 - ExecutionContext integration
 """
 
-import sys
-from pathlib import Path
-
-# Ensure project root is on sys.path
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
 from jarvis_core.evidence import EvidenceStore
 from jarvis_core.sources import ChunkResult, ExecutionContext
 from jarvis_core.vector_index import (
@@ -23,6 +15,12 @@ from jarvis_core.vector_index import (
     dummy_embed,
     get_relevant_chunks_vector,
 )
+from pathlib import Path
+
+# Ensure project root is on sys.path
+ROOT = Path(__file__).resolve().parents[1]
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 class TestDummyEmbed:
@@ -55,7 +53,6 @@ class TestDummyEmbed:
         norm = math.sqrt(sum(x * x for x in result))
         assert abs(norm - 1.0) < 0.01
 
-
 class TestCosineSimilarity:
     """Tests for cosine similarity."""
 
@@ -78,7 +75,6 @@ class TestCosineSimilarity:
         b = [-1.0, 0.0]
         sim = cosine_similarity(a, b)
         assert abs(sim + 1.0) < 0.01
-
 
 class TestVectorRetriever:
     """Tests for VectorRetriever."""
@@ -119,7 +115,6 @@ class TestVectorRetriever:
         results = retriever.search("test")
         assert results == []
 
-
 class TestGetRelevantChunksVector:
     """Tests for convenience function."""
 
@@ -133,7 +128,6 @@ class TestGetRelevantChunksVector:
 
         assert len(results) == 1
         assert results[0].chunk_id == "c1"
-
 
 class TestExecutionContextVector:
     """Tests for ExecutionContext vector search."""

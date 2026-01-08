@@ -1,6 +1,5 @@
 """Tests for V4.2 Sprint 2-3 modules."""
 
-import sys
 import tempfile
 from pathlib import Path
 
@@ -10,8 +9,8 @@ import pytest
 pytestmark = pytest.mark.core
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 
 # Sprint 2 Tests

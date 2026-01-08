@@ -9,6 +9,13 @@ Provides clients for:
 - Unpaywall
 """
 
+from .chunking import (
+    Chunker,
+    ChunkResult,
+    ExecutionContext,
+    SourceDocument,
+    ingest,
+)
 from .openalex_client import OpenAlexClient, OpenAlexWork
 from .pubmed_client import PubMedArticle, PubMedClient
 from .semantic_scholar_client import S2Paper, SemanticScholarClient
@@ -22,4 +29,9 @@ __all__ = [
     "OpenAlexClient",
     "OpenAlexWork",
     "UnifiedSourceClient",
+    "SourceDocument",
+    "Chunker",
+    "ingest",
+    "ChunkResult",
+    "ExecutionContext",
 ]

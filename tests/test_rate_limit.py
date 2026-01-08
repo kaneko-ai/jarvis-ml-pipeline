@@ -1,6 +1,5 @@
-import time
-
 from jarvis_core.scheduler.rate_limit import DomainRateLimiter
+import time
 
 
 def test_rate_limit_backoff():

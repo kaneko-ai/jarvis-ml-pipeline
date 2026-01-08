@@ -1,8 +1,7 @@
+from jarvis_core.kb.weekly_pack import generate_weekly_pack
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
-
-from jarvis_core.kb.weekly_pack import generate_weekly_pack
 
 
 def test_weekly_pack_contains_notes(tmp_path: Path):

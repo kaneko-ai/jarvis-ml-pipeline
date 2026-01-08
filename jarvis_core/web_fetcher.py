@@ -14,6 +14,11 @@ import logging
 from dataclasses import dataclass
 
 import requests
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from jarvis_core.evidence import EvidenceStore
+    from jarvis_core.sources import ChunkResult, ExecutionContext, SourceDocument
 
 logger = logging.getLogger("jarvis_core.web_fetcher")
 
