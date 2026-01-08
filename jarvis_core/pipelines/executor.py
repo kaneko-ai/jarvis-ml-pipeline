@@ -14,6 +14,7 @@ from typing import Any
 
 try:
     import yaml
+
     HAS_YAML = True
 except ImportError:
     HAS_YAML = False
@@ -28,6 +29,7 @@ from jarvis_core.supervisor.lyra import LyraSupervisor, get_lyra
 @dataclass
 class StageResult:
     """ステージ実行結果."""
+
     stage_name: str
     success: bool
     duration_ms: float
@@ -39,7 +41,7 @@ class StageResult:
 def _parse_stages(raw_stages: list) -> list[str]:
     """
     ステージリストをパース。
-    
+
     辞書形式（id付き）と文字列形式の両方をサポート。
     """
     stages = []
@@ -56,6 +58,7 @@ class PipelineConfig:
     """
     パイプライン設定.
     """
+
     name: str
     stages: list[str]
     policies: dict[str, Any] = field(default_factory=dict)
@@ -65,7 +68,7 @@ class PipelineConfig:
     def from_yaml(cls, path: Path) -> PipelineConfig:
         """
         YAMLから読み込み.
-        
+
         正式スキーマ:
         pipeline: fullstack
         version: 1
@@ -88,7 +91,7 @@ class PipelineConfig:
             name=data.get("pipeline", data.get("name", "default")),
             stages=stages,
             policies=data.get("policies", {}),
-            version=data.get("version", 1)
+            version=data.get("version", 1),
         )
 
     @classmethod
@@ -101,14 +104,14 @@ class PipelineConfig:
             name=data.get("pipeline", "default"),
             stages=stages,
             policies=data.get("policies", {}),
-            version=data.get("version", 1)
+            version=data.get("version", 1),
         )
 
 
 class PipelineExecutor:
     """
     パイプライン実行エンジン.
-    
+
     - StageRegistryから全ハンドラを取得
     - 手動stage_handlersは廃止
     - YAMLで定義されたステージを順次実行
@@ -116,8 +119,7 @@ class PipelineExecutor:
     - 根拠付け率の検証
     """
 
-    def __init__(self, config: PipelineConfig,
-                 lyra: LyraSupervisor | None = None):
+    def __init__(self, config: PipelineConfig, lyra: LyraSupervisor | None = None):
         self.config = config
         self.lyra = lyra or get_lyra()
         self.results: list[StageResult] = []
@@ -129,18 +131,17 @@ class PipelineExecutor:
         self.cache_policy = config.policies.get("cache", "aggressive")
         self.default_timeout = config.policies.get("timeouts", {}).get("stage_default_sec", 120)
 
-    def run(self, context: TaskContext,
-            artifacts: Artifacts) -> ResultBundle:
+    def run(self, context: TaskContext, artifacts: Artifacts) -> ResultBundle:
         """
         パイプラインを実行.
-        
+
         Args:
             context: タスクコンテキスト
             artifacts: 入力成果物
-        
+
         Returns:
             ResultBundle with all outputs and provenance
-        
+
         Raises:
             StageNotImplementedError: 未登録ステージがあれば即失敗
         """
@@ -160,7 +161,7 @@ class PipelineExecutor:
         lyra_task = self.lyra.supervise(
             f"Execute pipeline: {self.config.name} with {len(self.config.stages)} stages",
             context={"goal": context.goal, "domain": context.domain},
-            task_type="complex"
+            task_type="complex",
         )
         result.add_log(f"Lyra supervision: {lyra_task.task_id}")
 
@@ -185,7 +186,7 @@ class PipelineExecutor:
             provenance_rate=artifacts.get_provenance_rate(),
             claims_total=len(artifacts.claims),
             claims_with_evidence=sum(1 for c in artifacts.claims if c.has_evidence()),
-            papers_processed=len(artifacts.papers)
+            papers_processed=len(artifacts.papers),
         )
 
         # Validate provenance if required
@@ -210,13 +211,16 @@ class PipelineExecutor:
 
         return result
 
-    def _execute_stage(self, stage_name: str,
-                       context: TaskContext,
-                       artifacts: Artifacts,
-                       obs_logger: Any | None = None) -> StageResult:
+    def _execute_stage(
+        self,
+        stage_name: str,
+        context: TaskContext,
+        artifacts: Artifacts,
+        obs_logger: Any | None = None,
+    ) -> StageResult:
         """
         個別ステージを実行.
-        
+
         StageRegistryから取得したハンドラを実行。
         """
         start = time.time()
@@ -248,7 +252,7 @@ class PipelineExecutor:
                 success=True,
                 duration_ms=duration,
                 outputs=outputs,
-                provenance_rate=artifacts.get_provenance_rate()
+                provenance_rate=artifacts.get_provenance_rate(),
             )
         except Exception as e:
             duration = (time.time() - start) * 1000
@@ -256,10 +260,7 @@ class PipelineExecutor:
                 obs_logger.error(f"stage {stage_name} failed", step=stage_name, exc=e)
             metrics.record_step_duration(context.run_id, stage_name, duration)
             return StageResult(
-                stage_name=stage_name,
-                success=False,
-                duration_ms=duration,
-                error=str(e)
+                stage_name=stage_name, success=False, duration_ms=duration, error=str(e)
             )
 
     def get_summary(self) -> dict[str, Any]:
@@ -275,45 +276,45 @@ class PipelineExecutor:
                     "stage": r.stage_name,
                     "success": r.success,
                     "duration_ms": r.duration_ms,
-                    "error": r.error
+                    "error": r.error,
                 }
                 for r in self.results
-            ]
+            ],
         }
 
 
 # Default pipeline configuration
 # YAMLから生成可能だが、フォールバックとしてハードコード版も保持
-DEFAULT_PIPELINE = PipelineConfig.from_dict({
-    "pipeline": "fullstack",
-    "version": 1,
-    "stages": [
-        "retrieval.query_expand",
-        "retrieval.query_decompose",
-        "retrieval.search_bm25",
-        "retrieval.embed_sectionwise",
-        "retrieval.rerank_crossencoder",
-        "screening.pico_extract",
-        "screening.filter_rules",
-        "extraction.claims",
-        "extraction.evidence_link",
-        "extraction.numeric",
-        "summarization.multigrain",
-        "scoring.importance_confidence_roi",
-        "knowledge_graph.build_and_index",
-        "design.gap_and_next_experiments",
-        "ops.audit_log_emit",
-        "ui.render_bundle"
-    ],
-    "policies": {
-        "provenance_required": True,
-        "refuse_if_no_evidence": True,
-        "cache": "aggressive",
-        "timeouts": {
-            "stage_default_sec": 120
-        }
+DEFAULT_PIPELINE = PipelineConfig.from_dict(
+    {
+        "pipeline": "fullstack",
+        "version": 1,
+        "stages": [
+            "retrieval.query_expand",
+            "retrieval.query_decompose",
+            "retrieval.search_bm25",
+            "retrieval.embed_sectionwise",
+            "retrieval.rerank_crossencoder",
+            "screening.pico_extract",
+            "screening.filter_rules",
+            "extraction.claims",
+            "extraction.evidence_link",
+            "extraction.numeric",
+            "summarization.multigrain",
+            "scoring.importance_confidence_roi",
+            "knowledge_graph.build_and_index",
+            "design.gap_and_next_experiments",
+            "ops.audit_log_emit",
+            "ui.render_bundle",
+        ],
+        "policies": {
+            "provenance_required": True,
+            "refuse_if_no_evidence": True,
+            "cache": "aggressive",
+            "timeouts": {"stage_default_sec": 120},
+        },
     }
-})
+)
 
 
 def get_pipeline_executor(config: PipelineConfig | None = None) -> PipelineExecutor:

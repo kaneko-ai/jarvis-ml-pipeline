@@ -2,6 +2,7 @@
 
 Per V4-T05, this standardizes confidence values across modules.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

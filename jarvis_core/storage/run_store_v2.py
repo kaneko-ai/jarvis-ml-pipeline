@@ -33,7 +33,7 @@ REQUIRED_FILES = [
 
 def generate_run_id() -> str:
     """run_id生成（規約固定）.
-    
+
     Format: YYYYMMDD_HHMMSS_<uuid4[:8]>
     """
     now = datetime.now()
@@ -44,7 +44,7 @@ def generate_run_id() -> str:
 
 class RunStore:
     """Run成果物ストア.
-    
+
     logs/runs/{run_id}/ の唯一の管理者。
     成果物契約（Bundle Contract）を強制。
     """
@@ -93,7 +93,7 @@ class RunStore:
 
 class RunContext:
     """Run実行コンテキスト.
-    
+
     成果物の読み書きを統一管理。
     """
 
@@ -167,20 +167,20 @@ class RunContext:
     def _save_json(self, filename: str, data: dict[str, Any]) -> None:
         """JSON保存."""
         path = self.run_dir / filename
-        with open(path, 'w', encoding='utf-8') as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
     def _save_jsonl(self, filename: str, items: list[dict[str, Any]]) -> None:
         """JSONL保存."""
         path = self.run_dir / filename
-        with open(path, 'w', encoding='utf-8') as f:
+        with open(path, "w", encoding="utf-8") as f:
             for item in items:
-                f.write(json.dumps(item, ensure_ascii=False) + '\n')
+                f.write(json.dumps(item, ensure_ascii=False) + "\n")
 
     def _load_json(self, filename: str) -> dict[str, Any] | None:
         """JSON読み込み."""
         path = self.run_dir / filename
         if path.exists():
-            with open(path, encoding='utf-8') as f:
+            with open(path, encoding="utf-8") as f:
                 return json.load(f)
         return None

@@ -1,4 +1,5 @@
 """Tests for AI features module."""
+
 import pytest
 
 from jarvis_core.ai.features import (
@@ -121,9 +122,9 @@ class TestCitationGenerator:
             "title": "Test Paper",
             "authors": "Smith J, Johnson A",
             "year": 2024,
-            "journal": "Nature"
+            "journal": "Nature",
         }
-        citation = generator.generate(paper, 'apa')
+        citation = generator.generate(paper, "apa")
         assert "Smith J, Johnson A" in citation
         assert "2024" in citation
         assert "Nature" in citation
@@ -136,9 +137,9 @@ class TestCitationGenerator:
             "authors": "Smith J",
             "year": 2024,
             "journal": "Science",
-            "pmid": "12345"
+            "pmid": "12345",
         }
-        citation = generator.generate(paper, 'bibtex')
+        citation = generator.generate(paper, "bibtex")
         assert "@article{" in citation
         assert "title={Test Paper}" in citation
 
@@ -159,7 +160,7 @@ class TestPaperTranslator:
     def test_translate_keywords(self):
         """Test keyword translation."""
         translator = PaperTranslator()
-        translations = translator.translate_keywords("cancer treatment", 'ja')
+        translations = translator.translate_keywords("cancer treatment", "ja")
         assert "cancer" in translations
         assert "treatment" in translations
 
@@ -201,14 +202,18 @@ class TestPaperQA:
     def test_answer_author_question(self):
         """Test answering author question."""
         qa = PaperQA()
-        qa.set_context({"title": "Test", "authors": "Smith J", "abstract": "", "journal": "", "year": ""})
+        qa.set_context(
+            {"title": "Test", "authors": "Smith J", "abstract": "", "journal": "", "year": ""}
+        )
         answer = qa.answer("Who wrote this paper?")
         assert "Smith J" in answer
 
     def test_answer_year_question(self):
         """Test answering year question."""
         qa = PaperQA()
-        qa.set_context({"title": "Test", "authors": "", "abstract": "", "journal": "", "year": 2024})
+        qa.set_context(
+            {"title": "Test", "authors": "", "abstract": "", "journal": "", "year": 2024}
+        )
         answer = qa.answer("When was this published?")
         assert "2024" in answer
 

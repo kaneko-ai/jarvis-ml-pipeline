@@ -5,6 +5,7 @@ Detects unsupported claims and assigns evidence strength grades.
 
 Output: Updates evidence.jsonl with strength ratings
 """
+
 import logging
 from typing import Any
 
@@ -15,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def calculate_evidence_strength(evidence: dict, claim: dict) -> str:
     """Calculate evidence strength based on multiple factors.
-    
+
     Returns: "Strong" | "Medium" | "Weak" | "None"
     """
     # Simple heuristic for Phase 2 bootstrap
@@ -86,7 +87,9 @@ def grade_evidence(claims: list[dict], evidence_list: list[dict], **kwargs) -> d
     supported_claims = total_claims - len(unsupported_claims)
     support_rate = supported_claims / total_claims if total_claims > 0 else 0.0
 
-    logger.info(f"Evidence grading: {supported_claims}/{total_claims} claims supported (rate={support_rate:.2f})")
+    logger.info(
+        f"Evidence grading: {supported_claims}/{total_claims} claims supported (rate={support_rate:.2f})"
+    )
 
     return {
         "evidence": evidence_list,
@@ -94,5 +97,5 @@ def grade_evidence(claims: list[dict], evidence_list: list[dict], **kwargs) -> d
         "unsupported_count": len(unsupported_claims),
         "weakly_supported_count": len(weakly_supported),
         "gate_pass": len(unsupported_claims) == 0 and support_rate >= 0.90,
-        "stage": "quality_gate.evidence_grading"
+        "stage": "quality_gate.evidence_grading",
     }

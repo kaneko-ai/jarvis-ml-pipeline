@@ -2,6 +2,7 @@
 
 Per RP-184.
 """
+
 import pytest
 
 pytestmark = pytest.mark.core

@@ -6,6 +6,7 @@ This module provides:
 
 Per RP26, this enables tracking research evolution.
 """
+
 from __future__ import annotations
 
 import json
@@ -51,12 +52,14 @@ def save_run(
 
     if result.claims is not None:
         for claim in result.claims.claims:
-            run_data["claims"].append({
-                "id": claim.id,
-                "text": claim.text,
-                "valid": claim.valid,
-                "citations": claim.citations,
-            })
+            run_data["claims"].append(
+                {
+                    "id": claim.id,
+                    "text": claim.text,
+                    "valid": claim.valid,
+                    "citations": claim.citations,
+                }
+            )
 
     run_path = run_dir / "run.json"
     with open(run_path, "w", encoding="utf-8") as f:

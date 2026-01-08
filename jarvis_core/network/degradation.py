@@ -6,18 +6,22 @@ from typing import Optional
 # Try to import is_online safely to avoid circular imports if possible,
 # or import it inside the method.
 
+
 class DegradationLevel(Enum):
-    FULL = "full"           # All features available
-    LIMITED = "limited"     # External APIs disabled, local cache only
-    OFFLINE = "offline"     # Completely offline
-    CRITICAL = "critical"   # No cache available
+    FULL = "full"  # All features available
+    LIMITED = "limited"  # External APIs disabled, local cache only
+    OFFLINE = "offline"  # Completely offline
+    CRITICAL = "critical"  # No cache available
+
 
 @dataclass
 class DegradationManager:
     _current_level: DegradationLevel = DegradationLevel.FULL
-    _listeners: list[Callable[[DegradationLevel, DegradationLevel], None]] = field(default_factory=list)
+    _listeners: list[Callable[[DegradationLevel, DegradationLevel], None]] = field(
+        default_factory=list
+    )
 
-    _instance: Optional['DegradationManager'] = None
+    _instance: Optional["DegradationManager"] = None
 
     @classmethod
     def get_instance(cls):
@@ -65,6 +69,7 @@ class DegradationManager:
         # Default to LIMITED if offline but not CRITICAL
         # If we can verify cache is empty/broken, return CRITICAL
         return DegradationLevel.OFFLINE
+
 
 def get_degradation_manager() -> DegradationManager:
     return DegradationManager.get_instance()

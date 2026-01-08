@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Contradiction:
     """矛盾."""
+
     claim_a_id: str
     claim_a_text: str
     claim_b_id: str
@@ -38,7 +39,7 @@ class Contradiction:
 
 class ContradictionDetector:
     """矛盾検出器.
-    
+
     claim間の矛盾を検出
     - 直接矛盾: 明示的に反対の主張
     - 暗黙矛盾: 論理的に両立しない
@@ -67,10 +68,10 @@ class ContradictionDetector:
         claims: list[dict[str, Any]],
     ) -> list[Contradiction]:
         """矛盾を検出.
-        
+
         Args:
             claims: 主張リスト（claim_id, claim_text を含む）
-        
+
         Returns:
             矛盾リスト
         """
@@ -78,7 +79,7 @@ class ContradictionDetector:
 
         # ペアワイズで比較
         for i, claim_a in enumerate(claims):
-            for j, claim_b in enumerate(claims[i+1:], i+1):
+            for j, claim_b in enumerate(claims[i + 1 :], i + 1):
                 result = self._check_contradiction(claim_a, claim_b)
                 if result:
                     contradictions.append(result)

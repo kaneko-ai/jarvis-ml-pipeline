@@ -4,6 +4,7 @@ The Task object captures the minimal contract shared across planners,
 routers, and execution components. It aligns with the specification
 in ``docs/JARVIS_MASTER.md`` (Section 5.2).
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -98,4 +99,3 @@ class Task:
     def _validate_mapping(field_name: str, value: Any) -> None:
         if not isinstance(value, dict):
             raise TypeError(f"{field_name} must be a dictionary; got {type(value).__name__}")
-

@@ -2,6 +2,7 @@
 
 Per V4-I01, this provides differential sync to Obsidian vault.
 """
+
 from __future__ import annotations
 
 import hashlib

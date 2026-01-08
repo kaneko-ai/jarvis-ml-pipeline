@@ -6,6 +6,7 @@ This module provides:
 
 Per RP8, this provides clean text extraction for EvidenceStore ingestion.
 """
+
 from __future__ import annotations
 
 import re

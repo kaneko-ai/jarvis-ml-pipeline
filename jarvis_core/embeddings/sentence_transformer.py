@@ -45,13 +45,13 @@ MODEL_CONFIGS = {
 
 class SentenceTransformerEmbedding:
     """Dense embedding using Sentence Transformers.
-    
+
     Supports multiple models optimized for different use cases:
     - all-MiniLM-L6-v2: Fast, general purpose (384d)
     - paraphrase-multilingual-MiniLM-L12-v2: Multilingual (384d)
     - allenai/specter2: Scientific papers (768d)
     - all-mpnet-base-v2: High quality (768d)
-    
+
     Example:
         >>> embedder = SentenceTransformerEmbedding()
         >>> vectors = embedder.encode(["Hello world", "Scientific paper"])
@@ -67,7 +67,7 @@ class SentenceTransformerEmbedding:
         cache_dir: Path | None = None,
     ):
         """Initialize the embedding model.
-        
+
         Args:
             model_name: Model identifier or EmbeddingModel enum
             device: Device to use ("cpu", "cuda", "mps"). Auto-detect if None.
@@ -132,10 +132,10 @@ class SentenceTransformerEmbedding:
 
     def encode(self, texts: str | list[str]) -> np.ndarray:
         """Encode texts into dense vectors.
-        
+
         Args:
             texts: Single text or list of texts to encode
-            
+
         Returns:
             numpy array of shape (n_texts, dimension)
         """
@@ -166,7 +166,7 @@ class SentenceTransformerEmbedding:
             digest = hashlib.sha256(text.encode("utf-8")).digest()
             numbers = np.frombuffer(digest, dtype=np.uint8).astype(np.float32)
             repeats = int(np.ceil(self._dimension / len(numbers)))
-            tiled = np.tile(numbers, repeats)[:self._dimension]
+            tiled = np.tile(numbers, repeats)[: self._dimension]
             vec = tiled / 255.0
             norm = np.linalg.norm(vec)
             if norm > 0:
@@ -189,6 +189,7 @@ class SentenceTransformerEmbedding:
         """Check if the model is available."""
         try:
             import sentence_transformers  # noqa: F401
+
             return True
         except ImportError:
             return False
@@ -211,7 +212,7 @@ class SentenceTransformerEmbedding:
 
 def get_default_embedding_model() -> SentenceTransformerEmbedding:
     """Get the default embedding model.
-    
+
     Returns all-MiniLM-L6-v2 as the default for speed and memory efficiency.
     """
     return SentenceTransformerEmbedding.for_general()

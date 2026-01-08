@@ -3,6 +3,7 @@
 Defines the structure of conclusions in reports to eliminate ambiguity
 and enforce evidence-driven output.
 """
+
 from dataclasses import dataclass
 from typing import Literal
 
@@ -15,9 +16,10 @@ ClaimType = Literal["Background", "Mechanism", "Efficacy", "Safety", "Biomarker"
 @dataclass
 class Conclusion:
     """A single conclusion in the report.
-    
+
     Each conclusion must be backed by evidence and have explicit uncertainty.
     """
+
     conclusion_text: str
     claim_id: str
     evidence_ids: list[str]
@@ -46,6 +48,7 @@ class Conclusion:
 @dataclass
 class ReportMetadata:
     """Metadata for the entire report."""
+
     total_papers: int
     total_claims: int
     supported_claims: int
@@ -55,7 +58,7 @@ class ReportMetadata:
 
 def validate_conclusion(conclusion: Conclusion) -> list[str]:
     """Validate a conclusion for quality issues.
-    
+
     Returns:
         List of validation errors (empty if valid)
     """
@@ -63,7 +66,9 @@ def validate_conclusion(conclusion: Conclusion) -> list[str]:
 
     # Rule 1: Strong/Medium must have evidence
     if conclusion.support_level in ["Strong", "Medium"] and not conclusion.evidence_ids:
-        errors.append(f"Claim {conclusion.claim_id}: {conclusion.support_level} support without evidence IDs")
+        errors.append(
+            f"Claim {conclusion.claim_id}: {conclusion.support_level} support without evidence IDs"
+        )
 
     # Rule 2: None support must not have assertive text
     if conclusion.support_level == "None":
@@ -72,12 +77,7 @@ def validate_conclusion(conclusion: Conclusion) -> list[str]:
             errors.append(f"Claim {conclusion.claim_id}: Assertive language with None support")
 
     # Rule 3: Uncertainty must match support level
-    expected_uncertainty = {
-        "Strong": "確定",
-        "Medium": "高信頼",
-        "Weak": "要注意",
-        "None": "推測"
-    }
+    expected_uncertainty = {"Strong": "確定", "Medium": "高信頼", "Weak": "要注意", "None": "推測"}
 
     if conclusion.uncertainty_label != expected_uncertainty[conclusion.support_level]:
         errors.append(

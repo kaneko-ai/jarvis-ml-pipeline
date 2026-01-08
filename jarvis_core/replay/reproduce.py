@@ -2,6 +2,7 @@
 
 Per V4-B04, this replays execution from manifest and reports differences.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

@@ -2,6 +2,7 @@
 
 Per RP-02, this defines the structure for ATS-compatible telemetry events.
 """
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
@@ -13,8 +14,8 @@ from typing import Any
 class EventType(Enum):
     """ATS-compatible event types."""
 
-    COGNITIVE = "COGNITIVE"       # 推論/判断
-    ACTION = "ACTION"             # ツール呼び出し
+    COGNITIVE = "COGNITIVE"  # 推論/判断
+    ACTION = "ACTION"  # ツール呼び出し
     COORDINATION = "COORDINATION"  # タスク管理/計画
 
 

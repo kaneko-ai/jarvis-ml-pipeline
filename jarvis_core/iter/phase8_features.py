@@ -9,6 +9,7 @@
 - ITER2-09: Obsidian輸出
 - ITER2-10: 最終耐久完成
 """
+
 from __future__ import annotations
 
 import json
@@ -23,6 +24,7 @@ from typing import Any
 @dataclass
 class NormalizedEntity:
     """正規化エンティティ."""
+
     original: str
     normalized: str
     entity_type: str
@@ -72,6 +74,7 @@ class EntityNormalizer:
 @dataclass
 class UncertaintyCalibration:
     """不確実性校正結果."""
+
     raw_confidence: float
     calibrated_confidence: float
     uncertainty_sources: list[str] = field(default_factory=list)
@@ -81,8 +84,16 @@ class UncertaintyCalibrator:
     """不確実性校正器."""
 
     HEDGE_WORDS = [
-        "may", "might", "could", "possibly", "potentially",
-        "suggests", "appears", "seems", "likely", "probably",
+        "may",
+        "might",
+        "could",
+        "possibly",
+        "potentially",
+        "suggests",
+        "appears",
+        "seems",
+        "likely",
+        "probably",
     ]
 
     def calibrate(
@@ -101,7 +112,7 @@ class UncertaintyCalibrator:
                 adjustment -= 0.05
 
         # 否定形
-        if re.search(r'\bnot\b|\bno\b|\bnever\b', text_lower):
+        if re.search(r"\bnot\b|\bno\b|\bnever\b", text_lower):
             sources.append("negation")
             adjustment -= 0.1
 
@@ -118,6 +129,7 @@ class UncertaintyCalibrator:
 @dataclass
 class ObservationPoint:
     """観測ポイント."""
+
     timestamp: str
     metrics: dict[str, float]
     alerts: list[str] = field(default_factory=list)
@@ -144,10 +156,16 @@ class PerformanceObserver:
     def _persist(self, point: ObservationPoint) -> None:
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.log_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps({
-                "timestamp": point.timestamp,
-                "metrics": point.metrics,
-            }, ensure_ascii=False) + "\n")
+            f.write(
+                json.dumps(
+                    {
+                        "timestamp": point.timestamp,
+                        "metrics": point.metrics,
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n"
+            )
 
 
 # ===== ITER2-06: Figure-first要約 =====
@@ -178,6 +196,7 @@ class FigureFirstSummarizer:
 @dataclass
 class ReasoningStep:
     """推論ステップ."""
+
     step_id: int
     premise: str
     inference: str
@@ -191,12 +210,14 @@ class MultiStepReasoner:
         steps = []
 
         for i, ev in enumerate(evidence):
-            steps.append(ReasoningStep(
-                step_id=i + 1,
-                premise=ev[:100],
-                inference=f"ステップ{i+1}: {ev[:50]}から推論",
-                confidence=0.8,
-            ))
+            steps.append(
+                ReasoningStep(
+                    step_id=i + 1,
+                    premise=ev[:100],
+                    inference=f"ステップ{i+1}: {ev[:50]}から推論",
+                    confidence=0.8,
+                )
+            )
 
         return steps
 
@@ -307,8 +328,10 @@ class FinalResilienceChecker:
 def normalize_entity(text: str, entity_type: str = "gene") -> NormalizedEntity:
     return EntityNormalizer().normalize(text, entity_type)
 
+
 def calibrate_uncertainty(text: str, confidence: float) -> UncertaintyCalibration:
     return UncertaintyCalibrator().calibrate(text, confidence)
+
 
 def check_final_resilience(run_result: dict[str, Any]) -> bool:
     return FinalResilienceChecker().is_ready(run_result)

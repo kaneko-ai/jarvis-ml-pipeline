@@ -1,4 +1,5 @@
 """Normalize terms using synonym dictionary."""
+
 from __future__ import annotations
 
 import json
@@ -34,7 +35,10 @@ class TermNormalizer:
         if not path.exists():
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(DEFAULT_SYNONYMS, f, ensure_ascii=False, indent=2)
-            return {key.lower(): [item.lower() for item in values] for key, values in DEFAULT_SYNONYMS.items()}
+            return {
+                key.lower(): [item.lower() for item in values]
+                for key, values in DEFAULT_SYNONYMS.items()
+            }
         try:
             with open(path, encoding="utf-8") as f:
                 data = json.load(f)

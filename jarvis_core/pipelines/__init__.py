@@ -1,4 +1,5 @@
 """JARVIS Pipelines Module"""
+
 from .executor import (
     DEFAULT_PIPELINE,
     PipelineConfig,
@@ -26,4 +27,3 @@ __all__ = [
     "register_stage",
     "validate_all_stages",
 ]
-

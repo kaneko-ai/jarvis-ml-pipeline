@@ -2,6 +2,7 @@
 
 Per Research OS v3.0 specification.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -78,12 +79,14 @@ def track_skill_gap(
 
     timeline = []
     for skill in gaps:
-        timeline.append({
-            "skill": skill,
-            "status": "missing",
-            "priority": "high" if skill == gaps[0] else "medium",
-            "suggested_action": f"{skill}のトレーニング/共同研究",
-        })
+        timeline.append(
+            {
+                "skill": skill,
+                "status": "missing",
+                "priority": "high" if skill == gaps[0] else "medium",
+                "suggested_action": f"{skill}のトレーニング/共同研究",
+            }
+        )
 
     return {
         "skill_gap_timeline": timeline,
@@ -199,10 +202,12 @@ def simulate_reputation_trajectory(
     curve = []
     rep = current
     for year in range(years_ahead + 1):
-        curve.append({
-            "year": year,
-            "reputation": round(min(1.0, rep), 2),
-        })
+        curve.append(
+            {
+                "year": year,
+                "reputation": round(min(1.0, rep), 2),
+            }
+        )
         rep += growth_rate
 
     return {

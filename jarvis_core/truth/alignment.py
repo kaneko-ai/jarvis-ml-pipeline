@@ -5,6 +5,7 @@ Per V4-T02, this provides strict alignment checking with:
 - Locator consistency (page, paragraph)
 - Machine-readable mismatch reasons
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -40,7 +41,22 @@ class AlignmentResult:
 
 def tokenize(text: str) -> set:
     """Tokenize text for overlap calculation."""
-    stopwords = {"the", "a", "an", "is", "are", "was", "were", "in", "on", "at", "to", "for", "of", "and"}
+    stopwords = {
+        "the",
+        "a",
+        "an",
+        "is",
+        "are",
+        "was",
+        "were",
+        "in",
+        "on",
+        "at",
+        "to",
+        "for",
+        "of",
+        "and",
+    }
     words = text.lower().split()
     return {w for w in words if w not in stopwords and len(w) > 2}
 

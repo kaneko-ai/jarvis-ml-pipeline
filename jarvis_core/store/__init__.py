@@ -1,4 +1,5 @@
 """Store package for content-addressed storage."""
+
 from .content_addressed import (
     ContentAddressedStore,
     compute_hash,

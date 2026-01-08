@@ -15,4 +15,3 @@ except ImportError:
     _escape_bibtex = None
 
 __all__ = ["BibTeXFetcher", "export_bibtex", "format_bibtex_entry", "_escape_bibtex"]
-

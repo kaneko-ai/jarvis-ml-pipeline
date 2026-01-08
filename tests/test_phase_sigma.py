@@ -2,6 +2,7 @@
 
 Tests Σ-1 to Σ-30 modules.
 """
+
 import sys
 from pathlib import Path
 

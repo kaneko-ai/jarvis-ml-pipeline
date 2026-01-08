@@ -2,6 +2,7 @@
 
 Per RP34, this suggests journals based on paper attributes.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -87,10 +88,7 @@ def suggest_journals(
         reasons = []
 
         # Concept match
-        concept_match = sum(
-            all_concepts.get(c, 0)
-            for c in profile.get("concepts", [])
-        )
+        concept_match = sum(all_concepts.get(c, 0) for c in profile.get("concepts", []))
         if concept_match > 0:
             fit_score += min(concept_match / 3, 0.4)
             reasons.append("概念が一致")
@@ -117,11 +115,13 @@ def suggest_journals(
             fit_score += 0.2
             reasons.append("新規性要件を満たす")
 
-        suggestions.append({
-            "journal": journal,
-            "fit_score": round(fit_score, 2),
-            "reason": "、".join(reasons) if reasons else "一般投稿可能",
-        })
+        suggestions.append(
+            {
+                "journal": journal,
+                "fit_score": round(fit_score, 2),
+                "reason": "、".join(reasons) if reasons else "一般投稿可能",
+            }
+        )
 
     # Sort by fit score
     suggestions.sort(key=lambda x: x["fit_score"], reverse=True)

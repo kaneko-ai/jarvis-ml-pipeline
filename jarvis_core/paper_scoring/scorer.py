@@ -26,12 +26,12 @@ class ScoringWeights:
     def normalize(self) -> ScoringWeights:
         """Normalize weights to sum to 1.0."""
         total = (
-            self.evidence_level +
-            self.citation_support +
-            self.methodology +
-            self.recency +
-            self.journal_impact +
-            self.contradiction_penalty
+            self.evidence_level
+            + self.citation_support
+            + self.methodology
+            + self.recency
+            + self.journal_impact
+            + self.contradiction_penalty
         )
         if total == 0:
             return self
@@ -96,11 +96,11 @@ class PaperScore:
 
 class PaperScorer:
     """Calculates quality scores for research papers.
-    
+
     Combines evidence level, citation analysis, methodology assessment,
     recency, journal impact, and contradiction detection into an
     overall reliability score.
-    
+
     Example:
         >>> scorer = PaperScorer()
         >>> score = scorer.score(
@@ -114,7 +114,7 @@ class PaperScorer:
 
     def __init__(self, weights: ScoringWeights | None = None):
         """Initialize the scorer.
-        
+
         Args:
             weights: Custom scoring weights
         """
@@ -133,7 +133,7 @@ class PaperScorer:
         has_contradictions: bool = False,
     ) -> PaperScore:
         """Calculate paper score.
-        
+
         Args:
             paper_id: Paper identifier
             evidence_level: CEBM evidence level (1-5)
@@ -144,7 +144,7 @@ class PaperScorer:
             publication_year: Year of publication
             journal_impact_factor: Journal impact factor
             has_contradictions: Whether paper has contradictions
-            
+
         Returns:
             PaperScore with overall and component scores
         """
@@ -158,12 +158,12 @@ class PaperScorer:
 
         # Calculate weighted overall score
         overall = (
-            evidence_score * self._weights.evidence_level +
-            citation_score * self._weights.citation_support +
-            methodology_score * self._weights.methodology +
-            recency_score * self._weights.recency +
-            journal_score * self._weights.journal_impact -
-            contradiction_penalty * self._weights.contradiction_penalty
+            evidence_score * self._weights.evidence_level
+            + citation_score * self._weights.citation_support
+            + methodology_score * self._weights.methodology
+            + recency_score * self._weights.recency
+            + journal_score * self._weights.journal_impact
+            - contradiction_penalty * self._weights.contradiction_penalty
         )
 
         overall = max(0.0, min(1.0, overall))
@@ -208,6 +208,7 @@ class PaperScorer:
 
         # Also consider total citations (log scale)
         import math
+
         citation_factor = min(1.0, math.log10(total + 1) / 3)
 
         return ratio * 0.7 + citation_factor * 0.3
@@ -269,16 +270,16 @@ def calculate_paper_score(
     **kwargs,
 ) -> PaperScore:
     """Calculate paper score.
-    
+
     Convenience function for quick scoring.
-    
+
     Args:
         paper_id: Paper identifier
         evidence_level: CEBM evidence level (1-5)
         support_count: Number of supporting citations
         contrast_count: Number of contrasting citations
         **kwargs: Additional arguments for PaperScorer.score
-        
+
     Returns:
         PaperScore
     """

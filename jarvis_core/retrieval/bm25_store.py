@@ -1,4 +1,5 @@
 """SQLite FTS5 based keyword search store."""
+
 from __future__ import annotations
 
 import sqlite3

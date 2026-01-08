@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class GoldsetEntry:
     """Goldsetエントリ."""
+
     context: str
     decision: str
     scores: dict[str, int]
@@ -30,7 +31,7 @@ class GoldsetEntry:
 
     def generate_embedding_text(self) -> str:
         """embedding用テキストを生成.
-        
+
         Context + Reason + Outcome を連結。
         点数はembeddingに入れない（判断の文脈と理由を厚くする）。
         """
@@ -72,18 +73,16 @@ class GoldsetEntry:
 
 class GoldsetIndex:
     """Goldset Index（検索可能なVectorStore）.
-    
+
     Phase2: 類似判断検索の基盤。
     """
 
     def __init__(
-        self,
-        goldset_path: str = "configs/goldset.jsonl",
-        index_path: str = "data/goldset_index"
+        self, goldset_path: str = "configs/goldset.jsonl", index_path: str = "data/goldset_index"
     ):
         """
         初期化.
-        
+
         Args:
             goldset_path: Goldsetファイルパス
             index_path: インデックス保存先
@@ -104,7 +103,7 @@ class GoldsetIndex:
             logger.warning(f"Goldset not found: {self.goldset_path}")
             return
 
-        with open(self.goldset_path, encoding='utf-8') as f:
+        with open(self.goldset_path, encoding="utf-8") as f:
             for line in f:
                 if line.strip():
                     data = json.loads(line)
@@ -115,7 +114,7 @@ class GoldsetIndex:
 
     def build_index(self, embed_provider=None) -> None:
         """インデックスを構築.
-        
+
         Args:
             embed_provider: EmbedProvider（省略時はローカル）
         """
@@ -125,6 +124,7 @@ class GoldsetIndex:
             # ローカルembeddingを使用
             from jarvis_core.providers.base import ProviderConfig, ProviderType
             from jarvis_core.providers.local_embed import LocalEmbedProvider
+
             config = ProviderConfig(provider_type=ProviderType.LOCAL)
             self._embed_provider = LocalEmbedProvider(config)
             self._embed_provider.initialize()
@@ -152,16 +152,16 @@ class GoldsetIndex:
             "entries": [e.to_dict() for e in self._entries],
             "embeddings": self._embeddings,
         }
-        with open(index_file, 'w', encoding='utf-8') as f:
+        with open(index_file, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
     def search(self, query: str, top_k: int = 3) -> list[tuple[GoldsetEntry, float]]:
         """類似判断を検索.
-        
+
         Args:
             query: 検索クエリ
             top_k: 上位何件
-        
+
         Returns:
             (GoldsetEntry, similarity_score) のリスト
         """

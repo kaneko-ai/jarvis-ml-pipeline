@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 2, this provides hash-based state for incremental processing.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -132,10 +133,7 @@ class IncrementalState:
             "documents": len(self.documents),
             "chunks": len(self.chunk_hashes),
             "stages": {
-                stage: sum(
-                    1 for d in self.documents.values()
-                    if stage in d.stages_completed
-                )
+                stage: sum(1 for d in self.documents.values() if stage in d.stages_completed)
                 for stage in ["ingest", "normalize", "chunk", "index"]
             },
         }

@@ -4,7 +4,6 @@ Per JARVIS_COMPLETION_PLAN_v3 Task 2.3
 """
 
 
-
 class TestContradictionSchema:
     """Tests for contradiction schema."""
 

@@ -17,12 +17,12 @@ logger = logging.getLogger(__name__)
 
 class TabularTaskExecutor:
     """Tabular Pipeline Executor.
-    
+
     Jarvisの責務:
     - configを渡す
     - run_idを払い出す
     - 実行ログを集約する
-    
+
     データ内容の理解はtabular pipeline側の責務。
     """
 
@@ -37,18 +37,20 @@ class TabularTaskExecutor:
     ) -> dict[str, Any]:
         """
         タスクを実行.
-        
+
         Args:
             config_path: 設定ファイルパス
             timeout: タイムアウト秒数
-        
+
         Returns:
             実行結果
         """
         cmd = [
             self.python_path,
-            "-m", "cli.tabular_run",
-            "--config", config_path,
+            "-m",
+            "cli.tabular_run",
+            "--config",
+            config_path,
         ]
 
         logger.info(f"Executing: {' '.join(cmd)}")

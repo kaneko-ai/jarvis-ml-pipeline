@@ -1,4 +1,5 @@
 """Term normalization utilities for lab style guide."""
+
 from __future__ import annotations
 
 import re
@@ -59,12 +60,14 @@ def _apply_variants(
                 severity=severity,
             )
         )
-        replacements.append({
-            "location": location,
-            "original": original,
-            "suggested": preferred,
-            "rule_id": rule_id,
-        })
+        replacements.append(
+            {
+                "location": location,
+                "original": original,
+                "suggested": preferred,
+                "rule_id": rule_id,
+            }
+        )
         return preferred
 
     for pattern in variants:
@@ -139,7 +142,9 @@ def normalize_lines(
     )
 
 
-def check_abbrev_rules(text: str, style_guide: dict[str, object], source_prefix: str) -> list[TermIssue]:
+def check_abbrev_rules(
+    text: str, style_guide: dict[str, object], source_prefix: str
+) -> list[TermIssue]:
     issues: list[TermIssue] = []
     abbrev_rules = style_guide.get("abbrev_rules", [])
     lines = text.splitlines()
@@ -159,7 +164,7 @@ def check_abbrev_rules(text: str, style_guide: dict[str, object], source_prefix:
                 break
         if first_abbrev_line is None:
             continue
-        text_before = "\n".join(lines[: first_abbrev_line])
+        text_before = "\n".join(lines[:first_abbrev_line])
         if not full_pattern.search(text_before):
             issues.append(
                 TermIssue(
@@ -174,14 +179,18 @@ def check_abbrev_rules(text: str, style_guide: dict[str, object], source_prefix:
     return issues
 
 
-def normalize_markdown(text: str, style_guide: dict[str, object]) -> tuple[str, list[TermIssue], list[dict[str, str]]]:
+def normalize_markdown(
+    text: str, style_guide: dict[str, object]
+) -> tuple[str, list[TermIssue], list[dict[str, str]]]:
     lines = text.splitlines()
     result = normalize_lines(lines, style_guide, source_prefix="md")
     issues = result.issues + check_abbrev_rules(text, style_guide, "md")
     return "\n".join(result.normalized_lines), issues, result.replacements
 
 
-def normalize_docx_paragraphs(paragraphs: list[str], style_guide: dict[str, object]) -> NormalizationResult:
+def normalize_docx_paragraphs(
+    paragraphs: list[str], style_guide: dict[str, object]
+) -> NormalizationResult:
     return normalize_lines(paragraphs, style_guide, source_prefix="docx")
 
 

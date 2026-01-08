@@ -2,6 +2,7 @@
 
 Per PR-93, classifies failures for analysis.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

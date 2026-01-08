@@ -1,4 +1,5 @@
 """Tests for RP-02 Telemetry."""
+
 import sys
 import tempfile
 from pathlib import Path

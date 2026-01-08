@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class RetryAttempt:
     """再試行記録（Step 62）."""
+
     attempt: int
     changes_made: list[str]
     result_improved: bool
@@ -38,6 +39,7 @@ class RetryAttempt:
 @dataclass
 class JudgeResult:
     """Judge結果."""
+
     passed: bool
     format_score: float  # 形式チェック
     citation_score: float  # 引用整合
@@ -77,7 +79,7 @@ RETRY_STRATEGIES = {
 
 class Judge:
     """2系統Judge（Step 66）.
-    
+
     - 形式チェック（構造、必須フィールド）
     - 引用整合チェック（引用元と主張の関連性）
     """
@@ -161,7 +163,7 @@ class Judge:
 
 class RetryManager:
     """再試行マネージャー.
-    
+
     Step 61-74: 自動リトライ
     """
 
@@ -201,10 +203,12 @@ class RetryManager:
         strategies = []
         for code in fail_codes:
             if code in RETRY_STRATEGIES:
-                strategies.append({
-                    "code": code,
-                    **RETRY_STRATEGIES[code],
-                })
+                strategies.append(
+                    {
+                        "code": code,
+                        **RETRY_STRATEGIES[code],
+                    }
+                )
         return strategies
 
     def record_attempt(
@@ -216,14 +220,16 @@ class RetryManager:
         time_ms: int,
     ) -> None:
         """試行を記録（Step 62, 64, 65）."""
-        self.attempts.append(RetryAttempt(
-            attempt=attempt,
-            changes_made=changes,
-            result_improved=improved,
-            cost=cost,
-            time_ms=time_ms,
-            timestamp=datetime.now().isoformat(),
-        ))
+        self.attempts.append(
+            RetryAttempt(
+                attempt=attempt,
+                changes_made=changes,
+                result_improved=improved,
+                cost=cost,
+                time_ms=time_ms,
+                timestamp=datetime.now().isoformat(),
+            )
+        )
         self.total_cost += cost
 
     def get_summary(self) -> dict[str, Any]:

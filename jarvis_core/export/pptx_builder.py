@@ -1,4 +1,5 @@
 """PPTX export helpers for writing drafts."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -6,6 +7,7 @@ from pathlib import Path
 try:
     from pptx import Presentation
     from pptx.util import Inches, Pt
+
     PPTX_AVAILABLE = True
 except ImportError:  # pragma: no cover
     PPTX_AVAILABLE = False

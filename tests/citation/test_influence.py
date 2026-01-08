@@ -38,11 +38,7 @@ def test_rank_papers_by_influence():
         "paper3": [],  # No citations
     }
 
-    ranked = calculator.rank_papers(
-        ["paper1", "paper2", "paper3"],
-        citations_map,
-        by="influence"
-    )
+    ranked = calculator.rank_papers(["paper1", "paper2", "paper3"], citations_map, by="influence")
 
     assert len(ranked) == 3
     # paper1 should have highest influence (10 supports)

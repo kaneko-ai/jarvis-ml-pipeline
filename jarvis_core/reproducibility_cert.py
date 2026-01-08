@@ -2,6 +2,7 @@
 
 Per Ψ-3, this certifies reproducibility of hypotheses.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -57,7 +58,7 @@ def certify_reproducibility(
     # Check impact variance
     impacts = [v.impact.future_potential for v in vectors]
     if impacts:
-        variance = sum((x - sum(impacts)/len(impacts))**2 for x in impacts) / len(impacts)
+        variance = sum((x - sum(impacts) / len(impacts)) ** 2 for x in impacts) / len(impacts)
         if variance > 0.1:
             weak_points.append("評価のばらつきが大きい")
 

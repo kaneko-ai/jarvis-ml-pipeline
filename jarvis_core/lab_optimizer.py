@@ -2,6 +2,7 @@
 
 Per Issue Ω-4, this optimizes lab resource allocation.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -63,20 +64,19 @@ def optimize_lab_resources(
     for res_id, res_info in LAB_RESOURCES.items():
         for method in required_methods:
             if method in res_info["methods"]:
-                required_resources.append({
-                    "resource": res_id,
-                    "for_method": method,
-                    "cost": res_info["cost"],
-                })
+                required_resources.append(
+                    {
+                        "resource": res_id,
+                        "for_method": method,
+                        "cost": res_info["cost"],
+                    }
+                )
                 break
 
     # Filter by availability
     if available_resources:
         available_set = set(available_resources)
-        required_resources = [
-            r for r in required_resources
-            if r["resource"] in available_set
-        ]
+        required_resources = [r for r in required_resources if r["resource"] in available_set]
 
     # Build optimal path (simple: sort by cost)
     required_resources.sort(key=lambda x: x["cost"])

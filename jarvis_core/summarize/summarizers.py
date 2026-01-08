@@ -5,6 +5,7 @@
 - 詳細解説
 - NotebookLM台本
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -16,6 +17,7 @@ from jarvis_core.prompts import get_registry
 @dataclass
 class SummaryOutput:
     """要約出力."""
+
     summary_300: str = ""
     summary_detailed: str = ""
     notebooklm_script: str = ""
@@ -32,7 +34,7 @@ class SummaryOutput:
 
 class Summarizer:
     """要約生成器.
-    
+
     Prompt Registry経由でテンプレートを使用。
     LLMがない場合はテンプレートのみ返却。
     """
@@ -51,12 +53,12 @@ class Summarizer:
         evidence: list[dict[str, Any]],
     ) -> SummaryOutput:
         """3種の要約を全て生成.
-        
+
         Args:
             topic: トピック/クエリ
             claims: 主張リスト
             evidence: 根拠リスト
-            
+
         Returns:
             SummaryOutput
         """
@@ -193,16 +195,18 @@ class Summarizer:
             elif cl.strip().startswith("根拠:"):
                 lines.append(f"  {cl.strip()}")
 
-        lines.extend([
-            "",
-            "## 限界と未解決点",
-            "- 調査した論文数が限られている可能性があります",
-            "- 追加の検証が必要な主張があります",
-            "",
-            "## 次の問い",
-            f"- 「{topic}」のさらなる機序解明",
-            "- 臨床応用に向けた課題の特定",
-        ])
+        lines.extend(
+            [
+                "",
+                "## 限界と未解決点",
+                "- 調査した論文数が限られている可能性があります",
+                "- 追加の検証が必要な主張があります",
+                "",
+                "## 次の問い",
+                f"- 「{topic}」のさらなる機序解明",
+                "- 臨床応用に向けた課題の特定",
+            ]
+        )
 
         return "\n".join(lines)
 
@@ -232,14 +236,16 @@ class Summarizer:
                 lines.append(f"**B:** また、{clean}")
                 lines.append("")
 
-        lines.extend([
-            "**A:** 今後の研究ではどこに注目すべきでしょうか？",
-            "",
-            f"**B:** {topic}の臨床応用に向けた課題の解明が重要だと思います。",
-            "",
-            "---",
-            "*このスクリプトはテンプレートから自動生成されました*",
-        ])
+        lines.extend(
+            [
+                "**A:** 今後の研究ではどこに注目すべきでしょうか？",
+                "",
+                f"**B:** {topic}の臨床応用に向けた課題の解明が重要だと思います。",
+                "",
+                "---",
+                "*このスクリプトはテンプレートから自動生成されました*",
+            ]
+        )
 
         return "\n".join(lines)
 

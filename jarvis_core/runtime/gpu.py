@@ -2,6 +2,7 @@
 
 Per RP-414, implements GPU acceleration for embeddings and inference.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -20,7 +21,7 @@ class GPUInfo:
 
 class GPUAccelerator:
     """GPU acceleration manager.
-    
+
     Per RP-414:
     - CUDA-compatible embeddings
     - vLLM integration
@@ -40,6 +41,7 @@ class GPUAccelerator:
         """Check CUDA availability."""
         try:
             import torch
+
             return torch.cuda.is_available()
         except ImportError:
             return False
@@ -51,7 +53,7 @@ class GPUAccelerator:
 
     def get_device(self) -> str:
         """Get compute device string.
-        
+
         Returns:
             'cuda:X' or 'cpu'.
         """
@@ -63,7 +65,7 @@ class GPUAccelerator:
 
     def list_gpus(self) -> list[GPUInfo]:
         """List available GPUs.
-        
+
         Returns:
             List of GPU info.
         """
@@ -80,13 +82,15 @@ class GPUAccelerator:
                 memory_total = props.total_memory // (1024 * 1024)
                 memory_used = torch.cuda.memory_allocated(i) // (1024 * 1024)
 
-                gpus.append(GPUInfo(
-                    device_id=i,
-                    name=props.name,
-                    memory_total_mb=memory_total,
-                    memory_used_mb=memory_used,
-                    utilization_percent=0.0,  # Would need nvidia-smi
-                ))
+                gpus.append(
+                    GPUInfo(
+                        device_id=i,
+                        name=props.name,
+                        memory_total_mb=memory_total,
+                        memory_used_mb=memory_used,
+                        utilization_percent=0.0,  # Would need nvidia-smi
+                    )
+                )
         except Exception:
             pass
 
@@ -94,7 +98,7 @@ class GPUAccelerator:
 
     def select_best_gpu(self) -> int | None:
         """Select best available GPU.
-        
+
         Returns:
             Best GPU device ID or None.
         """
@@ -117,11 +121,11 @@ class GPUAccelerator:
         model_memory_mb: float,
     ) -> int:
         """Calculate optimal batch size.
-        
+
         Args:
             item_size_mb: Memory per item.
             model_memory_mb: Model memory footprint.
-            
+
         Returns:
             Optimal batch size.
         """
@@ -148,10 +152,10 @@ class GPUAccelerator:
         model_name: str = "all-MiniLM-L6-v2",
     ):
         """Create GPU-accelerated embedder.
-        
+
         Args:
             model_name: Model name.
-            
+
         Returns:
             Embedder instance.
         """
@@ -172,12 +176,12 @@ class GPUAccelerator:
         batch_size: int | None = None,
     ) -> list[list[float]]:
         """Embed texts with GPU acceleration.
-        
+
         Args:
             texts: Texts to embed.
             embedder: Embedder model.
             batch_size: Optional batch size.
-            
+
         Returns:
             Embeddings.
         """

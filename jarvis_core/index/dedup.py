@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 2, this provides hash + near-duplicate detection.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -45,7 +46,7 @@ class DedupFilter:
 
         shingles = set()
         for i in range(len(words) - k + 1):
-            shingle = " ".join(words[i:i + k])
+            shingle = " ".join(words[i : i + k])
             shingles.add(shingle)
 
         return shingles

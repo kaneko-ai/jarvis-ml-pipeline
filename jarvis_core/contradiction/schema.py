@@ -14,13 +14,13 @@ from typing import Any
 class ContradictionType(Enum):
     """Types of contradictions between claims."""
 
-    DIRECT = "direct"           # A says X, B says not X
+    DIRECT = "direct"  # A says X, B says not X
     QUANTITATIVE = "quantitative"  # Different numeric values
-    TEMPORAL = "temporal"       # Different time periods/results
+    TEMPORAL = "temporal"  # Different time periods/results
     METHODOLOGICAL = "methodological"  # Different methods lead to different conclusions
-    PARTIAL = "partial"         # Partially overlapping contradictions
-    NONE = "none"               # No contradiction
-    UNCERTAIN = "uncertain"     # Cannot determine
+    PARTIAL = "partial"  # Partially overlapping contradictions
+    NONE = "none"  # No contradiction
+    UNCERTAIN = "uncertain"  # Cannot determine
 
 
 @dataclass
@@ -39,10 +39,10 @@ class Claim:
     confidence: float = 1.0
 
     # Semantic components (PICO-like)
-    subject: str | None = None      # What is being studied
-    predicate: str | None = None    # Relationship/action
-    object: str | None = None       # Effect/outcome
-    qualifier: str | None = None    # Conditions/modifiers
+    subject: str | None = None  # What is being studied
+    predicate: str | None = None  # Relationship/action
+    object: str | None = None  # Effect/outcome
+    qualifier: str | None = None  # Conditions/modifiers
 
     # Embedding for similarity comparison
     embedding: list[float] | None = None

@@ -1,4 +1,5 @@
 """Tests for Dashboard features - Task 3"""
+
 import json
 from pathlib import Path
 
@@ -13,7 +14,7 @@ class TestDashboardHTML:
         """Load dashboard HTML."""
         html_path = Path(__file__).parent.parent / "docs" / "index.html"
         if html_path.exists():
-            return html_path.read_text(encoding='utf-8')
+            return html_path.read_text(encoding="utf-8")
         return None
 
     def test_dashboard_exists(self, dashboard_html):
@@ -92,7 +93,7 @@ class TestDashboardAPI:
         """Load API HTML."""
         html_path = Path(__file__).parent.parent / "docs" / "api.html"
         if html_path.exists():
-            return html_path.read_text(encoding='utf-8')
+            return html_path.read_text(encoding="utf-8")
         return None
 
     @pytest.fixture
@@ -133,6 +134,7 @@ class TestPubMedIntegration:
     def test_search_query_encoding(self):
         """Test search query can be URL encoded."""
         from urllib.parse import quote
+
         query = "COVID-19 treatment"
         encoded = quote(query)
         assert "COVID-19" in encoded or "COVID" in encoded
@@ -144,7 +146,7 @@ class TestPubMedIntegration:
             "authors": "Smith J, et al.",
             "year": 2024,
             "pmid": "39123456",
-            "tags": ["ai", "health"]
+            "tags": ["ai", "health"],
         }
         assert "title" in mock_result
         assert "pmid" in mock_result
@@ -156,11 +158,7 @@ class TestChatFeatures:
 
     def test_chat_message_structure(self):
         """Test chat message structure."""
-        msg = {
-            "role": "user",
-            "content": "Hello",
-            "timestamp": "2024-01-01T00:00:00Z"
-        }
+        msg = {"role": "user", "content": "Hello", "timestamp": "2024-01-01T00:00:00Z"}
         assert msg["role"] in ["user", "assistant", "system"]
         assert len(msg["content"]) > 0
 
@@ -169,7 +167,7 @@ class TestChatFeatures:
         suggestions = [
             "Summarize COVID-19 research",
             "AI healthcare trends",
-            "ML paper recommendations"
+            "ML paper recommendations",
         ]
         assert len(suggestions) >= 3
         for s in suggestions:
@@ -181,25 +179,14 @@ class TestExportFeatures:
 
     def test_json_export_format(self):
         """Test JSON export format."""
-        data = {
-            "stats": {
-                "searches": 10,
-                "papers": 50
-            }
-        }
+        data = {"stats": {"searches": 10, "papers": 50}}
         exported = json.dumps(data, indent=2)
         assert "searches" in exported
         assert "papers" in exported
 
     def test_export_includes_stats(self):
         """Test export includes statistics."""
-        data = {
-            "stats": {
-                "searches": 10,
-                "papers": 50
-            },
-            "version": "4.4.0"
-        }
+        data = {"stats": {"searches": 10, "papers": 50}, "version": "4.4.0"}
         assert data["stats"]["searches"] >= 0
         assert data["stats"]["papers"] >= 0
 
@@ -209,33 +196,20 @@ class TestUIComponents:
 
     def test_color_variables_defined(self):
         """Test color variables are properly defined."""
-        colors = {
-            "pink": "#f472b6",
-            "blue": "#60a5fa",
-            "green": "#4ade80",
-            "purple": "#a78bfa"
-        }
+        colors = {"pink": "#f472b6", "blue": "#60a5fa", "green": "#4ade80", "purple": "#a78bfa"}
         for name, hex_val in colors.items():
             assert hex_val.startswith("#")
             assert len(hex_val) == 7
 
     def test_responsive_breakpoints(self):
         """Test responsive breakpoints are sensible."""
-        breakpoints = {
-            "mobile": 768,
-            "tablet": 1024,
-            "desktop": 1200
-        }
+        breakpoints = {"mobile": 768, "tablet": 1024, "desktop": 1200}
         assert breakpoints["mobile"] < breakpoints["tablet"]
         assert breakpoints["tablet"] < breakpoints["desktop"]
 
     def test_animation_durations(self):
         """Test animation durations are reasonable."""
-        durations = {
-            "fast": 0.2,
-            "normal": 0.3,
-            "slow": 0.5
-        }
+        durations = {"fast": 0.2, "normal": 0.3, "slow": 0.5}
         for name, duration in durations.items():
             assert 0 < duration <= 1.0
 
@@ -252,12 +226,7 @@ class TestLocalStorage:
 
     def test_default_values(self):
         """Test default values are sensible."""
-        defaults = {
-            "searches": 0,
-            "papers": 0,
-            "theme": "dark",
-            "lang": "ja"
-        }
+        defaults = {"searches": 0, "papers": 0, "theme": "dark", "lang": "ja"}
         assert defaults["searches"] >= 0
         assert defaults["theme"] in ["dark", "light"]
 

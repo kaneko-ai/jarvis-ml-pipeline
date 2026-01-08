@@ -61,9 +61,9 @@ class CrossrefWork:
 
 class CrossrefClient:
     """Client for the Crossref API.
-    
+
     Provides DOI resolution and metadata retrieval.
-    
+
     Example:
         >>> client = CrossrefClient(mailto="your@email.com")
         >>> work = client.get_work("10.1038/nature12373")
@@ -76,7 +76,7 @@ class CrossrefClient:
         timeout: float = 30.0,
     ):
         """Initialize the Crossref client.
-        
+
         Args:
             mailto: Email for "polite pool" access (faster rate limits)
             timeout: Request timeout in seconds
@@ -84,15 +84,17 @@ class CrossrefClient:
         self._mailto = mailto
         self._timeout = timeout
         self._headers = {
-            "User-Agent": f"JARVIS Research OS/1.0 (mailto:{mailto})" if mailto else "JARVIS Research OS/1.0",
+            "User-Agent": (
+                f"JARVIS Research OS/1.0 (mailto:{mailto})" if mailto else "JARVIS Research OS/1.0"
+            ),
         }
 
     def get_work(self, doi: str) -> CrossrefWork | None:
         """Get metadata for a DOI.
-        
+
         Args:
             doi: DOI to look up
-            
+
         Returns:
             CrossrefWork or None if not found
         """
@@ -126,13 +128,13 @@ class CrossrefClient:
         filter_type: str | None = None,
     ) -> list[CrossrefWork]:
         """Search for works.
-        
+
         Args:
             query: Search query
             rows: Number of results (max 1000)
             offset: Starting offset
             filter_type: Filter by type (e.g., "journal-article")
-            
+
         Returns:
             List of CrossrefWork objects
         """
@@ -148,7 +150,9 @@ class CrossrefClient:
         url = f"{CROSSREF_BASE_URL}/works"
 
         try:
-            response = requests.get(url, params=params, timeout=self._timeout, headers=self._headers)
+            response = requests.get(
+                url, params=params, timeout=self._timeout, headers=self._headers
+            )
             response.raise_for_status()
             data = response.json()
 

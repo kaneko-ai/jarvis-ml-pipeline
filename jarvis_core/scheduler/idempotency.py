@@ -1,4 +1,5 @@
 """Idempotency helpers for schedules."""
+
 from __future__ import annotations
 
 import hashlib
@@ -17,7 +18,9 @@ def _parse_freq(rrule: str) -> str:
 
 def _period_start(now: datetime, freq: str) -> datetime:
     if freq == "WEEKLY":
-        return now.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=now.weekday())
+        return now.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(
+            days=now.weekday()
+        )
     if freq == "MONTHLY":
         return now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     return now.replace(hour=0, minute=0, second=0, microsecond=0)

@@ -27,6 +27,7 @@ from typing import Any
 
 class IssueType(Enum):
     """Types of issues Lyra can detect."""
+
     AMBIGUOUS_SPEC = "ambiguous_specification"
     MISSING_CONSTRAINT = "missing_constraint"
     VAGUE_SUCCESS_CRITERIA = "vague_success_criteria"
@@ -41,15 +42,17 @@ class IssueType(Enum):
 
 class Severity(Enum):
     """Severity levels for detected issues."""
+
     CRITICAL = "critical"  # Must block
-    HIGH = "high"          # Should block
-    MEDIUM = "medium"      # Warning
-    LOW = "low"            # Info
+    HIGH = "high"  # Should block
+    MEDIUM = "medium"  # Warning
+    LOW = "low"  # Info
 
 
 @dataclass
 class Issue:
     """A detected issue in instructions or implementation."""
+
     type: IssueType
     severity: Severity
     location: str  # file:line or module.function
@@ -63,6 +66,7 @@ class Issue:
 @dataclass
 class DeconstructResult:
     """Result of the DECONSTRUCT phase."""
+
     core_intent: str
     key_entities: list[str]
     context: dict[str, Any]
@@ -75,6 +79,7 @@ class DeconstructResult:
 @dataclass
 class DiagnoseResult:
     """Result of the DIAGNOSE phase."""
+
     issues: list[Issue]
     clarity_score: float  # 0-1
     completeness_score: float  # 0-1
@@ -87,6 +92,7 @@ class DiagnoseResult:
 @dataclass
 class DevelopResult:
     """Result of the DEVELOP phase."""
+
     original_prompt: str
     optimized_prompt: str
     techniques_applied: list[str]
@@ -99,6 +105,7 @@ class DevelopResult:
 @dataclass
 class DeliverResult:
     """Result of the DELIVER phase."""
+
     task_id: str
     target_worker: str  # antigravity, codex, llm
     prompt: str
@@ -113,6 +120,7 @@ class DeliverResult:
 @dataclass
 class SupervisionLog:
     """Audit log entry for Lyra supervision."""
+
     timestamp: str
     run_id: str
     supervisor: str = "Lyra"
@@ -126,11 +134,11 @@ class SupervisionLog:
 class LyraSupervisor:
     """
     Lyra: The Prompt & Reasoning Supervisor for JARVIS Research OS.
-    
+
     Operating Loop: DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat
     """
 
-    SYSTEM_PROMPT = '''You are Lyra, the Prompt & Reasoning Supervisor for JARVIS Research OS.
+    SYSTEM_PROMPT = """You are Lyra, the Prompt & Reasoning Supervisor for JARVIS Research OS.
 
 Your mission:
 - Ensure all instructions are unambiguous, testable, and aligned with the JARVIS Master Spec.
@@ -144,7 +152,7 @@ Hard rules:
 - Prefer explicit constraints over assumed intelligence.
 
 Operating loop:
-DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
+DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat."""
 
     def __init__(self, audit_dir: Path | None = None):
         self.audit_dir = audit_dir or Path("artifacts/lyra_audit")
@@ -157,9 +165,14 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
         now = datetime.utcnow().isoformat()
         return hashlib.sha256(now.encode()).hexdigest()[:12]
 
-    def _log(self, phase: str, issue: str | None = None,
-             action: str | None = None, confidence: float = 0.0,
-             details: dict | None = None) -> None:
+    def _log(
+        self,
+        phase: str,
+        issue: str | None = None,
+        action: str | None = None,
+        confidence: float = 0.0,
+        details: dict | None = None,
+    ) -> None:
         """Add entry to audit log."""
         log = SupervisionLog(
             timestamp=datetime.utcnow().isoformat(),
@@ -168,7 +181,7 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
             issue_detected=issue,
             action=action,
             confidence=confidence,
-            details=details or {}
+            details=details or {},
         )
         self.logs.append(log)
 
@@ -184,11 +197,11 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
     def deconstruct(self, instruction: str, context: dict | None = None) -> DeconstructResult:
         """
         DECONSTRUCT phase: Extract core intent, entities, and identify gaps.
-        
+
         Args:
             instruction: The instruction/prompt to analyze
             context: Additional context (EPIC info, prior tasks, etc.)
-        
+
         Returns:
             DeconstructResult with extracted information
         """
@@ -209,14 +222,16 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
             output_requirements=output_reqs,
             constraints=constraints,
             missing_info=missing,
-            ambiguities=ambiguities
+            ambiguities=ambiguities,
         )
 
-        self._log("DECONSTRUCT",
-                  f"Found {len(ambiguities)} ambiguities, {len(missing)} missing items",
-                  "Analysis complete",
-                  confidence=0.85,
-                  details={"entities": len(entities), "constraints": len(constraints)})
+        self._log(
+            "DECONSTRUCT",
+            f"Found {len(ambiguities)} ambiguities, {len(missing)} missing items",
+            "Analysis complete",
+            confidence=0.85,
+            details={"entities": len(entities), "constraints": len(constraints)},
+        )
 
         return result
 
@@ -236,10 +251,26 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
 
         # Technical terms patterns
         keywords = [
-            "plugin", "module", "function", "class", "API", "endpoint",
-            "model", "pipeline", "config", "schema", "contract",
-            "provenance", "evidence", "claim", "embedding", "rerank",
-            "extraction", "summarization", "scoring", "evaluation"
+            "plugin",
+            "module",
+            "function",
+            "class",
+            "API",
+            "endpoint",
+            "model",
+            "pipeline",
+            "config",
+            "schema",
+            "contract",
+            "provenance",
+            "evidence",
+            "claim",
+            "embedding",
+            "rerank",
+            "extraction",
+            "summarization",
+            "scoring",
+            "evaluation",
         ]
 
         instruction_lower = instruction.lower()
@@ -296,14 +327,22 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
 
         # Check for essential elements
         checks = [
-            ("success_criteria" not in instruction.lower() and "成功条件" not in instruction,
-             "Success criteria not specified"),
-            ("test" not in instruction.lower() and "テスト" not in instruction,
-             "Test requirements not specified"),
-            ("timeout" not in instruction.lower() and "タイムアウト" not in instruction,
-             "Timeout not specified"),
-            ("error" not in instruction.lower() and "エラー" not in instruction,
-             "Error handling not specified"),
+            (
+                "success_criteria" not in instruction.lower() and "成功条件" not in instruction,
+                "Success criteria not specified",
+            ),
+            (
+                "test" not in instruction.lower() and "テスト" not in instruction,
+                "Test requirements not specified",
+            ),
+            (
+                "timeout" not in instruction.lower() and "タイムアウト" not in instruction,
+                "Timeout not specified",
+            ),
+            (
+                "error" not in instruction.lower() and "エラー" not in instruction,
+                "Error handling not specified",
+            ),
         ]
 
         for condition, msg in checks:
@@ -339,15 +378,16 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
     # PHASE 2: DIAGNOSE
     # =========================================================================
 
-    def diagnose(self, deconstruct_result: DeconstructResult,
-                 implementation: str | None = None) -> DiagnoseResult:
+    def diagnose(
+        self, deconstruct_result: DeconstructResult, implementation: str | None = None
+    ) -> DiagnoseResult:
         """
         DIAGNOSE phase: Audit for clarity gaps, ambiguity, and completeness.
-        
+
         Args:
             deconstruct_result: Result from DECONSTRUCT phase
             implementation: Optional code/output to check against spec
-        
+
         Returns:
             DiagnoseResult with issues and scores
         """
@@ -355,42 +395,48 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
 
         # Check for ambiguities
         for amb in deconstruct_result.ambiguities:
-            issues.append(Issue(
-                type=IssueType.AMBIGUOUS_SPEC,
-                severity=Severity.HIGH,
-                location="instruction",
-                description=amb,
-                evidence="Vague phrase detected",
-                expected="Explicit, measurable criteria",
-                suggestion="Replace with specific definition",
-                confidence=0.85
-            ))
+            issues.append(
+                Issue(
+                    type=IssueType.AMBIGUOUS_SPEC,
+                    severity=Severity.HIGH,
+                    location="instruction",
+                    description=amb,
+                    evidence="Vague phrase detected",
+                    expected="Explicit, measurable criteria",
+                    suggestion="Replace with specific definition",
+                    confidence=0.85,
+                )
+            )
 
         # Check for missing info
         for missing in deconstruct_result.missing_info:
-            issues.append(Issue(
-                type=IssueType.MISSING_CONSTRAINT,
-                severity=Severity.MEDIUM,
-                location="instruction",
-                description=missing,
-                evidence="Required information not found",
-                expected="Explicit specification",
-                suggestion="Add the missing specification",
-                confidence=0.80
-            ))
+            issues.append(
+                Issue(
+                    type=IssueType.MISSING_CONSTRAINT,
+                    severity=Severity.MEDIUM,
+                    location="instruction",
+                    description=missing,
+                    evidence="Required information not found",
+                    expected="Explicit specification",
+                    suggestion="Add the missing specification",
+                    confidence=0.80,
+                )
+            )
 
         # Check provenance requirement
         if "evidence" not in str(deconstruct_result.output_requirements).lower():
-            issues.append(Issue(
-                type=IssueType.NO_PROVENANCE,
-                severity=Severity.CRITICAL,
-                location="instruction",
-                description="No provenance/evidence requirement",
-                evidence="evidence_links not mentioned",
-                expected="All outputs must include evidence_links",
-                suggestion="Add: 'Output must include evidence_links with doc_id, section, chunk_id, span'",
-                confidence=0.95
-            ))
+            issues.append(
+                Issue(
+                    type=IssueType.NO_PROVENANCE,
+                    severity=Severity.CRITICAL,
+                    location="instruction",
+                    description="No provenance/evidence requirement",
+                    evidence="evidence_links not mentioned",
+                    expected="All outputs must include evidence_links",
+                    suggestion="Add: 'Output must include evidence_links with doc_id, section, chunk_id, span'",
+                    confidence=0.95,
+                )
+            )
 
         # Calculate scores
         clarity = 1.0 - (len(deconstruct_result.ambiguities) * 0.15)
@@ -416,14 +462,16 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
             specificity_score=specificity,
             structure_score=structure,
             overall_score=overall,
-            blocks_execution=blocks
+            blocks_execution=blocks,
         )
 
-        self._log("DIAGNOSE",
-                  f"{len(issues)} issues found, {len(critical_issues)} critical",
-                  "Blocks execution" if blocks else "Passes with warnings",
-                  confidence=overall,
-                  details={"clarity": clarity, "completeness": completeness})
+        self._log(
+            "DIAGNOSE",
+            f"{len(issues)} issues found, {len(critical_issues)} critical",
+            "Blocks execution" if blocks else "Passes with warnings",
+            confidence=overall,
+            details={"clarity": clarity, "completeness": completeness},
+        )
 
         return result
 
@@ -431,17 +479,17 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat.'''
     # PHASE 3: DEVELOP
     # =========================================================================
 
-    def develop(self, original_prompt: str,
-                diagnose_result: DiagnoseResult,
-                task_type: str = "technical") -> DevelopResult:
+    def develop(
+        self, original_prompt: str, diagnose_result: DiagnoseResult, task_type: str = "technical"
+    ) -> DevelopResult:
         """
         DEVELOP phase: Optimize the prompt based on diagnosis.
-        
+
         Args:
             original_prompt: Original instruction/prompt
             diagnose_result: Result from DIAGNOSE phase
             task_type: "creative", "technical", "educational", "complex"
-        
+
         Returns:
             DevelopResult with optimized prompt
         """
@@ -528,14 +576,16 @@ Outputs without evidence_links will be REJECTED.
             role_assigned=role,
             context_enhanced=True,
             structure_improved=len(changes) > 0,
-            changes_summary=changes
+            changes_summary=changes,
         )
 
-        self._log("DEVELOP",
-                  None,
-                  f"Applied {len(techniques)} techniques, made {len(changes)} changes",
-                  confidence=0.90,
-                  details={"techniques": techniques, "changes": changes})
+        self._log(
+            "DEVELOP",
+            None,
+            f"Applied {len(techniques)} techniques, made {len(changes)} changes",
+            confidence=0.90,
+            details={"techniques": techniques, "changes": changes},
+        )
 
         return result
 
@@ -543,19 +593,22 @@ Outputs without evidence_links will be REJECTED.
     # PHASE 4: DELIVER
     # =========================================================================
 
-    def deliver(self, develop_result: DevelopResult,
-                target_worker: str = "antigravity",
-                priority: int = 1,
-                timeout: int = 300) -> DeliverResult:
+    def deliver(
+        self,
+        develop_result: DevelopResult,
+        target_worker: str = "antigravity",
+        priority: int = 1,
+        timeout: int = 300,
+    ) -> DeliverResult:
         """
         DELIVER phase: Construct and deliver the optimized task.
-        
+
         Args:
             develop_result: Result from DEVELOP phase
             target_worker: Target AI (antigravity, codex, llm)
             priority: Task priority (1=highest)
             timeout: Timeout in seconds
-        
+
         Returns:
             DeliverResult ready for execution
         """
@@ -570,28 +623,30 @@ Outputs without evidence_links will be REJECTED.
                 "All outputs include evidence_links",
                 "No vague assertions",
                 "Code passes all tests",
-                "Documentation is complete"
+                "Documentation is complete",
             ],
             prohibited_actions=[
                 "Making claims without evidence",
                 "Using vague language",
                 "Skipping tests",
-                "Ignoring error cases"
+                "Ignoring error cases",
             ],
             test_requirements=[
                 "Unit tests for all functions",
                 "Contract tests for I/O",
-                "Golden tests for reproducibility"
+                "Golden tests for reproducibility",
             ],
             timeout_seconds=timeout,
-            priority=priority
+            priority=priority,
         )
 
-        self._log("DELIVER",
-                  None,
-                  f"Task {task_id} dispatched to {target_worker}",
-                  confidence=0.95,
-                  details={"task_id": task_id, "priority": priority})
+        self._log(
+            "DELIVER",
+            None,
+            f"Task {task_id} dispatched to {target_worker}",
+            confidence=0.95,
+            details={"task_id": task_id, "priority": priority},
+        )
 
         return result
 
@@ -599,19 +654,22 @@ Outputs without evidence_links will be REJECTED.
     # FULL LOOP
     # =========================================================================
 
-    def supervise(self, instruction: str,
-                  context: dict | None = None,
-                  target_worker: str = "antigravity",
-                  task_type: str = "technical") -> DeliverResult:
+    def supervise(
+        self,
+        instruction: str,
+        context: dict | None = None,
+        target_worker: str = "antigravity",
+        task_type: str = "technical",
+    ) -> DeliverResult:
         """
         Run the full supervision loop: DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER
-        
+
         Args:
             instruction: The original instruction
             context: Additional context
             target_worker: Target AI worker
             task_type: Type of task
-        
+
         Returns:
             DeliverResult ready for execution
         """
@@ -624,10 +682,12 @@ Outputs without evidence_links will be REJECTED.
         # If critical issues, raise before developing
         if diagnose.blocks_execution:
             critical = [i for i in diagnose.issues if i.severity == Severity.CRITICAL]
-            self._log("BLOCKED",
-                      f"Execution blocked due to {len(critical)} critical issues",
-                      "Requires human intervention",
-                      confidence=0.99)
+            self._log(
+                "BLOCKED",
+                f"Execution blocked due to {len(critical)} critical issues",
+                "Requires human intervention",
+                confidence=0.99,
+            )
             # Still develop a corrected version
 
         # Phase 3: DEVELOP
@@ -651,7 +711,9 @@ Outputs without evidence_links will be REJECTED.
                 "BLOCKED": len([l for l in self.logs if l.phase == "BLOCKED"]),
             },
             "issues_detected": len([l for l in self.logs if l.issue_detected]),
-            "avg_confidence": sum(l.confidence for l in self.logs) / len(self.logs) if self.logs else 0
+            "avg_confidence": (
+                sum(l.confidence for l in self.logs) / len(self.logs) if self.logs else 0
+            ),
         }
 
 
@@ -663,6 +725,7 @@ def get_lyra_supervisor(audit_dir: Path | None = None) -> LyraSupervisor:
 
 # Singleton for global access
 _lyra_instance: LyraSupervisor | None = None
+
 
 def get_lyra() -> LyraSupervisor:
     """Get global Lyra supervisor instance."""

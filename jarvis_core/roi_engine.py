@@ -2,6 +2,7 @@
 
 Per Ψ-1, this calculates research return on investment.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

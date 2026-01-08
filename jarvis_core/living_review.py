@@ -2,6 +2,7 @@
 
 Per Issue Ω-8, this generates and updates living reviews.
 """
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -49,21 +50,25 @@ def generate_living_review(
 
     # Background section
     early_papers = [v for v in relevant if (v.metadata.year or 9999) <= 2018]
-    sections.append({
-        "title": "背景",
-        "content": f"{topic}に関する初期研究 ({len(early_papers)}論文)",
-        "papers": [v.paper_id for v in early_papers],
-        "key_concepts": _extract_key_concepts(early_papers),
-    })
+    sections.append(
+        {
+            "title": "背景",
+            "content": f"{topic}に関する初期研究 ({len(early_papers)}論文)",
+            "papers": [v.paper_id for v in early_papers],
+            "key_concepts": _extract_key_concepts(early_papers),
+        }
+    )
 
     # Recent advances
     recent_papers = [v for v in relevant if (v.metadata.year or 0) >= 2020]
-    sections.append({
-        "title": "最近の進展",
-        "content": f"2020年以降の研究動向 ({len(recent_papers)}論文)",
-        "papers": [v.paper_id for v in recent_papers],
-        "key_concepts": _extract_key_concepts(recent_papers),
-    })
+    sections.append(
+        {
+            "title": "最近の進展",
+            "content": f"2020年以降の研究動向 ({len(recent_papers)}論文)",
+            "papers": [v.paper_id for v in recent_papers],
+            "key_concepts": _extract_key_concepts(recent_papers),
+        }
+    )
 
     # Methods overview
     all_methods = {}
@@ -71,20 +76,25 @@ def generate_living_review(
         for m in v.method.methods:
             all_methods[m] = all_methods.get(m, 0) + 1
 
-    sections.append({
-        "title": "主要手法",
-        "content": f"{len(all_methods)}種の手法が使用",
-        "methods": dict(sorted(all_methods.items(), key=lambda x: x[1], reverse=True)[:5]),
-    })
+    sections.append(
+        {
+            "title": "主要手法",
+            "content": f"{len(all_methods)}種の手法が使用",
+            "methods": dict(sorted(all_methods.items(), key=lambda x: x[1], reverse=True)[:5]),
+        }
+    )
 
     # Future directions
     from .gap_analysis import score_research_gaps
+
     gaps = score_research_gaps(vectors, topic)
-    sections.append({
-        "title": "今後の方向性",
-        "content": "研究ギャップに基づく提言",
-        "gaps": gaps[0] if gaps else {},
-    })
+    sections.append(
+        {
+            "title": "今後の方向性",
+            "content": "研究ギャップに基づく提言",
+            "gaps": gaps[0] if gaps else {},
+        }
+    )
 
     return {
         "topic": topic,

@@ -1,4 +1,5 @@
 """Integration tests for run_jarvis() with ExecutionEngine."""
+
 import sys
 import types
 from pathlib import Path
@@ -10,11 +11,9 @@ google_genai_stub = types.ModuleType("google.genai")
 
 
 class _DummyErrors:
-    class ServerError(Exception):
-        ...
+    class ServerError(Exception): ...
 
-    class ClientError(Exception):
-        ...
+    class ClientError(Exception): ...
 
 
 google_genai_stub.errors = _DummyErrors
@@ -71,10 +70,12 @@ def test_run_jarvis_uses_execution_engine():
 
 def test_run_jarvis_returns_string():
     """Verify run_jarvis() returns a string."""
-    with patch("jarvis_core.llm.LLMClient"), \
-         patch("jarvis_core.router.Router"), \
-         patch("jarvis_core.planner.Planner"), \
-         patch("jarvis_core.executor.ExecutionEngine") as MockEngine:
+    with (
+        patch("jarvis_core.llm.LLMClient"),
+        patch("jarvis_core.router.Router"),
+        patch("jarvis_core.planner.Planner"),
+        patch("jarvis_core.executor.ExecutionEngine") as MockEngine,
+    ):
         mock_instance = MagicMock()
         mock_instance.run_and_get_answer.return_value = "string result"
         MockEngine.return_value = mock_instance
@@ -161,4 +162,3 @@ def test_run_and_get_answer_empty_when_no_subtasks():
     result = engine.run_and_get_answer(root_task)
 
     assert result == ""
-

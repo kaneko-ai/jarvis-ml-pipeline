@@ -2,6 +2,7 @@
 
 Per RP-137, detects entity distribution drift between runs.
 """
+
 from __future__ import annotations
 
 import math

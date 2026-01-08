@@ -1,4 +1,5 @@
 """KPI package."""
+
 from .phase_kpi import (
     KPILevel,
     KPIResult,

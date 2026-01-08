@@ -2,6 +2,7 @@
 
 Per RP-171, exports papers for NotebookLM learning flow.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -121,7 +122,9 @@ def _generate_review_questions(paper_data: dict) -> list[str]:
     questions = []
 
     if paper_data.get("title"):
-        questions.append(f"What is the main research question addressed in '{paper_data['title'][:50]}'?")
+        questions.append(
+            f"What is the main research question addressed in '{paper_data['title'][:50]}'?"
+        )
 
     if paper_data.get("methods"):
         questions.append("What methodology was used in this study?")

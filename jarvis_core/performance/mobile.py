@@ -1,4 +1,5 @@
 """JARVIS Performance & Mobile Module - Phase 5 Features (41-50)"""
+
 import hashlib
 import json
 from collections.abc import Callable
@@ -17,14 +18,16 @@ class VirtualScroller:
         self.page_size = page_size
         self.current_page = 0
 
-    def get_visible_items(self, scroll_top: int, container_height: int, item_height: int = 50) -> dict:
+    def get_visible_items(
+        self, scroll_top: int, container_height: int, item_height: int = 50
+    ) -> dict:
         """Get items visible in the viewport.
-        
+
         Args:
             scroll_top: Current scroll position
             container_height: Height of container
             item_height: Height of each item
-            
+
         Returns:
             Visible items and positioning data
         """
@@ -37,15 +40,15 @@ class VirtualScroller:
             "end_index": end_index,
             "total_items": len(self.items),
             "total_height": len(self.items) * item_height,
-            "offset_y": start_index * item_height
+            "offset_y": start_index * item_height,
         }
 
     def get_page(self, page: int = 0) -> list:
         """Get paginated items.
-        
+
         Args:
             page: Page number (0-indexed)
-            
+
         Returns:
             Items for the page
         """
@@ -60,6 +63,7 @@ class VirtualScroller:
 @dataclass
 class WorkerTask:
     """Background worker task."""
+
     id: str
     task_type: str
     data: dict
@@ -76,28 +80,24 @@ class BackgroundWorkerManager:
 
     def create_task(self, task_type: str, data: dict) -> str:
         """Create a new background task.
-        
+
         Args:
             task_type: Type of task (search, analyze, export)
             data: Task data
-            
+
         Returns:
             Task ID
         """
         task_id = hashlib.md5(f"{task_type}{datetime.now().isoformat()}".encode()).hexdigest()[:8]
-        self.tasks[task_id] = WorkerTask(
-            id=task_id,
-            task_type=task_type,
-            data=data
-        )
+        self.tasks[task_id] = WorkerTask(id=task_id, task_type=task_type, data=data)
         return task_id
 
     def get_task_status(self, task_id: str) -> dict | None:
         """Get task status.
-        
+
         Args:
             task_id: Task ID
-            
+
         Returns:
             Task status dict
         """
@@ -110,12 +110,12 @@ class BackgroundWorkerManager:
             "type": task.task_type,
             "status": task.status,
             "progress": task.progress,
-            "result": task.result
+            "result": task.result,
         }
 
     def complete_task(self, task_id: str, result: dict):
         """Mark task as complete.
-        
+
         Args:
             task_id: Task ID
             result: Task result
@@ -139,12 +139,12 @@ class LocalCache:
 
     def set(self, key: str, value: dict, ttl_minutes: int = 60) -> bool:
         """Cache a value.
-        
+
         Args:
             key: Cache key
             value: Value to cache
             ttl_minutes: Time to live in minutes
-            
+
         Returns:
             Success status
         """
@@ -156,17 +156,17 @@ class LocalCache:
         self._cache[key] = {
             "value": value,
             "expires": (datetime.now() + timedelta(minutes=ttl_minutes)).isoformat(),
-            "created": datetime.now().isoformat()
+            "created": datetime.now().isoformat(),
         }
         self._access_order.append(key)
         return True
 
     def get(self, key: str) -> dict | None:
         """Get cached value.
-        
+
         Args:
             key: Cache key
-            
+
         Returns:
             Cached value or None
         """
@@ -194,7 +194,7 @@ class LocalCache:
         return {
             "size": len(self._cache),
             "max_size": self._max_size,
-            "usage_percent": round(len(self._cache) / self._max_size * 100, 2)
+            "usage_percent": round(len(self._cache) / self._max_size * 100, 2),
         }
 
 
@@ -215,7 +215,7 @@ class ServiceWorkerConfig:
 
     def add_api_route(self, pattern: str, strategy: str = "network-first"):
         """Add API route with caching strategy.
-        
+
         Args:
             pattern: URL pattern
             strategy: cache-first, network-first, stale-while-revalidate
@@ -251,15 +251,17 @@ class LazyLoader:
         self.loaded_items: set = set()
         self.queue: list[str] = []
 
-    def should_load(self, item_id: str, viewport_start: int, viewport_end: int, item_position: int) -> bool:
+    def should_load(
+        self, item_id: str, viewport_start: int, viewport_end: int, item_position: int
+    ) -> bool:
         """Check if item should be loaded.
-        
+
         Args:
             item_id: Item identifier
             viewport_start: Viewport start position
-            viewport_end: Viewport end position  
+            viewport_end: Viewport end position
             item_position: Item position
-            
+
         Returns:
             True if should load
         """
@@ -278,11 +280,11 @@ class LazyLoader:
 
     def generate_placeholder(self, width: int, height: int) -> str:
         """Generate placeholder HTML.
-        
+
         Args:
             width: Placeholder width
             height: Placeholder height
-            
+
         Returns:
             Placeholder HTML
         """
@@ -298,10 +300,10 @@ class PWAHelper:
     @staticmethod
     def generate_manifest(config: dict) -> dict:
         """Generate PWA manifest.
-        
+
         Args:
             config: App configuration
-            
+
         Returns:
             Manifest dictionary
         """
@@ -315,8 +317,8 @@ class PWAHelper:
             "theme_color": "#a78bfa",
             "icons": [
                 {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png"},
-                {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png"}
-            ]
+                {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png"},
+            ],
         }
 
     @staticmethod
@@ -327,7 +329,7 @@ class PWAHelper:
             "has_service_worker": True,
             "is_https": True,  # Would check actual protocol
             "has_icons": True,
-            "installable": True
+            "installable": True,
         }
 
 
@@ -343,18 +345,19 @@ class GestureHandler:
         "swipe_down": "refresh",
         "pinch_in": "zoom_out",
         "pinch_out": "zoom_in",
-        "double_tap": "toggle_fullscreen"
+        "double_tap": "toggle_fullscreen",
     }
 
-    def detect_gesture(self, start_x: int, start_y: int, end_x: int, end_y: int,
-                       duration_ms: int) -> str | None:
+    def detect_gesture(
+        self, start_x: int, start_y: int, end_x: int, end_y: int, duration_ms: int
+    ) -> str | None:
         """Detect gesture from touch points.
-        
+
         Args:
             start_x, start_y: Start position
             end_x, end_y: End position
             duration_ms: Touch duration
-            
+
         Returns:
             Gesture name or None
         """
@@ -376,10 +379,10 @@ class GestureHandler:
 
     def get_action(self, gesture: str) -> str | None:
         """Get action for gesture.
-        
+
         Args:
             gesture: Gesture name
-            
+
         Returns:
             Action name
         """
@@ -399,10 +402,10 @@ class PullToRefresh:
 
     def on_pull(self, distance: int) -> dict:
         """Handle pull gesture.
-        
+
         Args:
             distance: Pull distance in pixels
-            
+
         Returns:
             State including should_refresh
         """
@@ -412,15 +415,15 @@ class PullToRefresh:
         return {
             "progress": round(progress * 100),
             "should_refresh": distance >= self.threshold,
-            "pull_distance": self.pull_distance
+            "pull_distance": self.pull_distance,
         }
 
     def trigger_refresh(self, callback: Callable | None = None) -> bool:
         """Trigger refresh action.
-        
+
         Args:
             callback: Refresh callback
-            
+
         Returns:
             Success status
         """
@@ -446,27 +449,24 @@ class BottomNavigation:
 
     def add_item(self, id: str, label: str, icon: str, route: str):
         """Add navigation item.
-        
+
         Args:
             id: Item ID
             label: Display label
             icon: Icon emoji or URL
             route: Navigation route
         """
-        self.items.append({
-            "id": id,
-            "label": label,
-            "icon": icon,
-            "route": route
-        })
+        self.items.append({"id": id, "label": label, "icon": icon, "route": route})
 
     def generate_html(self) -> str:
         """Generate navigation HTML."""
-        items_html = "".join([
-            f'<a href="{item["route"]}" class="nav-item" data-id="{item["id"]}">'
-            f'{item["icon"]}<span>{item["label"]}</span></a>'
-            for item in self.items
-        ])
+        items_html = "".join(
+            [
+                f'<a href="{item["route"]}" class="nav-item" data-id="{item["id"]}">'
+                f'{item["icon"]}<span>{item["label"]}</span></a>'
+                for item in self.items
+            ]
+        )
 
         return f'<nav class="bottom-nav">{items_html}</nav>'
 
@@ -512,52 +512,48 @@ class ShareManager:
     @staticmethod
     def share_data(title: str, text: str, url: str) -> dict:
         """Prepare share data.
-        
+
         Args:
             title: Share title
             text: Share text
             url: Share URL
-            
+
         Returns:
             Share data dict
         """
-        return {
-            "title": title,
-            "text": text,
-            "url": url
-        }
+        return {"title": title, "text": text, "url": url}
 
     @staticmethod
     def share_paper(paper: dict) -> dict:
         """Share a paper.
-        
+
         Args:
             paper: Paper dictionary
-            
+
         Returns:
             Share data
         """
         return {
             "title": paper.get("title", "Research Paper"),
             "text": f"{paper.get('title')} by {paper.get('authors', 'Unknown')}",
-            "url": f"https://pubmed.ncbi.nlm.nih.gov/{paper.get('pmid', '')}"
+            "url": f"https://pubmed.ncbi.nlm.nih.gov/{paper.get('pmid', '')}",
         }
 
     @staticmethod
     def share_results(count: int, query: str) -> dict:
         """Share search results.
-        
+
         Args:
             count: Number of results
             query: Search query
-            
+
         Returns:
             Share data
         """
         return {
             "title": "JARVIS Search Results",
             "text": f"Found {count} papers for '{query}'",
-            "url": f"https://jarvis.example.com/search?q={query}"
+            "url": f"https://jarvis.example.com/search?q={query}",
         }
 
 
@@ -565,14 +561,18 @@ class ShareManager:
 def get_virtual_scroller(items: list) -> VirtualScroller:
     return VirtualScroller(items)
 
+
 def get_local_cache() -> LocalCache:
     return LocalCache()
+
 
 def get_pwa_helper() -> PWAHelper:
     return PWAHelper()
 
+
 def get_gesture_handler() -> GestureHandler:
     return GestureHandler()
+
 
 def get_share_manager() -> ShareManager:
     return ShareManager()

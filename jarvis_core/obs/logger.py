@@ -1,4 +1,5 @@
 """Structured logger with run/job context."""
+
 from __future__ import annotations
 
 import json
@@ -58,10 +59,14 @@ class ObservabilityLogger:
         _append_jsonl(_run_log_path(self.run_id), [payload])
         _append_jsonl(SYSTEM_LOG_PATH, [payload])
 
-    def info(self, message: str, *, step: str | None = None, data: dict[str, Any] | None = None) -> None:
+    def info(
+        self, message: str, *, step: str | None = None, data: dict[str, Any] | None = None
+    ) -> None:
         self._write(level="INFO", event="info", message=message, step=step, data=data)
 
-    def warning(self, message: str, *, step: str | None = None, data: dict[str, Any] | None = None) -> None:
+    def warning(
+        self, message: str, *, step: str | None = None, data: dict[str, Any] | None = None
+    ) -> None:
         self._write(level="WARN", event="warning", message=message, step=step, data=data)
 
     def error(
@@ -78,19 +83,27 @@ class ObservabilityLogger:
                 "type": type(exc).__name__,
                 "stack": "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)),
             }
-        self._write(level="ERROR", event="error", message=message, step=step, data=data, err=err_payload)
+        self._write(
+            level="ERROR", event="error", message=message, step=step, data=data, err=err_payload
+        )
 
-    def step_start(self, step: str, message: str = "step start", data: dict[str, Any] | None = None) -> None:
+    def step_start(
+        self, step: str, message: str = "step start", data: dict[str, Any] | None = None
+    ) -> None:
         self._write(level="INFO", event="step_start", message=message, step=step, data=data)
 
-    def step_end(self, step: str, message: str = "step end", data: dict[str, Any] | None = None) -> None:
+    def step_end(
+        self, step: str, message: str = "step end", data: dict[str, Any] | None = None
+    ) -> None:
         self._write(level="INFO", event="step_end", message=message, step=step, data=data)
 
     def progress(self, step: str, percent: int, data: dict[str, Any] | None = None) -> None:
         payload = {"percent": percent}
         if data:
             payload.update(data)
-        self._write(level="INFO", event="progress", message=f"{step} {percent}%", step=step, data=payload)
+        self._write(
+            level="INFO", event="progress", message=f"{step} {percent}%", step=step, data=payload
+        )
 
 
 def get_logger(run_id: str, job_id: str, component: str, step: str = "") -> ObservabilityLogger:

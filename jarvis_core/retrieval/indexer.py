@@ -1,4 +1,5 @@
 """Indexing for hybrid retrieval v2."""
+
 from __future__ import annotations
 
 import json
@@ -111,7 +112,9 @@ class RetrievalIndexer:
                         "source_type": source_type,
                         "provenance": Provenance(file_path=str(path)),
                         "meta": ChunkMeta(),
-                        "updated_at": datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).isoformat(),
+                        "updated_at": datetime.fromtimestamp(
+                            path.stat().st_mtime, tz=timezone.utc
+                        ).isoformat(),
                     }
                 )
         return documents
@@ -127,9 +130,13 @@ class RetrievalIndexer:
                     "title": f"Run Report {run_id}",
                     "text": report_path.read_text(encoding="utf-8"),
                     "source_type": "run_report",
-                    "provenance": Provenance(run_id=run_id, section="report", file_path=str(report_path)),
+                    "provenance": Provenance(
+                        run_id=run_id, section="report", file_path=str(report_path)
+                    ),
                     "meta": ChunkMeta(),
-                    "updated_at": datetime.fromtimestamp(report_path.stat().st_mtime, tz=timezone.utc).isoformat(),
+                    "updated_at": datetime.fromtimestamp(
+                        report_path.stat().st_mtime, tz=timezone.utc
+                    ).isoformat(),
                 }
             )
         qa_report = run_dir / "qa_report.md"
@@ -140,9 +147,13 @@ class RetrievalIndexer:
                     "title": f"QA Report {run_id}",
                     "text": qa_report.read_text(encoding="utf-8"),
                     "source_type": "run_report",
-                    "provenance": Provenance(run_id=run_id, section="qa_report", file_path=str(qa_report)),
+                    "provenance": Provenance(
+                        run_id=run_id, section="qa_report", file_path=str(qa_report)
+                    ),
                     "meta": ChunkMeta(),
-                    "updated_at": datetime.fromtimestamp(qa_report.stat().st_mtime, tz=timezone.utc).isoformat(),
+                    "updated_at": datetime.fromtimestamp(
+                        qa_report.stat().st_mtime, tz=timezone.utc
+                    ).isoformat(),
                 }
             )
         claims_dir = run_dir / "claims"
@@ -160,16 +171,23 @@ class RetrievalIndexer:
                     combined = "\n".join([claim_text, evidence]).strip()
                     if not combined:
                         continue
-                    doc_id = f"run:{run_id}:claim:{payload.get('id', stable_id(run_id, claim_text))}"
+                    doc_id = (
+                        f"run:{run_id}:claim:{payload.get('id', stable_id(run_id, claim_text))}"
+                    )
                     documents.append(
                         {
                             "doc_id": doc_id,
-                            "title": payload.get("title") or f"Claim {payload.get('id', '')}".strip(),
+                            "title": payload.get("title")
+                            or f"Claim {payload.get('id', '')}".strip(),
                             "text": combined,
                             "source_type": "claim",
-                            "provenance": Provenance(run_id=run_id, section="claim", file_path=str(claim_file)),
+                            "provenance": Provenance(
+                                run_id=run_id, section="claim", file_path=str(claim_file)
+                            ),
                             "meta": ChunkMeta(),
-                            "updated_at": datetime.fromtimestamp(claim_file.stat().st_mtime, tz=timezone.utc).isoformat(),
+                            "updated_at": datetime.fromtimestamp(
+                                claim_file.stat().st_mtime, tz=timezone.utc
+                            ).isoformat(),
                         }
                     )
         rank_path = run_dir / "research_rank.json"
@@ -189,7 +207,11 @@ class RetrievalIndexer:
                 if not text:
                     continue
                 pmid = str(item.get("pmid")) if item.get("pmid") else None
-                doc_id = f"paper:PMID_{pmid}" if pmid else f"run:{run_id}:paper:{stable_id(run_id, title)}"
+                doc_id = (
+                    f"paper:PMID_{pmid}"
+                    if pmid
+                    else f"run:{run_id}:paper:{stable_id(run_id, title)}"
+                )
                 meta = ChunkMeta(
                     year=item.get("year"),
                     journal=item.get("journal"),
@@ -204,14 +226,23 @@ class RetrievalIndexer:
                         "title": title,
                         "text": text,
                         "source_type": "run_report",
-                        "provenance": Provenance(run_id=run_id, pmid=pmid, section="research_rank", file_path=str(rank_path)),
+                        "provenance": Provenance(
+                            run_id=run_id,
+                            pmid=pmid,
+                            section="research_rank",
+                            file_path=str(rank_path),
+                        ),
                         "meta": meta,
-                        "updated_at": datetime.fromtimestamp(rank_path.stat().st_mtime, tz=timezone.utc).isoformat(),
+                        "updated_at": datetime.fromtimestamp(
+                            rank_path.stat().st_mtime, tz=timezone.utc
+                        ).isoformat(),
                     }
                 )
         return documents
 
-    def _load_all_documents(self, run_ids: Iterable[str] | None = None, include_kb: bool = True) -> list[dict]:
+    def _load_all_documents(
+        self, run_ids: Iterable[str] | None = None, include_kb: bool = True
+    ) -> list[dict]:
         documents: list[dict] = []
         if include_kb:
             documents.extend(self._load_kb_documents())
@@ -283,7 +314,11 @@ class RetrievalIndexer:
         if not documents:
             return manifest
         existing_chunk_ids = self._load_existing_chunk_ids()
-        chunks = [chunk for chunk in self._documents_to_chunks(documents) if chunk.chunk_id not in existing_chunk_ids]
+        chunks = [
+            chunk
+            for chunk in self._documents_to_chunks(documents)
+            if chunk.chunk_id not in existing_chunk_ids
+        ]
         if not chunks:
             return manifest
         self._write_chunks(chunks)
@@ -317,15 +352,26 @@ class RetrievalIndexer:
                     chunks.append(chunk)
         return chunks
 
-    def _build_indexes(self, chunks: list[Chunk], vector_store: VectorStore, bm25: BM25Store) -> None:
+    def _build_indexes(
+        self, chunks: list[Chunk], vector_store: VectorStore, bm25: BM25Store
+    ) -> None:
         if not chunks:
             return
         texts = [chunk.text for chunk in chunks]
         embedding_result = self.embedding_provider.embed(texts)
-        vector_store.add([chunk.chunk_id for chunk in chunks], embedding_result.vectors, embedding_result.model)
+        vector_store.add(
+            [chunk.chunk_id for chunk in chunks], embedding_result.vectors, embedding_result.model
+        )
         vector_store.save()
         bm25_rows = [
-            (chunk.doc_id, chunk.chunk_id, chunk.title, chunk.text, chunk.source_type, chunk.updated_at)
+            (
+                chunk.doc_id,
+                chunk.chunk_id,
+                chunk.title,
+                chunk.text,
+                chunk.source_type,
+                chunk.updated_at,
+            )
             for chunk in chunks
         ]
         bm25.add_documents(bm25_rows)

@@ -2,6 +2,7 @@
 
 Per Research OS v3.0 specification.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -55,12 +56,14 @@ def track_controversies(
     low_immune = [v for v in vectors if v.biological_axis.immune_activation < -0.3]
 
     if high_immune and low_immune:
-        controversies.append({
-            "topic": "免疫活性化 vs 抑制",
-            "pro_papers": len(high_immune),
-            "con_papers": len(low_immune),
-            "status": "ongoing",
-        })
+        controversies.append(
+            {
+                "topic": "免疫活性化 vs 抑制",
+                "pro_papers": len(high_immune),
+                "con_papers": len(low_immune),
+                "status": "ongoing",
+            }
+        )
 
     return controversies
 
@@ -84,11 +87,7 @@ def calculate_claim_confidence(
 
     # Count supporting evidence
     claim_lower = claim.lower()
-    supporting = sum(
-        1 for v in vectors
-        for c in v.concept.concepts
-        if c.lower() in claim_lower
-    )
+    supporting = sum(1 for v in vectors for c in v.concept.concepts if c.lower() in claim_lower)
 
     # Base confidence on support count
     confidence = min(1.0, supporting / max(len(vectors), 1))

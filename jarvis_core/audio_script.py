@@ -5,6 +5,7 @@ This module provides:
 
 Per RP25, this creates a script structured for verbal presentation.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -90,14 +91,16 @@ def export_podcast_script(
         lines.append("[No structured claims available - use answer text]")
         lines.append("")
 
-    lines.extend([
-        "---",
-        "",
-        "## SECTION 4: KEY TERM EXPLANATIONS (30 seconds)",
-        "",
-        "[Define any technical terms for the listener]",
-        "",
-    ])
+    lines.extend(
+        [
+            "---",
+            "",
+            "## SECTION 4: KEY TERM EXPLANATIONS (30 seconds)",
+            "",
+            "[Define any technical terms for the listener]",
+            "",
+        ]
+    )
 
     # Extract potential technical terms (simplified)
     lines.append("Key terms mentioned:")
@@ -114,18 +117,20 @@ def export_podcast_script(
     else:
         lines.append("- [No complex terms detected]")
 
-    lines.extend([
-        "",
-        "---",
-        "",
-        "## SECTION 5: CONCLUSION & NEXT STEPS (30 seconds)",
-        "",
-        "[Wrap up and point to further reading]",
-        "",
-        "Key takeaway: [Summarize in one sentence]",
-        "",
-        "For more information, check out:",
-    ])
+    lines.extend(
+        [
+            "",
+            "---",
+            "",
+            "## SECTION 5: CONCLUSION & NEXT STEPS (30 seconds)",
+            "",
+            "[Wrap up and point to further reading]",
+            "",
+            "Key takeaway: [Summarize in one sentence]",
+            "",
+            "For more information, check out:",
+        ]
+    )
 
     # Add references
     if references:
@@ -134,19 +139,21 @@ def export_podcast_script(
     else:
         lines.append("- [Sources listed in show notes]")
 
-    lines.extend([
-        "",
-        "---",
-        "",
-        "## SHOW NOTES",
-        "",
-        f"Query: {result.query}",
-        f"Status: {result.status}",
-        f"Sources: {len(references) if references else 0}",
-        "",
-        "=" * 60,
-        "END OF SCRIPT",
-        "=" * 60,
-    ])
+    lines.extend(
+        [
+            "",
+            "---",
+            "",
+            "## SHOW NOTES",
+            "",
+            f"Query: {result.query}",
+            f"Status: {result.status}",
+            f"Sources: {len(references) if references else 0}",
+            "",
+            "=" * 60,
+            "END OF SCRIPT",
+            "=" * 60,
+        ]
+    )
 
     return "\n".join(lines)

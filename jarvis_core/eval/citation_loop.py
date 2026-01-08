@@ -2,6 +2,7 @@
 
 Per RP-127, automatically adds citations when min threshold not met.
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -58,12 +59,14 @@ def check_citations(
         count = len(citations)
         needs_more = count < min_citations
 
-        results.append(CitationCheckResult(
-            claim_id=claim.get("id", "unknown"),
-            claim_text=claim.get("text", ""),
-            citation_count=count,
-            needs_more=needs_more,
-        ))
+        results.append(
+            CitationCheckResult(
+                claim_id=claim.get("id", "unknown"),
+                claim_text=claim.get("text", ""),
+                citation_count=count,
+                needs_more=needs_more,
+            )
+        )
 
     return results
 

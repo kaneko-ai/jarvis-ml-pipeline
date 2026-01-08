@@ -2,6 +2,7 @@
 
 Per RP35, this generates anticipated questions for presentations.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

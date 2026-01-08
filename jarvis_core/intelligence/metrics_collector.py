@@ -25,23 +25,24 @@ logger = logging.getLogger(__name__)
 @dataclass
 class JudgmentMetrics:
     """判断成績表.
-    
+
     月次でJavisの判断精度を数値化。
     """
-    period: str                    # 期間（例：2024-01）
-    total_decisions: int           # 総判断数
-    accept_count: int              # Accept数
-    reject_count: int              # Reject数
+
+    period: str  # 期間（例：2024-01）
+    total_decisions: int  # 総判断数
+    accept_count: int  # Accept数
+    reject_count: int  # Reject数
 
     # Accept系指標
-    accept_success_rate: float     # 採用して成功した率
-    accept_failure_rate: float     # 採用して失敗した率
+    accept_success_rate: float  # 採用して成功した率
+    accept_failure_rate: float  # 採用して失敗した率
 
     # Reject系指標
-    reject_correct_rate: float     # 捨てて正解だった率
+    reject_correct_rate: float  # 捨てて正解だった率
 
     # 後悔指標
-    regret_rate: float             # 後悔率（採用すべきでなかった + 捨てるべきでなかった）
+    regret_rate: float  # 後悔率（採用すべきでなかった + 捨てるべきでなかった）
 
     generated_at: str = field(default_factory=lambda: datetime.now().isoformat())
 
@@ -69,7 +70,7 @@ class JudgmentMetrics:
 
 class MetricsCollector:
     """成績表収集器.
-    
+
     月次で判断の成績表を生成。
     """
 
@@ -77,11 +78,11 @@ class MetricsCollector:
         self,
         storage_path: str = "data/metrics",
         decision_store: DecisionStore | None = None,
-        outcome_tracker: OutcomeTracker | None = None
+        outcome_tracker: OutcomeTracker | None = None,
     ):
         """
         初期化.
-        
+
         Args:
             storage_path: ストレージパス
             decision_store: DecisionStore
@@ -95,10 +96,10 @@ class MetricsCollector:
     def collect(self, period: str | None = None) -> JudgmentMetrics:
         """
         成績表を収集.
-        
+
         Args:
             period: 期間（省略時は今月）
-        
+
         Returns:
             JudgmentMetrics
         """
@@ -109,10 +110,7 @@ class MetricsCollector:
         outcomes = self.outcome_tracker._outcomes
 
         # 期間でフィルタ
-        period_decisions = [
-            d for d in decisions
-            if d.timestamp.startswith(period)
-        ]
+        period_decisions = [d for d in decisions if d.timestamp.startswith(period)]
 
         total = len(period_decisions)
         accept_count = len([d for d in period_decisions if d.decision == "accept"])
@@ -172,12 +170,12 @@ class MetricsCollector:
         """成績表を保存."""
         # JSON
         json_path = self.storage_path / f"metrics_{metrics.period}.json"
-        with open(json_path, 'w', encoding='utf-8') as f:
+        with open(json_path, "w", encoding="utf-8") as f:
             json.dump(metrics.to_dict(), f, ensure_ascii=False, indent=2)
 
         # Markdown
         md_path = self.storage_path / f"metrics_{metrics.period}.md"
-        with open(md_path, 'w', encoding='utf-8') as f:
+        with open(md_path, "w", encoding="utf-8") as f:
             f.write(metrics.to_markdown())
 
     def load_history(self, months: int = 6) -> list[JudgmentMetrics]:
@@ -186,7 +184,7 @@ class MetricsCollector:
 
         history = []
         for f in metrics_files:
-            with open(f, encoding='utf-8') as fp:
+            with open(f, encoding="utf-8") as fp:
                 data = json.load(fp)
                 history.append(JudgmentMetrics(**data))
 

@@ -2,6 +2,7 @@
 
 Per V4-P04, this defines and validates output directory structure.
 """
+
 from __future__ import annotations
 
 from pathlib import Path

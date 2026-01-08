@@ -2,6 +2,7 @@
 
 Per RP-302, generates hypothetical answers for query expansion.
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -19,7 +20,7 @@ class HyDEResult:
 
 class HyDE:
     """Hypothetical Document Embeddings for query expansion.
-    
+
     Per RP-302:
     - Generates hypothetical answer documents from query
     - Uses hypothetical doc embeddings for retrieval
@@ -40,10 +41,10 @@ class HyDE:
 
     def generate_hypothetical(self, query: str) -> str:
         """Generate a hypothetical answer document.
-        
+
         Args:
             query: The search query.
-            
+
         Returns:
             Hypothetical document text.
         """
@@ -62,15 +63,16 @@ class HyDE:
         ]
 
         import hashlib
+
         idx = int(hashlib.md5(query.encode()).hexdigest(), 16) % len(templates)
         return templates[idx]
 
     def expand_query(self, query: str) -> HyDEResult:
         """Expand query using HyDE.
-        
+
         Args:
             query: Original search query.
-            
+
         Returns:
             HyDEResult with hypothetical documents.
         """
@@ -106,11 +108,11 @@ class HyDE:
         hyp_embs: list[list[float]],
     ) -> list[float]:
         """Ensemble query and hypothetical embeddings.
-        
+
         Args:
             query_emb: Original query embedding.
             hyp_embs: Hypothetical document embeddings.
-            
+
         Returns:
             Combined embedding vector.
         """
@@ -128,10 +130,7 @@ class HyDE:
         # Weighted combination
         combined = []
         for i in range(dim):
-            val = (
-                self.ensemble_weight * avg_hyp[i] +
-                (1 - self.ensemble_weight) * query_emb[i]
-            )
+            val = self.ensemble_weight * avg_hyp[i] + (1 - self.ensemble_weight) * query_emb[i]
             combined.append(val)
 
         # Normalize
@@ -148,12 +147,12 @@ def create_hyde_retriever(
     embedder,
 ) -> Callable:
     """Create a HyDE-enhanced retriever.
-    
+
     Args:
         base_retriever: Base retrieval function.
         generator: LLM generator function.
         embedder: Embedding function.
-        
+
     Returns:
         Enhanced retriever function.
     """

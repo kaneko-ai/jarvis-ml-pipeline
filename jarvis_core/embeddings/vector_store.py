@@ -21,7 +21,7 @@ class FAISSVectorStore:
 
     def __init__(self, dimension: int, index_type: str = "flat"):
         """Initialize FAISS vector store.
-        
+
         Args:
             dimension: Embedding dimension
             index_type: Index type ("flat" for exact, "ivf" for approximate)
@@ -38,11 +38,10 @@ class FAISSVectorStore:
         if self._faiss is None:
             try:
                 import faiss
+
                 self._faiss = faiss
             except ImportError:
-                raise ImportError(
-                    "faiss is required. Install with: pip install faiss-cpu"
-                )
+                raise ImportError("faiss is required. Install with: pip install faiss-cpu")
         return self._faiss
 
     def build(
@@ -52,7 +51,7 @@ class FAISSVectorStore:
         metadata: list[dict[str, Any]] | None = None,
     ) -> None:
         """Build the FAISS index.
-        
+
         Args:
             embeddings: Numpy array of shape (n_docs, dimension)
             doc_ids: List of document IDs
@@ -88,7 +87,7 @@ class FAISSVectorStore:
         metadata: list[dict[str, Any]] | None = None,
     ) -> None:
         """Add documents to existing index.
-        
+
         Args:
             embeddings: Embeddings to add
             doc_ids: Document IDs
@@ -110,11 +109,11 @@ class FAISSVectorStore:
         top_k: int = 10,
     ) -> list[tuple[str, float, dict[str, Any]]]:
         """Search for similar documents.
-        
+
         Args:
             query_embedding: Query embedding vector
             top_k: Number of results
-            
+
         Returns:
             List of (doc_id, score, metadata) tuples
         """
@@ -127,17 +126,19 @@ class FAISSVectorStore:
         results = []
         for i, idx in enumerate(indices[0]):
             if idx != -1 and idx < len(self._doc_ids):
-                results.append((
-                    self._doc_ids[idx],
-                    float(distances[0][i]),
-                    self._metadata[idx],
-                ))
+                results.append(
+                    (
+                        self._doc_ids[idx],
+                        float(distances[0][i]),
+                        self._metadata[idx],
+                    )
+                )
 
         return results
 
     def save(self, path: Path) -> None:
         """Save index to disk.
-        
+
         Args:
             path: Directory to save to
         """
@@ -150,22 +151,25 @@ class FAISSVectorStore:
 
         # Save metadata
         with open(path / "metadata.json", "w", encoding="utf-8") as f:
-            json.dump({
-                "doc_ids": self._doc_ids,
-                "metadata": self._metadata,
-                "dimension": self._dimension,
-                "index_type": self._index_type,
-            }, f)
+            json.dump(
+                {
+                    "doc_ids": self._doc_ids,
+                    "metadata": self._metadata,
+                    "dimension": self._dimension,
+                    "index_type": self._index_type,
+                },
+                f,
+            )
 
         logger.info(f"Saved FAISS index to {path}")
 
     @classmethod
     def load(cls, path: Path) -> FAISSVectorStore:
         """Load index from disk.
-        
+
         Args:
             path: Directory containing saved index
-            
+
         Returns:
             Loaded FAISSVectorStore instance
         """

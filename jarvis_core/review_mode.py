@@ -6,6 +6,7 @@ This module provides:
 Per RP24, this enables "review/background investigation" workflows
 where multiple questions are answered from the same source material.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -118,7 +119,6 @@ def export_review_bundle(
     """
     import json
 
-
     out_path = Path(out_dir)
     review_dir = out_path / "review"
     review_dir.mkdir(parents=True, exist_ok=True)
@@ -133,7 +133,9 @@ def export_review_bundle(
             "query": query,
             "answer": result.answer,
             "status": result.status,
-            "citations": [c.model_dump() if hasattr(c, "model_dump") else c.__dict__ for c in result.citations],
+            "citations": [
+                c.model_dump() if hasattr(c, "model_dump") else c.__dict__ for c in result.citations
+            ],
         }
         bundle_path = query_dir / "bundle.json"
         with open(bundle_path, "w", encoding="utf-8") as f:
@@ -170,7 +172,11 @@ def _generate_review_index(review: ReviewResult) -> str:
         lines.append("")
         lines.append(f"**Status:** {result.status}")
         lines.append("")
-        lines.append(f"**Answer:** {result.answer[:200]}..." if len(result.answer) > 200 else f"**Answer:** {result.answer}")
+        lines.append(
+            f"**Answer:** {result.answer[:200]}..."
+            if len(result.answer) > 200
+            else f"**Answer:** {result.answer}"
+        )
         lines.append("")
         lines.append(f"- Citations: {len(result.citations)}")
         lines.append(f"- [Details](review/query_{i:02d}/bundle.json)")

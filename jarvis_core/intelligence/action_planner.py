@@ -21,13 +21,15 @@ logger = logging.getLogger(__name__)
 
 class ActionType(Enum):
     """行動タイプ."""
-    READ = "read"      # 読む
-    BUILD = "build"    # 作る
+
+    READ = "read"  # 読む
+    BUILD = "build"  # 作る
     IGNORE = "ignore"  # 捨てる
 
 
 class Executor(Enum):
     """実行者."""
+
     HUMAN = "human"
     AI = "ai"
     BOTH = "both"
@@ -36,12 +38,13 @@ class Executor(Enum):
 @dataclass
 class ActionItem:
     """行動アイテム."""
+
     action_type: ActionType
-    target: str             # 対象（論文/コード/タスク）
-    reason: str             # 理由
-    executor: Executor      # 誰がやるか
-    executor_reason: str    # なぜその人がやるか
-    priority: int = 3       # 1-5
+    target: str  # 対象（論文/コード/タスク）
+    reason: str  # 理由
+    executor: Executor  # 誰がやるか
+    executor_reason: str  # なぜその人がやるか
+    priority: int = 3  # 1-5
     estimated_effort: str = ""  # 見積もり時間
 
     def to_dict(self) -> dict[str, Any]:
@@ -60,6 +63,7 @@ class ActionItem:
 @dataclass
 class ActionPlan:
     """行動計画."""
+
     topic: str
     read_items: list[ActionItem] = field(default_factory=list)
     build_items: list[ActionItem] = field(default_factory=list)
@@ -99,7 +103,7 @@ class ActionPlan:
 
 class ActionPlanner:
     """行動計画器.
-    
+
     新テーマに対して：
     - 何を読むべきか
     - 何を作るべきか
@@ -108,19 +112,16 @@ class ActionPlanner:
     """
 
     def plan(
-        self,
-        topic: str,
-        candidates: list[dict[str, Any]],
-        context: str | None = None
+        self, topic: str, candidates: list[dict[str, Any]], context: str | None = None
     ) -> ActionPlan:
         """
         行動計画を作成.
-        
+
         Args:
             topic: トピック
             candidates: 候補リスト（各候補はtitle, type, relevance等を持つ）
             context: コンテキスト
-        
+
         Returns:
             ActionPlan
         """
@@ -140,17 +141,16 @@ class ActionPlanner:
         plan.read_items.sort(key=lambda x: x.priority, reverse=True)
         plan.build_items.sort(key=lambda x: x.priority, reverse=True)
 
-        logger.info(f"Created action plan for {topic}: "
-                   f"READ={len(plan.read_items)}, "
-                   f"BUILD={len(plan.build_items)}, "
-                   f"IGNORE={len(plan.ignore_items)}")
+        logger.info(
+            f"Created action plan for {topic}: "
+            f"READ={len(plan.read_items)}, "
+            f"BUILD={len(plan.build_items)}, "
+            f"IGNORE={len(plan.ignore_items)}"
+        )
 
         return plan
 
-    def _classify_candidate(
-        self,
-        candidate: dict[str, Any]
-    ) -> tuple[ActionType, ActionItem]:
+    def _classify_candidate(self, candidate: dict[str, Any]) -> tuple[ActionType, ActionItem]:
         """候補を分類."""
         title = candidate.get("title", "Unknown")
         c_type = candidate.get("type", "paper")
@@ -195,50 +195,56 @@ class ActionPlanner:
         topic: str,
         top_papers: list[str],
         implementation_ideas: list[str],
-        low_priority: list[str]
+        low_priority: list[str],
     ) -> ActionPlan:
         """
         簡易行動計画を作成.
-        
+
         Args:
             topic: トピック
             top_papers: 読むべき論文リスト
             implementation_ideas: 作るべきアイデアリスト
             low_priority: 捨ててよいリスト
-        
+
         Returns:
             ActionPlan
         """
         plan = ActionPlan(topic=topic)
 
         for paper in top_papers:
-            plan.read_items.append(ActionItem(
-                action_type=ActionType.READ,
-                target=paper,
-                reason="Top priority paper",
-                executor=Executor.HUMAN,
-                executor_reason="理解は人間が行う",
-                priority=5,
-            ))
+            plan.read_items.append(
+                ActionItem(
+                    action_type=ActionType.READ,
+                    target=paper,
+                    reason="Top priority paper",
+                    executor=Executor.HUMAN,
+                    executor_reason="理解は人間が行う",
+                    priority=5,
+                )
+            )
 
         for idea in implementation_ideas:
-            plan.build_items.append(ActionItem(
-                action_type=ActionType.BUILD,
-                target=idea,
-                reason="Implementation candidate",
-                executor=Executor.AI,
-                executor_reason="コード生成はAI",
-                priority=4,
-            ))
+            plan.build_items.append(
+                ActionItem(
+                    action_type=ActionType.BUILD,
+                    target=idea,
+                    reason="Implementation candidate",
+                    executor=Executor.AI,
+                    executor_reason="コード生成はAI",
+                    priority=4,
+                )
+            )
 
         for item in low_priority:
-            plan.ignore_items.append(ActionItem(
-                action_type=ActionType.IGNORE,
-                target=item,
-                reason="Low relevance or outdated",
-                executor=Executor.AI,
-                executor_reason="自動除外",
-                priority=1,
-            ))
+            plan.ignore_items.append(
+                ActionItem(
+                    action_type=ActionType.IGNORE,
+                    target=item,
+                    reason="Low relevance or outdated",
+                    executor=Executor.AI,
+                    executor_reason="自動除外",
+                    priority=1,
+                )
+            )
 
         return plan

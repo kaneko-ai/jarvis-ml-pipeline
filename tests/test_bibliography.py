@@ -5,6 +5,7 @@ Per RP15, these tests verify:
 - RIS export (Zotero/EndNote compatible)
 - Bundle includes .bib/.ris files
 """
+
 import sys
 import tempfile
 from pathlib import Path

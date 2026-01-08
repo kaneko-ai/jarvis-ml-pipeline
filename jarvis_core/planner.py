@@ -5,6 +5,7 @@ an ordered list of executable subtasks using simple, category-specific
 recipes. Categories without a defined recipe fall back to returning the
 root task as-is to keep behavior safe and predictable.
 """
+
 from __future__ import annotations
 
 from copy import deepcopy
@@ -57,16 +58,20 @@ class Planner:
                 priority=task.priority,
                 status=TaskStatus.PENDING,
             )
-            subtask.history.append({
-                "event": "planned",
-                "step": idx,
-                "description": step,
-                "source_task": task.task_id,
-            })
+            subtask.history.append(
+                {
+                    "event": "planned",
+                    "step": idx,
+                    "description": step,
+                    "source_task": task.task_id,
+                }
+            )
             subtasks.append(subtask)
 
-        task.history.append({
-            "event": "plan_generated",
-            "subtasks": [s.task_id for s in subtasks],
-        })
+        task.history.append(
+            {
+                "event": "plan_generated",
+                "subtasks": [s.task_id for s in subtasks],
+            }
+        )
         return subtasks

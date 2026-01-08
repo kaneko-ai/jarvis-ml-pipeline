@@ -13,18 +13,15 @@ from .base import Ranker, RankingItem
 
 class HeuristicRanker(Ranker):
     """ヒューリスティックランカー.
-    
+
     シンプルなスコアリング関数でランキング。
     LightGBM導入前の初期実装。
     """
 
-    def __init__(
-        self,
-        weights: dict[str, float] | None = None
-    ):
+    def __init__(self, weights: dict[str, float] | None = None):
         """
         初期化.
-        
+
         Args:
             weights: 特徴量の重み
         """
@@ -38,10 +35,10 @@ class HeuristicRanker(Ranker):
     def score(self, item: RankingItem) -> float:
         """
         アイテムのスコアを計算.
-        
+
         Args:
             item: ランキングアイテム
-        
+
         Returns:
             スコア（高いほど優先）
         """
@@ -53,18 +50,14 @@ class HeuristicRanker(Ranker):
 
         return total
 
-    def rank(
-        self,
-        items: list[RankingItem],
-        context: dict[str, Any]
-    ) -> list[RankingItem]:
+    def rank(self, items: list[RankingItem], context: dict[str, Any]) -> list[RankingItem]:
         """
         アイテムをランキング.
-        
+
         Args:
             items: ランキング対象
             context: コンテキスト（将来的なコンテキスト依存スコアリング用）
-        
+
         Returns:
             スコア降順でソートされたアイテム
         """

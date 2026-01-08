@@ -3,6 +3,7 @@
 Per Research OS v3.0 specification.
 All 30 functions in one file for maintainability.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -14,6 +15,7 @@ if TYPE_CHECKING:
 # =========================
 # Λ-1〜Λ-5: 仮説・主張系
 # =========================
+
 
 def analyze_hypothesis_risks(hypothesis: str, vectors: list[PaperVector]) -> dict:
     """Λ-1: 仮説リスク分解."""
@@ -38,7 +40,7 @@ def detect_theme_overlap(themes: list[str], vectors: list[PaperVector]) -> list[
     """Λ-3: テーマ被り検出."""
     overlaps = []
     for i, t1 in enumerate(themes):
-        for t2 in themes[i+1:]:
+        for t2 in themes[i + 1 :]:
             overlaps.append({"themes": [t1, t2], "overlap": "potential"})
     return overlaps[:5]
 
@@ -61,10 +63,11 @@ def warn_strong_assumptions(hypothesis: str) -> list[str]:
 # Λ-6〜Λ-10: 実験設計系
 # =========================
 
+
 def build_experiment_dependency_graph(experiments: list[str]) -> dict:
     """Λ-6: 実験依存グラフ."""
     nodes = [{"id": i, "name": e[:30]} for i, e in enumerate(experiments)]
-    edges = [{"from": i, "to": i+1} for i in range(len(experiments)-1)]
+    edges = [{"from": i, "to": i + 1} for i in range(len(experiments) - 1)]
     return {"nodes": nodes, "edges": edges}
 
 
@@ -110,6 +113,7 @@ def detect_reproduction_failure_signs(vectors: list[PaperVector]) -> list[str]:
 # =========================
 # Λ-11〜Λ-15: 論文補助系
 # =========================
+
 
 def detect_reviewer_fatigue_points(text: str) -> list[str]:
     """Λ-11: Reviewer疲労ポイント."""
@@ -159,6 +163,7 @@ def evaluate_citation_balance(vectors: list[PaperVector]) -> dict:
 # Λ-16〜Λ-20: トレンド分析系
 # =========================
 
+
 def detect_rising_concepts(vectors: list[PaperVector]) -> list[str]:
     """Λ-16: 急上昇Concept検出."""
     recent_concepts = set()
@@ -205,7 +210,7 @@ def detect_cross_field_citations(vectors: list[PaperVector]) -> int:
     for v in vectors:
         concepts = list(v.concept.concepts.keys())
         for i, c1 in enumerate(concepts):
-            for c2 in concepts[i+1:]:
+            for c2 in concepts[i + 1 :]:
                 pairs.add((c1, c2))
     return len(pairs)
 
@@ -213,6 +218,7 @@ def detect_cross_field_citations(vectors: list[PaperVector]) -> int:
 # =========================
 # Λ-21〜Λ-25: 自己分析系
 # =========================
+
 
 def classify_hypothesis_type(hypothesis: str) -> str:
     """Λ-21: 仮説タイプ自己分析."""
@@ -266,14 +272,17 @@ def detect_undervaluation(vectors: list[PaperVector]) -> bool:
 # Λ-26〜Λ-30: 運用・継続系
 # =========================
 
+
 def restructure_for_obsidian(vectors: list[PaperVector]) -> dict:
     """Λ-26: Obsidian知識再構成."""
     nodes = []
     for v in vectors:
-        nodes.append({
-            "id": v.paper_id,
-            "links": list(v.concept.concepts.keys())[:3],
-        })
+        nodes.append(
+            {
+                "id": v.paper_id,
+                "links": list(v.concept.concepts.keys())[:3],
+            }
+        )
     return {"obsidian_nodes": nodes, "total": len(nodes)}
 
 

@@ -3,6 +3,7 @@
 Per JARVIS_LOCALFIRST_ROADMAP Task 1.4: 無料API統合
 Uses Semantic Scholar Academic Graph API (free tier: 100 requests/5 min).
 """
+
 from __future__ import annotations
 
 import logging
@@ -20,6 +21,7 @@ S2_API_BASE = "https://api.semanticscholar.org/graph/v1"
 @dataclass
 class S2Author:
     """Semantic Scholar author."""
+
     author_id: str
     name: str
 
@@ -27,6 +29,7 @@ class S2Author:
 @dataclass
 class S2Paper:
     """Semantic Scholar paper representation."""
+
     paper_id: str
     title: str
     abstract: str = ""
@@ -59,13 +62,21 @@ class S2Paper:
 
 class SemanticScholarClient:
     """Client for Semantic Scholar Academic Graph API.
-    
+
     Free tier: 100 requests per 5 minutes.
     """
 
     PAPER_FIELDS = [
-        "paperId", "title", "abstract", "authors", "year", "venue",
-        "citationCount", "referenceCount", "externalIds", "url",
+        "paperId",
+        "title",
+        "abstract",
+        "authors",
+        "year",
+        "venue",
+        "citationCount",
+        "referenceCount",
+        "externalIds",
+        "url",
         "fieldsOfStudy",
     ]
 
@@ -98,14 +109,14 @@ class SemanticScholarClient:
         fields_of_study: list[str] | None = None,
     ) -> list[S2Paper]:
         """Search for papers.
-        
+
         Args:
             query: Search query.
             limit: Maximum results (max 100).
             offset: Result offset for pagination.
             year: Year filter (e.g., "2020-2024").
             fields_of_study: Field filter.
-            
+
         Returns:
             List of S2Paper objects.
         """
@@ -139,11 +150,11 @@ class SemanticScholarClient:
 
     def get_paper(self, paper_id: str) -> S2Paper | None:
         """Get paper by ID.
-        
+
         Args:
             paper_id: Semantic Scholar paper ID, DOI, or ArXiv ID.
                      E.g., "10.1234/example" or "arXiv:2001.00001"
-                     
+
         Returns:
             S2Paper or None.
         """
@@ -167,11 +178,11 @@ class SemanticScholarClient:
         limit: int = 100,
     ) -> list[S2Paper]:
         """Get papers that cite this paper.
-        
+
         Args:
             paper_id: Source paper ID.
             limit: Maximum results.
-            
+
         Returns:
             List of citing papers.
         """
@@ -206,11 +217,11 @@ class SemanticScholarClient:
         limit: int = 100,
     ) -> list[S2Paper]:
         """Get papers referenced by this paper.
-        
+
         Args:
             paper_id: Source paper ID.
             limit: Maximum results.
-            
+
         Returns:
             List of referenced papers.
         """
@@ -243,10 +254,12 @@ class SemanticScholarClient:
         """Parse paper from API response."""
         authors = []
         for a in data.get("authors", []):
-            authors.append(S2Author(
-                author_id=a.get("authorId", ""),
-                name=a.get("name", ""),
-            ))
+            authors.append(
+                S2Author(
+                    author_id=a.get("authorId", ""),
+                    name=a.get("name", ""),
+                )
+            )
 
         external_ids = data.get("externalIds", {}) or {}
 

@@ -2,6 +2,7 @@
 
 Per RP-400, implements distributed processing with Ray.
 """
+
 from __future__ import annotations
 
 import time
@@ -34,7 +35,7 @@ class DistributedTask:
 
 class DistributedProcessor:
     """Distributed processing manager.
-    
+
     Per RP-400:
     - Ray/Dask integration
     - Worker management
@@ -54,13 +55,14 @@ class DistributedProcessor:
 
     def initialize(self) -> bool:
         """Initialize distributed backend.
-        
+
         Returns:
             True if initialized.
         """
         if self.backend == "ray":
             try:
                 import ray
+
                 if not ray.is_initialized():
                     ray.init(num_cpus=self.num_workers)
                 self._ray = ray
@@ -87,12 +89,12 @@ class DistributedProcessor:
         **kwargs,
     ) -> str:
         """Submit a task for distributed execution.
-        
+
         Args:
             func: Function to execute.
             *args: Positional arguments.
             **kwargs: Keyword arguments.
-            
+
         Returns:
             Task ID.
         """
@@ -132,11 +134,11 @@ class DistributedProcessor:
         timeout: float | None = None,
     ) -> Any:
         """Get task result.
-        
+
         Args:
             task_id: Task identifier.
             timeout: Optional timeout in seconds.
-            
+
         Returns:
             Task result.
         """
@@ -162,11 +164,11 @@ class DistributedProcessor:
         items: list[Any],
     ) -> list[Any]:
         """Map function over items in parallel.
-        
+
         Args:
             func: Function to apply.
             items: Items to process.
-            
+
         Returns:
             Results.
         """
@@ -188,7 +190,7 @@ class DistributedProcessor:
 
     def get_workers(self) -> list[WorkerInfo]:
         """Get worker information.
-        
+
         Returns:
             List of workers.
         """
@@ -196,10 +198,10 @@ class DistributedProcessor:
 
     def get_task_status(self, task_id: str) -> str:
         """Get task status.
-        
+
         Args:
             task_id: Task identifier.
-            
+
         Returns:
             Status string.
         """

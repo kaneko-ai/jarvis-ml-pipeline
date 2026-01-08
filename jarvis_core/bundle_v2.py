@@ -6,6 +6,7 @@ Per V4-D1, this implements the new bundle format with:
 - Evidence chunks
 - Audit report
 """
+
 from __future__ import annotations
 
 import json
@@ -92,7 +93,12 @@ class BundleV2:
 
         # 4. audit.md
         audit_reports = self.generate_audit()
-        audit_lines = ["# Bundle Audit Report", "", f"**Generated**: {datetime.now().isoformat()}", ""]
+        audit_lines = [
+            "# Bundle Audit Report",
+            "",
+            f"**Generated**: {datetime.now().isoformat()}",
+            "",
+        ]
 
         for report in audit_reports:
             audit_lines.append(report.to_markdown())
@@ -118,7 +124,9 @@ class BundleV2:
                 data = json.load(f)
                 bundle.metadata = data.get("metadata", {})
                 bundle.scoring_snapshot = data.get("scoring_snapshot", {})
-                bundle.created_at = datetime.fromisoformat(data.get("created_at", datetime.now().isoformat()))
+                bundle.created_at = datetime.fromisoformat(
+                    data.get("created_at", datetime.now().isoformat())
+                )
 
         # Load evidence
         evidence_dir = path / "evidence"
@@ -159,10 +167,13 @@ def create_bundle_v2(
 
     # Capture scoring snapshot
     from .scoring.registry import ScoreRegistry
+
     registry = ScoreRegistry()
-    bundle.set_scoring_snapshot({
-        "registered_scores": registry.list_scores(),
-        "version": BundleV2.VERSION,
-    })
+    bundle.set_scoring_snapshot(
+        {
+            "registered_scores": registry.list_scores(),
+            "version": BundleV2.VERSION,
+        }
+    )
 
     return bundle

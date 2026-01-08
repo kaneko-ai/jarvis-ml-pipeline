@@ -19,6 +19,7 @@ from jarvis_core.pipelines.stage_registry import register_stage
 # SUMMARIZATION ステージ群
 # ============================================
 
+
 @register_stage("summarization.multigrain", "多粒度要約")
 def stage_summarization_multigrain(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """多粒度要約ステージ。"""
@@ -33,15 +34,23 @@ def stage_summarization_multigrain(context: TaskContext, artifacts: Artifacts) -
         artifacts.summaries[paper.doc_id] = short
         artifacts.metadata[f"{paper.doc_id}_summary_medium"] = medium
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Generated summaries for {len(artifacts.papers)} papers",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="summarization",
-            chunk_id="sum_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Generated summaries for {len(artifacts.papers)} papers",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="summarization",
+                    chunk_id="sum_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("summarization.multigrain", "completed")
     return artifacts
@@ -62,15 +71,23 @@ def stage_summarization_beginner(context: TaskContext, artifacts: Artifacts) -> 
             simplified = simplified.replace(term, f"{term}（{simple}）")
         artifacts.metadata[f"{doc_id}_beginner"] = simplified
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Beginner-friendly versions created",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="beginner",
-            chunk_id="beg_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Beginner-friendly versions created",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="beginner",
+                    chunk_id="beg_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("summarization.beginner", "completed")
     return artifacts
@@ -83,18 +100,26 @@ def stage_summarization_compare(context: TaskContext, artifacts: Artifacts) -> A
         artifacts.metadata["comparison"] = {
             "papers_compared": [p.doc_id for p in artifacts.papers[:2]],
             "similarities": ["Both study the same topic"],
-            "differences": ["Different methodologies"]
+            "differences": ["Different methodologies"],
         }
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Comparison summary generated",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="compare",
-            chunk_id="comp_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Comparison summary generated",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="compare",
+                    chunk_id="comp_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("summarization.compare", "completed")
     return artifacts
@@ -109,18 +134,26 @@ def stage_summarization_reproducibility(context: TaskContext, artifacts: Artifac
 
         artifacts.metadata[f"{paper.doc_id}_reproducibility"] = {
             "methods_described": len(paper_methods),
-            "reproducibility_score": 0.7 if paper_methods else 0.3
+            "reproducibility_score": 0.7 if paper_methods else 0.3,
         }
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Reproducibility assessment completed",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="reproducibility",
-            chunk_id="repro_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Reproducibility assessment completed",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="reproducibility",
+                    chunk_id="repro_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("summarization.reproducibility", "completed")
     return artifacts
@@ -133,18 +166,26 @@ def stage_summarization_refutable(context: TaskContext, artifacts: Artifacts) ->
         if claim.claim_type == "fact":
             artifacts.metadata[f"{claim.claim_id}_refutable"] = {
                 "is_refutable": len(claim.evidence) > 0,
-                "evidence_count": len(claim.evidence)
+                "evidence_count": len(claim.evidence),
             }
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Refutability assessment completed",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="refutable",
-            chunk_id="ref_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Refutability assessment completed",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="refutable",
+                    chunk_id="ref_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("summarization.refutable", "completed")
     return artifacts
@@ -153,6 +194,7 @@ def stage_summarization_refutable(context: TaskContext, artifacts: Artifacts) ->
 # ============================================
 # SCORING ステージ群
 # ============================================
+
 
 @register_stage("scoring.importance", "重要度スコア")
 def stage_scoring_importance(context: TaskContext, artifacts: Artifacts) -> Artifacts:
@@ -169,18 +211,26 @@ def stage_scoring_importance(context: TaskContext, artifacts: Artifacts) -> Arti
         artifacts.scores[f"{paper.doc_id}_importance"] = Score(
             name="importance",
             value=min(score, 1.0),
-            explanation=f"Importance score for {paper.doc_id}"
+            explanation=f"Importance score for {paper.doc_id}",
         )
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Importance scores calculated",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="importance",
-            chunk_id="imp_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Importance scores calculated",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="importance",
+                    chunk_id="imp_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("scoring.importance", "completed")
     return artifacts
@@ -197,18 +247,26 @@ def stage_scoring_confidence(context: TaskContext, artifacts: Artifacts) -> Arti
             name="confidence",
             value=confidence,
             explanation=f"Confidence based on {evidence_count} evidence",
-            evidence=claim.evidence[:1]
+            evidence=claim.evidence[:1],
         )
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Confidence scores calculated",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="confidence",
-            chunk_id="conf_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Confidence scores calculated",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="confidence",
+                    chunk_id="conf_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("scoring.confidence", "completed")
     return artifacts
@@ -229,20 +287,26 @@ def stage_scoring_bias_risk(context: TaskContext, artifacts: Artifacts) -> Artif
             risk += 0.2
 
         artifacts.scores[f"{paper.doc_id}_bias_risk"] = Score(
-            name="bias_risk",
-            value=max(0, min(risk, 1.0)),
-            explanation="Bias risk assessment"
+            name="bias_risk", value=max(0, min(risk, 1.0)), explanation="Bias risk assessment"
         )
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Bias risk assessed",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="bias",
-            chunk_id="bias_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Bias risk assessed",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="bias",
+                    chunk_id="bias_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("scoring.bias_risk", "completed")
     return artifacts
@@ -263,20 +327,26 @@ def stage_scoring_evidence_tier(context: TaskContext, artifacts: Artifacts) -> A
         tier_score = tiers.get(study_type, 0.5)
 
         artifacts.scores[f"{paper.doc_id}_evidence_tier"] = Score(
-            name="evidence_tier",
-            value=tier_score,
-            explanation=f"Evidence tier: {study_type}"
+            name="evidence_tier", value=tier_score, explanation=f"Evidence tier: {study_type}"
         )
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Evidence tiers assigned",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="tier",
-            chunk_id="tier_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Evidence tiers assigned",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="tier",
+                    chunk_id="tier_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("scoring.evidence_tier", "completed")
     return artifacts
@@ -297,18 +367,26 @@ def stage_scoring_clinical_relevance(context: TaskContext, artifacts: Artifacts)
         artifacts.scores[f"{paper.doc_id}_clinical_relevance"] = Score(
             name="clinical_relevance",
             value=min(relevance, 1.0),
-            explanation="Clinical relevance assessment"
+            explanation="Clinical relevance assessment",
         )
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Clinical relevance scored",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="clinical",
-            chunk_id="clin_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Clinical relevance scored",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="clinical",
+                    chunk_id="clin_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("scoring.clinical_relevance", "completed")
     return artifacts
@@ -326,18 +404,26 @@ def stage_scoring_personal_fit(context: TaskContext, artifacts: Artifacts) -> Ar
         artifacts.scores[f"{paper.doc_id}_personal_fit"] = Score(
             name="personal_fit",
             value=min(overlap + 0.3, 1.0),
-            explanation=f"Fit to goal: {context.goal[:50]}"
+            explanation=f"Fit to goal: {context.goal[:50]}",
         )
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Personal fit scored",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="fit",
-            chunk_id="fit_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Personal fit scored",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="fit",
+                    chunk_id="fit_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("scoring.personal_fit", "completed")
     return artifacts
@@ -356,20 +442,26 @@ def stage_scoring_learning_roi(context: TaskContext, artifacts: Artifacts) -> Ar
         roi = (importance_val + fit_val) / 2
 
         artifacts.scores[f"{paper.doc_id}_learning_roi"] = Score(
-            name="learning_roi",
-            value=roi,
-            explanation="Learning ROI = (importance + fit) / 2"
+            name="learning_roi", value=roi, explanation="Learning ROI = (importance + fit) / 2"
         )
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Learning ROI calculated",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="roi",
-            chunk_id="roi_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Learning ROI calculated",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="roi",
+                    chunk_id="roi_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("scoring.learning_roi", "completed")
     return artifacts
@@ -379,20 +471,29 @@ def stage_scoring_learning_roi(context: TaskContext, artifacts: Artifacts) -> Ar
 # KNOWLEDGE GRAPH ステージ群
 # ============================================
 
+
 @register_stage("knowledge_graph.entity_normalize", "Entity正規化")
 def stage_kg_entity_normalize(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """Entity正規化ステージ。"""
     artifacts.metadata["normalized_entities"] = []
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Entity normalization completed",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="entity",
-            chunk_id="ent_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Entity normalization completed",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="entity",
+                    chunk_id="ent_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("knowledge_graph.entity_normalize", "completed")
     return artifacts
@@ -401,20 +502,25 @@ def stage_kg_entity_normalize(context: TaskContext, artifacts: Artifacts) -> Art
 @register_stage("knowledge_graph.build_and_index", "KG構築")
 def stage_kg_build_and_index(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """KG構築ステージ。"""
-    artifacts.graphs["knowledge_graph"] = {
-        "entities": {},
-        "relations": []
-    }
+    artifacts.graphs["knowledge_graph"] = {"entities": {}, "relations": []}
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Knowledge graph built",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="kg",
-            chunk_id="kg_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Knowledge graph built",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="kg",
+                    chunk_id="kg_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("knowledge_graph.build_and_index", "completed")
     return artifacts
@@ -425,15 +531,23 @@ def stage_kg_controversy_map(context: TaskContext, artifacts: Artifacts) -> Arti
     """論争マップステージ。"""
     artifacts.metadata["controversies"] = []
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Controversy mapping completed",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="controversy",
-            chunk_id="cont_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Controversy mapping completed",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="controversy",
+                    chunk_id="cont_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("knowledge_graph.controversy_map", "completed")
     return artifacts
@@ -444,15 +558,23 @@ def stage_kg_timeline(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """知見更新史ステージ。"""
     artifacts.metadata["timeline"] = []
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Timeline generated",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="timeline",
-            chunk_id="tl_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Timeline generated",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="timeline",
+                    chunk_id="tl_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("knowledge_graph.timeline", "completed")
     return artifacts
@@ -463,15 +585,23 @@ def stage_kg_graphrag_index(context: TaskContext, artifacts: Artifacts) -> Artif
     """GraphRAGインデックスステージ。"""
     artifacts.metadata["graphrag_indexed"] = True
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="GraphRAG index built",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="graphrag",
-            chunk_id="grag_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="GraphRAG index built",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="graphrag",
+                    chunk_id="grag_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("knowledge_graph.graphrag_index", "completed")
     return artifacts
@@ -481,6 +611,7 @@ def stage_kg_graphrag_index(context: TaskContext, artifacts: Artifacts) -> Artif
 # DESIGN ステージ群
 # ============================================
 
+
 @register_stage("design.gap_analysis", "Gap分析")
 def stage_design_gap_analysis(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """Gap分析ステージ。"""
@@ -488,23 +619,33 @@ def stage_design_gap_analysis(context: TaskContext, artifacts: Artifacts) -> Art
     limitations = artifacts.metadata.get("limitations", [])
 
     for lim in limitations[:5]:
-        gaps.append({
-            "gap_id": f"gap-{uuid.uuid4().hex[:8]}",
-            "description": lim.get("limitation", ""),
-            "priority": "medium"
-        })
+        gaps.append(
+            {
+                "gap_id": f"gap-{uuid.uuid4().hex[:8]}",
+                "description": lim.get("limitation", ""),
+                "priority": "medium",
+            }
+        )
 
     artifacts.metadata["gaps"] = gaps
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Identified {len(gaps)} research gaps",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="gap",
-            chunk_id="gap_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Identified {len(gaps)} research gaps",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="gap",
+                    chunk_id="gap_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("design.gap_analysis", "completed")
     return artifacts
@@ -517,25 +658,35 @@ def stage_design_next_experiments(context: TaskContext, artifacts: Artifacts) ->
 
     proposals = []
     for gap in gaps[:3]:
-        proposals.append({
-            "proposal_id": f"exp-{uuid.uuid4().hex[:8]}",
-            "gap_id": gap.get("gap_id"),
-            "title": f"Experiment to address: {gap.get('description', '')[:50]}",
-            "design_type": "RCT"
-        })
+        proposals.append(
+            {
+                "proposal_id": f"exp-{uuid.uuid4().hex[:8]}",
+                "gap_id": gap.get("gap_id"),
+                "title": f"Experiment to address: {gap.get('description', '')[:50]}",
+                "design_type": "RCT",
+            }
+        )
 
     artifacts.metadata["experiment_proposals"] = proposals
     artifacts.designs = proposals
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Proposed {len(proposals)} experiments",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="design",
-            chunk_id="exp_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Proposed {len(proposals)} experiments",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="design",
+                    chunk_id="exp_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("design.next_experiments", "completed")
     return artifacts
@@ -548,24 +699,34 @@ def stage_design_protocol_draft(context: TaskContext, artifacts: Artifacts) -> A
 
     protocols = []
     for prop in proposals[:2]:
-        protocols.append({
-            "protocol_id": f"prot-{uuid.uuid4().hex[:8]}",
-            "proposal_id": prop.get("proposal_id"),
-            "title": prop.get("title"),
-            "steps": ["1. Obtain approval", "2. Recruit", "3. Execute", "4. Analyze"]
-        })
+        protocols.append(
+            {
+                "protocol_id": f"prot-{uuid.uuid4().hex[:8]}",
+                "proposal_id": prop.get("proposal_id"),
+                "title": prop.get("title"),
+                "steps": ["1. Obtain approval", "2. Recruit", "3. Execute", "4. Analyze"],
+            }
+        )
 
     artifacts.metadata["protocols"] = protocols
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Generated {len(protocols)} protocol drafts",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="protocol",
-            chunk_id="prot_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Generated {len(protocols)} protocol drafts",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="protocol",
+                    chunk_id="prot_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("design.protocol_draft", "completed")
     return artifacts
@@ -578,25 +739,35 @@ def stage_design_stats_design(context: TaskContext, artifacts: Artifacts) -> Art
 
     stats_designs = []
     for prop in proposals[:2]:
-        stats_designs.append({
-            "proposal_id": prop.get("proposal_id"),
-            "analysis_type": "t-test",
-            "sample_size": 100,
-            "power": 0.8,
-            "alpha": 0.05
-        })
+        stats_designs.append(
+            {
+                "proposal_id": prop.get("proposal_id"),
+                "analysis_type": "t-test",
+                "sample_size": 100,
+                "power": 0.8,
+                "alpha": 0.05,
+            }
+        )
 
     artifacts.metadata["stats_designs"] = stats_designs
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Statistical designs created",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="stats_design",
-            chunk_id="statd_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Statistical designs created",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="stats_design",
+                    chunk_id="statd_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("design.stats_design", "completed")
     return artifacts
@@ -609,23 +780,33 @@ def stage_design_risk_diagnosis(context: TaskContext, artifacts: Artifacts) -> A
 
     risks = []
     for prop in proposals:
-        risks.append({
-            "proposal_id": prop.get("proposal_id"),
-            "risks": ["Resource constraints", "Time limitations"],
-            "overall_risk": "medium"
-        })
+        risks.append(
+            {
+                "proposal_id": prop.get("proposal_id"),
+                "risks": ["Resource constraints", "Time limitations"],
+                "overall_risk": "medium",
+            }
+        )
 
     artifacts.metadata["risk_diagnoses"] = risks
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Risk diagnosis completed",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="risk",
-            chunk_id="risk_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Risk diagnosis completed",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="risk",
+                    chunk_id="risk_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("design.risk_diagnosis", "completed")
     return artifacts

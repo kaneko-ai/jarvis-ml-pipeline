@@ -2,6 +2,7 @@
 
 Per RP9, tests that relevant chunks are returned for queries.
 """
+
 import sys
 from pathlib import Path
 
@@ -148,9 +149,7 @@ class TestGetRelevantChunks:
             topic = topics[i % len(topics)]
             text = f"This is document {i} about {topic} with detailed information."
             chunk_id = store.add_chunk("test", f"test:{i}", text)
-            chunks.append(
-                ChunkResult(chunk_id=chunk_id, locator=f"test:{i}", preview=text[:30])
-            )
+            chunks.append(ChunkResult(chunk_id=chunk_id, locator=f"test:{i}", preview=text[:30]))
 
         results = get_relevant_chunks(
             "machine learning data",
@@ -177,9 +176,9 @@ class TestExecutionContextRetrieval:
         # Add some chunks
         for i in range(5):
             chunk_id = store.add_chunk("test", f"test:{i}", f"Topic {i} content")
-            ctx.add_chunks([
-                ChunkResult(chunk_id=chunk_id, locator=f"test:{i}", preview=f"Topic {i}")
-            ])
+            ctx.add_chunks(
+                [ChunkResult(chunk_id=chunk_id, locator=f"test:{i}", preview=f"Topic {i}")]
+            )
 
         results = ctx.get_relevant_chunks("topic", k=3)
         assert len(results) <= 3
@@ -190,9 +189,7 @@ class TestExecutionContextRetrieval:
         ctx = ExecutionContext(evidence_store=store)
 
         chunk_id = store.add_chunk("test", "test:0", "Test content")
-        ctx.add_chunks([
-            ChunkResult(chunk_id=chunk_id, locator="test:0", preview="Test")
-        ])
+        ctx.add_chunks([ChunkResult(chunk_id=chunk_id, locator="test:0", preview="Test")])
 
         previews = ctx.get_relevant_chunks_preview("test", k=5)
         assert len(previews) == 1
@@ -215,19 +212,19 @@ class TestIntegration:
                 source="test",
                 locator_base="test:immunology",
                 text="CD73 is an ectoenzyme that produces adenosine. "
-                     "It is expressed on regulatory T cells and affects immune responses.",
+                "It is expressed on regulatory T cells and affects immune responses.",
             ),
             SourceDocument(
                 source="test",
                 locator_base="test:ml",
                 text="Machine learning algorithms learn from data. "
-                     "Neural networks are a type of machine learning model.",
+                "Neural networks are a type of machine learning model.",
             ),
             SourceDocument(
                 source="test",
                 locator_base="test:cancer",
                 text="Tumor microenvironment includes various immune cells. "
-                     "Adenosine signaling can suppress anti-tumor immunity.",
+                "Adenosine signaling can suppress anti-tumor immunity.",
             ),
         ]
 

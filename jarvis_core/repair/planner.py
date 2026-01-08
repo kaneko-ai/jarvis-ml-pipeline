@@ -13,6 +13,7 @@ Per BUNDLE_CONTRACT.md fail_reasons:
 - INDEX_MISSING: 索引なし
 - BUDGET_EXCEEDED: 予算超過
 """
+
 from __future__ import annotations
 
 import json
@@ -25,23 +26,25 @@ from typing import Any
 
 class RepairAction(Enum):
     """修復アクション種別."""
-    EXPAND_QUERY = "expand_query"          # クエリ拡張
-    RELAX_FILTERS = "relax_filters"        # フィルタ緩和
-    ADD_SYNONYMS = "add_synonyms"          # 同義語追加
-    INCREASE_PAPERS = "increase_papers"    # 論文数増加
+
+    EXPAND_QUERY = "expand_query"  # クエリ拡張
+    RELAX_FILTERS = "relax_filters"  # フィルタ緩和
+    ADD_SYNONYMS = "add_synonyms"  # 同義語追加
+    INCREASE_PAPERS = "increase_papers"  # 論文数増加
     RERUN_EXTRACTION = "rerun_extraction"  # 抽出再実行
-    LOWER_THRESHOLD = "lower_threshold"    # 閾値緩和
-    ADD_LOCATORS = "add_locators"          # locator補完
-    REDACT_PII = "redact_pii"              # PII削除
-    RETRY_FETCH = "retry_fetch"            # 再取得
-    REBUILD_INDEX = "rebuild_index"        # 索引再構築
-    REDUCE_SCOPE = "reduce_scope"          # スコープ縮小
-    REFUSE_ANSWER = "refuse_answer"        # 回答拒否（不明）
+    LOWER_THRESHOLD = "lower_threshold"  # 閾値緩和
+    ADD_LOCATORS = "add_locators"  # locator補完
+    REDACT_PII = "redact_pii"  # PII削除
+    RETRY_FETCH = "retry_fetch"  # 再取得
+    REBUILD_INDEX = "rebuild_index"  # 索引再構築
+    REDUCE_SCOPE = "reduce_scope"  # スコープ縮小
+    REFUSE_ANSWER = "refuse_answer"  # 回答拒否（不明）
 
 
 @dataclass
 class RepairStep:
     """修復ステップ."""
+
     action: RepairAction
     params: dict[str, Any] = field(default_factory=dict)
     priority: int = 1  # 1=高, 3=低
@@ -59,6 +62,7 @@ class RepairStep:
 @dataclass
 class RepairPlan:
     """修復計画."""
+
     fail_code: str
     steps: list[RepairStep] = field(default_factory=list)
     max_retries: int = 3
@@ -224,24 +228,27 @@ class RepairPlanner:
         attempt: int = 1,
     ) -> RepairPlan:
         """失敗理由から修復計画を立案.
-        
+
         Args:
             fail_reasons: [{code, msg}] 形式の失敗理由リスト
             run_id: 現在のrun_id
             attempt: 現在の試行回数
-            
+
         Returns:
             RepairPlan: 修復計画
         """
         if not fail_reasons:
-            return RepairPlan(fail_code="UNKNOWN", should_refuse=True, refuse_reason="No fail reasons provided")
+            return RepairPlan(
+                fail_code="UNKNOWN", should_refuse=True, refuse_reason="No fail reasons provided"
+            )
 
         # 主要な失敗コードを特定
         primary_code = fail_reasons[0].get("code", "UNKNOWN")
 
         # 同一コードの過去試行回数をチェック
         past_attempts = sum(
-            1 for h in self._history
+            1
+            for h in self._history
             if h.get("run_id") == run_id and h.get("fail_code") == primary_code
         )
 
@@ -280,13 +287,15 @@ class RepairPlanner:
             plan.refuse_reason = sorted_steps[0].reason
 
         # 履歴記録
-        self._save_history_entry({
-            "run_id": run_id,
-            "fail_code": primary_code,
-            "attempt": attempt,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "plan": plan.to_dict(),
-        })
+        self._save_history_entry(
+            {
+                "run_id": run_id,
+                "fail_code": primary_code,
+                "attempt": attempt,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "plan": plan.to_dict(),
+            }
+        )
 
         return plan
 

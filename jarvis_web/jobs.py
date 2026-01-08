@@ -1,4 +1,5 @@
 """Job utilities for background processing."""
+
 from __future__ import annotations
 
 import json
@@ -34,7 +35,9 @@ def generate_job_id() -> str:
     return f"job_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:6]}"
 
 
-def create_job(job_type: str, payload: Dict[str, Any], job_id: Optional[str] = None) -> Dict[str, Any]:
+def create_job(
+    job_type: str, payload: Dict[str, Any], job_id: Optional[str] = None
+) -> Dict[str, Any]:
     job_id = job_id or generate_job_id()
     job = {
         "job_id": job_id,

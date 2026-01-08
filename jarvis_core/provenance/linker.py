@@ -17,12 +17,14 @@ from jarvis_core.contracts.types import Claim, EvidenceLink
 
 class ProvenanceError(Exception):
     """根拠付けエラー."""
+
     pass
 
 
 @dataclass
 class ChunkInfo:
     """チャンク情報."""
+
     doc_id: str
     section: str
     chunk_id: str
@@ -34,7 +36,7 @@ class ChunkInfo:
 class ProvenanceLinker:
     """
     根拠付けユーティリティ.
-    
+
     文章出力に evidence_links を付与する。
     根拠がない場合は「不明」と明示し、スコアを下げる。
     """
@@ -49,12 +51,18 @@ class ProvenanceLinker:
         self.min_confidence = min_confidence
         self.chunks: dict[str, ChunkInfo] = {}
 
-    def register_chunk(self, doc_id: str, section: str,
-                       chunk_id: str, text: str,
-                       start: int = 0, end: int | None = None) -> None:
+    def register_chunk(
+        self,
+        doc_id: str,
+        section: str,
+        chunk_id: str,
+        text: str,
+        start: int = 0,
+        end: int | None = None,
+    ) -> None:
         """
         チャンクを登録する.
-        
+
         Args:
             doc_id: ドキュメントID
             section: セクション名
@@ -65,27 +73,21 @@ class ProvenanceLinker:
         """
         end = end or (start + len(text))
         self.chunks[chunk_id] = ChunkInfo(
-            doc_id=doc_id,
-            section=section,
-            chunk_id=chunk_id,
-            text=text,
-            start=start,
-            end=end
+            doc_id=doc_id, section=section, chunk_id=chunk_id, text=text, start=start, end=end
         )
 
-    def register_chunks_from_document(self, doc_id: str,
-                                       sections: dict[str, str],
-                                       chunk_size: int = 500,
-                                       overlap: int = 50) -> list[str]:
+    def register_chunks_from_document(
+        self, doc_id: str, sections: dict[str, str], chunk_size: int = 500, overlap: int = 50
+    ) -> list[str]:
         """
         ドキュメントからチャンクを自動登録.
-        
+
         Args:
             doc_id: ドキュメントID
             sections: セクション名 -> テキスト
             chunk_size: チャンクサイズ
             overlap: オーバーラップ
-        
+
         Returns:
             登録されたchunk_idのリスト
         """
@@ -113,15 +115,14 @@ class ProvenanceLinker:
         content = f"{doc_id}:{section}:{num}"
         return hashlib.sha256(content.encode()).hexdigest()[:12]
 
-    def find_evidence(self, claim_text: str,
-                      threshold: float = 0.5) -> list[EvidenceLink]:
+    def find_evidence(self, claim_text: str, threshold: float = 0.5) -> list[EvidenceLink]:
         """
         主張に対する根拠を検索.
-        
+
         Args:
             claim_text: 主張テキスト
             threshold: 類似度閾値
-        
+
         Returns:
             EvidenceLinkのリスト
         """
@@ -145,15 +146,17 @@ class ProvenanceLinker:
                 # Find exact span if possible
                 start, end = self._find_span(claim_text, chunk.text)
 
-                evidence.append(EvidenceLink(
-                    doc_id=chunk.doc_id,
-                    section=chunk.section,
-                    chunk_id=chunk_id,
-                    start=start,
-                    end=end,
-                    confidence=similarity,
-                    text=chunk.text[start:end] if start >= 0 else None
-                ))
+                evidence.append(
+                    EvidenceLink(
+                        doc_id=chunk.doc_id,
+                        section=chunk.section,
+                        chunk_id=chunk_id,
+                        start=start,
+                        end=end,
+                        confidence=similarity,
+                        text=chunk.text[start:end] if start >= 0 else None,
+                    )
+                )
 
         # Sort by confidence
         evidence.sort(key=lambda e: e.confidence, reverse=True)
@@ -163,7 +166,7 @@ class ProvenanceLinker:
     def _tokenize(self, text: str) -> list[str]:
         """Simple tokenization."""
         # Remove punctuation and lowercase
-        text = re.sub(r'[^\w\s]', ' ', text.lower())
+        text = re.sub(r"[^\w\s]", " ", text.lower())
         return [w for w in text.split() if len(w) > 2]
 
     def _find_span(self, claim: str, chunk: str) -> tuple[int, int]:
@@ -177,7 +180,7 @@ class ProvenanceLinker:
             return idx, idx + len(claim)
 
         # Try partial match (first sentence)
-        sentences = re.split(r'[.!?]', claim)
+        sentences = re.split(r"[.!?]", claim)
         if sentences:
             first = sentences[0].strip().lower()
             idx = chunk_lower.find(first)
@@ -187,18 +190,18 @@ class ProvenanceLinker:
         # Return full chunk if no match
         return 0, len(chunk)
 
-    def create_claim(self, claim_id: str, claim_text: str,
-                     claim_type: str = "fact",
-                     auto_link: bool = True) -> Claim:
+    def create_claim(
+        self, claim_id: str, claim_text: str, claim_type: str = "fact", auto_link: bool = True
+    ) -> Claim:
         """
         根拠付き主張を作成.
-        
+
         Args:
             claim_id: 主張ID
             claim_text: 主張テキスト
             claim_type: 主張タイプ
             auto_link: 自動で根拠を検索するか
-        
+
         Returns:
             Claim with evidence_links
         """
@@ -216,7 +219,7 @@ class ProvenanceLinker:
             claim_text=claim_text,
             evidence=evidence,
             claim_type=claim_type,
-            confidence=confidence
+            confidence=confidence,
         )
 
         # Strict mode: reject claims without evidence
@@ -226,15 +229,16 @@ class ProvenanceLinker:
 
         return claim
 
-    def validate_claims(self, claims: list[Claim],
-                        min_rate: float = 0.95) -> tuple[bool, float, list[str]]:
+    def validate_claims(
+        self, claims: list[Claim], min_rate: float = 0.95
+    ) -> tuple[bool, float, list[str]]:
         """
         主張群の根拠付け率を検証.
-        
+
         Args:
             claims: 主張リスト
             min_rate: 最小根拠付け率
-        
+
         Returns:
             (合格フラグ, 実際の率, 警告リスト)
         """
@@ -253,8 +257,7 @@ class ProvenanceLinker:
 
         return passed, rate, warnings
 
-    def attach_evidence(self, claim: Claim,
-                        evidence_links: list[EvidenceLink]) -> Claim:
+    def attach_evidence(self, claim: Claim, evidence_links: list[EvidenceLink]) -> Claim:
         """
         既存の主張に根拠を追加.
         """
@@ -271,19 +274,18 @@ class ProvenanceLinker:
 class ProvenanceValidator:
     """
     根拠検証器.
-    
+
     全出力が根拠付けされているか検証する。
     """
 
-    def __init__(self, min_rate: float = 0.95,
-                 reject_assertions_without_evidence: bool = True):
+    def __init__(self, min_rate: float = 0.95, reject_assertions_without_evidence: bool = True):
         self.min_rate = min_rate
         self.reject_assertions = reject_assertions_without_evidence
 
     def validate(self, claims: list[Claim]) -> dict[str, Any]:
         """
         根拠付けを検証.
-        
+
         Returns:
             検証結果（passed, rate, issues, etc.）
         """
@@ -293,7 +295,7 @@ class ProvenanceValidator:
                 "rate": 0.0,
                 "issues": ["No claims to validate"],
                 "claims_total": 0,
-                "claims_with_evidence": 0
+                "claims_with_evidence": 0,
             }
 
         with_evidence = [c for c in claims if c.has_evidence()]
@@ -320,8 +322,9 @@ class ProvenanceValidator:
             "issues": issues,
             "claims_total": len(claims),
             "claims_with_evidence": len(with_evidence),
-            "facts_without_evidence": len([c for c in claims
-                                           if c.claim_type == "fact" and not c.has_evidence()])
+            "facts_without_evidence": len(
+                [c for c in claims if c.claim_type == "fact" and not c.has_evidence()]
+            ),
         }
 
 

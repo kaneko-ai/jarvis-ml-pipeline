@@ -42,7 +42,9 @@ class TestCounterevidenceSearcher:
         searcher = CounterevidenceSearcher()
 
         claim = "CD73 inhibition enhances antitumor immunity"
-        evidence = "However, our study failed to show any effect. No significant difference was observed."
+        evidence = (
+            "However, our study failed to show any effect. No significant difference was observed."
+        )
 
         stance, confidence = searcher.classify_stance(claim, evidence)
         assert stance == EvidenceStance.OPPOSING
@@ -80,17 +82,15 @@ class TestControversyMapGenerator:
 
         claims = [
             {"claim_id": "c1", "claim_text": "Treatment A is effective"},
-            {"claim_id": "c2", "claim_text": "Treatment B has no effect"}
+            {"claim_id": "c2", "claim_text": "Treatment B has no effect"},
         ]
 
         evidence_by_claim = {
             "c1": [
                 "Our study supports the effectiveness of treatment A",
-                "However, we failed to replicate the effect in our cohort"
+                "However, we failed to replicate the effect in our cohort",
             ],
-            "c2": [
-                "Confirmed no significant effect of treatment B"
-            ]
+            "c2": ["Confirmed no significant effect of treatment B"],
         }
 
         controversy_map = generator.generate("test_run", claims, evidence_by_claim)
@@ -125,11 +125,13 @@ class TestOneSidedConclusion:
         ]
 
         controversy_map = ControversyMap(run_id="test")
-        controversy_map.entries.append(ControversyMapEntry(
-            topic="Controversial topic here",
-            claim_text="Controversial topic here",
-            controversy_level=ControversyLevel.HIGH
-        ))
+        controversy_map.entries.append(
+            ControversyMapEntry(
+                topic="Controversial topic here",
+                claim_text="Controversial topic here",
+                controversy_level=ControversyLevel.HIGH,
+            )
+        )
 
         has_violation, violations = check_one_sided_conclusion(claims, controversy_map)
         assert has_violation is True
@@ -141,11 +143,7 @@ class TestDatasetGovernance:
 
     def test_manifest_creation(self):
         """マニフェストを作成できること."""
-        manifest = DatasetManifest(
-            name="test_dataset",
-            version="1.0.0",
-            description="Test dataset"
-        )
+        manifest = DatasetManifest(name="test_dataset", version="1.0.0", description="Test dataset")
 
         assert manifest.name == "test_dataset"
         assert manifest.total_records == 0
@@ -167,20 +165,12 @@ class TestDatasetGovernance:
             gov = DatasetGovernance(datasets_dir=tmpdir)
 
             # 有効なレコード
-            valid_record = {
-                "input": "test input",
-                "output": "test output",
-                "quality_score": 0.8
-            }
+            valid_record = {"input": "test input", "output": "test output", "quality_score": 0.8}
             is_valid, reason = gov.validate_record(valid_record)
             assert is_valid is True
 
             # 品質が低いレコード
-            low_quality = {
-                "input": "test",
-                "output": "test",
-                "quality_score": 0.2
-            }
+            low_quality = {"input": "test", "output": "test", "quality_score": 0.2}
             is_valid, reason = gov.validate_record(low_quality, min_quality=0.5)
             assert is_valid is False
             assert "Quality" in reason
@@ -192,7 +182,7 @@ class TestDatasetGovernance:
 
             records = [
                 {"input": "q1", "output": "a1", "quality_score": 0.8},
-                {"input": "q2", "output": "a2", "quality_score": 0.9}
+                {"input": "q2", "output": "a2", "quality_score": 0.9},
             ]
 
             stats = gov.append_to_dataset("test_dataset", records)

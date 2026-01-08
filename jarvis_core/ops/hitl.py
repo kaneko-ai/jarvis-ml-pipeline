@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 class ReviewStatus(Enum):
     """レビューステータス."""
+
     PENDING = "pending"
     IN_REVIEW = "in_review"
     APPROVED = "approved"
@@ -31,6 +32,7 @@ class ReviewStatus(Enum):
 
 class ReviewType(Enum):
     """レビュータイプ."""
+
     CLAIM_VALIDATION = "claim_validation"
     EVIDENCE_VERIFICATION = "evidence_verification"
     ROB_ASSESSMENT = "rob_assessment"
@@ -40,6 +42,7 @@ class ReviewType(Enum):
 @dataclass
 class ReviewItem:
     """レビューアイテム."""
+
     item_id: str
     run_id: str
     review_type: ReviewType
@@ -56,6 +59,7 @@ class ReviewItem:
 @dataclass
 class Feedback:
     """フィードバック."""
+
     feedback_id: str
     item_id: str
     reviewer: str
@@ -73,7 +77,7 @@ class ReviewQueue:
     def __init__(self, queue_path: str = "artifacts/review_queue.jsonl"):
         """
         初期化.
-        
+
         Args:
             queue_path: キューファイルパス
         """
@@ -82,21 +86,17 @@ class ReviewQueue:
         self._item_counter = 0
 
     def add_item(
-        self,
-        run_id: str,
-        review_type: ReviewType,
-        content: dict[str, Any],
-        priority: int = 5
+        self, run_id: str, review_type: ReviewType, content: dict[str, Any], priority: int = 5
     ) -> ReviewItem:
         """
         アイテムを追加.
-        
+
         Args:
             run_id: 実行ID
             review_type: レビュータイプ
             content: コンテンツ
             priority: 優先度
-        
+
         Returns:
             レビューアイテム
         """
@@ -107,7 +107,7 @@ class ReviewQueue:
             run_id=run_id,
             review_type=review_type,
             content=content,
-            priority=priority
+            priority=priority,
         )
 
         self._save_item(item)
@@ -121,8 +121,8 @@ class ReviewQueue:
         data["review_type"] = item.review_type.value
         data["status"] = item.status.value
 
-        with open(self.queue_path, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(data, ensure_ascii=False) + '\n')
+        with open(self.queue_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(data, ensure_ascii=False) + "\n")
 
     def get_pending_items(self, limit: int = 10) -> list[ReviewItem]:
         """未処理アイテムを取得."""
@@ -131,7 +131,7 @@ class ReviewQueue:
         if not self.queue_path.exists():
             return items
 
-        with open(self.queue_path, encoding='utf-8') as f:
+        with open(self.queue_path, encoding="utf-8") as f:
             for line in f:
                 if line.strip():
                     data = json.loads(line)
@@ -142,7 +142,7 @@ class ReviewQueue:
                             review_type=ReviewType(data["review_type"]),
                             content=data["content"],
                             status=ReviewStatus(data["status"]),
-                            priority=data.get("priority", 5)
+                            priority=data.get("priority", 5),
                         )
                         items.append(item)
 
@@ -162,18 +162,18 @@ class ReviewQueue:
         status: ReviewStatus,
         reviewer: str,
         notes: str = "",
-        feedback: dict[str, Any] | None = None
+        feedback: dict[str, Any] | None = None,
     ) -> bool:
         """
         レビューを提出.
-        
+
         Args:
             item_id: アイテムID
             status: 新しいステータス
             reviewer: レビュアー
             notes: ノート
             feedback: フィードバック
-        
+
         Returns:
             成功したか
         """
@@ -183,11 +183,11 @@ class ReviewQueue:
             "reviewer": reviewer,
             "notes": notes,
             "feedback": feedback or {},
-            "reviewed_at": datetime.now().isoformat()
+            "reviewed_at": datetime.now().isoformat(),
         }
 
-        with open(self.queue_path, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(review_result, ensure_ascii=False) + '\n')
+        with open(self.queue_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(review_result, ensure_ascii=False) + "\n")
 
         logger.info(f"Review submitted for {item_id}: {status.value}")
         return True
@@ -199,7 +199,7 @@ class FeedbackCollector:
     def __init__(self, feedback_path: str = "artifacts/feedback.jsonl"):
         """
         初期化.
-        
+
         Args:
             feedback_path: フィードバックファイルパス
         """
@@ -215,11 +215,11 @@ class FeedbackCollector:
         accuracy_score: float | None = None,
         completeness_score: float | None = None,
         comments: str = "",
-        corrections: dict[str, Any] | None = None
+        corrections: dict[str, Any] | None = None,
     ) -> Feedback:
         """
         フィードバックを収集.
-        
+
         Args:
             item_id: アイテムID
             reviewer: レビュアー
@@ -228,7 +228,7 @@ class FeedbackCollector:
             completeness_score: 完全性スコア
             comments: コメント
             corrections: 修正内容
-        
+
         Returns:
             フィードバック
         """
@@ -242,11 +242,11 @@ class FeedbackCollector:
             accuracy_score=accuracy_score,
             completeness_score=completeness_score,
             comments=comments,
-            corrections=corrections or {}
+            corrections=corrections or {},
         )
 
-        with open(self.feedback_path, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(asdict(feedback), ensure_ascii=False) + '\n')
+        with open(self.feedback_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(asdict(feedback), ensure_ascii=False) + "\n")
 
         return feedback
 
@@ -258,7 +258,7 @@ class FeedbackCollector:
         ratings = []
         accuracy_scores = []
 
-        with open(self.feedback_path, encoding='utf-8') as f:
+        with open(self.feedback_path, encoding="utf-8") as f:
             for line in f:
                 if line.strip():
                     data = json.loads(line)
@@ -270,7 +270,9 @@ class FeedbackCollector:
         return {
             "total": len(ratings),
             "avg_rating": sum(ratings) / len(ratings) if ratings else 0,
-            "avg_accuracy": sum(accuracy_scores) / len(accuracy_scores) if accuracy_scores else None
+            "avg_accuracy": (
+                sum(accuracy_scores) / len(accuracy_scores) if accuracy_scores else None
+            ),
         }
 
 

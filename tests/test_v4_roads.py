@@ -1,4 +1,5 @@
 """Tests for V4.0 道1-5 modules."""
+
 import sys
 import tempfile
 from pathlib import Path
@@ -26,7 +27,8 @@ from jarvis_core.paper_vector import (
 def _create_test_vectors():
     return [
         PaperVector(
-            paper_id="p1", source_locator="pdf:1",
+            paper_id="p1",
+            source_locator="pdf:1",
             metadata=MetadataVector(year=2020),
             concept=ConceptVector(concepts={"CD73": 0.9, "PD-1": 0.3}),
             method=MethodVector(methods={"Western blot": 0.8}),
@@ -35,7 +37,8 @@ def _create_test_vectors():
             biological_axis=BiologicalAxisVector(immune_activation=0.7),
         ),
         PaperVector(
-            paper_id="p2", source_locator="pdf:2",
+            paper_id="p2",
+            source_locator="pdf:2",
             metadata=MetadataVector(year=2022),
             concept=ConceptVector(concepts={"PD-1": 0.8, "CTLA-4": 0.5}),
             method=MethodVector(methods={"scRNA-seq": 0.9}),
@@ -44,7 +47,8 @@ def _create_test_vectors():
             biological_axis=BiologicalAxisVector(immune_activation=0.8),
         ),
         PaperVector(
-            paper_id="p3", source_locator="pdf:3",
+            paper_id="p3",
+            source_locator="pdf:3",
             metadata=MetadataVector(year=2021),
             concept=ConceptVector(concepts={"CD73": 0.7, "CTLA-4": 0.4}),
             method=MethodVector(methods={"Western blot": 0.5}),
@@ -60,12 +64,14 @@ class TestCLI:
 
     def test_run_workflow(self):
         from jarvis_core.cli_v4.main import run_workflow
+
         with tempfile.TemporaryDirectory() as tmpdir:
             result = run_workflow("literature_to_plan", [], "test", ["CD73"], tmpdir)
             assert result["status"] == "success"
 
     def test_list_resources(self):
         from jarvis_core.cli_v4.main import list_resources
+
         list_resources("workflows")  # Should not raise
 
 
@@ -74,11 +80,13 @@ class TestConfig:
 
     def test_load_default(self):
         from jarvis_core.config_utils import get_default_config
+
         config = get_default_config()
         assert config.output_dir == "output"
 
     def test_load_config(self):
         from jarvis_core.config_utils import load_config
+
         config = load_config()
         assert config is not None
 
@@ -88,11 +96,13 @@ class TestErrors:
 
     def test_validation_error(self):
         from jarvis_core.errors import ValidationError
+
         err = ValidationError("test")
         assert err.exit_code == 10
 
     def test_evidence_error(self):
         from jarvis_core.errors import EvidenceError
+
         err = EvidenceError("test")
         assert err.exit_code == 20
 
@@ -102,6 +112,7 @@ class TestTrace:
 
     def test_run_trace(self):
         from jarvis_core.trace import RunTrace
+
         trace = RunTrace("test_workflow")
         step_id = trace.start_step("step1")
         trace.end_step(step_id, "success")
@@ -115,11 +126,13 @@ class TestRegistry:
 
     def test_list_modules(self):
         from jarvis_core.module_registry import list_modules
+
         modules = list_modules()
         assert len(modules) > 0
 
     def test_get_module(self):
         from jarvis_core.module_registry import get_module
+
         mod = get_module("gap_analysis")
         assert mod is not None
 
@@ -147,7 +160,9 @@ class TestTruthAlignment:
         from jarvis_core.artifacts.schema import EvidenceRef, Fact
         from jarvis_core.truth.alignment import check_alignment_v2
 
-        ref = EvidenceRef(chunk_id="c1", source_locator="pdf:1", text_snippet="CD73 is expressed in tumors")
+        ref = EvidenceRef(
+            chunk_id="c1", source_locator="pdf:1", text_snippet="CD73 is expressed in tumors"
+        )
         facts = [Fact(statement="CD73 expression in cancer", evidence_refs=[ref])]
         result = check_alignment_v2("CD73 expressed in tumor cells", facts)
         assert result.status in ["aligned", "partial"]
@@ -158,6 +173,7 @@ class TestTruthRelevance:
 
     def test_score_relevance(self):
         from jarvis_core.truth.relevance import score_relevance
+
         result = score_relevance("CD73 function", "CD73 plays a role in immune regulation")
         assert result["score"] >= 0
 
@@ -183,6 +199,7 @@ class TestTruthConfidence:
 
     def test_calibrate_confidence(self):
         from jarvis_core.truth.confidence import calibrate_confidence
+
         result = calibrate_confidence(0.8, "test", evidence_count=3)
         assert 0 <= result["value"] <= 1
 
@@ -192,6 +209,7 @@ class TestMapSimilarity:
 
     def test_explain_similarity(self):
         from jarvis_core.map.similarity_explain import explain_similarity
+
         vectors = _create_test_vectors()
         result = explain_similarity(vectors[0], vectors[1])
         assert "similarity_score" in result
@@ -202,6 +220,7 @@ class TestMapBridges:
 
     def test_find_bridges(self):
         from jarvis_core.map.bridges import find_bridge_papers
+
         vectors = _create_test_vectors()
         bridges = find_bridge_papers([vectors[0]], [vectors[1]], vectors)
         assert isinstance(bridges, list)
@@ -212,6 +231,7 @@ class TestMapClusters:
 
     def test_build_clusters(self):
         from jarvis_core.map.clusters import build_cluster_map
+
         vectors = _create_test_vectors()
         result = build_cluster_map(vectors)
         assert "clusters" in result
@@ -222,6 +242,7 @@ class TestMapNeighborhood:
 
     def test_query_neighborhood(self):
         from jarvis_core.map.neighborhood import query_neighborhood
+
         vectors = _create_test_vectors()
         neighbors = query_neighborhood(vectors[0], vectors)
         assert isinstance(neighbors, list)
@@ -232,6 +253,7 @@ class TestMapPathFinder:
 
     def test_find_path(self):
         from jarvis_core.map.path_finder import find_concept_path
+
         vectors = _create_test_vectors()
         path = find_concept_path(vectors[0], vectors[1], vectors)
         assert path is None or "path" in path
@@ -242,6 +264,7 @@ class TestMapTimeline:
 
     def test_build_timeline(self):
         from jarvis_core.map.timeline_map import build_timeline_map
+
         vectors = _create_test_vectors()
         result = build_timeline_map(vectors)
         assert "years" in result
@@ -252,6 +275,7 @@ class TestObsidianSync:
 
     def test_sync_note(self):
         from jarvis_core.integrations.obsidian_sync import ObsidianSync
+
         with tempfile.TemporaryDirectory() as tmpdir:
             syncer = ObsidianSync(tmpdir)
             status = syncer.sync_note("test", "# Test\nContent")
@@ -265,6 +289,7 @@ class TestManifestWatch:
 
     def test_manifest_add(self):
         from jarvis_core.integrations.watch import ManifestWatcher
+
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest_path = Path(tmpdir) / "manifest.json"
             watcher = ManifestWatcher(str(manifest_path))

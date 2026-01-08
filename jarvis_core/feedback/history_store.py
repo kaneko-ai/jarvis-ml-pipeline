@@ -1,4 +1,5 @@
 """History storage for feedback entries."""
+
 from __future__ import annotations
 
 import json

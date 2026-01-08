@@ -13,6 +13,7 @@ from typing import Any, Protocol
 @dataclass
 class RankingItem:
     """ランキング対象アイテム."""
+
     item_id: str
     item_type: str  # paper | subtask | retry | ...
     features: dict[str, Any] = field(default_factory=dict)
@@ -26,18 +27,14 @@ class RankingItem:
 class Ranker(Protocol):
     """ランカープロトコル."""
 
-    def rank(
-        self,
-        items: list[RankingItem],
-        context: dict[str, Any]
-    ) -> list[RankingItem]:
+    def rank(self, items: list[RankingItem], context: dict[str, Any]) -> list[RankingItem]:
         """
         アイテムをランキング.
-        
+
         Args:
             items: ランキング対象アイテム
             context: コンテキスト情報
-        
+
         Returns:
             ランキング済みアイテム（降順）
         """

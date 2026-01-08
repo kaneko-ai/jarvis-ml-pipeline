@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 class DecisionStatus(Enum):
     """判断ステータス."""
+
     ACCEPT = "accept"
     REJECT = "reject"
     PENDING = "pending"  # 保留（最終的には使わない）
@@ -28,23 +29,25 @@ class DecisionStatus(Enum):
 
 class RejectReason(Enum):
     """Reject理由分類（6種固定）.
-    
+
     曖昧な reject を禁止。
     """
+
     EVIDENCE_INSUFFICIENT = "evidence_insufficient"  # 根拠不足
-    RELEVANCE_LOW = "relevance_low"                  # 関連度低
-    EFFORT_TOO_HIGH = "effort_too_high"              # 導入コスト高
-    RISK_TOO_HIGH = "risk_too_high"                  # リスク高
-    ALREADY_COVERED = "already_covered"              # 既に対応済み
-    PREMATURE = "premature"                          # 時期尚早
+    RELEVANCE_LOW = "relevance_low"  # 関連度低
+    EFFORT_TOO_HIGH = "effort_too_high"  # 導入コスト高
+    RISK_TOO_HIGH = "risk_too_high"  # リスク高
+    ALREADY_COVERED = "already_covered"  # 既に対応済み
+    PREMATURE = "premature"  # 時期尚早
 
 
 @dataclass
 class JudgmentDecision:
     """判断結果.
-    
+
     すべてのIssue/提案に必須。
     """
+
     item_id: str
     title: str
     status: DecisionStatus
@@ -72,7 +75,7 @@ class JudgmentDecision:
 
 class DecisionMaker:
     """判断決定器.
-    
+
     判断ルール（固定）:
     IF (Relevance >= 4 AND Evidence >= 3)
        AND (Effort >= 3)
@@ -89,20 +92,15 @@ class DecisionMaker:
         "risk": 3,
     }
 
-    def decide(
-        self,
-        item_id: str,
-        title: str,
-        scores: ScoreBreakdown
-    ) -> JudgmentDecision:
+    def decide(self, item_id: str, title: str, scores: ScoreBreakdown) -> JudgmentDecision:
         """
         判断を決定.
-        
+
         Args:
             item_id: アイテムID
             title: タイトル
             scores: 5軸評価結果
-        
+
         Returns:
             JudgmentDecision
         """
@@ -148,31 +146,29 @@ class DecisionMaker:
         return failures
 
     def _classify_reject(
-        self,
-        failures: list[str],
-        scores: ScoreBreakdown
+        self, failures: list[str], scores: ScoreBreakdown
     ) -> tuple[RejectReason, str]:
         """Reject理由を分類."""
         # 最も深刻な理由を選択
         if "evidence" in failures:
             return (
                 RejectReason.EVIDENCE_INSUFFICIENT,
-                f"Evidence score {scores.evidence.score} < {self.THRESHOLDS['evidence']}"
+                f"Evidence score {scores.evidence.score} < {self.THRESHOLDS['evidence']}",
             )
         if "relevance" in failures:
             return (
                 RejectReason.RELEVANCE_LOW,
-                f"Relevance score {scores.relevance.score} < {self.THRESHOLDS['relevance']}"
+                f"Relevance score {scores.relevance.score} < {self.THRESHOLDS['relevance']}",
             )
         if "effort" in failures:
             return (
                 RejectReason.EFFORT_TOO_HIGH,
-                f"Effort score {scores.effort.score} < {self.THRESHOLDS['effort']}"
+                f"Effort score {scores.effort.score} < {self.THRESHOLDS['effort']}",
             )
         if "risk" in failures:
             return (
                 RejectReason.RISK_TOO_HIGH,
-                f"Risk score {scores.risk.score} < {self.THRESHOLDS['risk']}"
+                f"Risk score {scores.risk.score} < {self.THRESHOLDS['risk']}",
             )
 
         return (RejectReason.PREMATURE, "Does not meet criteria")

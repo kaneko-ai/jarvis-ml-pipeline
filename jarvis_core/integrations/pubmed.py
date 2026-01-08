@@ -1,4 +1,5 @@
 """PubMed API Client - Task 4: Real API Integration"""
+
 import json
 import urllib.parse
 import urllib.request
@@ -8,6 +9,7 @@ from dataclasses import dataclass
 @dataclass
 class PaperResult:
     """Research paper result."""
+
     pmid: str
     title: str
     authors: list[str]
@@ -25,7 +27,7 @@ class PaperResult:
             "pub_date": self.pub_date,
             "abstract": self.abstract[:200] + "..." if len(self.abstract) > 200 else self.abstract,
             "doi": self.doi,
-            "url": f"https://pubmed.ncbi.nlm.nih.gov/{self.pmid}"
+            "url": f"https://pubmed.ncbi.nlm.nih.gov/{self.pmid}",
         }
 
 
@@ -36,7 +38,7 @@ class PubMedClient:
 
     def __init__(self, api_key: str | None = None):
         """Initialize PubMed client.
-        
+
         Args:
             api_key: Optional NCBI API key for higher rate limits
         """
@@ -44,11 +46,11 @@ class PubMedClient:
 
     def search(self, query: str, max_results: int = 10) -> list[str]:
         """Search PubMed and return PMIDs.
-        
+
         Args:
             query: Search query
             max_results: Maximum number of results
-            
+
         Returns:
             List of PMIDs
         """
@@ -57,7 +59,7 @@ class PubMedClient:
             "term": query,
             "retmax": max_results,
             "retmode": "json",
-            "sort": "relevance"
+            "sort": "relevance",
         }
 
         if self.api_key:
@@ -75,22 +77,17 @@ class PubMedClient:
 
     def fetch_details(self, pmids: list[str]) -> list[PaperResult]:
         """Fetch paper details for given PMIDs.
-        
+
         Args:
             pmids: List of PubMed IDs
-            
+
         Returns:
             List of PaperResult objects
         """
         if not pmids:
             return []
 
-        params = {
-            "db": "pubmed",
-            "id": ",".join(pmids),
-            "retmode": "json",
-            "rettype": "abstract"
-        }
+        params = {"db": "pubmed", "id": ",".join(pmids), "retmode": "json", "rettype": "abstract"}
 
         if self.api_key:
             params["api_key"] = self.api_key
@@ -106,15 +103,17 @@ class PubMedClient:
                 for pmid in pmids:
                     if pmid in result_data:
                         paper = result_data[pmid]
-                        results.append(PaperResult(
-                            pmid=pmid,
-                            title=paper.get("title", "Unknown"),
-                            authors=[a.get("name", "") for a in paper.get("authors", [])[:5]],
-                            journal=paper.get("source", "Unknown"),
-                            pub_date=paper.get("pubdate", "Unknown"),
-                            abstract=paper.get("abstract", "No abstract available"),
-                            doi=paper.get("elocationid", None)
-                        ))
+                        results.append(
+                            PaperResult(
+                                pmid=pmid,
+                                title=paper.get("title", "Unknown"),
+                                authors=[a.get("name", "") for a in paper.get("authors", [])[:5]],
+                                journal=paper.get("source", "Unknown"),
+                                pub_date=paper.get("pubdate", "Unknown"),
+                                abstract=paper.get("abstract", "No abstract available"),
+                                doi=paper.get("elocationid", None),
+                            )
+                        )
 
                 return results
         except Exception as e:
@@ -123,11 +122,11 @@ class PubMedClient:
 
     def search_and_fetch(self, query: str, max_results: int = 10) -> list[dict]:
         """Search and fetch paper details in one call.
-        
+
         Args:
             query: Search query
             max_results: Maximum number of results
-            
+
         Returns:
             List of paper dictionaries
         """
@@ -141,11 +140,11 @@ class MockPubMedClient:
 
     def search_and_fetch(self, query: str, max_results: int = 5) -> list[dict]:
         """Return mock search results.
-        
+
         Args:
             query: Search query
             max_results: Maximum number of results
-            
+
         Returns:
             List of mock paper dictionaries
         """
@@ -163,48 +162,43 @@ class MockPubMedClient:
             f"Machine learning applications in {query}",
             f"Recent developments in {query}",
             f"Systematic review of {query}",
-            f"Meta-analysis of {query} treatments"
+            f"Meta-analysis of {query} treatments",
         ]
 
         authors = [
             ["Smith J", "Johnson A", "Williams B"],
             ["Brown C", "Davis D", "Miller E"],
             ["Wilson F", "Moore G", "Taylor H"],
-            ["Anderson I", "Thomas J", "Jackson K"]
+            ["Anderson I", "Thomas J", "Jackson K"],
         ]
 
-        journals = [
-            "Nature Medicine",
-            "JAMA",
-            "Lancet",
-            "NEJM",
-            "Science",
-            "Cell"
-        ]
+        journals = ["Nature Medicine", "JAMA", "Lancet", "NEJM", "Science", "Cell"]
 
         results = []
         for i in range(min(max_results, len(titles))):
             pmid = f"39{random.randint(100000, 999999)}"
-            results.append({
-                "pmid": pmid,
-                "title": titles[i],
-                "authors": random.choice(authors),
-                "journal": random.choice(journals),
-                "pub_date": f"2024 {random.choice(['Jan', 'Feb', 'Mar', 'Apr', 'May'])}",
-                "abstract": f"This study investigates {query} and its implications...",
-                "doi": f"10.1000/jarvis.{pmid}",
-                "url": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}"
-            })
+            results.append(
+                {
+                    "pmid": pmid,
+                    "title": titles[i],
+                    "authors": random.choice(authors),
+                    "journal": random.choice(journals),
+                    "pub_date": f"2024 {random.choice(['Jan', 'Feb', 'Mar', 'Apr', 'May'])}",
+                    "abstract": f"This study investigates {query} and its implications...",
+                    "doi": f"10.1000/jarvis.{pmid}",
+                    "url": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}",
+                }
+            )
 
         return results
 
 
 def get_pubmed_client(use_mock: bool = False) -> PubMedClient:
     """Get PubMed client instance.
-    
+
     Args:
         use_mock: If True, return mock client
-        
+
     Returns:
         PubMed client instance
     """
@@ -219,12 +213,12 @@ _client = None
 
 def search_papers(query: str, max_results: int = 10, use_mock: bool = True) -> list[dict]:
     """Search for papers using PubMed API.
-    
+
     Args:
         query: Search query
         max_results: Maximum number of results
         use_mock: Use mock client (for development)
-        
+
     Returns:
         List of paper dictionaries
     """

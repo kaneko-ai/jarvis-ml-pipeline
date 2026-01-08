@@ -5,6 +5,7 @@
 - 重複除去
 - 品質スコアリング
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -16,6 +17,7 @@ from typing import Any
 @dataclass
 class QualityScore:
     """品質スコア."""
+
     overall: float = 0.0
     specificity: float = 0.0
     verifiability: float = 0.0
@@ -69,7 +71,7 @@ class ClaimQualityEnhancer:
         """主張のハッシュを生成."""
         text = claim.get("claim_text", "").lower()
         # 正規化
-        text = re.sub(r'\s+', ' ', text).strip()
+        text = re.sub(r"\s+", " ", text).strip()
         return hashlib.sha256(text.encode()).hexdigest()[:16]
 
     def _calculate_quality(self, claim: dict[str, Any]) -> QualityScore:
@@ -92,10 +94,10 @@ class ClaimQualityEnhancer:
 
         # 総合スコア
         score.overall = (
-            score.specificity * 0.3 +
-            score.verifiability * 0.3 +
-            score.uniqueness * 0.2 +
-            score.completeness * 0.2
+            score.specificity * 0.3
+            + score.verifiability * 0.3
+            + score.uniqueness * 0.2
+            + score.completeness * 0.2
         )
 
         return score
@@ -105,15 +107,15 @@ class ClaimQualityEnhancer:
         score = 0.5
 
         # 数値がある
-        if re.search(r'\d+(?:\.\d+)?%?', text):
+        if re.search(r"\d+(?:\.\d+)?%?", text):
             score += 0.2
 
         # 遺伝子/タンパク質名
-        if re.search(r'\b[A-Z][A-Z0-9]{1,5}\b', text):
+        if re.search(r"\b[A-Z][A-Z0-9]{1,5}\b", text):
             score += 0.15
 
         # 具体的な単位
-        if re.search(r'\b(?:mg|μg|mL|μM|nM|kDa|IC50|EC50)\b', text, re.IGNORECASE):
+        if re.search(r"\b(?:mg|μg|mL|μM|nM|kDa|IC50|EC50)\b", text, re.IGNORECASE):
             score += 0.15
 
         return min(1.0, score)
@@ -123,15 +125,15 @@ class ClaimQualityEnhancer:
         score = 0.5
 
         # 結果を示す動詞
-        if re.search(r'\b(?:showed?|demonstrated?|indicated?|revealed?|found)\b', text.lower()):
+        if re.search(r"\b(?:showed?|demonstrated?|indicated?|revealed?|found)\b", text.lower()):
             score += 0.2
 
         # 統計的有意性
-        if re.search(r'\bp\s*[<>=]\s*\d', text.lower()):
+        if re.search(r"\bp\s*[<>=]\s*\d", text.lower()):
             score += 0.2
 
         # 曖昧な表現
-        if re.search(r'\b(?:may|might|could|possibly|potentially)\b', text.lower()):
+        if re.search(r"\b(?:may|might|could|possibly|potentially)\b", text.lower()):
             score -= 0.1
 
         return max(0.0, min(1.0, score))
@@ -165,7 +167,7 @@ class ClaimQualityEnhancer:
             score += 0.2
 
         # 文として完結（ピリオドで終わる）
-        if text.rstrip().endswith('.'):
+        if text.rstrip().endswith("."):
             score += 0.2
 
         return min(1.0, score)
@@ -209,17 +211,17 @@ class EvidenceQualityEnhancer:
         score.specificity = 0.5
         if len(text) > 50:
             score.specificity += 0.2
-        if re.search(r'\d+', text):
+        if re.search(r"\d+", text):
             score.specificity += 0.15
 
         score.verifiability = 0.6
         score.uniqueness = 0.7
 
         score.overall = (
-            score.specificity * 0.3 +
-            score.completeness * 0.4 +
-            score.verifiability * 0.2 +
-            score.uniqueness * 0.1
+            score.specificity * 0.3
+            + score.completeness * 0.4
+            + score.verifiability * 0.2
+            + score.uniqueness * 0.1
         )
 
         return score

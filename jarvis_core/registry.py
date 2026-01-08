@@ -45,7 +45,9 @@ class AgentRegistry:
         self._categories = dict(categories)
 
     @classmethod
-    def from_file(cls, path: str | Path, overrides: Mapping[str, Any] | None = None) -> AgentRegistry:
+    def from_file(
+        cls, path: str | Path, overrides: Mapping[str, Any] | None = None
+    ) -> AgentRegistry:
         config = load_and_merge(path, overrides)
         raw_agents = config.get("agents", {})
         agent_defs: dict[str, AgentDefinition] = {}

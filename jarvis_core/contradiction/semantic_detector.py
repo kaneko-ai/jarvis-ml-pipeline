@@ -28,7 +28,7 @@ class SemanticConfig:
 
 class SemanticContradictionDetector:
     """Semantic contradiction detector using embeddings.
-    
+
     Detects contradictions by:
     1. Computing embedding similarity between claims
     2. Checking if negated version of claim A is similar to claim B
@@ -44,9 +44,8 @@ class SemanticContradictionDetector:
         if self._embedder is None:
             try:
                 from jarvis_core.embeddings import SentenceTransformerEmbedding
-                self._embedder = SentenceTransformerEmbedding(
-                    model_name=self.config.model_name
-                )
+
+                self._embedder = SentenceTransformerEmbedding(model_name=self.config.model_name)
             except ImportError:
                 # Fallback to simple embedder if sentence-transformers not available
                 self._embedder = SimpleEmbedder()
@@ -116,17 +115,15 @@ class SemanticContradictionDetector:
             scores={"semantic_similarity": similarity},
         )
 
-    def detect_batch(
-        self, claims: list[Claim]
-    ) -> list[tuple[Claim, Claim, ContradictionResult]]:
+    def detect_batch(self, claims: list[Claim]) -> list[tuple[Claim, Claim, ContradictionResult]]:
         """Detect contradictions among a list of claims.
-        
+
         Returns list of (claim_a, claim_b, result) tuples for contradicting pairs.
         """
         contradictions = []
 
         for i, claim_a in enumerate(claims):
-            for claim_b in claims[i + 1:]:
+            for claim_b in claims[i + 1 :]:
                 result = self.detect(claim_a, claim_b)
                 if result.is_contradictory:
                     contradictions.append((claim_a, claim_b, result))
@@ -174,9 +171,7 @@ class SemanticContradictionDetector:
 
         return negated
 
-    def _check_partial_contradiction(
-        self, claim_a: Claim, claim_b: Claim
-    ) -> float:
+    def _check_partial_contradiction(self, claim_a: Claim, claim_b: Claim) -> float:
         """Check for partial contradiction based on predicate analysis."""
         text_a = claim_a.text.lower()
         text_b = claim_b.text.lower()
@@ -194,8 +189,7 @@ class SemanticContradictionDetector:
         ]
 
         for pred_a, pred_b in opposite_predicates:
-            if (pred_a in text_a and pred_b in text_b) or \
-               (pred_b in text_a and pred_a in text_b):
+            if (pred_a in text_a and pred_b in text_b) or (pred_b in text_a and pred_a in text_b):
                 return 0.8
 
         return 0.0
@@ -232,12 +226,12 @@ def detect_semantic_contradiction(
     config: SemanticConfig | None = None,
 ) -> ContradictionResult:
     """Convenience function for semantic contradiction detection.
-    
+
     Args:
         claim_a: First claim
         claim_b: Second claim
         config: Optional configuration
-        
+
     Returns:
         ContradictionResult with detection details
     """

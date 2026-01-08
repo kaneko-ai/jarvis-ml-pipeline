@@ -28,22 +28,25 @@ logger = logging.getLogger(__name__)
 
 class StrategicAssessment(Enum):
     """戦略評価."""
-    GO = "go"           # 攻めるべき
-    HOLD = "hold"       # 様子見
-    NO_GO = "no_go"     # 捨てるべき
+
+    GO = "go"  # 攻めるべき
+    HOLD = "hold"  # 様子見
+    NO_GO = "no_go"  # 捨てるべき
 
 
 @dataclass
 class KeyQuestions:
     """Phase4: 問い生成."""
-    unverified: str           # 未検証の問い
+
+    unverified: str  # 未検証の問い
     implicit_assumption: str  # 暗黙の前提
-    decision_point: str       # 分岐点
+    decision_point: str  # 分岐点
 
 
 @dataclass
 class PastDecisionReference:
     """Phase5: 過去判断参照."""
+
     decision_id: str
     original_decision: str
     outcome: str
@@ -53,6 +56,7 @@ class PastDecisionReference:
 @dataclass
 class StrategicSuggestion:
     """Phase6: 戦略的示唆."""
+
     assessment: StrategicAssessment
     reasoning: str
     roi_evaluation: str  # 時間×学習価値×将来性
@@ -61,6 +65,7 @@ class StrategicSuggestion:
 @dataclass
 class ImprovementSuggestion:
     """Phase7: 自己改善提案."""
+
     suggestion: str
     category: str  # evaluation_axis, speed, feature
 
@@ -68,6 +73,7 @@ class ImprovementSuggestion:
 @dataclass
 class ResearchPartnerOutput:
     """Research Partner 出力."""
+
     # 入力
     theme: str
     constraints: str | None = None
@@ -99,13 +105,15 @@ class ResearchPartnerOutput:
 
         # Phase4: Key Questions
         if self.key_questions:
-            lines.extend([
-                "## 【Key Questions】",
-                f"**Q1 (未検証)**: {self.key_questions.unverified}",
-                f"**Q2 (暗黙の前提)**: {self.key_questions.implicit_assumption}",
-                f"**Q3 (分岐点)**: {self.key_questions.decision_point}",
-                "",
-            ])
+            lines.extend(
+                [
+                    "## 【Key Questions】",
+                    f"**Q1 (未検証)**: {self.key_questions.unverified}",
+                    f"**Q2 (暗黙の前提)**: {self.key_questions.implicit_assumption}",
+                    f"**Q3 (分岐点)**: {self.key_questions.decision_point}",
+                    "",
+                ]
+            )
 
         # Phase4: Action Plan
         if self.action_plan:
@@ -128,23 +136,27 @@ class ResearchPartnerOutput:
         if self.past_decisions:
             lines.append("## 【Past Decisions Referenced】")
             for pd in self.past_decisions[:3]:
-                lines.extend([
-                    f"- **{pd.decision_id}**",
-                    f"  - 当時の判断: {pd.original_decision}",
-                    f"  - Outcome: {pd.outcome}",
-                    f"  - 今回への示唆: {pd.implication_for_now}",
-                ])
+                lines.extend(
+                    [
+                        f"- **{pd.decision_id}**",
+                        f"  - 当時の判断: {pd.original_decision}",
+                        f"  - Outcome: {pd.outcome}",
+                        f"  - 今回への示唆: {pd.implication_for_now}",
+                    ]
+                )
             lines.append("")
 
         # Phase6: Strategic Assessment
         if self.strategic:
-            lines.extend([
-                "## 【Strategic Assessment】",
-                f"- **{self.strategic.assessment.value.upper()}**",
-                f"- 理由: {self.strategic.reasoning}",
-                f"- ROI評価: {self.strategic.roi_evaluation}",
-                "",
-            ])
+            lines.extend(
+                [
+                    "## 【Strategic Assessment】",
+                    f"- **{self.strategic.assessment.value.upper()}**",
+                    f"- 理由: {self.strategic.reasoning}",
+                    f"- ROI評価: {self.strategic.roi_evaluation}",
+                    "",
+                ]
+            )
 
         # Phase7: Self-Improvement
         if self.improvements:
@@ -158,11 +170,11 @@ class ResearchPartnerOutput:
 
 class ResearchPartner:
     """Research Partner AI.
-    
+
     役割（重要）:
     - 「答えること」ではない
     - 人間が何を読む/作る/捨てるかを最短で判断できる状態を作る
-    
+
     厳守事項:
     - 流行・網羅性・包括的説明を優先しない
     - 「やらない判断」を積極的に提示
@@ -191,12 +203,12 @@ class ResearchPartner:
     ) -> ResearchPartnerOutput:
         """
         研究相談を実行.
-        
+
         Args:
             theme: 研究テーマ（1行）
             constraints: 制約条件
             current_situation: 現在の状況
-        
+
         Returns:
             ResearchPartnerOutput
         """
@@ -234,23 +246,27 @@ class ResearchPartner:
         # Goldsetから類似判断を検索
         goldset_results = self.goldset_index.search(theme, top_k=2)
         for entry, similarity in goldset_results:
-            references.append(PastDecisionReference(
-                decision_id=f"goldset_{hash(entry.context) % 10000}",
-                original_decision=f"{entry.decision}: {entry.reason}",
-                outcome=entry.outcome,
-                implication_for_now=self._derive_implication(entry, theme),
-            ))
+            references.append(
+                PastDecisionReference(
+                    decision_id=f"goldset_{hash(entry.context) % 10000}",
+                    original_decision=f"{entry.decision}: {entry.reason}",
+                    outcome=entry.outcome,
+                    implication_for_now=self._derive_implication(entry, theme),
+                )
+            )
 
         # DecisionStoreからも追加
         decisions = self.decision_store.list_all()[-5:]
         for d in decisions[:2]:
             if d.outcome:
-                references.append(PastDecisionReference(
-                    decision_id=d.decision_id,
-                    original_decision=f"{d.decision}: {d.reason}",
-                    outcome=d.outcome or "未評価",
-                    implication_for_now="過去の判断パターンとして参照",
-                ))
+                references.append(
+                    PastDecisionReference(
+                        decision_id=d.decision_id,
+                        original_decision=f"{d.decision}: {d.reason}",
+                        outcome=d.outcome or "未評価",
+                        implication_for_now="過去の判断パターンとして参照",
+                    )
+                )
 
         return references[:3]  # 最大3件
 
@@ -261,11 +277,7 @@ class ResearchPartner:
         else:
             return "類似ケースでは採用が成功した。条件が合えば検討価値あり。"
 
-    def _generate_key_questions(
-        self,
-        theme: str,
-        current_situation: str | None
-    ) -> KeyQuestions:
+    def _generate_key_questions(self, theme: str, current_situation: str | None) -> KeyQuestions:
         """Phase4: 問い生成."""
         context = f"{theme} - {current_situation or ''}"
 
@@ -276,10 +288,7 @@ class ResearchPartner:
         )
 
     def _create_action_plan(
-        self,
-        theme: str,
-        constraints: str | None,
-        past_decisions: list[PastDecisionReference]
+        self, theme: str, constraints: str | None, past_decisions: list[PastDecisionReference]
     ) -> ActionPlan:
         """Phase4: 行動計画."""
         plan = ActionPlan(topic=theme)
@@ -345,9 +354,7 @@ class ResearchPartner:
         return plan
 
     def _assess_strategy(
-        self,
-        theme: str,
-        past_decisions: list[PastDecisionReference]
+        self, theme: str, past_decisions: list[PastDecisionReference]
     ) -> StrategicSuggestion:
         """Phase6: 戦略的示唆."""
         # 過去判断から傾向を分析
@@ -372,24 +379,26 @@ class ResearchPartner:
         )
 
     def _suggest_improvements(
-        self,
-        theme: str,
-        past_decisions: list[PastDecisionReference]
+        self, theme: str, past_decisions: list[PastDecisionReference]
     ) -> list[ImprovementSuggestion]:
         """Phase7: 自己改善提案."""
         suggestions = []
 
         # 過去判断が少ない場合
         if len(past_decisions) < 2:
-            suggestions.append(ImprovementSuggestion(
-                suggestion="Goldset/DecisionItemの蓄積が不足。判断を積み重ねることで精度向上。",
-                category="data",
-            ))
+            suggestions.append(
+                ImprovementSuggestion(
+                    suggestion="Goldset/DecisionItemの蓄積が不足。判断を積み重ねることで精度向上。",
+                    category="data",
+                )
+            )
 
         # 評価軸の改善
-        suggestions.append(ImprovementSuggestion(
-            suggestion=f"「{theme}」に特化した評価軸を追加すると判断が鋭くなる可能性。",
-            category="evaluation_axis",
-        ))
+        suggestions.append(
+            ImprovementSuggestion(
+                suggestion=f"「{theme}」に特化した評価軸を追加すると判断が鋭くなる可能性。",
+                category="evaluation_axis",
+            )
+        )
 
         return suggestions[:2]

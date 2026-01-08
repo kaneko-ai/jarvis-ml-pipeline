@@ -42,14 +42,17 @@ def run_jarvis(goal: str, category: str = "generic") -> str:
 def __getattr__(name: str):
     if name == "LLMClient":
         from .llm import LLMClient
+
         return LLMClient
 
     if name == "Router":
         from .router import Router
+
         return Router
 
     if name == "AgentRegistry":
         from .registry import AgentRegistry
+
         return AgentRegistry
 
     raise AttributeError(name)

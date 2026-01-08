@@ -2,6 +2,7 @@
 
 Per RP-563, implements token bucket rate limiting.
 """
+
 from __future__ import annotations
 
 import threading
@@ -31,7 +32,7 @@ class RateLimitResult:
 
 class TokenBucket:
     """Token bucket rate limiter.
-    
+
     Per RP-563:
     - Token bucket algorithm
     - Per-user limits
@@ -61,10 +62,10 @@ class TokenBucket:
 
     def try_acquire(self, tokens: int = 1) -> RateLimitResult:
         """Try to acquire tokens.
-        
+
         Args:
             tokens: Number of tokens to acquire.
-            
+
         Returns:
             RateLimitResult.
         """
@@ -92,11 +93,11 @@ class TokenBucket:
 
     def acquire(self, tokens: int = 1, timeout: float | None = None) -> bool:
         """Acquire tokens, blocking if necessary.
-        
+
         Args:
             tokens: Number of tokens.
             timeout: Maximum wait time.
-            
+
         Returns:
             True if acquired.
         """
@@ -118,7 +119,7 @@ class TokenBucket:
 
 class RateLimiter:
     """Multi-key rate limiter.
-    
+
     Manages rate limits per user/API key.
     """
 
@@ -143,10 +144,10 @@ class RateLimiter:
 
     def check(self, key: str | None = None) -> RateLimitResult:
         """Check rate limit.
-        
+
         Args:
             key: User/API key (uses global if None).
-            
+
         Returns:
             RateLimitResult.
         """
@@ -164,10 +165,10 @@ class RateLimiter:
 
     def is_allowed(self, key: str | None = None) -> bool:
         """Check if request is allowed.
-        
+
         Args:
             key: User/API key.
-            
+
         Returns:
             True if allowed.
         """
@@ -179,11 +180,11 @@ class RateLimiter:
         timeout: float | None = None,
     ) -> bool:
         """Wait for rate limit.
-        
+
         Args:
             key: User/API key.
             timeout: Maximum wait time.
-            
+
         Returns:
             True if acquired.
         """
@@ -196,9 +197,7 @@ class RateLimitError(Exception):
 
     def __init__(self, result: RateLimitResult):
         self.result = result
-        super().__init__(
-            f"Rate limit exceeded. Retry after {result.retry_after:.2f}s"
-        )
+        super().__init__(f"Rate limit exceeded. Retry after {result.retry_after:.2f}s")
 
 
 def rate_limit(
@@ -206,11 +205,11 @@ def rate_limit(
     key_func: callable | None = None,
 ) -> callable:
     """Decorator for rate limiting.
-    
+
     Args:
         config: Rate limit configuration.
         key_func: Function to extract key from args.
-        
+
     Returns:
         Decorator.
     """

@@ -2,6 +2,7 @@
 
 Example plugins demonstrating the plugin system.
 """
+
 from __future__ import annotations
 
 import json
@@ -29,12 +30,7 @@ class BibtexExporterPlugin(ExporterPlugin):
     def initialize(self) -> bool:
         return True
 
-    def export(
-        self,
-        data: list[dict],
-        output_path: Path | None = None,
-        **kwargs
-    ) -> str:
+    def export(self, data: list[dict], output_path: Path | None = None, **kwargs) -> str:
         """Export papers to BibTeX."""
         entries = []
 
@@ -65,21 +61,21 @@ class BibtexExporterPlugin(ExporterPlugin):
             authors = paper["authors"]
             if isinstance(authors, list):
                 authors = " and ".join(authors)
-            fields.append(f'  author = {{{authors}}}')
+            fields.append(f"  author = {{{authors}}}")
 
         if paper.get("year"):
             fields.append(f'  year = {{{paper["year"]}}}')
 
         if paper.get("journal") or paper.get("venue"):
             journal = paper.get("journal") or paper.get("venue")
-            fields.append(f'  journal = {{{journal}}}')
+            fields.append(f"  journal = {{{journal}}}")
 
         if paper.get("doi"):
             fields.append(f'  doi = {{{paper["doi"]}}}')
 
         if paper.get("abstract"):
             abstract = paper["abstract"][:500].replace("{", "").replace("}", "")
-            fields.append(f'  abstract = {{{abstract}}}')
+            fields.append(f"  abstract = {{{abstract}}}")
 
         fields_str = ",\n".join(fields)
         return f"@{entry_type}{{{key},\n{fields_str}\n}}"
@@ -98,12 +94,7 @@ class JSONExporterPlugin(ExporterPlugin):
     def initialize(self) -> bool:
         return True
 
-    def export(
-        self,
-        data: Any,
-        output_path: Path | None = None,
-        **kwargs
-    ) -> str:
+    def export(self, data: Any, output_path: Path | None = None, **kwargs) -> str:
         """Export data to JSON."""
         indent = kwargs.get("indent", 2)
 
@@ -164,11 +155,53 @@ class KeywordExtractor(AnalyzerPlugin):
 
     # Common stopwords to filter out
     STOPWORDS = {
-        "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for",
-        "of", "with", "by", "from", "as", "is", "was", "are", "were", "been",
-        "be", "have", "has", "had", "do", "does", "did", "will", "would",
-        "could", "should", "may", "might", "can", "this", "that", "these",
-        "those", "it", "its", "they", "their", "we", "our", "you", "your",
+        "the",
+        "a",
+        "an",
+        "and",
+        "or",
+        "but",
+        "in",
+        "on",
+        "at",
+        "to",
+        "for",
+        "of",
+        "with",
+        "by",
+        "from",
+        "as",
+        "is",
+        "was",
+        "are",
+        "were",
+        "been",
+        "be",
+        "have",
+        "has",
+        "had",
+        "do",
+        "does",
+        "did",
+        "will",
+        "would",
+        "could",
+        "should",
+        "may",
+        "might",
+        "can",
+        "this",
+        "that",
+        "these",
+        "those",
+        "it",
+        "its",
+        "they",
+        "their",
+        "we",
+        "our",
+        "you",
+        "your",
     }
 
     def initialize(self) -> bool:
@@ -195,19 +228,12 @@ class KeywordExtractor(AnalyzerPlugin):
             word_counts[word] = word_counts.get(word, 0) + 1
 
         # Sort by frequency
-        sorted_words = sorted(
-            word_counts.items(),
-            key=lambda x: x[1],
-            reverse=True
-        )
+        sorted_words = sorted(word_counts.items(), key=lambda x: x[1], reverse=True)
 
         top_n = kwargs.get("top_n", 10)
 
         return {
-            "keywords": [
-                {"word": word, "count": count}
-                for word, count in sorted_words[:top_n]
-            ],
+            "keywords": [{"word": word, "count": count} for word, count in sorted_words[:top_n]],
             "total_unique_words": len(word_counts),
             "total_words_analyzed": len(words),
         }

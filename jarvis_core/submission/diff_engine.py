@@ -123,7 +123,9 @@ def extract_md_sections(path: Path) -> list[tuple[str, str]]:
     return sections
 
 
-def diff_sections(old_sections: Iterable[tuple[str, str]], new_sections: Iterable[tuple[str, str]]) -> list[SectionDiff]:
+def diff_sections(
+    old_sections: Iterable[tuple[str, str]], new_sections: Iterable[tuple[str, str]]
+) -> list[SectionDiff]:
     old_map = {title: content for title, content in old_sections}
     new_map = {title: content for title, content in new_sections}
     all_titles = list(dict.fromkeys(list(new_map.keys()) + list(old_map.keys())))
@@ -137,7 +139,9 @@ def diff_sections(old_sections: Iterable[tuple[str, str]], new_sections: Iterabl
         elif old_text and not new_text:
             summary = _summarize_text_change("削除", old_text)
         else:
-            ratio = SequenceMatcher(None, old_text, new_text).ratio() if old_text or new_text else 1.0
+            ratio = (
+                SequenceMatcher(None, old_text, new_text).ratio() if old_text or new_text else 1.0
+            )
             if ratio >= 0.98:
                 continue
             summary = f"更新（変更度 {int((1 - ratio) * 100)}%）"
@@ -172,7 +176,9 @@ def generate_diff_report(
         old_sections = extract_pptx_slides(previous_pptx) if previous_pptx else []
         pptx_sections = diff_sections(old_sections, new_sections)
 
-    return DiffReport(docx_sections=docx_sections, md_sections=md_sections, pptx_sections=pptx_sections)
+    return DiffReport(
+        docx_sections=docx_sections, md_sections=md_sections, pptx_sections=pptx_sections
+    )
 
 
 def _summarize_text_change(label: str, text: str) -> str:

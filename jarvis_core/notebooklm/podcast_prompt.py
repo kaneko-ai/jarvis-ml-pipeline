@@ -1,4 +1,5 @@
 """Generate NotebookLM podcast prompts and outlines."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -88,9 +89,7 @@ def build_multi_paper_prompt(
 
     for paper in papers:
         paper_id = paper.get("paper_id", "unknown")
-        lines.append(
-            f"- {paper.get('title', 'Untitled')} ({paper.get('year', 'n/a')})"
-        )
+        lines.append(f"- {paper.get('title', 'Untitled')} ({paper.get('year', 'n/a')})")
         claims = claims_by_paper.get(paper_id, [])
         lines.extend(_claim_lines(claims, evidence_by_claim))
 

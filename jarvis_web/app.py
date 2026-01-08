@@ -5,6 +5,7 @@ Per RP-167 and BUNDLE_CONTRACT.md, provides HTTP API for JARVIS.
 - File upload (PDF/BibTeX/ZIP)
 - Dashboard data
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -66,10 +67,10 @@ if FASTAPI_AVAILABLE:
     )
 
     from jarvis_web.routes.finance import router as finance_router
-    
+
     # Get CORS config from environment-aware configuration
     config = get_config()
-    
+
     # Add CORS middleware with environment-specific settings
     app.add_middleware(
         CORSMiddleware,
@@ -93,6 +94,7 @@ else:
 # Request/Response models
 class RunRequest(BaseModel):
     """Request to start a run."""
+
     query: str
     max_papers: int = 10
     seed: int = 42
@@ -101,6 +103,7 @@ class RunRequest(BaseModel):
 
 class RunResponse(BaseModel):
     """Response from a run."""
+
     run_id: str
     status: str
     message: str
@@ -108,6 +111,7 @@ class RunResponse(BaseModel):
 
 class RunSummary(BaseModel):
     """Summary of a run."""
+
     run_id: str
     status: str
     timestamp: str
@@ -121,6 +125,7 @@ class RunSummary(BaseModel):
 
 class UploadResponse(BaseModel):
     """Response from file upload."""
+
     batch_id: str
     accepted: int
     rejected: int
@@ -153,6 +158,7 @@ def get_file_hash(filepath: Path) -> str:
         for chunk in iter(lambda: f.read(8192), b""):
             sha256.update(chunk)
     return sha256.hexdigest()
+
 
 def normalize_status(status: str) -> str:
     """Normalize status into contract-compatible value."""
@@ -296,7 +302,7 @@ def load_run_summary(run_dir: Path) -> dict:
         "qa_warn_count": 0,
         "qa_top_errors": [],
     }
-    
+
     # Load result.json
     result_file = run_dir / "result.json"
     if result_file.exists():
@@ -307,7 +313,7 @@ def load_run_summary(run_dir: Path) -> dict:
             summary["timestamp"] = result.get("timestamp", "")
         except:
             pass
-    
+
     # Load eval_summary.json
     eval_file = run_dir / "eval_summary.json"
     if eval_file.exists():
@@ -318,23 +324,34 @@ def load_run_summary(run_dir: Path) -> dict:
             summary["metrics"] = eval_data.get("metrics", {})
         except:
             pass
-    
+
     # Check contract
-    required = ["input.json", "run_config.json", "papers.jsonl", "claims.jsonl",
-                "evidence.jsonl", "scores.json", "result.json", "eval_summary.json",
-                "warnings.jsonl", "report.md"]
+    required = [
+        "input.json",
+        "run_config.json",
+        "papers.jsonl",
+        "claims.jsonl",
+        "evidence.jsonl",
+        "scores.json",
+        "result.json",
+        "eval_summary.json",
+        "warnings.jsonl",
+        "report.md",
+    ]
     missing = [f for f in required if not (run_dir / f).exists()]
     summary["contract_valid"] = len(missing) == 0
 
     qa_summary = load_qa_summary(run_dir.name)
     if qa_summary:
-        summary.update({
-            "qa_ready": qa_summary.get("ready_to_submit", False),
-            "qa_error_count": qa_summary.get("error_count", 0),
-            "qa_warn_count": qa_summary.get("warn_count", 0),
-            "qa_top_errors": qa_summary.get("top_errors", []),
-        })
-    
+        summary.update(
+            {
+                "qa_ready": qa_summary.get("ready_to_submit", False),
+                "qa_error_count": qa_summary.get("error_count", 0),
+                "qa_warn_count": qa_summary.get("warn_count", 0),
+                "qa_top_errors": qa_summary.get("top_errors", []),
+            }
+        )
+
     return summary
 
 
@@ -375,9 +392,7 @@ if FASTAPI_AVAILABLE:
         api_map = _load_api_map()
         base_paths = api_map.get("base_paths", {}) if api_map else {}
         registered_paths = {
-            route.path
-            for route in app.router.routes
-            if getattr(route, "methods", None)
+            route.path for route in app.router.routes if getattr(route, "methods", None)
         }
         features = {}
         endpoints = {}
@@ -539,18 +554,18 @@ if FASTAPI_AVAILABLE:
         batch_id = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         batch_dir = UPLOADS_DIR / batch_id
         batch_dir.mkdir(parents=True, exist_ok=True)
-        
+
         accepted = 0
         rejected = 0
         duplicates = 0
         file_info = []
-        
+
         # Save and extract ZIP
         with tempfile.NamedTemporaryFile(delete=False, suffix=".zip") as tmp:
             content = await file.read()
             tmp.write(content)
             tmp_path = tmp.name
-        
+
         try:
             with zipfile.ZipFile(tmp_path, "r") as zf:
                 for name in zf.namelist():
@@ -558,7 +573,7 @@ if FASTAPI_AVAILABLE:
                         # Extract to batch dir
                         extracted = zf.extract(name, batch_dir)
                         extracted_path = Path(extracted)
-                        
+
                         # Check for duplicates
                         file_hash = get_file_hash(extracted_path)
                         hash_file = UPLOADS_DIR / "hashes.json"
@@ -566,7 +581,7 @@ if FASTAPI_AVAILABLE:
                         if hash_file.exists():
                             with open(hash_file, "r") as f:
                                 hashes = json.load(f)
-                        
+
                         if file_hash in hashes:
                             duplicates += 1
                             extracted_path.unlink()
@@ -575,14 +590,16 @@ if FASTAPI_AVAILABLE:
                             with open(hash_file, "w") as f:
                                 json.dump(hashes, f)
                             accepted += 1
-                            file_info.append({
-                                "name": name,
-                                "size": extracted_path.stat().st_size,
-                                "hash": file_hash[:16],
-                            })
+                            file_info.append(
+                                {
+                                    "name": name,
+                                    "size": extracted_path.stat().st_size,
+                                    "hash": file_hash[:16],
+                                }
+                            )
         finally:
             os.unlink(tmp_path)
-        
+
         return UploadResponse(
             batch_id=batch_id,
             accepted=accepted,
@@ -599,16 +616,16 @@ async def _handle_upload(files: List[UploadFile], file_type: str) -> UploadRespo
             status_code=400,
             detail=f"Too many files. Max {MAX_BATCH_FILES} per batch.",
         )
-    
+
     batch_id = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     batch_dir = UPLOADS_DIR / batch_id
     batch_dir.mkdir(parents=True, exist_ok=True)
-    
+
     accepted = 0
     rejected = 0
     duplicates = 0
     file_info = []
-    
+
     # Load existing hashes
     hash_file = UPLOADS_DIR / "hashes.json"
     hashes = {}
@@ -618,48 +635,50 @@ async def _handle_upload(files: List[UploadFile], file_type: str) -> UploadRespo
                 hashes = json.load(f)
         except:
             pass
-    
+
     for upload_file in files:
         try:
             # Read content
             content = await upload_file.read()
-            
+
             # Check size
             if len(content) > MAX_UPLOAD_SIZE:
                 rejected += 1
                 continue
-            
+
             # Calculate hash
             file_hash = hashlib.sha256(content).hexdigest()
-            
+
             # Check duplicate
             if file_hash in hashes:
                 duplicates += 1
                 continue
-            
+
             # Save file
             safe_name = upload_file.filename or f"file_{accepted}.{file_type}"
             filepath = batch_dir / safe_name
             with open(filepath, "wb") as f:
                 f.write(content)
-            
+
             # Update hash registry
             hashes[file_hash] = str(filepath)
-            
+
             accepted += 1
-            file_info.append({
-                "name": safe_name,
-                "size": len(content),
-                "hash": file_hash[:16],
-            })
-            
+            file_info.append(
+                {
+                    "name": safe_name,
+                    "size": len(content),
+                    "hash": file_hash[:16],
+                }
+            )
+
         except Exception as e:
             rejected += 1
-    
+
     # Save updated hashes
     with open(hash_file, "w") as f:
         json.dump(hashes, f)
-    
+
     return UploadResponse(
         batch_id=batch_id,
         accepted=accepted,
@@ -674,6 +693,7 @@ if FASTAPI_AVAILABLE:
 
     class SearchRequest(BaseModel):
         """Search request."""
+
         query: str
         top_k: int = 20
         paper_id: Optional[str] = None
@@ -688,17 +708,17 @@ if FASTAPI_AVAILABLE:
         """Search the corpus using BM25."""
         try:
             from jarvis_core.search import get_search_engine
-            
+
             engine = get_search_engine()
-            
+
             # Load chunks if not loaded
             chunks_file = Path("data/chunks.jsonl")
             if chunks_file.exists() and not engine._loaded:
                 engine.load_chunks(chunks_file)
-            
+
             filters = {"paper_id": paper_id} if paper_id else None
             results = engine.search(q, top_k=top_k, filters=filters)
-            
+
             return results.to_dict()
         except Exception as e:
             return {"results": [], "total": 0, "query": q, "error": str(e)}
@@ -709,6 +729,7 @@ if FASTAPI_AVAILABLE:
 
     class CollectRequest(BaseModel):
         """Collect request."""
+
         query: str
         max_results: int = 50
         oa_only: bool = False
@@ -716,6 +737,7 @@ if FASTAPI_AVAILABLE:
 
     class JobRequest(BaseModel):
         """Job request."""
+
         type: str
         payload: dict = {}
         dedupe_key: Optional[str] = None
@@ -819,7 +841,7 @@ if FASTAPI_AVAILABLE:
                 "unit": "%",
             },
             "locator_rate": {
-                "label": "Locator Rate", 
+                "label": "Locator Rate",
                 "description": "Percentage of evidence with valid locators",
                 "threshold": 0.98,
                 "unit": "%",
@@ -849,7 +871,7 @@ if FASTAPI_AVAILABLE:
                 "unit": "%",
             },
         }
-        
+
         # Compute current values from runs
         runs = []
         if RUNS_DIR.exists():
@@ -858,16 +880,28 @@ if FASTAPI_AVAILABLE:
                     summary = load_run_summary(run_dir)
                     if summary:
                         runs.append(summary)
-        
+
         current_values = {}
         if runs:
-            current_values["evidence_coverage"] = sum(r.get("metrics", {}).get("evidence_coverage", 0) for r in runs) / len(runs)
-            current_values["locator_rate"] = sum(r.get("metrics", {}).get("locator_rate", 0) for r in runs) / len(runs)
-            current_values["provenance_rate"] = sum(r.get("metrics", {}).get("provenance_rate", 0) for r in runs) / len(runs)
-            current_values["citation_precision"] = sum(r.get("metrics", {}).get("citation_precision", 0) for r in runs) / len(runs)
-            current_values["contract_compliance"] = sum(1 for r in runs if r.get("contract_valid", False)) / len(runs)
-            current_values["gate_pass_rate"] = sum(1 for r in runs if r.get("gate_passed", False)) / len(runs)
-        
+            current_values["evidence_coverage"] = sum(
+                r.get("metrics", {}).get("evidence_coverage", 0) for r in runs
+            ) / len(runs)
+            current_values["locator_rate"] = sum(
+                r.get("metrics", {}).get("locator_rate", 0) for r in runs
+            ) / len(runs)
+            current_values["provenance_rate"] = sum(
+                r.get("metrics", {}).get("provenance_rate", 0) for r in runs
+            ) / len(runs)
+            current_values["citation_precision"] = sum(
+                r.get("metrics", {}).get("citation_precision", 0) for r in runs
+            ) / len(runs)
+            current_values["contract_compliance"] = sum(
+                1 for r in runs if r.get("contract_valid", False)
+            ) / len(runs)
+            current_values["gate_pass_rate"] = sum(
+                1 for r in runs if r.get("gate_passed", False)
+            ) / len(runs)
+
         return {
             "definitions": kpi_definitions,
             "current_values": current_values,
@@ -880,17 +914,12 @@ if FASTAPI_AVAILABLE:
         base_paths = api_map.get("base_paths", {}) if api_map else {}
         if base_paths:
             registered_paths = {
-                route.path
-                for route in app.router.routes
-                if getattr(route, "methods", None)
+                route.path for route in app.router.routes if getattr(route, "methods", None)
             }
-            unimplemented = [
-                path for path in base_paths.values() if path not in registered_paths
-            ]
+            unimplemented = [path for path in base_paths.values() if path not in registered_paths]
             if unimplemented:
                 patterns = [
-                    re.compile(pattern)
-                    for pattern in _compiled_path_patterns(unimplemented)
+                    re.compile(pattern) for pattern in _compiled_path_patterns(unimplemented)
                 ]
                 if any(pattern.match(request.url.path) for pattern in patterns):
                     return JSONResponse(

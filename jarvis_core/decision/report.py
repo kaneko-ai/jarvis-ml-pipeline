@@ -1,4 +1,5 @@
 """Decision report generation."""
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -28,7 +29,9 @@ def build_markdown_report(comparison: DecisionComparison) -> str:
             ]
         )
         for risk in result.top_risks:
-            lines.append(f"- {risk.name}: contribution={risk.contribution:.2f}, score={risk.score:.2f}")
+            lines.append(
+                f"- {risk.name}: contribution={risk.contribution:.2f}, score={risk.score:.2f}"
+            )
 
         lines.append("\n### Sensitivity (Top 5)")
         for item in result.sensitivity:

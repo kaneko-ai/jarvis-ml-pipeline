@@ -2,6 +2,7 @@
 
 Per RP-520, implements Cloud Run deployment automation.
 """
+
 from __future__ import annotations
 
 import os
@@ -12,6 +13,7 @@ from typing import Any
 
 class CloudRegion(Enum):
     """GCP regions."""
+
     US_CENTRAL1 = "us-central1"
     US_EAST1 = "us-east1"
     EUROPE_WEST1 = "europe-west1"
@@ -22,6 +24,7 @@ class CloudRegion(Enum):
 @dataclass
 class CloudRunConfig:
     """Cloud Run deployment configuration."""
+
     project_id: str = ""
     region: CloudRegion = CloudRegion.ASIA_NORTHEAST1
     service_name: str = "jarvis-api"
@@ -41,6 +44,7 @@ class CloudRunConfig:
 @dataclass
 class DeploymentStatus:
     """Cloud Run deployment status."""
+
     service_name: str
     revision: str
     url: str
@@ -51,7 +55,7 @@ class DeploymentStatus:
 
 class CloudRunDeployer:
     """Manages Cloud Run deployments.
-    
+
     Per RP-520:
     - Deploy to Cloud Run
     - Traffic splitting
@@ -72,12 +76,12 @@ class CloudRunDeployer:
         tag: str | None = None,
     ) -> DeploymentStatus:
         """Deploy to Cloud Run.
-        
+
         Args:
             image: Container image (defaults to config.image).
             traffic_percent: Traffic percentage for new revision.
             tag: Revision tag.
-            
+
         Returns:
             Deployment status.
         """
@@ -107,11 +111,11 @@ class CloudRunDeployer:
         canary_percent: int = 10,
     ) -> DeploymentStatus:
         """Deploy with canary traffic split.
-        
+
         Args:
             image: New container image.
             canary_percent: Percentage of traffic to canary.
-            
+
         Returns:
             Deployment status.
         """
@@ -119,10 +123,10 @@ class CloudRunDeployer:
 
     def promote_canary(self, revision: str) -> DeploymentStatus:
         """Promote canary to receive 100% traffic.
-        
+
         Args:
             revision: Canary revision to promote.
-            
+
         Returns:
             Updated deployment status.
         """
@@ -135,10 +139,10 @@ class CloudRunDeployer:
 
     def rollback(self, target_revision: str | None = None) -> DeploymentStatus:
         """Rollback to a previous revision.
-        
+
         Args:
             target_revision: Specific revision to rollback to.
-            
+
         Returns:
             Rollback status.
         """
@@ -170,11 +174,11 @@ class CloudRunDeployer:
         role: str = "roles/run.invoker",
     ) -> bool:
         """Set IAM policy for the service.
-        
+
         Args:
             members: IAM members (e.g., ["allUsers"]).
             role: IAM role.
-            
+
         Returns:
             True if successful.
         """
@@ -184,7 +188,10 @@ class CloudRunDeployer:
     def generate_deploy_command(self) -> str:
         """Generate gcloud deploy command."""
         cmd = [
-            "gcloud", "run", "deploy", self.config.service_name,
+            "gcloud",
+            "run",
+            "deploy",
+            self.config.service_name,
             f"--project={self.config.project_id}",
             f"--region={self.config.region.value}",
             f"--image={self.config.image}",
@@ -206,7 +213,7 @@ class CloudRunDeployer:
 
     def generate_dockerfile(self) -> str:
         """Generate Dockerfile for Cloud Run."""
-        return '''FROM python:3.11-slim
+        return """FROM python:3.11-slim
 
 WORKDIR /app
 
@@ -223,23 +230,24 @@ ENV PORT=8080
 EXPOSE 8080
 
 CMD ["python", "-m", "jarvis_core.app"]
-'''
+"""
 
     def _generate_revision_id(self) -> str:
         """Generate revision ID."""
         import time
+
         return f"rev-{int(time.time())}"
 
     def _get_project_hash(self) -> str:
         """Get project hash for URL."""
         import hashlib
-        return hashlib.sha256(
-            self.config.project_id.encode()
-        ).hexdigest()[:8]
+
+        return hashlib.sha256(self.config.project_id.encode()).hexdigest()[:8]
 
     def _get_timestamp(self) -> str:
         """Get current timestamp."""
         import time
+
         return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 

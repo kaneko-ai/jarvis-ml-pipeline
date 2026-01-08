@@ -2,6 +2,7 @@
 
 Core tests for scale and security.
 """
+
 import pytest
 
 pytestmark = pytest.mark.core

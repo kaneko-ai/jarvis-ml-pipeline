@@ -3,6 +3,7 @@
 Per JARVIS_COMPLETION_PLAN_v3 Sprint 23: パフォーマンス最適化
 Provides profiling and benchmarking utilities.
 """
+
 from __future__ import annotations
 
 import cProfile
@@ -60,10 +61,10 @@ class Profiler:
     @contextmanager
     def profile(self, name: str):
         """Context manager for profiling a code block.
-        
+
         Args:
             name: Name of the operation being profiled
-            
+
         Yields:
             ProfileResult that will be populated after the block completes
         """
@@ -77,6 +78,7 @@ class Profiler:
         memory_before = 0.0
         try:
             import psutil
+
             process = psutil.Process()
             memory_before = process.memory_info().rss / (1024 * 1024)
         except ImportError:
@@ -93,6 +95,7 @@ class Profiler:
             # Get memory after
             try:
                 import psutil
+
                 process = psutil.Process()
                 memory_after = process.memory_info().rss / (1024 * 1024)
                 result.memory_used_mb = memory_after - memory_before
@@ -104,17 +107,19 @@ class Profiler:
 
     def profile_function(self, func: Callable) -> Callable:
         """Decorator to profile a function.
-        
+
         Args:
             func: Function to profile
-            
+
         Returns:
             Wrapped function
         """
+
         @wraps(func)
         def wrapper(*args, **kwargs):
             with self.profile(func.__name__):
                 return func(*args, **kwargs)
+
         return wrapper
 
     def get_results(self) -> list[ProfileResult]:
@@ -152,7 +157,7 @@ class CPUProfiler:
 
     def stop(self) -> str:
         """Stop CPU profiling and return stats.
-        
+
         Returns:
             Formatted statistics string
         """
@@ -171,7 +176,7 @@ class CPUProfiler:
     @contextmanager
     def profile(self):
         """Context manager for CPU profiling.
-        
+
         Yields:
             None, stats are available after the block
         """
@@ -199,19 +204,15 @@ class BenchmarkRunner:
         iterations: int = 10,
     ) -> dict[str, dict[str, float]]:
         """Run benchmarks.
-        
+
         Args:
             name: Optional specific benchmark to run
             iterations: Number of iterations per benchmark
-            
+
         Returns:
             Dict of benchmark results
         """
-        benchmarks = (
-            {name: self._benchmarks[name]}
-            if name
-            else self._benchmarks
-        )
+        benchmarks = {name: self._benchmarks[name]} if name else self._benchmarks
 
         results = {}
 
@@ -240,10 +241,10 @@ _default_profiler = Profiler()
 
 def profile(name: str):
     """Convenience function for profiling.
-    
+
     Args:
         name: Name of the operation
-        
+
     Returns:
         Context manager
     """
@@ -252,7 +253,7 @@ def profile(name: str):
 
 def get_profiler() -> Profiler:
     """Get the default profiler.
-    
+
     Returns:
         Default Profiler instance
     """

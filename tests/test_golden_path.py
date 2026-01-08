@@ -7,6 +7,7 @@ Phase Loop 1: 壊れない一本道（Golden Path）の検証
 2. citation不足の場合、gate_passed=false, status=failed
 3. show-runでfail理由が表示される
 """
+
 from __future__ import annotations
 
 import pytest
@@ -40,7 +41,7 @@ class TestArtifactContract:
 
         # 全10ファイル作成
         for artifact in RunStore.REQUIRED_ARTIFACTS:
-            (store.run_dir / artifact).write_text("{}" if artifact.endswith('.json') else "")
+            (store.run_dir / artifact).write_text("{}" if artifact.endswith(".json") else "")
 
         missing = store.validate_contract()
         assert missing == []
@@ -77,12 +78,14 @@ class TestSuccessCondition:
         verifier = QualityGateVerifier()
         result = verifier.verify(
             answer="Test answer",
-            citations=[{
-                "paper_id": "p1",
-                "claim_id": "c1",
-                "evidence_text": "Evidence",
-                "locator": {"section": "Methods", "paragraph": 1},
-            }],
+            citations=[
+                {
+                    "paper_id": "p1",
+                    "claim_id": "c1",
+                    "evidence_text": "Evidence",
+                    "locator": {"section": "Methods", "paragraph": 1},
+                }
+            ],
         )
         assert result.gate_passed is True
 
@@ -104,12 +107,14 @@ class TestSuccessCondition:
         verifier = QualityGateVerifier(require_locators=True)
         result = verifier.verify(
             answer="Test answer",
-            citations=[{
-                "paper_id": "p1",
-                "claim_id": "c1",
-                "evidence_text": "Evidence",
-                # locator なし
-            }],
+            citations=[
+                {
+                    "paper_id": "p1",
+                    "claim_id": "c1",
+                    "evidence_text": "Evidence",
+                    # locator なし
+                }
+            ],
         )
         assert result.gate_passed is False
 
@@ -151,12 +156,14 @@ class TestFailReasonCodes:
         verifier = QualityGateVerifier()
         result = verifier.verify(
             answer="This is definitely true and will certainly happen.",
-            citations=[{
-                "paper_id": "p1",
-                "claim_id": "c1",
-                "evidence_text": "Evidence",
-                "locator": {"section": "Results", "paragraph": 1},
-            }],
+            citations=[
+                {
+                    "paper_id": "p1",
+                    "claim_id": "c1",
+                    "evidence_text": "Evidence",
+                    "locator": {"section": "Results", "paragraph": 1},
+                }
+            ],
         )
 
         # 断定の危険は警告レベル（gate_passedには影響しない可能性）

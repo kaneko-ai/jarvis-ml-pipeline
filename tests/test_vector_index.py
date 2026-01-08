@@ -6,6 +6,7 @@ Per RP23, these tests verify:
 - VectorRetriever build/search
 - ExecutionContext integration
 """
+
 import sys
 from pathlib import Path
 
@@ -143,10 +144,12 @@ class TestExecutionContextVector:
         ctx = ExecutionContext(evidence_store=store)
 
         # Add some chunks
-        ctx.add_chunks([
-            ChunkResult(chunk_id="c1", locator="loc1", preview="CD73 enzyme"),
-            ChunkResult(chunk_id="c2", locator="loc2", preview="Cancer study"),
-        ])
+        ctx.add_chunks(
+            [
+                ChunkResult(chunk_id="c1", locator="loc1", preview="CD73 enzyme"),
+                ChunkResult(chunk_id="c2", locator="loc2", preview="Cancer study"),
+            ]
+        )
 
         results = ctx.get_relevant_chunks_vector("CD73", k=2)
 

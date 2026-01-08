@@ -20,14 +20,10 @@ class PubMedSource(TrendSource):
     def name(self) -> str:
         return "pubmed"
 
-    def fetch(
-        self,
-        queries: list[str],
-        max_results: int = 50
-    ) -> list[TrendItem]:
+    def fetch(self, queries: list[str], max_results: int = 50) -> list[TrendItem]:
         """
         PubMedからトレンドを取得.
-        
+
         絶対ルール:
         - PDF自動取得はPMC OAのみ
         - 有料購読のVPN経由自動取得は禁止

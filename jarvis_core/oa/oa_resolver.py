@@ -1,4 +1,5 @@
 """Open access resolver with evidence tracking."""
+
 from __future__ import annotations
 
 import json
@@ -13,6 +14,7 @@ from urllib.request import Request, urlopen
 @dataclass
 class OAEvidence:
     """Evidence supporting OA status."""
+
     source: str
     pmcid: str = ""
     license: str = ""
@@ -56,7 +58,9 @@ class OAResolver:
         if doi:
             unpaywall = self._fetch_unpaywall(doi)
             if unpaywall:
-                status = unpaywall.get("oa_status") or ("gold" if unpaywall.get("is_oa") else "closed")
+                status = unpaywall.get("oa_status") or (
+                    "gold" if unpaywall.get("is_oa") else "closed"
+                )
                 best_location = unpaywall.get("best_oa_location") or {}
                 evidence = OAEvidence(
                     source="unpaywall",

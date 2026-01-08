@@ -1,4 +1,5 @@
 """Decision probability estimation model."""
+
 from __future__ import annotations
 
 from .planner import build_kill_criteria, build_mvp_plan

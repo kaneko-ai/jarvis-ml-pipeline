@@ -1,4 +1,5 @@
 """JARVIS Additional Integrations - Remaining Phase 3 Features (23,24,26,27)"""
+
 import json
 import urllib.parse
 import urllib.request
@@ -11,6 +12,7 @@ from dataclasses import dataclass
 @dataclass
 class ZoteroConfig:
     """Zotero configuration."""
+
     api_key: str
     user_id: str
     library_type: str = "user"  # or "group"
@@ -25,17 +27,14 @@ class ZoteroClient:
         self.config = config
 
     def _get_headers(self) -> dict:
-        return {
-            "Zotero-API-Key": self.config.api_key,
-            "Content-Type": "application/json"
-        }
+        return {"Zotero-API-Key": self.config.api_key, "Content-Type": "application/json"}
 
     def get_items(self, limit: int = 25) -> list[dict]:
         """Get library items.
-        
+
         Args:
             limit: Maximum items to return
-            
+
         Returns:
             List of items
         """
@@ -51,10 +50,10 @@ class ZoteroClient:
 
     def add_item(self, paper: dict) -> bool:
         """Add paper to Zotero library.
-        
+
         Args:
             paper: Paper dictionary
-            
+
         Returns:
             Success status
         """
@@ -68,7 +67,7 @@ class ZoteroClient:
             "publicationTitle": paper.get("journal", ""),
             "date": str(paper.get("year", "")),
             "DOI": paper.get("doi", ""),
-            "extra": f"PMID: {paper.get('pmid', '')}"
+            "extra": f"PMID: {paper.get('pmid', '')}",
         }
 
         url = f"{self.BASE_URL}/users/{self.config.user_id}/items"
@@ -84,10 +83,10 @@ class ZoteroClient:
 
     def search(self, query: str) -> list[dict]:
         """Search Zotero library.
-        
+
         Args:
             query: Search query
-            
+
         Returns:
             Matching items
         """
@@ -109,6 +108,7 @@ class ZoteroClient:
 @dataclass
 class GoogleDriveConfig:
     """Google Drive configuration."""
+
     access_token: str
     folder_id: str | None = None
 
@@ -125,15 +125,15 @@ class GoogleDriveExporter:
     def _get_headers(self) -> dict:
         return {
             "Authorization": f"Bearer {self.config.access_token}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
 
     def list_files(self, limit: int = 10) -> list[dict]:
         """List files in Drive.
-        
+
         Args:
             limit: Maximum files
-            
+
         Returns:
             List of files
         """
@@ -154,18 +154,15 @@ class GoogleDriveExporter:
 
     def export_json(self, filename: str, data: dict) -> str | None:
         """Export JSON data to Drive.
-        
+
         Args:
             filename: File name
             data: Data to export
-            
+
         Returns:
             File ID if successful
         """
-        metadata = {
-            "name": filename,
-            "mimeType": "application/json"
-        }
+        metadata = {"name": filename, "mimeType": "application/json"}
 
         if self.config.folder_id:
             metadata["parents"] = [self.config.folder_id]
@@ -180,18 +177,18 @@ class GoogleDriveExporter:
 
     def export_papers(self, papers: list[dict], filename: str = "jarvis_papers.json") -> str | None:
         """Export papers to Drive.
-        
+
         Args:
             papers: List of papers
             filename: Export filename
-            
+
         Returns:
             File ID
         """
         export_data = {
             "exported_at": __import__("datetime").datetime.now().isoformat(),
             "count": len(papers),
-            "papers": papers
+            "papers": papers,
         }
         return self.export_json(filename, export_data)
 
@@ -202,6 +199,7 @@ class GoogleDriveExporter:
 @dataclass
 class DiscordConfig:
     """Discord bot configuration."""
+
     bot_token: str
     channel_id: str
 
@@ -215,18 +213,15 @@ class DiscordBot:
         self.config = config
 
     def _get_headers(self) -> dict:
-        return {
-            "Authorization": f"Bot {self.config.bot_token}",
-            "Content-Type": "application/json"
-        }
+        return {"Authorization": f"Bot {self.config.bot_token}", "Content-Type": "application/json"}
 
     def send_message(self, content: str, embed: dict | None = None) -> bool:
         """Send message to channel.
-        
+
         Args:
             content: Message content
             embed: Optional rich embed
-            
+
         Returns:
             Success status
         """
@@ -241,7 +236,7 @@ class DiscordBot:
                 url,
                 data=json.dumps(data).encode("utf-8"),
                 headers=self._get_headers(),
-                method="POST"
+                method="POST",
             )
             with urllib.request.urlopen(req, timeout=10) as response:
                 return response.status in [200, 201]
@@ -251,25 +246,25 @@ class DiscordBot:
 
     def send_paper_alert(self, papers: list[dict]) -> bool:
         """Send paper alert to Discord.
-        
+
         Args:
             papers: List of papers
-            
+
         Returns:
             Success status
         """
         embed = {
             "title": f"🔬 JARVIS Found {len(papers)} Papers",
-            "color": 0xa78bfa,  # Purple
+            "color": 0xA78BFA,  # Purple
             "fields": [
                 {
                     "name": f"📄 {p.get('title', 'Unknown')[:50]}...",
                     "value": f"{p.get('authors', 'Unknown')[:30]} • {p.get('journal', 'Unknown')}",
-                    "inline": False
+                    "inline": False,
                 }
                 for p in papers[:5]
             ],
-            "footer": {"text": "JARVIS Research OS"}
+            "footer": {"text": "JARVIS Research OS"},
         }
 
         return self.send_message("New papers found!", embed)
@@ -286,10 +281,10 @@ class ObsidianExporter:
 
     def paper_to_markdown(self, paper: dict) -> str:
         """Convert paper to Obsidian markdown.
-        
+
         Args:
             paper: Paper dictionary
-            
+
         Returns:
             Markdown string
         """
@@ -343,23 +338,26 @@ Created by [[JARVIS Research OS]]
 
     def export_paper(self, paper: dict, filename: str | None = None) -> str:
         """Export single paper.
-        
+
         Args:
             paper: Paper to export
             filename: Optional filename
-            
+
         Returns:
             Filename used
         """
         if not filename:
             # Create filename from title
-            safe_title = "".join(c if c.isalnum() or c == " " else "_" for c in paper.get("title", "paper")[:50])
+            safe_title = "".join(
+                c if c.isalnum() or c == " " else "_" for c in paper.get("title", "paper")[:50]
+            )
             filename = f"{safe_title}.md"
 
         content = self.paper_to_markdown(paper)
 
         if self.vault_path:
             import os
+
             filepath = os.path.join(self.vault_path, filename)
             with open(filepath, "w", encoding="utf-8") as f:
                 f.write(content)
@@ -368,11 +366,11 @@ Created by [[JARVIS Research OS]]
 
     def export_all(self, papers: list[dict], folder: str = "JARVIS Papers") -> list[str]:
         """Export multiple papers.
-        
+
         Args:
             papers: Papers to export
             folder: Subfolder name
-            
+
         Returns:
             List of created filenames
         """
@@ -389,6 +387,7 @@ Created by [[JARVIS Research OS]]
 @dataclass
 class Widget:
     """Dashboard widget configuration."""
+
     id: str
     type: str
     title: str
@@ -400,8 +399,15 @@ class DashboardManager:
     """Manage custom dashboard layouts."""
 
     WIDGET_TYPES = [
-        "stats", "chart", "search", "papers", "notifications",
-        "calendar", "quick_actions", "word_cloud", "timeline"
+        "stats",
+        "chart",
+        "search",
+        "papers",
+        "notifications",
+        "calendar",
+        "quick_actions",
+        "word_cloud",
+        "timeline",
     ]
 
     def __init__(self):
@@ -441,7 +447,7 @@ class DashboardManager:
             Widget("search", "search", "Search", {"x": 0, "y": 2, "w": 8, "h": 4}, {}),
             Widget("health", "stats", "System Health", {"x": 8, "y": 2, "w": 4, "h": 4}, {}),
             Widget("chart", "chart", "Activity", {"x": 0, "y": 6, "w": 6, "h": 3}, {}),
-            Widget("logs", "papers", "Recent Logs", {"x": 6, "y": 6, "w": 6, "h": 3}, {})
+            Widget("logs", "papers", "Recent Logs", {"x": 6, "y": 6, "w": 6, "h": 3}, {}),
         ]
 
 
@@ -459,7 +465,7 @@ class SplitViewManager:
 
     def set_layout(self, layout: str):
         """Set split view layout.
-        
+
         Args:
             layout: Layout type
         """
@@ -479,12 +485,12 @@ class SplitViewManager:
                 "top_left": {"content": None},
                 "top_right": {"content": None},
                 "bottom_left": {"content": None},
-                "bottom_right": {"content": None}
+                "bottom_right": {"content": None},
             }
 
     def set_pane_content(self, pane_id: str, content: dict):
         """Set content for a pane.
-        
+
         Args:
             pane_id: Pane identifier
             content: Content to display
@@ -515,10 +521,10 @@ class FullScreenManager:
 
     def toggle(self, element_id: str | None = None) -> dict:
         """Toggle full screen mode.
-        
+
         Args:
             element_id: Element to fullscreen
-            
+
         Returns:
             State info
         """
@@ -528,7 +534,7 @@ class FullScreenManager:
         return {
             "is_fullscreen": self.is_fullscreen,
             "element": element_id,
-            "action": "enter" if self.is_fullscreen else "exit"
+            "action": "enter" if self.is_fullscreen else "exit",
         }
 
     def generate_js(self) -> str:
@@ -551,6 +557,7 @@ function toggleFullscreen(elementId) {
 @dataclass
 class Annotation:
     """Document annotation."""
+
     id: str
     paper_id: str
     text: str
@@ -571,11 +578,11 @@ class AnnotationManager:
 
     def add_annotation(self, paper_id: str, annotation: Annotation) -> str:
         """Add annotation.
-        
+
         Args:
             paper_id: Paper ID
             annotation: Annotation object
-            
+
         Returns:
             Annotation ID
         """
@@ -606,14 +613,9 @@ class AnnotationManager:
         return {
             "paper_id": paper_id,
             "annotations": [
-                {
-                    "text": a.text,
-                    "color": a.highlight_color,
-                    "page": a.page,
-                    "note": a.note
-                }
+                {"text": a.text, "color": a.highlight_color, "page": a.page, "note": a.note}
                 for a in self.get_annotations(paper_id)
-            ]
+            ],
         }
 
 
@@ -633,22 +635,9 @@ class ThreeDAnimationConfig:
         return {
             "enabled": self.enabled,
             "type": self.type,
-            "particles": {
-                "count": 1000,
-                "size": 2,
-                "speed": 0.5,
-                "color": "#a78bfa"
-            },
-            "waves": {
-                "amplitude": 50,
-                "frequency": 0.01,
-                "color": "#60a5fa"
-            },
-            "network": {
-                "nodes": 100,
-                "connections": 200,
-                "color": "#f472b6"
-            }
+            "particles": {"count": 1000, "size": 2, "speed": 0.5, "color": "#a78bfa"},
+            "waves": {"amplitude": 50, "frequency": 0.01, "color": "#60a5fa"},
+            "network": {"nodes": 100, "connections": 200, "color": "#f472b6"},
         }
 
     def generate_js_snippet(self) -> str:
@@ -669,17 +658,22 @@ document.getElementById('bg-3d').appendChild(renderer.domElement);
 def get_zotero_client(api_key: str, user_id: str) -> ZoteroClient:
     return ZoteroClient(ZoteroConfig(api_key, user_id))
 
+
 def get_google_drive_exporter(access_token: str) -> GoogleDriveExporter:
     return GoogleDriveExporter(GoogleDriveConfig(access_token))
+
 
 def get_discord_bot(token: str, channel: str) -> DiscordBot:
     return DiscordBot(DiscordConfig(token, channel))
 
+
 def get_obsidian_exporter(vault_path: str = None) -> ObsidianExporter:
     return ObsidianExporter(vault_path)
 
+
 def get_dashboard_manager() -> DashboardManager:
     return DashboardManager()
+
 
 def get_annotation_manager() -> AnnotationManager:
     return AnnotationManager()

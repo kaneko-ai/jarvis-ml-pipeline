@@ -3,6 +3,7 @@
 Per V4-A1, this defines the canonical contract for all module outputs.
 All outputs must conform to ArtifactBase.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -14,7 +15,7 @@ from typing import Any, Literal
 class TruthLevel(Enum):
     """Truthfulness layer classification."""
 
-    FACT = "fact"          # Evidence-backed
+    FACT = "fact"  # Evidence-backed
     INFERENCE = "inference"  # Model/rule-derived, explicitly estimated
     RECOMMENDATION = "recommendation"  # Opinion/proposal
 
@@ -187,29 +188,35 @@ def create_artifact(
         for f in facts:
             refs = [EvidenceRef(**r) for r in f.get("evidence_refs", [])]
             if refs:
-                artifact_facts.append(Fact(
-                    statement=f["statement"],
-                    evidence_refs=refs,
-                    confidence=f.get("confidence", 1.0),
-                ))
+                artifact_facts.append(
+                    Fact(
+                        statement=f["statement"],
+                        evidence_refs=refs,
+                        confidence=f.get("confidence", 1.0),
+                    )
+                )
 
     artifact_inferences = []
     if inferences:
         for i in inferences:
-            artifact_inferences.append(Inference(
-                statement=i["statement"],
-                method=i.get("method", "heuristic"),
-                confidence=i.get("confidence", 0.5),
-            ))
+            artifact_inferences.append(
+                Inference(
+                    statement=i["statement"],
+                    method=i.get("method", "heuristic"),
+                    confidence=i.get("confidence", 0.5),
+                )
+            )
 
     artifact_recs = []
     if recommendations:
         for r in recommendations:
-            artifact_recs.append(Recommendation(
-                statement=r["statement"],
-                rationale=r.get("rationale", ""),
-                priority=r.get("priority", "medium"),
-            ))
+            artifact_recs.append(
+                Recommendation(
+                    statement=r["statement"],
+                    rationale=r.get("rationale", ""),
+                    priority=r.get("priority", "medium"),
+                )
+            )
 
     provenance = Provenance(
         source_modules=[source_module] if source_module else [],

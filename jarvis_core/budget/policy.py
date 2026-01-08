@@ -14,6 +14,7 @@ from .budget import BudgetSpec, BudgetTracker
 @dataclass(frozen=True)
 class BudgetDecision:
     """予算決定."""
+
     should_search: bool
     num_results: int
     summary_depth: int
@@ -23,18 +24,18 @@ class BudgetDecision:
 
 class BudgetPolicy:
     """予算ポリシー.
-    
+
     予算状況に応じて探索/要約/リトライの可否を決定する。
     """
 
     def decide(self, spec: BudgetSpec, tracker: BudgetTracker) -> BudgetDecision:
         """
         予算に基づいて決定を下す.
-        
+
         Args:
             spec: 予算仕様
             tracker: 予算追跡器
-        
+
         Returns:
             BudgetDecision
         """
@@ -45,7 +46,7 @@ class BudgetPolicy:
                 num_results=0,
                 summary_depth=1,
                 allow_retry=False,
-                degrade_reason="max_tool_calls reached"
+                degrade_reason="max_tool_calls reached",
             )
 
         # リトライ可否
@@ -60,7 +61,7 @@ class BudgetPolicy:
                 should_search=True,
                 num_results=min(3, spec.max_search_results),
                 summary_depth=1,
-                allow_retry=allow_retry
+                allow_retry=allow_retry,
             )
 
         if spec.mode == "high":
@@ -68,7 +69,7 @@ class BudgetPolicy:
                 should_search=True,
                 num_results=spec.max_search_results,
                 summary_depth=spec.max_summary_depth,
-                allow_retry=allow_retry
+                allow_retry=allow_retry,
             )
 
         # standard: 残り予算で調整
@@ -79,30 +80,27 @@ class BudgetPolicy:
                 num_results=min(3, spec.max_search_results),
                 summary_depth=1,
                 allow_retry=False,
-                degrade_reason="budget_low"
+                degrade_reason="budget_low",
             )
 
         return BudgetDecision(
             should_search=True,
             num_results=min(6, spec.max_search_results),
             summary_depth=min(2, spec.max_summary_depth),
-            allow_retry=allow_retry
+            allow_retry=allow_retry,
         )
 
     def check_and_record(
-        self,
-        spec: BudgetSpec,
-        tracker: BudgetTracker,
-        action: str
+        self, spec: BudgetSpec, tracker: BudgetTracker, action: str
     ) -> BudgetDecision:
         """
         チェックして記録.
-        
+
         Args:
             spec: 予算仕様
             tracker: 予算追跡器
             action: アクション名（"search", "retry", etc）
-        
+
         Returns:
             BudgetDecision
         """

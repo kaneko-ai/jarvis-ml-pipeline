@@ -1,4 +1,5 @@
 """JARVIS Infrastructure & Ecosystem - Phase 6-7 Features (76-100)"""
+
 import hashlib
 import json
 import time
@@ -23,7 +24,7 @@ class EdgeMLInference:
         self.models[name] = {
             "config": model_config,
             "loaded": False,
-            "size_mb": model_config.get("size_mb", 10)
+            "size_mb": model_config.get("size_mb", 10),
         }
 
     def infer(self, model_name: str, input_data: dict) -> dict:
@@ -45,8 +46,10 @@ class EdgeMLInference:
 
     def get_model_status(self) -> dict:
         """Get status of all models."""
-        return {name: {"loaded": m["loaded"], "size_mb": m["size_mb"]}
-                for name, m in self.models.items()}
+        return {
+            name: {"loaded": m["loaded"], "size_mb": m["size_mb"]}
+            for name, m in self.models.items()
+        }
 
 
 # ============================================
@@ -55,6 +58,7 @@ class EdgeMLInference:
 @dataclass
 class ProcessingJob:
     """Distributed processing job."""
+
     id: str
     task_type: str
     input_data: dict
@@ -76,7 +80,7 @@ class DistributedProcessor:
         self.workers[worker_id] = {
             "capabilities": capabilities,
             "status": "idle",
-            "jobs_completed": 0
+            "jobs_completed": 0,
         }
 
     def submit_job(self, task_type: str, input_data: dict) -> str:
@@ -105,7 +109,7 @@ class DistributedProcessor:
             "id": job.id,
             "status": job.status,
             "progress": job.progress,
-            "worker": job.worker_id
+            "worker": job.worker_id,
         }
 
     def complete_job(self, job_id: str, result: dict):
@@ -159,7 +163,7 @@ class IntelligentCache:
             "value": value,
             "expires": (datetime.now() + timedelta(minutes=ttl_minutes)).isoformat(),
             "hits": 0,
-            "created": datetime.now().isoformat()
+            "created": datetime.now().isoformat(),
         }
 
     def predict_prefetch(self, user_id: str) -> list[str]:
@@ -191,7 +195,7 @@ class APIRateOptimizer:
         self.providers[name] = {
             "rate_limit": rate_limit,
             "window_seconds": window_seconds,
-            "cost_per_call": 0.001
+            "cost_per_call": 0.001,
         }
 
     def can_call(self, provider: str) -> bool:
@@ -239,7 +243,7 @@ class RealTimeSyncEngine:
         self.devices[device_id] = {
             "user_id": user_id,
             "last_sync": datetime.now().isoformat(),
-            "version": self.version
+            "version": self.version,
         }
 
     def push_change(self, device_id: str, change: dict):
@@ -277,6 +281,7 @@ class RealTimeSyncEngine:
 # 81-85: Infrastructure Features
 # ============================================
 
+
 class ObservabilityDashboard:
     """System observability."""
 
@@ -286,19 +291,15 @@ class ObservabilityDashboard:
 
     def record_metric(self, name: str, value: float, tags: dict = None):
         """Record a metric."""
-        self.metrics[name].append({
-            "value": value,
-            "timestamp": datetime.now().isoformat(),
-            "tags": tags or {}
-        })
+        self.metrics[name].append(
+            {"value": value, "timestamp": datetime.now().isoformat(), "tags": tags or {}}
+        )
 
     def record_error(self, error: str, context: dict = None):
         """Record an error."""
-        self.errors.append({
-            "error": error,
-            "context": context or {},
-            "timestamp": datetime.now().isoformat()
-        })
+        self.errors.append(
+            {"error": error, "context": context or {}, "timestamp": datetime.now().isoformat()}
+        )
 
     def get_summary(self) -> dict:
         """Get observability summary."""
@@ -311,7 +312,7 @@ class ObservabilityDashboard:
                     "count": len(recent),
                     "avg": sum(v["value"] for v in recent) / len(recent),
                     "max": max(v["value"] for v in recent),
-                    "min": min(v["value"] for v in recent)
+                    "min": min(v["value"] for v in recent),
                 }
 
         return summary
@@ -328,9 +329,9 @@ class ABTestingFramework:
         """Create an experiment."""
         self.experiments[exp_id] = {
             "variants": variants,
-            "weights": weights or [1.0/len(variants)] * len(variants),
+            "weights": weights or [1.0 / len(variants)] * len(variants),
             "created": datetime.now().isoformat(),
-            "results": {v: {"count": 0, "conversions": 0} for v in variants}
+            "results": {v: {"count": 0, "conversions": 0} for v in variants},
         }
 
     def get_variant(self, exp_id: str, user_id: str) -> str:
@@ -377,12 +378,14 @@ class AutoScaler:
 
     def record_metrics(self, cpu_usage: float, memory_usage: float, request_count: int):
         """Record current metrics."""
-        self.metrics_history.append({
-            "cpu": cpu_usage,
-            "memory": memory_usage,
-            "requests": request_count,
-            "timestamp": datetime.now().isoformat()
-        })
+        self.metrics_history.append(
+            {
+                "cpu": cpu_usage,
+                "memory": memory_usage,
+                "requests": request_count,
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
 
         # Keep last 100 entries
         self.metrics_history = self.metrics_history[-100:]
@@ -408,7 +411,11 @@ class AutoScaler:
     def scale(self) -> dict:
         """Perform scaling."""
         desired = self.calculate_desired_instances()
-        action = "scale_up" if desired > self.current_instances else "scale_down" if desired < self.current_instances else "no_change"
+        action = (
+            "scale_up"
+            if desired > self.current_instances
+            else "scale_down" if desired < self.current_instances else "no_change"
+        )
 
         old = self.current_instances
         self.current_instances = desired
@@ -437,12 +444,14 @@ class SecurityHardening:
     def block_ip(self, ip: str, reason: str):
         """Block an IP address."""
         self.blocked_ips.add(ip)
-        self.audit_log.append({
-            "action": "block_ip",
-            "ip": ip,
-            "reason": reason,
-            "timestamp": datetime.now().isoformat()
-        })
+        self.audit_log.append(
+            {
+                "action": "block_ip",
+                "ip": ip,
+                "reason": reason,
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
 
     def validate_input(self, data: str) -> dict:
         """Validate input for security issues."""
@@ -460,16 +469,13 @@ class SecurityHardening:
 # 86-100: ECOSYSTEM INTEGRATIONS
 # ============================================
 
+
 class VSCodeExtensionAPI:
     """VS Code extension integration."""
 
     def search_papers(self, query: str) -> dict:
         """Search papers from VS Code."""
-        return {
-            "command": "jarvis.search",
-            "query": query,
-            "results_format": "quickpick"
-        }
+        return {"command": "jarvis.search", "query": query, "results_format": "quickpick"}
 
     def insert_citation(self, paper: dict, format: str = "bibtex") -> str:
         """Generate citation for insertion."""
@@ -483,7 +489,7 @@ class VSCodeExtensionAPI:
             {"command": "jarvis.search", "title": "JARVIS: Search Papers"},
             {"command": "jarvis.cite", "title": "JARVIS: Insert Citation"},
             {"command": "jarvis.summarize", "title": "JARVIS: Summarize Selection"},
-            {"command": "jarvis.related", "title": "JARVIS: Find Related Work"}
+            {"command": "jarvis.related", "title": "JARVIS: Find Related Work"},
         ]
 
 
@@ -526,7 +532,7 @@ class BrowserExtensionAPI:
             "url": url,
             "title": title,
             "content_length": len(content),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     def analyze_page(self, content: str) -> dict:
@@ -539,7 +545,7 @@ class BrowserExtensionAPI:
             "is_paper": has_doi or has_pmid,
             "has_doi": has_doi,
             "has_pmid": has_pmid,
-            "word_count": len(content.split())
+            "word_count": len(content.split()),
         }
 
     def get_context_menu_items(self) -> list[dict]:
@@ -547,7 +553,7 @@ class BrowserExtensionAPI:
         return [
             {"id": "save-to-jarvis", "title": "Save to JARVIS"},
             {"id": "search-jarvis", "title": "Search JARVIS for '%s'"},
-            {"id": "cite-this", "title": "Generate Citation"}
+            {"id": "cite-this", "title": "Generate Citation"},
         ]
 
 
@@ -574,7 +580,7 @@ class ReadwiseIntegration:
                     "text": h.get("text", ""),
                     "title": h.get("paper_title", ""),
                     "source_url": h.get("url", ""),
-                    "highlighted_at": h.get("timestamp", datetime.now().isoformat())
+                    "highlighted_at": h.get("timestamp", datetime.now().isoformat()),
                 }
                 for h in highlights
             ]
@@ -626,7 +632,7 @@ class WebhookManager:
             "events": events,
             "created": datetime.now().isoformat(),
             "last_triggered": None,
-            "trigger_count": 0
+            "trigger_count": 0,
         }
 
     def trigger(self, event: str, data: dict) -> list[dict]:
@@ -638,22 +644,15 @@ class WebhookManager:
                 # Would make HTTP request in production
                 webhook["last_triggered"] = datetime.now().isoformat()
                 webhook["trigger_count"] += 1
-                triggered.append({
-                    "webhook": name,
-                    "url": webhook["url"],
-                    "event": event,
-                    "status": "sent"
-                })
+                triggered.append(
+                    {"webhook": name, "url": webhook["url"], "event": event, "status": "sent"}
+                )
 
         return triggered
 
     def get_payload(self, event: str, data: dict) -> dict:
         """Format webhook payload."""
-        return {
-            "event": event,
-            "timestamp": datetime.now().isoformat(),
-            "data": data
-        }
+        return {"event": event, "timestamp": datetime.now().isoformat(), "data": data}
 
 
 class OpenProtocol:
@@ -669,16 +668,16 @@ class OpenProtocol:
             "id": {
                 "pmid": paper.get("pmid"),
                 "doi": paper.get("doi"),
-                "arxiv": paper.get("arxiv_id")
+                "arxiv": paper.get("arxiv_id"),
             },
             "metadata": {
                 "title": paper.get("title"),
                 "authors": paper.get("authors"),
                 "year": paper.get("year"),
                 "journal": paper.get("journal"),
-                "abstract": paper.get("abstract")
+                "abstract": paper.get("abstract"),
             },
-            "exported_at": datetime.now().isoformat()
+            "exported_at": datetime.now().isoformat(),
         }
 
     def deserialize_paper(self, data: dict) -> dict:
@@ -694,7 +693,7 @@ class OpenProtocol:
             "pmid": ids.get("pmid"),
             "doi": ids.get("doi"),
             "arxiv_id": ids.get("arxiv"),
-            **meta
+            **meta,
         }
 
 
@@ -704,26 +703,34 @@ class OpenProtocol:
 def get_edge_ml() -> EdgeMLInference:
     return EdgeMLInference()
 
+
 def get_distributed_processor() -> DistributedProcessor:
     return DistributedProcessor()
+
 
 def get_intelligent_cache() -> IntelligentCache:
     return IntelligentCache()
 
+
 def get_api_optimizer() -> APIRateOptimizer:
     return APIRateOptimizer()
+
 
 def get_sync_engine() -> RealTimeSyncEngine:
     return RealTimeSyncEngine()
 
+
 def get_vscode_api() -> VSCodeExtensionAPI:
     return VSCodeExtensionAPI()
+
 
 def get_jupyter_integration() -> JupyterIntegration:
     return JupyterIntegration()
 
+
 def get_browser_api() -> BrowserExtensionAPI:
     return BrowserExtensionAPI()
+
 
 def get_webhook_manager() -> WebhookManager:
     return WebhookManager()

@@ -1,4 +1,5 @@
 """Package builder for finance/optimization reports."""
+
 from __future__ import annotations
 
 import json

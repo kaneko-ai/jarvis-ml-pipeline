@@ -2,6 +2,7 @@
 
 Per V4-M02, this finds papers that connect clusters.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -50,14 +51,18 @@ def find_bridge_papers(
         overlap2 = paper_concepts & concepts2
 
         if overlap1 and overlap2:
-            bridge_score = (len(overlap1) + len(overlap2)) / len(paper_concepts) if paper_concepts else 0
-            bridges.append({
-                "paper_id": paper.paper_id,
-                "bridge_score": round(bridge_score, 3),
-                "connects_concepts_1": list(overlap1)[:3],
-                "connects_concepts_2": list(overlap2)[:3],
-                "reason": f"Bridges {list(overlap1)[0]} ↔ {list(overlap2)[0]}",
-            })
+            bridge_score = (
+                (len(overlap1) + len(overlap2)) / len(paper_concepts) if paper_concepts else 0
+            )
+            bridges.append(
+                {
+                    "paper_id": paper.paper_id,
+                    "bridge_score": round(bridge_score, 3),
+                    "connects_concepts_1": list(overlap1)[:3],
+                    "connects_concepts_2": list(overlap2)[:3],
+                    "reason": f"Bridges {list(overlap1)[0]} ↔ {list(overlap2)[0]}",
+                }
+            )
 
     # Sort by bridge score
     bridges.sort(key=lambda x: x["bridge_score"], reverse=True)

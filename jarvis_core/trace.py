@@ -2,6 +2,7 @@
 
 Per V4-P05, this provides workflow execution tracing.
 """
+
 from __future__ import annotations
 
 import json
@@ -143,6 +144,7 @@ def get_current_trace() -> RunTrace | None:
 
 def trace_step(name: str, metadata: dict = None):
     """Decorator to trace a function as a step."""
+
     def decorator(func):
         def wrapper(*args, **kwargs):
             trace = get_current_trace()
@@ -156,5 +158,7 @@ def trace_step(name: str, metadata: dict = None):
                 if trace:
                     trace.end_step(step_id, "failed", error=str(e))
                 raise
+
         return wrapper
+
     return decorator

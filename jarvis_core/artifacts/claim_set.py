@@ -2,6 +2,7 @@
 
 Per RP-15, forces answer generation to be claim-first with citations.
 """
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
@@ -84,7 +85,9 @@ class ClaimSet:
         lines = []
 
         for claim in self.claims:
-            cite_str = ", ".join(f"[{c}]" for c in claim.citations) if claim.citations else "[根拠なし]"
+            cite_str = (
+                ", ".join(f"[{c}]" for c in claim.citations) if claim.citations else "[根拠なし]"
+            )
             prefix = "■" if claim.claim_type == ClaimType.FACT else "□"
             lines.append(f"{prefix} {claim.text} {cite_str}")
 
@@ -101,13 +104,15 @@ class ClaimSet:
         """Create from dict."""
         claims = []
         for c in data.get("claims", []):
-            claims.append(Claim(
-                claim_id=c["claim_id"],
-                text=c["text"],
-                claim_type=ClaimType(c["claim_type"]),
-                citations=c["citations"],
-                confidence=c.get("confidence", 1.0),
-            ))
+            claims.append(
+                Claim(
+                    claim_id=c["claim_id"],
+                    text=c["text"],
+                    claim_type=ClaimType(c["claim_type"]),
+                    citations=c["citations"],
+                    confidence=c.get("confidence", 1.0),
+                )
+            )
         return cls(
             claims=claims,
             notes=data.get("notes", ""),

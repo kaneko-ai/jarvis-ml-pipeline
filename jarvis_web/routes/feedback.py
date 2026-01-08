@@ -1,4 +1,5 @@
 """Feedback Intelligence API routes."""
+
 from __future__ import annotations
 
 import json
@@ -44,14 +45,16 @@ def _analyze_text(text: str, document_type: str, section: str) -> dict:
         risk = risk_model.score(record.features, history, section=record.section)
         top_categories = [c["category"] for c in risk["top_categories"]]
         suggestions = suggestion_engine.suggest(record.text, top_categories)
-        items.append({
-            "location": record.location,
-            "risk_score": risk["risk_score"],
-            "risk_level": risk["risk_level"],
-            "top_categories": risk["top_categories"],
-            "reasons": risk["reasons"],
-            "suggestions": suggestions,
-        })
+        items.append(
+            {
+                "location": record.location,
+                "risk_score": risk["risk_score"],
+                "risk_level": risk["risk_level"],
+                "top_categories": risk["top_categories"],
+                "reasons": risk["reasons"],
+                "suggestions": suggestions,
+            }
+        )
 
     summary = {
         "high": sum(1 for i in items if i["risk_level"] == "high"),
@@ -112,7 +115,9 @@ async def latest_feedback(_: bool = Depends(verify_token)):
     runs_dir = Path("logs/runs")
     if not runs_dir.exists():
         return {"summary": None, "items": []}
-    run_dirs = sorted([d for d in runs_dir.iterdir() if d.is_dir()], key=lambda d: d.stat().st_mtime, reverse=True)
+    run_dirs = sorted(
+        [d for d in runs_dir.iterdir() if d.is_dir()], key=lambda d: d.stat().st_mtime, reverse=True
+    )
     for run_dir in run_dirs:
         feedback_path = run_dir / "feedback_risk.json"
         if feedback_path.exists():

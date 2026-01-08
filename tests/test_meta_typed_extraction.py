@@ -49,7 +49,7 @@ class TestPICOProfile:
             population=PICOElement(description="Adults"),
             intervention=PICOElement(description="Drug A"),
             comparator=PICOElement(description="Placebo"),
-            outcome=PICOElement(description="Survival")
+            outcome=PICOElement(description="Survival"),
         )
 
         assert profile.is_complete() is True
@@ -60,7 +60,7 @@ class TestPICOProfile:
         profile = PICOProfile(
             population=PICOElement(description="Adults"),
             intervention=None,
-            outcome=PICOElement(description="Survival")
+            outcome=PICOElement(description="Survival"),
         )
 
         assert profile.is_complete() is False
@@ -101,8 +101,7 @@ class TestPICOConsistencyChecker:
         checker = PICOConsistencyChecker()
 
         result = checker.check_effect_direction(
-            EffectDirection.BENEFICIAL,
-            EffectDirection.BENEFICIAL
+            EffectDirection.BENEFICIAL, EffectDirection.BENEFICIAL
         )
 
         assert result.level == ConsistencyLevel.CONSISTENT
@@ -112,10 +111,7 @@ class TestPICOConsistencyChecker:
         """効果方向不一致を検出できること."""
         checker = PICOConsistencyChecker()
 
-        result = checker.check_effect_direction(
-            EffectDirection.BENEFICIAL,
-            EffectDirection.HARMFUL
-        )
+        result = checker.check_effect_direction(EffectDirection.BENEFICIAL, EffectDirection.HARMFUL)
 
         assert result.level == ConsistencyLevel.INCONSISTENT
         assert result.score == 0.0
@@ -143,18 +139,24 @@ class TestFullPICOConsistency:
         claim_pico = PICOProfile(
             population=PICOElement(description="Cancer patients receiving immunotherapy"),
             intervention=PICOElement(description="CD73 inhibitor treatment"),
-            outcome=PICOElement(description="Overall survival rate")
+            outcome=PICOElement(description="Overall survival rate"),
         )
 
         evidence_pico = PICOProfile(
-            population=PICOElement(description="Patients with advanced tumor receiving immune checkpoint therapy"),
+            population=PICOElement(
+                description="Patients with advanced tumor receiving immune checkpoint therapy"
+            ),
             intervention=PICOElement(description="CD73 blockade therapy"),
-            outcome=PICOElement(description="Survival outcomes")
+            outcome=PICOElement(description="Survival outcomes"),
         )
 
         result = checker.check_full_pico_consistency(claim_pico, evidence_pico)
 
-        assert result.level in [ConsistencyLevel.CONSISTENT, ConsistencyLevel.PARTIAL, ConsistencyLevel.INCONSISTENT]
+        assert result.level in [
+            ConsistencyLevel.CONSISTENT,
+            ConsistencyLevel.PARTIAL,
+            ConsistencyLevel.INCONSISTENT,
+        ]
         assert "element_results" in result.details
 
     def test_empty_pico_returns_unknown(self):
@@ -177,13 +179,13 @@ class TestPICOGate:
         claim_pico = {
             "population": {"description": "Adult cancer patients"},
             "intervention": {"description": "Drug therapy"},
-            "outcome": {"description": "Tumor response"}
+            "outcome": {"description": "Tumor response"},
         }
 
         evidence_pico = {
             "population": {"description": "Adult patients with cancer"},
             "intervention": {"description": "Drug treatment"},
-            "outcome": {"description": "Tumor response rate"}
+            "outcome": {"description": "Tumor response rate"},
         }
 
         passed, result = check_pico_gate(claim_pico, evidence_pico)
@@ -197,13 +199,13 @@ class TestPICOGate:
         claim_pico = {
             "population": {"description": "Pediatric patients"},
             "intervention": {"description": "Surgery"},
-            "outcome": {"description": "Recovery time"}
+            "outcome": {"description": "Recovery time"},
         }
 
         evidence_pico = {
             "population": {"description": "Adult patients"},
             "intervention": {"description": "Surgery"},
-            "outcome": {"description": "Recovery time"}
+            "outcome": {"description": "Recovery time"},
         }
 
         # 非厳格モード

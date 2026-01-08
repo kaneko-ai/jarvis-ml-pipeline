@@ -41,9 +41,7 @@ class BaseAgent:
     def run_single(self, llm: LLMClient, task: str) -> AgentResult:
         raise NotImplementedError
 
-    def run_sampling(
-        self, llm: LLMClient, task: str, n_candidates: int
-    ) -> list[AgentResult]:
+    def run_sampling(self, llm: LLMClient, task: str, n_candidates: int) -> list[AgentResult]:
         """
         Verbalized Sampling:
         - n_candidates 個の案をJSON形式で生成させる
@@ -81,9 +79,7 @@ class BaseAgent:
         for item in parsed[:n_candidates]:
             answer = self._extract_answer(item.get("answer", ""))
             if answer:
-                results.append(
-                    AgentResult(status="success", answer=answer, citations=[])
-                )
+                results.append(AgentResult(status="success", answer=answer, citations=[]))
             else:
                 results.append(
                     AgentResult(
@@ -259,4 +255,3 @@ class JobAssistantAgent(BaseAgent):
             citations=[],
             meta={"source": "job_assistant_stub"},
         )
-

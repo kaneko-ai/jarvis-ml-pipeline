@@ -2,6 +2,7 @@
 
 Per V4-M04, this provides fast neighborhood exploration.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -61,14 +62,15 @@ def query_neighborhood(
             continue
 
         dist = calculate_distance(center, paper)
-        neighbors.append({
-            "paper_id": paper.paper_id,
-            "distance": dist,
-            "shared_concepts": list(
-                set(center.concept.concepts.keys()) &
-                set(paper.concept.concepts.keys())
-            )[:3],
-        })
+        neighbors.append(
+            {
+                "paper_id": paper.paper_id,
+                "distance": dist,
+                "shared_concepts": list(
+                    set(center.concept.concepts.keys()) & set(paper.concept.concepts.keys())
+                )[:3],
+            }
+        )
 
     # Sort by distance (ascending)
     neighbors.sort(key=lambda x: x["distance"])

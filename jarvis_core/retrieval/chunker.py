@@ -1,4 +1,5 @@
 """Deterministic chunker for retrieval indexing."""
+
 from __future__ import annotations
 
 from collections.abc import Iterable

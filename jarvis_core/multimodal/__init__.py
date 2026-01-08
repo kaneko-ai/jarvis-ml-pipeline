@@ -1,4 +1,5 @@
 """Multimodal package."""
+
 from .figure_table import (
     Figure,
     FigureUnderstanding,

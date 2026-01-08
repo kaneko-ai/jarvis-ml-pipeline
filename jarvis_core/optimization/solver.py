@@ -1,4 +1,5 @@
 """Simple optimization solver for P10."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

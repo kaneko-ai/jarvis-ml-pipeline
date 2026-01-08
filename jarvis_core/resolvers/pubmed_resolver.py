@@ -5,6 +5,7 @@ This module provides:
 
 Per RP22, this enriches Reference with PMID, title, authors, year.
 """
+
 from __future__ import annotations
 
 import json
@@ -51,9 +52,7 @@ def search_pubmed(query: str, timeout: float = 5.0) -> PubMedResult:
 
     try:
         # First, search for the PMID
-        search_url = (
-            f"{ESEARCH_API}?db=pubmed&term={query}&retmax=1&retmode=json"
-        )
+        search_url = f"{ESEARCH_API}?db=pubmed&term={query}&retmax=1&retmode=json"
 
         with urllib.request.urlopen(search_url, timeout=timeout) as response:
             search_data = json.loads(response.read().decode("utf-8"))
@@ -66,9 +65,7 @@ def search_pubmed(query: str, timeout: float = 5.0) -> PubMedResult:
         result.pmid = pmid
 
         # Now get the summary
-        summary_url = (
-            f"{ESUMMARY_API}?db=pubmed&id={pmid}&retmode=json"
-        )
+        summary_url = f"{ESUMMARY_API}?db=pubmed&id={pmid}&retmode=json"
 
         with urllib.request.urlopen(summary_url, timeout=timeout) as response:
             summary_data = json.loads(response.read().decode("utf-8"))

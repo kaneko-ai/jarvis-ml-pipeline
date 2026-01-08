@@ -2,6 +2,7 @@
 
 Per RP-29, adds fact/inference separation and evidence density metrics.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -61,7 +62,9 @@ def compute_extended_metrics(claimset: ClaimSet) -> ExtendedMetrics:
 
     # Inference citation rate
     inferences_with_citations = sum(1 for c in inferences if c.citations)
-    inference_citation_rate = inferences_with_citations / inference_count if inference_count > 0 else 0.0
+    inference_citation_rate = (
+        inferences_with_citations / inference_count if inference_count > 0 else 0.0
+    )
 
     return ExtendedMetrics(
         total_claims=total,
@@ -87,14 +90,20 @@ def check_metrics_thresholds(
 
     if "separation_rate" in thresholds:
         if metrics.separation_rate < thresholds["separation_rate"]:
-            failing.append(f"separation_rate: {metrics.separation_rate:.2f} < {thresholds['separation_rate']}")
+            failing.append(
+                f"separation_rate: {metrics.separation_rate:.2f} < {thresholds['separation_rate']}"
+            )
 
     if "evidence_density" in thresholds:
         if metrics.evidence_density < thresholds["evidence_density"]:
-            failing.append(f"evidence_density: {metrics.evidence_density:.2f} < {thresholds['evidence_density']}")
+            failing.append(
+                f"evidence_density: {metrics.evidence_density:.2f} < {thresholds['evidence_density']}"
+            )
 
     if "fact_citation_rate" in thresholds:
         if metrics.fact_citation_rate < thresholds["fact_citation_rate"]:
-            failing.append(f"fact_citation_rate: {metrics.fact_citation_rate:.2f} < {thresholds['fact_citation_rate']}")
+            failing.append(
+                f"fact_citation_rate: {metrics.fact_citation_rate:.2f} < {thresholds['fact_citation_rate']}"
+            )
 
     return len(failing) == 0, failing

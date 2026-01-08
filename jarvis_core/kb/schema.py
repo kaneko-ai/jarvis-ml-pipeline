@@ -1,4 +1,5 @@
 """Schema helpers for the knowledge base."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -57,6 +58,7 @@ class RunSummary:
 
 def format_front_matter(data: dict[str, Any]) -> str:
     """Create a minimal YAML front matter string."""
+
     def render_value(value: Any) -> str:
         if isinstance(value, list):
             rendered = [render_value(item) for item in value]
@@ -69,7 +71,7 @@ def format_front_matter(data: dict[str, Any]) -> str:
             return str(value)
         text = str(value)
         escaped = text.replace('"', '\\"')
-        return f"\"{escaped}\""
+        return f'"{escaped}"'
 
     lines = ["---"]
     for key, value in data.items():

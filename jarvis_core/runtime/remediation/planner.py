@@ -2,6 +2,7 @@
 
 Per RP-186, plans repair actions based on failure signals.
 """
+
 from __future__ import annotations
 
 import json
@@ -15,7 +16,11 @@ from .catalog import get_action
 DEFAULT_RULES = {
     FailureCode.FETCH_PDF_FAILED.value: ["SWITCH_FETCH_ADAPTER", "INCREASE_TOP_K"],
     FailureCode.EXTRACT_PDF_FAILED.value: ["SWITCH_FETCH_ADAPTER", "INCREASE_TOP_K"],
-    FailureCode.CITATION_GATE_FAILED.value: ["INCREASE_TOP_K", "TIGHTEN_MMR", "CITATION_FIRST_PROMPT"],
+    FailureCode.CITATION_GATE_FAILED.value: [
+        "INCREASE_TOP_K",
+        "TIGHTEN_MMR",
+        "CITATION_FIRST_PROMPT",
+    ],
     FailureCode.LOW_CLAIM_PRECISION.value: ["TIGHTEN_MMR", "INCREASE_TOP_K"],
     FailureCode.BUDGET_EXCEEDED.value: ["BUDGET_REBALANCE"],
     FailureCode.MODEL_ERROR.value: ["MODEL_ROUTER_SAFE_SWITCH"],
@@ -83,7 +88,7 @@ class RepairPlanner:
 
         # Process signals in order (priority by signal order)
         for signal in signals:
-            code = signal.code.value if hasattr(signal.code, 'value') else signal.code
+            code = signal.code.value if hasattr(signal.code, "value") else signal.code
             actions = self._rules.get(code, [])
 
             for action_id in actions:

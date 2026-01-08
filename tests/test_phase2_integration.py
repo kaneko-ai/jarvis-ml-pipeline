@@ -3,6 +3,7 @@
 Minimal integration test to verify that all Phase 2 stages
 can be executed without errors.
 """
+
 import sys
 from pathlib import Path
 
@@ -62,6 +63,7 @@ class TestSchemas:
     def test_claim_schema_valid(self):
         """Claim schema is valid JSON."""
         import json
+
         schema_path = Path("docs/SCHEMAS/claim_unit.schema.json")
 
         if not schema_path.exists():
@@ -76,6 +78,7 @@ class TestSchemas:
     def test_evidence_schema_valid(self):
         """Evidence schema is valid JSON."""
         import json
+
         schema_path = Path("docs/SCHEMAS/evidence_unit.schema.json")
 
         if not schema_path.exists():

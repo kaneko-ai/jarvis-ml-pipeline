@@ -3,6 +3,7 @@
 Generates markdown reports with automatic Evidence ID references.
 Each claim in the report is annotated with its supporting evidence IDs.
 """
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -25,19 +26,21 @@ class ReportGenerator:
             if claim_id and ev_id:
                 if claim_id not in self.evidence_by_claim:
                     self.evidence_by_claim[claim_id] = []
-                self.evidence_by_claim[claim_id].append({
-                    "evidence_id": ev_id,
-                    "paper_id": ev.get("paper_id"),
-                    "strength": ev.get("evidence_strength", "Unknown"),
-                    "quote": ev.get("quote_span", "")[:100]  # First 100 chars
-                })
+                self.evidence_by_claim[claim_id].append(
+                    {
+                        "evidence_id": ev_id,
+                        "paper_id": ev.get("paper_id"),
+                        "strength": ev.get("evidence_strength", "Unknown"),
+                        "quote": ev.get("quote_span", "")[:100],  # First 100 chars
+                    }
+                )
 
     def generate_claim_with_evidence(self, claim: dict) -> str:
         """Generate claim text with evidence ID annotations.
-        
+
         Args:
             claim: Claim dictionary with claim_id and claim_text
-            
+
         Returns:
             Markdown text with evidence references
         """
@@ -55,10 +58,7 @@ class ReportGenerator:
         ev_refs = ", ".join([f"^{ev['evidence_id'][:8]}" for ev in evidence])
 
         # Build markdown
-        md_lines = [
-            f"{claim_text} [{ev_refs}]",
-            ""
-        ]
+        md_lines = [f"{claim_text} [{ev_refs}]", ""]
 
         # Add evidence details in note
         if len(evidence) <= 3:  # Only show details if few evidence
@@ -78,17 +78,17 @@ class ReportGenerator:
         claims: list[dict],
         evidence_list: list[dict],
         papers: list[dict],
-        scores: dict = None
+        scores: dict = None,
     ) -> str:
         """Generate complete markdown report with evidence IDs.
-        
+
         Args:
             query: Research question
             claims: List of claim dictionaries
             evidence_list: List of evidence dictionaries
             papers: List of paper dictionaries
             scores: Optional scoring information
-            
+
         Returns:
             Complete markdown report
         """
@@ -113,12 +113,14 @@ class ReportGenerator:
 
         # Add quality warning if support rate is low
         if support_rate < 0.90:
-            lines.extend([
-                "> [!CAUTION] Low Evidence Support",
-                f"> This report has a support rate of {support_rate:.1%}, below the recommended 90% threshold.",
-                "> Please interpret findings with caution.",
-                "",
-            ])
+            lines.extend(
+                [
+                    "> [!CAUTION] Low Evidence Support",
+                    f"> This report has a support rate of {support_rate:.1%}, below the recommended 90% threshold.",
+                    "> Please interpret findings with caution.",
+                    "",
+                ]
+            )
 
         # Group claims by type
         claims_by_type = {}
@@ -133,10 +135,12 @@ class ReportGenerator:
             if claim_type == "Unknown":
                 continue
 
-            lines.extend([
-                f"## {claim_type}",
-                "",
-            ])
+            lines.extend(
+                [
+                    f"## {claim_type}",
+                    "",
+                ]
+            )
 
             for claim in type_claims:
                 claim_md = self.generate_claim_with_evidence(claim)
@@ -147,21 +151,25 @@ class ReportGenerator:
         # Add unknown claims section if any
         unknown_claims = claims_by_type.get("Unknown", [])
         if unknown_claims:
-            lines.extend([
-                "## Other Findings",
-                "",
-            ])
+            lines.extend(
+                [
+                    "## Other Findings",
+                    "",
+                ]
+            )
             for claim in unknown_claims:
                 claim_md = self.generate_claim_with_evidence(claim)
                 lines.append(claim_md)
 
         # Add papers section
-        lines.extend([
-            "---",
-            "",
-            "## References",
-            "",
-        ])
+        lines.extend(
+            [
+                "---",
+                "",
+                "## References",
+                "",
+            ]
+        )
 
         for paper in papers[:10]:  # Top 10 papers
             paper_id = paper.get("paper_id", "Unknown")
@@ -181,21 +189,17 @@ class ReportGenerator:
 
 
 def generate_report_with_evidence(
-    query: str,
-    claims: list[dict],
-    evidence: list[dict],
-    papers: list[dict],
-    scores: dict = None
+    query: str, claims: list[dict], evidence: list[dict], papers: list[dict], scores: dict = None
 ) -> str:
     """Convenience function to generate report.
-    
+
     Args:
         query: Research question
         claims: List of claims
         evidence: List of evidence
         papers: List of papers
         scores: Optional scores
-    
+
     Returns:
         Markdown report string
     """

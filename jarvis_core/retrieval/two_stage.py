@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 3, this provides cheap candidate retrieval + expensive rerank.
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -69,18 +70,18 @@ class TwoStageRetriever:
 
         # Check if stage 2 should be skipped
         rerank_skipped = (
-            self.stage2_fn is None or
-            budget_remaining < self.budget_threshold or
-            len(candidates) <= self.stage2_k
+            self.stage2_fn is None
+            or budget_remaining < self.budget_threshold
+            or len(candidates) <= self.stage2_k
         )
 
         if rerank_skipped:
             # Skip rerank, return top candidates
-            reranked = candidates[:self.stage2_k]
+            reranked = candidates[: self.stage2_k]
         else:
             # Stage 2: Expensive rerank
             span2 = start_span("retrieval:stage2_rerank")
-            reranked = self.stage2_fn(query, candidates)[:self.stage2_k]
+            reranked = self.stage2_fn(query, candidates)[: self.stage2_k]
             end_span(span2, item_count=len(reranked))
 
         return RetrievalResult(

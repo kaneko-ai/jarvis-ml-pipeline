@@ -1,4 +1,5 @@
 """Queue management endpoints."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -14,7 +15,9 @@ router = APIRouter()
 
 
 @router.get("/api/queue")
-async def list_queue(status: Optional[str] = None, limit: int = 50, _: bool = Depends(verify_token)):
+async def list_queue(
+    status: Optional[str] = None, limit: int = 50, _: bool = Depends(verify_token)
+):
     statuses = [status] if status else None
     runs = store.list_all_runs(limit=limit, statuses=statuses)
     return {"runs": runs, "total": len(runs)}

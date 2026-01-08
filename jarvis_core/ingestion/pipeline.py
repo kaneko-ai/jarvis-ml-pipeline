@@ -6,6 +6,7 @@ PDF/BibTeX/ZIPからpapers.jsonlを生成する取り込みパイプライン。
 - チャンク→locator付与
 - papers.jsonl生成
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -20,6 +21,7 @@ from typing import Any
 @dataclass
 class TextChunk:
     """テキストチャンク."""
+
     chunk_id: str
     text: str
     section: str = ""
@@ -43,6 +45,7 @@ class TextChunk:
 @dataclass
 class ExtractedPaper:
     """抽出された論文."""
+
     paper_id: str
     title: str
     year: int
@@ -73,6 +76,7 @@ class ExtractedPaper:
 @dataclass
 class IngestionResult:
     """取り込み結果."""
+
     papers: list[ExtractedPaper] = field(default_factory=list)
     warnings: list[dict[str, Any]] = field(default_factory=list)
     stats: dict[str, Any] = field(default_factory=dict)
@@ -97,19 +101,21 @@ class PDFExtractor:
         """利用可能なバックエンドを初期化."""
         try:
             import pdfplumber
+
             self._pdfplumber = pdfplumber
         except ImportError:
             pass
 
         try:
             import fitz  # PyMuPDF
+
             self._pymupdf = fitz
         except ImportError:
             pass
 
     def extract(self, filepath: Path) -> tuple[str, list[tuple[int, str]]]:
         """PDFからテキストを抽出.
-        
+
         Returns:
             (全テキスト, [(ページ番号, ページテキスト), ...])
         """
@@ -176,12 +182,12 @@ class TextChunker:
         pages: list[tuple[int, str]] | None = None,
     ) -> list[TextChunk]:
         """テキストをチャンク化.
-        
+
         Args:
             text: 全テキスト
             paper_id: 論文ID
             pages: ページ情報（オプション）
-            
+
         Returns:
             チャンクリスト
         """
@@ -207,7 +213,7 @@ class TextChunker:
 
     def _detect_sections(self, text: str) -> list[tuple[str, str, int]]:
         """セクションを検出.
-        
+
         Returns:
             [(セクション名, セクションテキスト, 開始位置), ...]
         """
@@ -238,11 +244,13 @@ class TextChunker:
             if re.match(combined_pattern, line.strip(), re.MULTILINE):
                 # 前のセクションを保存
                 if current_text:
-                    sections.append((
-                        current_section,
-                        "\n".join(current_text),
-                        current_start,
-                    ))
+                    sections.append(
+                        (
+                            current_section,
+                            "\n".join(current_text),
+                            current_start,
+                        )
+                    )
 
                 # 新しいセクション開始
                 current_section = line.strip()
@@ -255,11 +263,13 @@ class TextChunker:
 
         # 最後のセクション
         if current_text:
-            sections.append((
-                current_section,
-                "\n".join(current_text),
-                current_start,
-            ))
+            sections.append(
+                (
+                    current_section,
+                    "\n".join(current_text),
+                    current_start,
+                )
+            )
 
         # セクションが検出されなかった場合は全体を1セクションに
         if not sections:
@@ -279,7 +289,7 @@ class TextChunker:
         chunks = []
 
         # 段落で分割
-        paragraphs = re.split(r'\n\s*\n', text)
+        paragraphs = re.split(r"\n\s*\n", text)
 
         current_chunk = []
         current_len = 0
@@ -294,14 +304,16 @@ class TextChunker:
             if current_len + len(para) > self.chunk_size and current_chunk:
                 # 現在のチャンクを保存
                 chunk_text = "\n\n".join(current_chunk)
-                chunks.append(TextChunk(
-                    chunk_id=f"{paper_id}_chunk_{start_chunk_id + len(chunks)}",
-                    text=chunk_text,
-                    section=section,
-                    paragraph_index=para_idx - len(current_chunk),
-                    char_start=base_offset + char_pos - len(chunk_text),
-                    char_end=base_offset + char_pos,
-                ))
+                chunks.append(
+                    TextChunk(
+                        chunk_id=f"{paper_id}_chunk_{start_chunk_id + len(chunks)}",
+                        text=chunk_text,
+                        section=section,
+                        paragraph_index=para_idx - len(current_chunk),
+                        char_start=base_offset + char_pos - len(chunk_text),
+                        char_end=base_offset + char_pos,
+                    )
+                )
 
                 # オーバーラップ分を残して新規チャンク
                 if self.overlap > 0 and current_chunk:
@@ -319,14 +331,16 @@ class TextChunker:
         # 残りを保存
         if current_chunk:
             chunk_text = "\n\n".join(current_chunk)
-            chunks.append(TextChunk(
-                chunk_id=f"{paper_id}_chunk_{start_chunk_id + len(chunks)}",
-                text=chunk_text,
-                section=section,
-                paragraph_index=para_idx - len(current_chunk),
-                char_start=base_offset + char_pos - len(chunk_text),
-                char_end=base_offset + char_pos,
-            ))
+            chunks.append(
+                TextChunk(
+                    chunk_id=f"{paper_id}_chunk_{start_chunk_id + len(chunks)}",
+                    text=chunk_text,
+                    section=section,
+                    paragraph_index=para_idx - len(current_chunk),
+                    char_start=base_offset + char_pos - len(chunk_text),
+                    char_end=base_offset + char_pos,
+                )
+            )
 
         return chunks
 
@@ -345,7 +359,7 @@ class BibTeXParser:
             return []
 
         # エントリを抽出
-        entry_pattern = r'@(\w+)\s*\{([^,]+),\s*([^@]*)\}'
+        entry_pattern = r"@(\w+)\s*\{([^,]+),\s*([^@]*)\}"
 
         for match in re.finditer(entry_pattern, content, re.DOTALL):
             entry_type = match.group(1).lower()
@@ -377,7 +391,7 @@ class BibTeXParser:
 
 class IngestionPipeline:
     """取り込みパイプライン.
-    
+
     PDF/BibTeX/ZIPからpapers.jsonlを生成。
     """
 
@@ -432,15 +446,17 @@ class IngestionPipeline:
             except:
                 year = 0
 
-            papers.append(ExtractedPaper(
-                paper_id=paper_id,
-                title=entry.get("title", ""),
-                year=year,
-                source="bibtex",
-                abstract=entry.get("abstract", ""),
-                authors=entry.get("author", "").split(" and "),
-                doi=entry.get("doi", ""),
-            ))
+            papers.append(
+                ExtractedPaper(
+                    paper_id=paper_id,
+                    title=entry.get("title", ""),
+                    year=year,
+                    source="bibtex",
+                    abstract=entry.get("abstract", ""),
+                    authors=entry.get("author", "").split(" and "),
+                    doi=entry.get("doi", ""),
+                )
+            )
 
         return papers
 
@@ -449,10 +465,10 @@ class IngestionPipeline:
         filepaths: list[Path],
     ) -> IngestionResult:
         """複数ファイルをバッチ取り込み.
-        
+
         Args:
             filepaths: ファイルパスリスト
-            
+
         Returns:
             IngestionResult
         """
@@ -480,11 +496,13 @@ class IngestionPipeline:
                     result.stats["success_count"] += len(papers)
 
             except Exception as e:
-                result.warnings.append({
-                    "code": "INGEST_ERROR",
-                    "message": str(e),
-                    "file": str(filepath),
-                })
+                result.warnings.append(
+                    {
+                        "code": "INGEST_ERROR",
+                        "message": str(e),
+                        "file": str(filepath),
+                    }
+                )
                 result.stats["error_count"] += 1
 
         return result
@@ -549,7 +567,7 @@ class IngestionPipeline:
     def _extract_year(self, text: str, filepath: Path) -> int:
         """年を抽出."""
         # テキストから年を検索
-        year_match = re.search(r'\b(19|20)\d{2}\b', text[:2000])
+        year_match = re.search(r"\b(19|20)\d{2}\b", text[:2000])
         if year_match:
             return int(year_match.group())
 
@@ -559,7 +577,7 @@ class IngestionPipeline:
         """アブストラクトを抽出."""
         # "Abstract"セクションを探す
         abstract_match = re.search(
-            r'(?:Abstract|ABSTRACT)[:\s]*\n(.*?)(?:\n\n|\n[A-Z])',
+            r"(?:Abstract|ABSTRACT)[:\s]*\n(.*?)(?:\n\n|\n[A-Z])",
             text,
             re.DOTALL | re.IGNORECASE,
         )

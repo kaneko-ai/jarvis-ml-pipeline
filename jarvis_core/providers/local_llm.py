@@ -50,11 +50,7 @@ class LocalLLMProvider(LLMProvider):
         return True  # プレースホルダー
 
     def generate(
-        self,
-        prompt: str,
-        max_tokens: int = 1024,
-        temperature: float = 0.7,
-        **kwargs
+        self, prompt: str, max_tokens: int = 1024, temperature: float = 0.7, **kwargs
     ) -> str:
         """テキスト生成."""
         if not self._initialized:
@@ -69,7 +65,7 @@ class LocalLLMProvider(LLMProvider):
         messages: list[dict[str, str]],
         max_tokens: int = 1024,
         temperature: float = 0.7,
-        **kwargs
+        **kwargs,
     ) -> str:
         """チャット形式で生成."""
         if not self._initialized:

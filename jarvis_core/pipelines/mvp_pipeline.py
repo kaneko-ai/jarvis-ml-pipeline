@@ -23,9 +23,11 @@ logger = logging.getLogger(__name__)
 # Input Schema
 # ============================================================
 
+
 @dataclass
 class Constraints:
     """検索制約."""
+
     oa_only: bool = True
     max_papers: int = 10
     date_from: str | None = None
@@ -36,6 +38,7 @@ class Constraints:
 @dataclass
 class Reproducibility:
     """再現性情報."""
+
     seed: int = 0
     model: str = "local"
     pipeline_version: str = "mvp-v1"
@@ -44,6 +47,7 @@ class Reproducibility:
 @dataclass
 class PipelineInput:
     """パイプライン入力."""
+
     goal: str
     query: str
     constraints: Constraints = field(default_factory=Constraints)
@@ -58,7 +62,7 @@ class PipelineInput:
         }
 
     def save(self, path: Path) -> None:
-        with open(path, 'w', encoding='utf-8') as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(self.to_dict(), f, indent=2, ensure_ascii=False)
 
 
@@ -66,9 +70,11 @@ class PipelineInput:
 # Output Schema
 # ============================================================
 
+
 @dataclass
 class Paper:
     """論文メタデータ."""
+
     paper_id: str
     title: str
     authors: list[str]
@@ -84,6 +90,7 @@ class Paper:
 @dataclass
 class Claim:
     """主張."""
+
     paper_id: str
     claim_id: str
     claim: str
@@ -97,6 +104,7 @@ class Claim:
 @dataclass
 class EvidenceLocator:
     """根拠の位置."""
+
     section: str
     paragraph: int
     sentence: int
@@ -107,6 +115,7 @@ class EvidenceLocator:
 @dataclass
 class Evidence:
     """根拠."""
+
     paper_id: str
     claim_id: str
     source: str  # abstract, fulltext
@@ -126,6 +135,7 @@ class Evidence:
 @dataclass
 class Warning:
     """警告."""
+
     type: str  # no_evidence, fetch_failed, etc
     message: str
     paper_id: str | None = None
@@ -138,6 +148,7 @@ class Warning:
 @dataclass
 class Scores:
     """スコア."""
+
     papers: dict[str, dict[str, float]] = field(default_factory=dict)
 
     def add_paper_score(self, paper_id: str, features: dict[str, float]) -> None:
@@ -151,9 +162,11 @@ class Scores:
 # Bundle
 # ============================================================
 
+
 @dataclass
 class Bundle:
     """出力バンドル."""
+
     run_id: str
     input: PipelineInput
     papers: list[Paper] = field(default_factory=list)
@@ -170,28 +183,28 @@ class Bundle:
         self.input.save(output_dir / "input.json")
 
         # papers.jsonl
-        with open(output_dir / "papers.jsonl", 'w', encoding='utf-8') as f:
+        with open(output_dir / "papers.jsonl", "w", encoding="utf-8") as f:
             for p in self.papers:
-                f.write(json.dumps(p.to_dict(), ensure_ascii=False) + '\n')
+                f.write(json.dumps(p.to_dict(), ensure_ascii=False) + "\n")
 
         # claims.jsonl
-        with open(output_dir / "claims.jsonl", 'w', encoding='utf-8') as f:
+        with open(output_dir / "claims.jsonl", "w", encoding="utf-8") as f:
             for c in self.claims:
-                f.write(json.dumps(c.to_dict(), ensure_ascii=False) + '\n')
+                f.write(json.dumps(c.to_dict(), ensure_ascii=False) + "\n")
 
         # evidence.jsonl
-        with open(output_dir / "evidence.jsonl", 'w', encoding='utf-8') as f:
+        with open(output_dir / "evidence.jsonl", "w", encoding="utf-8") as f:
             for e in self.evidence:
-                f.write(json.dumps(e.to_dict(), ensure_ascii=False) + '\n')
+                f.write(json.dumps(e.to_dict(), ensure_ascii=False) + "\n")
 
         # scores.json
-        with open(output_dir / "scores.json", 'w', encoding='utf-8') as f:
+        with open(output_dir / "scores.json", "w", encoding="utf-8") as f:
             json.dump(self.scores.to_dict(), f, indent=2, ensure_ascii=False)
 
         # warnings.jsonl
-        with open(output_dir / "warnings.jsonl", 'w', encoding='utf-8') as f:
+        with open(output_dir / "warnings.jsonl", "w", encoding="utf-8") as f:
             for w in self.warnings:
-                f.write(json.dumps(w.to_dict(), ensure_ascii=False) + '\n')
+                f.write(json.dumps(w.to_dict(), ensure_ascii=False) + "\n")
 
         # report.md
         self._generate_report(output_dir / "report.md")
@@ -238,7 +251,7 @@ class Bundle:
                 evs = claim_evidence.get(c.claim_id, [])
                 lines.append(f"- **{c.claim}** [{c.confidence}]")
                 if evs:
-                    lines.append(f"  - Evidence: \"{evs[0].evidence_text[:100]}...\"")
+                    lines.append(f'  - Evidence: "{evs[0].evidence_text[:100]}..."')
                 else:
                     lines.append("  - ⚠️ No evidence found")
                 lines.append("")
@@ -249,17 +262,18 @@ class Bundle:
             for w in self.warnings:
                 lines.append(f"- [{w.type}] {w.message}")
 
-        with open(path, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(lines))
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines))
 
 
 # ============================================================
 # MVP Pipeline
 # ============================================================
 
+
 class MVPPipeline:
     """MVP一本道パイプライン.
-    
+
     Phase B: cheap→expensive二段構え
     1. Retrieve metadata (cheap)
     2. Cheap summarize (abstract中心)
@@ -289,10 +303,12 @@ class MVPPipeline:
         bundle.papers = papers
 
         if not papers:
-            bundle.warnings.append(Warning(
-                type="no_papers",
-                message=f"No papers found for query: {input.query}",
-            ))
+            bundle.warnings.append(
+                Warning(
+                    type="no_papers",
+                    message=f"No papers found for query: {input.query}",
+                )
+            )
             bundle.save(output_dir)
             return bundle
 
@@ -313,10 +329,15 @@ class MVPPipeline:
 
         # Stage 5: Scoring
         for paper in papers:
-            bundle.scores.add_paper_score(paper.paper_id, {
-                "recency": self._score_recency(paper.year),
-                "evidence_count": len([e for e in bundle.evidence if e.paper_id == paper.paper_id]),
-            })
+            bundle.scores.add_paper_score(
+                paper.paper_id,
+                {
+                    "recency": self._score_recency(paper.year),
+                    "evidence_count": len(
+                        [e for e in bundle.evidence if e.paper_id == paper.paper_id]
+                    ),
+                },
+            )
 
         # Save bundle
         bundle.save(output_dir)
@@ -336,15 +357,17 @@ class MVPPipeline:
         # デモ用ダミーデータ
         papers = []
         for i in range(min(input.constraints.max_papers, 5)):
-            papers.append(Paper(
-                paper_id=f"PMID:{1000 + i}",
-                title=f"Study on {input.query} - Part {i+1}",
-                authors=["Author A", "Author B"],
-                year=2024 - i,
-                abstract=f"This study investigates {input.query}. We found significant results.",
-                source="pubmed",
-                url=f"https://pubmed.ncbi.nlm.nih.gov/{1000+i}",
-            ))
+            papers.append(
+                Paper(
+                    paper_id=f"PMID:{1000 + i}",
+                    title=f"Study on {input.query} - Part {i+1}",
+                    authors=["Author A", "Author B"],
+                    year=2024 - i,
+                    abstract=f"This study investigates {input.query}. We found significant results.",
+                    source="pubmed",
+                    url=f"https://pubmed.ncbi.nlm.nih.gov/{1000+i}",
+                )
+            )
 
         return papers
 
@@ -368,26 +391,30 @@ class MVPPipeline:
 
         # 根拠を紐付け
         if paper.abstract:
-            evidence.append(Evidence(
-                paper_id=paper.paper_id,
-                claim_id=claim_id,
-                source="abstract",
-                locator=EvidenceLocator(
-                    section="Abstract",
-                    paragraph=1,
-                    sentence=1,
-                    offset_start=0,
-                    offset_end=len(paper.abstract),
-                ),
-                evidence_text=paper.abstract,
-            ))
+            evidence.append(
+                Evidence(
+                    paper_id=paper.paper_id,
+                    claim_id=claim_id,
+                    source="abstract",
+                    locator=EvidenceLocator(
+                        section="Abstract",
+                        paragraph=1,
+                        sentence=1,
+                        offset_start=0,
+                        offset_end=len(paper.abstract),
+                    ),
+                    evidence_text=paper.abstract,
+                )
+            )
         else:
-            warnings.append(Warning(
-                type="no_evidence",
-                message=f"No evidence found for claim {claim_id}",
-                paper_id=paper.paper_id,
-                claim_id=claim_id,
-            ))
+            warnings.append(
+                Warning(
+                    type="no_evidence",
+                    message=f"No evidence found for claim {claim_id}",
+                    paper_id=paper.paper_id,
+                    claim_id=claim_id,
+                )
+            )
 
         return claims, evidence, warnings
 

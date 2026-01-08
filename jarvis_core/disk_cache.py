@@ -2,6 +2,7 @@
 
 Per RP-03, this provides tool-level caching for reproducibility.
 """
+
 from __future__ import annotations
 
 import hashlib

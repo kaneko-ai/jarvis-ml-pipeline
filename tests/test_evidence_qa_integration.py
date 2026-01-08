@@ -3,6 +3,7 @@
 Per RP11, these tests verify the complete E2E flow:
 PDF/URL → ingest → retrieve → answer → citations → success
 """
+
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -112,13 +113,15 @@ class TestEvidenceQAAgent:
         from jarvis_core.sources import ChunkResult
 
         ctx = ExecutionContext(evidence_store=store)
-        ctx.add_chunks([
-            ChunkResult(
-                chunk_id=chunk_id,
-                locator="pdf:test.pdf#page:1#chunk:0",
-                preview="CD73 is an ectoenzyme...",
-            )
-        ])
+        ctx.add_chunks(
+            [
+                ChunkResult(
+                    chunk_id=chunk_id,
+                    locator="pdf:test.pdf#page:1#chunk:0",
+                    preview="CD73 is an ectoenzyme...",
+                )
+            ]
+        )
 
         result = agent.run_single(task, context=ctx)
 
@@ -145,12 +148,12 @@ class TestEvidenceQAAgent:
         from jarvis_core.sources import ChunkResult
 
         ctx = ExecutionContext(evidence_store=store)
-        ctx.add_chunks([
-            ChunkResult(chunk_id=chunk_id, locator="test:loc", preview="Test...")
-        ])
+        ctx.add_chunks([ChunkResult(chunk_id=chunk_id, locator="test:loc", preview="Test...")])
 
         # Mock LLM to return claim with the chunk_id (RP13 format)
-        mock_llm.chat.return_value = f"1. The answer is based on evidence [{chunk_id}]\n\nSTATUS: success"
+        mock_llm.chat.return_value = (
+            f"1. The answer is based on evidence [{chunk_id}]\n\nSTATUS: success"
+        )
 
         result = agent.run_single(task, context=ctx)
 
@@ -173,6 +176,7 @@ class TestRunEvidenceQA:
             ctx = ExecutionContext(evidence_store=store)
 
             from jarvis_core.pdf_extractor import ingest_pdf
+
             results = ingest_pdf(str(SAMPLE_PDF), store)
 
             # Get a real chunk_id to use in mock response
@@ -218,6 +222,7 @@ class TestE2EWithMockedLLM:
             # First, we need to ingest and get real chunk_ids
             store = EvidenceStore()
             from jarvis_core.pdf_extractor import ingest_pdf
+
             results = ingest_pdf(str(SAMPLE_PDF), store)
 
             assert len(results) > 0, "Sample PDF should produce chunks"
@@ -228,9 +233,7 @@ class TestE2EWithMockedLLM:
 
             # Mock LLM to return answer with valid chunk_id and overlapping content
             mock_response = (
-                f"Page 1 content is shown here. "
-                f"Reference: {chunk_id}. "
-                f"status: success"
+                f"Page 1 content is shown here. " f"Reference: {chunk_id}. " f"status: success"
             )
             MockLLMClient.return_value.chat.return_value = mock_response
 

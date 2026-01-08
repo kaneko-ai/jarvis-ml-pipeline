@@ -7,11 +7,12 @@ from jarvis_core.network.detector import is_online
 
 logger = logging.getLogger(__name__)
 
+
 class NetworkChangeListener:
     def __init__(self, check_interval: float = 5.0):
         self._check_interval = check_interval
         self._callbacks: list[Callable[[bool], None]] = []
-        self._last_status: bool = True # Assuming start online, or check initial?
+        self._last_status: bool = True  # Assuming start online, or check initial?
         self._running = False
         self._thread: threading.Thread | None = None
 
@@ -38,7 +39,9 @@ class NetworkChangeListener:
 
     def _monitor_loop(self) -> None:
         while self._running:
-            current_status = is_online(force_check=True) # Should probably not force check every time to save bandwidth, but for detection we need it?
+            current_status = is_online(
+                force_check=True
+            )  # Should probably not force check every time to save bandwidth, but for detection we need it?
             # Actually is_online has internal cache if force_check=False.
             # If we want to detect changes, we rely on cache expiration or force check.
             # Assuming cache ttl is handled by detector.

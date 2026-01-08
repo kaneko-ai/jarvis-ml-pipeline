@@ -31,16 +31,19 @@ class MockClient:
     def fetch_data_queue(self, query):
         return f"Fetched: {query}"
 
+
 @pytest.fixture
 def manager():
     mgr = get_degradation_manager()
     mgr.set_level(DegradationLevel.FULL)
     return mgr
 
+
 def test_degradation_aware_full_mode(manager):
     client = MockClient()
     result = client.fetch_data("test")
     assert result == "Fetched: test"
+
 
 def test_degradation_aware_offline_no_cache(manager):
     manager.set_level(DegradationLevel.OFFLINE)
@@ -49,6 +52,7 @@ def test_degradation_aware_offline_no_cache(manager):
     with pytest.raises(OfflineError):
         client.fetch_data("test")
 
+
 def test_degradation_aware_offline_with_cache(manager):
     manager.set_level(DegradationLevel.OFFLINE)
     client = MockClient()
@@ -56,6 +60,7 @@ def test_degradation_aware_offline_with_cache(manager):
 
     result = client.fetch_data("test")
     assert result == "Cached: test"
+
 
 def test_queue_wrapper_offline_no_cache_no_sync_module(manager):
     # If sync manager import fails (simulated here implicitly effectively if not installed or mocked)
@@ -74,10 +79,9 @@ def test_queue_wrapper_offline_no_cache_no_sync_module(manager):
     mock_queue_instance.enqueue.return_value = "job-123"
 
     # Patch sys.modules to simulate the existence of jarvis_core.sync.manager
-    with patch.dict('sys.modules', {
-        'jarvis_core.sync': mock_sync,
-        'jarvis_core.sync.manager': mock_manager_mod
-    }):
+    with patch.dict(
+        "sys.modules", {"jarvis_core.sync": mock_sync, "jarvis_core.sync.manager": mock_manager_mod}
+    ):
         with pytest.raises(OfflineQueuedError) as exc:
             client.fetch_data_queue("test")
 

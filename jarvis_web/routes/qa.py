@@ -1,4 +1,5 @@
 """QA API routes for lint/report/ready status."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -24,7 +25,10 @@ async def lint(request: QALintRequest):
     if not run_dir.exists():
         raise HTTPException(status_code=404, detail="Run not found")
     qa_result = run_qa_gate(run_id=request.run_id, run_dir=run_dir, targets=request.targets)
-    return {"issues": qa_result.get("issues", []), "ready_to_submit": qa_result.get("ready_to_submit")}
+    return {
+        "issues": qa_result.get("issues", []),
+        "ready_to_submit": qa_result.get("ready_to_submit"),
+    }
 
 
 @router.get("/report")

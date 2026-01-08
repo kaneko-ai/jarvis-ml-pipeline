@@ -2,6 +2,7 @@
 
 Per Research OS v3.0 specification.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -128,11 +129,13 @@ def detect_citation_cartel(
     cartel_clusters = []
     for concept, papers in concept_groups.items():
         if len(papers) > 5:
-            cartel_clusters.append({
-                "concept": concept,
-                "paper_count": len(papers),
-                "risk": "potential echo chamber",
-            })
+            cartel_clusters.append(
+                {
+                    "concept": concept,
+                    "paper_count": len(papers),
+                    "risk": "potential echo chamber",
+                }
+            )
 
     return {
         "cartel_clusters": cartel_clusters[:5],

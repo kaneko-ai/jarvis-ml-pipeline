@@ -30,10 +30,10 @@ class StoppingCriterion(ABC):
     @abstractmethod
     def should_stop(self, state: StoppingState) -> bool:
         """Check if stopping criterion is met.
-        
+
         Args:
             state: Current AL state
-            
+
         Returns:
             True if should stop
         """
@@ -55,7 +55,7 @@ class RecallStoppingCriterion(StoppingCriterion):
         min_iterations: int = 5,
     ):
         """Initialize with target recall.
-        
+
         Args:
             target_recall: Target recall to achieve (0-1)
             min_iterations: Minimum iterations before stopping
@@ -80,7 +80,7 @@ class BudgetStoppingCriterion(StoppingCriterion):
 
     def __init__(self, budget_ratio: float = 0.3):
         """Initialize with budget ratio.
-        
+
         Args:
             budget_ratio: Maximum fraction of data to label
         """
@@ -101,7 +101,7 @@ class IterationStoppingCriterion(StoppingCriterion):
 
     def __init__(self, max_iterations: int = 100):
         """Initialize with max iterations.
-        
+
         Args:
             max_iterations: Maximum number of iterations
         """
@@ -121,7 +121,7 @@ class ConsecutiveNegativeStoppingCriterion(StoppingCriterion):
 
     def __init__(self, consecutive_count: int = 50):
         """Initialize with consecutive count.
-        
+
         Args:
             consecutive_count: Number of consecutive negatives to trigger stop
         """
@@ -149,7 +149,7 @@ class KneeStoppingCriterion(StoppingCriterion):
 
     def __init__(self, window_size: int = 10, min_iterations: int = 20):
         """Initialize with window size.
-        
+
         Args:
             window_size: Window for detecting plateau
             min_iterations: Minimum iterations before checking
@@ -169,7 +169,7 @@ class KneeStoppingCriterion(StoppingCriterion):
             return False
 
         # Check if recall has plateaued
-        recent = self._recall_history[-self._window_size:]
+        recent = self._recall_history[-self._window_size :]
         improvement = recent[-1] - recent[0]
 
         # Stop if improvement is minimal
@@ -189,7 +189,7 @@ class CompositeStoppingCriterion(StoppingCriterion):
         require_all: bool = False,
     ):
         """Initialize with multiple criteria.
-        
+
         Args:
             criteria: List of stopping criteria
             require_all: If True, all must be met; if False, any

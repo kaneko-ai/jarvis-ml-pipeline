@@ -1,4 +1,5 @@
 """Paper deduplication registry for scheduler."""
+
 from __future__ import annotations
 
 import json
@@ -46,7 +47,9 @@ def _load_seen() -> set:
     return seen
 
 
-def filter_new_papers(records: Iterable[dict[str, Any]], force_refresh: bool = False) -> list[dict[str, Any]]:
+def filter_new_papers(
+    records: Iterable[dict[str, Any]], force_refresh: bool = False
+) -> list[dict[str, Any]]:
     new_records: list[dict[str, Any]] = []
     with _registry_lock:
         seen = _load_seen()

@@ -2,6 +2,7 @@
 
 Per RP-306, uses citation graph for related paper discovery.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -32,7 +33,7 @@ class CitationPath:
 
 class CitationGraphRetriever:
     """Uses citation graph for discovery.
-    
+
     Per RP-306:
     - Semantic Scholar API integration
     - 2-hop citation/reference exploration
@@ -56,11 +57,11 @@ class CitationGraphRetriever:
         depth: int = 2,
     ) -> dict[str, CitationNode]:
         """Build citation graph from seed papers.
-        
+
         Args:
             seed_papers: List of paper IDs (DOI, PMID, etc.).
             depth: Exploration depth.
-            
+
         Returns:
             Citation graph.
         """
@@ -117,11 +118,11 @@ class CitationGraphRetriever:
         top_k: int = 10,
     ) -> list[CitationNode]:
         """Find related papers via citation graph.
-        
+
         Args:
             paper_id: Source paper ID.
             top_k: Number of results.
-            
+
         Returns:
             Related papers sorted by relevance.
         """
@@ -167,11 +168,11 @@ class CitationGraphRetriever:
         target_id: str,
     ) -> CitationPath | None:
         """Find citation path between two papers.
-        
+
         Args:
             source_id: Source paper.
             target_id: Target paper.
-            
+
         Returns:
             CitationPath or None.
         """

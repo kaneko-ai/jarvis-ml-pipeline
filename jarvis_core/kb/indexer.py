@@ -1,4 +1,5 @@
 """Run artifact -> knowledge base ingestion."""
+
 from __future__ import annotations
 
 import json
@@ -187,7 +188,9 @@ def ingest_run(run_dir: Path, kb_root: Path = Path("data/kb"), run_id: str | Non
         tags = _paper_tags(paper)
         topics = router.classify([title, abstract], tags)
 
-        claim_list = claims_by_paper.get(str(paper_id), []) or claims_by_paper.get(f"PMID:{pmid}", [])
+        claim_list = claims_by_paper.get(str(paper_id), []) or claims_by_paper.get(
+            f"PMID:{pmid}", []
+        )
         claim_markdown = _build_claim_markdown(claim_list)
 
         paper_note_path = kb_root / "notes" / "papers" / f"PMID_{pmid}.md"
@@ -254,7 +257,15 @@ def ingest_run(run_dir: Path, kb_root: Path = Path("data/kb"), run_id: str | Non
 
         body_sections = {
             "topic": (AUTO_TOPIC_START, AUTO_TOPIC_END, "\n".join(summary_lines)),
-            "evidence": (AUTO_EVIDENCE_START, AUTO_EVIDENCE_END, "\n".join(evidence_lines) if evidence_lines else "- Claim → supporting papers（PMIDリンク）"),
+            "evidence": (
+                AUTO_EVIDENCE_START,
+                AUTO_EVIDENCE_END,
+                (
+                    "\n".join(evidence_lines)
+                    if evidence_lines
+                    else "- Claim → supporting papers（PMIDリンク）"
+                ),
+            ),
         }
 
         if topic_note_path.exists():

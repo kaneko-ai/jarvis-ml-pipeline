@@ -49,7 +49,7 @@ class TestGoldenExtraction:
             abstract=paper_data["abstract"],
             year=paper_data.get("year"),
             authors=paper_data.get("authors", []),
-            sections=paper_data.get("sections", {})
+            sections=paper_data.get("sections", {}),
         )
 
         # Check expected values exist in paper
@@ -178,11 +178,17 @@ class TestProvenanceRate:
             Claim(
                 claim_id="c-1",
                 claim_text="Test claim",
-                evidence=[EvidenceLink(
-                    doc_id="test", section="test", chunk_id="t1",
-                    start=0, end=10, confidence=0.9
-                )],
-                claim_type="fact"
+                evidence=[
+                    EvidenceLink(
+                        doc_id="test",
+                        section="test",
+                        chunk_id="t1",
+                        start=0,
+                        end=10,
+                        confidence=0.9,
+                    )
+                ],
+                claim_type="fact",
             )
         ]
 
@@ -198,10 +204,7 @@ class TestProvenanceRate:
 
         claims = [
             Claim(
-                claim_id="c-1",
-                claim_text="Claim without evidence",
-                evidence=[],
-                claim_type="fact"
+                claim_id="c-1", claim_text="Claim without evidence", evidence=[], claim_type="fact"
             )
         ]
 

@@ -1,4 +1,5 @@
 """Collector for past feedback (semi-automatic)."""
+
 from __future__ import annotations
 
 import re

@@ -11,17 +11,17 @@ from dataclasses import dataclass, field
 @dataclass
 class CORSConfig:
     """CORS configuration."""
-    
+
     allow_origins: List[str] = field(default_factory=list)
     allow_credentials: bool = True
     allow_methods: List[str] = field(default_factory=lambda: ["*"])
     allow_headers: List[str] = field(default_factory=lambda: ["*"])
-    
+
     @classmethod
     def from_env(cls) -> "CORSConfig":
         """Create CORS config from environment variables."""
         env = os.getenv("JARVIS_ENV", "development")
-        
+
         if env == "production":
             # Production: restrict origins
             origins_str = os.getenv("CORS_ORIGINS", "")
@@ -37,11 +37,11 @@ class CORSConfig:
 @dataclass
 class RateLimitConfig:
     """Rate limiting configuration."""
-    
+
     requests_per_minute: int = 100
     authenticated_rpm: int = 1000
     burst_limit: int = 20
-    
+
     @classmethod
     def from_env(cls) -> "RateLimitConfig":
         """Create rate limit config from environment."""
@@ -55,11 +55,11 @@ class RateLimitConfig:
 @dataclass
 class DatabaseConfig:
     """Database configuration."""
-    
+
     url: str = ""
     pool_size: int = 5
     max_overflow: int = 10
-    
+
     @classmethod
     def from_env(cls) -> "DatabaseConfig":
         """Create database config from environment."""
@@ -73,11 +73,11 @@ class DatabaseConfig:
 @dataclass
 class SecurityConfig:
     """Security configuration."""
-    
+
     secret_key: str = ""
     token_expiry_hours: int = 24
     require_auth: bool = False
-    
+
     @classmethod
     def from_env(cls) -> "SecurityConfig":
         """Create security config from environment."""
@@ -92,7 +92,7 @@ class SecurityConfig:
 @dataclass
 class AppConfig:
     """Application configuration."""
-    
+
     env: str = "development"
     debug: bool = False
     host: str = "0.0.0.0"
@@ -102,7 +102,7 @@ class AppConfig:
     rate_limit: RateLimitConfig = field(default_factory=RateLimitConfig)
     database: DatabaseConfig = field(default_factory=DatabaseConfig)
     security: SecurityConfig = field(default_factory=SecurityConfig)
-    
+
     @classmethod
     def from_env(cls) -> "AppConfig":
         """Create app config from environment."""
@@ -118,12 +118,12 @@ class AppConfig:
             database=DatabaseConfig.from_env(),
             security=SecurityConfig.from_env(),
         )
-    
+
     @property
     def is_production(self) -> bool:
         """Check if running in production environment."""
         return self.env == "production"
-    
+
     @property
     def is_development(self) -> bool:
         """Check if running in development environment."""
@@ -136,7 +136,7 @@ _config: Optional[AppConfig] = None
 
 def get_config() -> AppConfig:
     """Get application configuration (singleton).
-    
+
     Returns:
         AppConfig instance with current configuration
     """

@@ -39,9 +39,7 @@ class TestSnapshotCreation:
         snapshot = Snapshot(
             run_id="test_run_1",
             query_package=QueryPackage(query="test query", source="pubmed"),
-            search_results=[
-                SearchResultItem(doc_id="pmid:12345", rank=1, score=0.95)
-            ]
+            search_results=[SearchResultItem(doc_id="pmid:12345", rank=1, score=0.95)],
         )
 
         data = snapshot.to_dict()
@@ -58,9 +56,9 @@ class TestSnapshotCreation:
             "query_package": {"query": "test", "source": "pubmed"},
             "search_results": {
                 "total_count": 1,
-                "results": [{"doc_id": "pmid:123", "rank": 1, "score": 0.9}]
+                "results": [{"doc_id": "pmid:123", "rank": 1, "score": 0.9}],
             },
-            "degraded": {"is_degraded": True, "reasons": ["API timeout"]}
+            "degraded": {"is_degraded": True, "reasons": ["API timeout"]},
         }
 
         snapshot = Snapshot.from_dict(data)
@@ -81,8 +79,7 @@ class TestSnapshotManager:
             manager = SnapshotManager(base_path=tmpdir, compress=False)
 
             snapshot = Snapshot(
-                run_id="test_save_load",
-                query_package=QueryPackage(query="save load test")
+                run_id="test_save_load", query_package=QueryPackage(query="save load test")
             )
 
             # 保存
@@ -139,14 +136,14 @@ class TestReproducibility:
             query="CD73 inhibitor tumor",
             source="pubmed",
             filters={"date_from": "2020-01-01"},
-            max_results=20
+            max_results=20,
         )
 
         qp2 = QueryPackage(
             query="CD73 inhibitor tumor",
             source="pubmed",
             filters={"date_from": "2020-01-01"},
-            max_results=20
+            max_results=20,
         )
 
         assert qp1.query_hash == qp2.query_hash
@@ -158,26 +155,24 @@ class TestReproducibility:
             query_package=QueryPackage(query="roundtrip test"),
             search_results=[
                 SearchResultItem(doc_id="pmid:1", rank=1, score=0.9),
-                SearchResultItem(doc_id="pmid:2", rank=2, score=0.8)
+                SearchResultItem(doc_id="pmid:2", rank=2, score=0.8),
             ],
             retrieved_content=[
                 RetrievedContent(
                     doc_id="pmid:1",
                     content_hash="abc123",
                     title="Test Paper",
-                    abstract="Test abstract"
+                    abstract="Test abstract",
                 )
             ],
-            chunk_mapping=[
-                ChunkMapping(doc_id="pmid:1", chunk_id="c0", start=0, end=100)
-            ],
+            chunk_mapping=[ChunkMapping(doc_id="pmid:1", chunk_id="c0", start=0, end=100)],
             model_io=[
                 ModelIO(
                     stage_id="summarization.paper_digest",
                     model_id="gpt-4",
-                    prompt_hash="prompt_hash_123"
+                    prompt_hash="prompt_hash_123",
                 )
-            ]
+            ],
         )
 
         # 辞書経由でラウンドトリップ
@@ -215,7 +210,7 @@ class TestDegradedRun:
         original = Snapshot(
             run_id="degraded_roundtrip",
             is_degraded=True,
-            degraded_reasons=["Partial retrieval", "Model timeout"]
+            degraded_reasons=["Partial retrieval", "Model timeout"],
         )
 
         data = original.to_dict()

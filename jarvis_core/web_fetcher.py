@@ -7,6 +7,7 @@ This module provides:
 Per RP8, this creates the standard entry point for ingesting
 web content into EvidenceStore.
 """
+
 from __future__ import annotations
 
 import logging
@@ -199,4 +200,3 @@ def ingest_url(
         context.add_chunks(results)
 
     return results
-

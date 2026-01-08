@@ -1,4 +1,5 @@
 """Alert evaluation and notification engine."""
+
 from __future__ import annotations
 
 import json
@@ -83,7 +84,9 @@ def _dispatch_notifications(rule: AlertRule, payload: dict[str, Any]) -> list[st
     return sent
 
 
-def _make_payload(rule: AlertRule, title: str, message: str, context: dict[str, Any]) -> dict[str, Any]:
+def _make_payload(
+    rule: AlertRule, title: str, message: str, context: dict[str, Any]
+) -> dict[str, Any]:
     return {
         "ts": datetime.now(timezone.utc).isoformat(),
         "severity": rule.severity,
@@ -163,7 +166,9 @@ def evaluate_rules(rules: list[AlertRule] | None = None) -> list[dict[str, Any]]
         elif condition_type == "oa_zero":
             window = int(rule.condition.get("count", 3))
             recent_counts = counts_events[-window:]
-            if recent_counts and all(int(event.get("counts", {}).get("oa_count", 0)) == 0 for event in recent_counts):
+            if recent_counts and all(
+                int(event.get("counts", {}).get("oa_count", 0)) == 0 for event in recent_counts
+            ):
                 payload = _make_payload(
                     rule,
                     "OA count zero",

@@ -21,6 +21,7 @@ from jarvis_core.pipelines.stage_registry import register_stage
 # RETRIEVAL ステージ群
 # ============================================
 
+
 @register_stage("retrieval.query_expand", "MeSH/同義語展開")
 def stage_query_expand(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """クエリ展開ステージ。"""
@@ -42,21 +43,29 @@ def stage_query_expand(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     artifacts.metadata["expanded_queries"] = list(set(expanded))
 
     # Provenance: 展開ログ
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Query expanded: {goal} -> {len(expanded)} variants",
-        evidence=[EvidenceLink(
-            doc_id="internal",
-            section="query_expand",
-            chunk_id="expansion_log",
-            start=0, end=len(goal),
-            confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Query expanded: {goal} -> {len(expanded)} variants",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="query_expand",
+                    chunk_id="expansion_log",
+                    start=0,
+                    end=len(goal),
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
-    log_audit("retrieval.query_expand", "completed",
-              details={"original": goal, "expanded_count": len(expanded)})
+    log_audit(
+        "retrieval.query_expand",
+        "completed",
+        details={"original": goal, "expanded_count": len(expanded)},
+    )
 
     return artifacts
 
@@ -69,20 +78,28 @@ def stage_query_decompose(context: TaskContext, artifacts: Artifacts) -> Artifac
     goal = context.goal
 
     # AND/OR分割
-    parts = re.split(r'\s+(?:AND|OR)\s+', goal, flags=re.IGNORECASE)
+    parts = re.split(r"\s+(?:AND|OR)\s+", goal, flags=re.IGNORECASE)
     parts = [p.strip() for p in parts if p.strip()]
 
     artifacts.metadata["query_parts"] = parts
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Query decomposed into {len(parts)} parts",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="query_decompose",
-            chunk_id="decompose_log", start=0, end=len(goal), confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Query decomposed into {len(parts)} parts",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="query_decompose",
+                    chunk_id="decompose_log",
+                    start=0,
+                    end=len(goal),
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("retrieval.query_decompose", "completed")
     return artifacts
@@ -92,7 +109,7 @@ def stage_query_decompose(context: TaskContext, artifacts: Artifacts) -> Artifac
 def stage_search_bm25(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """
     BM25検索ステージ.
-    
+
     PubMed E-utilities経由で実際に検索を実行。
     環境変数 USE_MOCK_PUBMED=1 でモックモードに切替可能。
     """
@@ -105,7 +122,7 @@ def stage_search_bm25(context: TaskContext, artifacts: Artifacts) -> Artifacts:
         # モックモード（CIやオフライン用）
         artifacts.metadata["bm25_results"] = [
             {"doc_id": "pmid:12345", "score": 0.85},
-            {"doc_id": "pmid:67890", "score": 0.72}
+            {"doc_id": "pmid:67890", "score": 0.72},
         ]
         artifacts.metadata["search_source"] = "mock"
     else:
@@ -122,12 +139,14 @@ def stage_search_bm25(context: TaskContext, artifacts: Artifacts) -> Artifacts:
                 # PaperDocをPaperに変換して追加
                 artifacts.add_paper(paper.to_paper())
 
-                bm25_results.append({
-                    "doc_id": f"pmid:{paper.pmid}",
-                    "score": 1.0 - (i * 0.05),  # 順位ベースのスコア
-                    "pmcid": paper.pmcid,
-                    "is_oa": paper.is_oa
-                })
+                bm25_results.append(
+                    {
+                        "doc_id": f"pmid:{paper.pmid}",
+                        "score": 1.0 - (i * 0.05),  # 順位ベースのスコア
+                        "pmcid": paper.pmcid,
+                        "is_oa": paper.is_oa,
+                    }
+                )
 
             artifacts.metadata["bm25_results"] = bm25_results
             artifacts.metadata["search_source"] = "pubmed_api"
@@ -141,18 +160,29 @@ def stage_search_bm25(context: TaskContext, artifacts: Artifacts) -> Artifacts:
 
     result_count = len(artifacts.metadata.get("bm25_results", []))
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"PubMed search executed: {result_count} results for '{goal[:50]}'",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="search_bm25",
-            chunk_id="search_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"PubMed search executed: {result_count} results for '{goal[:50]}'",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="search_bm25",
+                    chunk_id="search_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
-    log_audit("retrieval.search_bm25", "completed",
-              details={"results": result_count, "source": artifacts.metadata.get("search_source")})
+    log_audit(
+        "retrieval.search_bm25",
+        "completed",
+        details={"results": result_count, "source": artifacts.metadata.get("search_source")},
+    )
     return artifacts
 
 
@@ -166,15 +196,23 @@ def stage_embed_sectionwise(context: TaskContext, artifacts: Artifacts) -> Artif
             text = paper.title if section == "title" else (paper.abstract or "")
             artifacts.embeddings[chunk_id] = [hash(text) % 1000 / 1000.0]
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Embedded {len(artifacts.papers)} papers",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="embed",
-            chunk_id="embed_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Embedded {len(artifacts.papers)} papers",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="embed",
+                    chunk_id="embed_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("retrieval.embed_sectionwise", "completed")
     return artifacts
@@ -189,15 +227,23 @@ def stage_rerank_crossencoder(context: TaskContext, artifacts: Artifacts) -> Art
     reranked = sorted(results, key=lambda x: x["score"], reverse=True)
     artifacts.metadata["reranked_results"] = reranked
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Reranked {len(reranked)} results",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="rerank",
-            chunk_id="rerank_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Reranked {len(reranked)} results",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="rerank",
+                    chunk_id="rerank_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("retrieval.rerank_crossencoder", "completed")
     return artifacts
@@ -218,15 +264,23 @@ def stage_dedup(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     artifacts.papers = unique
     removed = original_count - len(unique)
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Removed {removed} duplicates",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="dedup",
-            chunk_id="dedup_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Removed {removed} duplicates",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="dedup",
+                    chunk_id="dedup_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("retrieval.dedup", "completed", details={"removed": removed})
     return artifacts
@@ -239,15 +293,23 @@ def stage_cluster_map(context: TaskContext, artifacts: Artifacts) -> Artifacts:
         {"cluster_id": 0, "papers": [p.doc_id for p in artifacts.papers[:5]]},
     ]
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Clustering completed",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="cluster",
-            chunk_id="cluster_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Clustering completed",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="cluster",
+                    chunk_id="cluster_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("retrieval.cluster_map", "completed")
     return artifacts
@@ -257,6 +319,7 @@ def stage_cluster_map(context: TaskContext, artifacts: Artifacts) -> Artifacts:
 # SCREENING ステージ群
 # ============================================
 
+
 @register_stage("screening.pico_extract", "PICO/PECO抽出")
 def stage_pico_extract(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """PICO抽出ステージ。"""
@@ -265,18 +328,26 @@ def stage_pico_extract(context: TaskContext, artifacts: Artifacts) -> Artifacts:
             "P": "patients",
             "I": "intervention",
             "C": "control",
-            "O": "outcome"
+            "O": "outcome",
         }
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"PICO extracted for {len(artifacts.papers)} papers",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="pico",
-            chunk_id="pico_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"PICO extracted for {len(artifacts.papers)} papers",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="pico",
+                    chunk_id="pico_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("screening.pico_extract", "completed")
     return artifacts
@@ -288,15 +359,23 @@ def stage_domain_routing(context: TaskContext, artifacts: Artifacts) -> Artifact
     domain = context.domain
     artifacts.metadata["routed_domain"] = domain
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Routed to domain: {domain}",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="routing",
-            chunk_id="route_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Routed to domain: {domain}",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="routing",
+                    chunk_id="route_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("screening.domain_routing", "completed")
     return artifacts
@@ -316,15 +395,23 @@ def stage_study_type_classify(context: TaskContext, artifacts: Artifacts) -> Art
 
         artifacts.metadata[f"{paper.doc_id}_study_type"] = study_type
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Study types classified",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="classify",
-            chunk_id="classify_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Study types classified",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="classify",
+                    chunk_id="classify_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("screening.study_type_classify", "completed")
     return artifacts
@@ -338,15 +425,23 @@ def stage_oa_check(context: TaskContext, artifacts: Artifacts) -> Artifacts:
         is_oa = paper.doi is not None and "10.1038" in (paper.doi or "")
         artifacts.metadata[f"{paper.doc_id}_is_oa"] = is_oa
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="OA status checked",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="oa_check",
-            chunk_id="oa_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="OA status checked",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="oa_check",
+                    chunk_id="oa_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("screening.oa_check", "completed")
     return artifacts
@@ -367,15 +462,23 @@ def stage_filter_rules(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     artifacts.papers = filtered
     removed = original_count - len(filtered)
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Filtered {removed} papers by rules",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="filter",
-            chunk_id="filter_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Filtered {removed} papers by rules",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="filter",
+                    chunk_id="filter_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("screening.filter_rules", "completed", details={"removed": removed})
     return artifacts
@@ -384,6 +487,7 @@ def stage_filter_rules(context: TaskContext, artifacts: Artifacts) -> Artifacts:
 # ============================================
 # EXTRACTION ステージ群
 # ============================================
+
 
 @register_stage("extraction.claims", "Claim抽出")
 def stage_extract_claims(context: TaskContext, artifacts: Artifacts) -> Artifacts:
@@ -401,23 +505,26 @@ def stage_extract_claims(context: TaskContext, artifacts: Artifacts) -> Artifact
         for pattern in patterns:
             matches = re.findall(pattern, text, re.IGNORECASE)
             for match in matches:
-                artifacts.add_claim(Claim(
-                    claim_id=f"c-{uuid.uuid4().hex[:8]}",
-                    claim_text=match.strip(),
-                    evidence=[EvidenceLink(
-                        doc_id=paper.doc_id,
-                        section="abstract",
-                        chunk_id=f"{paper.doc_id}_abstract",
-                        start=text.find(match),
-                        end=text.find(match) + len(match),
-                        confidence=0.85,
-                        text=match[:100]
-                    )],
-                    claim_type="fact"
-                ))
+                artifacts.add_claim(
+                    Claim(
+                        claim_id=f"c-{uuid.uuid4().hex[:8]}",
+                        claim_text=match.strip(),
+                        evidence=[
+                            EvidenceLink(
+                                doc_id=paper.doc_id,
+                                section="abstract",
+                                chunk_id=f"{paper.doc_id}_abstract",
+                                start=text.find(match),
+                                end=text.find(match) + len(match),
+                                confidence=0.85,
+                                text=match[:100],
+                            )
+                        ],
+                        claim_type="fact",
+                    )
+                )
 
-    log_audit("extraction.claims", "completed",
-              details={"claims_count": len(artifacts.claims)})
+    log_audit("extraction.claims", "completed", details={"claims_count": len(artifacts.claims)})
     return artifacts
 
 
@@ -428,25 +535,36 @@ def stage_evidence_link(context: TaskContext, artifacts: Artifacts) -> Artifacts
     for claim in artifacts.claims:
         if not claim.evidence:
             # 証拠がない場合は警告付きで追加
-            claim.evidence.append(EvidenceLink(
-                doc_id="unknown",
-                section="unverified",
-                chunk_id="unverified",
-                start=0, end=0,
-                confidence=0.0,
-                text="No evidence found"
-            ))
+            claim.evidence.append(
+                EvidenceLink(
+                    doc_id="unknown",
+                    section="unverified",
+                    chunk_id="unverified",
+                    start=0,
+                    end=0,
+                    confidence=0.0,
+                    text="No evidence found",
+                )
+            )
             claim.claim_type = "hypothesis"  # Downgrade
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Evidence linking completed",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="evidence_link",
-            chunk_id="link_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Evidence linking completed",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="evidence_link",
+                    chunk_id="link_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("extraction.evidence_link", "completed")
     return artifacts
@@ -470,23 +588,27 @@ def stage_extract_numeric(context: TaskContext, artifacts: Artifacts) -> Artifac
         for num_type, pattern in patterns.items():
             matches = re.findall(pattern, text, re.IGNORECASE)
             for match in matches:
-                numerics.append({
-                    "doc_id": paper.doc_id,
-                    "type": num_type,
-                    "value": match
-                })
+                numerics.append({"doc_id": paper.doc_id, "type": num_type, "value": match})
 
     artifacts.metadata["numerics"] = numerics
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Extracted {len(numerics)} numeric values",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="numeric",
-            chunk_id="numeric_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Extracted {len(numerics)} numeric values",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="numeric",
+                    chunk_id="numeric_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("extraction.numeric", "completed")
     return artifacts
@@ -506,15 +628,23 @@ def stage_extract_methods(context: TaskContext, artifacts: Artifacts) -> Artifac
 
     artifacts.metadata["methods"] = methods
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Extracted {len(methods)} methods",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="methods",
-            chunk_id="methods_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Extracted {len(methods)} methods",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="methods",
+                    chunk_id="methods_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("extraction.methods", "completed")
     return artifacts
@@ -534,15 +664,23 @@ def stage_extract_stats(context: TaskContext, artifacts: Artifacts) -> Artifacts
 
     artifacts.metadata["stats"] = stats
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Extracted {len(stats)} statistical methods",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="stats",
-            chunk_id="stats_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Extracted {len(stats)} statistical methods",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="stats",
+                    chunk_id="stats_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("extraction.stats", "completed")
     return artifacts
@@ -568,15 +706,23 @@ def stage_extract_limitations(context: TaskContext, artifacts: Artifacts) -> Art
 
     artifacts.metadata["limitations"] = limitations
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Extracted {len(limitations)} limitations",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="limitations",
-            chunk_id="lim_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Extracted {len(limitations)} limitations",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="limitations",
+                    chunk_id="lim_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("extraction.limitations", "completed")
     return artifacts
@@ -587,15 +733,23 @@ def stage_extract_figures(context: TaskContext, artifacts: Artifacts) -> Artifac
     """Figure要点抽出ステージ。"""
     artifacts.metadata["figures"] = []
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Figure extraction completed",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="figures",
-            chunk_id="fig_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Figure extraction completed",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="figures",
+                    chunk_id="fig_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("extraction.figures", "completed")
     return artifacts
@@ -606,15 +760,23 @@ def stage_extract_citations(context: TaskContext, artifacts: Artifacts) -> Artif
     """Citation context抽出ステージ。"""
     artifacts.metadata["citations"] = []
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text="Citation extraction completed",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="citations",
-            chunk_id="cite_log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text="Citation extraction completed",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="citations",
+                    chunk_id="cite_log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("extraction.citations", "completed")
     return artifacts

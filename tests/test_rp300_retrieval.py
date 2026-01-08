@@ -2,6 +2,7 @@
 
 Core tests for new retrieval features.
 """
+
 import pytest
 
 pytestmark = pytest.mark.core

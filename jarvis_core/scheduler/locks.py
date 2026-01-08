@@ -1,4 +1,5 @@
 """Schedule execution locks."""
+
 from __future__ import annotations
 
 import json
@@ -34,7 +35,9 @@ def _read_lock(path: Path) -> dict | None:
         return None
 
 
-def acquire_schedule_lock(schedule_id: str, ttl_seconds: int, margin_seconds: int = 60) -> LockHandle | None:
+def acquire_schedule_lock(
+    schedule_id: str, ttl_seconds: int, margin_seconds: int = 60
+) -> LockHandle | None:
     key = f"lock:schedule:{schedule_id}"
     path = LOCK_DIR / f"{schedule_id}.lock"
     expires_at = time.time() + ttl_seconds + margin_seconds

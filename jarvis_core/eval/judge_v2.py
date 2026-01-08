@@ -4,6 +4,7 @@ Phase Loop 3: Judge二系統化
 - Judge-A: 形式チェック（citation/構造）
 - Judge-B: 意味整合チェック（粗くてよい）
 """
+
 from __future__ import annotations
 
 import logging
@@ -16,13 +17,15 @@ logger = logging.getLogger(__name__)
 
 class JudgeType(Enum):
     """Judge種別."""
-    FORM = "form"      # 形式チェック (Judge-A)
+
+    FORM = "form"  # 形式チェック (Judge-A)
     SEMANTIC = "semantic"  # 意味整合チェック (Judge-B)
 
 
 @dataclass
 class JudgeResult:
     """Judge結果."""
+
     judge_type: JudgeType
     passed: bool
     issues: list[dict[str, Any]] = field(default_factory=list)
@@ -32,7 +35,7 @@ class JudgeResult:
 
 class FormJudge:
     """Judge-A: 形式チェック.
-    
+
     チェック項目:
     - citation存在
     - citation構造（必須フィールド）
@@ -50,12 +53,12 @@ class FormJudge:
         result: dict[str, Any] | None = None,
     ) -> JudgeResult:
         """形式をチェック.
-        
+
         Args:
             answer: 回答
             citations: 引用リスト
             result: 結果全体（オプション）
-        
+
         Returns:
             JudgeResult
         """
@@ -68,11 +71,13 @@ class FormJudge:
         if citations:
             checks_passed += 1
         else:
-            issues.append({
-                "check": "citation_exists",
-                "passed": False,
-                "msg": "No citations provided",
-            })
+            issues.append(
+                {
+                    "check": "citation_exists",
+                    "passed": False,
+                    "msg": "No citations provided",
+                }
+            )
 
         # 2. Citation構造チェック
         if citations:
@@ -82,12 +87,14 @@ class FormJudge:
                 if not missing:
                     checks_passed += 1
                 else:
-                    issues.append({
-                        "check": "citation_structure",
-                        "passed": False,
-                        "index": i,
-                        "missing": list(missing),
-                    })
+                    issues.append(
+                        {
+                            "check": "citation_structure",
+                            "passed": False,
+                            "index": i,
+                            "missing": list(missing),
+                        }
+                    )
 
         # 3. Locator存在チェック
         for i, cit in enumerate(citations):
@@ -96,23 +103,27 @@ class FormJudge:
             if locator and self.REQUIRED_LOCATOR_FIELDS.issubset(set(locator.keys())):
                 checks_passed += 1
             else:
-                issues.append({
-                    "check": "locator_exists",
-                    "passed": False,
-                    "index": i,
-                    "msg": "Missing or incomplete locator",
-                })
+                issues.append(
+                    {
+                        "check": "locator_exists",
+                        "passed": False,
+                        "index": i,
+                        "msg": "Missing or incomplete locator",
+                    }
+                )
 
         # 4. Answer存在チェック
         total_checks += 1
         if answer and len(answer.strip()) > 0:
             checks_passed += 1
         else:
-            issues.append({
-                "check": "answer_exists",
-                "passed": False,
-                "msg": "Answer is empty",
-            })
+            issues.append(
+                {
+                    "check": "answer_exists",
+                    "passed": False,
+                    "msg": "Answer is empty",
+                }
+            )
 
         score = checks_passed / total_checks if total_checks > 0 else 0.0
         passed = len([i for i in issues if not i.get("passed", True)]) == 0
@@ -131,7 +142,7 @@ class FormJudge:
 
 class SemanticJudge:
     """Judge-B: 意味整合チェック.
-    
+
     チェック項目（粗い実装）:
     - 回答と引用の関連性（キーワード重複）
     - 論理的一貫性（簡易）
@@ -144,12 +155,12 @@ class SemanticJudge:
         claims: list[dict[str, Any]] | None = None,
     ) -> JudgeResult:
         """意味整合をチェック.
-        
+
         Args:
             answer: 回答
             citations: 引用リスト
             claims: 主張リスト（オプション）
-        
+
         Returns:
             JudgeResult
         """
@@ -173,22 +184,26 @@ class SemanticJudge:
         if citation_overlap > 0 or not citations:
             checks_passed += 1
         else:
-            issues.append({
-                "check": "answer_citation_relevance",
-                "passed": False,
-                "msg": "Answer may not be related to citations",
-            })
+            issues.append(
+                {
+                    "check": "answer_citation_relevance",
+                    "passed": False,
+                    "msg": "Answer may not be related to citations",
+                }
+            )
 
         # 2. 長さの妥当性チェック
         total_checks += 1
         if len(answer) >= 10:  # 最低10文字
             checks_passed += 1
         else:
-            issues.append({
-                "check": "answer_length",
-                "passed": False,
-                "msg": "Answer is too short",
-            })
+            issues.append(
+                {
+                    "check": "answer_length",
+                    "passed": False,
+                    "msg": "Answer is too short",
+                }
+            )
 
         # 3. 主張との整合性（claimsがある場合）
         if claims:
@@ -197,18 +212,22 @@ class SemanticJudge:
             claim_found = False
             for claim in claims:
                 claim_text = claim.get("claim_text", "")
-                if claim_text and any(word in answer.lower() for word in claim_text.lower().split()[:3]):
+                if claim_text and any(
+                    word in answer.lower() for word in claim_text.lower().split()[:3]
+                ):
                     claim_found = True
                     break
 
             if claim_found:
                 checks_passed += 1
             else:
-                issues.append({
-                    "check": "claim_consistency",
-                    "passed": False,
-                    "msg": "Answer may not reflect extracted claims",
-                })
+                issues.append(
+                    {
+                        "check": "claim_consistency",
+                        "passed": False,
+                        "msg": "Answer may not reflect extracted claims",
+                    }
+                )
 
         score = checks_passed / total_checks if total_checks > 0 else 0.0
         passed = score >= 0.5  # 50%以上でpass
@@ -227,7 +246,7 @@ class SemanticJudge:
 
 class IntegratedJudge:
     """統合Judge.
-    
+
     Judge-AとJudge-Bの結果を統合。
     """
 
@@ -243,7 +262,7 @@ class IntegratedJudge:
         result: dict[str, Any] | None = None,
     ) -> dict[str, JudgeResult]:
         """統合判定.
-        
+
         Returns:
             {"form": JudgeResult, "semantic": JudgeResult}
         """
@@ -262,7 +281,7 @@ class IntegratedJudge:
         claims: list[dict[str, Any]] | None = None,
     ) -> bool:
         """総合判定.
-        
+
         規約: 両方passで成功（部分成功はsuccessにしない）
         """
         results = self.judge(answer, citations, claims)

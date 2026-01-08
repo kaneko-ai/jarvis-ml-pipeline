@@ -1,6 +1,7 @@
 """JARVIS Advanced Features - Phase 6-10 Features (201-300)
 All features are FREE - no paid APIs required.
 """
+
 import hashlib
 import json
 import math
@@ -13,15 +14,16 @@ from datetime import datetime, timedelta
 # PHASE 6: ADVANCED ANALYTICS (201-220)
 # ============================================
 
+
 class MetaAnalysisBot:
     """Automated meta-analysis (201)."""
 
     def run_meta_analysis(self, studies: list[dict]) -> dict:
         """Run simple meta-analysis.
-        
+
         Args:
             studies: List of studies with effect sizes and sample sizes
-            
+
         Returns:
             Meta-analysis results
         """
@@ -43,8 +45,10 @@ class MetaAnalysisBot:
         pooled_effect = weighted_sum / total_weight if total_weight > 0 else 0
 
         # Calculate heterogeneity (simplified I²)
-        q_stat = sum((s.get("effect_size", 0) - pooled_effect) ** 2 * s.get("sample_size", 1)
-                    for s in studies)
+        q_stat = sum(
+            (s.get("effect_size", 0) - pooled_effect) ** 2 * s.get("sample_size", 1)
+            for s in studies
+        )
         df = len(studies) - 1
         i_squared = max(0, (q_stat - df) / q_stat * 100) if q_stat > 0 else 0
 
@@ -53,7 +57,9 @@ class MetaAnalysisBot:
             "n_studies": len(studies),
             "total_sample_size": sum(s.get("sample_size", 0) for s in studies),
             "heterogeneity_i2": round(i_squared, 1),
-            "heterogeneity_interpretation": "low" if i_squared < 25 else "moderate" if i_squared < 75 else "high"
+            "heterogeneity_interpretation": (
+                "low" if i_squared < 25 else "moderate" if i_squared < 75 else "high"
+            ),
         }
 
 
@@ -107,12 +113,14 @@ class NetworkMetaAnalysis:
         for comp in comparisons:
             nodes.add(comp["treatment_a"])
             nodes.add(comp["treatment_b"])
-            edges.append({
-                "source": comp["treatment_a"],
-                "target": comp["treatment_b"],
-                "n_studies": comp.get("n_studies", 1),
-                "effect": comp.get("effect_size", 0)
-            })
+            edges.append(
+                {
+                    "source": comp["treatment_a"],
+                    "target": comp["treatment_b"],
+                    "n_studies": comp.get("n_studies", 1),
+                    "effect": comp.get("effect_size", 0),
+                }
+            )
 
         return {"nodes": list(nodes), "edges": edges, "n_comparisons": len(edges)}
 
@@ -120,14 +128,17 @@ class NetworkMetaAnalysis:
 class BayesianStatsEngine:
     """Bayesian statistics (204)."""
 
-    def update_belief(self, prior_mean: float, prior_std: float,
-                     data_mean: float, data_std: float, n: int) -> dict:
+    def update_belief(
+        self, prior_mean: float, prior_std: float, data_mean: float, data_std: float, n: int
+    ) -> dict:
         """Update belief with new data (conjugate normal-normal)."""
-        prior_precision = 1 / (prior_std ** 2)
-        data_precision = n / (data_std ** 2)
+        prior_precision = 1 / (prior_std**2)
+        data_precision = n / (data_std**2)
 
         posterior_precision = prior_precision + data_precision
-        posterior_mean = (prior_precision * prior_mean + data_precision * data_mean) / posterior_precision
+        posterior_mean = (
+            prior_precision * prior_mean + data_precision * data_mean
+        ) / posterior_precision
         posterior_std = (1 / posterior_precision) ** 0.5
 
         return {
@@ -135,8 +146,8 @@ class BayesianStatsEngine:
             "posterior_std": round(posterior_std, 3),
             "credible_interval_95": (
                 round(posterior_mean - 1.96 * posterior_std, 3),
-                round(posterior_mean + 1.96 * posterior_std, 3)
-            )
+                round(posterior_mean + 1.96 * posterior_std, 3),
+            ),
         }
 
 
@@ -161,7 +172,7 @@ class CausalInferenceAgent:
             "ate": round(ate, 3),
             "standard_error": round(se, 3),
             "confidence_interval_95": (round(ate - 1.96 * se, 3), round(ate + 1.96 * se, 3)),
-            "significant": abs(ate) > 1.96 * se
+            "significant": abs(ate) > 1.96 * se,
         }
 
 
@@ -188,12 +199,7 @@ class TimeSeriesAnalyzer:
         # Residual
         residual = [data[i] - trend[i] - seasonal[i] for i in range(n)]
 
-        return {
-            "trend": trend,
-            "seasonal": seasonal,
-            "residual": residual,
-            "period": period
-        }
+        return {"trend": trend, "seasonal": seasonal, "residual": residual, "period": period}
 
     def forecast(self, data: list[float], steps: int = 5) -> list[float]:
         """Simple forecasting."""
@@ -201,7 +207,7 @@ class TimeSeriesAnalyzer:
             return [data[-1] if data else 0] * steps
 
         # Linear extrapolation
-        slope = (data[-1] - data[-2])
+        slope = data[-1] - data[-2]
         return [data[-1] + slope * (i + 1) for i in range(steps)]
 
 
@@ -231,7 +237,7 @@ class SurvivalAnalysisBot:
             "curve": curve,
             "median_survival": next((t for t, s in curve if s < 0.5), None),
             "n_events": sum(events),
-            "n_censored": len(times) - sum(events)
+            "n_censored": len(times) - sum(events),
         }
 
 
@@ -250,8 +256,9 @@ class MissingDataHandler:
         patterns = defaultdict(int)
 
         for i in range(n_rows):
-            pattern = tuple(1 if i < len(data[k]) and data[k][i] is not None else 0
-                          for k in sorted(data.keys()))
+            pattern = tuple(
+                1 if i < len(data[k]) and data[k][i] is not None else 0 for k in sorted(data.keys())
+            )
             patterns[pattern] += 1
 
         return {"n_patterns": len(patterns), "patterns": dict(patterns)}
@@ -260,8 +267,13 @@ class MissingDataHandler:
 class PowerAnalysisCalculator:
     """Power analysis (209)."""
 
-    def calculate_sample_size(self, effect_size: float, alpha: float = 0.05,
-                             power: float = 0.8, design: str = "two_sample") -> int:
+    def calculate_sample_size(
+        self,
+        effect_size: float,
+        alpha: float = 0.05,
+        power: float = 0.8,
+        design: str = "two_sample",
+    ) -> int:
         """Calculate required sample size."""
         z_alpha = 1.96 if alpha == 0.05 else 2.58 if alpha == 0.01 else 1.65
         z_beta = 0.84 if power == 0.8 else 1.28 if power == 0.9 else 0.52
@@ -299,7 +311,7 @@ class PublicationBiasDetector:
             return {"error": "Length mismatch"}
 
         # Calculate precision
-        precisions = [1/se for se in standard_errors if se > 0]
+        precisions = [1 / se for se in standard_errors if se > 0]
 
         # Simple correlation check
         mean_effect = sum(effect_sizes) / len(effect_sizes)
@@ -308,7 +320,7 @@ class PublicationBiasDetector:
         return {
             "asymmetry_detected": abs(mean_effect) > 0.5,  # Simplified
             "mean_effect": round(mean_effect, 3),
-            "recommendation": "Check funnel plot visually"
+            "recommendation": "Check funnel plot visually",
         }
 
 
@@ -320,7 +332,7 @@ class HeterogeneityAnalyzer:
         if not effect_sizes:
             return {"i_squared": 0}
 
-        weights = [1/v if v > 0 else 1 for v in variances]
+        weights = [1 / v if v > 0 else 1 for v in variances]
         weighted_mean = sum(e * w for e, w in zip(effect_sizes, weights)) / sum(weights)
 
         q = sum(w * (e - weighted_mean) ** 2 for e, w in zip(effect_sizes, weights))
@@ -331,7 +343,7 @@ class HeterogeneityAnalyzer:
             "i_squared": round(i2, 1),
             "interpretation": "low" if i2 < 25 else "moderate" if i2 < 75 else "high",
             "q_statistic": round(q, 2),
-            "df": df
+            "df": df,
         }
 
 
@@ -344,8 +356,11 @@ class SensitivityAnalysisBot:
 
 class SubgroupAnalyzer:
     def analyze(self, data: dict[str, list[float]]) -> dict:
-        return {group: {"mean": sum(vals)/len(vals), "n": len(vals)}
-                for group, vals in data.items() if vals}
+        return {
+            group: {"mean": sum(vals) / len(vals), "n": len(vals)}
+            for group, vals in data.items()
+            if vals
+        }
 
 
 class RegressionWizard:
@@ -353,9 +368,9 @@ class RegressionWizard:
         n = len(x)
         sum_x, sum_y = sum(x), sum(y)
         sum_xy = sum(xi * yi for xi, yi in zip(x, y))
-        sum_x2 = sum(xi ** 2 for xi in x)
+        sum_x2 = sum(xi**2 for xi in x)
 
-        slope = (n * sum_xy - sum_x * sum_y) / (n * sum_x2 - sum_x ** 2)
+        slope = (n * sum_xy - sum_x * sum_y) / (n * sum_x2 - sum_x**2)
         intercept = (sum_y - slope * sum_x) / n
 
         return {"slope": round(slope, 4), "intercept": round(intercept, 4)}
@@ -367,26 +382,38 @@ class MLPipelineBuilder:
 
 
 class FeatureSelectionAgent:
-    def select_features(self, feature_names: list[str], importances: list[float], threshold: float = 0.1) -> list[str]:
+    def select_features(
+        self, feature_names: list[str], importances: list[float], threshold: float = 0.1
+    ) -> list[str]:
         return [f for f, i in zip(feature_names, importances) if i >= threshold]
 
 
 class ModelComparisonTool:
     def compare(self, models: dict[str, float]) -> dict:
         best = max(models.items(), key=lambda x: x[1])
-        return {"best_model": best[0], "best_score": best[1], "rankings": sorted(models.items(), key=lambda x: x[1], reverse=True)}
+        return {
+            "best_model": best[0],
+            "best_score": best[1],
+            "rankings": sorted(models.items(), key=lambda x: x[1], reverse=True),
+        }
 
 
 class CrossValidationManager:
     def cross_validate(self, n_folds: int = 5) -> dict:
         scores = [random.uniform(0.7, 0.9) for _ in range(n_folds)]
-        return {"scores": scores, "mean": sum(scores)/len(scores), "std": (sum((s - sum(scores)/len(scores))**2 for s in scores)/len(scores))**0.5}
+        return {
+            "scores": scores,
+            "mean": sum(scores) / len(scores),
+            "std": (sum((s - sum(scores) / len(scores)) ** 2 for s in scores) / len(scores)) ** 0.5,
+        }
 
 
 class ExplainableAIReporter:
     def generate_report(self, model_name: str, feature_importances: dict) -> str:
         report = f"# Model Explanation: {model_name}\n\n## Feature Importances\n\n"
-        for feature, importance in sorted(feature_importances.items(), key=lambda x: x[1], reverse=True):
+        for feature, importance in sorted(
+            feature_importances.items(), key=lambda x: x[1], reverse=True
+        ):
             report += f"- {feature}: {importance:.3f}\n"
         return report
 
@@ -394,6 +421,7 @@ class ExplainableAIReporter:
 # ============================================
 # PHASE 7: NEXT-GEN VISUALIZATION (221-240)
 # ============================================
+
 
 class MoleculeViewer3D:
     """3D molecule viewer (221)."""
@@ -405,7 +433,7 @@ class MoleculeViewer3D:
             "format": "pdb",
             "style": {style: {"color": "spectrum"}},
             "surface": {"opacity": 0.7},
-            "viewer_options": {"backgroundColor": "white"}
+            "viewer_options": {"backgroundColor": "white"},
         }
 
 
@@ -415,9 +443,15 @@ class PathwayMapBuilder:
     def build_pathway(self, nodes: list[dict], edges: list[dict]) -> dict:
         """Build pathway visualization data."""
         return {
-            "nodes": [{"id": n["id"], "label": n.get("label", n["id"]), "type": n.get("type", "gene")} for n in nodes],
-            "edges": [{"source": e["source"], "target": e["target"], "type": e.get("type", "activation")} for e in edges],
-            "layout": "hierarchical"
+            "nodes": [
+                {"id": n["id"], "label": n.get("label", n["id"]), "type": n.get("type", "gene")}
+                for n in nodes
+            ],
+            "edges": [
+                {"source": e["source"], "target": e["target"], "type": e.get("type", "activation")}
+                for e in edges
+            ],
+            "layout": "hierarchical",
         }
 
 
@@ -431,7 +465,7 @@ class ChromosomeBrowser:
             "start": start,
             "end": end,
             "length": end - start,
-            "features": []  # Would be populated from database
+            "features": [],  # Would be populated from database
         }
 
 
@@ -441,18 +475,15 @@ class PhylogeneticTreeViewer:
     def parse_newick(self, newick: str) -> dict:
         """Parse Newick format tree."""
         # Simplified parser
-        return {
-            "format": "newick",
-            "raw": newick,
-            "n_leaves": newick.count(",") + 1
-        }
+        return {"format": "newick", "raw": newick, "n_leaves": newick.count(",") + 1}
 
 
 class AdvancedHeatmapGenerator:
     """Advanced heatmaps (225)."""
 
-    def generate(self, data: list[list[float]], row_labels: list[str] = None,
-                col_labels: list[str] = None) -> dict:
+    def generate(
+        self, data: list[list[float]], row_labels: list[str] = None, col_labels: list[str] = None
+    ) -> dict:
         """Generate heatmap configuration."""
         return {
             "data": data,
@@ -460,45 +491,49 @@ class AdvancedHeatmapGenerator:
             "cols": col_labels or [f"Col_{i}" for i in range(len(data[0]))] if data else [],
             "colorscale": "viridis",
             "cluster_rows": True,
-            "cluster_cols": True
+            "cluster_cols": True,
         }
 
 
 class VolcanoPlotBuilder:
     """Volcano plots (226)."""
 
-    def build(self, log2_fc: list[float], neg_log_pvalue: list[float],
-              gene_names: list[str] = None) -> dict:
+    def build(
+        self, log2_fc: list[float], neg_log_pvalue: list[float], gene_names: list[str] = None
+    ) -> dict:
         """Build volcano plot data."""
         significant = []
         for i, (fc, pval) in enumerate(zip(log2_fc, neg_log_pvalue)):
             if abs(fc) > 1 and pval > 1.3:  # |FC| > 2 and p < 0.05
-                significant.append({
-                    "gene": gene_names[i] if gene_names else f"Gene_{i}",
-                    "log2_fc": fc,
-                    "neg_log_pvalue": pval
-                })
+                significant.append(
+                    {
+                        "gene": gene_names[i] if gene_names else f"Gene_{i}",
+                        "log2_fc": fc,
+                        "neg_log_pvalue": pval,
+                    }
+                )
 
         return {
             "x": log2_fc,
             "y": neg_log_pvalue,
             "significant_genes": significant,
-            "thresholds": {"fc": 1, "pvalue": 1.3}
+            "thresholds": {"fc": 1, "pvalue": 1.3},
         }
 
 
 class ManhattanPlotGenerator:
     """Manhattan plots for GWAS (227)."""
 
-    def build(self, positions: list[int], chromosomes: list[int],
-              neg_log_pvalues: list[float]) -> dict:
+    def build(
+        self, positions: list[int], chromosomes: list[int], neg_log_pvalues: list[float]
+    ) -> dict:
         """Build Manhattan plot data."""
         return {
             "positions": positions,
             "chromosomes": chromosomes,
             "neg_log_pvalues": neg_log_pvalues,
             "significance_threshold": 7.3,  # -log10(5e-8)
-            "suggestive_threshold": 5.0
+            "suggestive_threshold": 5.0,
         }
 
 
@@ -510,9 +545,11 @@ class DimensionReductionVisualizer:
         # Return random projection for demo
         n_samples = len(data)
         return {
-            "coordinates": [[random.uniform(-5, 5) for _ in range(n_components)] for _ in range(n_samples)],
+            "coordinates": [
+                [random.uniform(-5, 5) for _ in range(n_components)] for _ in range(n_samples)
+            ],
             "explained_variance": [0.5, 0.3][:n_components],
-            "method": "PCA"
+            "method": "PCA",
         }
 
 
@@ -524,7 +561,7 @@ class NetworkGraphBuilder:
         return {
             "nodes": [{"id": n, "label": n} for n in nodes],
             "edges": [{"source": e[0], "target": e[1], "weight": e[2]} for e in edges],
-            "layout": "force"
+            "layout": "force",
         }
 
 
@@ -533,11 +570,7 @@ class CircosPlotGenerator:
 
     def build(self, chromosomes: list[dict], links: list[dict]) -> dict:
         """Build Circos plot configuration."""
-        return {
-            "ideogram": chromosomes,
-            "links": links,
-            "tracks": []
-        }
+        return {"ideogram": chromosomes, "links": links, "tracks": []}
 
 
 # 231-240: Additional visualization features
@@ -563,7 +596,10 @@ class RidgePlotBuilder:
 
 class BoxPlotComparator:
     def compare(self, groups: dict[str, list[float]]) -> dict:
-        return {name: {"median": sorted(vals)[len(vals)//2], "n": len(vals)} for name, vals in groups.items()}
+        return {
+            name: {"median": sorted(vals)[len(vals) // 2], "n": len(vals)}
+            for name, vals in groups.items()
+        }
 
 
 class ViolinPlotGenerator:
@@ -595,13 +631,14 @@ class HolographicDisplay:
 # PHASE 8: SECURITY & COMPLIANCE (241-260)
 # ============================================
 
+
 class HIPAAComplianceChecker:
     """HIPAA compliance (241)."""
 
     PHI_PATTERNS = [
-        r'\b\d{3}-\d{2}-\d{4}\b',  # SSN
-        r'\b[A-Z]{2}\d{6,8}\b',    # Medical record numbers
-        r'\b\d{3}[- ]?\d{3}[- ]?\d{4}\b'  # Phone
+        r"\b\d{3}-\d{2}-\d{4}\b",  # SSN
+        r"\b[A-Z]{2}\d{6,8}\b",  # Medical record numbers
+        r"\b\d{3}[- ]?\d{3}[- ]?\d{4}\b",  # Phone
     ]
 
     def check(self, text: str) -> dict:
@@ -629,7 +666,9 @@ class GDPRDataHandler:
 class DataAnonymizer:
     """Data anonymization (243)."""
 
-    def k_anonymize(self, records: list[dict], quasi_identifiers: list[str], k: int = 5) -> list[dict]:
+    def k_anonymize(
+        self, records: list[dict], quasi_identifiers: list[str], k: int = 5
+    ) -> list[dict]:
         """Simple k-anonymization."""
         # Generalize quasi-identifiers
         anonymized = []
@@ -650,14 +689,16 @@ class AuditTrailManager:
 
     def log(self, action: str, user: str, resource: str, details: dict = None):
         """Log audit event."""
-        self.trail.append({
-            "timestamp": datetime.now().isoformat(),
-            "action": action,
-            "user": user,
-            "resource": resource,
-            "details": details,
-            "hash": hashlib.sha256(f"{action}{user}{resource}".encode()).hexdigest()[:16]
-        })
+        self.trail.append(
+            {
+                "timestamp": datetime.now().isoformat(),
+                "action": action,
+                "user": user,
+                "resource": resource,
+                "details": details,
+                "hash": hashlib.sha256(f"{action}{user}{resource}".encode()).hexdigest()[:16],
+            }
+        )
 
     def export(self) -> list[dict]:
         """Export audit trail."""
@@ -731,7 +772,11 @@ class BreachDetection:
 
 class SecureCollaboration:
     def share_securely(self, resource: str, recipient: str, expiry_hours: int = 24) -> dict:
-        return {"resource": resource, "recipient": recipient, "expires": (datetime.now() + timedelta(hours=expiry_hours)).isoformat()}
+        return {
+            "resource": resource,
+            "recipient": recipient,
+            "expires": (datetime.now() + timedelta(hours=expiry_hours)).isoformat(),
+        }
 
 
 class ZeroTrustArchitecture:
@@ -751,7 +796,9 @@ class VulnerabilityDetector:
 
 class ComplianceReporter:
     def generate_report(self, framework: str) -> str:
-        return f"# {framework} Compliance Report\n\nStatus: Compliant\nDate: {datetime.now().date()}"
+        return (
+            f"# {framework} Compliance Report\n\nStatus: Compliant\nDate: {datetime.now().date()}"
+        )
 
 
 class DataClassification:
@@ -778,12 +825,19 @@ class IdentityFederation:
 
 class SecurityTrainingBot:
     def get_quiz(self, topic: str) -> list[dict]:
-        return [{"question": f"Security question about {topic}", "options": ["A", "B", "C"], "answer": "A"}]
+        return [
+            {
+                "question": f"Security question about {topic}",
+                "options": ["A", "B", "C"],
+                "answer": "A",
+            }
+        ]
 
 
 # ============================================
 # PHASE 9: MOBILE & EDGE (261-280)
 # ============================================
+
 
 class MobileAppConfig:
     """Mobile app configuration (261-262)."""
@@ -792,14 +846,14 @@ class MobileAppConfig:
         return {
             "bundle_id": "ai.jarvis.research",
             "min_ios_version": "15.0",
-            "features": ["offline", "push", "widgets"]
+            "features": ["offline", "push", "widgets"],
         }
 
     def get_android_config(self) -> dict:
         return {
             "package_name": "ai.jarvis.research",
             "min_sdk": 26,
-            "features": ["offline", "notifications", "widgets"]
+            "features": ["offline", "notifications", "widgets"],
         }
 
 
@@ -809,7 +863,7 @@ class WatchIntegration:
     def get_complications(self) -> list[dict]:
         return [
             {"type": "small", "data": "citation_count"},
-            {"type": "large", "data": "daily_papers"}
+            {"type": "large", "data": "daily_papers"},
         ]
 
 
@@ -820,7 +874,7 @@ class SiriShortcuts:
         return [
             {"phrase": "Search JARVIS for", "action": "search"},
             {"phrase": "Show my papers", "action": "list_papers"},
-            {"phrase": "What's new in research", "action": "daily_digest"}
+            {"phrase": "What's new in research", "action": "daily_digest"},
         ]
 
 
@@ -829,8 +883,14 @@ class GoogleAssistant:
 
     def get_intents(self) -> list[dict]:
         return [
-            {"intent": "search_papers", "utterances": ["search for papers about", "find research on"]},
-            {"intent": "get_summary", "utterances": ["summarize this paper", "what is this paper about"]}
+            {
+                "intent": "search_papers",
+                "utterances": ["search for papers about", "find research on"],
+            },
+            {
+                "intent": "get_summary",
+                "utterances": ["summarize this paper", "what is this paper about"],
+            },
         ]
 
 
@@ -845,7 +905,7 @@ class OfflineModePro:
         self.cached_data[key] = {
             "data": data,
             "cached_at": datetime.now().isoformat(),
-            "size_bytes": len(json.dumps(data))
+            "size_bytes": len(json.dumps(data)),
         }
 
     def get_cached(self, key: str) -> dict | None:
@@ -857,11 +917,7 @@ class BackgroundSync:
     """Background sync (267)."""
 
     def get_sync_config(self) -> dict:
-        return {
-            "sync_interval_minutes": 15,
-            "wifi_only": True,
-            "battery_threshold": 20
-        }
+        return {"sync_interval_minutes": 15, "wifi_only": True, "battery_threshold": 20}
 
 
 class PushNotificationsPro:
@@ -872,7 +928,7 @@ class PushNotificationsPro:
             "title": title,
             "body": body,
             "category": category,
-            "priority": "high" if category == "alert" else "normal"
+            "priority": "high" if category == "alert" else "normal",
         }
 
 
@@ -941,6 +997,7 @@ class TabletUI:
 # PHASE 10: ENTERPRISE & COLLABORATION (281-300)
 # ============================================
 
+
 class TeamWorkspace:
     """Team workspaces (281)."""
 
@@ -953,7 +1010,7 @@ class TeamWorkspace:
         self.workspaces[ws_id] = {
             "name": name,
             "members": members,
-            "created_at": datetime.now().isoformat()
+            "created_at": datetime.now().isoformat(),
         }
         return {"id": ws_id, "name": name}
 
@@ -964,7 +1021,7 @@ class RoleBasedAccess:
     ROLES = {
         "admin": ["read", "write", "delete", "manage"],
         "editor": ["read", "write"],
-        "viewer": ["read"]
+        "viewer": ["read"],
     }
 
     def get_permissions(self, role: str) -> list[str]:
@@ -978,7 +1035,7 @@ class ProjectTemplates:
     TEMPLATES = {
         "literature_review": ["search", "screen", "extract", "synthesize"],
         "meta_analysis": ["search", "extract", "analyze", "report"],
-        "experiment": ["design", "execute", "analyze", "publish"]
+        "experiment": ["design", "execute", "analyze", "publish"],
     }
 
     def get_template(self, template_type: str) -> list[str]:
@@ -995,7 +1052,7 @@ class ResourceSharing:
             "resource_id": resource_id,
             "shared_with": users,
             "permission": permission,
-            "shared_at": datetime.now().isoformat()
+            "shared_at": datetime.now().isoformat(),
         }
 
 
@@ -1007,12 +1064,14 @@ class ActivityFeed:
 
     def add_activity(self, user: str, action: str, target: str):
         """Add activity."""
-        self.activities.append({
-            "user": user,
-            "action": action,
-            "target": target,
-            "timestamp": datetime.now().isoformat()
-        })
+        self.activities.append(
+            {
+                "user": user,
+                "action": action,
+                "target": target,
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
 
     def get_feed(self, limit: int = 20) -> list[dict]:
         """Get recent activities."""
@@ -1024,7 +1083,7 @@ class MentionsComments:
 
     def parse_mentions(self, text: str) -> list[str]:
         """Extract @mentions."""
-        return re.findall(r'@(\w+)', text)
+        return re.findall(r"@(\w+)", text)
 
 
 class RealTimeCollaboration:
@@ -1035,7 +1094,7 @@ class RealTimeCollaboration:
         return {
             "session_id": hashlib.md5(f"{document_id}{time.time()}".encode()).hexdigest()[:8],
             "document_id": document_id,
-            "users": users
+            "users": users,
         }
 
 
@@ -1049,12 +1108,14 @@ class VersionHistory:
         """Save version."""
         if doc_id not in self.versions:
             self.versions[doc_id] = []
-        self.versions[doc_id].append({
-            "version": len(self.versions[doc_id]) + 1,
-            "content": content,
-            "author": author,
-            "timestamp": datetime.now().isoformat()
-        })
+        self.versions[doc_id].append(
+            {
+                "version": len(self.versions[doc_id]) + 1,
+                "content": content,
+                "author": author,
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
 
 
 # 289-300: Additional enterprise features
@@ -1110,7 +1171,10 @@ class EnterpriseSupport:
 
 class TrainingOnboarding:
     def get_training_modules(self) -> list[dict]:
-        return [{"module": "Getting Started", "duration_min": 15}, {"module": "Advanced Features", "duration_min": 30}]
+        return [
+            {"module": "Getting Started", "duration_min": 15},
+            {"module": "Advanced Features", "duration_min": 30},
+        ]
 
 
 class CustomIntegrations:
@@ -1124,11 +1188,14 @@ class CustomIntegrations:
 def get_meta_analysis() -> MetaAnalysisBot:
     return MetaAnalysisBot()
 
+
 def get_systematic_review() -> SystematicReviewAgent:
     return SystematicReviewAgent()
 
+
 def get_hipaa_checker() -> HIPAAComplianceChecker:
     return HIPAAComplianceChecker()
+
 
 def get_team_workspace() -> TeamWorkspace:
     return TeamWorkspace()
@@ -1137,11 +1204,13 @@ def get_team_workspace() -> TeamWorkspace:
 if __name__ == "__main__":
     print("=== Meta-Analysis Bot Demo ===")
     ma = MetaAnalysisBot()
-    result = ma.run_meta_analysis([
-        {"effect_size": 0.5, "sample_size": 100},
-        {"effect_size": 0.6, "sample_size": 150},
-        {"effect_size": 0.4, "sample_size": 80}
-    ])
+    result = ma.run_meta_analysis(
+        [
+            {"effect_size": 0.5, "sample_size": 100},
+            {"effect_size": 0.6, "sample_size": 150},
+            {"effect_size": 0.4, "sample_size": 80},
+        ]
+    )
     print(f"  Pooled effect: {result['pooled_effect_size']}")
 
     print("\n=== HIPAA Checker Demo ===")

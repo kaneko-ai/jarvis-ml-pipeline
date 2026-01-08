@@ -8,6 +8,7 @@ This module provides:
 Per RP13, this enables claim-level citation verification,
 ensuring each statement in an answer is backed by evidence.
 """
+
 from __future__ import annotations
 
 import uuid

@@ -1,4 +1,5 @@
 """Tests for Cloud Run Deployment and Slack Bot."""
+
 import pytest
 
 pytestmark = pytest.mark.core

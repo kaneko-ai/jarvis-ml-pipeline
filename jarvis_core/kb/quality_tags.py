@@ -1,4 +1,5 @@
 """Assign heuristic quality tags to claims."""
+
 from __future__ import annotations
 
 from collections.abc import Mapping

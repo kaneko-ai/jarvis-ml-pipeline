@@ -26,6 +26,7 @@ T = TypeVar("T")
 @dataclass
 class RateLimitConfig:
     """レート制限設定."""
+
     requests_per_second: float = 3.0  # PubMed: 3 req/s without API key
     requests_per_minute: int | None = None
     burst_limit: int = 10
@@ -45,6 +46,7 @@ class RateLimitConfig:
 @dataclass
 class RateLimitState:
     """レート制限状態."""
+
     request_times: list[float] = field(default_factory=list)
     total_requests: int = 0
     failed_requests: int = 0
@@ -75,7 +77,7 @@ class RateLimiter:
     def __init__(self, config: RateLimitConfig | None = None):
         """
         初期化.
-        
+
         Args:
             config: レート制限設定
         """
@@ -120,14 +122,14 @@ class RateLimiter:
     def get_retry_delay(self, attempt: int) -> float:
         """
         リトライ遅延を計算（指数バックオフ）.
-        
+
         Args:
             attempt: リトライ回数（0から開始）
-        
+
         Returns:
             遅延秒数
         """
-        delay = self.config.base_delay_sec * (self.config.exponential_base ** attempt)
+        delay = self.config.base_delay_sec * (self.config.exponential_base**attempt)
         delay = min(delay, self.config.max_delay_sec)
 
         if self.config.jitter:
@@ -143,11 +145,11 @@ def with_retry(
     base_delay: float = 1.0,
     max_delay: float = 60.0,
     retryable_exceptions: tuple = (Exception,),
-    on_retry: Callable[[int, Exception], None] | None = None
+    on_retry: Callable[[int, Exception], None] | None = None,
 ):
     """
     リトライデコレータ.
-    
+
     Args:
         max_retries: 最大リトライ回数
         base_delay: 基本遅延（秒）
@@ -155,6 +157,7 @@ def with_retry(
         retryable_exceptions: リトライ対象の例外
         on_retry: リトライ時のコールバック
     """
+
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> T:
@@ -170,7 +173,7 @@ def with_retry(
                         logger.error(f"Max retries ({max_retries}) exceeded: {e}")
                         raise
 
-                    delay = min(base_delay * (2 ** attempt), max_delay)
+                    delay = min(base_delay * (2**attempt), max_delay)
                     delay += random.uniform(0, delay * 0.25)  # jitter
 
                     logger.warning(f"Retry {attempt + 1}/{max_retries} after {delay:.1f}s: {e}")
@@ -183,6 +186,7 @@ def with_retry(
             raise last_exception  # type: ignore
 
         return wrapper
+
     return decorator
 
 
@@ -200,12 +204,14 @@ def get_pubmed_rate_limiter() -> RateLimiter:
         has_api_key = bool(os.environ.get("NCBI_API_KEY"))
         rps = 10.0 if has_api_key else 3.0
 
-        _pubmed_limiter = RateLimiter(RateLimitConfig(
-            requests_per_second=rps,
-            max_retries=3,
-            base_delay_sec=1.0,
-            request_timeout_sec=30.0,
-            total_timeout_sec=300.0
-        ))
+        _pubmed_limiter = RateLimiter(
+            RateLimitConfig(
+                requests_per_second=rps,
+                max_retries=3,
+                base_delay_sec=1.0,
+                request_timeout_sec=30.0,
+                total_timeout_sec=300.0,
+            )
+        )
 
     return _pubmed_limiter

@@ -1,4 +1,5 @@
 """Checklist rules for lab submission QA."""
+
 from __future__ import annotations
 
 CHECKLISTS = [
@@ -41,9 +42,11 @@ def run_checklists(qa_result: dict[str, object]) -> list[dict[str, object]]:
     results: list[dict[str, object]] = []
     for item in CHECKLISTS:
         passed = item["check"](qa_result)
-        results.append({
-            "id": item["id"],
-            "description": item["description"],
-            "passed": passed,
-        })
+        results.append(
+            {
+                "id": item["id"],
+                "description": item["description"],
+                "passed": passed,
+            }
+        )
     return results

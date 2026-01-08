@@ -10,6 +10,7 @@ Key properties:
 - In-memory: No persistence (RP5 scope)
 - Agent-agnostic: ExecutionEngine manages; agents only reference chunk_ids
 """
+
 from __future__ import annotations
 
 import uuid
@@ -110,7 +111,7 @@ class EvidenceStore:
         text = chunk.text.strip()
         if len(text) <= max_length:
             return text
-        return text[:max_length - 3] + "..."
+        return text[: max_length - 3] + "..."
 
     def list_chunks(self) -> list[Chunk]:
         """List all registered chunks.

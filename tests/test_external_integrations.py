@@ -1,4 +1,5 @@
 """Tests for external integrations - Phase 3."""
+
 import pytest
 
 from jarvis_core.integrations.external import (
@@ -119,11 +120,7 @@ class TestGitHubIssueCreator:
 
     def test_github_creator_init(self):
         """Test GitHub issue creator initialization."""
-        creator = GitHubIssueCreator(
-            token="ghp_test",
-            owner="kaneko-ai",
-            repo="jarvis-ml-pipeline"
-        )
+        creator = GitHubIssueCreator(token="ghp_test", owner="kaneko-ai", repo="jarvis-ml-pipeline")
         assert creator.token == "ghp_test"
         assert creator.owner == "kaneko-ai"
         assert creator.repo == "jarvis-ml-pipeline"

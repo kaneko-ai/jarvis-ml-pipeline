@@ -1,4 +1,5 @@
 """Ranking package."""
+
 from .base import RankingItem
 from .heuristics import HeuristicRanker
 from .logger import RankingLogger, log_ranking

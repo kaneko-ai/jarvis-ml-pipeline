@@ -1,4 +1,5 @@
 """Cron tick endpoint."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -18,7 +19,9 @@ router = APIRouter()
 def _enqueue_job(run_record: dict) -> dict:
     payload = {**run_record.get("payload", {}), "schedule_run_id": run_record["run_id"]}
     job = jobs.create_job("collect_and_ingest", payload)
-    store.update_run(run_record["run_id"], job_id=job["job_id"], status="queued", next_retry_at=None)
+    store.update_run(
+        run_record["run_id"], job_id=job["job_id"], status="queued", next_retry_at=None
+    )
     jobs.run_in_background(job["job_id"], lambda: run_job(job["job_id"]))
     return {"run_id": run_record["run_id"], "job_id": job["job_id"], "status": "queued"}
 

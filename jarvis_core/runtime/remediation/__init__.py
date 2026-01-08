@@ -1,4 +1,5 @@
 """Remediation package."""
+
 from .actions import (
     BUILTIN_ACTIONS,
     ActionResult,

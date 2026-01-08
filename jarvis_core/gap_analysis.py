@@ -2,6 +2,7 @@
 
 Per RP39, this scores research gaps to identify promising areas.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -35,7 +36,8 @@ def score_research_gaps(
     filtered = vectors
     if year_range:
         filtered = [
-            v for v in vectors
+            v
+            for v in vectors
             if v.metadata.year and year_range[0] <= v.metadata.year <= year_range[1]
         ]
 
@@ -53,15 +55,17 @@ def score_research_gaps(
 
     if not relevant:
         # High gap score if concept not studied
-        return [{
-            "concept": concept,
-            "gap_score": 0.9,
-            "papers": [],
-            "density": 0.0,
-            "novelty": 0.0,
-            "recency": 0.0,
-            "reason": "このコンセプトに関する研究がほぼ存在しない",
-        }]
+        return [
+            {
+                "concept": concept,
+                "gap_score": 0.9,
+                "papers": [],
+                "density": 0.0,
+                "novelty": 0.0,
+                "recency": 0.0,
+                "reason": "このコンセプトに関する研究がほぼ存在しない",
+            }
+        ]
 
     # Calculate metrics
     density = len(relevant) / len(filtered)
@@ -99,12 +103,14 @@ def score_research_gaps(
 
     reason = "、".join(reason_parts) if reason_parts else "標準的な研究密度"
 
-    return [{
-        "concept": concept,
-        "gap_score": round(gap_score, 3),
-        "papers": [v.paper_id for v in relevant],
-        "density": round(density, 3),
-        "novelty": round(novelty, 3),
-        "recency": round(recency, 3),
-        "reason": reason,
-    }]
+    return [
+        {
+            "concept": concept,
+            "gap_score": round(gap_score, 3),
+            "papers": [v.paper_id for v in relevant],
+            "density": round(density, 3),
+            "novelty": round(novelty, 3),
+            "recency": round(recency, 3),
+            "reason": reason,
+        }
+    ]

@@ -62,7 +62,7 @@ class TestValidateSubmission:
         with tempfile.TemporaryDirectory() as tmpdir:
             df = pd.DataFrame({"class": [0, 1, 2]})
             path = Path(tmpdir) / "submission.csv"
-            df.to_csv(path, index=False, lineterminator='\n')
+            df.to_csv(path, index=False, lineterminator="\n")
 
             assert validate_submission(str(path), "class", expected_rows=3) is True
 

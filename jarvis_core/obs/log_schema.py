@@ -1,4 +1,5 @@
 """Structured logging schema for observability."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

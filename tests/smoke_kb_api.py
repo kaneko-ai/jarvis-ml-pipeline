@@ -1,4 +1,3 @@
-
 import pytest
 
 
@@ -21,7 +20,7 @@ def client(tmp_path, monkeypatch):
     (kb_root / "notes" / "papers" / "PMID_1.md").write_text("paper", encoding="utf-8")
     (kb_root / "notes" / "topics" / "cd73.md").write_text("topic", encoding="utf-8")
     (kb_root / "index.json").write_text(
-        "{\"papers\": {\"1\": {\"updated_at\": \"2024-01-01T00:00:00+00:00\"}}, \"topics\": {\"cd73\": {\"updated_at\": \"2024-01-02T00:00:00+00:00\"}}, \"runs\": {}}",
+        '{"papers": {"1": {"updated_at": "2024-01-01T00:00:00+00:00"}}, "topics": {"cd73": {"updated_at": "2024-01-02T00:00:00+00:00"}}, "runs": {}}',
         encoding="utf-8",
     )
 

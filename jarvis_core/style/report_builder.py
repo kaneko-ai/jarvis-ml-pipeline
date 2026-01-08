@@ -1,4 +1,5 @@
 """Build QA reports for lab submission readiness."""
+
 from __future__ import annotations
 
 import importlib.util
@@ -108,7 +109,14 @@ def run_qa_gate(
             normalized[docx_path.name] = "\n".join(result.normalized_lines)
             issues.extend([issue.__dict__ for issue in result.issues])
             replacements.extend(result.replacements)
-            lint_issues.extend([issue.__dict__ for issue in lint_text("\n".join(result.normalized_lines), f"docx:{docx_path.name}")])
+            lint_issues.extend(
+                [
+                    issue.__dict__
+                    for issue in lint_text(
+                        "\n".join(result.normalized_lines), f"docx:{docx_path.name}"
+                    )
+                ]
+            )
 
     if "pptx" in targets:
         for pptx_path in run_dir.glob("*.pptx"):
@@ -119,18 +127,30 @@ def run_qa_gate(
             normalized[pptx_path.name] = "\n".join(result.normalized_lines)
             issues.extend([issue.__dict__ for issue in result.issues])
             replacements.extend(result.replacements)
-            lint_issues.extend([issue.__dict__ for issue in lint_text("\n".join(result.normalized_lines), f"pptx:{pptx_path.name}")])
+            lint_issues.extend(
+                [
+                    issue.__dict__
+                    for issue in lint_text(
+                        "\n".join(result.normalized_lines), f"pptx:{pptx_path.name}"
+                    )
+                ]
+            )
 
     issues.extend(lint_issues)
 
     registry = scan_text(md_text) if md_text else {"figures": [], "tables": [], "issues": []}
-    issues.extend([{
-        "issue_type": issue["issue_type"],
-        "severity": "WARN" if issue["issue_type"] == "missing_reference" else "ERROR",
-        "message": issue["message"],
-        "location": "figure_registry",
-        "excerpt": issue["fig_id"],
-    } for issue in registry.get("issues", [])])
+    issues.extend(
+        [
+            {
+                "issue_type": issue["issue_type"],
+                "severity": "WARN" if issue["issue_type"] == "missing_reference" else "ERROR",
+                "message": issue["message"],
+                "location": "figure_registry",
+                "excerpt": issue["fig_id"],
+            }
+            for issue in registry.get("issues", [])
+        ]
+    )
 
     error_count = sum(1 for issue in issues if issue.get("severity") == "ERROR")
     warn_count = sum(1 for issue in issues if issue.get("severity") == "WARN")

@@ -8,6 +8,7 @@ Provides exporters for:
 - Slack (RP-533)
 - PagerDuty (RP-534)
 """
+
 from .obsidian_sync import ObsidianSync, sync_to_obsidian
 from .pagerduty import (
     EventAction,

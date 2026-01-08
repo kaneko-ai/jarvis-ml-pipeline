@@ -7,6 +7,7 @@ from jarvis_core.sync.schema import QueueItemStatus
 
 logger = logging.getLogger(__name__)
 
+
 def on_network_restored(is_online: bool) -> None:
     if not is_online:
         # Update degradation level if needed
@@ -25,12 +26,9 @@ def on_network_restored(is_online: bool) -> None:
         return
 
     # Run in background
-    thread = threading.Thread(
-        target=_background_sync,
-        args=(manager,),
-        daemon=True
-    )
+    thread = threading.Thread(target=_background_sync, args=(manager,), daemon=True)
     thread.start()
+
 
 def _background_sync(manager: SyncQueueManager) -> None:
     try:

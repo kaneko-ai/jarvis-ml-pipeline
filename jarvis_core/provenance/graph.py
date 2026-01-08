@@ -2,6 +2,7 @@
 
 Per V4-B02, this provides DAG tracking from Claim→Fact→Evidence→Source.
 """
+
 from __future__ import annotations
 
 import json
@@ -13,12 +14,12 @@ from pathlib import Path
 class NodeType(Enum):
     """Types of provenance nodes."""
 
-    SOURCE = "source"      # PDF, URL
-    CHUNK = "chunk"        # Extracted chunk
+    SOURCE = "source"  # PDF, URL
+    CHUNK = "chunk"  # Extracted chunk
     EVIDENCE = "evidence"  # Evidence unit
-    FACT = "fact"          # Verified fact
+    FACT = "fact"  # Verified fact
     INFERENCE = "inference"  # Derived inference
-    CLAIM = "claim"        # Final claim
+    CLAIM = "claim"  # Final claim
     ARTIFACT = "artifact"  # Output artifact
 
 

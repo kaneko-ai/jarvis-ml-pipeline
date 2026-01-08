@@ -2,6 +2,7 @@
 
 Per RP-304, parses and understands query intent.
 """
+
 from __future__ import annotations
 
 import re
@@ -57,7 +58,7 @@ class ParsedQuery:
 
 class QueryUnderstanding:
     """Parses and understands query intent.
-    
+
     Per RP-304:
     - Classifies query type (comparison, mechanism, treatment, etc.)
     - Extracts entities (diseases, genes, drugs)
@@ -97,10 +98,10 @@ class QueryUnderstanding:
 
     def parse(self, query: str) -> ParsedQuery:
         """Parse a query.
-        
+
         Args:
             query: The search query.
-            
+
         Returns:
             ParsedQuery with extracted information.
         """
@@ -140,10 +141,12 @@ class QueryUnderstanding:
                 text = match.group(1)
                 if text.lower() not in seen:
                     seen.add(text.lower())
-                    entities.append(ParsedEntity(
-                        text=text,
-                        entity_type=entity_type,
-                    ))
+                    entities.append(
+                        ParsedEntity(
+                            text=text,
+                            entity_type=entity_type,
+                        )
+                    )
 
         return entities
 
@@ -201,17 +204,87 @@ class QueryUnderstanding:
         """Extract important keywords."""
         # Remove stopwords and extract significant terms
         stopwords = {
-            "the", "a", "an", "is", "are", "was", "were", "be", "been",
-            "being", "have", "has", "had", "do", "does", "did", "will",
-            "would", "could", "should", "may", "might", "must", "shall",
-            "can", "need", "dare", "ought", "used", "to", "of", "in",
-            "for", "on", "with", "at", "by", "from", "as", "into",
-            "through", "during", "before", "after", "above", "below",
-            "between", "under", "again", "further", "then", "once",
-            "and", "but", "or", "nor", "so", "yet", "both", "either",
-            "neither", "not", "only", "own", "same", "than", "too",
-            "very", "just", "what", "how", "why", "when", "where",
-            "which", "who", "whom", "this", "that", "these", "those",
+            "the",
+            "a",
+            "an",
+            "is",
+            "are",
+            "was",
+            "were",
+            "be",
+            "been",
+            "being",
+            "have",
+            "has",
+            "had",
+            "do",
+            "does",
+            "did",
+            "will",
+            "would",
+            "could",
+            "should",
+            "may",
+            "might",
+            "must",
+            "shall",
+            "can",
+            "need",
+            "dare",
+            "ought",
+            "used",
+            "to",
+            "of",
+            "in",
+            "for",
+            "on",
+            "with",
+            "at",
+            "by",
+            "from",
+            "as",
+            "into",
+            "through",
+            "during",
+            "before",
+            "after",
+            "above",
+            "below",
+            "between",
+            "under",
+            "again",
+            "further",
+            "then",
+            "once",
+            "and",
+            "but",
+            "or",
+            "nor",
+            "so",
+            "yet",
+            "both",
+            "either",
+            "neither",
+            "not",
+            "only",
+            "own",
+            "same",
+            "than",
+            "too",
+            "very",
+            "just",
+            "what",
+            "how",
+            "why",
+            "when",
+            "where",
+            "which",
+            "who",
+            "whom",
+            "this",
+            "that",
+            "these",
+            "those",
         }
 
         # Tokenize and filter

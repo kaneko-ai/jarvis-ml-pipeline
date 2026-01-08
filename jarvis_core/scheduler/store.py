@@ -1,4 +1,5 @@
 """Schedule store using JSON files."""
+
 from __future__ import annotations
 
 import json
@@ -108,7 +109,12 @@ def create_run(schedule_id: str, idempotency_key: str, payload: dict[str, Any]) 
         _write_json_atomic(_run_path(run_id), run)
         history_path = _history_path(schedule_id)
         with open(history_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps({"run_id": run_id, "idempotency_key": idempotency_key}, ensure_ascii=False) + "\n")
+            f.write(
+                json.dumps(
+                    {"run_id": run_id, "idempotency_key": idempotency_key}, ensure_ascii=False
+                )
+                + "\n"
+            )
     return run
 
 

@@ -86,9 +86,9 @@ class UnpaywallResult:
 
 class UnpaywallClient:
     """Client for the Unpaywall API.
-    
+
     Finds open access versions of papers by DOI.
-    
+
     Example:
         >>> client = UnpaywallClient(email="your@email.com")
         >>> result = client.get_oa_status("10.1038/nature12373")
@@ -102,7 +102,7 @@ class UnpaywallClient:
         timeout: float = 30.0,
     ):
         """Initialize the Unpaywall client.
-        
+
         Args:
             email: Email address (required by Unpaywall API)
             timeout: Request timeout in seconds
@@ -112,10 +112,10 @@ class UnpaywallClient:
 
     def get_oa_status(self, doi: str) -> UnpaywallResult | None:
         """Get open access status for a DOI.
-        
+
         Args:
             doi: DOI to look up
-            
+
         Returns:
             UnpaywallResult or None if not found
         """
@@ -147,10 +147,10 @@ class UnpaywallClient:
 
     def get_oa_status_batch(self, dois: list[str]) -> dict[str, UnpaywallResult]:
         """Get open access status for multiple DOIs.
-        
+
         Args:
             dois: List of DOIs to look up
-            
+
         Returns:
             Dictionary mapping DOI to UnpaywallResult
         """

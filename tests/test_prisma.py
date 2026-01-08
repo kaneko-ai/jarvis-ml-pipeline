@@ -23,11 +23,7 @@ class TestPRISMASchema:
         """Test ExclusionReason dataclass."""
         from jarvis_core.prisma.schema import ExclusionReason
 
-        reason = ExclusionReason(
-            reason="Duplicate publication",
-            count=15,
-            stage="screening"
-        )
+        reason = ExclusionReason(reason="Duplicate publication", count=15, stage="screening")
 
         assert reason.reason == "Duplicate publication"
         assert reason.count == 15
@@ -49,7 +45,7 @@ class TestPRISMASchema:
             exclusion_reasons=[
                 ExclusionReason("Not relevant", 300, "screening"),
                 ExclusionReason("No full text", 50, "eligibility"),
-            ]
+            ],
         )
 
         assert data.identification_database == 1000
@@ -177,7 +173,7 @@ class TestPRISMAGenerator:
                 ExclusionReason("Not RCT", 50, "eligibility"),
                 ExclusionReason("Wrong population", 30, "eligibility"),
                 ExclusionReason("No outcome data", 20, "eligibility"),
-            ]
+            ],
         )
 
         mermaid = generator.generate_mermaid(data)
@@ -370,7 +366,10 @@ class TestPRISMA2020Compliance:
             database_sources=["PubMed", "Embase", "Cochrane"],
         )
 
-        assert data.identification_database + data.identification_other >= data.records_screened + data.duplicates_removed
+        assert (
+            data.identification_database + data.identification_other
+            >= data.records_screened + data.duplicates_removed
+        )
 
 
 class TestModuleImports:

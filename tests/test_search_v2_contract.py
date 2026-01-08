@@ -29,6 +29,7 @@ def test_search_v2_contract(indexed_env, monkeypatch):
         pytest.skip("FastAPI not available")
 
     import jarvis_web.app as web_app
+
     importlib.reload(web_app)
 
     client = TestClient(web_app.create_app())

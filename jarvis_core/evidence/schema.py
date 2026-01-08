@@ -13,7 +13,7 @@ from typing import Any
 
 class EvidenceLevel(Enum):
     """Oxford Centre for Evidence-Based Medicine (CEBM) Evidence Levels.
-    
+
     Level 1: Systematic reviews / RCTs
     Level 2: Cohort studies
     Level 3: Case-control studies
@@ -32,9 +32,9 @@ class EvidenceLevel(Enum):
     LEVEL_3A = "3a"  # 系統的レビュー（均質な症例対照研究）
     LEVEL_3B = "3b"  # 個別の症例対照研究
 
-    LEVEL_4 = "4"    # 症例シリーズ
+    LEVEL_4 = "4"  # 症例シリーズ
 
-    LEVEL_5 = "5"    # 専門家意見
+    LEVEL_5 = "5"  # 専門家意見
 
     UNKNOWN = "unknown"
 
@@ -42,9 +42,14 @@ class EvidenceLevel(Enum):
     def numeric_rank(self) -> int:
         """Get numeric rank (1=highest, 5=lowest)."""
         rank_map = {
-            "1a": 1, "1b": 2, "1c": 3,
-            "2a": 4, "2b": 5, "2c": 6,
-            "3a": 7, "3b": 8,
+            "1a": 1,
+            "1b": 2,
+            "1c": 3,
+            "2a": 4,
+            "2b": 5,
+            "2c": 6,
+            "3a": 7,
+            "3b": 8,
             "4": 9,
             "5": 10,
             "unknown": 11,
@@ -192,12 +197,14 @@ class PICOExtraction:
 
     def is_complete(self) -> bool:
         """Check if all PICO components are present."""
-        return all([
-            self.population,
-            self.intervention,
-            self.comparator,
-            self.outcome,
-        ])
+        return all(
+            [
+                self.population,
+                self.intervention,
+                self.comparator,
+                self.outcome,
+            ]
+        )
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""

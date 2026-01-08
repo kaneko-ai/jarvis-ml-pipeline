@@ -1,4 +1,5 @@
 """Generate Obsidian-compatible research notes for a run."""
+
 from __future__ import annotations
 
 import json
@@ -135,7 +136,9 @@ def _score_from_scores(scores: dict[str, Any]) -> dict[str, float]:
     if isinstance(papers_scores, dict):
         for paper_id, features in papers_scores.items():
             if isinstance(features, dict):
-                ranking_scores[paper_id] = float(sum(v for v in features.values() if isinstance(v, (int, float))))
+                ranking_scores[paper_id] = float(
+                    sum(v for v in features.values() if isinstance(v, (int, float)))
+                )
             elif isinstance(features, (int, float)):
                 ranking_scores[paper_id] = float(features)
     return ranking_scores
@@ -188,7 +191,7 @@ def _build_evidence_map(
         claim_id = claim.get("claim_id", "unknown")
         evs = evidence_by_claim.get(claim_id, [])
         if not evs:
-            lines.append(f"- {claim_id}: Unknown ¶? sentence ? (chunk_id=unknown) → \"N/A\"")
+            lines.append(f'- {claim_id}: Unknown ¶? sentence ? (chunk_id=unknown) → "N/A"')
             continue
         for ev in evs:
             locator = ev.get("locator", {}) if isinstance(ev.get("locator"), dict) else {}
@@ -196,10 +199,12 @@ def _build_evidence_map(
             paragraph_text = paragraph if paragraph is not None else "?"
             sentence_text = sentence if sentence is not None else "?"
             chunk_text = chunk_id if chunk_id is not None else "unknown"
-            locator_text = f"{section} ¶{paragraph_text} sentence {sentence_text} (chunk_id={chunk_text})"
+            locator_text = (
+                f"{section} ¶{paragraph_text} sentence {sentence_text} (chunk_id={chunk_text})"
+            )
             quote = ev.get("evidence_text", "").strip()
             quote = quote.replace("\n", " ")[:240]
-            lines.append(f"- {claim_id}: {locator_text} → \"{quote}\"")
+            lines.append(f'- {claim_id}: {locator_text} → "{quote}"')
     return "\n".join(lines)
 
 
@@ -334,9 +339,7 @@ def generate_notes(
             format_section("Limitations", limitations),
             format_section("Why it matters", why_it_matters),
             format_section("Evidence map", evidence_map),
-            "## Links\n\n"
-            "- [Run Overview](../00_RUN_OVERVIEW.md)\n"
-            f"- [[papers/{paper_id}]]\n",
+            "## Links\n\n" "- [Run Overview](../00_RUN_OVERVIEW.md)\n" f"- [[papers/{paper_id}]]\n",
         ]
 
         note_path = papers_dir / f"{_safe_filename(paper_id)}.md"
@@ -430,9 +433,7 @@ def generate_notes(
         "run_id": run_id,
         "template_version": TEMPLATE_VERSION,
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "rankings": [
-            {**entry, "tier": tiers.get(entry["paper_id"], "B")} for entry in rankings
-        ],
+        "rankings": [{**entry, "tier": tiers.get(entry["paper_id"], "B")} for entry in rankings],
     }
     (output_dir / "research_rank.json").write_text(
         json.dumps(research_rank, ensure_ascii=False, indent=2),

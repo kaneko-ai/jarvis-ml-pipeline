@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 class StageStatus(Enum):
     """ステージ状態."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -33,6 +34,7 @@ class StageStatus(Enum):
 @dataclass
 class StageCheckpoint:
     """ステージチェックポイント."""
+
     stage_id: str
     status: StageStatus
     started_at: str | None = None
@@ -46,6 +48,7 @@ class StageCheckpoint:
 @dataclass
 class RunCheckpoint:
     """ラン全体のチェックポイント."""
+
     run_id: str
     pipeline: str
     status: str = "running"
@@ -72,11 +75,11 @@ class RunCheckpoint:
                     "completed_at": v.completed_at,
                     "duration_ms": v.duration_ms,
                     "error": v.error,
-                    "metadata": v.metadata
+                    "metadata": v.metadata,
                 }
                 for k, v in self.stages.items()
             },
-            "context": self.context
+            "context": self.context,
         }
 
     @classmethod
@@ -89,7 +92,7 @@ class RunCheckpoint:
             created_at=data.get("created_at", ""),
             updated_at=data.get("updated_at", ""),
             current_stage_idx=data.get("current_stage_idx", 0),
-            context=data.get("context", {})
+            context=data.get("context", {}),
         )
 
         for stage_id, stage_data in data.get("stages", {}).items():
@@ -100,7 +103,7 @@ class RunCheckpoint:
                 completed_at=stage_data.get("completed_at"),
                 duration_ms=stage_data.get("duration_ms"),
                 error=stage_data.get("error"),
-                metadata=stage_data.get("metadata", {})
+                metadata=stage_data.get("metadata", {}),
             )
 
         return checkpoint
@@ -112,7 +115,7 @@ class CheckpointManager:
     def __init__(self, base_path: str = "artifacts"):
         """
         初期化.
-        
+
         Args:
             base_path: チェックポイント保存先ベースパス
         """
@@ -125,10 +128,10 @@ class CheckpointManager:
     def save(self, checkpoint: RunCheckpoint) -> Path:
         """
         チェックポイントを保存.
-        
+
         Args:
             checkpoint: 保存するチェックポイント
-        
+
         Returns:
             保存先パス
         """
@@ -137,7 +140,7 @@ class CheckpointManager:
 
         checkpoint.updated_at = datetime.now().isoformat()
 
-        with open(path, 'w', encoding='utf-8') as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(checkpoint.to_dict(), f, ensure_ascii=False, indent=2)
 
         logger.info(f"Checkpoint saved: {path}")
@@ -146,10 +149,10 @@ class CheckpointManager:
     def load(self, run_id: str) -> RunCheckpoint | None:
         """
         チェックポイントを読み込み.
-        
+
         Args:
             run_id: 実行ID
-        
+
         Returns:
             チェックポイント（存在しない場合None）
         """
@@ -159,7 +162,7 @@ class CheckpointManager:
             return None
 
         try:
-            with open(path, encoding='utf-8') as f:
+            with open(path, encoding="utf-8") as f:
                 data = json.load(f)
             return RunCheckpoint.from_dict(data)
         except Exception as e:
@@ -185,10 +188,10 @@ class CheckpointManager:
     def get_resume_point(self, run_id: str) -> int | None:
         """
         再開ポイントを取得.
-        
+
         Args:
             run_id: 実行ID
-        
+
         Returns:
             再開するステージのインデックス（存在しない場合None）
         """
@@ -210,11 +213,11 @@ class CheckpointManager:
         completed_at: str | None = None,
         duration_ms: int | None = None,
         error: str | None = None,
-        metadata: dict[str, Any] | None = None
+        metadata: dict[str, Any] | None = None,
     ):
         """
         ステージ状態を更新.
-        
+
         Args:
             run_id: 実行ID
             stage_id: ステージID
@@ -237,7 +240,7 @@ class CheckpointManager:
             completed_at=completed_at,
             duration_ms=duration_ms,
             error=error,
-            metadata=metadata or {}
+            metadata=metadata or {},
         )
 
         self.save(checkpoint)

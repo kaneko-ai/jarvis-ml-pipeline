@@ -3,6 +3,7 @@
 Per RP-174, routes tasks to appropriate models.
 Extended for Local-First architecture with fallback chain.
 """
+
 from __future__ import annotations
 
 import logging
@@ -92,7 +93,7 @@ LOCAL_FIRST_CHAIN = [
 
 class ModelRouter:
     """Routes tasks to appropriate models.
-    
+
     Supports Local-First architecture with automatic fallback.
     """
 
@@ -123,12 +124,12 @@ class ModelRouter:
             return True
 
         if provider == ModelProvider.GEMINI:
-            return bool(os.environ.get("GOOGLE_API_KEY") or
-                       os.environ.get("GEMINI_API_KEY"))
+            return bool(os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY"))
 
         if provider == ModelProvider.OLLAMA:
             try:
                 from jarvis_core.llm.ollama_adapter import OllamaAdapter
+
                 adapter = OllamaAdapter()
                 return adapter.is_available()
             except Exception as e:
@@ -138,6 +139,7 @@ class ModelRouter:
         if provider == ModelProvider.LLAMACPP:
             try:
                 from jarvis_core.llm.llamacpp_adapter import LlamaCppAdapter
+
                 adapter = LlamaCppAdapter()
                 return adapter.is_available() and adapter.config.model_path is not None
             except Exception as e:
@@ -153,9 +155,11 @@ class ModelRouter:
 
         if provider == ModelProvider.OLLAMA:
             from jarvis_core.llm.ollama_adapter import OllamaAdapter
+
             self._adapters[provider] = OllamaAdapter()
         elif provider == ModelProvider.LLAMACPP:
             from jarvis_core.llm.llamacpp_adapter import LlamaCppAdapter
+
             self._adapters[provider] = LlamaCppAdapter()
         else:
             return None
@@ -234,11 +238,7 @@ class ModelRouter:
         )
 
     def generate(
-        self,
-        prompt: str,
-        max_tokens: int = 1024,
-        temperature: float = 0.7,
-        **kwargs
+        self, prompt: str, max_tokens: int = 1024, temperature: float = 0.7, **kwargs
     ) -> str:
         """Generate text using best available provider."""
         decision = self.route(TaskType.GENERATE)
@@ -247,19 +247,10 @@ class ModelRouter:
         if adapter is None:
             raise RuntimeError(f"No adapter for {decision.model_config.provider}")
 
-        return adapter.generate(
-            prompt,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            **kwargs
-        )
+        return adapter.generate(prompt, max_tokens=max_tokens, temperature=temperature, **kwargs)
 
     def chat(
-        self,
-        messages: list[dict],
-        max_tokens: int = 1024,
-        temperature: float = 0.7,
-        **kwargs
+        self, messages: list[dict], max_tokens: int = 1024, temperature: float = 0.7, **kwargs
     ) -> str:
         """Chat using best available provider."""
         decision = self.route(TaskType.CHAT)
@@ -268,19 +259,10 @@ class ModelRouter:
         if adapter is None:
             raise RuntimeError(f"No adapter for {decision.model_config.provider}")
 
-        return adapter.chat(
-            messages,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            **kwargs
-        )
+        return adapter.chat(messages, max_tokens=max_tokens, temperature=temperature, **kwargs)
 
     def generate_stream(
-        self,
-        prompt: str,
-        max_tokens: int = 1024,
-        temperature: float = 0.7,
-        **kwargs
+        self, prompt: str, max_tokens: int = 1024, temperature: float = 0.7, **kwargs
     ) -> Generator[str, None, None]:
         """Streaming generation."""
         decision = self.route(TaskType.GENERATE)
@@ -289,21 +271,13 @@ class ModelRouter:
         if adapter is None:
             raise RuntimeError(f"No adapter for {decision.model_config.provider}")
 
-        if hasattr(adapter, 'generate_stream'):
+        if hasattr(adapter, "generate_stream"):
             yield from adapter.generate_stream(
-                prompt,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                **kwargs
+                prompt, max_tokens=max_tokens, temperature=temperature, **kwargs
             )
         else:
             # Fallback to non-streaming
-            yield adapter.generate(
-                prompt,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                **kwargs
-            )
+            yield adapter.generate(prompt, max_tokens=max_tokens, temperature=temperature, **kwargs)
 
 
 # Global router
@@ -321,4 +295,3 @@ def get_router(local_first: bool = True) -> ModelRouter:
 def route_task(task_type: TaskType) -> RoutingDecision:
     """Route a task using global router."""
     return get_router().route(task_type)
-

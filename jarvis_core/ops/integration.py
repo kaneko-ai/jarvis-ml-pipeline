@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 class WebhookEvent(Enum):
     """Webhookイベントタイプ."""
+
     RUN_STARTED = "run.started"
     RUN_COMPLETED = "run.completed"
     RUN_FAILED = "run.failed"
@@ -36,6 +37,7 @@ class WebhookEvent(Enum):
 @dataclass
 class WebhookConfig:
     """Webhook設定."""
+
     webhook_id: str
     url: str
     secret: str
@@ -48,6 +50,7 @@ class WebhookConfig:
 @dataclass
 class WebhookPayload:
     """Webhookペイロード."""
+
     event: WebhookEvent
     run_id: str
     timestamp: str
@@ -56,17 +59,20 @@ class WebhookPayload:
 
     def compute_signature(self, secret: str) -> str:
         """署名を計算."""
-        payload = json.dumps({
-            "event": self.event.value,
-            "run_id": self.run_id,
-            "timestamp": self.timestamp,
-            "data": self.data
-        }, sort_keys=True)
-        return hashlib.hmac_new(
-            secret.encode(),
-            payload.encode(),
-            hashlib.sha256
-        ).hexdigest() if hasattr(hashlib, 'hmac_new') else hashlib.sha256((secret + payload).encode()).hexdigest()
+        payload = json.dumps(
+            {
+                "event": self.event.value,
+                "run_id": self.run_id,
+                "timestamp": self.timestamp,
+                "data": self.data,
+            },
+            sort_keys=True,
+        )
+        return (
+            hashlib.hmac_new(secret.encode(), payload.encode(), hashlib.sha256).hexdigest()
+            if hasattr(hashlib, "hmac_new")
+            else hashlib.sha256((secret + payload).encode()).hexdigest()
+        )
 
 
 class WebhookManager:
@@ -75,7 +81,7 @@ class WebhookManager:
     def __init__(self, config_path: str = "configs/webhooks.json"):
         """
         初期化.
-        
+
         Args:
             config_path: 設定ファイルパス
         """
@@ -88,7 +94,7 @@ class WebhookManager:
         if not self.config_path.exists():
             return
 
-        with open(self.config_path, encoding='utf-8') as f:
+        with open(self.config_path, encoding="utf-8") as f:
             data = json.load(f)
 
         for wh in data.get("webhooks", []):
@@ -97,7 +103,7 @@ class WebhookManager:
                 url=wh["url"],
                 secret=wh.get("secret", ""),
                 events=[WebhookEvent(e) for e in wh.get("events", [])],
-                enabled=wh.get("enabled", True)
+                enabled=wh.get("enabled", True),
             )
             self._webhooks[config.webhook_id] = config
 
@@ -106,30 +112,22 @@ class WebhookManager:
         self._webhooks[config.webhook_id] = config
         logger.info(f"Webhook registered: {config.webhook_id}")
 
-    def trigger(
-        self,
-        event: WebhookEvent,
-        run_id: str,
-        data: dict[str, Any]
-    ) -> list[str]:
+    def trigger(self, event: WebhookEvent, run_id: str, data: dict[str, Any]) -> list[str]:
         """
         Webhookをトリガー.
-        
+
         Args:
             event: イベントタイプ
             run_id: 実行ID
             data: データ
-        
+
         Returns:
             トリガーされたWebhook IDリスト
         """
         triggered = []
 
         payload = WebhookPayload(
-            event=event,
-            run_id=run_id,
-            timestamp=datetime.now().isoformat(),
-            data=data
+            event=event, run_id=run_id, timestamp=datetime.now().isoformat(), data=data
         )
 
         for webhook_id, config in self._webhooks.items():
@@ -149,6 +147,7 @@ class WebhookManager:
 @dataclass
 class PluginAPISpec:
     """プラグインAPI仕様."""
+
     method: str  # GET, POST, etc.
     path: str
     description: str
@@ -164,16 +163,10 @@ class PluginAPIRegistry:
         self._handlers: dict[str, Callable] = {}
         self._specs: list[PluginAPISpec] = []
 
-    def register(
-        self,
-        method: str,
-        path: str,
-        handler: Callable,
-        description: str = ""
-    ):
+    def register(self, method: str, path: str, handler: Callable, description: str = ""):
         """
         APIを登録.
-        
+
         Args:
             method: HTTPメソッド
             path: パス
@@ -182,11 +175,7 @@ class PluginAPIRegistry:
         """
         key = f"{method.upper()}:{path}"
         self._handlers[key] = handler
-        self._specs.append(PluginAPISpec(
-            method=method.upper(),
-            path=path,
-            description=description
-        ))
+        self._specs.append(PluginAPISpec(method=method.upper(), path=path, description=description))
         logger.info(f"Plugin API registered: {key}")
 
     def get_handler(self, method: str, path: str) -> Callable | None:
@@ -198,19 +187,16 @@ class PluginAPIRegistry:
         """OpenAPI仕様を取得."""
         return {
             "openapi": "3.0.0",
-            "info": {
-                "title": "JARVIS Plugin API",
-                "version": "1.0.0"
-            },
+            "info": {"title": "JARVIS Plugin API", "version": "1.0.0"},
             "paths": {
                 spec.path: {
                     spec.method.lower(): {
                         "summary": spec.description,
-                        "responses": {"200": {"description": "Success"}}
+                        "responses": {"200": {"description": "Success"}},
                     }
                 }
                 for spec in self._specs
-            }
+            },
         }
 
 
@@ -221,15 +207,10 @@ class ExternalServiceConnector:
         """初期化."""
         self._connections: dict[str, dict[str, Any]] = {}
 
-    def register_service(
-        self,
-        service_id: str,
-        service_type: str,
-        config: dict[str, Any]
-    ):
+    def register_service(self, service_id: str, service_type: str, config: dict[str, Any]):
         """
         サービスを登録.
-        
+
         Args:
             service_id: サービスID
             service_type: サービスタイプ（zotero, notion, slack等）
@@ -238,7 +219,7 @@ class ExternalServiceConnector:
         self._connections[service_id] = {
             "type": service_type,
             "config": config,
-            "status": "registered"
+            "status": "registered",
         }
         logger.info(f"External service registered: {service_id} ({service_type})")
 

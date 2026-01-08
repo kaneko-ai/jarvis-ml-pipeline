@@ -6,6 +6,7 @@ Per RP19, these tests verify:
 - Notion JSON export
 - Bundle includes all integration files
 """
+
 import json
 import sys
 import tempfile
@@ -101,12 +102,14 @@ class TestObsidian:
         cs = ClaimSet()
         cs.add_new("Test claim.", ["chunk_abc"])
 
-        refs = [Reference(
-            id="R1",
-            source_type="pdf",
-            locator="pdf:paper.pdf",
-            chunk_ids=["chunk_abc"],
-        )]
+        refs = [
+            Reference(
+                id="R1",
+                source_type="pdf",
+                locator="pdf:paper.pdf",
+                chunk_ids=["chunk_abc"],
+            )
+        ]
 
         result = EvidenceQAResult(
             answer="Answer",
@@ -135,12 +138,14 @@ class TestObsidian:
         cs = ClaimSet()
         cs.add_new("Test claim.", ["chunk_abc"])
 
-        refs = [Reference(
-            id="R1",
-            source_type="pdf",
-            locator="pdf:paper.pdf",
-            chunk_ids=["chunk_abc"],
-        )]
+        refs = [
+            Reference(
+                id="R1",
+                source_type="pdf",
+                locator="pdf:paper.pdf",
+                chunk_ids=["chunk_abc"],
+            )
+        ]
 
         result = EvidenceQAResult(
             answer="Answer",

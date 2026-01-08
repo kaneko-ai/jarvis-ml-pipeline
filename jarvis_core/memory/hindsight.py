@@ -20,15 +20,17 @@ logger = logging.getLogger(__name__)
 
 class MemoryType(Enum):
     """メモリタイプ."""
-    WORLD = "world"          # 検証済み事実
+
+    WORLD = "world"  # 検証済み事実
     EXPERIENCE = "experience"  # 実行・失敗・手動判断
     OBSERVATION = "observation"  # 未検証メモ
-    OPINION = "opinion"        # 好み・仮説（隔離）
+    OPINION = "opinion"  # 好み・仮説（隔離）
 
 
 @dataclass
 class MemoryEntry:
     """メモリエントリ."""
+
     id: str
     memory_type: MemoryType
     content: str
@@ -74,7 +76,7 @@ class MemoryEntry:
 
 class HindsightMemory:
     """Hindsight Memory.
-    
+
     重要ルール:
     - Opinion は World に昇格させてはならない
     - World には必ず evidence が必要
@@ -84,7 +86,7 @@ class HindsightMemory:
     def __init__(self, storage_path: str = "data/memory"):
         """
         初期化.
-        
+
         Args:
             storage_path: ストレージディレクトリ
         """
@@ -105,17 +107,19 @@ class HindsightMemory:
         for memory_type in MemoryType:
             file_path = self.storage_path / f"{memory_type.value}.jsonl"
             if file_path.exists():
-                with open(file_path, encoding='utf-8') as f:
+                with open(file_path, encoding="utf-8") as f:
                     for line in f:
                         if line.strip():
                             entry = MemoryEntry.from_dict(json.loads(line))
                             self._memories[memory_type].append(entry)
-                logger.info(f"Loaded {len(self._memories[memory_type])} {memory_type.value} entries")
+                logger.info(
+                    f"Loaded {len(self._memories[memory_type])} {memory_type.value} entries"
+                )
 
     def _save(self, memory_type: MemoryType) -> None:
         """ストレージに保存."""
         file_path = self.storage_path / f"{memory_type.value}.jsonl"
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             for entry in self._memories[memory_type]:
                 f.write(json.dumps(entry.to_dict(), ensure_ascii=False) + "\n")
 
@@ -124,20 +128,20 @@ class HindsightMemory:
         content: str,
         source: str,
         evidence: list[str],
-        verification_method: str = "direct_verification"
+        verification_method: str = "direct_verification",
     ) -> MemoryEntry:
         """
         World（検証済み事実）を追加.
-        
+
         Args:
             content: 内容
             source: 情報源
             evidence: 根拠（必須）
             verification_method: 検証方法
-        
+
         Returns:
             MemoryEntry
-        
+
         Raises:
             ValueError: 根拠がない場合
         """
@@ -161,19 +165,16 @@ class HindsightMemory:
         return entry
 
     def add_experience(
-        self,
-        content: str,
-        source: str,
-        metadata: dict[str, Any] | None = None
+        self, content: str, source: str, metadata: dict[str, Any] | None = None
     ) -> MemoryEntry:
         """
         Experience（実行・失敗・手動判断）を追加.
-        
+
         Args:
             content: 内容
             source: 情報源
             metadata: メタデータ
-        
+
         Returns:
             MemoryEntry
         """
@@ -191,18 +192,14 @@ class HindsightMemory:
 
         return entry
 
-    def add_observation(
-        self,
-        content: str,
-        source: str
-    ) -> MemoryEntry:
+    def add_observation(self, content: str, source: str) -> MemoryEntry:
         """
         Observation（未検証メモ）を追加.
-        
+
         Args:
             content: 内容
             source: 情報源
-        
+
         Returns:
             MemoryEntry
         """
@@ -220,20 +217,16 @@ class HindsightMemory:
 
         return entry
 
-    def add_opinion(
-        self,
-        content: str,
-        source: str
-    ) -> MemoryEntry:
+    def add_opinion(self, content: str, source: str) -> MemoryEntry:
         """
         Opinion（好み・仮説）を追加.
-        
+
         注意: Opinionは隔離され、Worldに混入してはならない。
-        
+
         Args:
             content: 内容
             source: 情報源
-        
+
         Returns:
             MemoryEntry
         """
@@ -252,22 +245,19 @@ class HindsightMemory:
         return entry
 
     def promote_to_world(
-        self,
-        observation_id: str,
-        evidence: list[str],
-        verification_method: str
+        self, observation_id: str, evidence: list[str], verification_method: str
     ) -> MemoryEntry | None:
         """
         ObservationをWorldに昇格.
-        
+
         Args:
             observation_id: Observation ID
             evidence: 根拠（必須）
             verification_method: 検証方法
-        
+
         Returns:
             新しいWorldエントリ
-        
+
         Raises:
             ValueError: Opinionを昇格しようとした場合
         """
@@ -304,19 +294,16 @@ class HindsightMemory:
         return world_entry
 
     def query(
-        self,
-        memory_type: MemoryType | None = None,
-        verified_only: bool = False,
-        limit: int = 100
+        self, memory_type: MemoryType | None = None, verified_only: bool = False, limit: int = 100
     ) -> list[MemoryEntry]:
         """
         メモリをクエリ.
-        
+
         Args:
             memory_type: 特定タイプのみ
             verified_only: 検証済みのみ
             limit: 最大件数
-        
+
         Returns:
             MemoryEntryリスト
         """

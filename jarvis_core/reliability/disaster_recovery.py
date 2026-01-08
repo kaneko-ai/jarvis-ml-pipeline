@@ -2,6 +2,7 @@
 
 Per RP-581, implements backup, restore, and recovery procedures.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -15,6 +16,7 @@ from pathlib import Path
 
 class BackupType(Enum):
     """Backup types."""
+
     FULL = "full"
     INCREMENTAL = "incremental"
     DIFFERENTIAL = "differential"
@@ -22,6 +24,7 @@ class BackupType(Enum):
 
 class RecoveryPointObjective(Enum):
     """Recovery Point Objective (RPO) levels."""
+
     MINUTES_1 = 60
     MINUTES_5 = 300
     MINUTES_15 = 900
@@ -32,6 +35,7 @@ class RecoveryPointObjective(Enum):
 
 class RecoveryTimeObjective(Enum):
     """Recovery Time Objective (RTO) levels."""
+
     MINUTES_5 = 300
     MINUTES_15 = 900
     MINUTES_30 = 1800
@@ -42,6 +46,7 @@ class RecoveryTimeObjective(Enum):
 @dataclass
 class BackupConfig:
     """Backup configuration."""
+
     backup_dir: str = "./backups"
     retention_days: int = 30
     compression: bool = True
@@ -53,6 +58,7 @@ class BackupConfig:
 @dataclass
 class BackupMetadata:
     """Backup metadata."""
+
     backup_id: str
     backup_type: BackupType
     timestamp: float
@@ -67,6 +73,7 @@ class BackupMetadata:
 @dataclass
 class RestoreResult:
     """Result of a restore operation."""
+
     success: bool
     backup_id: str
     restored_files: int
@@ -76,7 +83,7 @@ class RestoreResult:
 
 class DisasterRecoveryManager:
     """Manages disaster recovery operations.
-    
+
     Per RP-581:
     - Automated backups
     - Point-in-time recovery
@@ -98,12 +105,12 @@ class DisasterRecoveryManager:
         description: str | None = None,
     ) -> BackupMetadata:
         """Create a backup.
-        
+
         Args:
             source_paths: Paths to backup.
             backup_type: Type of backup.
             description: Optional description.
-            
+
         Returns:
             Backup metadata.
         """
@@ -142,9 +149,7 @@ class DisasterRecoveryManager:
                         checksums.append(self._compute_checksum(f))
 
         # Compute combined checksum
-        combined_checksum = hashlib.sha256(
-            "".join(sorted(checksums)).encode()
-        ).hexdigest()
+        combined_checksum = hashlib.sha256("".join(sorted(checksums)).encode()).hexdigest()
 
         metadata = BackupMetadata(
             backup_id=backup_id,
@@ -175,12 +180,12 @@ class DisasterRecoveryManager:
         overwrite: bool = False,
     ) -> RestoreResult:
         """Restore from a backup.
-        
+
         Args:
             backup_id: Backup ID to restore.
             target_dir: Target directory.
             overwrite: Whether to overwrite existing files.
-            
+
         Returns:
             Restore result.
         """
@@ -232,10 +237,10 @@ class DisasterRecoveryManager:
 
     def verify_backup(self, backup_id: str) -> bool:
         """Verify backup integrity.
-        
+
         Args:
             backup_id: Backup ID to verify.
-            
+
         Returns:
             True if backup is valid.
         """
@@ -254,9 +259,7 @@ class DisasterRecoveryManager:
             if f.is_file():
                 checksums.append(self._compute_checksum(f))
 
-        combined = hashlib.sha256(
-            "".join(sorted(checksums)).encode()
-        ).hexdigest()
+        combined = hashlib.sha256("".join(sorted(checksums)).encode()).hexdigest()
 
         return combined == metadata.checksum
 
@@ -270,10 +273,10 @@ class DisasterRecoveryManager:
 
     def delete_backup(self, backup_id: str) -> bool:
         """Delete a backup.
-        
+
         Args:
             backup_id: Backup ID to delete.
-            
+
         Returns:
             True if deleted.
         """
@@ -291,7 +294,7 @@ class DisasterRecoveryManager:
 
     def cleanup_old_backups(self) -> int:
         """Delete backups older than retention period.
-        
+
         Returns:
             Number of backups deleted.
         """
@@ -308,6 +311,7 @@ class DisasterRecoveryManager:
     def _generate_backup_id(self) -> str:
         """Generate unique backup ID."""
         import uuid
+
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         return f"backup_{timestamp}_{uuid.uuid4().hex[:8]}"
 
@@ -354,17 +358,19 @@ class DisasterRecoveryManager:
         catalog_path = self._backup_dir / "catalog.json"
         data = []
         for metadata in self._backups.values():
-            data.append({
-                "backup_id": metadata.backup_id,
-                "backup_type": metadata.backup_type.value,
-                "timestamp": metadata.timestamp,
-                "size_bytes": metadata.size_bytes,
-                "checksum": metadata.checksum,
-                "files_count": metadata.files_count,
-                "source_paths": metadata.source_paths,
-                "compressed": metadata.compressed,
-                "encrypted": metadata.encrypted,
-            })
+            data.append(
+                {
+                    "backup_id": metadata.backup_id,
+                    "backup_type": metadata.backup_type.value,
+                    "timestamp": metadata.timestamp,
+                    "size_bytes": metadata.size_bytes,
+                    "checksum": metadata.checksum,
+                    "files_count": metadata.files_count,
+                    "source_paths": metadata.source_paths,
+                    "compressed": metadata.compressed,
+                    "encrypted": metadata.encrypted,
+                }
+            )
         with open(catalog_path, "w") as f:
             json.dump(data, f, indent=2)
 

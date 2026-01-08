@@ -2,6 +2,7 @@
 
 Per RP-125, ranks papers with explainable features.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -117,18 +118,16 @@ def score_paper(
     contributions = {}
 
     # Citation density
-    contributions["citation_density"] = (
-        features.citation_density * weights.get("citation_density", 0.25)
+    contributions["citation_density"] = features.citation_density * weights.get(
+        "citation_density", 0.25
     )
 
     # Recency
-    contributions["recency"] = (
-        features.recency * weights.get("recency", 0.20)
-    )
+    contributions["recency"] = features.recency * weights.get("recency", 0.20)
 
     # Entity coverage
-    contributions["entity_coverage"] = (
-        features.entity_coverage * weights.get("entity_coverage", 0.35)
+    contributions["entity_coverage"] = features.entity_coverage * weights.get(
+        "entity_coverage", 0.35
     )
 
     # Study type
@@ -136,9 +135,7 @@ def score_paper(
         features.study_type_hint.lower(),
         STUDY_TYPE_SCORES["unknown"],
     )
-    contributions["study_type"] = (
-        study_score * weights.get("study_type", 0.20)
-    )
+    contributions["study_type"] = study_score * weights.get("study_type", 0.20)
 
     total = sum(contributions.values())
 

@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class CitationNode:
     """引用ノード."""
+
     paper_id: str
     title: str
     year: int
@@ -37,6 +38,7 @@ class CitationNode:
 @dataclass
 class CitationStats:
     """引用統計."""
+
     total_papers: int
     total_citations: int
     avg_citations: float
@@ -55,7 +57,7 @@ class CitationStats:
 
 class CitationNetwork:
     """引用ネットワーク.
-    
+
     論文間の引用関係を分析
     """
 
@@ -203,10 +205,12 @@ class CitationNetwork:
         for i, node in enumerate(influential, 1):
             lines.append(f"{i}. **{node.title}** ({node.year}) - {node.citations_count} citations")
 
-        lines.extend([
-            "",
-            "## Year Distribution",
-        ])
+        lines.extend(
+            [
+                "",
+                "## Year Distribution",
+            ]
+        )
 
         for year, count in sorted(stats.citation_distribution.items()):
             lines.append(f"- {year}: {count} papers")

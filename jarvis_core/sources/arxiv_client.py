@@ -64,10 +64,10 @@ class ArxivPaper:
 
 class ArxivClient:
     """Client for the arXiv API.
-    
+
     Provides search and paper retrieval functionality.
     Respects arXiv rate limits (3 second delay between requests).
-    
+
     Example:
         >>> client = ArxivClient()
         >>> papers = client.search("machine learning cancer", max_results=10)
@@ -81,7 +81,7 @@ class ArxivClient:
         rate_limit_delay: float = 3.0,
     ):
         """Initialize the arXiv client.
-        
+
         Args:
             timeout: Request timeout in seconds
             rate_limit_delay: Delay between requests (arXiv recommends 3s)
@@ -107,14 +107,14 @@ class ArxivClient:
         sort_order: str = "descending",
     ) -> list[ArxivPaper]:
         """Search for papers on arXiv.
-        
+
         Args:
             query: Search query (supports arXiv query syntax)
             max_results: Maximum number of results (max 1000)
             start: Starting index for pagination
             sort_by: Sort field ("relevance", "lastUpdatedDate", "submittedDate")
             sort_order: Sort order ("ascending", "descending")
-            
+
         Returns:
             List of ArxivPaper objects
         """
@@ -143,10 +143,10 @@ class ArxivClient:
 
     def get_paper(self, arxiv_id: str) -> ArxivPaper | None:
         """Get a specific paper by arXiv ID.
-        
+
         Args:
             arxiv_id: arXiv paper ID (e.g., "2101.00001" or "hep-th/9901001")
-            
+
         Returns:
             ArxivPaper or None if not found
         """
@@ -175,12 +175,12 @@ class ArxivClient:
         max_results: int = 10,
     ) -> list[ArxivPaper]:
         """Search within a specific arXiv category.
-        
+
         Args:
             category: arXiv category (e.g., "cs.LG", "q-bio.NC")
             query: Additional search query
             max_results: Maximum number of results
-            
+
         Returns:
             List of ArxivPaper objects
         """
@@ -225,11 +225,17 @@ class ArxivClient:
 
             # Title
             title_elem = entry.find(f"{ATOM_NS}title")
-            title = title_elem.text.strip().replace("\n", " ") if title_elem is not None and title_elem.text else ""
+            title = (
+                title_elem.text.strip().replace("\n", " ")
+                if title_elem is not None and title_elem.text
+                else ""
+            )
 
             # Abstract
             summary_elem = entry.find(f"{ATOM_NS}summary")
-            abstract = summary_elem.text.strip() if summary_elem is not None and summary_elem.text else ""
+            abstract = (
+                summary_elem.text.strip() if summary_elem is not None and summary_elem.text else ""
+            )
 
             # Authors
             authors = []
@@ -295,11 +301,11 @@ class ArxivClient:
 
     def download_pdf(self, arxiv_id: str, output_path: str) -> bool:
         """Download PDF for an arXiv paper.
-        
+
         Args:
             arxiv_id: arXiv paper ID
             output_path: Path to save the PDF
-            
+
         Returns:
             True if download successful
         """

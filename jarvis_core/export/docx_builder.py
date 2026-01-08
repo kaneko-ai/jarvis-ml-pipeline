@@ -1,10 +1,12 @@
 """DOCX export helpers for writing drafts."""
+
 from __future__ import annotations
 
 from pathlib import Path
 
 try:
     from docx import Document
+
     DOCX_AVAILABLE = True
 except ImportError:  # pragma: no cover
     DOCX_AVAILABLE = False

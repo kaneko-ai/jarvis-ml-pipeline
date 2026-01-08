@@ -11,6 +11,7 @@ from jarvis_core.sync.schema import QueueItem, QueueItemStatus
 
 logger = logging.getLogger(__name__)
 
+
 class SyncQueueStorage:
     def __init__(self, db_path: Path | None = None):
         if db_path is None:
@@ -28,7 +29,8 @@ class SyncQueueStorage:
 
     def _initialize_db(self) -> None:
         with self._get_connection() as conn:
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS sync_queue (
                     id TEXT PRIMARY KEY,
                     operation TEXT NOT NULL,
@@ -41,7 +43,8 @@ class SyncQueueStorage:
                     error TEXT,
                     result TEXT
                 )
-            """)
+            """
+            )
             conn.execute("CREATE INDEX IF NOT EXISTS idx_status ON sync_queue(status)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_created ON sync_queue(created_at)")
 
@@ -67,7 +70,7 @@ class SyncQueueStorage:
                     item.max_retries,
                     item.retry_count,
                     item.error,
-                    json.dumps(item.result) if item.result else None
+                    json.dumps(item.result) if item.result else None,
                 ),
             )
         logger.debug(f"Enqueued: {item.id} ({item.operation})")
@@ -85,7 +88,9 @@ class SyncQueueStorage:
             ).fetchall()
             return [self._row_to_item(row) for row in rows]
 
-    def update_status(self, item_id: str, status: QueueItemStatus, error: str | None = None) -> None:
+    def update_status(
+        self, item_id: str, status: QueueItemStatus, error: str | None = None
+    ) -> None:
         now = datetime.now().isoformat()
         with self._get_connection() as conn:
             conn.execute(

@@ -17,12 +17,13 @@ logger = logging.getLogger(__name__)
 @dataclass
 class RankScore:
     """ランクスコア."""
-    novelty: float = 0.0         # 新規性
-    credibility: float = 0.0     # 信頼度（一次情報）
-    relevance: float = 0.0       # Javisとの関連度
+
+    novelty: float = 0.0  # 新規性
+    credibility: float = 0.0  # 信頼度（一次情報）
+    relevance: float = 0.0  # Javisとの関連度
     implementation_cost: float = 0.0  # 導入コスト（低いほど良い）
-    risk: float = 0.0            # リスク（低いほど良い）
-    evidence_strength: float = 0.0    # エビデンス強度
+    risk: float = 0.0  # リスク（低いほど良い）
+    evidence_strength: float = 0.0  # エビデンス強度
 
     @property
     def total(self) -> float:
@@ -50,39 +51,48 @@ class RankScore:
 
 class TrendRanker:
     """トレンドランカー.
-    
+
     初期: ルールベース
     将来: LightGBM Rankerへ移行
     """
 
     def __init__(
-        self,
-        relevance_keywords: list[str] | None = None,
-        credible_sources: list[str] | None = None
+        self, relevance_keywords: list[str] | None = None, credible_sources: list[str] | None = None
     ):
         """
         初期化.
-        
+
         Args:
             relevance_keywords: 関連度判定用キーワード
             credible_sources: 信頼できるソースリスト
         """
         self.relevance_keywords = relevance_keywords or [
-            "research", "meta-analysis", "systematic review",
-            "machine learning", "LLM", "RAG", "agent",
-            "evaluation", "benchmark", "reproducibility",
+            "research",
+            "meta-analysis",
+            "systematic review",
+            "machine learning",
+            "LLM",
+            "RAG",
+            "agent",
+            "evaluation",
+            "benchmark",
+            "reproducibility",
         ]
         self.credible_sources = credible_sources or [
-            "arxiv", "pubmed", "nature", "science", "cell",
+            "arxiv",
+            "pubmed",
+            "nature",
+            "science",
+            "cell",
         ]
 
     def rank(self, items: list[TrendItem]) -> list[tuple[TrendItem, RankScore]]:
         """
         アイテムをランキング.
-        
+
         Args:
             items: TrendItemリスト
-        
+
         Returns:
             (TrendItem, RankScore) のリスト（スコア降順）
         """

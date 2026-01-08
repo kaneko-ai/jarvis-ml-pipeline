@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class RunAPI:
     """Run API（ログ契約のみ）.
-    
+
     Step 81-82: APIはrun_idを返すだけ、result.jsonを返すだけ
     """
 
@@ -41,7 +41,7 @@ class RunAPI:
         if not result_path.exists():
             return None
 
-        with open(result_path, encoding='utf-8') as f:
+        with open(result_path, encoding="utf-8") as f:
             return json.load(f)
 
     def get_eval_summary(self, run_id: str) -> dict[str, Any] | None:
@@ -51,7 +51,7 @@ class RunAPI:
         if not eval_path.exists():
             return None
 
-        with open(eval_path, encoding='utf-8') as f:
+        with open(eval_path, encoding="utf-8") as f:
             return json.load(f)
 
     def list_runs(self, limit: int = 20) -> list[dict[str, Any]]:
@@ -67,7 +67,7 @@ class RunAPI:
             # result.jsonがあれば読む
             result_path = run_dir / "result.json"
             if result_path.exists():
-                with open(result_path, encoding='utf-8') as f:
+                with open(result_path, encoding="utf-8") as f:
                     result = json.load(f)
                 run_info["status"] = result.get("status", "unknown")
                 run_info["timestamp"] = result.get("timestamp")
@@ -82,7 +82,7 @@ class RunAPI:
 
 class UIDataProvider:
     """UIデータプロバイダー.
-    
+
     Step 83-90: UIはlogs/runsを読むだけ（UIが判定しない）
     """
 
@@ -102,7 +102,7 @@ class UIDataProvider:
         # result.json
         result_path = run_dir / "result.json"
         if result_path.exists():
-            with open(result_path, encoding='utf-8') as f:
+            with open(result_path, encoding="utf-8") as f:
                 result = json.load(f)
             display["status"] = result.get("status")
             display["answer"] = result.get("answer", "")[:500]
@@ -111,7 +111,7 @@ class UIDataProvider:
         # eval_summary.json（Step 84, 86）
         eval_path = run_dir / "eval_summary.json"
         if eval_path.exists():
-            with open(eval_path, encoding='utf-8') as f:
+            with open(eval_path, encoding="utf-8") as f:
                 eval_data = json.load(f)
             display["gate_passed"] = eval_data.get("gate_passed")
             display["fail_reasons"] = eval_data.get("fail_reasons", [])
@@ -121,7 +121,7 @@ class UIDataProvider:
         papers_path = run_dir / "papers.jsonl"
         if papers_path.exists():
             papers = []
-            with open(papers_path, encoding='utf-8') as f:
+            with open(papers_path, encoding="utf-8") as f:
                 for line in f:
                     if line.strip():
                         papers.append(json.loads(line))
@@ -131,7 +131,7 @@ class UIDataProvider:
         warnings_path = run_dir / "warnings.jsonl"
         if warnings_path.exists():
             warnings = []
-            with open(warnings_path, encoding='utf-8') as f:
+            with open(warnings_path, encoding="utf-8") as f:
                 for line in f:
                     if line.strip():
                         warnings.append(json.loads(line))
@@ -139,9 +139,16 @@ class UIDataProvider:
 
         # Bundle完全性（Step 87-88）
         required_files = [
-            "input.json", "run_config.json", "result.json", "eval_summary.json",
-            "papers.jsonl", "claims.jsonl", "evidence.jsonl", "scores.json",
-            "report.md", "warnings.jsonl"
+            "input.json",
+            "run_config.json",
+            "result.json",
+            "eval_summary.json",
+            "papers.jsonl",
+            "claims.jsonl",
+            "evidence.jsonl",
+            "scores.json",
+            "report.md",
+            "warnings.jsonl",
         ]
         display["bundle_status"] = {f: (run_dir / f).exists() for f in required_files}
         display["bundle_complete"] = all(display["bundle_status"].values())

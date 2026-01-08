@@ -3,6 +3,7 @@
 Per V4-A2, this adapts existing modules to v4.0 Artifact contract
 without breaking backward compatibility.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -31,11 +32,13 @@ def adapt_gap_analysis(result: dict) -> ArtifactBase:
 
     recommendations = []
     if result.get("gap_score", 0) > 0.5:
-        recommendations.append(Recommendation(
-            statement=f"Pursue research in {result.get('concept')}",
-            rationale=result.get("reason", "High gap score"),
-            priority="high" if result.get("gap_score", 0) > 0.7 else "medium",
-        ))
+        recommendations.append(
+            Recommendation(
+                statement=f"Pursue research in {result.get('concept')}",
+                rationale=result.get("reason", "High gap score"),
+                priority="high" if result.get("gap_score", 0) > 0.7 else "medium",
+            )
+        )
 
     return ArtifactBase(
         kind="gap_analysis",
@@ -76,16 +79,20 @@ def adapt_recommendation(result: dict) -> ArtifactBase:
     recommendations = []
 
     for paper in result if isinstance(result, list) else [result]:
-        inferences.append(Inference(
-            statement=f"Paper {paper.get('paper_id', 'unknown')} is relevant",
-            method="concept_similarity_scoring",
-            confidence=paper.get("score", 0.5),
-        ))
+        inferences.append(
+            Inference(
+                statement=f"Paper {paper.get('paper_id', 'unknown')} is relevant",
+                method="concept_similarity_scoring",
+                confidence=paper.get("score", 0.5),
+            )
+        )
         if paper.get("score", 0) > 0.6:
-            recommendations.append(Recommendation(
-                statement=f"Review {paper.get('paper_id')}",
-                rationale=paper.get("reason", "High relevance score"),
-            ))
+            recommendations.append(
+                Recommendation(
+                    statement=f"Review {paper.get('paper_id')}",
+                    rationale=paper.get("reason", "High relevance score"),
+                )
+            )
 
     return ArtifactBase(
         kind="paper_recommendation",
@@ -145,11 +152,13 @@ def adapt_grant_optimizer(result: dict) -> ArtifactBase:
     """Adapt grant optimizer output to Artifact."""
     recommendations = []
     for risk in result.get("risks", []):
-        recommendations.append(Recommendation(
-            statement=f"Address: {risk}",
-            rationale="Risk mitigation",
-            priority="high",
-        ))
+        recommendations.append(
+            Recommendation(
+                statement=f"Address: {risk}",
+                rationale="Risk mitigation",
+                priority="high",
+            )
+        )
 
     return ArtifactBase(
         kind="grant_optimization",

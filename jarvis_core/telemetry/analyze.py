@@ -2,6 +2,7 @@
 
 Per PR-69, provides failure analysis and step statistics.
 """
+
 from __future__ import annotations
 
 import json
@@ -86,13 +87,15 @@ def analyze_events(events_file: Path) -> RunAnalysis:
         if level == "ERROR":
             stats[evt_type].error_count += 1
             payload = event.get("payload", {})
-            failures.append(FailureRecord(
-                event=evt,
-                error_type=payload.get("error_type", "Unknown"),
-                error_message=payload.get("error", "")[:100],
-                step_id=step_id,
-                tool=tool,
-            ))
+            failures.append(
+                FailureRecord(
+                    event=evt,
+                    error_type=payload.get("error_type", "Unknown"),
+                    error_message=payload.get("error", "")[:100],
+                    step_id=step_id,
+                    tool=tool,
+                )
+            )
         else:
             stats[evt_type].success_count += 1
 
@@ -102,7 +105,9 @@ def analyze_events(events_file: Path) -> RunAnalysis:
         key = f"{f.event}:{f.error_type}"
         failure_counts[key] += 1
 
-    top_failures = sorted(failures, key=lambda f: failure_counts[f"{f.event}:{f.error_type}"], reverse=True)[:10]
+    top_failures = sorted(
+        failures, key=lambda f: failure_counts[f"{f.event}:{f.error_type}"], reverse=True
+    )[:10]
 
     return RunAnalysis(
         run_id=run_id,
@@ -121,9 +126,11 @@ def print_analysis(analysis: RunAnalysis) -> None:
 
     print("Step Statistics:")
     for step_type, stats in sorted(analysis.step_stats.items()):
-        print(f"  {step_type}: {stats.count} events, "
-              f"{stats.success_rate:.0%} success, "
-              f"{stats.error_count} errors")
+        print(
+            f"  {step_type}: {stats.count} events, "
+            f"{stats.success_rate:.0%} success, "
+            f"{stats.error_count} errors"
+        )
 
     if analysis.top_failures:
         print()

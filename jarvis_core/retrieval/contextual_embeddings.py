@@ -2,6 +2,7 @@
 
 Per RP-301, generates embeddings with surrounding context.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -21,7 +22,7 @@ class ContextualChunk:
 
 class ContextualEmbedder:
     """Generates embeddings with contextual awareness.
-    
+
     Per RP-301:
     - Integrates surrounding chunk context
     - Prefixes section titles
@@ -46,11 +47,11 @@ class ContextualEmbedder:
         paper_metadata: dict[str, Any] | None = None,
     ) -> str:
         """Prepare text with context for embedding.
-        
+
         Args:
             chunk: The chunk to embed.
             paper_metadata: Optional paper metadata (year, journal, etc.).
-            
+
         Returns:
             Contextualized text string.
         """
@@ -82,19 +83,16 @@ class ContextualEmbedder:
         paper_metadata: dict[str, Any] | None = None,
     ) -> list[list[float]]:
         """Generate contextual embeddings.
-        
+
         Args:
             chunks: List of chunks to embed.
             paper_metadata: Optional paper metadata.
-            
+
         Returns:
             List of embedding vectors.
         """
         # Prepare contextualized texts
-        texts = [
-            self.prepare_contextual_text(chunk, paper_metadata)
-            for chunk in chunks
-        ]
+        texts = [self.prepare_contextual_text(chunk, paper_metadata) for chunk in chunks]
 
         # Use base embedder if available
         if self.base_embedder:
@@ -109,11 +107,11 @@ class ContextualEmbedder:
         sections: list[dict[str, Any]] | None = None,
     ) -> list[ContextualChunk]:
         """Add context information to raw chunks.
-        
+
         Args:
             chunks: List of raw chunk dicts.
             sections: Optional section information.
-            
+
         Returns:
             List of ContextualChunk objects.
         """
@@ -141,12 +139,14 @@ class ContextualEmbedder:
                         section_title = section.get("title", "")
                         break
 
-            contextual.append(ContextualChunk(
-                chunk_id=chunk.get("chunk_id", str(i)),
-                text=chunk.get("text", ""),
-                context_prefix=section_title or prev_text[:50],
-                context_suffix=next_text,
-                metadata=chunk.get("metadata", {}),
-            ))
+            contextual.append(
+                ContextualChunk(
+                    chunk_id=chunk.get("chunk_id", str(i)),
+                    text=chunk.get("text", ""),
+                    context_prefix=section_title or prev_text[:50],
+                    context_suffix=next_text,
+                    metadata=chunk.get("metadata", {}),
+                )
+            )
 
         return contextual

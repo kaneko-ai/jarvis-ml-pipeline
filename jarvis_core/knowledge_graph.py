@@ -2,6 +2,7 @@
 
 Per Issue Ω-9, this integrates causal edges with vector distances.
 """
+
 from __future__ import annotations
 
 import math
@@ -62,13 +63,15 @@ class HybridKnowledgeGraph:
                     node_type="concept",
                 )
 
-            self.edges.append(KnowledgeEdge(
-                source=pv.paper_id,
-                target=concept,
-                relation="discusses",
-                weight=score,
-                evidence_papers=[pv.paper_id],
-            ))
+            self.edges.append(
+                KnowledgeEdge(
+                    source=pv.paper_id,
+                    target=concept,
+                    relation="discusses",
+                    weight=score,
+                    evidence_papers=[pv.paper_id],
+                )
+            )
 
     def build_from_vectors(self, vectors: list[PaperVector]) -> None:
         """Build graph from list of paper vectors."""
@@ -90,17 +93,19 @@ class HybridKnowledgeGraph:
 
         concepts = list(concept_papers.keys())
         for i, c1 in enumerate(concepts):
-            for c2 in concepts[i + 1:]:
+            for c2 in concepts[i + 1 :]:
                 shared = concept_papers[c1] & concept_papers[c2]
                 if shared:
                     weight = len(shared) / max(len(concept_papers[c1]), len(concept_papers[c2]))
-                    self.edges.append(KnowledgeEdge(
-                        source=c1,
-                        target=c2,
-                        relation="co_occurs",
-                        weight=weight,
-                        evidence_papers=list(shared),
-                    ))
+                    self.edges.append(
+                        KnowledgeEdge(
+                            source=c1,
+                            target=c2,
+                            relation="co_occurs",
+                            weight=weight,
+                            evidence_papers=list(shared),
+                        )
+                    )
 
     def get_vector_distance(self, id1: str, id2: str) -> float:
         """Get vector distance between two papers."""
@@ -164,8 +169,7 @@ class HybridKnowledgeGraph:
         """Convert to dictionary."""
         return {
             "nodes": [
-                {"id": n.id, "label": n.label, "type": n.node_type}
-                for n in self.nodes.values()
+                {"id": n.id, "label": n.label, "type": n.node_type} for n in self.nodes.values()
             ],
             "edges": [
                 {"source": e.source, "target": e.target, "relation": e.relation, "weight": e.weight}

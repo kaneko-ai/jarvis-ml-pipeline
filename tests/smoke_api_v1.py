@@ -23,12 +23,16 @@ def client(tmp_path, monkeypatch):
     run_dir = runs_dir / "run-123"
     run_dir.mkdir(parents=True, exist_ok=True)
     (run_dir / "result.json").write_text(json.dumps({"status": "success"}), encoding="utf-8")
-    (run_dir / "eval_summary.json").write_text(json.dumps({"metrics": {"kpi": 1}}), encoding="utf-8")
+    (run_dir / "eval_summary.json").write_text(
+        json.dumps({"metrics": {"kpi": 1}}), encoding="utf-8"
+    )
     (run_dir / "progress.json").write_text(
         json.dumps({"step": "done", "percent": 100, "counts": {"items": 1}}),
         encoding="utf-8",
     )
-    (run_dir / "warnings.jsonl").write_text(json.dumps({"warning": "none"}) + "\n", encoding="utf-8")
+    (run_dir / "warnings.jsonl").write_text(
+        json.dumps({"warning": "none"}) + "\n", encoding="utf-8"
+    )
     (run_dir / "errors.jsonl").write_text("", encoding="utf-8")
     artifacts_dir = run_dir / "artifacts"
     artifacts_dir.mkdir(parents=True, exist_ok=True)

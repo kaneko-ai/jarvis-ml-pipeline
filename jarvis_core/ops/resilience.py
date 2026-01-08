@@ -5,6 +5,7 @@
 - グレースフルシャットダウン
 - 自動復旧
 """
+
 from __future__ import annotations
 
 import logging
@@ -23,6 +24,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ResourceMetrics:
     """リソースメトリクス."""
+
     memory_mb: float = 0.0
     cpu_percent: float = 0.0
     disk_free_gb: float = 0.0
@@ -41,7 +43,7 @@ class ResourceMetrics:
 
 class ResourceMonitor:
     """リソースモニター.
-    
+
     システムリソースを監視し、問題を早期検出。
     """
 
@@ -87,7 +89,7 @@ class ResourceMonitor:
             metrics.open_files = len(process.open_files())
 
             disk = psutil.disk_usage("/")
-            metrics.disk_free_gb = disk.free / (1024 ** 3)
+            metrics.disk_free_gb = disk.free / (1024**3)
         except ImportError:
             # psutilがない場合は基本情報のみ
             pass
@@ -132,7 +134,7 @@ class ResourceMonitor:
 
 class GracefulShutdown:
     """グレースフルシャットダウン.
-    
+
     SIGINT/SIGTERMを捕捉し、クリーンに終了。
     """
 
@@ -170,7 +172,7 @@ class GracefulShutdown:
 
 class AutoRecovery:
     """自動復旧.
-    
+
     エラー後の自動復旧を試みる。
     """
 
@@ -195,7 +197,7 @@ class AutoRecovery:
                 logger.warning(f"Attempt {attempt + 1} failed: {e}")
 
                 if attempt < self.max_retries - 1:
-                    wait_time = self.backoff * (2 ** attempt)
+                    wait_time = self.backoff * (2**attempt)
                     logger.info(f"Retrying in {wait_time}s...")
                     time.sleep(wait_time)
 

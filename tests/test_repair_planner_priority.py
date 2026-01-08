@@ -2,6 +2,7 @@
 
 Per RP-186.
 """
+
 import pytest
 
 pytestmark = pytest.mark.core
@@ -17,15 +18,15 @@ class TestRepairPlannerPriority:
 
         planner = RepairPlanner()
 
-        signals = [FailureSignal(
-            code=FailureCode.FETCH_PDF_FAILED,
-            message="PDF not found",
-            stage=FailureStage.FETCH,
-        )]
+        signals = [
+            FailureSignal(
+                code=FailureCode.FETCH_PDF_FAILED,
+                message="PDF not found",
+                stage=FailureStage.FETCH,
+            )
+        ]
 
-        config = {"repair_policy": {"allowed_actions": [
-            "SWITCH_FETCH_ADAPTER", "INCREASE_TOP_K"
-        ]}}
+        config = {"repair_policy": {"allowed_actions": ["SWITCH_FETCH_ADAPTER", "INCREASE_TOP_K"]}}
 
         actions = planner.plan(signals, {}, config)
 
@@ -39,15 +40,19 @@ class TestRepairPlannerPriority:
 
         planner = RepairPlanner()
 
-        signals = [FailureSignal(
-            code=FailureCode.CITATION_GATE_FAILED,
-            message="Not enough citations",
-            stage=FailureStage.VALIDATE,
-        )]
+        signals = [
+            FailureSignal(
+                code=FailureCode.CITATION_GATE_FAILED,
+                message="Not enough citations",
+                stage=FailureStage.VALIDATE,
+            )
+        ]
 
-        config = {"repair_policy": {"allowed_actions": [
-            "INCREASE_TOP_K", "TIGHTEN_MMR", "CITATION_FIRST_PROMPT"
-        ]}}
+        config = {
+            "repair_policy": {
+                "allowed_actions": ["INCREASE_TOP_K", "TIGHTEN_MMR", "CITATION_FIRST_PROMPT"]
+            }
+        }
 
         actions = planner.plan(signals, {}, config)
 
@@ -60,18 +65,18 @@ class TestRepairPlannerPriority:
 
         planner = RepairPlanner()
 
-        signals = [FailureSignal(
-            code=FailureCode.CITATION_GATE_FAILED,
-            message="Not enough citations",
-            stage=FailureStage.VALIDATE,
-        )]
+        signals = [
+            FailureSignal(
+                code=FailureCode.CITATION_GATE_FAILED,
+                message="Not enough citations",
+                stage=FailureStage.VALIDATE,
+            )
+        ]
 
         # Action was just applied
         state = {"action_history": ["INCREASE_TOP_K"]}
 
-        config = {"repair_policy": {"allowed_actions": [
-            "INCREASE_TOP_K", "TIGHTEN_MMR"
-        ]}}
+        config = {"repair_policy": {"allowed_actions": ["INCREASE_TOP_K", "TIGHTEN_MMR"]}}
 
         actions = planner.plan(signals, state, config)
 
@@ -86,11 +91,13 @@ class TestRepairPlannerPriority:
 
         planner = RepairPlanner()
 
-        signals = [FailureSignal(
-            code=FailureCode.MODEL_ERROR,
-            message="API error",
-            stage=FailureStage.GENERATE,
-        )]
+        signals = [
+            FailureSignal(
+                code=FailureCode.MODEL_ERROR,
+                message="API error",
+                stage=FailureStage.GENERATE,
+            )
+        ]
 
         config = {"repair_policy": {"allowed_actions": ["MODEL_ROUTER_SAFE_SWITCH"]}}
 

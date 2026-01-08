@@ -2,6 +2,7 @@
 
 Per RP31, this projects papers to interpretable 3D space.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -41,15 +42,19 @@ def project_all_to_3d(
     results = []
     for paper in papers:
         x, y, z = project_to_3d(paper)
-        results.append({
-            "paper_id": paper.paper_id,
-            "source_locator": paper.source_locator,
-            "x": x,
-            "y": y,
-            "z": z,
-            "year": paper.metadata.year,
-            "top_concept": paper.concept.top_concepts(1)[0][0] if paper.concept.concepts else None,
-        })
+        results.append(
+            {
+                "paper_id": paper.paper_id,
+                "source_locator": paper.source_locator,
+                "x": x,
+                "y": y,
+                "z": z,
+                "year": paper.metadata.year,
+                "top_concept": (
+                    paper.concept.top_concepts(1)[0][0] if paper.concept.concepts else None
+                ),
+            }
+        )
     return results
 
 

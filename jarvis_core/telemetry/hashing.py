@@ -2,6 +2,7 @@
 
 Per RP-02, this provides deterministic hashing for prompts and inputs.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -18,7 +19,7 @@ def normalize_text(text: str) -> str:
     - Strip leading/trailing whitespace
     """
     text = text.lower()
-    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r"\s+", " ", text)
     return text.strip()
 
 

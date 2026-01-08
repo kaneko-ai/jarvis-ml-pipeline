@@ -1,4 +1,5 @@
 """JARVIS Contracts Module - I/O契約"""
+
 from .types import (
     Artifacts,
     ArtifactsDelta,

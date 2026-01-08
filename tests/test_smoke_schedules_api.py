@@ -17,8 +17,16 @@ def test_schedules_api_smoke(monkeypatch, tmp_path):
         "timezone": "UTC",
         "rrule": "FREQ=WEEKLY;BYDAY=MO;BYHOUR=3;BYMINUTE=0;BYSECOND=0",
         "query": {"keywords": ["CD73"], "date_range_days": 30, "oa_only": True, "max_papers": 10},
-        "outputs": {"generate_notes": True, "generate_package_zip": True, "generate_submission_package": False},
-        "limits": {"max_runtime_minutes": 60, "max_retries": 1, "cooldown_minutes_after_failure": 10},
+        "outputs": {
+            "generate_notes": True,
+            "generate_package_zip": True,
+            "generate_submission_package": False,
+        },
+        "limits": {
+            "max_runtime_minutes": 60,
+            "max_retries": 1,
+            "cooldown_minutes_after_failure": 10,
+        },
     }
 
     response = client.post("/api/schedules", json=payload)

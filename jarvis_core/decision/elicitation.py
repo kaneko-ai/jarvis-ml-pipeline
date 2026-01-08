@@ -1,4 +1,5 @@
 """Elicitation helper for decision inputs."""
+
 from __future__ import annotations
 
 from pydantic import ValidationError

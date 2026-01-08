@@ -2,6 +2,7 @@
 
 Per RP37, this enables searching across past research assets.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -51,6 +52,7 @@ def search_memory(
 
         # Year matching
         import re
+
         year_match = re.search(r"\b(19|20)\d{2}\b", query)
         if year_match:
             year = int(year_match.group())
@@ -104,6 +106,7 @@ def find_related(
 
         # Biological axis similarity
         import math
+
         ba_paper = paper.biological_axis.as_tuple()
         ba_v = v.biological_axis.as_tuple()
         distance = math.sqrt(sum((a - b) ** 2 for a, b in zip(ba_paper, ba_v)))

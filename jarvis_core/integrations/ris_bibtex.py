@@ -3,6 +3,7 @@
 Per JARVIS_COMPLETION_PLAN_v3 Sprint 20: 外部連携
 Provides import/export functionality for common reference formats.
 """
+
 from __future__ import annotations
 
 import json
@@ -75,10 +76,10 @@ class RISParser:
 
     def parse(self, content: str) -> list[Reference]:
         """Parse RIS content.
-        
+
         Args:
             content: RIS file content
-            
+
         Returns:
             List of Reference objects
         """
@@ -151,10 +152,10 @@ class BibTeXParser:
 
     def parse(self, content: str) -> list[Reference]:
         """Parse BibTeX content.
-        
+
         Args:
             content: BibTeX file content
-            
+
         Returns:
             List of Reference objects
         """
@@ -225,10 +226,10 @@ class RISExporter:
 
     def export(self, references: list[Reference]) -> str:
         """Export references to RIS format.
-        
+
         Args:
             references: List of Reference objects
-            
+
         Returns:
             RIS formatted string
         """
@@ -278,10 +279,10 @@ class BibTeXExporter:
 
     def export(self, references: list[Reference]) -> str:
         """Export references to BibTeX format.
-        
+
         Args:
             references: List of Reference objects
-            
+
         Returns:
             BibTeX formatted string
         """
@@ -343,11 +344,11 @@ def import_references(
     format: str,
 ) -> list[Reference]:
     """Import references from file.
-    
+
     Args:
         input_path: Path to input file
         format: Format (ris, bibtex)
-        
+
     Returns:
         List of Reference objects
     """
@@ -369,7 +370,7 @@ def export_references(
     format: str,
 ) -> None:
     """Export references to file.
-    
+
     Args:
         references: List of Reference objects
         output_path: Path to output file
@@ -388,7 +389,7 @@ def export_references(
 
 def references_to_jsonl(references: list[Reference], output_path: Path) -> None:
     """Save references as JSONL.
-    
+
     Args:
         references: List of Reference objects
         output_path: Path to output JSONL file
@@ -400,10 +401,10 @@ def references_to_jsonl(references: list[Reference], output_path: Path) -> None:
 
 def jsonl_to_references(input_path: Path) -> list[Reference]:
     """Load references from JSONL.
-    
+
     Args:
         input_path: Path to input JSONL file
-        
+
     Returns:
         List of Reference objects
     """

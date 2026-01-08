@@ -18,8 +18,7 @@ class TestRegressionRunnerSmoke:
         # Create test gold set
         gold_file = tmp_path / "test_gold.jsonl"
         gold_file.write_text(
-            '{"id": "1", "query": "test query"}\n'
-            '{"id": "2", "query": "another query"}\n'
+            '{"id": "1", "query": "test query"}\n' '{"id": "2", "query": "another query"}\n'
         )
 
         cases = load_gold_set(str(gold_file))

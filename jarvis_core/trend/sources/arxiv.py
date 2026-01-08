@@ -20,14 +20,10 @@ class ArxivSource(TrendSource):
     def name(self) -> str:
         return "arxiv"
 
-    def fetch(
-        self,
-        queries: list[str],
-        max_results: int = 50
-    ) -> list[TrendItem]:
+    def fetch(self, queries: list[str], max_results: int = 50) -> list[TrendItem]:
         """
         arXivからトレンドを取得.
-        
+
         絶対ルール:
         - arXivはOAなので自動取得可
         """

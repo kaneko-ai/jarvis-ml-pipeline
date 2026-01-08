@@ -8,11 +8,9 @@ google_genai_stub = types.ModuleType("google.genai")
 
 
 class _DummyErrors:
-    class ServerError(Exception):
-        ...
+    class ServerError(Exception): ...
 
-    class ClientError(Exception):
-        ...
+    class ClientError(Exception): ...
 
 
 class _DummyModels:
@@ -84,4 +82,3 @@ def test_router_respects_agent_hint():
     result = router.run(task)
     assert "analyzing papers" in result.answer
     assert result.meta and result.meta.get("source") == "mygpt_paper_analyzer_stub"
-

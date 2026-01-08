@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SearchResult:
     """検索結果."""
+
     doc_id: str
     text: str
     score: float
@@ -27,7 +28,7 @@ class SearchResult:
 
 class EmbeddingModel:
     """Embeddingモデル.
-    
+
     SentenceTransformersまたはOpenAI Embeddingsを使用
     """
 
@@ -41,6 +42,7 @@ class EmbeddingModel:
         if self._model is None:
             try:
                 from sentence_transformers import SentenceTransformer
+
                 self._model = SentenceTransformer(self.model_name)
                 logger.info(f"Loaded embedding model: {self.model_name}")
             except ImportError:
@@ -50,10 +52,10 @@ class EmbeddingModel:
 
     def embed(self, texts: list[str]) -> np.ndarray:
         """テキストをembedding.
-        
+
         Args:
             texts: テキストリスト
-        
+
         Returns:
             Embedding行列 (n_texts, dim)
         """
@@ -74,7 +76,7 @@ class EmbeddingModel:
 
 class SemanticIndex:
     """セマンティックインデックス.
-    
+
     FAISSを使用した類似検索
     """
 
@@ -89,6 +91,7 @@ class SemanticIndex:
         """FAISSを遅延ロード."""
         try:
             import faiss
+
             return faiss
         except ImportError:
             logger.warning("faiss not installed. Install with: pip install faiss-cpu")
@@ -96,7 +99,7 @@ class SemanticIndex:
 
     def add_documents(self, documents: list[dict[str, Any]], text_key: str = "text"):
         """ドキュメントを追加.
-        
+
         Args:
             documents: ドキュメントリスト（text_keyを含む）
             text_key: テキストフィールド名
@@ -134,11 +137,11 @@ class SemanticIndex:
 
     def search(self, query: str, top_k: int = 10) -> list[SearchResult]:
         """類似検索.
-        
+
         Args:
             query: 検索クエリ
             top_k: 上位k件
-        
+
         Returns:
             検索結果リスト
         """
@@ -153,20 +156,21 @@ class SemanticIndex:
             # FAISS検索
             query_norm = query_embedding / (np.linalg.norm(query_embedding) + 1e-10)
             scores, indices = self._index.search(
-                query_norm.reshape(1, -1),
-                min(top_k, len(self.documents))
+                query_norm.reshape(1, -1), min(top_k, len(self.documents))
             )
 
             results = []
             for score, idx in zip(scores[0], indices[0]):
                 if idx >= 0:
                     doc = self.documents[idx]
-                    results.append(SearchResult(
-                        doc_id=doc.get("id", str(idx)),
-                        text=doc.get("text", ""),
-                        score=float(score),
-                        metadata=doc,
-                    ))
+                    results.append(
+                        SearchResult(
+                            doc_id=doc.get("id", str(idx)),
+                            text=doc.get("text", ""),
+                            score=float(score),
+                            metadata=doc,
+                        )
+                    )
             return results
 
         else:
@@ -180,12 +184,14 @@ class SemanticIndex:
             results = []
             for idx in indices:
                 doc = self.documents[idx]
-                results.append(SearchResult(
-                    doc_id=doc.get("id", str(idx)),
-                    text=doc.get("text", ""),
-                    score=float(similarities[idx]),
-                    metadata=doc,
-                ))
+                results.append(
+                    SearchResult(
+                        doc_id=doc.get("id", str(idx)),
+                        text=doc.get("text", ""),
+                        score=float(similarities[idx]),
+                        metadata=doc,
+                    )
+                )
             return results
 
     def save(self, path: str):
@@ -194,13 +200,13 @@ class SemanticIndex:
             "documents": self.documents,
             "embeddings": self.embeddings.tolist() if self.embeddings is not None else None,
         }
-        with open(path, 'w', encoding='utf-8') as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False)
         logger.info(f"Saved index to {path}")
 
     def load(self, path: str):
         """インデックスを読み込み."""
-        with open(path, encoding='utf-8') as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
 
         self.documents = data["documents"]

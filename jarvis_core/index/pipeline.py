@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 2, this provides staged indexing: ingest→normalize→chunk→index.
 """
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -125,8 +126,12 @@ class IndexPipeline:
         """
         current = inputs
 
-        for stage in [PipelineStage.INGEST, PipelineStage.NORMALIZE,
-                      PipelineStage.CHUNK, PipelineStage.INDEX]:
+        for stage in [
+            PipelineStage.INGEST,
+            PipelineStage.NORMALIZE,
+            PipelineStage.CHUNK,
+            PipelineStage.INDEX,
+        ]:
             result = self.run_stage(stage, current, state)
             current = result.outputs
 
@@ -173,7 +178,7 @@ def default_chunk(items: list[Any], chunk_size: int = 500) -> list[Any]:
         words = text.split()
 
         for i in range(0, len(words), chunk_size):
-            chunk_words = words[i:i + chunk_size]
+            chunk_words = words[i : i + chunk_size]
             chunks.append({"text": " ".join(chunk_words), "source": str(item)[:50]})
 
     return chunks

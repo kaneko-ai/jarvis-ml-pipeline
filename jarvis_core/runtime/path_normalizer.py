@@ -2,6 +2,7 @@
 
 Per RP-166, handles Windows/WSL path and encoding differences.
 """
+
 from __future__ import annotations
 
 import re
@@ -123,9 +124,6 @@ def ensure_utf8_stdout():
     """Ensure stdout uses UTF-8 encoding (Windows fix)."""
     if sys.platform == "win32":
         import io
-        sys.stdout = io.TextIOWrapper(
-            sys.stdout.buffer, encoding="utf-8", errors="replace"
-        )
-        sys.stderr = io.TextIOWrapper(
-            sys.stderr.buffer, encoding="utf-8", errors="replace"
-        )
+
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")

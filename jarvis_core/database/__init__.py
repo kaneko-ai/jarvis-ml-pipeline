@@ -1,4 +1,5 @@
 """Database package."""
+
 from .pool import ConnectionPool, PoolConfig, PooledConnection, PoolStats
 
 __all__ = [

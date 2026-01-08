@@ -2,6 +2,7 @@
 
 Tests for Task 1.1: ローカルLLM統合
 """
+
 import os
 from unittest.mock import MagicMock, patch
 
@@ -24,11 +25,15 @@ class TestOllamaAdapter:
 
     def test_ollama_adapter_env_config(self):
         """Test OllamaAdapter uses environment variables."""
-        with patch.dict(os.environ, {
-            "OLLAMA_BASE_URL": "http://custom:8080",
-            "OLLAMA_MODEL": "mistral",
-        }):
+        with patch.dict(
+            os.environ,
+            {
+                "OLLAMA_BASE_URL": "http://custom:8080",
+                "OLLAMA_MODEL": "mistral",
+            },
+        ):
             from jarvis_core.llm.ollama_adapter import OllamaAdapter
+
             adapter = OllamaAdapter()
 
             assert adapter.base_url == "http://custom:8080"
@@ -80,15 +85,11 @@ class TestOllamaAdapter:
         with patch("requests.post") as mock_post:
             mock_response = MagicMock()
             mock_response.status_code = 200
-            mock_response.json.return_value = {
-                "message": {"content": "Hi there!"}
-            }
+            mock_response.json.return_value = {"message": {"content": "Hi there!"}}
             mock_post.return_value = mock_response
 
             adapter = OllamaAdapter()
-            result = adapter.chat([
-                {"role": "user", "content": "Hello"}
-            ])
+            result = adapter.chat([{"role": "user", "content": "Hello"}])
 
             assert result == "Hi there!"
 

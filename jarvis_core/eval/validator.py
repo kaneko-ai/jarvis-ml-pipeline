@@ -5,6 +5,7 @@
 - 根拠カバレッジ検証
 - ハルシネーション検出
 """
+
 from __future__ import annotations
 
 import json
@@ -16,6 +17,7 @@ from typing import Any
 @dataclass
 class ValidationResult:
     """検証結果."""
+
     passed: bool = True
     errors: list[dict[str, Any]] = field(default_factory=list)
     warnings: list[dict[str, Any]] = field(default_factory=list)
@@ -39,7 +41,7 @@ class ValidationResult:
 
 class SchemaValidator:
     """スキーマ検証器.
-    
+
     Bundle契約のスキーマを検証。
     """
 
@@ -114,7 +116,7 @@ class SchemaValidator:
 
 class EvidenceCoverageValidator:
     """根拠カバレッジ検証器.
-    
+
     主張に対する根拠のカバレッジを検証。
     """
 
@@ -174,7 +176,7 @@ class EvidenceCoverageValidator:
 
 class LocatorValidator:
     """Locator検証器.
-    
+
     根拠のlocator（位置情報）を検証。
     """
 
@@ -222,7 +224,7 @@ class LocatorValidator:
 
 class HallucinationValidator:
     """ハルシネーション検証器.
-    
+
     回答内の主張が根拠に裏付けられているか検証。
     """
 
@@ -247,13 +249,32 @@ class HallucinationValidator:
 
         # 回答から断言的な文を抽出
         import re
-        assertions = re.findall(r'[^.!?]*(?:is|are|was|were|has|have|show|demonstrate)[^.!?]*[.!?]', answer.lower())
+
+        assertions = re.findall(
+            r"[^.!?]*(?:is|are|was|were|has|have|show|demonstrate)[^.!?]*[.!?]", answer.lower()
+        )
 
         unsupported = []
         for assertion in assertions[:10]:  # 最大10件チェック
             # キーワード抽出
-            words = re.findall(r'\b[a-z]{4,}\b', assertion)
-            key_words = [w for w in words if w not in {'this', 'that', 'these', 'those', 'have', 'does', 'were', 'there', 'their', 'which'}]
+            words = re.findall(r"\b[a-z]{4,}\b", assertion)
+            key_words = [
+                w
+                for w in words
+                if w
+                not in {
+                    "this",
+                    "that",
+                    "these",
+                    "those",
+                    "have",
+                    "does",
+                    "were",
+                    "there",
+                    "their",
+                    "which",
+                }
+            ]
 
             # 根拠でカバーされているか
             covered = sum(1 for w in key_words if w in all_context.lower())
@@ -277,7 +298,7 @@ class HallucinationValidator:
 
 class GoldenSetValidator:
     """Golden Set検証器.
-    
+
     Golden Setに対する品質を検証。
     """
 

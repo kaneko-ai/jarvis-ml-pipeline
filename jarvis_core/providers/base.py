@@ -14,6 +14,7 @@ from typing import Any
 
 class ProviderType(Enum):
     """プロバイダータイプ."""
+
     API = "api"
     LOCAL = "local"
     HYBRID = "hybrid"
@@ -22,6 +23,7 @@ class ProviderType(Enum):
 @dataclass
 class ProviderConfig:
     """プロバイダー設定."""
+
     provider_type: ProviderType = ProviderType.API
     model: str = ""
     backend: str = ""  # ollama, vllm, etc.
@@ -70,11 +72,7 @@ class LLMProvider(BaseProvider):
 
     @abstractmethod
     def generate(
-        self,
-        prompt: str,
-        max_tokens: int = 1024,
-        temperature: float = 0.7,
-        **kwargs
+        self, prompt: str, max_tokens: int = 1024, temperature: float = 0.7, **kwargs
     ) -> str:
         """テキスト生成."""
         pass
@@ -85,7 +83,7 @@ class LLMProvider(BaseProvider):
         messages: list[dict[str, str]],
         max_tokens: int = 1024,
         temperature: float = 0.7,
-        **kwargs
+        **kwargs,
     ) -> str:
         """チャット形式で生成."""
         pass

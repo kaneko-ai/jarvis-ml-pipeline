@@ -2,6 +2,7 @@
 
 Per RP43, this generates year x concept heatmaps.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -43,10 +44,7 @@ def build_concept_heatmap(
         if concepts:
             max_score = max(concepts.values())
             if max_score > 0:
-                by_year[year_str] = {
-                    c: round(s / max_score, 3)
-                    for c, s in concepts.items()
-                }
+                by_year[year_str] = {c: round(s / max_score, 3) for c, s in concepts.items()}
 
     # Sort by year
     sorted_result = dict(sorted(by_year.items(), key=lambda x: x[0]))
@@ -99,12 +97,14 @@ def get_trending_concepts(
         new_val = new_totals.get(c, 0)
         growth = new_val - old_val
 
-        trends.append({
-            "concept": c,
-            "growth": round(growth, 3),
-            "recent_score": round(new_val, 3),
-            "trend": "rising" if growth > 0.2 else ("falling" if growth < -0.2 else "stable"),
-        })
+        trends.append(
+            {
+                "concept": c,
+                "growth": round(growth, 3),
+                "recent_score": round(new_val, 3),
+                "trend": "rising" if growth > 0.2 else ("falling" if growth < -0.2 else "stable"),
+            }
+        )
 
     trends.sort(key=lambda x: x["growth"], reverse=True)
 

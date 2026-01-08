@@ -1,4 +1,5 @@
 """Suggestion engine for feedback risk mitigation."""
+
 from __future__ import annotations
 
 from .schema import FeedbackEntry
@@ -90,10 +91,12 @@ class SuggestionEngine:
         }
         suggestions = []
         for template in templates.get(category, []):
-            suggestions.append({
-                "before": text,
-                "after": template["after"],
-                "why": template["why"],
-                "tradeoff": template["tradeoff"],
-            })
+            suggestions.append(
+                {
+                    "before": text,
+                    "after": template["after"],
+                    "why": template["why"],
+                    "tradeoff": template["tradeoff"],
+                }
+            )
         return suggestions

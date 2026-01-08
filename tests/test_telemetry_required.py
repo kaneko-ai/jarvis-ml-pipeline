@@ -3,6 +3,7 @@
 Per RP-18, this test ensures telemetry is ALWAYS generated.
 If this test fails, the PR is blocked.
 """
+
 import json
 import sys
 from pathlib import Path
@@ -64,7 +65,7 @@ class TestTelemetryRequired:
             assert key in event, f"Missing required key: {key}"
 
         # Verify RUN_START and RUN_END are both present
-        events_file.seek(0) if hasattr(events_file, 'seek') else None
+        events_file.seek(0) if hasattr(events_file, "seek") else None
         lines = events_file.read_text().strip().split("\n")
         assert len(lines) >= 2, "Expected at least RUN_START and RUN_END"
         assert "RUN_START" in lines[0]

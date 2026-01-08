@@ -10,6 +10,7 @@ Kill条件カテゴリ:
 - KILL-D: 自動化暴走 → 自動停止
 - KILL-E: 運用リスク → 商用モード停止
 """
+
 from __future__ import annotations
 
 import logging
@@ -24,24 +25,27 @@ logger = logging.getLogger(__name__)
 
 class KillCategory(Enum):
     """Kill条件カテゴリ."""
-    KILL_A = "structure_broken"     # 構造破壊
-    KILL_B = "quality_degraded"     # 品質劣化
-    KILL_C = "reproducibility_lost" # 再現性破壊
-    KILL_D = "automation_runaway"   # 自動化暴走
-    KILL_E = "operational_risk"     # 運用リスク
+
+    KILL_A = "structure_broken"  # 構造破壊
+    KILL_B = "quality_degraded"  # 品質劣化
+    KILL_C = "reproducibility_lost"  # 再現性破壊
+    KILL_D = "automation_runaway"  # 自動化暴走
+    KILL_E = "operational_risk"  # 運用リスク
 
 
 class KillSeverity(Enum):
     """Kill深刻度."""
+
     CRITICAL = "critical"  # 即停止
-    HIGH = "high"          # Phase巻き戻し
-    MEDIUM = "medium"      # 警告
-    LOW = "low"           # ログのみ
+    HIGH = "high"  # Phase巻き戻し
+    MEDIUM = "medium"  # 警告
+    LOW = "low"  # ログのみ
 
 
 @dataclass
 class KillCondition:
     """Kill条件の定義."""
+
     id: str
     category: KillCategory
     severity: KillSeverity
@@ -53,6 +57,7 @@ class KillCondition:
 @dataclass
 class KillEvent:
     """Kill発生イベント."""
+
     condition_id: str
     category: KillCategory
     severity: KillSeverity
@@ -80,7 +85,6 @@ KILL_CONDITIONS: list[KillCondition] = [
         check_function="check_spec_lint",
         action="immediate_stop",
     ),
-
     # KILL-B: 品質劣化
     KillCondition(
         id="KILL-B-001",
@@ -98,7 +102,6 @@ KILL_CONDITIONS: list[KillCondition] = [
         check_function="check_gate_fail_success",
         action="phase_rollback",
     ),
-
     # KILL-C: 再現性破壊
     KillCondition(
         id="KILL-C-001",
@@ -108,7 +111,6 @@ KILL_CONDITIONS: list[KillCondition] = [
         check_function="check_structure_diff",
         action="rollback_to_pl2",
     ),
-
     # KILL-D: 自動化暴走
     KillCondition(
         id="KILL-D-001",
@@ -126,7 +128,6 @@ KILL_CONDITIONS: list[KillCondition] = [
         check_function="check_repeated_failures",
         action="auto_stop",
     ),
-
     # KILL-E: 運用リスク
     KillCondition(
         id="KILL-E-001",
@@ -168,7 +169,7 @@ class KillSwitch:
 
     def check_artifact_contract(self, run_dir: Path) -> bool:
         """成果物契約をチェック.
-        
+
         Returns:
             違反があればTrue（Kill条件成立）
         """
@@ -183,7 +184,7 @@ class KillSwitch:
 
     def check_no_citation_success(self, result: dict[str, Any]) -> bool:
         """citation無しsuccessをチェック.
-        
+
         Returns:
             違反があればTrue
         """
@@ -198,7 +199,7 @@ class KillSwitch:
         eval_summary: dict[str, Any],
     ) -> bool:
         """gate_passed=false successをチェック.
-        
+
         Returns:
             違反があればTrue
         """
@@ -208,7 +209,7 @@ class KillSwitch:
 
     def check_retry_limit(self, retry_count: int, max_retries: int = 3) -> bool:
         """retry上限をチェック.
-        
+
         Returns:
             超過していればTrue
         """
@@ -220,11 +221,11 @@ class KillSwitch:
         details: dict[str, Any],
     ) -> KillEvent:
         """Killを発動.
-        
+
         Args:
             condition: 発動したKill条件
             details: 詳細情報
-        
+
         Returns:
             KillEvent
         """
@@ -290,18 +291,19 @@ class KillSwitch:
 # Per Ψ-7, this recommends when to stop research based on vector analysis.
 # =============================================================================
 
+
 def recommend_kill_switch(
     theme: str,
     vectors: list[Any],
     months_invested: int = 12,
 ) -> dict[str, Any]:
     """研究継続・中止の推奨を判定（Ψ-7）.
-    
+
     Args:
         theme: 研究テーマ
         vectors: PaperVectorのリスト
         months_invested: 投資した月数
-    
+
     Returns:
         推奨結果（recommendation: continue/pivot/stop）
     """
@@ -368,11 +370,11 @@ def assess_field_evolution(
     field_name: str = "unknown",
 ) -> dict[str, Any]:
     """分野の進化度を評価（Ψ-7補助）.
-    
+
     Args:
         vectors: PaperVectorのリスト
         field_name: 分野名
-    
+
     Returns:
         評価結果
     """
@@ -415,4 +417,3 @@ def assess_field_evolution(
         "trend": trend,
         "estimated": True,
     }
-

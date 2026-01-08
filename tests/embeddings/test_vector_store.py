@@ -6,7 +6,7 @@ import numpy as np
 
 
 def test_faiss_vector_store_build():
-    with patch('jarvis_core.embeddings.vector_store.FAISSVectorStore._load_faiss') as mock_load:
+    with patch("jarvis_core.embeddings.vector_store.FAISSVectorStore._load_faiss") as mock_load:
         mock_faiss = MagicMock()
         mock_index = MagicMock()
         mock_faiss.IndexFlatIP.return_value = mock_index
@@ -26,17 +26,14 @@ def test_faiss_vector_store_build():
 
 
 def test_faiss_vector_store_search():
-    with patch('jarvis_core.embeddings.vector_store.FAISSVectorStore._load_faiss') as mock_load:
+    with patch("jarvis_core.embeddings.vector_store.FAISSVectorStore._load_faiss") as mock_load:
         mock_faiss = MagicMock()
         mock_index = MagicMock()
         mock_faiss.IndexFlatIP.return_value = mock_index
         mock_load.return_value = mock_faiss
 
         # Mock search results
-        mock_index.search.return_value = (
-            np.array([[0.9, 0.8, 0.7]]),
-            np.array([[0, 1, 2]])
-        )
+        mock_index.search.return_value = (np.array([[0.9, 0.8, 0.7]]), np.array([[0, 1, 2]]))
 
         from jarvis_core.embeddings.vector_store import FAISSVectorStore
 

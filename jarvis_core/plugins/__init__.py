@@ -1,4 +1,5 @@
 """Plugins package."""
+
 from .manager import (
     VALID_TYPES,
     PluginError,

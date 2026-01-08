@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TrendReport:
     """週次トレンドレポート."""
+
     report_id: str
     generated_at: str
     period_start: str
@@ -69,38 +70,39 @@ class TrendReport:
 
         # Markdown
         md_path = path / f"{self.report_id}.md"
-        with open(md_path, 'w', encoding='utf-8') as f:
+        with open(md_path, "w", encoding="utf-8") as f:
             f.write(self.to_markdown())
 
         # JSON
         json_path = path / f"{self.report_id}.json"
-        with open(json_path, 'w', encoding='utf-8') as f:
-            json.dump({
-                "report_id": self.report_id,
-                "generated_at": self.generated_at,
-                "period_start": self.period_start,
-                "period_end": self.period_end,
-                "items_count": len(self.items),
-                "issues": self.issues,
-            }, f, ensure_ascii=False, indent=2)
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(
+                {
+                    "report_id": self.report_id,
+                    "generated_at": self.generated_at,
+                    "period_start": self.period_start,
+                    "period_end": self.period_end,
+                    "items_count": len(self.items),
+                    "issues": self.issues,
+                },
+                f,
+                ensure_ascii=False,
+                indent=2,
+            )
 
         return md_path
 
 
 class TrendWatcher:
     """トレンドウォッチャー.
-    
+
     arXiv / PubMed / Zenn / DAIR.AI 等から並列収集。
     """
 
-    def __init__(
-        self,
-        sources: list[TrendSource] | None = None,
-        ranker: TrendRanker | None = None
-    ):
+    def __init__(self, sources: list[TrendSource] | None = None, ranker: TrendRanker | None = None):
         """
         初期化.
-        
+
         Args:
             sources: トレンドソースリスト
             ranker: ランカー
@@ -113,19 +115,16 @@ class TrendWatcher:
         self.sources.append(source)
 
     def collect(
-        self,
-        queries: list[str],
-        max_per_source: int = 50,
-        period_days: int = 7
+        self, queries: list[str], max_per_source: int = 50, period_days: int = 7
     ) -> list[TrendItem]:
         """
         全ソースからトレンドを収集.
-        
+
         Args:
             queries: 検索クエリリスト
             max_per_source: ソースごとの最大取得数
             period_days: 何日前までを対象とするか
-        
+
         Returns:
             TrendItemリスト
         """
@@ -151,19 +150,16 @@ class TrendWatcher:
         return unique_items
 
     def generate_report(
-        self,
-        items: list[TrendItem],
-        period_start: str,
-        period_end: str
+        self, items: list[TrendItem], period_start: str, period_end: str
     ) -> TrendReport:
         """
         トレンドレポートを生成.
-        
+
         Args:
             items: TrendItemリスト
             period_start: 期間開始
             period_end: 期間終了
-        
+
         Returns:
             TrendReport
         """
@@ -186,24 +182,25 @@ class TrendWatcher:
         return report
 
     def _generate_issues(
-        self,
-        top_items: list[tuple[TrendItem, RankScore]]
+        self, top_items: list[tuple[TrendItem, RankScore]]
     ) -> list[dict[str, Any]]:
         """改善Issueを生成（DoD駆動）."""
         issues = []
 
         for item, score in top_items:
             if score.relevance > 0.7:
-                issues.append({
-                    "title": f"Review: {item.title[:50]}...",
-                    "description": f"High relevance ({score.relevance:.2f}) trend detected",
-                    "source": item.source,
-                    "item_id": item.id,
-                    "dod": [
-                        "Abstract reviewed",
-                        "Relevance to JARVIS assessed",
-                        "Decision logged to Experience",
-                    ],
-                })
+                issues.append(
+                    {
+                        "title": f"Review: {item.title[:50]}...",
+                        "description": f"High relevance ({score.relevance:.2f}) trend detected",
+                        "source": item.source,
+                        "item_id": item.id,
+                        "dod": [
+                            "Abstract reviewed",
+                            "Relevance to JARVIS assessed",
+                            "Decision logged to Experience",
+                        ],
+                    }
+                )
 
         return issues

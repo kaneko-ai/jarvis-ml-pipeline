@@ -4,6 +4,7 @@ Per MASTER_SPEC v1.2 (DEC-006):
 - 成果物契約: 10ファイル必須
 - パス決定権はRunStoreのみが持つ
 """
+
 from __future__ import annotations
 
 import json
@@ -295,7 +296,9 @@ class RunStore:
         base = Path(base_dir)
         if not base.exists():
             return []
-        return [d.name for d in sorted(base.iterdir(), key=lambda p: p.stat().st_mtime, reverse=True)]
+        return [
+            d.name for d in sorted(base.iterdir(), key=lambda p: p.stat().st_mtime, reverse=True)
+        ]
 
     @classmethod
     def get_latest(cls, base_dir: str = "logs/runs") -> RunStore | None:

@@ -3,6 +3,7 @@
 Generates SHA256 hashes of all bundle files to detect tampering
 and ensure integrity of research outputs.
 """
+
 import hashlib
 import json
 import logging
@@ -32,10 +33,10 @@ def _load_qa_summary(run_dir: Path) -> dict[str, Any]:
 
 def calculate_sha256(file_path: Path) -> str:
     """Calculate SHA256 hash of a file.
-    
+
     Args:
         file_path: Path to file
-        
+
     Returns:
         SHA256 hex digest
     """
@@ -51,18 +52,14 @@ def calculate_sha256(file_path: Path) -> str:
 
 def build_manifest(run_dir: Path) -> dict[str, Any]:
     """Build manifest with SHA256 hashes of all bundle files.
-    
+
     Args:
         run_dir: Path to run directory
-        
+
     Returns:
         Manifest dict
     """
-    manifest = {
-        "run_id": run_dir.name,
-        "files": {},
-        "version": "1.0"
-    }
+    manifest = {"run_id": run_dir.name, "files": {}, "version": "1.0"}
 
     # Required bundle files
     bundle_files = [
@@ -99,7 +96,7 @@ def build_manifest(run_dir: Path) -> dict[str, Any]:
                 manifest["files"][filename] = {
                     "sha256": sha256,
                     "size_bytes": file_size,
-                    "exists": True
+                    "exists": True,
                 }
             except Exception as e:
                 logger.warning(f"Failed to hash {filename}: {e}")
@@ -107,14 +104,10 @@ def build_manifest(run_dir: Path) -> dict[str, Any]:
                     "sha256": None,
                     "size_bytes": None,
                     "exists": True,
-                    "error": str(e)
+                    "error": str(e),
                 }
         else:
-            manifest["files"][filename] = {
-                "sha256": None,
-                "size_bytes": None,
-                "exists": False
-            }
+            manifest["files"][filename] = {"sha256": None, "size_bytes": None, "exists": False}
 
     eval_path = run_dir / "eval_summary.json"
     if eval_path.exists():
@@ -132,10 +125,10 @@ def build_manifest(run_dir: Path) -> dict[str, Any]:
 
 def export_manifest(run_dir: Path) -> Path:
     """Generate and export manifest to bundle.
-    
+
     Args:
         run_dir: Path to run directory
-        
+
     Returns:
         Path to manifest file
     """
@@ -153,20 +146,17 @@ def export_manifest(run_dir: Path) -> Path:
 
 def verify_manifest(run_dir: Path) -> dict[str, Any]:
     """Verify bundle integrity against manifest.
-    
+
     Args:
         run_dir: Path to run directory
-        
+
     Returns:
         Dict with 'valid', 'mismatches', 'errors'
     """
     manifest_path = run_dir / "bundle_manifest.json"
 
     if not manifest_path.exists():
-        return {
-            "valid": False,
-            "errors": ["bundle_manifest.json not found"]
-        }
+        return {"valid": False, "errors": ["bundle_manifest.json not found"]}
 
     with open(manifest_path, encoding="utf-8") as f:
         manifest = json.load(f)
@@ -181,10 +171,7 @@ def verify_manifest(run_dir: Path) -> dict[str, Any]:
         file_path = run_dir / filename
 
         if not file_path.exists():
-            mismatches.append({
-                "file": filename,
-                "issue": "File missing (was in manifest)"
-            })
+            mismatches.append({"file": filename, "issue": "File missing (was in manifest)"})
             continue
 
         expected_sha256 = file_info.get("sha256")
@@ -195,22 +182,17 @@ def verify_manifest(run_dir: Path) -> dict[str, Any]:
             actual_sha256 = calculate_sha256(file_path)
 
             if actual_sha256 != expected_sha256:
-                mismatches.append({
-                    "file": filename,
-                    "issue": "SHA256 mismatch",
-                    "expected": expected_sha256,
-                    "actual": actual_sha256
-                })
+                mismatches.append(
+                    {
+                        "file": filename,
+                        "issue": "SHA256 mismatch",
+                        "expected": expected_sha256,
+                        "actual": actual_sha256,
+                    }
+                )
         except Exception as e:
-            errors.append({
-                "file": filename,
-                "error": str(e)
-            })
+            errors.append({"file": filename, "error": str(e)})
 
     valid = len(mismatches) == 0 and len(errors) == 0
 
-    return {
-        "valid": valid,
-        "mismatches": mismatches,
-        "errors": errors
-    }
+    return {"valid": valid, "mismatches": mismatches, "errors": errors}

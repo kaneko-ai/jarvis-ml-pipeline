@@ -2,6 +2,7 @@
 
 Per RP-123, generates research-ready Markdown reports.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -73,7 +74,7 @@ def render_claimset_report(
                     ev = evidence.get(cid, {})
                     quote = ev.get("quote", "")[:150]
                     locator = ev.get("locator", cid)
-                    lines.append(f"- `{locator}`: \"{quote}...\"")
+                    lines.append(f'- `{locator}`: "{quote}..."')
                 lines.append("")
 
     # Interpretations

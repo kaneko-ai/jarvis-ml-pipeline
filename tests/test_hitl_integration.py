@@ -35,7 +35,7 @@ class TestReviewQueue:
                 run_id="test_run_123",
                 review_type=ReviewType.CLAIM_VALIDATION,
                 content={"claim": "Test claim"},
-                priority=7
+                priority=7,
             )
 
             assert item.item_id.startswith("REV-")
@@ -62,10 +62,7 @@ class TestReviewQueue:
 
             item = queue.add_item("run1", ReviewType.ROB_ASSESSMENT, {})
             result = queue.submit_review(
-                item.item_id,
-                ReviewStatus.APPROVED,
-                "reviewer1",
-                notes="Looks good"
+                item.item_id, ReviewStatus.APPROVED, "reviewer1", notes="Looks good"
             )
 
             assert result is True
@@ -84,7 +81,7 @@ class TestFeedbackCollector:
                 reviewer="reviewer1",
                 rating=4,
                 accuracy_score=0.9,
-                comments="Good extraction"
+                comments="Good extraction",
             )
 
             assert feedback.feedback_id.startswith("FB-")
@@ -116,16 +113,12 @@ class TestWebhookManager:
             webhook_id="wh1",
             url="https://example.com/webhook",
             secret="secret123",
-            events=[WebhookEvent.RUN_COMPLETED]
+            events=[WebhookEvent.RUN_COMPLETED],
         )
 
         manager.register_webhook(config)
 
-        triggered = manager.trigger(
-            WebhookEvent.RUN_COMPLETED,
-            "run_123",
-            {"status": "completed"}
-        )
+        triggered = manager.trigger(WebhookEvent.RUN_COMPLETED, "run_123", {"status": "completed"})
 
         assert "wh1" in triggered
 
@@ -137,16 +130,12 @@ class TestWebhookManager:
             webhook_id="wh2",
             url="https://example.com/webhook",
             secret="secret",
-            events=[WebhookEvent.RUN_FAILED]  # RUN_COMPLETEDではない
+            events=[WebhookEvent.RUN_FAILED],  # RUN_COMPLETEDではない
         )
 
         manager.register_webhook(config)
 
-        triggered = manager.trigger(
-            WebhookEvent.RUN_COMPLETED,
-            "run_456",
-            {}
-        )
+        triggered = manager.trigger(WebhookEvent.RUN_COMPLETED, "run_456", {})
 
         assert "wh2" not in triggered
 
@@ -184,11 +173,7 @@ class TestExternalServiceConnector:
         """サービス登録が動作すること."""
         connector = ExternalServiceConnector()
 
-        connector.register_service(
-            "my_zotero",
-            "zotero",
-            {"api_key": "xxx"}
-        )
+        connector.register_service("my_zotero", "zotero", {"api_key": "xxx"})
 
         service = connector.get_service("my_zotero")
         assert service is not None

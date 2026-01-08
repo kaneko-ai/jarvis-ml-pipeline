@@ -88,4 +88,3 @@ def test_task_schema_compliance():
     assert task.user_goal == "CD73に関する最新論文を調べ、要点を整理してまとめてほしい"
     assert task.inputs["query"] == "CD73"
     assert task.constraints["language"] == "ja"
-

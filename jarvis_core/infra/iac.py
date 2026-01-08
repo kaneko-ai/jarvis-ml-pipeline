@@ -2,6 +2,7 @@
 
 Per RP-596, implements Terraform-like IaC management.
 """
+
 from __future__ import annotations
 
 import json
@@ -48,7 +49,7 @@ class Plan:
 
 class StateManager:
     """Manages infrastructure state.
-    
+
     Per RP-596:
     - State persistence
     - Drift detection
@@ -117,7 +118,7 @@ class StateManager:
 
 class InfrastructureManager:
     """Manages infrastructure as code.
-    
+
     Per RP-596:
     - Terraform-like workflow
     - Plan and apply
@@ -137,7 +138,7 @@ class InfrastructureManager:
         provider: Any,
     ) -> None:
         """Register a resource provider.
-        
+
         Args:
             resource_type: Resource type.
             provider: Provider instance.
@@ -149,10 +150,10 @@ class InfrastructureManager:
         desired: list[Resource],
     ) -> Plan:
         """Create an execution plan.
-        
+
         Args:
             desired: Desired resources.
-            
+
         Returns:
             Execution plan.
         """
@@ -187,10 +188,10 @@ class InfrastructureManager:
 
     def apply(self, plan: Plan) -> dict[str, Any]:
         """Apply an execution plan.
-        
+
         Args:
             plan: Execution plan.
-            
+
         Returns:
             Apply results.
         """
@@ -218,10 +219,12 @@ class InfrastructureManager:
             except Exception as e:
                 res.state = ResourceState.FAILED
                 self.state.set_resource(res)
-                results["errors"].append({
-                    "resource": res.resource_id,
-                    "error": str(e),
-                })
+                results["errors"].append(
+                    {
+                        "resource": res.resource_id,
+                        "error": str(e),
+                    }
+                )
 
         # Update resources
         for res in plan.to_update:
@@ -240,10 +243,12 @@ class InfrastructureManager:
             except Exception as e:
                 res.state = ResourceState.FAILED
                 self.state.set_resource(res)
-                results["errors"].append({
-                    "resource": res.resource_id,
-                    "error": str(e),
-                })
+                results["errors"].append(
+                    {
+                        "resource": res.resource_id,
+                        "error": str(e),
+                    }
+                )
 
         # Delete resources
         for res in plan.to_delete:
@@ -260,16 +265,18 @@ class InfrastructureManager:
             except Exception as e:
                 res.state = ResourceState.FAILED
                 self.state.set_resource(res)
-                results["errors"].append({
-                    "resource": res.resource_id,
-                    "error": str(e),
-                })
+                results["errors"].append(
+                    {
+                        "resource": res.resource_id,
+                        "error": str(e),
+                    }
+                )
 
         return results
 
     def detect_drift(self) -> list[dict[str, Any]]:
         """Detect configuration drift.
-        
+
         Returns:
             List of drifted resources.
         """
@@ -281,11 +288,13 @@ class InfrastructureManager:
                 try:
                     current = provider.get_current(res)
                     if current != res.properties:
-                        drifts.append({
-                            "resource_id": res.resource_id,
-                            "expected": res.properties,
-                            "actual": current,
-                        })
+                        drifts.append(
+                            {
+                                "resource_id": res.resource_id,
+                                "expected": res.properties,
+                                "actual": current,
+                            }
+                        )
                 except Exception:
                     pass
 

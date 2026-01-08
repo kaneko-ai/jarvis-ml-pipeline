@@ -2,6 +2,7 @@
 
 Core tests for KG features.
 """
+
 import pytest
 
 pytestmark = pytest.mark.core

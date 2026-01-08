@@ -2,6 +2,7 @@
 
 Per RP33, this visualizes knowledge evolution over time.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -71,7 +72,9 @@ def summarize_evolution(timeline: list[dict]) -> str:
     summary_parts = []
 
     # Check axis shifts
-    immune_shift = (last.get("immune_activation", 0) or 0) - (first.get("immune_activation", 0) or 0)
+    immune_shift = (last.get("immune_activation", 0) or 0) - (
+        first.get("immune_activation", 0) or 0
+    )
     tumor_shift = (last.get("tumor_context", 0) or 0) - (first.get("tumor_context", 0) or 0)
 
     if abs(immune_shift) > 0.3:

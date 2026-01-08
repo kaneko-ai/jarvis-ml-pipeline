@@ -5,6 +5,7 @@
 - 一貫性チェック
 - 冗長性検出
 """
+
 from __future__ import annotations
 
 import re
@@ -15,6 +16,7 @@ from typing import Any
 @dataclass
 class TextQualityResult:
     """テキスト品質結果."""
+
     passed: bool = True
     score: float = 0.0
     issues: list[dict[str, Any]] = field(default_factory=list)
@@ -31,7 +33,7 @@ class TextQualityResult:
 
 class TextQualityAssurer:
     """テキスト品質保証器.
-    
+
     生成テキストの品質をチェック。
     """
 
@@ -84,7 +86,7 @@ class TextQualityAssurer:
 
     def _check_repetition(self, text: str) -> dict[str, Any]:
         """繰り返しチェック."""
-        sentences = re.split(r'[.!?]+', text)
+        sentences = re.split(r"[.!?]+", text)
         sentences = [s.strip().lower() for s in sentences if s.strip()]
 
         if len(sentences) < 2:
@@ -104,7 +106,7 @@ class TextQualityAssurer:
 
     def _check_incomplete_sentences(self, text: str) -> dict[str, Any]:
         """不完全な文チェック."""
-        sentences = re.split(r'(?<=[.!?])\s+', text)
+        sentences = re.split(r"(?<=[.!?])\s+", text)
         incomplete = 0
 
         for sent in sentences:
@@ -113,11 +115,11 @@ class TextQualityAssurer:
                 continue
 
             # 開始が小文字
-            if sent[0].islower() and not sent.startswith(('e.g.', 'i.e.', 'etc.')):
+            if sent[0].islower() and not sent.startswith(("e.g.", "i.e.", "etc.")):
                 incomplete += 1
 
             # 終わりが句読点でない
-            if sent[-1] not in '.!?':
+            if sent[-1] not in ".!?":
                 incomplete += 1
 
         if len(sentences) == 0:
@@ -137,14 +139,14 @@ class TextQualityAssurer:
     def _check_citation_format(self, text: str) -> dict[str, Any]:
         """引用形式チェック."""
         # 引用がある場合、形式が統一されているか
-        citations = re.findall(r'\[([^\]]+)\]', text)
+        citations = re.findall(r"\[([^\]]+)\]", text)
 
         if not citations:
             return {"score": 1.0}  # 引用なしはOK
 
         # 引用形式の種類をカウント
         numeric = sum(1 for c in citations if c.isdigit())
-        alpha = sum(1 for c in citations if re.match(r'^[A-Za-z]+\d{4}', c))
+        alpha = sum(1 for c in citations if re.match(r"^[A-Za-z]+\d{4}", c))
 
         total = len(citations)
         max_type = max(numeric, alpha)
@@ -160,22 +162,27 @@ class TextQualityAssurer:
 
     def _check_coherence(self, text: str) -> dict[str, Any]:
         """一貫性チェック."""
-        paragraphs = text.split('\n\n')
+        paragraphs = text.split("\n\n")
 
         if len(paragraphs) < 2:
             return {"score": 1.0}
 
         # 接続詞の存在をチェック
         connectors = [
-            'however', 'therefore', 'moreover', 'furthermore',
-            'in addition', 'additionally', 'consequently', 'thus',
-            'on the other hand', 'in contrast', 'similarly',
+            "however",
+            "therefore",
+            "moreover",
+            "furthermore",
+            "in addition",
+            "additionally",
+            "consequently",
+            "thus",
+            "on the other hand",
+            "in contrast",
+            "similarly",
         ]
 
-        has_connector = sum(
-            1 for p in paragraphs[1:]
-            if any(c in p.lower() for c in connectors)
-        )
+        has_connector = sum(1 for p in paragraphs[1:] if any(c in p.lower() for c in connectors))
 
         ratio = has_connector / (len(paragraphs) - 1) if len(paragraphs) > 1 else 1
 

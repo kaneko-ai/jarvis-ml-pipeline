@@ -26,10 +26,10 @@ class BM25Config:
 @dataclass
 class BM25Index:
     """BM25 sparse embedding index with persistence.
-    
+
     Implements the Okapi BM25 ranking function for keyword search.
     Supports building, searching, saving, and loading the index.
-    
+
     Example:
         >>> index = BM25Index()
         >>> corpus = ["machine learning", "deep learning", "natural language"]
@@ -52,7 +52,7 @@ class BM25Index:
         ids: list[str] | None = None,
     ) -> None:
         """Build the BM25 index from a corpus.
-        
+
         Args:
             corpus: List of document texts
             ids: Optional list of document IDs (auto-generated if not provided)
@@ -84,10 +84,7 @@ class BM25Index:
             self._initialized = True
             logger.info(f"BM25Index built with {len(corpus)} documents")
         except ImportError:
-            logger.warning(
-                "rank_bm25 not installed. "
-                "Install with: pip install rank-bm25"
-            )
+            logger.warning("rank_bm25 not installed. " "Install with: pip install rank-bm25")
             self._bm25 = None
 
     def _tokenize(self, text: str) -> list[str]:
@@ -106,11 +103,11 @@ class BM25Index:
 
     def search(self, query: str, top_k: int = 10) -> list[tuple[str, float]]:
         """Search the index with a query.
-        
+
         Args:
             query: Search query
             top_k: Number of results to return
-            
+
         Returns:
             List of (doc_id, score) tuples sorted by score descending
         """
@@ -140,7 +137,7 @@ class BM25Index:
 
     def save(self, path: Path) -> None:
         """Save the index to disk.
-        
+
         Args:
             path: Path to save the index
         """
@@ -176,10 +173,10 @@ class BM25Index:
     @classmethod
     def load(cls, path: Path) -> BM25Index:
         """Load an index from disk.
-        
+
         Args:
             path: Path to load the index from
-            
+
         Returns:
             Loaded BM25Index
         """
@@ -212,9 +209,9 @@ class BM25Index:
 
     def add_document(self, doc_id: str, text: str) -> None:
         """Add a single document to the index (rebuilds index).
-        
+
         For bulk additions, use build() instead.
-        
+
         Args:
             doc_id: Document ID
             text: Document text
@@ -237,10 +234,10 @@ class BM25Index:
 
     def get_document(self, doc_id: str) -> str | None:
         """Get a document by ID.
-        
+
         Args:
             doc_id: Document ID
-            
+
         Returns:
             Document text or None if not found
         """

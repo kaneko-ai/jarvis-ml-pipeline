@@ -1,4 +1,5 @@
 """Unit tests for LLM provider switching."""
+
 import os
 import sys
 import types
@@ -11,11 +12,9 @@ google_genai_stub = types.ModuleType("google.genai")
 
 
 class _DummyErrors:
-    class ServerError(Exception):
-        ...
+    class ServerError(Exception): ...
 
-    class ClientError(Exception):
-        ...
+    class ClientError(Exception): ...
 
 
 class _DummyClient:
@@ -51,9 +50,7 @@ class TestOllamaProvider:
         with patch("requests.post") as mock_post:
             mock_response = MagicMock()
             mock_response.status_code = 200
-            mock_response.json.return_value = {
-                "message": {"content": "Hello from Ollama!"}
-            }
+            mock_response.json.return_value = {"message": {"content": "Hello from Ollama!"}}
             mock_post.return_value = mock_response
 
             client = LLMClient(model="llama3.2", provider="ollama")

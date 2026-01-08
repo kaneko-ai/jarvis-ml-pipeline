@@ -16,14 +16,16 @@ from typing import Any
 
 class CachePolicy(Enum):
     """キャッシュポリシー."""
-    NONE = "none"           # キャッシュなし
+
+    NONE = "none"  # キャッシュなし
     AGGRESSIVE = "aggressive"  # 積極的キャッシュ
     CONSERVATIVE = "conservative"  # 保守的キャッシュ
-    READ_ONLY = "read_only"   # 読み取りのみ
+    READ_ONLY = "read_only"  # 読み取りのみ
 
 
 class DeviceType(Enum):
     """デバイスタイプ."""
+
     CPU = "cpu"
     CUDA = "cuda"
     MPS = "mps"  # Apple Silicon
@@ -34,7 +36,7 @@ class DeviceType(Enum):
 class RuntimeConfig:
     """
     Runtime configuration.
-    
+
     Attributes:
         device: CPU/GPU設定
         device_map: マルチGPU時のマッピング
@@ -44,6 +46,7 @@ class RuntimeConfig:
         seed: 再現性のためのシード
         max_memory_gb: 最大メモリ使用量
     """
+
     device: DeviceType = DeviceType.AUTO
     device_map: dict[str, str] | None = None
     batch_size: int = 32
@@ -60,7 +63,7 @@ class RuntimeConfig:
             "timeout_seconds": self.timeout_seconds,
             "cache_policy": self.cache_policy.value,
             "seed": self.seed,
-            "max_memory_gb": self.max_memory_gb
+            "max_memory_gb": self.max_memory_gb,
         }
 
 
@@ -68,7 +71,7 @@ class RuntimeConfig:
 class TaskContext:
     """
     タスクコンテキスト - 全モジュール共通の入力契約.
-    
+
     Attributes:
         goal: タスクの目標
         domain: ドメイン（免疫/腫瘍/代謝等）
@@ -79,6 +82,7 @@ class TaskContext:
         user_id: ユーザーID（オプション）
         priority: 優先度（1=最高）
     """
+
     goal: str
     domain: str = "general"
     constraints: list[str] = field(default_factory=list)
@@ -100,7 +104,7 @@ class TaskContext:
 class EvidenceLink:
     """
     根拠リンク - Provenanceの核心.
-    
+
     Attributes:
         doc_id: ドキュメントID（pmid:123, doi:xxx等）
         section: セクション（Title, Abstract, Methods, Results等）
@@ -110,6 +114,7 @@ class EvidenceLink:
         confidence: 信頼度（0-1）
         text: 引用テキスト（オプション）
     """
+
     doc_id: str
     section: str
     chunk_id: str
@@ -136,7 +141,7 @@ class EvidenceLink:
 class Claim:
     """
     主張 - evidence_linksを持つ.
-    
+
     Attributes:
         claim_id: 主張ID
         claim_text: 主張テキスト
@@ -144,6 +149,7 @@ class Claim:
         claim_type: 主張タイプ（fact, hypothesis, opinion）
         confidence: 総合信頼度
     """
+
     claim_id: str
     claim_text: str
     evidence: list[EvidenceLink] = field(default_factory=list)
@@ -156,7 +162,7 @@ class Claim:
             "claim_text": self.claim_text,
             "evidence": [e.to_dict() for e in self.evidence],
             "claim_type": self.claim_type,
-            "confidence": self.confidence
+            "confidence": self.confidence,
         }
 
     def has_evidence(self) -> bool:
@@ -173,6 +179,7 @@ class Claim:
 @dataclass
 class Paper:
     """論文情報."""
+
     doc_id: str
     title: str
     abstract: str | None = None
@@ -192,6 +199,7 @@ class Paper:
 @dataclass
 class Score:
     """評価スコア."""
+
     name: str
     value: float
     explanation: str
@@ -202,7 +210,7 @@ class Score:
             "name": self.name,
             "value": self.value,
             "explanation": self.explanation,
-            "evidence": [e.to_dict() for e in self.evidence]
+            "evidence": [e.to_dict() for e in self.evidence],
         }
 
 
@@ -210,7 +218,7 @@ class Score:
 class Artifacts:
     """
     成果物コンテナ - パイプライン間で受け渡す.
-    
+
     Attributes:
         papers: 論文リスト
         chunks: チャンク（doc_id -> chunk_id -> text）
@@ -222,6 +230,7 @@ class Artifacts:
         designs: 実験設計
         metadata: メタデータ
     """
+
     papers: list[Paper] = field(default_factory=list)
     chunks: dict[str, dict[str, str]] = field(default_factory=dict)
     embeddings: dict[str, list[float]] = field(default_factory=dict)
@@ -242,7 +251,7 @@ class Artifacts:
             "graphs": self.graphs,
             "summaries": self.summaries,
             "designs": self.designs,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     def add_paper(self, paper: Paper) -> None:
@@ -262,6 +271,7 @@ class Artifacts:
 @dataclass
 class Metrics:
     """実行メトリクス."""
+
     execution_time_ms: float = 0.0
     provenance_rate: float = 0.0
     claims_total: int = 0
@@ -279,7 +289,7 @@ class Metrics:
 class ResultBundle:
     """
     結果バンドル - 全出力の共通形式.
-    
+
     Attributes:
         outputs: 出力データ
         provenance: 根拠情報（evidence_links）
@@ -289,6 +299,7 @@ class ResultBundle:
         success: 成功フラグ
         error: エラーメッセージ（失敗時）
     """
+
     outputs: dict[str, Any] = field(default_factory=dict)
     provenance: list[Claim] = field(default_factory=list)
     metrics: Metrics = field(default_factory=Metrics)
@@ -305,7 +316,7 @@ class ResultBundle:
             "logs": self.logs,
             "diffs": self.diffs,
             "success": self.success,
-            "error": self.error
+            "error": self.error,
         }
 
     def to_json(self, indent: int = 2) -> str:

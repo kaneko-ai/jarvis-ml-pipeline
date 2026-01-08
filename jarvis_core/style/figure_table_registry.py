@@ -1,4 +1,5 @@
 """Figure/Table registry for placeholder and reference validation."""
+
 from __future__ import annotations
 
 import re

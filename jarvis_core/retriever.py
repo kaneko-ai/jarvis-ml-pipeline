@@ -7,6 +7,7 @@ This module provides:
 Per RP9, this enables automatic selection of relevant evidence
 for Agent citation, improving success rates.
 """
+
 from __future__ import annotations
 
 import math
@@ -191,9 +192,7 @@ class BM25Retriever:
             df = self._doc_freq.get(term, 0)
 
             # IDF component
-            idf = math.log(
-                (self._doc_count - df + 0.5) / (df + 0.5) + 1
-            )
+            idf = math.log((self._doc_count - df + 0.5) / (df + 0.5) + 1)
 
             # TF component with saturation
             tf_component = (tf * (self.k1 + 1)) / (

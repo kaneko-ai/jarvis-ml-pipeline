@@ -3,6 +3,7 @@
 Per RP6, this tests the "standard entry point" for populating
 EvidenceStore with real content.
 """
+
 import sys
 from pathlib import Path
 

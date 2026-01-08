@@ -1,4 +1,5 @@
 """Config package for JARVIS."""
+
 from .feature_flags import (
     FeatureFlag,
     FeatureFlagManager,
@@ -27,4 +28,3 @@ __all__ = [
     "JarvisConfig",
     "Config",
 ]
-

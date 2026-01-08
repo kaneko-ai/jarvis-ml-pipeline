@@ -1,4 +1,5 @@
 """Hybrid search (vector + keyword) with reranking."""
+
 from __future__ import annotations
 
 import json
@@ -78,7 +79,9 @@ class HybridSearchEngine:
             return dict.fromkeys(scores, 1.0)
         return {key: (score - min_val) / (max_val - min_val) for key, score in scores.items()}
 
-    def search(self, query: str, filters: dict | None = None, top_k: int = 20, mode: str = "hybrid") -> HybridSearchResult:
+    def search(
+        self, query: str, filters: dict | None = None, top_k: int = 20, mode: str = "hybrid"
+    ) -> HybridSearchResult:
         import time
 
         start_time = time.time()
@@ -89,11 +92,17 @@ class HybridSearchEngine:
         bm25_scores: dict[str, float] = {}
         vector_scores: dict[str, float] = {}
         if mode in {"hybrid", "keyword"}:
-            bm25_scores = {chunk_id: score for chunk_id, score in self.bm25_store.search(query, candidate_count)}
+            bm25_scores = {
+                chunk_id: score
+                for chunk_id, score in self.bm25_store.search(query, candidate_count)
+            }
         if mode in {"hybrid", "vector"}:
             embedding = self.embedding_provider.embed([query])
             query_vector = embedding.vectors[0]
-            vector_scores = {chunk_id: score for chunk_id, score in self.vector_store.search(query_vector, candidate_count)}
+            vector_scores = {
+                chunk_id: score
+                for chunk_id, score in self.vector_store.search(query_vector, candidate_count)
+            }
 
         bm25_norm = self._normalize_scores(bm25_scores)
         vector_norm = self._normalize_scores(vector_scores)
@@ -124,9 +133,13 @@ class HybridSearchEngine:
             if len(snippet) > 240:
                 snippet = snippet[:237] + "..."
             jump_link = self._build_jump_link(chunk)
-            results.append(SearchResult(chunk=chunk, score=score, snippet=snippet, jump_link=jump_link))
+            results.append(
+                SearchResult(chunk=chunk, score=score, snippet=snippet, jump_link=jump_link)
+            )
         took_ms = int((time.time() - start_time) * 1000)
-        return HybridSearchResult(took_ms=took_ms, total_candidates=len(candidates), results=results)
+        return HybridSearchResult(
+            took_ms=took_ms, total_candidates=len(candidates), results=results
+        )
 
     def _build_jump_link(self, chunk: Chunk) -> dict[str, str]:
         if chunk.provenance.run_id:

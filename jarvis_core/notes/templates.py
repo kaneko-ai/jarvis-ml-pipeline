@@ -1,4 +1,5 @@
 """Templates for Obsidian research notes."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -26,10 +27,11 @@ def format_frontmatter(
     created = created_at or datetime.now(timezone.utc).isoformat()
     tags_yaml = "[" + ", ".join(f'"{t}"' for t in tags) + "]"
     journal_value = journal or ""
+
     def _yaml_value(value: str | None) -> str:
         if value is None or value == "":
             return "null"
-        return f"\"{value}\""
+        return f'"{value}"'
 
     doi_value = _yaml_value(doi)
     pmid_value = _yaml_value(pmid)
@@ -37,19 +39,19 @@ def format_frontmatter(
     return "\n".join(
         [
             "---",
-            f"paper_id: \"{paper_id}\"",
-            f"title: \"{title}\"",
+            f'paper_id: "{paper_id}"',
+            f'title: "{title}"',
             f"year: {year if year is not None else 'null'}",
-            f"journal: \"{journal_value}\"",
+            f'journal: "{journal_value}"',
             f"doi: {doi_value}",
             f"pmid: {pmid_value}",
             f"pmcid: {pmcid_value}",
-            f"oa_status: \"{oa_status}\"",
-            f"tier: \"{tier}\"",
+            f'oa_status: "{oa_status}"',
+            f'tier: "{tier}"',
             f"score: {score:.2f}",
             f"tags: {tags_yaml}",
-            f"source_run: \"{source_run}\"",
-            f"created_at: \"{created}\"",
+            f'source_run: "{source_run}"',
+            f'created_at: "{created}"',
             "---",
             "",
         ]

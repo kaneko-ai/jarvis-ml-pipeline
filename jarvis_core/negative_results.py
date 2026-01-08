@@ -2,6 +2,7 @@
 
 Per Ψ-2, this stores and analyzes failed experiments.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -45,7 +46,8 @@ class NegativeResultsVault:
         """Find similar past failures."""
         hypothesis_lower = hypothesis.lower()
         return [
-            r for r in self.results
+            r
+            for r in self.results
             if any(word in r.hypothesis.lower() for word in hypothesis_lower.split()[:3])
         ]
 
@@ -63,11 +65,13 @@ class NegativeResultsVault:
 
         for r in similar:
             if r.reuse_potential > 0.3:
-                suggestions.append({
-                    "original": r.hypothesis[:50],
-                    "reuse_hint": f"過去の{r.failure_type}失敗から学習可能",
-                    "potential": r.reuse_potential,
-                })
+                suggestions.append(
+                    {
+                        "original": r.hypothesis[:50],
+                        "reuse_hint": f"過去の{r.failure_type}失敗から学習可能",
+                        "potential": r.reuse_potential,
+                    }
+                )
 
         return suggestions
 

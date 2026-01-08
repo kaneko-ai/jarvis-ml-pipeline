@@ -1,4 +1,5 @@
 """JARVIS Gemini API Integration for real AI features."""
+
 import json
 import os
 import urllib.request
@@ -8,6 +9,7 @@ from dataclasses import dataclass
 @dataclass
 class GeminiConfig:
     """Gemini API configuration."""
+
     api_key: str
     model: str = "gemini-2.0-flash-exp"
     base_url: str = "https://generativelanguage.googleapis.com/v1beta"
@@ -25,11 +27,11 @@ class GeminiClient:
 
     def _make_request(self, prompt: str, system_instruction: str = "") -> str | None:
         """Make API request to Gemini.
-        
+
         Args:
             prompt: User prompt
             system_instruction: System instruction
-            
+
         Returns:
             Generated text or None
         """
@@ -38,9 +40,7 @@ class GeminiClient:
 
         url = f"{self.config.base_url}/models/{self.config.model}:generateContent?key={self.config.api_key}"
 
-        payload = {
-            "contents": [{"parts": [{"text": prompt}]}]
-        }
+        payload = {"contents": [{"parts": [{"text": prompt}]}]}
 
         if system_instruction:
             payload["systemInstruction"] = {"parts": [{"text": system_instruction}]}
@@ -48,25 +48,27 @@ class GeminiClient:
         try:
             data = json.dumps(payload).encode("utf-8")
             req = urllib.request.Request(
-                url,
-                data=data,
-                headers={"Content-Type": "application/json"},
-                method="POST"
+                url, data=data, headers={"Content-Type": "application/json"}, method="POST"
             )
 
             with urllib.request.urlopen(req, timeout=30) as response:
                 result = json.loads(response.read().decode())
-                return result.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+                return (
+                    result.get("candidates", [{}])[0]
+                    .get("content", {})
+                    .get("parts", [{}])[0]
+                    .get("text", "")
+                )
         except Exception as e:
             print(f"Gemini API error: {e}")
             return None
 
     def summarize_paper(self, paper: dict) -> str:
         """Generate AI summary of a paper.
-        
+
         Args:
             paper: Paper dictionary with title, abstract, etc.
-            
+
         Returns:
             Summary text
         """
@@ -88,10 +90,10 @@ Provide:
 
     def find_related_topics(self, paper: dict) -> list[str]:
         """Find related research topics.
-        
+
         Args:
             paper: Paper dictionary
-            
+
         Returns:
             List of related topics
         """
@@ -107,11 +109,11 @@ Return as a simple list, one topic per line."""
 
     def answer_question(self, paper: dict, question: str) -> str:
         """Answer a question about a paper.
-        
+
         Args:
             paper: Paper dictionary
             question: User question
-            
+
         Returns:
             Answer text
         """
@@ -132,11 +134,11 @@ Answer this question: {question}"""
 
     def translate_abstract(self, abstract: str, target_lang: str = "Japanese") -> str:
         """Translate abstract to another language.
-        
+
         Args:
             abstract: Abstract text
             target_lang: Target language
-            
+
         Returns:
             Translated text
         """
@@ -147,10 +149,10 @@ Answer this question: {question}"""
 
     def extract_key_findings(self, paper: dict) -> list[str]:
         """Extract key findings from paper.
-        
+
         Args:
             paper: Paper dictionary
-            
+
         Returns:
             List of key findings
         """
@@ -163,7 +165,9 @@ List each finding on a separate line, starting with a bullet point."""
 
         result = self._make_request(prompt)
         if result:
-            return [line.strip("•- ").strip() for line in result.strip().split("\n") if line.strip()]
+            return [
+                line.strip("•- ").strip() for line in result.strip().split("\n") if line.strip()
+            ]
         return []
 
 
@@ -174,7 +178,13 @@ class MockGeminiClient:
         return f"[Mock Summary] This paper titled '{paper.get('title', 'Unknown')[:30]}...' presents significant findings in its field."
 
     def find_related_topics(self, paper: dict) -> list[str]:
-        return ["Machine Learning", "Data Analysis", "Healthcare AI", "Clinical Research", "Predictive Modeling"]
+        return [
+            "Machine Learning",
+            "Data Analysis",
+            "Healthcare AI",
+            "Clinical Research",
+            "Predictive Modeling",
+        ]
 
     def answer_question(self, paper: dict, question: str) -> str:
         return f"[Mock Answer] Based on the paper, the answer to '{question[:30]}...' involves key research findings."
@@ -186,16 +196,16 @@ class MockGeminiClient:
         return [
             "Novel methodology improves accuracy",
             "Significant results compared to baseline",
-            "Applicable to real-world scenarios"
+            "Applicable to real-world scenarios",
         ]
 
 
 def get_gemini_client(use_mock: bool = False) -> GeminiClient:
     """Get Gemini client instance.
-    
+
     Args:
         use_mock: Use mock client if True or no API key
-        
+
     Returns:
         GeminiClient or MockGeminiClient
     """
@@ -213,7 +223,7 @@ if __name__ == "__main__":
         "abstract": "This study presents a novel deep learning model for predicting treatment outcomes...",
         "authors": "Smith J, et al.",
         "journal": "Nature Medicine",
-        "year": 2024
+        "year": 2024,
     }
 
     print("=== Paper Summary ===")

@@ -1,4 +1,5 @@
 """Comprehensive tests for mobile/performance module."""
+
 import pytest
 
 from jarvis_core.performance.mobile import (

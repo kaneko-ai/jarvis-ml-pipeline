@@ -1,4 +1,5 @@
 """Align claims to evidence chunks."""
+
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -23,7 +24,9 @@ class EvidenceCandidate:
         }
 
 
-def align_claim_to_chunks(claim_text: str, chunks: Iterable[dict[str, Any]], top_k: int = 3) -> list[EvidenceCandidate]:
+def align_claim_to_chunks(
+    claim_text: str, chunks: Iterable[dict[str, Any]], top_k: int = 3
+) -> list[EvidenceCandidate]:
     candidates: list[EvidenceCandidate] = []
     for chunk in chunks:
         text = (chunk.get("text") or "").strip()

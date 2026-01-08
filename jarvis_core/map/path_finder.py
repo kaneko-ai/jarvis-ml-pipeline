@@ -2,6 +2,7 @@
 
 Per V4-M05, this finds conceptual paths between papers.
 """
+
 from __future__ import annotations
 
 from collections import deque
@@ -90,10 +91,12 @@ def find_concept_path(
             for neighbor_id in concept_to_papers.get(concept, []):
                 if neighbor_id not in visited:
                     visited.add(neighbor_id)
-                    queue.append((
-                        neighbor_id,
-                        path + [neighbor_id],
-                        concepts + [concept],
-                    ))
+                    queue.append(
+                        (
+                            neighbor_id,
+                            path + [neighbor_id],
+                            concepts + [concept],
+                        )
+                    )
 
     return None  # No path found

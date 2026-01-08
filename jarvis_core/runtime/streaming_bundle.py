@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 2, this provides incremental bundle writing and checkpoint/resume.
 """
+
 from __future__ import annotations
 
 import json

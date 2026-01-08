@@ -8,6 +8,7 @@ This module provides:
 Per RP6, this creates the "standard entry point" for populating
 EvidenceStore with real content.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -89,9 +90,7 @@ class Chunker:
             if end < text_len:
                 # Look for sentence boundaries in the last 20% of chunk
                 boundary_search_start = start + int(self.chunk_size * 0.8)
-                boundary = self._find_sentence_boundary(
-                    text, boundary_search_start, end
-                )
+                boundary = self._find_sentence_boundary(text, boundary_search_start, end)
                 if boundary > boundary_search_start:
                     end = boundary
 
@@ -104,9 +103,7 @@ class Chunker:
 
         return chunks
 
-    def _find_sentence_boundary(
-        self, text: str, search_start: int, search_end: int
-    ) -> int:
+    def _find_sentence_boundary(self, text: str, search_start: int, search_end: int) -> int:
         """Find the last sentence boundary in the given range.
 
         Args:
@@ -289,4 +286,3 @@ class ExecutionContext:
             query,
             k=k,
         )
-

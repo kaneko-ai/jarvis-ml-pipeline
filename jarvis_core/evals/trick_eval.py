@@ -3,6 +3,7 @@
 Evaluates JARVIS output against trick sets (no_evidence, overclaim, contradiction)
 to ensure it fails appropriately when it should.
 """
+
 import json
 import logging
 from pathlib import Path
@@ -13,15 +14,15 @@ logger = logging.getLogger(__name__)
 
 def eval_no_evidence_set(run_dir: Path) -> dict[str, Any]:
     """Evaluate no_evidence trick set.
-    
+
     Expected behavior:
     - UNSUPPORTED_CLAIM warnings should exist
     - Conclusions should not be assertive
     - gate_passed should be false
-    
+
     Args:
         run_dir: Path to run directory
-        
+
     Returns:
         Dict with 'passed', 'errors'
     """
@@ -57,15 +58,15 @@ def eval_no_evidence_set(run_dir: Path) -> dict[str, Any]:
 
 def eval_overclaim_set(run_dir: Path) -> dict[str, Any]:
     """Evaluate overclaim trick set.
-    
+
     Expected behavior:
     - Conclusions should use hedging language
     - No causal assertions (causes, leads to)
     - Uncertainty labels should be conservative
-    
+
     Args:
         run_dir: Path to run directory
-        
+
     Returns:
         Dict with 'passed', 'errors'
     """
@@ -98,15 +99,15 @@ def eval_overclaim_set(run_dir: Path) -> dict[str, Any]:
 
 def eval_contradiction_set(run_dir: Path) -> dict[str, Any]:
     """Evaluate contradiction trick set.
-    
+
     Expected behavior:
     - Contradictions should be detected
     - Uncertainty should be downgraded
     - Both sides should be presented
-    
+
     Args:
         run_dir: Path to run directory
-        
+
     Returns:
         Dict with 'passed', 'errors'
     """
@@ -139,11 +140,11 @@ def eval_contradiction_set(run_dir: Path) -> dict[str, Any]:
 
 def evaluate_trick_set(set_path: Path, run_dir: Path) -> dict[str, Any]:
     """Evaluate a trick set.
-    
+
     Args:
         set_path: Path to trick set file
         run_dir: Path to run directory
-        
+
     Returns:
         Dict with evaluation results
     """
@@ -192,9 +193,9 @@ if __name__ == "__main__":
     print(f"Trick Set: {set_path.name}")
     print(f"Passed: {result['passed']}")
 
-    if result['errors']:
+    if result["errors"]:
         print("Errors:")
-        for error in result['errors']:
+        for error in result["errors"]:
             print(f"  - {error}")
         sys.exit(1)
     else:

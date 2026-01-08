@@ -2,6 +2,7 @@
 
 Per PR-95, provides unified result handling across all layers.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

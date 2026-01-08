@@ -2,6 +2,7 @@
 
 Per PR-61: Single entry point for local and CI test execution.
 """
+
 from __future__ import annotations
 
 import argparse

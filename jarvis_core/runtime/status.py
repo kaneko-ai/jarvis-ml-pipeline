@@ -2,6 +2,7 @@
 
 Per RP-142, defines success/partial/fail status strictly.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

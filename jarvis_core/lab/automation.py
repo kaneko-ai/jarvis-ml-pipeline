@@ -1,6 +1,7 @@
 """JARVIS Self-Driving Lab & Browser Agent - Phase 3-5 Features (141-200)
 All features are FREE - no paid APIs required.
 """
+
 import hashlib
 import random
 import re
@@ -14,6 +15,7 @@ from enum import Enum
 # ============================================
 # PHASE 3: SELF-DRIVING LAB (141-160)
 # ============================================
+
 
 class EquipmentStatus(Enum):
     IDLE = "idle"
@@ -54,7 +56,7 @@ class LabEquipmentController:
             "command": command,
             "params": params,
             "timestamp": datetime.now().isoformat(),
-            "status": "success"
+            "status": "success",
         }
         self.commands_log.append(log_entry)
 
@@ -69,12 +71,7 @@ class LabEquipmentController:
             return {"error": "Equipment not found"}
 
         eq = self.equipment[equipment_id]
-        return {
-            "id": eq.id,
-            "name": eq.name,
-            "status": eq.status.value,
-            "last_used": eq.last_used
-        }
+        return {"id": eq.id, "name": eq.name, "status": eq.status.value, "last_used": eq.last_used}
 
 
 class RoboticArmIntegration:
@@ -84,7 +81,7 @@ class RoboticArmIntegration:
         "home": (0, 0, 100),
         "well_plate_1": (50, 50, 20),
         "tip_rack": (-50, 50, 20),
-        "waste": (50, -50, 10)
+        "waste": (50, -50, 10),
     }
 
     def __init__(self):
@@ -123,7 +120,7 @@ class RoboticArmIntegration:
 
     def generate_protocol(self, steps: list[dict]) -> str:
         """Generate OpenTrons protocol (Python)."""
-        protocol = '''from opentrons import protocol_api
+        protocol = """from opentrons import protocol_api
 
 metadata = {"apiLevel": "2.13"}
 
@@ -133,7 +130,7 @@ def run(protocol: protocol_api.ProtocolContext):
     tiprack = protocol.load_labware("opentrons_96_tiprack_300ul", 2)
     pipette = protocol.load_instrument("p300_single", "right", tip_racks=[tiprack])
     
-'''
+"""
         for step in steps:
             if step.get("action") == "transfer":
                 protocol += f"    pipette.transfer({step.get('volume', 100)}, plate['{step.get('source', 'A1')}'], plate['{step.get('dest', 'B1')}'])\n"
@@ -144,7 +141,9 @@ def run(protocol: protocol_api.ProtocolContext):
 class AutomatedPipetting:
     """Automated pipetting protocols (143)."""
 
-    def create_serial_dilution(self, start_conc: float, dilution_factor: int, num_dilutions: int) -> list[dict]:
+    def create_serial_dilution(
+        self, start_conc: float, dilution_factor: int, num_dilutions: int
+    ) -> list[dict]:
         """Create serial dilution protocol."""
         steps = []
         concentrations = [start_conc]
@@ -153,14 +152,16 @@ class AutomatedPipetting:
             new_conc = concentrations[-1] / dilution_factor
             concentrations.append(new_conc)
 
-            steps.append({
-                "step": i + 1,
-                "source_well": f"A{i+1}",
-                "dest_well": f"A{i+2}",
-                "transfer_volume_ul": 100,
-                "diluent_volume_ul": 100 * (dilution_factor - 1),
-                "final_concentration": new_conc
-            })
+            steps.append(
+                {
+                    "step": i + 1,
+                    "source_well": f"A{i+1}",
+                    "dest_well": f"A{i+2}",
+                    "transfer_volume_ul": 100,
+                    "diluent_volume_ul": 100 * (dilution_factor - 1),
+                    "final_concentration": new_conc,
+                }
+            )
 
         return steps
 
@@ -178,7 +179,7 @@ class SampleTracker:
             "barcode": barcode,
             "registered_at": datetime.now().isoformat(),
             "location": metadata.get("location", "unknown"),
-            "status": "active"
+            "status": "active",
         }
         return self.samples[barcode]
 
@@ -209,15 +210,19 @@ class EnvironmentalMonitor:
             "timestamp": datetime.now().isoformat(),
             "temperature_c": temperature,
             "humidity_pct": humidity,
-            "co2_ppm": co2_ppm
+            "co2_ppm": co2_ppm,
         }
         self.readings.append(reading)
 
         # Check thresholds
         if temperature < 18 or temperature > 25:
-            self.alerts.append({"type": "temperature", "value": temperature, "timestamp": reading["timestamp"]})
+            self.alerts.append(
+                {"type": "temperature", "value": temperature, "timestamp": reading["timestamp"]}
+            )
         if humidity < 30 or humidity > 70:
-            self.alerts.append({"type": "humidity", "value": humidity, "timestamp": reading["timestamp"]})
+            self.alerts.append(
+                {"type": "humidity", "value": humidity, "timestamp": reading["timestamp"]}
+            )
 
         return reading
 
@@ -234,7 +239,9 @@ class ExperimentScheduler:
     def __init__(self):
         self.schedule: list[dict] = []
 
-    def add_experiment(self, name: str, start_time: str, duration_hours: int, equipment: list[str]) -> dict:
+    def add_experiment(
+        self, name: str, start_time: str, duration_hours: int, equipment: list[str]
+    ) -> dict:
         """Add experiment to schedule."""
         experiment = {
             "id": f"exp_{len(self.schedule)}",
@@ -242,12 +249,14 @@ class ExperimentScheduler:
             "start_time": start_time,
             "duration_hours": duration_hours,
             "equipment": equipment,
-            "status": "scheduled"
+            "status": "scheduled",
         }
         self.schedule.append(experiment)
         return experiment
 
-    def check_conflicts(self, start_time: str, duration_hours: int, equipment: list[str]) -> list[dict]:
+    def check_conflicts(
+        self, start_time: str, duration_hours: int, equipment: list[str]
+    ) -> list[dict]:
         """Check for scheduling conflicts."""
         conflicts = []
         # Simplified conflict check
@@ -275,11 +284,23 @@ class QualityControlAgent:
         for rule in self.qc_rules:
             value = data.get(rule["condition"], 0)
             status = "pass" if value >= rule["threshold"] else "fail"
-            results.append({"rule": rule["name"], "value": value, "threshold": rule["threshold"], "status": status})
+            results.append(
+                {
+                    "rule": rule["name"],
+                    "value": value,
+                    "threshold": rule["threshold"],
+                    "status": status,
+                }
+            )
             if status == "pass":
                 passed += 1
 
-        return {"results": results, "passed": passed, "total": len(self.qc_rules), "overall": "pass" if passed == len(self.qc_rules) else "fail"}
+        return {
+            "results": results,
+            "passed": passed,
+            "total": len(self.qc_rules),
+            "overall": "pass" if passed == len(self.qc_rules) else "fail",
+        }
 
 
 class ReagentInventoryManager:
@@ -294,7 +315,7 @@ class ReagentInventoryManager:
             "quantity": quantity,
             "unit": unit,
             "expiry_date": expiry_date,
-            "last_updated": datetime.now().isoformat()
+            "last_updated": datetime.now().isoformat(),
         }
 
     def use_reagent(self, name: str, amount: float) -> dict:
@@ -305,7 +326,10 @@ class ReagentInventoryManager:
         self.inventory[name]["quantity"] -= amount
 
         if self.inventory[name]["quantity"] < 0:
-            return {"error": "Insufficient quantity", "available": self.inventory[name]["quantity"] + amount}
+            return {
+                "error": "Insufficient quantity",
+                "available": self.inventory[name]["quantity"] + amount,
+            }
 
         return {"status": "used", "remaining": self.inventory[name]["quantity"]}
 
@@ -336,7 +360,7 @@ class ProtocolVersionControl:
             "content": content,
             "author": author,
             "timestamp": datetime.now().isoformat(),
-            "hash": hashlib.md5(content.encode()).hexdigest()
+            "hash": hashlib.md5(content.encode()).hexdigest(),
         }
 
         self.protocols[protocol_name].append(entry)
@@ -366,7 +390,7 @@ class ExperimentLogger:
             "timestamp": datetime.now().isoformat(),
             "action": action,
             "details": details,
-            "level": level
+            "level": level,
         }
         self.logs.append(entry)
         return entry
@@ -405,13 +429,15 @@ class AnomalyDetector:
                 base = self.baseline[metric]
                 z_score = abs(value - base["mean"]) / max(base["std"], 0.001)
                 if z_score > 3:
-                    anomalies.append({
-                        "metric": metric,
-                        "value": value,
-                        "expected_mean": base["mean"],
-                        "z_score": round(z_score, 2),
-                        "severity": "high" if z_score > 5 else "medium"
-                    })
+                    anomalies.append(
+                        {
+                            "metric": metric,
+                            "value": value,
+                            "expected_mean": base["mean"],
+                            "z_score": round(z_score, 2),
+                            "severity": "high" if z_score > 5 else "medium",
+                        }
+                    )
 
         return anomalies
 
@@ -427,7 +453,7 @@ class RealTimeDataAnalyzer:
         """Add data point."""
         self.data[metric].append(value)
         if len(self.data[metric]) > self.window_size:
-            self.data[metric] = self.data[metric][-self.window_size:]
+            self.data[metric] = self.data[metric][-self.window_size :]
 
     def get_stats(self, metric: str) -> dict:
         """Get running statistics."""
@@ -442,10 +468,10 @@ class RealTimeDataAnalyzer:
             "metric": metric,
             "count": len(values),
             "mean": round(mean, 4),
-            "std": round(variance ** 0.5, 4),
+            "std": round(variance**0.5, 4),
             "min": min(values),
             "max": max(values),
-            "trend": "up" if len(values) > 1 and values[-1] > values[0] else "down"
+            "trend": "up" if len(values) > 1 and values[-1] > values[0] else "down",
         }
 
 
@@ -482,6 +508,7 @@ class BayesianOptimizer:
 # Additional 154-160 features
 class PlateReaderIntegration:
     """Plate reader integration (154)."""
+
     def read_plate(self, wavelength: int = 450) -> dict:
         # Simulated plate reading
         data = [[random.uniform(0, 3) for _ in range(12)] for _ in range(8)]
@@ -490,25 +517,38 @@ class PlateReaderIntegration:
 
 class FlowCytometryAnalyzer:
     """Flow cytometry analysis (155)."""
+
     def analyze(self, events: int = 10000) -> dict:
-        return {"total_events": events, "populations": [{"name": "P1", "percentage": 45.3}, {"name": "P2", "percentage": 32.1}]}
+        return {
+            "total_events": events,
+            "populations": [{"name": "P1", "percentage": 45.3}, {"name": "P2", "percentage": 32.1}],
+        }
 
 
 class MicroscopeController:
     """Microscope control (156)."""
+
     def capture_image(self, magnification: int = 40) -> dict:
-        return {"magnification": magnification, "filename": f"image_{datetime.now().strftime('%Y%m%d_%H%M%S')}.tiff"}
+        return {
+            "magnification": magnification,
+            "filename": f"image_{datetime.now().strftime('%Y%m%d_%H%M%S')}.tiff",
+        }
 
 
 class SpectroscopyAnalyzer:
     """Spectroscopy analysis (157)."""
+
     def analyze_spectrum(self, wavelengths: list[float], intensities: list[float]) -> dict:
         peak_idx = intensities.index(max(intensities)) if intensities else 0
-        return {"peak_wavelength": wavelengths[peak_idx] if wavelengths else 0, "peak_intensity": max(intensities) if intensities else 0}
+        return {
+            "peak_wavelength": wavelengths[peak_idx] if wavelengths else 0,
+            "peak_intensity": max(intensities) if intensities else 0,
+        }
 
 
 class PCROptimizer:
     """PCR optimization (158)."""
+
     def optimize_conditions(self, primer_tm_1: float, primer_tm_2: float) -> dict:
         annealing_temp = (primer_tm_1 + primer_tm_2) / 2 - 5
         return {"annealing_temp": round(annealing_temp, 1), "extension_time_sec": 60, "cycles": 30}
@@ -516,19 +556,30 @@ class PCROptimizer:
 
 class CellCultureMonitor:
     """Cell culture monitoring (159)."""
+
     def check_confluency(self) -> dict:
-        return {"confluency_pct": random.uniform(60, 95), "passage_recommended": random.random() > 0.5}
+        return {
+            "confluency_pct": random.uniform(60, 95),
+            "passage_recommended": random.random() > 0.5,
+        }
 
 
 class LabSafetyMonitor:
     """Lab safety monitoring (160)."""
+
     def check_safety(self) -> dict:
-        return {"fume_hood_on": True, "emergency_shower_accessible": True, "ppe_compliance": 0.95, "hazards_detected": []}
+        return {
+            "fume_hood_on": True,
+            "emergency_shower_accessible": True,
+            "ppe_compliance": 0.95,
+            "hazards_detected": [],
+        }
 
 
 # ============================================
 # PHASE 4: BROWSER AI AGENT (161-180)
 # ============================================
+
 
 class WebScraper:
     """Intelligent web scraper (161)."""
@@ -540,7 +591,7 @@ class WebScraper:
             "status": "scraped",
             "title": "Page Title",
             "content_length": 5000,
-            "selectors_found": list(selectors.keys()) if selectors else []
+            "selectors_found": list(selectors.keys()) if selectors else [],
         }
 
 
@@ -573,7 +624,7 @@ class WebsiteNavigator:
             {"step": 1, "action": "navigate", "target": "home"},
             {"step": 2, "action": "click", "target": "search"},
             {"step": 3, "action": "input", "target": "search_box", "value": goal},
-            {"step": 4, "action": "click", "target": "submit"}
+            {"step": 4, "action": "click", "target": "submit"},
         ]
 
 
@@ -618,7 +669,7 @@ class PDFDownloader:
         sources = [
             f"https://sci-hub.se/{doi}",
             f"https://unpaywall.org/api/v2/{doi}",
-            f"https://api.oadoi.org/v2/{doi}"
+            f"https://api.oadoi.org/v2/{doi}",
         ]
         return {"doi": doi, "sources": sources, "note": "Check institutional access first"}
 
@@ -631,7 +682,7 @@ class PaywallHandler:
         urls = {
             "pubmed_central": f"https://www.ncbi.nlm.nih.gov/pmc/?term={doi}",
             "google_scholar": f"https://scholar.google.com/scholar?q={doi}",
-            "semantic_scholar": f"https://api.semanticscholar.org/v1/paper/{doi}"
+            "semantic_scholar": f"https://api.semanticscholar.org/v1/paper/{doi}",
         }
         return {"doi": doi, "access_urls": urls}
 
@@ -645,7 +696,11 @@ class BrowserSessionManager:
     def create_session(self, name: str) -> str:
         """Create new session."""
         session_id = hashlib.md5(f"{name}_{time.time()}".encode()).hexdigest()[:8]
-        self.sessions[session_id] = {"name": name, "created": datetime.now().isoformat(), "pages": []}
+        self.sessions[session_id] = {
+            "name": name,
+            "created": datetime.now().isoformat(),
+            "pages": [],
+        }
         return session_id
 
     def add_page(self, session_id: str, url: str):
@@ -665,7 +720,7 @@ class WebMonitoringAgent:
         self.monitors[url] = {
             "interval": check_interval_minutes,
             "last_check": None,
-            "last_hash": None
+            "last_hash": None,
         }
 
     def check_for_changes(self, url: str, current_hash: str) -> dict:
@@ -735,6 +790,7 @@ class GrantDeadlineTracker:
 # PHASE 5: MCP & TOOL INTEGRATION (181-200)
 # ============================================
 
+
 class MCPServerManager:
     """Manage MCP servers (181)."""
 
@@ -762,7 +818,7 @@ class ToolDiscoveryAgent:
         # Simulated discovery
         return [
             {"name": "tool_1", "capability": capability, "provider": "local"},
-            {"name": "tool_2", "capability": capability, "provider": "mcp"}
+            {"name": "tool_2", "capability": capability, "provider": "mcp"},
         ]
 
 
@@ -878,11 +934,13 @@ class ToolPerformanceMonitor:
 
     def record(self, tool: str, duration_ms: float, success: bool):
         """Record tool execution."""
-        self.metrics[tool].append({
-            "duration_ms": duration_ms,
-            "success": success,
-            "timestamp": datetime.now().isoformat()
-        })
+        self.metrics[tool].append(
+            {
+                "duration_ms": duration_ms,
+                "success": success,
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
 
     def get_stats(self, tool: str) -> dict:
         """Get performance stats."""
@@ -897,7 +955,7 @@ class ToolPerformanceMonitor:
             "tool": tool,
             "avg_duration_ms": sum(durations) / len(durations),
             "success_rate": successes / len(data),
-            "total_calls": len(data)
+            "total_calls": len(data),
         }
 
 
@@ -938,7 +996,7 @@ class UsageAnalytics:
         return {
             "most_used": sorted_usage[:5],
             "least_used": sorted_usage[-5:],
-            "total_calls": sum(self.usage.values())
+            "total_calls": sum(self.usage.values()),
         }
 
 
@@ -1004,14 +1062,18 @@ class ToolInteroperability:
 def get_lab_controller() -> LabEquipmentController:
     return LabEquipmentController()
 
+
 def get_robotic_arm() -> RoboticArmIntegration:
     return RoboticArmIntegration()
+
 
 def get_sample_tracker() -> SampleTracker:
     return SampleTracker()
 
+
 def get_web_scraper() -> WebScraper:
     return WebScraper()
+
 
 def get_mcp_manager() -> MCPServerManager:
     return MCPServerManager()

@@ -2,6 +2,7 @@
 
 Tests Ω-1 to Ω-10 modules.
 """
+
 import sys
 from pathlib import Path
 

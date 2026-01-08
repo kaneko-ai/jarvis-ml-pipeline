@@ -3,6 +3,7 @@
 Per V4-T03, this provides hybrid relevance scoring.
 Uses BM25 + optional embedding distance.
 """
+
 from __future__ import annotations
 
 

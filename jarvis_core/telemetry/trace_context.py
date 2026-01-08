@@ -2,6 +2,7 @@
 
 Per RP-143, provides mandatory trace context for all tool events.
 """
+
 from __future__ import annotations
 
 import threading
@@ -60,9 +61,7 @@ class TraceContext:
 
 
 # Context variable for current trace
-_current_context: ContextVar[TraceContext | None] = ContextVar(
-    "trace_context", default=None
-)
+_current_context: ContextVar[TraceContext | None] = ContextVar("trace_context", default=None)
 
 
 def get_current_context() -> TraceContext | None:
@@ -80,8 +79,7 @@ def require_context() -> TraceContext:
     ctx = get_current_context()
     if ctx is None:
         raise RuntimeError(
-            "TraceContext required but not set. "
-            "Ensure run_task or entry point sets context."
+            "TraceContext required but not set. " "Ensure run_task or entry point sets context."
         )
     return ctx
 
@@ -115,6 +113,7 @@ class TraceContextManager:
 
 def trace_tool(tool_name: str):
     """Decorator to add trace context to tool functions."""
+
     def decorator(fn):
         def wrapper(*args, **kwargs):
             ctx = get_current_context()
@@ -122,5 +121,7 @@ def trace_tool(tool_name: str):
                 ctx = ctx.with_tool(tool_name)
                 set_current_context(ctx)
             return fn(*args, **kwargs)
+
         return wrapper
+
     return decorator

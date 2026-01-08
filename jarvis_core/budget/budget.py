@@ -15,12 +15,13 @@ from typing import Any
 @dataclass(frozen=True)
 class BudgetSpec:
     """予算仕様.
-    
+
     mode:
         - fast: 最小限の探索、高速応答優先
         - standard: バランス型（デフォルト）
         - high: 深い探索、品質優先
     """
+
     mode: str = "standard"  # fast | standard | high
     max_tool_calls: int = 30
     max_retries: int = 2
@@ -46,19 +47,26 @@ class BudgetSpec:
     @classmethod
     def fast(cls) -> BudgetSpec:
         """高速モード."""
-        return cls(mode="fast", max_tool_calls=10, max_retries=1,
-                   max_search_results=3, max_summary_depth=1)
+        return cls(
+            mode="fast", max_tool_calls=10, max_retries=1, max_search_results=3, max_summary_depth=1
+        )
 
     @classmethod
     def high(cls) -> BudgetSpec:
         """高品質モード."""
-        return cls(mode="high", max_tool_calls=50, max_retries=3,
-                   max_search_results=20, max_summary_depth=5)
+        return cls(
+            mode="high",
+            max_tool_calls=50,
+            max_retries=3,
+            max_search_results=20,
+            max_summary_depth=5,
+        )
 
 
 @dataclass
 class BudgetEvent:
     """予算イベント."""
+
     kind: str
     detail: dict[str, Any] = field(default_factory=dict)
 
@@ -66,6 +74,7 @@ class BudgetEvent:
 @dataclass
 class BudgetTracker:
     """予算追跡器."""
+
     tool_calls_used: int = 0
     retries_used: int = 0
     search_results_used: int = 0

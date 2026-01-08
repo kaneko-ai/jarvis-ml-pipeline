@@ -5,6 +5,7 @@ For Immuno-Oncology: model_tier, evidence_type, causal_strength, etc.
 
 Output: features.jsonl (one per paper)
 """
+
 import logging
 from typing import Any
 
@@ -15,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def extract_immuno_onco_features(paper: dict) -> dict[str, Any]:
     """Extract immuno-oncology rubric features from paper metadata.
-    
+
     In production, this would use LLM or ML classifier.
     For Phase 2 bootstrap, we use heuristics based on keywords.
     """
@@ -30,7 +31,7 @@ def extract_immuno_onco_features(paper: dict) -> dict[str, Any]:
         "evidence_type": "unknown",
         "causal_strength": "association",  # default conservative
         "reproducibility": "single",
-        "tme_relevance": "none"
+        "tme_relevance": "none",
     }
 
     # Model tier detection
@@ -98,5 +99,5 @@ def extract_features(papers: list[dict], **kwargs) -> dict[str, Any]:
         "features": features_list,
         "count": len(features_list),
         "rubric": "immuno_onco_v1",
-        "stage": "extraction.rubric_features"
+        "stage": "extraction.rubric_features",
     }

@@ -1,4 +1,5 @@
 """Scientific linter for P6 lint signals."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -21,21 +22,25 @@ class ScientificLinter:
 
         for term in AMBIGUOUS_TERMS:
             if term.lower() in text.lower():
-                violations.append({
-                    "code": "AMBIGUOUS_TERM",
-                    "severity": "warning",
-                    "term": term,
-                    "message": f"Ambiguous term detected: {term}",
-                })
+                violations.append(
+                    {
+                        "code": "AMBIGUOUS_TERM",
+                        "severity": "warning",
+                        "term": term,
+                        "message": f"Ambiguous term detected: {term}",
+                    }
+                )
 
         for term in WEAK_EVIDENCE_TERMS:
             if term.lower() in text.lower():
-                violations.append({
-                    "code": "WEAK_EVIDENCE",
-                    "severity": "warning",
-                    "term": term,
-                    "message": f"Weak evidence language detected: {term}",
-                })
+                violations.append(
+                    {
+                        "code": "WEAK_EVIDENCE",
+                        "severity": "warning",
+                        "term": term,
+                        "message": f"Weak evidence language detected: {term}",
+                    }
+                )
 
         return violations
 

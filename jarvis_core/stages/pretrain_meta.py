@@ -23,9 +23,11 @@ from jarvis_core.pipelines.stage_registry import register_stage
 # データスキーマ
 # ============================================
 
+
 @dataclass
 class PICOExtraction:
     """PICO抽出結果."""
+
     population: str = ""
     intervention: str = ""
     comparison: str = ""
@@ -37,6 +39,7 @@ class PICOExtraction:
 @dataclass
 class OutcomeData:
     """アウトカムデータ."""
+
     outcome_name: str
     outcome_type: str  # continuous, binary, time-to-event
     effect_measure: str  # OR, RR, HR, MD, SMD
@@ -50,6 +53,7 @@ class OutcomeData:
 @dataclass
 class BiasRiskAssessment:
     """バイアスリスク評価（RoB）."""
+
     domain: str
     rating: str  # low, some_concerns, high
     reasoning: str = ""
@@ -58,6 +62,7 @@ class BiasRiskAssessment:
 # ============================================
 # 系統B: メタ分析コアステージ群
 # ============================================
+
 
 @register_stage("retrieval.seed_topic_or_query", "シードトピック/クエリ設定")
 def stage_seed_topic_or_query(context: TaskContext, artifacts: Artifacts) -> Artifacts:
@@ -68,15 +73,23 @@ def stage_seed_topic_or_query(context: TaskContext, artifacts: Artifacts) -> Art
     artifacts.metadata["meta_seed_query"] = seed_query
     artifacts.metadata["meta_topic"] = context.domain
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Seed topic set: {seed_query[:50]}",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="seed_topic",
-            chunk_id="log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Seed topic set: {seed_query[:50]}",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="seed_topic",
+                    chunk_id="log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
     log_audit("retrieval.seed_topic_or_query", "completed")
     return artifacts
@@ -86,7 +99,7 @@ def stage_seed_topic_or_query(context: TaskContext, artifacts: Artifacts) -> Art
 def stage_search_pubmed_primary(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """
     PubMedで一次研究（臨床試験・観察研究）を検索.
-    
+
     レビュー論文を除外するフィルタを適用。
     """
     import os
@@ -114,11 +127,7 @@ def stage_search_pubmed_primary(context: TaskContext, artifacts: Artifacts) -> A
             results = []
             for paper in papers:
                 artifacts.add_paper(paper.to_paper())
-                results.append({
-                    "pmid": paper.pmid,
-                    "title": paper.title,
-                    "study_type": "unknown"
-                })
+                results.append({"pmid": paper.pmid, "title": paper.title, "study_type": "unknown"})
 
             artifacts.metadata["primary_search_results"] = results
             artifacts.metadata["primary_search_source"] = "pubmed_api"
@@ -129,18 +138,25 @@ def stage_search_pubmed_primary(context: TaskContext, artifacts: Artifacts) -> A
 
     result_count = len(artifacts.metadata.get("primary_search_results", []))
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Primary study search: {result_count} results",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="search_primary",
-            chunk_id="log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Primary study search: {result_count} results",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="search_primary",
+                    chunk_id="log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
-    log_audit("retrieval.search_pubmed_primary", "completed",
-              details={"results": result_count})
+    log_audit("retrieval.search_pubmed_primary", "completed", details={"results": result_count})
     return artifacts
 
 
@@ -166,18 +182,29 @@ def stage_primary_study_filter(context: TaskContext, artifacts: Artifacts) -> Ar
     artifacts.metadata["primary_studies"] = filtered
     artifacts.metadata["excluded_reviews"] = excluded
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Primary studies filtered: {len(filtered)} included, {len(excluded)} excluded",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="primary_filter",
-            chunk_id="log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Primary studies filtered: {len(filtered)} included, {len(excluded)} excluded",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="primary_filter",
+                    chunk_id="log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
-    log_audit("screening.primary_study_filter", "completed",
-              details={"included": len(filtered), "excluded": len(excluded)})
+    log_audit(
+        "screening.primary_study_filter",
+        "completed",
+        details={"included": len(filtered), "excluded": len(excluded)},
+    )
     return artifacts
 
 
@@ -199,24 +226,31 @@ def stage_extraction_pico(context: TaskContext, artifacts: Artifacts) -> Artifac
             "comparison": "Placebo or standard care",
             "outcome": "Primary endpoint",
             "study_type": study.get("study_type", "unknown"),
-            "confidence": 0.7
+            "confidence": 0.7,
         }
         pico_extractions.append(pico)
 
     artifacts.metadata["pico_extractions"] = pico_extractions
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"PICO extracted for {len(pico_extractions)} studies",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="pico_extraction",
-            chunk_id="log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"PICO extracted for {len(pico_extractions)} studies",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="pico_extraction",
+                    chunk_id="log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
-    log_audit("extraction.pico", "completed",
-              details={"count": len(pico_extractions)})
+    log_audit("extraction.pico", "completed", details={"count": len(pico_extractions)})
     return artifacts
 
 
@@ -240,24 +274,31 @@ def stage_extraction_outcomes(context: TaskContext, artifacts: Artifacts) -> Art
             "ci_upper": None,
             "p_value": None,
             "sample_size": None,
-            "extraction_status": "pending"
+            "extraction_status": "pending",
         }
         outcomes.append(outcome)
 
     artifacts.metadata["outcome_extractions"] = outcomes
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Outcomes extracted for {len(outcomes)} studies",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="outcome_extraction",
-            chunk_id="log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Outcomes extracted for {len(outcomes)} studies",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="outcome_extraction",
+                    chunk_id="log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
-    log_audit("extraction.outcomes", "completed",
-              details={"count": len(outcomes)})
+    log_audit("extraction.outcomes", "completed", details={"count": len(outcomes)})
     return artifacts
 
 
@@ -265,7 +306,7 @@ def stage_extraction_outcomes(context: TaskContext, artifacts: Artifacts) -> Art
 def stage_extraction_effect_size(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """
     効果量関連フィールドを抽出.
-    
+
     - サンプルサイズ
     - 平均値/SD（連続）
     - イベント数（二値）
@@ -287,24 +328,33 @@ def stage_extraction_effect_size(context: TaskContext, artifacts: Artifacts) -> 
             "sd_control": None,
             "events_treatment": None,
             "events_control": None,
-            "extracted": False
+            "extracted": False,
         }
         effect_size_data.append(effect_data)
 
     artifacts.metadata["effect_size_data"] = effect_size_data
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Effect size fields extracted for {len(effect_size_data)} studies",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="effect_size",
-            chunk_id="log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Effect size fields extracted for {len(effect_size_data)} studies",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="effect_size",
+                    chunk_id="log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
-    log_audit("extraction.effect_size_fields", "completed",
-              details={"count": len(effect_size_data)})
+    log_audit(
+        "extraction.effect_size_fields", "completed", details={"count": len(effect_size_data)}
+    )
     return artifacts
 
 
@@ -312,7 +362,7 @@ def stage_extraction_effect_size(context: TaskContext, artifacts: Artifacts) -> 
 def stage_extraction_bias_risk(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """
     各研究のバイアスリスクを評価（RoB 2 / ROBINS-I準拠）.
-    
+
     ドメイン:
     - ランダム化プロセス
     - 意図した介入からの逸脱
@@ -327,40 +377,43 @@ def stage_extraction_bias_risk(context: TaskContext, artifacts: Artifacts) -> Ar
         "deviations",
         "missing_data",
         "outcome_measurement",
-        "selective_reporting"
+        "selective_reporting",
     ]
 
     bias_assessments = []
 
     for study in primary_studies:
-        assessment = {
-            "pmid": study.get("pmid"),
-            "domains": {},
-            "overall_bias": "some_concerns"
-        }
+        assessment = {"pmid": study.get("pmid"), "domains": {}, "overall_bias": "some_concerns"}
 
         for domain in RoB_DOMAINS:
             assessment["domains"][domain] = {
                 "rating": "some_concerns",
-                "reasoning": f"Insufficient information for {domain}"
+                "reasoning": f"Insufficient information for {domain}",
             }
 
         bias_assessments.append(assessment)
 
     artifacts.metadata["bias_assessments"] = bias_assessments
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Bias risk assessed for {len(bias_assessments)} studies",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="bias_risk",
-            chunk_id="log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Bias risk assessed for {len(bias_assessments)} studies",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="bias_risk",
+                    chunk_id="log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
-    log_audit("extraction.bias_risk_rob", "completed",
-              details={"count": len(bias_assessments)})
+    log_audit("extraction.bias_risk_rob", "completed", details={"count": len(bias_assessments)})
     return artifacts
 
 
@@ -368,7 +421,7 @@ def stage_extraction_bias_risk(context: TaskContext, artifacts: Artifacts) -> Ar
 def stage_extraction_accuracy_proxy(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """
     抽出精度のプロキシ評価.
-    
+
     - PICO完全性
     - 効果量抽出率
     - バイアス評価完全性
@@ -380,8 +433,7 @@ def stage_extraction_accuracy_proxy(context: TaskContext, artifacts: Artifacts) 
 
     # PICO完全性
     pico_complete = sum(
-        1 for p in pico
-        if p.get("population") and p.get("intervention") and p.get("outcome")
+        1 for p in pico if p.get("population") and p.get("intervention") and p.get("outcome")
     )
     pico_completeness = pico_complete / max(1, len(pico))
 
@@ -390,31 +442,42 @@ def stage_extraction_accuracy_proxy(context: TaskContext, artifacts: Artifacts) 
     effect_extraction_rate = effect_extracted / max(1, len(effect_sizes))
 
     # 全体スコア
-    overall_score = (pico_completeness * 0.4 +
-                     effect_extraction_rate * 0.4 +
-                     len(bias) / max(1, len(pico)) * 0.2)
+    overall_score = (
+        pico_completeness * 0.4 + effect_extraction_rate * 0.4 + len(bias) / max(1, len(pico)) * 0.2
+    )
 
     accuracy_proxy = {
         "pico_completeness": pico_completeness,
         "effect_extraction_rate": effect_extraction_rate,
         "bias_coverage": len(bias) / max(1, len(pico)),
-        "overall_score": overall_score
+        "overall_score": overall_score,
     }
 
     artifacts.metadata["extraction_accuracy_proxy"] = accuracy_proxy
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Extraction accuracy proxy: {overall_score:.2f}",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="accuracy_proxy",
-            chunk_id="log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Extraction accuracy proxy: {overall_score:.2f}",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="accuracy_proxy",
+                    chunk_id="log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
-    log_audit("evaluation.extraction_accuracy_proxy", "completed",
-              details={"overall_score": overall_score})
+    log_audit(
+        "evaluation.extraction_accuracy_proxy",
+        "completed",
+        details={"overall_score": overall_score},
+    )
     return artifacts
 
 
@@ -422,7 +485,7 @@ def stage_extraction_accuracy_proxy(context: TaskContext, artifacts: Artifacts) 
 def stage_store_training_record_meta(context: TaskContext, artifacts: Artifacts) -> Artifacts:
     """
     メタ分析学習レコードをJSONLに保存.
-    
+
     datasets/pretrain/meta_core.jsonl に追記
     """
     accuracy = artifacts.metadata.get("extraction_accuracy_proxy", {})
@@ -430,9 +493,7 @@ def stage_store_training_record_meta(context: TaskContext, artifacts: Artifacts)
     # レコード作成
     record = {
         "run_id": context.run_id,
-        "record_hash": hashlib.sha256(
-            f"{context.run_id}_{context.goal}".encode()
-        ).hexdigest()[:16],
+        "record_hash": hashlib.sha256(f"{context.run_id}_{context.goal}".encode()).hexdigest()[:16],
         "seed_query": artifacts.metadata.get("meta_seed_query", ""),
         "primary_studies_count": len(artifacts.metadata.get("primary_studies", [])),
         "pico_extractions": artifacts.metadata.get("pico_extractions", []),
@@ -440,7 +501,7 @@ def stage_store_training_record_meta(context: TaskContext, artifacts: Artifacts)
         "effect_size_data": artifacts.metadata.get("effect_size_data", []),
         "bias_assessments": artifacts.metadata.get("bias_assessments", []),
         "accuracy_proxy": accuracy,
-        "created_at": datetime.now().isoformat()
+        "created_at": datetime.now().isoformat(),
     }
 
     # 保存
@@ -461,16 +522,23 @@ def stage_store_training_record_meta(context: TaskContext, artifacts: Artifacts)
 
     saved = artifacts.metadata.get("meta_training_record_saved", False)
 
-    artifacts.add_claim(Claim(
-        claim_id=f"c-{uuid.uuid4().hex[:8]}",
-        claim_text=f"Meta training record: {'saved' if saved else 'failed'}",
-        evidence=[EvidenceLink(
-            doc_id="internal", section="store_meta",
-            chunk_id="log", start=0, end=10, confidence=1.0
-        )],
-        claim_type="log"
-    ))
+    artifacts.add_claim(
+        Claim(
+            claim_id=f"c-{uuid.uuid4().hex[:8]}",
+            claim_text=f"Meta training record: {'saved' if saved else 'failed'}",
+            evidence=[
+                EvidenceLink(
+                    doc_id="internal",
+                    section="store_meta",
+                    chunk_id="log",
+                    start=0,
+                    end=10,
+                    confidence=1.0,
+                )
+            ],
+            claim_type="log",
+        )
+    )
 
-    log_audit("ops.store_training_record_meta", "completed",
-              details={"saved": saved})
+    log_audit("ops.store_training_record_meta", "completed", details={"saved": saved})
     return artifacts

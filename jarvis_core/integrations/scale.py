@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class AuditEntry:
     """監査ログエントリ."""
+
     timestamp: str
     action: str
     source: str
@@ -39,7 +40,7 @@ class AuditEntry:
 
 class AuditLog:
     """監査ログ.
-    
+
     Phase9: すべての外部統合アクションを記録
     """
 
@@ -66,8 +67,8 @@ class AuditLog:
             details=details or {},
         )
 
-        with open(self.log_path, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(entry.to_dict(), ensure_ascii=False) + '\n')
+        with open(self.log_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry.to_dict(), ensure_ascii=False) + "\n")
 
         logger.info(f"Audit: {action} from {source} to {target}")
         return entry
@@ -78,7 +79,7 @@ class AuditLog:
             return []
 
         entries = []
-        with open(self.log_path, encoding='utf-8') as f:
+        with open(self.log_path, encoding="utf-8") as f:
             for line in f:
                 if line.strip():
                     data = json.loads(line)
@@ -89,7 +90,7 @@ class AuditLog:
 
 class ZoteroIntegration:
     """Zotero連携.
-    
+
     Phase9: 文献ソースの一元化
     """
 
@@ -130,7 +131,7 @@ class ZoteroIntegration:
 
 class ScreenpipeIntegration:
     """Screenpipe連携.
-    
+
     Phase9: 作業ログの構造化
     """
 

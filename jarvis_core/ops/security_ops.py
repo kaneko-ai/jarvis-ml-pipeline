@@ -56,10 +56,12 @@ class PIIDetector:
         for pii_type, pattern in cls.PATTERNS.items():
             matches = re.findall(pattern, text)
             for match in matches:
-                findings.append({
-                    "type": pii_type,
-                    "match": match[:4] + "***",  # マスク
-                })
+                findings.append(
+                    {
+                        "type": pii_type,
+                        "match": match[:4] + "***",  # マスク
+                    }
+                )
         return findings
 
     @classmethod
@@ -130,7 +132,7 @@ class AuditLogRotator:
         pattern = base_name.replace(".jsonl", ".*.jsonl")
         files = sorted(self.log_dir.glob(pattern), reverse=True)
 
-        for old_file in files[self.max_files:]:
+        for old_file in files[self.max_files :]:
             old_file.unlink()
             logger.info(f"Deleted old log: {old_file}")
 
@@ -174,6 +176,7 @@ class FeatureDoD:
 @dataclass
 class SkillSpec:
     """Skill仕様."""
+
     name: str
     version: str
     description: str

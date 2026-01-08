@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ZoteroConfig:
     """Zotero API configuration."""
+
     api_key: str
     user_id: str
     library_type: str = "user"  # "user" or "group"
@@ -28,7 +29,7 @@ class ZoteroClient:
 
     def __init__(self, config: ZoteroConfig):
         """Initialize Zotero client.
-        
+
         Args:
             config: ZoteroConfig with API credentials
         """
@@ -50,11 +51,11 @@ class ZoteroClient:
         limit: int = 100,
     ) -> list[dict[str, Any]]:
         """Get items from Zotero library.
-        
+
         Args:
             collection_key: Optional collection to filter
             limit: Maximum items to return
-            
+
         Returns:
             List of Zotero item dictionaries
         """
@@ -74,10 +75,10 @@ class ZoteroClient:
 
     def create_item(self, item_data: dict[str, Any]) -> dict[str, Any]:
         """Create a new item in Zotero.
-        
+
         Args:
             item_data: Item data dictionary
-            
+
         Returns:
             Created item response
         """
@@ -105,11 +106,11 @@ class ZoteroClient:
 
     def search(self, query: str, limit: int = 25) -> list[dict[str, Any]]:
         """Search items in library.
-        
+
         Args:
             query: Search query
             limit: Maximum results
-            
+
         Returns:
             List of matching items
         """
@@ -126,10 +127,10 @@ class ZoteroClient:
 
     def item_to_paper(self, zotero_item: dict[str, Any]) -> dict[str, Any]:
         """Convert Zotero item to JARVIS paper format.
-        
+
         Args:
             zotero_item: Zotero item dictionary
-            
+
         Returns:
             JARVIS paper dictionary
         """
@@ -147,20 +148,17 @@ class ZoteroClient:
 
     def paper_to_item(self, paper: dict[str, Any]) -> dict[str, Any]:
         """Convert JARVIS paper to Zotero item format.
-        
+
         Args:
             paper: JARVIS paper dictionary
-            
+
         Returns:
             Zotero item data dictionary
         """
         return {
             "itemType": "journalArticle",
             "title": paper.get("title", ""),
-            "creators": [
-                {"creatorType": "author", "name": a}
-                for a in paper.get("authors", [])
-            ],
+            "creators": [{"creatorType": "author", "name": a} for a in paper.get("authors", [])],
             "abstractNote": paper.get("abstract", ""),
             "DOI": paper.get("doi"),
             "date": str(paper.get("year", "")),

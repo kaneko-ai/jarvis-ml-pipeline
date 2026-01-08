@@ -2,6 +2,7 @@
 
 Per RP-318, validates generated text against sources.
 """
+
 from __future__ import annotations
 
 import re
@@ -45,7 +46,7 @@ class ConsistencyReport:
 
 class FactualConsistencyChecker:
     """Checks factual consistency of generated text.
-    
+
     Per RP-318:
     - Decomposes generated text into claims
     - Verifies each claim against sources
@@ -67,10 +68,10 @@ class FactualConsistencyChecker:
 
     def extract_claims(self, text: str) -> list[str]:
         """Extract claims from generated text.
-        
+
         Args:
             text: Generated text.
-            
+
         Returns:
             List of claim strings.
         """
@@ -82,7 +83,7 @@ class FactualConsistencyChecker:
     def _simple_claim_extraction(self, text: str) -> list[str]:
         """Simple rule-based claim extraction."""
         # Split into sentences
-        sentences = re.split(r'(?<=[.!?])\s+', text)
+        sentences = re.split(r"(?<=[.!?])\s+", text)
 
         claims = []
         for sentence in sentences:
@@ -116,11 +117,11 @@ class FactualConsistencyChecker:
         source_chunks: list[dict[str, Any]],
     ) -> ClaimCheck:
         """Check a single claim against sources.
-        
+
         Args:
             claim: The claim to check.
             source_chunks: Source chunks to verify against.
-            
+
         Returns:
             ClaimCheck result.
         """
@@ -165,11 +166,11 @@ class FactualConsistencyChecker:
 
     def _calculate_entailment(self, claim: str, source: str) -> float:
         """Calculate entailment score between claim and source.
-        
+
         Args:
             claim: The claim.
             source: The source text.
-            
+
         Returns:
             Entailment score (0-1).
         """
@@ -208,11 +209,11 @@ class FactualConsistencyChecker:
         source_chunks: list[dict[str, Any]],
     ) -> ConsistencyReport:
         """Check full generated text for consistency.
-        
+
         Args:
             generated_text: The generated text.
             source_chunks: Source chunks to verify against.
-            
+
         Returns:
             ConsistencyReport with all claim checks.
         """

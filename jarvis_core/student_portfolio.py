@@ -2,6 +2,7 @@
 
 Per Ψ-6, this manages multiple student research portfolios.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -28,12 +29,14 @@ def analyze_student_portfolio(
 
     for student, vectors in portfolios.items():
         if not vectors:
-            analyses.append({
-                "student": student,
-                "risk_rank": "high",
-                "continuation_advice": "研究開始が必要",
-                "paper_count": 0,
-            })
+            analyses.append(
+                {
+                    "student": student,
+                    "risk_rank": "high",
+                    "continuation_advice": "研究開始が必要",
+                    "paper_count": 0,
+                }
+            )
             continue
 
         # Analyze portfolio
@@ -59,15 +62,17 @@ def analyze_student_portfolio(
             risk_rank = "low"
             advice = "順調、論文化を目指す"
 
-        analyses.append({
-            "student": student,
-            "risk_rank": risk_rank,
-            "risk_score": round(risk_score, 2),
-            "continuation_advice": advice,
-            "paper_count": len(vectors),
-            "focus_score": round(focus_score, 2),
-            "estimated": True,
-        })
+        analyses.append(
+            {
+                "student": student,
+                "risk_rank": risk_rank,
+                "risk_score": round(risk_score, 2),
+                "continuation_advice": advice,
+                "paper_count": len(vectors),
+                "focus_score": round(focus_score, 2),
+                "estimated": True,
+            }
+        )
 
     # Sort by risk
     analyses.sort(key=lambda x: x.get("risk_score", 0), reverse=True)

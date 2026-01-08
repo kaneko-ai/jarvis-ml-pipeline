@@ -1,4 +1,5 @@
 """Tests for Dashboard Features - Auth, API, Alerts."""
+
 import time
 
 import pytest
@@ -122,7 +123,7 @@ class TestDashboardFeatures:
             "stats": {
                 "total_prs_implemented": 384,
                 "tests_passed": 222,
-            }
+            },
         }
 
         # Should be valid JSON
@@ -137,10 +138,7 @@ class TestDashboardFeatures:
         health = {
             "status": "healthy",
             "uptime": "99.9%",
-            "services": {
-                "api": "up",
-                "dashboard": "up"
-            }
+            "services": {"api": "up", "dashboard": "up"},
         }
 
         assert health["status"] == "healthy"

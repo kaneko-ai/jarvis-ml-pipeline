@@ -208,7 +208,7 @@ class TestFitness:
         gate = FitnessGate()
         score = FitnessScore(
             correctness=0.5,  # 0.7未満
-            regression=0.2,   # 0.1超過
+            regression=0.2,  # 0.1超過
             reproducibility=0.7,  # 0.8未満
         )
 

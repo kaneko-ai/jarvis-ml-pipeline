@@ -35,7 +35,12 @@ def test_kb_indexer_preserves_manual_sections(tmp_path: Path):
             "claim_id": "c1",
             "claim_text": "CD73 increases adenosine production.",
             "evidence": [
-                {"chunk_id": "chunk-1", "locator": "Results", "quote": "CD73 increased", "score": 0.8}
+                {
+                    "chunk_id": "chunk-1",
+                    "locator": "Results",
+                    "quote": "CD73 increased",
+                    "score": 0.8,
+                }
             ],
         }
     ]
@@ -46,15 +51,15 @@ def test_kb_indexer_preserves_manual_sections(tmp_path: Path):
     note_path.parent.mkdir(parents=True, exist_ok=True)
     note_path.write_text(
         """---
-""" +
-        "type: paper\n" +
-        "pmid: \"1234\"\n" +
-        "---\n\n" +
-        "# 自分の研究への接続\n" +
-        "- 手書きメモ\n" +
-        "<!-- AUTO-CLAIMS-START -->\n" +
-        "- 旧いclaim\n" +
-        "<!-- AUTO-CLAIMS-END -->\n",
+"""
+        + "type: paper\n"
+        + 'pmid: "1234"\n'
+        + "---\n\n"
+        + "# 自分の研究への接続\n"
+        + "- 手書きメモ\n"
+        + "<!-- AUTO-CLAIMS-START -->\n"
+        + "- 旧いclaim\n"
+        + "<!-- AUTO-CLAIMS-END -->\n",
         encoding="utf-8",
     )
 

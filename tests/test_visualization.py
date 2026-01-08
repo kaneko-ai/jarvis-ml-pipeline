@@ -1,4 +1,5 @@
 """Comprehensive tests for visualization module."""
+
 import pytest
 
 from jarvis_core.visualization.advanced import (
@@ -21,7 +22,7 @@ class TestSankeyGenerator:
     def test_generate_citation_flow(self):
         papers = [
             {"pmid": "1", "title": "Paper 1", "references": ["2"]},
-            {"pmid": "2", "title": "Paper 2", "references": []}
+            {"pmid": "2", "title": "Paper 2", "references": []},
         ]
         sg = SankeyGenerator()
         result = sg.generate_citation_flow(papers)
@@ -30,10 +31,7 @@ class TestSankeyGenerator:
         assert len(result["nodes"]) == 2
 
     def test_generate_topic_flow(self):
-        categories = {
-            "AI": [{"year": 2024}, {"year": 2023}],
-            "Healthcare": [{"year": 2024}]
-        }
+        categories = {"AI": [{"year": 2024}, {"year": 2023}], "Healthcare": [{"year": 2024}]}
         sg = SankeyGenerator()
         result = sg.generate_topic_flow(categories)
         assert len(result["nodes"]) > 0
@@ -43,10 +41,7 @@ class TestForceGraphGenerator:
     """Test force graph generator."""
 
     def test_generate_author_network(self):
-        papers = [
-            {"authors": "Smith J, Johnson A"},
-            {"authors": "Johnson A, Williams B"}
-        ]
+        papers = [{"authors": "Smith J, Johnson A"}, {"authors": "Johnson A, Williams B"}]
         fg = ForceGraphGenerator()
         result = fg.generate_author_network(papers)
         assert len(result["nodes"]) == 3
@@ -63,9 +58,7 @@ class TestBubbleChartGenerator:
     """Test bubble chart generator."""
 
     def test_generate_impact_chart(self):
-        papers = [
-            {"pmid": "1", "title": "Test", "year": 2024, "citation_count": 50}
-        ]
+        papers = [{"pmid": "1", "title": "Test", "year": 2024, "citation_count": 50}]
         bg = BubbleChartGenerator()
         result = bg.generate_impact_chart(papers)
         assert len(result) == 1
@@ -78,21 +71,14 @@ class TestTreemapGenerator:
     """Test treemap generator."""
 
     def test_generate_category_treemap(self):
-        papers = [
-            {"category": "AI", "subcategory": "ML"},
-            {"category": "AI", "subcategory": "DL"}
-        ]
+        papers = [{"category": "AI", "subcategory": "ML"}, {"category": "AI", "subcategory": "DL"}]
         tm = TreemapGenerator()
         result = tm.generate_category_treemap(papers)
         assert "name" in result
         assert "children" in result
 
     def test_generate_journal_treemap(self):
-        papers = [
-            {"journal": "Nature"},
-            {"journal": "Nature"},
-            {"journal": "Science"}
-        ]
+        papers = [{"journal": "Nature"}, {"journal": "Nature"}, {"journal": "Science"}]
         tm = TreemapGenerator()
         result = tm.generate_journal_treemap(papers)
         assert len(result["children"]) == 2

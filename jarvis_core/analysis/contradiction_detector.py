@@ -3,6 +3,7 @@
 Per JARVIS_LOCALFIRST_ROADMAP Task 2.3: 矛盾検出
 Identifies contradictions between evidence items.
 """
+
 from __future__ import annotations
 
 import logging
@@ -15,6 +16,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Contradiction:
     """A detected contradiction between evidence items."""
+
     evidence_id_1: str
     evidence_id_2: str
     claim_id: str
@@ -36,7 +38,7 @@ class Contradiction:
 
 class ContradictionDetector:
     """Detects contradictions between evidence items.
-    
+
     Uses multiple strategies:
     1. Stance-based: opposing stances toward same claim
     2. Semantic: opposing meaning in similar contexts
@@ -82,15 +84,21 @@ class ContradictionDetector:
             # Each support-contradict pair is a potential contradiction
             for sup in supports:
                 for con in contradicts:
-                    contradictions.append(Contradiction(
-                        evidence_id_1=sup.get("evidence_id", ""),
-                        evidence_id_2=con.get("evidence_id", ""),
-                        claim_id=claim_id,
-                        contradiction_type="direct",
-                        confidence=min(sup.get("confidence", 0.5), con.get("confidence", 0.5)),
-                        explanation="Evidence items have opposing stances",
-                        severity="high" if min(sup.get("confidence", 0), con.get("confidence", 0)) > 0.7 else "medium",
-                    ))
+                    contradictions.append(
+                        Contradiction(
+                            evidence_id_1=sup.get("evidence_id", ""),
+                            evidence_id_2=con.get("evidence_id", ""),
+                            claim_id=claim_id,
+                            contradiction_type="direct",
+                            confidence=min(sup.get("confidence", 0.5), con.get("confidence", 0.5)),
+                            explanation="Evidence items have opposing stances",
+                            severity=(
+                                "high"
+                                if min(sup.get("confidence", 0), con.get("confidence", 0)) > 0.7
+                                else "medium"
+                            ),
+                        )
+                    )
 
         return contradictions
 
@@ -111,18 +119,20 @@ class ContradictionDetector:
         # Check for antonym pairs
         for claim_id, evidences in by_claim.items():
             for i, (ev_id_1, text_1) in enumerate(evidences):
-                for ev_id_2, text_2 in evidences[i+1:]:
+                for ev_id_2, text_2 in evidences[i + 1 :]:
                     antonyms_found = self._find_antonyms(text_1, text_2)
                     if antonyms_found:
-                        contradictions.append(Contradiction(
-                            evidence_id_1=ev_id_1,
-                            evidence_id_2=ev_id_2,
-                            claim_id=claim_id,
-                            contradiction_type="semantic",
-                            confidence=0.5 + 0.1 * len(antonyms_found),
-                            explanation=f"Antonyms found: {antonyms_found}",
-                            severity="medium",
-                        ))
+                        contradictions.append(
+                            Contradiction(
+                                evidence_id_1=ev_id_1,
+                                evidence_id_2=ev_id_2,
+                                claim_id=claim_id,
+                                contradiction_type="semantic",
+                                confidence=0.5 + 0.1 * len(antonyms_found),
+                                explanation=f"Antonyms found: {antonyms_found}",
+                                severity="medium",
+                            )
+                        )
 
         return contradictions
 
@@ -143,7 +153,7 @@ class ContradictionDetector:
         stance_results: list[dict] | None = None,
     ) -> tuple[list[Contradiction], dict[str, Any]]:
         """Run all contradiction detection methods.
-        
+
         Returns:
             Tuple of (contradictions, summary_stats).
         """
@@ -195,12 +205,12 @@ def detect_contradictions(
     stance_results: list[dict] | None = None,
 ) -> tuple[list[Contradiction], dict[str, Any]]:
     """Convenience function for contradiction detection.
-    
+
     Args:
         claims: List of claim dictionaries.
         evidence_list: List of evidence dictionaries.
         stance_results: Optional pre-computed stance results.
-        
+
     Returns:
         Tuple of (contradictions, stats).
     """

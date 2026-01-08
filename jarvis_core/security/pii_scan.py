@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 3, this detects PII in text.
 """
+
 from __future__ import annotations
 
 import re
@@ -39,21 +40,13 @@ class PIIScanner:
 
     def __init__(self):
         self.patterns: dict[PIIType, Pattern] = {
-            PIIType.EMAIL: re.compile(
-                r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-            ),
+            PIIType.EMAIL: re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"),
             PIIType.PHONE: re.compile(
-                r'\b(?:\+\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b'
+                r"\b(?:\+\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b"
             ),
-            PIIType.SSN: re.compile(
-                r'\b\d{3}[-]?\d{2}[-]?\d{4}\b'
-            ),
-            PIIType.CREDIT_CARD: re.compile(
-                r'\b(?:\d{4}[-\s]?){3}\d{4}\b'
-            ),
-            PIIType.IP_ADDRESS: re.compile(
-                r'\b(?:\d{1,3}\.){3}\d{1,3}\b'
-            ),
+            PIIType.SSN: re.compile(r"\b\d{3}[-]?\d{2}[-]?\d{4}\b"),
+            PIIType.CREDIT_CARD: re.compile(r"\b(?:\d{4}[-\s]?){3}\d{4}\b"),
+            PIIType.IP_ADDRESS: re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"),
         }
 
     def scan(self, text: str) -> list[PIIMatch]:
@@ -69,13 +62,15 @@ class PIIScanner:
 
         for pii_type, pattern in self.patterns.items():
             for match in pattern.finditer(text):
-                matches.append(PIIMatch(
-                    pii_type=pii_type,
-                    start=match.start(),
-                    end=match.end(),
-                    text=match.group(),
-                    confidence=0.9,
-                ))
+                matches.append(
+                    PIIMatch(
+                        pii_type=pii_type,
+                        start=match.start(),
+                        end=match.end(),
+                        text=match.group(),
+                        confidence=0.9,
+                    )
+                )
 
         return matches
 

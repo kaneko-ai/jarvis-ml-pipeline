@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 3, this estimates quality gain from processing choices.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -12,16 +13,18 @@ class QualityEstimator:
     """Estimates quality improvements from processing choices."""
 
     # Base quality by method
-    base_quality: dict[str, float] = field(default_factory=lambda: {
-        "bm25_only": 0.6,
-        "dense_only": 0.7,
-        "hybrid": 0.85,
-        "hybrid_rerank": 0.95,
-    })
+    base_quality: dict[str, float] = field(
+        default_factory=lambda: {
+            "bm25_only": 0.6,
+            "dense_only": 0.7,
+            "hybrid": 0.85,
+            "hybrid_rerank": 0.95,
+        }
+    )
 
     # Quality boost factors
-    evidence_boost: float = 0.1      # Per evidence found
-    rerank_boost: float = 0.15       # Reranking improvement
+    evidence_boost: float = 0.1  # Per evidence found
+    rerank_boost: float = 0.15  # Reranking improvement
     deep_analysis_boost: float = 0.1  # Deep vs quick
 
     def estimate_retrieval_quality(
@@ -83,12 +86,8 @@ def estimate_quality(
     """
     estimator = estimator or QualityEstimator()
 
-    retrieval_q = estimator.estimate_retrieval_quality(
-        method, candidate_count, reranked
-    )
+    retrieval_q = estimator.estimate_retrieval_quality(method, candidate_count, reranked)
 
-    answer_q = estimator.estimate_answer_quality(
-        evidence_count, retrieval_q, analysis_depth
-    )
+    answer_q = estimator.estimate_answer_quality(evidence_count, retrieval_q, analysis_depth)
 
     return answer_q

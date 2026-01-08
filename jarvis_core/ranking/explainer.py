@@ -4,6 +4,7 @@
 - 要因分解
 - テキスト説明生成
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -13,6 +14,7 @@ from typing import Any
 @dataclass
 class RankingExplanation:
     """ランキング説明."""
+
     item_id: str
     rank: int
     score: float
@@ -33,7 +35,7 @@ class RankingExplanation:
 
 class ExplainableRanker:
     """説明可能ランカー.
-    
+
     ランキングの根拠を人間が理解できる形で説明。
     """
 
@@ -59,13 +61,10 @@ class ExplainableRanker:
         """単一アイテムのランキングを説明."""
         # 上位要因を抽出
         sorted_factors = sorted(factors.items(), key=lambda x: x[1], reverse=True)
-        top = sorted_factors[:self.top_factors]
+        top = sorted_factors[: self.top_factors]
 
         # 貢献要因リスト
-        contributing = [
-            f"{self.FACTOR_DESCRIPTIONS.get(f, f)}: {v:.2f}"
-            for f, v in top
-        ]
+        contributing = [f"{self.FACTOR_DESCRIPTIONS.get(f, f)}: {v:.2f}" for f, v in top]
 
         # テキスト説明生成
         explanation = self._generate_explanation(rank, score, top, factors)
@@ -127,8 +126,7 @@ class ExplainableRanker:
 
         # 改善点
         low_factors = [
-            (f, v) for f, v in all_factors.items()
-            if v < 0.5 and f in self.FACTOR_DESCRIPTIONS
+            (f, v) for f, v in all_factors.items() if v < 0.5 and f in self.FACTOR_DESCRIPTIONS
         ]
         if low_factors:
             low_f, low_v = min(low_factors, key=lambda x: x[1])
@@ -161,10 +159,7 @@ class ExplainableRanker:
                     all_factors[f] = []
                 all_factors[f].append(v)
 
-        avg_factors = {
-            f: sum(v) / len(v)
-            for f, v in all_factors.items()
-        }
+        avg_factors = {f: sum(v) / len(v) for f, v in all_factors.items()}
 
         lines.append("\n### 全体傾向")
         for f, avg in sorted(avg_factors.items(), key=lambda x: x[1], reverse=True)[:3]:

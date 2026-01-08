@@ -2,6 +2,7 @@
 
 Maintains a searchable index of all JARVIS runs for tracking and comparison.
 """
+
 import json
 import logging
 from pathlib import Path
@@ -10,13 +11,9 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 
-def append_run_index(
-    run_dir: Path,
-    run_metadata: dict[str, Any],
-    index_file: Path = None
-) -> None:
+def append_run_index(run_dir: Path, run_metadata: dict[str, Any], index_file: Path = None) -> None:
     """Append run information to index.
-    
+
     Args:
         run_dir: Path to run directory
         run_metadata: Metadata dict with goal, dataset, model etc.
@@ -63,19 +60,16 @@ def append_run_index(
 
 
 def search_runs_index(
-    query: str = None,
-    gate_passed: bool = None,
-    dataset: str = None,
-    index_file: Path = None
+    query: str = None, gate_passed: bool = None, dataset: str = None, index_file: Path = None
 ) -> list:
     """Search runs index.
-    
+
     Args:
         query: Search term for goal
         gate_passed: Filter by gate status
         dataset: Filter by dataset name
         index_file: Path to index file
-        
+
     Returns:
         List of matching run entries
     """

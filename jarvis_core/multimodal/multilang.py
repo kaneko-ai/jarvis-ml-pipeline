@@ -2,6 +2,7 @@
 
 Per RP-349, supports papers in multiple languages.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -44,7 +45,7 @@ class MultilingualPaper:
 
 class MultiLanguageSupport:
     """Multi-language paper support.
-    
+
     Per RP-349:
     - Japanese, Chinese, German paper support
     - Translation pipeline
@@ -61,10 +62,10 @@ class MultiLanguageSupport:
 
     def detect_language(self, text: str) -> Language:
         """Detect text language.
-        
+
         Args:
             text: Input text.
-            
+
         Returns:
             Detected language.
         """
@@ -83,9 +84,9 @@ class MultiLanguageSupport:
     def _contains_japanese(self, text: str) -> bool:
         """Check for Japanese characters."""
         for char in text:
-            if '\u3040' <= char <= '\u309f':  # Hiragana
+            if "\u3040" <= char <= "\u309f":  # Hiragana
                 return True
-            if '\u30a0' <= char <= '\u30ff':  # Katakana
+            if "\u30a0" <= char <= "\u30ff":  # Katakana
                 return True
         return False
 
@@ -93,7 +94,7 @@ class MultiLanguageSupport:
         """Check for Chinese characters (excluding Japanese)."""
         has_cjk = False
         for char in text:
-            if '\u4e00' <= char <= '\u9fff':
+            if "\u4e00" <= char <= "\u9fff":
                 has_cjk = True
 
         return has_cjk and not self._contains_japanese(text)
@@ -101,7 +102,7 @@ class MultiLanguageSupport:
     def _contains_korean(self, text: str) -> bool:
         """Check for Korean characters."""
         for char in text:
-            if '\uac00' <= char <= '\ud7a3':
+            if "\uac00" <= char <= "\ud7a3":
                 return True
         return False
 
@@ -117,12 +118,12 @@ class MultiLanguageSupport:
         target: Language | None = None,
     ) -> TranslatedContent:
         """Translate text.
-        
+
         Args:
             text: Text to translate.
             source: Source language (auto-detect if None).
             target: Target language.
-            
+
         Returns:
             TranslatedContent.
         """
@@ -167,12 +168,12 @@ class MultiLanguageSupport:
         abstract: str,
     ) -> MultilingualPaper:
         """Process a paper for multi-language support.
-        
+
         Args:
             paper_id: Paper ID.
             title: Paper title.
             abstract: Paper abstract.
-            
+
         Returns:
             MultilingualPaper.
         """
@@ -204,12 +205,12 @@ class MultiLanguageSupport:
         target_language: Language | None = None,
     ) -> list[MultilingualPaper]:
         """Search across languages.
-        
+
         Args:
             query: Search query.
             papers: Papers to search.
             target_language: Language to search in.
-            
+
         Returns:
             Matching papers.
         """

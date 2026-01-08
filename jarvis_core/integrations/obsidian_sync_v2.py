@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SyncResult:
     """同期結果."""
+
     status: str  # created, updated, unchanged, error
     path: str
     message: str
@@ -28,7 +29,7 @@ class SyncResult:
 
 class ObsidianSync:
     """Obsidian同期.
-    
+
     研究ノートをObsidian vaultに自動同期
     """
 
@@ -93,7 +94,7 @@ papers_count: {papers_count}
 
     def __init__(self, vault_path: str):
         """初期化.
-        
+
         Args:
             vault_path: Obsidian vaultのパス
         """
@@ -112,12 +113,12 @@ papers_count: {papers_count}
         evidence: list[dict[str, Any]] | None = None,
     ) -> SyncResult:
         """論文ノートを同期.
-        
+
         Args:
             paper: 論文データ
             claims: 関連する主張
             evidence: 関連する根拠
-        
+
         Returns:
             同期結果
         """
@@ -159,14 +160,14 @@ papers_count: {papers_count}
         summary: str = "",
     ) -> SyncResult:
         """実行ノートを同期.
-        
+
         Args:
             run_id: 実行ID
             query: 検索クエリ
             papers: 論文リスト
             claims: 主張リスト
             summary: サマリー
-        
+
         Returns:
             同期結果
         """
@@ -204,16 +205,18 @@ papers_count: {papers_count}
         try:
             # 既存ファイルをチェック
             if filepath.exists():
-                with open(filepath, encoding='utf-8') as f:
+                with open(filepath, encoding="utf-8") as f:
                     existing = f.read()
 
                 # ハッシュで変更をチェック
-                if hashlib.md5(existing.encode()).hexdigest() == \
-                   hashlib.md5(content.encode()).hexdigest():
+                if (
+                    hashlib.md5(existing.encode()).hexdigest()
+                    == hashlib.md5(content.encode()).hexdigest()
+                ):
                     return SyncResult("unchanged", str(filepath), "No changes")
 
                 # 更新
-                with open(filepath, 'w', encoding='utf-8') as f:
+                with open(filepath, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 logger.info(f"Updated note: {filepath}")
@@ -221,7 +224,7 @@ papers_count: {papers_count}
 
             else:
                 # 新規作成
-                with open(filepath, 'w', encoding='utf-8') as f:
+                with open(filepath, "w", encoding="utf-8") as f:
                     f.write(content)
 
                 logger.info(f"Created note: {filepath}")

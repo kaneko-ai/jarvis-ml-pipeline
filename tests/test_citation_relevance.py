@@ -3,6 +3,7 @@
 Per RP10, ExecutionEngine checks that citations are actually
 relevant to the answer content.
 """
+
 import sys
 import types
 from pathlib import Path
@@ -68,16 +69,12 @@ class TestCitationRelevance:
             answer="This is a valid answer.",
             citations=[],
         )
-        engine = ExecutionEngine(
-            planner=planner, router=router, evidence_store=store
-        )
+        engine = ExecutionEngine(planner=planner, router=router, evidence_store=store)
 
         task = make_task()
         executed = engine.run(task)
 
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         assert complete_event["agent_status"] == "partial"
 
     def test_citation_with_no_overlap_returns_partial(self):
@@ -104,21 +101,14 @@ class TestCitationRelevance:
             answer="CD73 is expressed on regulatory T cells and affects adenosine signaling.",
             citations=[citation],
         )
-        engine = ExecutionEngine(
-            planner=planner, router=router, evidence_store=store
-        )
+        engine = ExecutionEngine(planner=planner, router=router, evidence_store=store)
 
         task = make_task()
         executed = engine.run(task)
 
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         assert complete_event["agent_status"] == "partial"
-        assert any(
-            "relevance" in w.lower()
-            for w in complete_event["quality_warnings"]
-        )
+        assert any("relevance" in w.lower() for w in complete_event["quality_warnings"])
 
     def test_citation_with_sufficient_overlap_returns_success(self):
         """Citation with sufficient token overlap should return success."""
@@ -128,7 +118,7 @@ class TestCitationRelevance:
             source="test",
             locator="test:relevant",
             text="CD73 is an ectoenzyme expressed on regulatory T cells. "
-                 "It produces adenosine which affects immune responses.",
+            "It produces adenosine which affects immune responses.",
         )
 
         citation = Citation(
@@ -145,16 +135,12 @@ class TestCitationRelevance:
             answer="CD73 is expressed on regulatory T cells and produces adenosine.",
             citations=[citation],
         )
-        engine = ExecutionEngine(
-            planner=planner, router=router, evidence_store=store
-        )
+        engine = ExecutionEngine(planner=planner, router=router, evidence_store=store)
 
         task = make_task()
         executed = engine.run(task)
 
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         assert complete_event["agent_status"] == "success"
 
     def test_mixed_citations_one_relevant_success(self):
@@ -197,16 +183,12 @@ class TestCitationRelevance:
             answer="Machine learning uses neural networks to make predictions.",
             citations=citations,
         )
-        engine = ExecutionEngine(
-            planner=planner, router=router, evidence_store=store
-        )
+        engine = ExecutionEngine(planner=planner, router=router, evidence_store=store)
 
         task = make_task()
         executed = engine.run(task)
 
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         # Should succeed because at least one citation is relevant
         assert complete_event["agent_status"] == "success"
 
@@ -236,16 +218,12 @@ class TestCitationRelevanceEdgeCases:
             answer="Python is a programming language.",
             citations=[citation],
         )
-        engine = ExecutionEngine(
-            planner=planner, router=router, evidence_store=store
-        )
+        engine = ExecutionEngine(planner=planner, router=router, evidence_store=store)
 
         task = make_task()
         executed = engine.run(task)
 
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         assert complete_event["agent_status"] == "success"
 
     def test_japanese_text_relevance(self):
@@ -270,15 +248,11 @@ class TestCitationRelevanceEdgeCases:
             answer="機械学習アルゴリズムはデータから学習します。",
             citations=[citation],
         )
-        engine = ExecutionEngine(
-            planner=planner, router=router, evidence_store=store
-        )
+        engine = ExecutionEngine(planner=planner, router=router, evidence_store=store)
 
         task = make_task()
         executed = engine.run(task)
 
-        complete_event = next(
-            e for e in executed[0].history if e.get("event") == "complete"
-        )
+        complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         # Should have some token overlap
         assert complete_event["agent_status"] in ["success", "partial"]

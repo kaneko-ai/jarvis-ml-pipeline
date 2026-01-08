@@ -18,16 +18,18 @@ logger = logging.getLogger(__name__)
 
 class EvaluationAxis(Enum):
     """評価軸（5軸固定）."""
-    RELEVANCE = "relevance"      # Javisとの関連度
-    NOVELTY = "novelty"          # 新規性
-    EVIDENCE = "evidence"        # 根拠の強さ
-    EFFORT = "effort"            # 導入コスト
-    RISK = "risk"                # リスク
+
+    RELEVANCE = "relevance"  # Javisとの関連度
+    NOVELTY = "novelty"  # 新規性
+    EVIDENCE = "evidence"  # 根拠の強さ
+    EFFORT = "effort"  # 導入コスト
+    RISK = "risk"  # リスク
 
 
 @dataclass
 class AxisScore:
     """軸ごとのスコア."""
+
     axis: EvaluationAxis
     score: int  # 0-5
     reason: str  # 理由1文
@@ -40,9 +42,10 @@ class AxisScore:
 @dataclass
 class ScoreBreakdown:
     """5軸評価の内訳.
-    
+
     すべてのIssue/提案に必須出力。
     """
+
     relevance: AxisScore
     novelty: AxisScore
     evidence: AxisScore
@@ -53,11 +56,11 @@ class ScoreBreakdown:
     def total(self) -> int:
         """合計スコア."""
         return (
-            self.relevance.score +
-            self.novelty.score +
-            self.evidence.score +
-            self.effort.score +
-            self.risk.score
+            self.relevance.score
+            + self.novelty.score
+            + self.evidence.score
+            + self.effort.score
+            + self.risk.score
         )
 
     @property
@@ -81,17 +84,25 @@ class ScoreBreakdown:
     def from_dict(cls, data: dict[str, Any]) -> ScoreBreakdown:
         """辞書から生成."""
         return cls(
-            relevance=AxisScore(EvaluationAxis.RELEVANCE, data["relevance"]["score"], data["relevance"]["reason"]),
-            novelty=AxisScore(EvaluationAxis.NOVELTY, data["novelty"]["score"], data["novelty"]["reason"]),
-            evidence=AxisScore(EvaluationAxis.EVIDENCE, data["evidence"]["score"], data["evidence"]["reason"]),
-            effort=AxisScore(EvaluationAxis.EFFORT, data["effort"]["score"], data["effort"]["reason"]),
+            relevance=AxisScore(
+                EvaluationAxis.RELEVANCE, data["relevance"]["score"], data["relevance"]["reason"]
+            ),
+            novelty=AxisScore(
+                EvaluationAxis.NOVELTY, data["novelty"]["score"], data["novelty"]["reason"]
+            ),
+            evidence=AxisScore(
+                EvaluationAxis.EVIDENCE, data["evidence"]["score"], data["evidence"]["reason"]
+            ),
+            effort=AxisScore(
+                EvaluationAxis.EFFORT, data["effort"]["score"], data["effort"]["reason"]
+            ),
             risk=AxisScore(EvaluationAxis.RISK, data["risk"]["score"], data["risk"]["reason"]),
         )
 
 
 class IntelligentEvaluator:
     """知能評価器.
-    
+
     5軸評価を必須出力。
     """
 
@@ -135,45 +146,27 @@ class IntelligentEvaluator:
     }
 
     def evaluate(
-        self,
-        title: str,
-        description: str,
-        context: dict[str, Any] | None = None
+        self, title: str, description: str, context: dict[str, Any] | None = None
     ) -> ScoreBreakdown:
         """
         5軸評価を実行.
-        
+
         Args:
             title: 提案タイトル
             description: 詳細説明
             context: 追加コンテキスト
-        
+
         Returns:
             ScoreBreakdown
         """
         # ルールベース評価（プレースホルダー）
         # 本番はLLMで評価
 
-        relevance = self._evaluate_axis(
-            EvaluationAxis.RELEVANCE,
-            title, description, context
-        )
-        novelty = self._evaluate_axis(
-            EvaluationAxis.NOVELTY,
-            title, description, context
-        )
-        evidence = self._evaluate_axis(
-            EvaluationAxis.EVIDENCE,
-            title, description, context
-        )
-        effort = self._evaluate_axis(
-            EvaluationAxis.EFFORT,
-            title, description, context
-        )
-        risk = self._evaluate_axis(
-            EvaluationAxis.RISK,
-            title, description, context
-        )
+        relevance = self._evaluate_axis(EvaluationAxis.RELEVANCE, title, description, context)
+        novelty = self._evaluate_axis(EvaluationAxis.NOVELTY, title, description, context)
+        evidence = self._evaluate_axis(EvaluationAxis.EVIDENCE, title, description, context)
+        effort = self._evaluate_axis(EvaluationAxis.EFFORT, title, description, context)
+        risk = self._evaluate_axis(EvaluationAxis.RISK, title, description, context)
 
         breakdown = ScoreBreakdown(
             relevance=relevance,
@@ -187,11 +180,7 @@ class IntelligentEvaluator:
         return breakdown
 
     def _evaluate_axis(
-        self,
-        axis: EvaluationAxis,
-        title: str,
-        description: str,
-        context: dict[str, Any] | None
+        self, axis: EvaluationAxis, title: str, description: str, context: dict[str, Any] | None
     ) -> AxisScore:
         """単一軸を評価."""
         text = f"{title} {description}".lower()

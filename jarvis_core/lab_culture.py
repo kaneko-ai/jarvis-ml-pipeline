@@ -2,6 +2,7 @@
 
 Per Ψ-8, this detects research culture risks.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -39,7 +40,7 @@ def detect_lab_culture_risk(
     # Check trend-chasing (all recent high-novelty but low depth)
     novelty_values = [v.temporal.novelty for v in vectors]
     avg_novelty = sum(novelty_values) / len(novelty_values)
-    novelty_variance = sum((n - avg_novelty)**2 for n in novelty_values) / len(novelty_values)
+    novelty_variance = sum((n - avg_novelty) ** 2 for n in novelty_values) / len(novelty_values)
 
     if avg_novelty > 0.7 and novelty_variance < 0.05:
         risks.append("トレンド追従傾向（流行重視の懸念）")

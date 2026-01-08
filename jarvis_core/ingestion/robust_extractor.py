@@ -5,6 +5,7 @@
 - OCRフォールバック
 - エラーリカバリ
 """
+
 from __future__ import annotations
 
 import logging
@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ExtractionResult:
     """抽出結果."""
+
     text: str
     pages: list[tuple[int, str]] = field(default_factory=list)
     method: str = ""
@@ -37,7 +39,7 @@ class ExtractionResult:
 
 class RobustPDFExtractor:
     """堅牢なPDF抽出器.
-    
+
     複数のバックエンドを試行し、最良の結果を返す。
     """
 
@@ -56,18 +58,21 @@ class RobustPDFExtractor:
 
         try:
             import fitz  # PyMuPDF
+
             backends.append("pymupdf")
         except ImportError:
             pass
 
         try:
             import pdfplumber
+
             backends.append("pdfplumber")
         except ImportError:
             pass
 
         try:
             import pypdf
+
             backends.append("pypdf")
         except ImportError:
             pass
@@ -75,6 +80,7 @@ class RobustPDFExtractor:
         if self.enable_ocr:
             try:
                 import pytesseract
+
                 backends.append("ocr")
             except ImportError:
                 pass
@@ -83,7 +89,7 @@ class RobustPDFExtractor:
 
     def extract(self, filepath: Path) -> ExtractionResult:
         """PDFからテキストを抽出.
-        
+
         複数のバックエンドを試行し、最良の結果を返す。
         """
         if not filepath.exists():
@@ -103,12 +109,14 @@ class RobustPDFExtractor:
                 results.append(result)
             except Exception as e:
                 logger.warning(f"Backend {backend} failed: {e}")
-                results.append(ExtractionResult(
-                    text="",
-                    method=backend,
-                    success=False,
-                    warnings=[str(e)],
-                ))
+                results.append(
+                    ExtractionResult(
+                        text="",
+                        method=backend,
+                        success=False,
+                        warnings=[str(e)],
+                    )
+                )
 
         # 最良の結果を返す
         if results:

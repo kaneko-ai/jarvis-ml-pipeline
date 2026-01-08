@@ -2,6 +2,7 @@
 
 Per Ψ-9, this plans lab succession strategy.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -55,7 +56,9 @@ def plan_pi_succession(
             "theme": concept,
             "strength": round(score, 2),
             "status": "established" if concept in established_concepts else "emerging",
-            "recommendation": "次世代継承推奨" if concept in established_concepts else "発展途上、要育成",
+            "recommendation": (
+                "次世代継承推奨" if concept in established_concepts else "発展途上、要育成"
+            ),
         }
         future_theme_map.append(theme)
 

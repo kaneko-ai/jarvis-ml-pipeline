@@ -40,21 +40,21 @@ class DetectionConfig:
     """Configuration for contradiction detection."""
 
     similarity_threshold: float = 0.7  # Min similarity to consider
-    negation_weight: float = 2.0       # Weight for negation contradictions
-    antonym_weight: float = 1.5        # Weight for antonym contradictions
-    quantity_tolerance: float = 0.2    # Tolerance for quantity comparisons
-    use_embeddings: bool = True        # Use embeddings for similarity
+    negation_weight: float = 2.0  # Weight for negation contradictions
+    antonym_weight: float = 1.5  # Weight for antonym contradictions
+    quantity_tolerance: float = 0.2  # Tolerance for quantity comparisons
+    use_embeddings: bool = True  # Use embeddings for similarity
 
 
 class ContradictionDetector:
     """Detects contradictions between claims.
-    
+
     Uses multiple signals:
     - Negation patterns
     - Antonym detection
     - Quantitative differences
     - Semantic similarity
-    
+
     Example:
         >>> detector = ContradictionDetector()
         >>> result = detector.detect(claim_a, claim_b)
@@ -64,7 +64,7 @@ class ContradictionDetector:
 
     def __init__(self, config: DetectionConfig | None = None):
         """Initialize the detector.
-        
+
         Args:
             config: Detection configuration
         """
@@ -80,11 +80,11 @@ class ContradictionDetector:
 
     def detect(self, claim_a: Claim, claim_b: Claim) -> ContradictionResult:
         """Detect contradiction between two claims.
-        
+
         Args:
             claim_a: First claim
             claim_b: Second claim
-            
+
         Returns:
             ContradictionResult with detection results
         """
@@ -132,9 +132,7 @@ class ContradictionDetector:
         contradiction_type, confidence = self._determine_contradiction(scores)
 
         # Build explanation
-        explanation = self._build_explanation(
-            claim_a, claim_b, contradiction_type, evidence
-        )
+        explanation = self._build_explanation(claim_a, claim_b, contradiction_type, evidence)
 
         return ContradictionResult(
             claim_pair=ClaimPair(claim_a, claim_b, similarity),
@@ -151,18 +149,18 @@ class ContradictionDetector:
         filter_same_paper: bool = True,
     ) -> list[ContradictionResult]:
         """Detect contradictions among multiple claims.
-        
+
         Args:
             claims: List of claims to compare
             filter_same_paper: Exclude comparisons within same paper
-            
+
         Returns:
             List of ContradictionResult for contradictory pairs
         """
         results = []
 
         for i, claim_a in enumerate(claims):
-            for claim_b in claims[i + 1:]:
+            for claim_b in claims[i + 1 :]:
                 # Skip same-paper comparisons if requested
                 if filter_same_paper and claim_a.paper_id == claim_b.paper_id:
                     continue
@@ -189,16 +187,14 @@ class ContradictionDetector:
         if self._embedder is None:
             try:
                 from jarvis_core.embeddings import SentenceTransformerEmbedding
+
                 self._embedder = SentenceTransformerEmbedding()
             except ImportError:
                 return 0.0
 
         try:
             embeddings = self._embedder.encode([claim_a.text, claim_b.text])
-            return self._cosine_similarity(
-                embeddings[0].tolist(),
-                embeddings[1].tolist()
-            )
+            return self._cosine_similarity(embeddings[0].tolist(), embeddings[1].tolist())
         except Exception:
             return 0.0
 
@@ -213,11 +209,7 @@ class ContradictionDetector:
 
         return dot / (norm_a * norm_b)
 
-    def _check_negation(
-        self,
-        claim_a: Claim,
-        claim_b: Claim
-    ) -> tuple[float, str | None]:
+    def _check_negation(self, claim_a: Claim, claim_b: Claim) -> tuple[float, str | None]:
         """Check for negation-based contradiction."""
         # Check if predicates are the same but one is negated
         if claim_a.predicate and claim_b.predicate:
@@ -233,18 +225,11 @@ class ContradictionDetector:
 
             # Same predicate but different negation
             if pred_a == pred_b and a_negated != b_negated:
-                return (
-                    self._config.negation_weight,
-                    f"Predicate '{pred_a}' negated in one claim"
-                )
+                return (self._config.negation_weight, f"Predicate '{pred_a}' negated in one claim")
 
         return 0.0, None
 
-    def _check_antonyms(
-        self,
-        claim_a: Claim,
-        claim_b: Claim
-    ) -> tuple[float, str | None]:
+    def _check_antonyms(self, claim_a: Claim, claim_b: Claim) -> tuple[float, str | None]:
         """Check for antonym-based contradiction."""
         if claim_a.predicate and claim_b.predicate:
             pred_a = claim_a.predicate.lower()
@@ -254,7 +239,7 @@ class ContradictionDetector:
             if self._antonyms.get(pred_a) == pred_b:
                 return (
                     self._config.antonym_weight,
-                    f"Antonym predicates: '{pred_a}' vs '{pred_b}'"
+                    f"Antonym predicates: '{pred_a}' vs '{pred_b}'",
                 )
 
         # Check in full text for antonym pairs
@@ -265,16 +250,12 @@ class ContradictionDetector:
             if word_a in text_a and word_b in text_b:
                 return (
                     self._config.antonym_weight * 0.5,
-                    f"Antonyms found: '{word_a}' vs '{word_b}'"
+                    f"Antonyms found: '{word_a}' vs '{word_b}'",
                 )
 
         return 0.0, None
 
-    def _check_quantitative(
-        self,
-        claim_a: Claim,
-        claim_b: Claim
-    ) -> tuple[float, str | None]:
+    def _check_quantitative(self, claim_a: Claim, claim_b: Claim) -> tuple[float, str | None]:
         """Check for quantitative contradiction."""
         # Get quantities from normalized results
         result_a = self._normalizer.normalize(claim_a.text)
@@ -295,15 +276,12 @@ class ContradictionDetector:
                     if ratio > self._config.quantity_tolerance:
                         return (
                             min(2.0, ratio * 2),
-                            f"Quantitative difference: {val_a}{unit_a} vs {val_b}{unit_b}"
+                            f"Quantitative difference: {val_a}{unit_a} vs {val_b}{unit_b}",
                         )
 
         return 0.0, None
 
-    def _determine_contradiction(
-        self,
-        scores: dict[str, float]
-    ) -> tuple[ContradictionType, float]:
+    def _determine_contradiction(self, scores: dict[str, float]) -> tuple[ContradictionType, float]:
         """Determine contradiction type and confidence from scores."""
         max_score = max(scores.values()) if scores else 0.0
 
@@ -342,13 +320,13 @@ class ContradictionDetector:
 
 def detect_contradiction(claim_a: Claim, claim_b: Claim) -> ContradictionResult:
     """Detect contradiction between two claims.
-    
+
     Convenience function for quick detection.
-    
+
     Args:
         claim_a: First claim
         claim_b: Second claim
-        
+
     Returns:
         ContradictionResult
     """

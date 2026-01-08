@@ -3,6 +3,7 @@
 Per JARVIS_LOCALFIRST_ROADMAP Task 3.2: 外部連携
 Provides integration with Zotero reference manager.
 """
+
 from __future__ import annotations
 
 import logging
@@ -22,6 +23,7 @@ ZOTERO_API_BASE = "https://api.zotero.org"
 @dataclass
 class ZoteroItem:
     """Zotero item representation."""
+
     key: str
     item_type: str
     title: str
@@ -53,7 +55,7 @@ class ZoteroItem:
 
 class ZoteroClient:
     """Client for Zotero Web API.
-    
+
     Supports both user and group libraries.
     """
 
@@ -105,14 +107,14 @@ class ZoteroClient:
         collection: str | None = None,
     ) -> list[ZoteroItem]:
         """Get items from library.
-        
+
         Args:
             limit: Maximum items to return.
             start: Offset for pagination.
             item_type: Filter by item type.
             tag: Filter by tag.
             collection: Filter by collection key.
-            
+
         Returns:
             List of ZoteroItem objects.
         """
@@ -153,11 +155,11 @@ class ZoteroClient:
         limit: int = 25,
     ) -> list[ZoteroItem]:
         """Search items in library.
-        
+
         Args:
             query: Search query.
             limit: Maximum results.
-            
+
         Returns:
             List of matching items.
         """
@@ -207,11 +209,13 @@ class ZoteroClient:
 
             collections = []
             for data in response.json():
-                collections.append({
-                    "key": data.get("key"),
-                    "name": data.get("data", {}).get("name", ""),
-                    "parent": data.get("data", {}).get("parentCollection"),
-                })
+                collections.append(
+                    {
+                        "key": data.get("key"),
+                        "name": data.get("data", {}).get("name", ""),
+                        "parent": data.get("data", {}).get("parentCollection"),
+                    }
+                )
 
             return collections
 

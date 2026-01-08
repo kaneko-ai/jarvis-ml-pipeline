@@ -1,4 +1,5 @@
 """Research package."""
+
 from .hypothesis import (
     Hypothesis,
     HypothesisGenerator,

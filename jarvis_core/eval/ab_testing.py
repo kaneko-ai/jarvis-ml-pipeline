@@ -2,6 +2,7 @@
 
 Per RP-377, implements A/B testing for experiments.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -39,7 +40,7 @@ class ExperimentResult:
 
 class ABTestingFramework:
     """A/B testing framework for experiments.
-    
+
     Per RP-377:
     - Experiment definition UI
     - Traffic splitting
@@ -62,13 +63,13 @@ class ABTestingFramework:
         metrics: list[str] | None = None,
     ) -> Experiment:
         """Create a new experiment.
-        
+
         Args:
             name: Experiment name.
             variants: List of variant names.
             traffic_split: Traffic allocation per variant.
             metrics: Metrics to track.
-            
+
         Returns:
             Created experiment.
         """
@@ -101,11 +102,11 @@ class ABTestingFramework:
         user_id: str,
     ) -> str:
         """Assign a user to a variant.
-        
+
         Args:
             experiment_id: Experiment ID.
             user_id: User identifier.
-            
+
         Returns:
             Assigned variant name.
         """
@@ -134,7 +135,7 @@ class ABTestingFramework:
         value: float,
     ) -> None:
         """Record a metric observation.
-        
+
         Args:
             experiment_id: Experiment ID.
             variant: Variant name.
@@ -145,22 +146,27 @@ class ABTestingFramework:
         log_path.parent.mkdir(parents=True, exist_ok=True)
 
         with open(log_path, "a") as f:
-            f.write(json.dumps({
-                "timestamp": datetime.utcnow().isoformat() + "Z",
-                "variant": variant,
-                "metric": metric,
-                "value": value,
-            }) + "\n")
+            f.write(
+                json.dumps(
+                    {
+                        "timestamp": datetime.utcnow().isoformat() + "Z",
+                        "variant": variant,
+                        "metric": metric,
+                        "value": value,
+                    }
+                )
+                + "\n"
+            )
 
     def analyze_experiment(
         self,
         experiment_id: str,
     ) -> list[ExperimentResult]:
         """Analyze experiment results.
-        
+
         Args:
             experiment_id: Experiment ID.
-            
+
         Returns:
             Results per variant per metric.
         """
@@ -190,14 +196,16 @@ class ABTestingFramework:
         for variant, metrics in data.items():
             for metric, values in metrics.items():
                 if values:
-                    results.append(ExperimentResult(
-                        experiment_id=experiment_id,
-                        variant=variant,
-                        metric=metric,
-                        value=sum(values) / len(values),
-                        sample_size=len(values),
-                        confidence=self._calculate_confidence(values),
-                    ))
+                    results.append(
+                        ExperimentResult(
+                            experiment_id=experiment_id,
+                            variant=variant,
+                            metric=metric,
+                            value=sum(values) / len(values),
+                            sample_size=len(values),
+                            confidence=self._calculate_confidence(values),
+                        )
+                    )
 
         return results
 
@@ -216,16 +224,20 @@ class ABTestingFramework:
         exp_dir.mkdir(parents=True, exist_ok=True)
 
         with open(exp_dir / "config.json", "w") as f:
-            json.dump({
-                "experiment_id": experiment.experiment_id,
-                "name": experiment.name,
-                "variants": experiment.variants,
-                "traffic_split": experiment.traffic_split,
-                "start_date": experiment.start_date,
-                "end_date": experiment.end_date,
-                "status": experiment.status,
-                "metrics": experiment.metrics,
-            }, f, indent=2)
+            json.dump(
+                {
+                    "experiment_id": experiment.experiment_id,
+                    "name": experiment.name,
+                    "variants": experiment.variants,
+                    "traffic_split": experiment.traffic_split,
+                    "start_date": experiment.start_date,
+                    "end_date": experiment.end_date,
+                    "status": experiment.status,
+                    "metrics": experiment.metrics,
+                },
+                f,
+                indent=2,
+            )
 
     def start_experiment(self, experiment_id: str) -> None:
         """Start an experiment."""

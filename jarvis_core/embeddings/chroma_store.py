@@ -22,7 +22,7 @@ class ChromaVectorStore:
         persist_directory: Path | None = None,
     ):
         """Initialize ChromaDB vector store.
-        
+
         Args:
             collection_name: Name of the collection
             persist_directory: Optional directory for persistence
@@ -39,22 +39,17 @@ class ChromaVectorStore:
                 import chromadb
                 from chromadb.config import Settings
             except ImportError:
-                raise ImportError(
-                    "chromadb is required. Install with: pip install chromadb"
-                )
+                raise ImportError("chromadb is required. Install with: pip install chromadb")
 
             if self._persist_directory:
                 self._persist_directory = Path(self._persist_directory)
                 self._persist_directory.mkdir(parents=True, exist_ok=True)
-                self._client = chromadb.PersistentClient(
-                    path=str(self._persist_directory)
-                )
+                self._client = chromadb.PersistentClient(path=str(self._persist_directory))
             else:
                 self._client = chromadb.Client()
 
             self._collection = self._client.get_or_create_collection(
-                name=self._collection_name,
-                metadata={"hnsw:space": "cosine"}
+                name=self._collection_name, metadata={"hnsw:space": "cosine"}
             )
 
         return self._client, self._collection
@@ -67,7 +62,7 @@ class ChromaVectorStore:
         metadata: list[dict[str, Any]] | None = None,
     ) -> None:
         """Add documents to the collection.
-        
+
         Args:
             texts: Document texts
             embeddings: Pre-computed embeddings
@@ -92,12 +87,12 @@ class ChromaVectorStore:
         where: dict[str, Any] | None = None,
     ) -> list[tuple[str, float, str, dict[str, Any]]]:
         """Search for similar documents.
-        
+
         Args:
             query_embedding: Query embedding
             top_k: Number of results
             where: Optional metadata filter
-            
+
         Returns:
             List of (doc_id, score, text, metadata) tuples
         """
@@ -124,7 +119,7 @@ class ChromaVectorStore:
 
     def delete(self, ids: list[str]) -> None:
         """Delete documents by ID.
-        
+
         Args:
             ids: Document IDs to delete
         """

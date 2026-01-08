@@ -24,13 +24,13 @@ class QueryStrategy(ABC):
         n: int,
     ) -> list[str]:
         """Select instances to query.
-        
+
         Args:
             unlabeled_ids: IDs of unlabeled instances
             features: Feature vectors for all instances
             predictions: Model predictions (probabilities) for unlabeled
             n: Number of instances to select
-            
+
         Returns:
             List of selected instance IDs
         """
@@ -69,7 +69,7 @@ class DiversitySampling(QueryStrategy):
 
     def __init__(self, uncertainty_weight: float = 0.5):
         """Initialize with uncertainty weighting.
-        
+
         Args:
             uncertainty_weight: Weight for uncertainty vs diversity (0-1)
         """
@@ -99,10 +99,7 @@ class DiversitySampling(QueryStrategy):
             feature_matrix = np.array([features[id] for id in remaining])
 
             # Start with most uncertain
-            uncertainties = {
-                id: 1.0 - abs(predictions.get(id, 0.5) - 0.5) * 2
-                for id in remaining
-            }
+            uncertainties = {id: 1.0 - abs(predictions.get(id, 0.5) - 0.5) * 2 for id in remaining}
 
             first_id = max(remaining, key=lambda x: uncertainties[x])
             selected.append(first_id)
@@ -128,8 +125,8 @@ class DiversitySampling(QueryStrategy):
                     # Combined score
                     uncertainty = uncertainties[id]
                     score = (
-                        self._uncertainty_weight * uncertainty +
-                        (1 - self._uncertainty_weight) * min_dist
+                        self._uncertainty_weight * uncertainty
+                        + (1 - self._uncertainty_weight) * min_dist
                     )
 
                     if score > best_score:
@@ -186,9 +183,7 @@ class BalancedSampling(QueryStrategy):
 
         # Split by predicted class
         predicted_pos = [
-            (id, predictions.get(id, 0.5))
-            for id in unlabeled_ids
-            if predictions.get(id, 0.5) > 0.5
+            (id, predictions.get(id, 0.5)) for id in unlabeled_ids if predictions.get(id, 0.5) > 0.5
         ]
         predicted_neg = [
             (id, predictions.get(id, 0.5))

@@ -3,6 +3,7 @@
 Per JARVIS_LOCALFIRST_ROADMAP Task 1.4: 無料API統合
 Uses OpenAlex API (completely free, 100k requests/day).
 """
+
 from __future__ import annotations
 
 import logging
@@ -20,6 +21,7 @@ OPENALEX_API_BASE = "https://api.openalex.org"
 @dataclass
 class OpenAlexWork:
     """OpenAlex work (paper) representation."""
+
     openalex_id: str
     title: str
     abstract: str = ""
@@ -52,7 +54,7 @@ class OpenAlexWork:
 
 class OpenAlexClient:
     """Client for OpenAlex API.
-    
+
     Completely free, 100k requests per day with polite pool.
     """
 
@@ -94,7 +96,7 @@ class OpenAlexClient:
         to_year: int | None = None,
     ) -> list[OpenAlexWork]:
         """Search for works.
-        
+
         Args:
             query: Search query.
             per_page: Results per page (max 200).
@@ -102,7 +104,7 @@ class OpenAlexClient:
             filter_open_access: Only return open access works.
             from_year: Start year filter.
             to_year: End year filter.
-            
+
         Returns:
             List of OpenAlexWork objects.
         """
@@ -141,11 +143,11 @@ class OpenAlexClient:
 
     def get_work(self, work_id: str) -> OpenAlexWork | None:
         """Get work by ID.
-        
+
         Args:
             work_id: OpenAlex ID or DOI.
                     E.g., "W2741809807" or "https://doi.org/10.1234/example"
-                    
+
         Returns:
             OpenAlexWork or None.
         """
@@ -173,11 +175,11 @@ class OpenAlexClient:
         per_page: int = 25,
     ) -> list[OpenAlexWork]:
         """Get works that cite this work.
-        
+
         Args:
             work_id: OpenAlex work ID.
             per_page: Results per page.
-            
+
         Returns:
             List of citing works.
         """
@@ -206,11 +208,11 @@ class OpenAlexClient:
         per_page: int = 10,
     ) -> list[OpenAlexWork]:
         """Get related works.
-        
+
         Args:
             work_id: OpenAlex work ID.
             per_page: Results per page.
-            
+
         Returns:
             List of related works.
         """
@@ -254,7 +256,11 @@ class OpenAlexClient:
         # Extract IDs
         ids = data.get("ids", {})
         doi = ids.get("doi", "").replace("https://doi.org/", "") if ids.get("doi") else None
-        pmid = ids.get("pmid", "").replace("https://pubmed.ncbi.nlm.nih.gov/", "") if ids.get("pmid") else None
+        pmid = (
+            ids.get("pmid", "").replace("https://pubmed.ncbi.nlm.nih.gov/", "")
+            if ids.get("pmid")
+            else None
+        )
 
         # Open access URL
         open_access = data.get("open_access", {})

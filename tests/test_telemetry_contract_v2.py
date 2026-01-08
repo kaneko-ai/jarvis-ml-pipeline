@@ -2,6 +2,7 @@
 
 Per RP-145, validates telemetry event order and required fields.
 """
+
 import json
 
 import pytest
@@ -62,22 +63,26 @@ class TestTelemetryContractV2:
         run_id = "test_error"
         logger = JsonlTelemetryLogger(run_id, str(tmp_path))
 
-        logger.log(TelemetryEvent.create(
-            run_id=run_id,
-            trace_id="t2",
-            step_id=1,
-            event="RUN_START",
-            event_type="lifecycle",
-        ))
-        logger.log(TelemetryEvent.create(
-            run_id=run_id,
-            trace_id="t2",
-            step_id=2,
-            event="RUN_ERROR",
-            event_type="error",
-            error_type="ValueError",
-            message="Test error",
-        ))
+        logger.log(
+            TelemetryEvent.create(
+                run_id=run_id,
+                trace_id="t2",
+                step_id=1,
+                event="RUN_START",
+                event_type="lifecycle",
+            )
+        )
+        logger.log(
+            TelemetryEvent.create(
+                run_id=run_id,
+                trace_id="t2",
+                step_id=2,
+                event="RUN_ERROR",
+                event_type="error",
+                error_type="ValueError",
+                message="Test error",
+            )
+        )
 
         events_file = tmp_path / run_id / "events.jsonl"
         with open(events_file) as f:
@@ -95,13 +100,15 @@ class TestTelemetryContractV2:
         run_id = "test_fields"
         logger = JsonlTelemetryLogger(run_id, str(tmp_path))
 
-        logger.log(TelemetryEvent.create(
-            run_id=run_id,
-            trace_id="t3",
-            step_id=1,
-            event="STEP_START",
-            event_type="step",
-        ))
+        logger.log(
+            TelemetryEvent.create(
+                run_id=run_id,
+                trace_id="t3",
+                step_id=1,
+                event="STEP_START",
+                event_type="step",
+            )
+        )
 
         events_file = tmp_path / run_id / "events.jsonl"
         with open(events_file) as f:
@@ -121,13 +128,15 @@ class TestTelemetryContractV2:
 
         trace_id = "trace-123"
         for i in range(3):
-            logger.log(TelemetryEvent.create(
-                run_id=run_id,
-                trace_id=trace_id,
-                step_id=i,
-                event=f"STEP_{i}",
-                event_type="step",
-            ))
+            logger.log(
+                TelemetryEvent.create(
+                    run_id=run_id,
+                    trace_id=trace_id,
+                    step_id=i,
+                    event=f"STEP_{i}",
+                    event_type="step",
+                )
+            )
 
         events_file = tmp_path / run_id / "events.jsonl"
         with open(events_file) as f:

@@ -14,6 +14,7 @@ from typing import Any, Dict, List, Optional
 @dataclass
 class TrendItem:
     """トレンドアイテム."""
+
     id: str
     title: str
     source: str
@@ -38,18 +39,14 @@ class TrendSource(ABC):
         pass
 
     @abstractmethod
-    def fetch(
-        self,
-        queries: list[str],
-        max_results: int = 50
-    ) -> list[TrendItem]:
+    def fetch(self, queries: list[str], max_results: int = 50) -> list[TrendItem]:
         """
         トレンドを取得.
-        
+
         Args:
             queries: 検索クエリリスト
             max_results: 最大取得数
-        
+
         Returns:
             TrendItemリスト
         """

@@ -20,7 +20,7 @@ class SPECTER2Embedding:
 
     def __init__(self, device: str = "auto"):
         """Initialize SPECTER2 embedding model.
-        
+
         Args:
             device: Device to use ("cpu", "cuda", or "auto")
         """
@@ -42,6 +42,7 @@ class SPECTER2Embedding:
             if device == "auto":
                 try:
                     import torch
+
                     device = "cuda" if torch.cuda.is_available() else "cpu"
                 except ImportError:
                     device = "cpu"
@@ -54,10 +55,10 @@ class SPECTER2Embedding:
 
     def embed(self, texts: list[str]) -> np.ndarray:
         """Embed a list of texts.
-        
+
         Args:
             texts: List of texts to embed
-            
+
         Returns:
             Numpy array of shape (len(texts), dimension)
         """
@@ -66,13 +67,13 @@ class SPECTER2Embedding:
 
     def embed_paper(self, title: str, abstract: str) -> np.ndarray:
         """Embed a paper using SPECTER2 recommended format.
-        
+
         Format: title [SEP] abstract
-        
+
         Args:
             title: Paper title
             abstract: Paper abstract
-            
+
         Returns:
             Embedding vector
         """

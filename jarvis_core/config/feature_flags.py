@@ -2,6 +2,7 @@
 
 Per RP-525, implements feature flag management.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -40,7 +41,7 @@ class FeatureFlag:
 
 class FeatureFlagManager:
     """Feature flag management.
-    
+
     Per RP-525:
     - Kill switches
     - Gradual rollout
@@ -62,14 +63,14 @@ class FeatureFlagManager:
         percentage: float = 0.0,
     ) -> FeatureFlag:
         """Create a feature flag.
-        
+
         Args:
             name: Flag name.
             description: Description.
             enabled: Initial state.
             strategy: Rollout strategy.
             percentage: Rollout percentage.
-            
+
         Returns:
             Created flag.
         """
@@ -89,10 +90,10 @@ class FeatureFlagManager:
 
     def get_flag(self, name: str) -> FeatureFlag | None:
         """Get a feature flag.
-        
+
         Args:
             name: Flag name.
-            
+
         Returns:
             FeatureFlag or None.
         """
@@ -106,13 +107,13 @@ class FeatureFlagManager:
         default: bool = False,
     ) -> bool:
         """Check if flag is enabled for user.
-        
+
         Args:
             flag_name: Flag name.
             user_id: Optional user ID.
             groups: Optional user groups.
             default: Default value if flag not found.
-            
+
         Returns:
             True if enabled.
         """
@@ -149,12 +150,12 @@ class FeatureFlagManager:
         groups: list[str],
     ) -> bool:
         """Evaluate rollout strategy.
-        
+
         Args:
             flag: Feature flag.
             user_id: User ID.
             groups: User groups.
-            
+
         Returns:
             True if enabled.
         """
@@ -187,7 +188,7 @@ class FeatureFlagManager:
 
     def enable_flag(self, flag_name: str) -> None:
         """Enable a flag globally.
-        
+
         Args:
             flag_name: Flag name.
         """
@@ -200,7 +201,7 @@ class FeatureFlagManager:
 
     def disable_flag(self, flag_name: str) -> None:
         """Disable a flag (kill switch).
-        
+
         Args:
             flag_name: Flag name.
         """
@@ -216,7 +217,7 @@ class FeatureFlagManager:
         percentage: float,
     ) -> None:
         """Set rollout percentage.
-        
+
         Args:
             flag_name: Flag name.
             percentage: Rollout percentage (0.0-1.0).
@@ -235,7 +236,7 @@ class FeatureFlagManager:
         user_ids: list[str],
     ) -> None:
         """Add users to flag.
-        
+
         Args:
             flag_name: Flag name.
             user_ids: User IDs to add.
@@ -249,7 +250,7 @@ class FeatureFlagManager:
 
     def list_flags(self) -> list[FeatureFlag]:
         """List all flags.
-        
+
         Returns:
             List of flags.
         """
@@ -273,15 +274,18 @@ def feature_flag(
     default: bool = False,
 ):
     """Decorator for feature-flagged functions.
-    
+
     Args:
         flag_name: Flag name.
         default: Default value.
     """
+
     def decorator(func):
         def wrapper(*args, **kwargs):
             if get_feature_flags().is_enabled(flag_name, default=default):
                 return func(*args, **kwargs)
             return None
+
         return wrapper
+
     return decorator

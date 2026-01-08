@@ -3,6 +3,7 @@
 Per RP29, this recommends papers based on multi-attribute vectors.
 Uses concept similarity, novelty, and future potential.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -80,13 +81,15 @@ def recommend_papers(
 
         reason = "。".join(reason_parts) if reason_parts else "関連論文"
 
-        scored.append({
-            "paper_id": pv.paper_id,
-            "source_locator": pv.source_locator,
-            "score": round(score, 3),
-            "reason": reason,
-            "year": pv.metadata.year,
-        })
+        scored.append(
+            {
+                "paper_id": pv.paper_id,
+                "source_locator": pv.source_locator,
+                "score": round(score, 3),
+                "reason": reason,
+                "year": pv.metadata.year,
+            }
+        )
 
     # Sort by score descending
     scored.sort(key=lambda x: x["score"], reverse=True)

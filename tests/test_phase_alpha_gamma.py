@@ -3,6 +3,7 @@
 Tests all research design and analysis engines.
 No mocks - uses real dummy data.
 """
+
 import sys
 from pathlib import Path
 
@@ -192,11 +193,13 @@ class TestHeatmap:
 
     def test_missing_year_handled(self):
         vectors = _create_test_vectors()
-        vectors.append(PaperVector(
-            paper_id="no_year",
-            source_locator="pdf:x",
-            metadata=MetadataVector(year=None),
-        ))
+        vectors.append(
+            PaperVector(
+                paper_id="no_year",
+                source_locator="pdf:x",
+                metadata=MetadataVector(year=None),
+            )
+        )
         heatmap = build_concept_heatmap(vectors)
         assert "None" not in heatmap
 
@@ -217,7 +220,9 @@ class TestMethodTrend:
         assert years == sorted(years)
 
     def test_no_method_safe(self):
-        vectors = [PaperVector(paper_id="x", source_locator="pdf:x", metadata=MetadataVector(year=2020))]
+        vectors = [
+            PaperVector(paper_id="x", source_locator="pdf:x", metadata=MetadataVector(year=2020))
+        ]
         evolution = track_method_evolution(vectors)
         assert len(evolution) == 1
 

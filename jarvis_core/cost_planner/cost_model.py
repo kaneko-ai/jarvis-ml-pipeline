@@ -2,6 +2,7 @@
 
 Per V4.2 Sprint 3, this estimates execution cost from span measurements.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -19,13 +20,15 @@ class CostModel:
     compute_cost_per_second: float = 0.0001
 
     # Stage cost multipliers
-    stage_multipliers: dict[str, float] = field(default_factory=lambda: {
-        "extraction": 1.0,
-        "indexing": 0.5,
-        "retrieval:stage1": 0.1,
-        "retrieval:stage2_rerank": 2.0,
-        "generation": 3.0,
-    })
+    stage_multipliers: dict[str, float] = field(
+        default_factory=lambda: {
+            "extraction": 1.0,
+            "indexing": 0.5,
+            "retrieval:stage1": 0.1,
+            "retrieval:stage2_rerank": 2.0,
+            "generation": 3.0,
+        }
+    )
 
     def estimate_token_cost(
         self,

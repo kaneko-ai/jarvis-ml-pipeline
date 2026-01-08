@@ -2,6 +2,7 @@
 
 Per RP-550, implements connection pooling.
 """
+
 from __future__ import annotations
 
 import queue
@@ -65,7 +66,7 @@ class PooledConnection:
 
 class ConnectionPool:
     """Database connection pool.
-    
+
     Per RP-550:
     - Pool size tuning
     - Timeout handling
@@ -129,7 +130,7 @@ class ConnectionPool:
     @contextmanager
     def acquire(self):
         """Acquire a connection from the pool.
-        
+
         Yields:
             Connection object.
         """
@@ -244,8 +245,7 @@ class ConnectionPool:
         """Get pool statistics."""
         with self._lock:
             avg_time = (
-                sum(self._checkout_times) / len(self._checkout_times)
-                if self._checkout_times else 0
+                sum(self._checkout_times) / len(self._checkout_times) if self._checkout_times else 0
             )
 
             return PoolStats(

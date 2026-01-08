@@ -1,4 +1,5 @@
 """Feature extraction for feedback risk scoring."""
+
 from __future__ import annotations
 
 import re
@@ -7,11 +8,24 @@ from dataclasses import dataclass
 from jarvis_core.style.scientific_linter import ScientificLinter
 
 SENTENCE_SPLIT = re.compile(r"[。\.\?!]+")
-EVIDENCE_MARKERS = re.compile(r"\[(\d+)\]|\(([^)]+,\s*\d{4})\)|\b(according to|because|since|therefore)\b", re.I)
+EVIDENCE_MARKERS = re.compile(
+    r"\[(\d+)\]|\(([^)]+,\s*\d{4})\)|\b(according to|because|since|therefore)\b", re.I
+)
 CAUSAL_MARKERS = re.compile(r"\b(because|therefore|thus|hence)\b|ため|よって|従って", re.I)
 AMBIGUOUS_TERMS = [
-    "some", "many", "various", "significant", "possibly", "likely", "maybe",
-    "ある程度", "いくつか", "多く", "様々", "重要", "可能性",
+    "some",
+    "many",
+    "various",
+    "significant",
+    "possibly",
+    "likely",
+    "maybe",
+    "ある程度",
+    "いくつか",
+    "多く",
+    "様々",
+    "重要",
+    "可能性",
 ]
 
 
@@ -42,7 +56,9 @@ class FeedbackFeatureExtractor:
             evidence_count = len(evidence_matches)
             weak_evidence = 1.0 if evidence_count == 0 else 0.0
             avg_sentence_length = self._average_sentence_length(paragraph)
-            subject_missing = 1.0 if not re.search(r"(\bwe\b|\bI\b|は|が)", paragraph, re.I) else 0.0
+            subject_missing = (
+                1.0 if not re.search(r"(\bwe\b|\bI\b|は|が)", paragraph, re.I) else 0.0
+            )
             causal_present = 1.0 if CAUSAL_MARKERS.search(paragraph) else 0.0
 
             records.append(

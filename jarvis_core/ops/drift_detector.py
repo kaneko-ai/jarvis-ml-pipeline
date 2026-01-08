@@ -5,6 +5,7 @@
 - 性能ベースライン
 - ドリフトアラート
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -18,6 +19,7 @@ from typing import Any
 @dataclass
 class SpecSnapshot:
     """仕様スナップショット."""
+
     spec_id: str
     version: str
     schema_hash: str
@@ -37,6 +39,7 @@ class SpecSnapshot:
 @dataclass
 class DriftAlert:
     """ドリフトアラート."""
+
     metric_name: str
     baseline_value: float
     current_value: float
@@ -60,6 +63,7 @@ class DriftAlert:
 @dataclass
 class GoldenTestCase:
     """Goldenテストケース."""
+
     test_id: str
     input_data: dict[str, Any]
     expected_output: dict[str, Any]
@@ -69,6 +73,7 @@ class GoldenTestCase:
 @dataclass
 class GoldenTestResult:
     """Goldenテスト結果."""
+
     test_id: str
     passed: bool
     similarity: float
@@ -76,10 +81,9 @@ class GoldenTestResult:
     timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
-
 class GoldenTestRunner:
     """Goldenテストランナー.
-    
+
     期待される出力と実際の出力を比較し、回帰テストを実施。
     """
 
@@ -126,7 +130,9 @@ class GoldenTestRunner:
                     if rel_diff <= tolerance:
                         matching_keys += 1
                     else:
-                        differences.append(f"Key '{key}': expected {exp_val}, got {act_val} (diff: {rel_diff*100:.1f}%)")
+                        differences.append(
+                            f"Key '{key}': expected {exp_val}, got {act_val} (diff: {rel_diff*100:.1f}%)"
+                        )
             # その他の値の比較
             elif exp_val == act_val:
                 matching_keys += 1
@@ -179,7 +185,7 @@ class GoldenTestRunner:
 
 class SpecFreezer:
     """仕様凍結器.
-    
+
     仕様をスナップショットとして保存し、変更を検知。
     """
 
@@ -257,15 +263,15 @@ class SpecFreezer:
 
 class DriftDetector:
     """ドリフト検知器.
-    
+
     性能メトリクスのドリフトを検知。
     """
 
     DRIFT_THRESHOLDS = {
-        "low": 0.05,      # 5%
-        "medium": 0.10,   # 10%
-        "high": 0.20,     # 20%
-        "critical": 0.30, # 30%
+        "low": 0.05,  # 5%
+        "medium": 0.10,  # 10%
+        "high": 0.20,  # 20%
+        "critical": 0.30,  # 30%
     }
 
     def __init__(self, baseline_path: Path | None = None, metrics_path: Path | None = None):
