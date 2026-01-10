@@ -152,8 +152,8 @@ class TestLoadUrlAsDocument:
             is_pdf=False,
         )
         
-        with patch("jarvis_core.web_fetcher.extract_main_text") as mock_extract, \
-             patch("jarvis_core.web_fetcher.extract_title") as mock_title:
+        with patch("jarvis_core.html_extractor.extract_main_text") as mock_extract, \
+             patch("jarvis_core.html_extractor.extract_title") as mock_title:
             mock_extract.return_value = "Content"
             mock_title.return_value = "Test Page"
             
