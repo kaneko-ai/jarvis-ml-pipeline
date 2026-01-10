@@ -8,7 +8,7 @@ from pathlib import Path
 
 from .checklists import run_checklists
 from .figure_table_registry import scan_text
-from .scientific_linter import lint_text
+from .scientific_linter import ScientificLinter
 from .term_normalizer import (
     load_style_guide as _load_style_guide,
 )
@@ -98,7 +98,7 @@ def run_qa_gate(
             normalized["md"] = normalized_md
             issues.extend([issue.__dict__ for issue in md_issues])
             replacements.extend(md_replacements)
-            lint_issues.extend([issue.__dict__ for issue in lint_text(normalized_md, "md")])
+            lint_issues.extend([issue.__dict__ for issue in ScientificLinter().lint_text(normalized_md)])
 
     if "docx" in targets:
         for docx_path in run_dir.glob("*.docx"):
@@ -112,8 +112,8 @@ def run_qa_gate(
             lint_issues.extend(
                 [
                     issue.__dict__
-                    for issue in lint_text(
-                        "\n".join(result.normalized_lines), f"docx:{docx_path.name}"
+                    for issue in ScientificLinter().lint_text(
+                        "\n".join(result.normalized_lines)
                     )
                 ]
             )
@@ -130,8 +130,8 @@ def run_qa_gate(
             lint_issues.extend(
                 [
                     issue.__dict__
-                    for issue in lint_text(
-                        "\n".join(result.normalized_lines), f"pptx:{pptx_path.name}"
+                    for issue in ScientificLinter().lint_text(
+                        "\n".join(result.normalized_lines)
                     )
                 ]
             )

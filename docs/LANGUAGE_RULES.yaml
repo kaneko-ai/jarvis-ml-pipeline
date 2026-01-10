@@ -1,8 +1,7 @@
-"""Language Linting Rules (Phase 2-ΩΩ).
-
-Enforces language constraints to prevent causal overgeneralization,
-assertive claims without evidence, and other prohibited expressions.
-"""
+# Language Linting Rules (Phase 2-ΩΩ).
+#
+# Enforces language constraints to prevent causal overgeneralization,
+# assertive claims without evidence, and other prohibited expressions.
 forbidden:
   - "causes"
   - "leads to"
