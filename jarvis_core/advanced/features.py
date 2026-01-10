@@ -734,8 +734,9 @@ class EncryptionManager:
 
     def encrypt(self, data: str, key: str) -> str:
         """Simple XOR encryption (use AES in production)."""
-        key_bytes = key.encode() * (len(data) // len(key) + 1)
-        encrypted = bytes(ord(d) ^ ord(k) for d, k in zip(data, key_bytes))
+        key_bytes = (key * (len(data) // len(key) + 1)).encode()
+        data_bytes = data.encode()
+        encrypted = bytes(d ^ k for d, k in zip(data_bytes, key_bytes))
         return encrypted.hex()
 
     def decrypt(self, encrypted_hex: str, key: str) -> str:

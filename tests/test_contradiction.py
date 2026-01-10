@@ -1,157 +1,132 @@
-"""Tests for the Contradiction Detection Module.
+"""Tests for truth.contradiction module."""
 
-Per JARVIS_COMPLETION_PLAN_v3 Task 2.3
-"""
+from unittest.mock import MagicMock
+
+from jarvis_core.truth.contradiction import (
+    ContradictionResult,
+    find_shared_concepts,
+    check_antonym_pattern,
+    detect_contradictions,
+    summarize_contradictions,
+)
 
 
-class TestContradictionSchema:
-    """Tests for contradiction schema."""
-
-    def test_claim_dataclass(self):
-        """Test Claim dataclass."""
-        from jarvis_core.contradiction import Claim
-
-        claim = Claim(
-            claim_id="c1",
-            text="Drug X increases survival",
-            paper_id="paper_A",
+class TestContradictionResult:
+    def test_to_dict(self):
+        result = ContradictionResult(
+            fact1="Drug A increases tumor growth",
+            fact2="Drug A decreases tumor growth",
+            contradiction_type="antonym_pattern: increase vs decrease",
+            confidence=0.5,
+            shared_concept="tumor",
         )
-
-        assert claim.claim_id == "c1"
-        assert claim.paper_id == "paper_A"
-
-    def test_contradiction_type_enum(self):
-        """Test ContradictionType enum."""
-        from jarvis_core.contradiction import ContradictionType
-
-        assert ContradictionType.DIRECT.value == "direct"
-        assert ContradictionType.QUANTITATIVE.value == "quantitative"
-        assert ContradictionType.NONE.value == "none"
+        d = result.to_dict()
+        assert d["fact1"] == "Drug A increases tumor growth"
+        assert d["contradiction_type"] == "antonym_pattern: increase vs decrease"
+        assert d["confidence"] == 0.5
 
 
-class TestClaimNormalizer:
-    """Tests for claim normalizer."""
+class TestFindSharedConcepts:
+    def test_shared_concepts_found(self):
+        text1 = "The treatment increases tumor growth significantly"
+        text2 = "The drug decreases tumor size effectively"
+        
+        shared = find_shared_concepts(text1, text2)
+        assert "tumor" in shared
 
-    def test_normalizer_init(self):
-        """Test normalizer initialization."""
-        from jarvis_core.contradiction import ClaimNormalizer
+    def test_no_shared_concepts(self):
+        text1 = "Apples are healthy"
+        text2 = "Cars need gasoline"
+        
+        shared = find_shared_concepts(text1, text2)
+        assert len(shared) == 0
 
-        normalizer = ClaimNormalizer()
-        assert normalizer is not None
-
-    def test_normalize_claim(self):
-        """Test claim normalization."""
-        from jarvis_core.contradiction import ClaimNormalizer
-
-        normalizer = ClaimNormalizer()
-        result = normalizer.normalize("Drug X increases survival by 20%")
-
-        assert result.original == "Drug X increases survival by 20%"
-        assert result.predicate == "increases"
-        assert len(result.quantities) > 0
-
-    def test_detect_negation(self):
-        """Test negation detection."""
-        from jarvis_core.contradiction import ClaimNormalizer
-
-        normalizer = ClaimNormalizer()
-
-        result1 = normalizer.normalize("Drug X does not improve outcomes")
-        assert result1.is_negated == True
-
-        result2 = normalizer.normalize("Drug X improves outcomes")
-        assert result2.is_negated == False
+    def test_stopwords_filtered(self):
+        text1 = "The drug is effective"
+        text2 = "The treatment is working"
+        
+        shared = find_shared_concepts(text1, text2)
+        assert "the" not in shared
+        assert "is" not in shared
 
 
-class TestContradictionDetector:
-    """Tests for contradiction detector."""
-
-    def test_detector_init(self):
-        """Test detector initialization."""
-        from jarvis_core.contradiction import ContradictionDetector
-
-        detector = ContradictionDetector()
-        assert detector is not None
-
-    def test_detect_direct_contradiction(self):
-        """Test detection of direct contradiction."""
-        from jarvis_core.contradiction import Claim, ContradictionDetector, ContradictionType
-
-        detector = ContradictionDetector()
-
-        claim_a = Claim(
-            claim_id="c1",
-            text="Treatment increases patient survival",
-            paper_id="paper_A",
+class TestCheckAntonymPattern:
+    def test_increase_decrease_pattern(self):
+        has_antonym, pattern = check_antonym_pattern(
+            "Drug increases activity",
+            "Drug decreases activity"
         )
-        claim_b = Claim(
-            claim_id="c2",
-            text="Treatment decreases patient survival",
-            paper_id="paper_B",
+        assert has_antonym is True
+        assert "increase" in pattern and "decrease" in pattern
+
+    def test_activate_inhibit_pattern(self):
+        has_antonym, pattern = check_antonym_pattern(
+            "Compound activates the pathway",
+            "Compound inhibits the pathway"
         )
+        assert has_antonym is True
 
-        result = detector.detect(claim_a, claim_b)
-
-        assert result.is_contradictory
-        # Can be DIRECT or PARTIAL depending on detection method
-        assert result.contradiction_type in [ContradictionType.DIRECT, ContradictionType.PARTIAL]
-
-    def test_detect_no_contradiction(self):
-        """Test detection when no contradiction."""
-        from jarvis_core.contradiction import Claim, ContradictionDetector, ContradictionType
-
-        detector = ContradictionDetector()
-
-        claim_a = Claim(
-            claim_id="c1",
-            text="Treatment improves cognitive function",
-            paper_id="paper_A",
+    def test_no_antonym_pattern(self):
+        has_antonym, pattern = check_antonym_pattern(
+            "Drug affects the cell",
+            "Drug modifies the cell"
         )
-        claim_b = Claim(
-            claim_id="c2",
-            text="Exercise reduces cardiovascular risk",
-            paper_id="paper_B",
-        )
-
-        result = detector.detect(claim_a, claim_b)
-
-        assert not result.is_contradictory
-        assert result.contradiction_type == ContradictionType.NONE
-
-    def test_detect_quantitative_contradiction(self):
-        """Test detection of quantitative contradiction."""
-        from jarvis_core.contradiction import Claim, ContradictionDetector
-
-        detector = ContradictionDetector()
-
-        claim_a = Claim(
-            claim_id="c1",
-            text="Treatment increases survival by 50%",
-            paper_id="paper_A",
-        )
-        claim_b = Claim(
-            claim_id="c2",
-            text="Treatment increases survival by 5%",
-            paper_id="paper_B",
-        )
-
-        result = detector.detect(claim_a, claim_b)
-
-        # May or may not detect as contradiction depending on threshold
-        assert result.scores.get("quantitative", 0) >= 0
+        assert has_antonym is False
+        assert pattern == ""
 
 
-class TestModuleImports:
-    """Test module imports."""
+class TestDetectContradictions:
+    def test_detect_with_antonym(self):
+        fact1 = MagicMock()
+        fact1.statement = "Treatment A increases tumor growth"
+        
+        fact2 = MagicMock()
+        fact2.statement = "Treatment A decreases tumor growth"
+        
+        contradictions = detect_contradictions([fact1, fact2])
+        
+        assert len(contradictions) == 1
+        assert "increase" in contradictions[0].contradiction_type
 
-    def test_main_imports(self):
-        """Test main module imports."""
-        from jarvis_core.contradiction import (
-            Claim,
-            ContradictionDetector,
-            detect_contradiction,
-        )
+    def test_no_contradiction(self):
+        fact1 = MagicMock()
+        fact1.statement = "Drug A targets cancer cells"
+        
+        fact2 = MagicMock()
+        fact2.statement = "Drug B affects immune response"
+        
+        contradictions = detect_contradictions([fact1, fact2])
+        assert len(contradictions) == 0
 
-        assert Claim is not None
-        assert ContradictionDetector is not None
-        assert detect_contradiction is not None
+    def test_single_fact_returns_empty(self):
+        fact = MagicMock()
+        fact.statement = "Some statement"
+        
+        contradictions = detect_contradictions([fact])
+        assert contradictions == []
+
+    def test_empty_facts_returns_empty(self):
+        contradictions = detect_contradictions([])
+        assert contradictions == []
+
+
+class TestSummarizeContradictions:
+    def test_summarize_with_results(self):
+        results = [
+            ContradictionResult(
+                fact1="A increases X",
+                fact2="A decreases X",
+                contradiction_type="antonym",
+                confidence=0.5,
+                shared_concept="X",
+            )
+        ]
+        summary = summarize_contradictions(results)
+        
+        assert "潜在的な矛盾" in summary
+        assert "検出数: 1" in summary
+        assert "X" in summary
+
+    def test_summarize_empty_results(self):
+        summary = summarize_contradictions([])
+        assert "検出されませんでした" in summary

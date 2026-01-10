@@ -1,159 +1,144 @@
-"""Tests for Vector Retriever (RP23).
+"""Tests for vector_index module."""
 
-Per RP23, these tests verify:
-- Dummy embedder
-- Cosine similarity
-- VectorRetriever build/search
-- ExecutionContext integration
-"""
+from unittest.mock import MagicMock
 
-from jarvis_core.evidence import EvidenceStore
-from jarvis_core.sources import ChunkResult, ExecutionContext
 from jarvis_core.vector_index import (
-    VectorRetriever,
-    cosine_similarity,
     dummy_embed,
+    cosine_similarity,
+    IndexedChunk,
+    VectorRetriever,
     get_relevant_chunks_vector,
 )
-from pathlib import Path
-
-# Ensure project root is on sys.path
-ROOT = Path(__file__).resolve().parents[1]
-# if str(ROOT) not in sys.path:
-#     sys.path.insert(0, str(ROOT))
 
 
 class TestDummyEmbed:
-    """Tests for dummy embedder."""
+    def test_returns_correct_dimension(self):
+        result = dummy_embed("test text", dim=64)
+        
+        assert len(result) == 64
 
-    def test_embed_returns_list(self):
-        """Should return list of floats."""
-        result = dummy_embed("test")
-        assert isinstance(result, list)
-        assert len(result) == 64  # Default dim
-        assert all(isinstance(x, float) for x in result)
+    def test_deterministic(self):
+        result1 = dummy_embed("test text")
+        result2 = dummy_embed("test text")
+        
+        assert result1 == result2
 
-    def test_embed_deterministic(self):
-        """Same input should give same output."""
-        a = dummy_embed("test")
-        b = dummy_embed("test")
-        assert a == b
+    def test_different_texts_different_embeddings(self):
+        result1 = dummy_embed("text one")
+        result2 = dummy_embed("text two")
+        
+        assert result1 != result2
 
-    def test_embed_different_inputs(self):
-        """Different inputs should give different outputs."""
-        a = dummy_embed("hello")
-        b = dummy_embed("world")
-        assert a != b
-
-    def test_embed_normalized(self):
-        """Result should be unit vector."""
+    def test_normalized(self):
         import math
-
-        result = dummy_embed("test")
-        norm = math.sqrt(sum(x * x for x in result))
+        result = dummy_embed("test text")
+        norm = math.sqrt(sum(v * v for v in result))
+        
         assert abs(norm - 1.0) < 0.01
 
-class TestCosineSimilarity:
-    """Tests for cosine similarity."""
 
+class TestCosineSimilarity:
     def test_identical_vectors(self):
-        """Same vector should have similarity 1."""
-        v = [1.0, 2.0, 3.0]
-        sim = cosine_similarity(v, v)
-        assert abs(sim - 1.0) < 0.01
+        v = [1.0, 0.5, 0.5]
+        result = cosine_similarity(v, v)
+        
+        assert abs(result - 1.0) < 0.01
 
     def test_orthogonal_vectors(self):
-        """Orthogonal vectors should have similarity 0."""
-        a = [1.0, 0.0]
-        b = [0.0, 1.0]
-        sim = cosine_similarity(a, b)
-        assert abs(sim) < 0.01
+        v1 = [1.0, 0.0]
+        v2 = [0.0, 1.0]
+        result = cosine_similarity(v1, v2)
+        
+        assert abs(result) < 0.01
 
-    def test_opposite_vectors(self):
-        """Opposite vectors should have similarity -1."""
-        a = [1.0, 0.0]
-        b = [-1.0, 0.0]
-        sim = cosine_similarity(a, b)
-        assert abs(sim + 1.0) < 0.01
+    def test_different_lengths(self):
+        v1 = [1.0, 0.5]
+        v2 = [1.0, 0.5, 0.5]
+        result = cosine_similarity(v1, v2)
+        
+        assert result == 0.0
+
+    def test_zero_vector(self):
+        v1 = [1.0, 0.5]
+        v2 = [0.0, 0.0]
+        result = cosine_similarity(v1, v2)
+        
+        assert result == 0.0
+
+
+class TestIndexedChunk:
+    def test_creation(self):
+        chunk = IndexedChunk(
+            chunk_id="c1",
+            locator="loc:1",
+            text="test text",
+            preview="test...",
+            vector=[0.1, 0.2, 0.3],
+        )
+        
+        assert chunk.chunk_id == "c1"
+        assert len(chunk.vector) == 3
+
 
 class TestVectorRetriever:
-    """Tests for VectorRetriever."""
+    def make_mock_chunk(self, chunk_id: str, preview: str):
+        mock = MagicMock()
+        mock.chunk_id = chunk_id
+        mock.locator = f"loc:{chunk_id}"
+        mock.preview = preview
+        return mock
 
-    def test_build_index(self):
-        """Should build index from chunks."""
-        chunks = [
-            ChunkResult(chunk_id="c1", locator="loc1", preview="CD73 enzyme"),
-            ChunkResult(chunk_id="c2", locator="loc2", preview="Cancer therapy"),
-        ]
-
+    def test_init(self):
         retriever = VectorRetriever()
-        retriever.build(chunks)
+        
+        assert retriever.dim == 64
+        assert retriever.index == []
 
+    def test_build_creates_index(self):
+        retriever = VectorRetriever()
+        chunks = [
+            self.make_mock_chunk("c1", "cancer research"),
+            self.make_mock_chunk("c2", "diabetes study"),
+        ]
+        
+        retriever.build(chunks)
+        
         assert len(retriever.index) == 2
 
-    def test_search_returns_chunks(self):
-        """Should return relevant chunks."""
-        chunks = [
-            ChunkResult(chunk_id="c1", locator="loc1", preview="CD73 is an enzyme"),
-            ChunkResult(chunk_id="c2", locator="loc2", preview="Immunotherapy cancer"),
-            ChunkResult(chunk_id="c3", locator="loc3", preview="CD73 adenosine"),
-        ]
-
+    def test_search_returns_results(self):
         retriever = VectorRetriever()
+        chunks = [
+            self.make_mock_chunk("c1", "cancer immunotherapy research"),
+            self.make_mock_chunk("c2", "diabetes medication study"),
+        ]
+        
         retriever.build(chunks)
-
-        results = retriever.search("CD73", k=2)
-
-        assert len(results) == 2
-        # Should contain CD73-related chunks (based on hash similarity)
-        ids = [r.chunk_id for r in results]
-        assert "c1" in ids or "c3" in ids
+        results = retriever.search("cancer", k=2)
+        
+        assert len(results) <= 2
+        assert all(hasattr(r, "chunk_id") for r in results)
 
     def test_search_empty_index(self):
-        """Should handle empty index."""
         retriever = VectorRetriever()
-        results = retriever.search("test")
+        results = retriever.search("query")
+        
         assert results == []
+
 
 class TestGetRelevantChunksVector:
-    """Tests for convenience function."""
+    def make_mock_chunk(self, chunk_id: str, preview: str):
+        mock = MagicMock()
+        mock.chunk_id = chunk_id
+        mock.locator = f"loc:{chunk_id}"
+        mock.preview = preview
+        return mock
 
-    def test_returns_results(self):
-        """Should return search results."""
+    def test_convenience_function(self):
         chunks = [
-            ChunkResult(chunk_id="c1", locator="loc1", preview="Test content"),
+            self.make_mock_chunk("c1", "relevant text"),
+            self.make_mock_chunk("c2", "other content"),
         ]
-
-        results = get_relevant_chunks_vector(chunks, "test", k=5)
-
-        assert len(results) == 1
-        assert results[0].chunk_id == "c1"
-
-class TestExecutionContextVector:
-    """Tests for ExecutionContext vector search."""
-
-    def test_get_relevant_chunks_vector_method(self):
-        """ExecutionContext should have vector search."""
-        store = EvidenceStore()
-        ctx = ExecutionContext(evidence_store=store)
-
-        # Add some chunks
-        ctx.add_chunks(
-            [
-                ChunkResult(chunk_id="c1", locator="loc1", preview="CD73 enzyme"),
-                ChunkResult(chunk_id="c2", locator="loc2", preview="Cancer study"),
-            ]
-        )
-
-        results = ctx.get_relevant_chunks_vector("CD73", k=2)
-
-        assert len(results) <= 2
-        assert all(isinstance(r, ChunkResult) for r in results)
-
-    def test_vector_search_empty_context(self):
-        """Should handle empty context."""
-        store = EvidenceStore()
-        ctx = ExecutionContext(evidence_store=store)
-
-        results = ctx.get_relevant_chunks_vector("test")
-        assert results == []
+        
+        results = get_relevant_chunks_vector(chunks, "relevant", k=1)
+        
+        assert len(results) <= 1

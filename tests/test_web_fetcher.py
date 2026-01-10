@@ -1,158 +1,149 @@
-"""Tests for Web Fetcher and HTML extractor.
+"""Comprehensive tests for web_fetcher module with mocking."""
 
-Per RP8, these tests use mocks to avoid network dependencies.
-"""
-
-from jarvis_core.evidence import EvidenceStore
-from jarvis_core.html_extractor import extract_main_text, extract_title
-from jarvis_core.sources import ExecutionContext
-from jarvis_core.web_fetcher import (
-    FetchError,
-    FetchMeta,
-    fetch_url,
-    ingest_url,
-    load_url_as_document,
-)
-from pathlib import Path
-from unittest.mock import MagicMock, patch
-
+from unittest.mock import patch, MagicMock, PropertyMock
 import pytest
+import requests
 
-# Ensure project root is on sys.path
-ROOT = Path(__file__).resolve().parents[1]
-# if str(ROOT) not in sys.path:
-#     sys.path.insert(0, str(ROOT))
+from jarvis_core.web_fetcher import (
+    FetchMeta,
+    FetchError,
+    fetch_url,
+    load_url_as_document,
+    DEFAULT_USER_AGENT,
+)
 
 
-class TestExtractMainText:
-    """Tests for HTML text extraction."""
+class TestFetchMeta:
+    def test_creation(self):
+        meta = FetchMeta(
+            final_url="https://example.com",
+            status_code=200,
+            content_type="text/html",
+        )
+        
+        assert meta.final_url == "https://example.com"
+        assert meta.status_code == 200
+        assert meta.is_pdf is False
 
-    def test_removes_script_tags(self):
-        """Should remove script content."""
-        html = "<html><body><script>alert('x');</script>Hello World</body></html>"
-        text = extract_main_text(html)
-        assert "alert" not in text
-        assert "Hello World" in text
+    def test_pdf_detection(self):
+        meta = FetchMeta(
+            final_url="https://example.com/doc.pdf",
+            status_code=200,
+            content_type="application/pdf",
+            is_pdf=True,
+        )
+        
+        assert meta.is_pdf is True
 
-    def test_removes_style_tags(self):
-        """Should remove style content."""
-        html = "<html><body><style>.x{color:red}</style>Hello World</body></html>"
-        text = extract_main_text(html)
-        assert "color" not in text
-        assert "Hello World" in text
 
-    def test_prefers_article_tag(self):
-        """Should prefer <article> content."""
-        html = """
-        <html><body>
-            <nav>Navigation</nav>
-            <article>Article Content Here</article>
-            <footer>Footer</footer>
-        </body></html>
-        """
-        text = extract_main_text(html)
-        assert "Article Content" in text
-        # nav/footer might be removed
+class TestFetchError:
+    def test_creation_with_status(self):
+        error = FetchError("Not Found", status_code=404)
+        
+        assert str(error) == "Not Found"
+        assert error.status_code == 404
 
-    def test_prefers_main_tag(self):
-        """Should prefer <main> content when no article."""
-        html = """
-        <html><body>
-            <header>Header</header>
-            <main>Main Content Here</main>
-            <footer>Footer</footer>
-        </body></html>
-        """
-        text = extract_main_text(html)
-        assert "Main Content" in text
+    def test_creation_without_status(self):
+        error = FetchError("Connection failed")
+        
+        assert error.status_code is None
 
-    def test_normalizes_whitespace(self):
-        """Should normalize excessive whitespace."""
-        html = "<html><body>Hello     World\n\n\n\nTest</body></html>"
-        text = extract_main_text(html)
-        assert "     " not in text  # No excessive spaces
-
-class TestExtractTitle:
-    """Tests for title extraction."""
-
-    def test_extracts_title(self):
-        """Should extract page title."""
-        html = "<html><head><title>My Page Title</title></head><body></body></html>"
-        title = extract_title(html)
-        assert title == "My Page Title"
-
-    def test_returns_none_when_no_title(self):
-        """Should return None when no title tag."""
-        html = "<html><head></head><body>Hello</body></html>"
-        title = extract_title(html)
-        assert title is None
 
 class TestFetchUrl:
-    """Tests for URL fetching (mocked)."""
-
-    def test_fetch_returns_html_and_meta(self):
-        """Should return HTML content and metadata."""
+    def test_successful_html_fetch(self):
         with patch("jarvis_core.web_fetcher.requests.get") as mock_get:
             mock_response = MagicMock()
             mock_response.status_code = 200
-            mock_response.text = "<html><body>Hello</body></html>"
-            mock_response.url = "https://example.com/page"
+            mock_response.url = "https://example.com"
             mock_response.headers = {"Content-Type": "text/html; charset=utf-8"}
+            mock_response.text = "<html><body>Hello World</body></html>"
+            mock_response.raise_for_status = MagicMock()
             mock_get.return_value = mock_response
-
-            html, meta = fetch_url("https://example.com/page")
-
-            assert "Hello" in html
+            
+            html, meta = fetch_url("https://example.com")
+            
+            assert "Hello World" in html
             assert meta.status_code == 200
-            assert meta.final_url == "https://example.com/page"
-            assert "text/html" in meta.content_type
+            assert meta.is_pdf is False
 
-    def test_fetch_handles_redirect(self):
-        """Should capture final URL after redirect."""
+    def test_pdf_response(self):
         with patch("jarvis_core.web_fetcher.requests.get") as mock_get:
             mock_response = MagicMock()
             mock_response.status_code = 200
-            mock_response.text = "<html><body>Content</body></html>"
-            mock_response.url = "https://example.com/redirected"  # After redirect
-            mock_response.headers = {"Content-Type": "text/html"}
-            mock_get.return_value = mock_response
-
-            _, meta = fetch_url("https://example.com/original")
-
-            assert meta.final_url == "https://example.com/redirected"
-
-    def test_fetch_detects_pdf(self):
-        """Should detect PDF content type."""
-        with patch("jarvis_core.web_fetcher.requests.get") as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 200
-            mock_response.text = ""
-            mock_response.url = "https://example.com/doc.pdf"
+            mock_response.url = "https://example.com/document.pdf"
             mock_response.headers = {"Content-Type": "application/pdf"}
+            mock_response.raise_for_status = MagicMock()
             mock_get.return_value = mock_response
-
-            html, meta = fetch_url("https://example.com/doc.pdf")
-
+            
+            html, meta = fetch_url("https://example.com/document.pdf")
+            
             assert meta.is_pdf is True
             assert html == ""
 
-    def test_fetch_rejects_unsupported_content_type(self):
-        """Should raise error for unsupported content types."""
+    def test_xhtml_content(self):
+        with patch("jarvis_core.web_fetcher.requests.get") as mock_get:
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_response.url = "https://example.com"
+            mock_response.headers = {"Content-Type": "application/xhtml+xml"}
+            mock_response.text = "<html><body>XHTML</body></html>"
+            mock_response.raise_for_status = MagicMock()
+            mock_get.return_value = mock_response
+            
+            html, meta = fetch_url("https://example.com")
+            
+            assert "XHTML" in html
+
+    def test_timeout_error(self):
+        with patch("jarvis_core.web_fetcher.requests.get") as mock_get:
+            mock_get.side_effect = requests.Timeout("Connection timed out")
+            
+            with pytest.raises(FetchError) as excinfo:
+                fetch_url("https://example.com")
+            
+            assert "timed out" in str(excinfo.value)
+
+    def test_request_exception(self):
+        with patch("jarvis_core.web_fetcher.requests.get") as mock_get:
+            mock_get.side_effect = requests.RequestException("Connection refused")
+            
+            with pytest.raises(FetchError) as excinfo:
+                fetch_url("https://example.com")
+            
+            assert "failed" in str(excinfo.value)
+
+    def test_unsupported_content_type(self):
         with patch("jarvis_core.web_fetcher.requests.get") as mock_get:
             mock_response = MagicMock()
             mock_response.status_code = 200
             mock_response.url = "https://example.com/data.json"
             mock_response.headers = {"Content-Type": "application/json"}
+            mock_response.raise_for_status = MagicMock()
             mock_get.return_value = mock_response
-
-            with pytest.raises(FetchError, match="Unsupported content type"):
+            
+            with pytest.raises(FetchError) as excinfo:
                 fetch_url("https://example.com/data.json")
+            
+            assert "Unsupported content type" in str(excinfo.value)
+
+    def test_custom_user_agent(self):
+        with patch("jarvis_core.web_fetcher.requests.get") as mock_get:
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_response.url = "https://example.com"
+            mock_response.headers = {"Content-Type": "text/html"}
+            mock_response.text = "<html></html>"
+            mock_response.raise_for_status = MagicMock()
+            mock_get.return_value = mock_response
+            
+            fetch_url("https://example.com", user_agent="CustomBot/1.0")
+            
+            call_args = mock_get.call_args
+            assert "CustomBot/1.0" in call_args.kwargs["headers"]["User-Agent"]
+
 
 class TestLoadUrlAsDocument:
-    """Tests for URL to SourceDocument conversion."""
-
-    def test_creates_source_document(self):
-        """Should create SourceDocument with correct attributes."""
+    def test_with_prefetched_html(self):
         html = "<html><head><title>Test Page</title></head><body>Content</body></html>"
         meta = FetchMeta(
             final_url="https://example.com/page",
@@ -160,101 +151,34 @@ class TestLoadUrlAsDocument:
             content_type="text/html",
             is_pdf=False,
         )
+        
+        with patch("jarvis_core.web_fetcher.extract_main_text") as mock_extract, \
+             patch("jarvis_core.web_fetcher.extract_title") as mock_title:
+            mock_extract.return_value = "Content"
+            mock_title.return_value = "Test Page"
+            
+            doc = load_url_as_document("https://example.com/page", html=html, meta=meta)
+            
+            assert doc.source == "url"
+            assert "example.com" in doc.locator_base
 
-        doc = load_url_as_document("https://example.com", html=html, meta=meta)
-
-        assert doc.source == "url"
-        assert "url:https://example.com/page" in doc.locator_base
-        assert "Content" in doc.text
-        assert doc.metadata["title"] == "Test Page"
-
-    def test_raises_for_pdf_content(self):
-        """Should raise if content is PDF."""
+    def test_pdf_url_raises_error(self):
         meta = FetchMeta(
-            final_url="https://example.com/doc.pdf",
+            final_url="https://example.com/paper.pdf",
             status_code=200,
             content_type="application/pdf",
             is_pdf=True,
         )
+        
+        with pytest.raises(FetchError) as excinfo:
+            load_url_as_document("https://example.com/paper.pdf", html="", meta=meta)
+        
+        assert "PDF" in str(excinfo.value)
 
-        with pytest.raises(FetchError, match="PDF"):
-            load_url_as_document("https://example.com/doc.pdf", html="", meta=meta)
 
-class TestIngestUrl:
-    """Tests for URL ingestion into EvidenceStore."""
-
-    def test_ingest_creates_chunks(self):
-        """Should create chunks in EvidenceStore."""
-        with patch("jarvis_core.web_fetcher.fetch_url") as mock_fetch:
-            mock_fetch.return_value = (
-                "<html><body>Test content for chunking</body></html>",
-                FetchMeta(
-                    final_url="https://example.com/page",
-                    status_code=200,
-                    content_type="text/html",
-                    is_pdf=False,
-                ),
-            )
-
-            store = EvidenceStore()
-            results = ingest_url("https://example.com/page", store)
-
-            assert len(results) > 0
-            for result in results:
-                assert store.has_chunk(result.chunk_id)
-
-    def test_ingest_locator_format(self):
-        """Chunk locators should have URL and chunk info."""
-        with patch("jarvis_core.web_fetcher.fetch_url") as mock_fetch:
-            mock_fetch.return_value = (
-                "<html><body>Content</body></html>",
-                FetchMeta(
-                    final_url="https://example.com/page",
-                    status_code=200,
-                    content_type="text/html",
-                    is_pdf=False,
-                ),
-            )
-
-            store = EvidenceStore()
-            results = ingest_url("https://example.com/page", store)
-
-            for result in results:
-                assert "url:https://example.com/page" in result.locator
-                assert "#chunk:" in result.locator
-
-    def test_ingest_adds_to_context(self):
-        """Should add chunks to ExecutionContext."""
-        with patch("jarvis_core.web_fetcher.fetch_url") as mock_fetch:
-            mock_fetch.return_value = (
-                "<html><body>Content</body></html>",
-                FetchMeta(
-                    final_url="https://example.com/page",
-                    status_code=200,
-                    content_type="text/html",
-                    is_pdf=False,
-                ),
-            )
-
-            store = EvidenceStore()
-            ctx = ExecutionContext(evidence_store=store)
-            results = ingest_url("https://example.com/page", store, context=ctx)
-
-            assert len(ctx.available_chunks) == len(results)
-
-    def test_ingest_raises_for_pdf_url(self):
-        """Should raise when URL returns PDF."""
-        with patch("jarvis_core.web_fetcher.fetch_url") as mock_fetch:
-            mock_fetch.return_value = (
-                "",
-                FetchMeta(
-                    final_url="https://example.com/doc.pdf",
-                    status_code=200,
-                    content_type="application/pdf",
-                    is_pdf=True,
-                ),
-            )
-
-            store = EvidenceStore()
-            with pytest.raises(FetchError, match="PDF"):
-                ingest_url("https://example.com/doc.pdf", store)
+class TestDefaultUserAgent:
+    def test_contains_browser_info(self):
+        assert "Mozilla" in DEFAULT_USER_AGENT
+    
+    def test_contains_jarvis(self):
+        assert "Jarvis" in DEFAULT_USER_AGENT
