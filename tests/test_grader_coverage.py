@@ -1,17 +1,15 @@
-"""Tests for grader module - Comprehensive coverage (FIXED v2)."""
+"""Tests for grader module - Coverage improvement (FIXED v5)."""
 
 import pytest
-from unittest.mock import Mock, patch
 
 
 class TestGraderModule:
     """Tests for grader module."""
 
-    def test_module_import(self):
-        """Test module import."""
-        from jarvis_core.grader import grader_core
-
-        assert grader_core is not None
+    def test_grader_submodule_core(self):
+        """Test grader.core import."""
+        from jarvis_core.grader import core
+        assert core is not None
 
 
 class TestModuleImports:
@@ -19,6 +17,5 @@ class TestModuleImports:
 
     def test_imports(self):
         """Test imports."""
-        from jarvis_core.grader import grader_core
-
-        assert grader_core is not None
+        from jarvis_core.grader import core
+        assert core is not None
