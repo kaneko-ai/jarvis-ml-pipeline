@@ -17,6 +17,41 @@ class PlanTimeAssessment:
     notes: list[str]
 
 
+def build_mvp_plan(option) -> dict:
+    """Build MVP plan for an option.
+    
+    Args:
+        option: Option object with goal, theme, time_horizon_months
+        
+    Returns:
+        Dictionary with MVP plan phases
+    """
+    return {
+        "phase1": "initial_setup",
+        "phase2": "core_development",
+        "phase3": "validation",
+        "timeline_months": option.time_horizon_months.value if hasattr(option.time_horizon_months, 'value') else option.time_horizon_months,
+        "goal": option.goal,
+    }
+
+
+def build_kill_criteria(option) -> list[str]:
+    """Build kill criteria for an option.
+    
+    Args:
+        option: Option object
+        
+    Returns:
+        List of kill criteria strings
+    """
+    return [
+        f"No progress after {int(option.time_horizon_months.value / 4 if hasattr(option.time_horizon_months, 'value') else option.time_horizon_months / 4)} months",
+        "Critical resource unavailable",
+        "Competitor publishes first",
+        "Fundamental assumption invalidated",
+    ]
+
+
 def assess_plan_time(plan: dict[str, float], time_schema: TimeSchema) -> PlanTimeAssessment:
     """Assess plan hours against available research time.
 
@@ -44,3 +79,4 @@ def assess_plan_time(plan: dict[str, float], time_schema: TimeSchema) -> PlanTim
         delay_cost=delay_cost,
         notes=notes,
     )
+
