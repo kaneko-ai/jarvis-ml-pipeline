@@ -1,0 +1,18 @@
+{
+  "experiment_id": "exp_20260113_170839",
+  "name": "Test",
+  "variants": [
+    "a",
+    "b"
+  ],
+  "traffic_split": {
+    "a": 0.5,
+    "b": 0.5
+  },
+  "start_date": "2026-01-13T08:08:39.557026Z",
+  "end_date": null,
+  "status": "running",
+  "metrics": [
+    "success_rate"
+  ]
+}
