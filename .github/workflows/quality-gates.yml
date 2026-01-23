@@ -36,7 +36,7 @@ jobs:
 
       - name: Run quality gate tests
         run: |
-          python -m pytest tests/test_goldset_regression.py -v --tb=short || true
+          python -m pytest tests/test_goldset_regression.py -v --tb=short
 
       - name: Bundle structure check
         run: |

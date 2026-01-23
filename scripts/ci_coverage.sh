@@ -37,8 +37,7 @@ python -m pytest \
   --cov-report=xml \
   --cov-report=html \
   --cov-report=term-missing \
-  -q \
-  --continue-on-collection-errors
+  -q
 
 # Generate final report with fail_under check
 echo ""
