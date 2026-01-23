@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestArtifactsMega:
     def test_1(self): 
         from jarvis_core import artifacts; pass

@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 # ---------- Sync Tests ----------
 
+@pytest.mark.slow
 class TestSyncQueueManager:
     """Tests for SyncQueueManager."""
 

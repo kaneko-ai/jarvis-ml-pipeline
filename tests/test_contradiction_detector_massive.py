@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 # ---------- ContradictionDetector Tests ----------
 
+@pytest.mark.slow
 class TestDetectorInit:
     """Tests for detector initialization."""
 

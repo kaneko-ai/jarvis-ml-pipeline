@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestDetectorBasic:
     def test_import(self):
         from jarvis_core.contradiction.detector import ContradictionDetector

@@ -10,6 +10,7 @@ import pytest
 # All jarvis_core root modules
 # ====================
 
+@pytest.mark.slow
 class TestAllRootModules:
     """Import all root modules."""
 

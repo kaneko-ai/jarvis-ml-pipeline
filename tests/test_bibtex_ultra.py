@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestBibtexSafe:
     def test_import_safe(self):
         try:

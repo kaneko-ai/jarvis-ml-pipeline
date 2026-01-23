@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestArxivBasic:
     def test_import(self):
         from jarvis_core.api.arxiv import ArxivClient

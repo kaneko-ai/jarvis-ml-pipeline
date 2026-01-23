@@ -14,6 +14,7 @@ from pathlib import Path
 # llm/ modules Tests
 # ====================
 
+@pytest.mark.slow
 class TestLLMAdapterDetailed:
     """Detailed tests for llm/adapter.py."""
 

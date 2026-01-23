@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 # ---------- Workflow Tests ----------
 
+@pytest.mark.slow
 class TestWorkflowSpec:
     """Tests for WorkflowSpec."""
 

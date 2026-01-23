@@ -12,6 +12,7 @@ from pathlib import Path
 # retrieval/query_decompose.py
 # ====================
 
+@pytest.mark.slow
 class TestQueryDecomposeComplete:
     """Complete coverage for query_decompose.py."""
 

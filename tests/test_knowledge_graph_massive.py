@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 # ---------- KnowledgeGraph Tests ----------
 
+@pytest.mark.slow
 class TestKnowledgeGraphInit:
     """Tests for KnowledgeGraph initialization."""
 

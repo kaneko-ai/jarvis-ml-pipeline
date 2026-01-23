@@ -1,3 +1,4 @@
+import pytest
 """Tests for Phase Ω (Research OS v2.0 Core).
 
 Tests Ω-1 to Ω-10 modules.
@@ -63,6 +64,7 @@ def _create_test_vectors():
         ),
     ]
 
+@pytest.mark.slow
 class TestAutonomousLoop:
     """Ω-1 tests."""
 

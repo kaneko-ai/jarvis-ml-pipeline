@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestArtifacts1:
     def test_af1(self): from jarvis_core import artifacts; pass
     def test_af2(self): from jarvis_core import artifacts; pass

@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestCacheBasic:
     def test_import(self):
         from jarvis_core.cache import multi_level

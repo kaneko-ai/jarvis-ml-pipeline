@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestPMCBasic:
     def test_import(self):
         from jarvis_core.connectors.pmc import PMCConnector

@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestPubMedBasic:
     def test_import(self):
         from jarvis_core.api import pubmed

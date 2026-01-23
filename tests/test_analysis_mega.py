@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestAnalysisCitationNetwork:
     def test_1(self): 
         from jarvis_core.analysis.citation_network import CitationNetwork; pass

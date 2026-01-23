@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestSubmission1:
     def test_s1(self): from jarvis_core import submission; pass
     def test_s2(self): from jarvis_core import submission; pass

@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestComparisonBasic:
     def test_import(self):
         from jarvis_core.analysis.comparison import ComparisonAnalyzer

@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestWorkflow:
     def test_1(self): 
         from jarvis_core.workflow import spec; assert spec

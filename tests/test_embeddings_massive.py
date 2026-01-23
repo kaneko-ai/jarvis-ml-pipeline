@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestEmbeddingsSafe:
     def test_import_safe(self):
         try:

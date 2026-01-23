@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestNetwork1:
     def test_n1(self): from jarvis_core.network import detector; pass
     def test_n2(self): from jarvis_core.network import degradation; pass

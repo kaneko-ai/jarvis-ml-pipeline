@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestGraderMega:
     def test_1(self): 
         try:

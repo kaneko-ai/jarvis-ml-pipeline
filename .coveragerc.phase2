@@ -1,0 +1,8 @@
+[run]
+branch = True
+source = jarvis_core
+
+[report]
+fail_under = 95
+show_missing = True
+skip_covered = False

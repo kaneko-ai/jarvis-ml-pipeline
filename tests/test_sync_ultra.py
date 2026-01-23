@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestSyncBasic:
     def test_import(self):
         from jarvis_core.sync import manager

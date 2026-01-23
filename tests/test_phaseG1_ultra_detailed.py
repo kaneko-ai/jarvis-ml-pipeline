@@ -79,6 +79,7 @@ def temp_run_dir(mock_paper, mock_claim, mock_evidence):
 # stages/generate_report.py - All Branches
 # ====================
 
+@pytest.mark.slow
 class TestGenerateReportAllBranches:
     """Test all branches in generate_report.py."""
 

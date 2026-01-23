@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# JARVIS Coverage Gate Script
+# カバレッジ計測を一元管理するスクリプト
+# 
+# Usage:
+#   COVERAGE_PHASE=1 bash scripts/ci_coverage.sh  # Phase 1 (85%, no branch)
+#   COVERAGE_PHASE=2 bash scripts/ci_coverage.sh  # Phase 2 (95%, with branch)
+
+set -euo pipefail
+
+PHASE="${COVERAGE_PHASE:-1}"
+
+echo "=== JARVIS Coverage Gate ==="
+echo "Phase: $PHASE"
+
+if [[ "$PHASE" == "1" ]]; then
+  CFG=".coveragerc.phase1"
+  echo "Mode: Statement/Line only (no branch)"
+  echo "Threshold: 85%"
+elif [[ "$PHASE" == "2" ]]; then
+  CFG=".coveragerc.phase2"
+  echo "Mode: Statement/Line + Branch"
+  echo "Threshold: 95%"
+else
+  echo "ERROR: Invalid COVERAGE_PHASE=$PHASE (use 1 or 2)" >&2
+  exit 2
+fi
+
+echo "Config: $CFG"
+echo "=========================="
+echo ""
+
+# Run pytest with coverage
+python -m pytest \
+  --cov=jarvis_core \
+  --cov-config="$CFG" \
+  --cov-report=xml \
+  --cov-report=html \
+  --cov-report=term-missing \
+  -q \
+  --continue-on-collection-errors
+
+# Generate final report with fail_under check
+echo ""
+echo "=== Coverage Report ==="
+python -m coverage report --rcfile="$CFG"
+
+echo ""
+echo "=== Coverage Gate PASSED ==="

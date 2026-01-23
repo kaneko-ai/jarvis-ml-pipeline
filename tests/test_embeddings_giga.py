@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestEmbeddings1:
     def test_em1(self): from jarvis_core import embeddings; pass
     def test_em2(self): from jarvis_core import embeddings; pass

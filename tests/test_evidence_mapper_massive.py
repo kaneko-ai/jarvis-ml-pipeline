@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 # ---------- EvidenceMapper Tests ----------
 
+@pytest.mark.slow
 class TestEvidenceMapperInit:
     """Tests for EvidenceMapper initialization."""
 
