@@ -1,0 +1,44 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+plugins: anyio-4.12.0, asyncio-1.3.0, cov-7.0.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 5 items
+
+tests/test_golden_path_e2e.py::test_run_task_golden_path_e2e DEBUG_EXEC: Attempt 1 for subtask 0b615f1e-02f5-458e-81ca-61a87f419287
+DEBUG_EXEC: Attempt 1 success. evaluation.ok=True
+DEBUG_EXEC: Retry decision: should_retry=False, reason=None
+PASSED
+tests/test_golden_path_e2e.py::test_run_task_error_handling PASSED
+tests/test_golden_path_e2e.py::test_run_task_retry_flow DEBUG_EXEC: Attempt 1 for subtask 0fddb47b-e4d7-44b9-a221-94b99188c940
+DEBUG_EXEC: Attempt 1 success. evaluation.ok=True
+DEBUG_EXEC: Retry decision: should_retry=False, reason=None
+FAILED
+tests/test_golden_path_e2e.py::test_run_task_budget_error DEBUG_EXEC: Attempt 1 for subtask 9ef098e4-c60c-4489-8a12-4cb53b0686e7
+DEBUG_EXEC: Attempt 1 success. evaluation.ok=True
+DEBUG_EXEC: Retry decision: should_retry=False, reason=None
+FAILED
+tests/test_golden_path_e2e.py::test_run_task_empty_llm_response DEBUG_EXEC: Attempt 1 for subtask dca3541e-1a7e-4026-bee8-2f484f8681d4
+DEBUG_EXEC: Attempt 1 success. evaluation.ok=True
+DEBUG_EXEC: Retry decision: should_retry=False, reason=None
+PASSED
+
+================================== FAILURES ===================================
+__________________________ test_run_task_retry_flow ___________________________
+tests\test_golden_path_e2e.py:101: in test_run_task_retry_flow
+    assert result.status == "success"
+E   AssertionError: assert 'failed' == 'success'
+E     
+E     - success
+E     + failed
+_________________________ test_run_task_budget_error __________________________
+tests\test_golden_path_e2e.py:116: in test_run_task_budget_error
+    assert any("Budget exhausted" in w for w in result.warnings)
+E   assert False
+E    +  where False = any(<generator object test_run_task_budget_error.<locals>.<genexpr> at 0x00000203F801F510>)
+=========================== short test summary info ===========================
+FAILED tests/test_golden_path_e2e.py::test_run_task_retry_flow - AssertionErr...
+FAILED tests/test_golden_path_e2e.py::test_run_task_budget_error - assert False
+========================= 2 failed, 3 passed in 0.82s =========================

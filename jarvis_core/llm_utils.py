@@ -40,6 +40,7 @@ class LLMClient:
     ) -> None:
         self.provider = provider or _get_provider()
         self.model = model
+        self._call_counts: dict[str, int] = {}  # Track calls per task_id/goal for triggers
 
         if self.provider == "gemini":
             self._init_gemini()
@@ -156,6 +157,21 @@ class LLMClient:
         # Simple mock logic: Return a response that looks like a summary of the last user message
         last_user_msg = next((m.content for m in reversed(messages) if m.role == "user"), "No input")
         
+        # Edge case triggers
+        if "trigger_budget_limit" in last_user_msg.lower():
+            raise RuntimeError("Budget exhausted (simulated)")
+
+        if "trigger_empty" in last_user_msg.lower():
+            return ""
+
+        if "trigger_retry" in last_user_msg.lower():
+            # Track calls for this 특정 message to simulate a failure then success
+            count = self._call_counts.get(last_user_msg, 0)
+            self._call_counts[last_user_msg] = count + 1
+            if count == 0:
+                raise RuntimeError("Temporary mock error for retry testing")
+            return f"Successful retry response to: {last_user_msg[:30]}... [chunk:mock-chunk-id-001]"
+
         # Heuristic for specific formats if needed, otherwise generic
         if "plan" in last_user_msg.lower():
             return "Mock Plan:\n1. Step A\n2. [chunk:mock-chunk-id-001]\n[SUCCESS]"
