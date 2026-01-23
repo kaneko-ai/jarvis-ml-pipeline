@@ -11,6 +11,7 @@ from unittest.mock import patch, MagicMock
 # report/generator.py
 # ====================
 
+@pytest.mark.slow
 class TestReportGeneratorComplete:
     """Complete coverage for report/generator.py."""
 

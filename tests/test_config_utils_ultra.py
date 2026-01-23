@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestConfigUtilsBasic:
     def test_import(self):
         from jarvis_core import config_utils

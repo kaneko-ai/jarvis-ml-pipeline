@@ -85,9 +85,15 @@ def check_file(filepath: Path) -> List[Violation]:
     authority = extract_authority(content)
     print(f"DEBUG: Checking {filepath}, Authority: {authority}")
 
-    # Authorityがない場合はスキップ（警告のみ）
+    # Authorityがない場合はエラー
     if authority is None:
-        print(f"[WARN] No Authority Header: {filepath}")
+        print(f"[FAIL] No Authority Header: {filepath}")
+        violations.append(Violation(
+            file=str(filepath),
+            line=1,
+            word="MISSING_AUTHORITY_HEADER",
+            authority="NONE",
+        ))
         return violations
 
     # Binding文書は強制語彙OK

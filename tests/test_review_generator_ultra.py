@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestReviewGeneratorBasic:
     def test_import(self):
         from jarvis_core.analysis.review_generator import ReviewGenerator

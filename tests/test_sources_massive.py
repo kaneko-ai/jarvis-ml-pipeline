@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 # ---------- Sources Tests ----------
 
+@pytest.mark.slow
 class TestPubMedClient:
     """Tests for PubMedClient."""
 

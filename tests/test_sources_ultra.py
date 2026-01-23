@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestSourcesBasic:
     def test_import(self):
         from jarvis_core.sources import pubmed_client

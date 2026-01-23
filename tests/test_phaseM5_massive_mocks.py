@@ -11,6 +11,7 @@ from unittest.mock import patch, MagicMock
 # knowledge/graph.py
 # ====================
 
+@pytest.mark.slow
 class TestKnowledgeGraphComplete:
     """Complete coverage for knowledge/graph.py."""
 

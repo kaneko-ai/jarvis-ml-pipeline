@@ -11,6 +11,7 @@ from unittest.mock import patch, MagicMock
 # embeddings/chroma_store.py
 # ====================
 
+@pytest.mark.slow
 class TestChromaStoreComplete:
     """Complete coverage for chroma_store.py."""
 

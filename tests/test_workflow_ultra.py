@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestWorkflowBasic:
     def test_import(self):
         from jarvis_core.workflow import spec

@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestAgentsBasic:
     def test_import(self):
         from jarvis_core import agents

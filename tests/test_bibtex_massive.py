@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 # ---------- BibTeX Tests ----------
 
+@pytest.mark.slow
 class TestBibtexModule:
     """Tests for bibtex module."""
 

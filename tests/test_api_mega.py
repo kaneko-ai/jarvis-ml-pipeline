@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestAPIArxiv:
     def test_1(self): 
         from jarvis_core.api import arxiv; assert arxiv

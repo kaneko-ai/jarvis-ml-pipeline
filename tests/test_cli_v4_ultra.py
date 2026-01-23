@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestCLIBasic:
     def test_import(self):
         from jarvis_core.cli_v4 import main

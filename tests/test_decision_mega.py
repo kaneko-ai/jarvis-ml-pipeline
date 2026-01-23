@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestDecision:
     def test_1(self): 
         from jarvis_core.decision import planner; assert planner

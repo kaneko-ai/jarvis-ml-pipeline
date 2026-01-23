@@ -14,6 +14,7 @@ from pathlib import Path
 # stages/summarization_scoring.py
 # ====================
 
+@pytest.mark.slow
 class TestSummarizationScoringComplete:
     """Complete coverage for summarization_scoring.py."""
 

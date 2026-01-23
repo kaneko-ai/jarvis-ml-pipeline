@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 
+@pytest.mark.slow
 class TestDashboardHTML:
     """Test dashboard HTML structure and content."""
 

@@ -34,6 +34,7 @@ def deep_test_module(module):
 
 
 # H-16: Extraction Modules
+@pytest.mark.slow
 class TestExtractionPDFExtractorBranches:
     def test_deep(self):
         from jarvis_core.extraction import pdf_extractor

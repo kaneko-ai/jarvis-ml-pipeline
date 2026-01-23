@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestBibtex1:
     def test_1(self): from jarvis_core.bibtex import fetcher; pass
     def test_2(self): from jarvis_core.bibtex import fetcher; pass

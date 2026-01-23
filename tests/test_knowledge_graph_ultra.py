@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestKnowledgeGraphBasic:
     def test_import(self):
         from jarvis_core.analysis.knowledge_graph import KnowledgeGraph

@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 # ---------- ReviewGenerator Tests ----------
 
+@pytest.mark.slow
 class TestReviewGeneratorInit:
     """Tests for ReviewGenerator initialization."""
 

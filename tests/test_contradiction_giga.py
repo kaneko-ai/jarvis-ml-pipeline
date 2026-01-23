@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestContradiction1:
     def test_ct1(self): from jarvis_core import contradiction; pass
     def test_ct2(self): from jarvis_core import contradiction; pass

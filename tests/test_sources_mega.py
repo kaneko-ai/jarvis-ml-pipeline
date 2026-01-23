@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestPubMedClient:
     def test_1(self): 
         from jarvis_core.sources import pubmed_client; assert pubmed_client

@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestEvidenceMapperBasic:
     def test_import(self):
         from jarvis_core.analysis.evidence_mapper import EvidenceMapper

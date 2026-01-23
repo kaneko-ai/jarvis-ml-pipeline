@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 # ---------- Network Tests ----------
 
+@pytest.mark.slow
 class TestNetworkDetector:
     """Tests for NetworkDetector."""
 

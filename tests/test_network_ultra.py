@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestNetworkBasic:
     def test_import(self):
         from jarvis_core.network import detector

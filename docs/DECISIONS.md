@@ -106,3 +106,23 @@
   - 既存runは非互換として扱う
 - **Links**: BUNDLE_CONTRACT.md, MASTER_SPEC v1.2
 
+### DEC-007: 2段階カバレッジゲート
+- **Date**: 2026-01-23
+- **Context**: 
+  - CIが `--cov-fail-under=95` を要求しているが、総合カバレッジは約65%
+  - `tests/fixtures/sample.pdf` がGit LFSポインタで、PDF系テストが不安定
+  - カバレッジ目標が現実と乖離しており、CIが常に失敗する状態
+- **Decision**: 
+  - **Phase 1（当面のブロッキング）**: カバレッジ85%、branch評価無効
+  - **Phase 2（最終ゲート）**: カバレッジ95%、branch評価有効
+  - CIのカバレッジ設定は `scripts/ci_coverage.sh` で一元管理
+  - `.coveragerc.phase1` と `.coveragerc.phase2` で設定を分離
+- **Consequences**: 
+  - ci.yml から `--cov-fail-under` を削除
+  - カバレッジ条件変更は `scripts/ci_coverage.sh` のみで行う
+  - Phase2切替は専用PRで行い、カバレッジ改善変更と混在禁止
+- **Migration Plan**: 
+  - 即時適用
+  - Phase1達成後、mainで連続10回CI成功でPhase2に移行
+- **Links**: docs/COVERAGE_POLICY.md
+

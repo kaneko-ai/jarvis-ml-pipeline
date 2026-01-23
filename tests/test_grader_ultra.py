@@ -3,6 +3,7 @@
 import pytest
 
 
+@pytest.mark.slow
 class TestGraderBasic:
     def test_import(self):
         import jarvis_core.grader

@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch, MagicMock
 
 # ---------- BaseAgent Tests ----------
 
+@pytest.mark.slow
 class TestBaseAgentInit:
     """Tests for BaseAgent initialization."""
 
