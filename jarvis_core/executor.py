@@ -88,6 +88,10 @@ class ExecutionEngine:
             subtask.status = final_status
             executed.append(subtask)
 
+            if final_status == TaskStatus.FAILED:
+                err_msg = evaluation.errors[0] if evaluation and evaluation.errors else "Subtask failed without specific error"
+                raise RuntimeError(err_msg)
+
         return executed
 
     def _normalize_agent_result(self, result: Any) -> tuple[str, list[str]]:
@@ -296,12 +300,29 @@ class ExecutionEngine:
             if self._current_tracker:
                 self._current_tracker.record_tool_call()
 
-            last_result = self.router.run(subtask)
+            try:
+                last_result = self.router.run(subtask)
+                
+                # Use provided validator or fallback to status-based check (RP-02)
+                if self.validator:
+                    last_evaluation = self.validator(last_result)
+                else:
+                    # Check status if available (e.g. AgentResult)
+                    status = getattr(last_result, "status", "success")
+                    is_ok = status != "fail"
+                    errors = []
+                    if not is_ok:
+                        meta = getattr(last_result, "meta", {}) or {}
+                        # Extract detailed warnings from agent meta
+                        errors = meta.get("warnings", ["agent_reported_fail"])
+                    
+                    last_evaluation = EvaluationResult(ok=is_ok, errors=errors)
+                
+            except Exception as e:
+                logger.warning("Execution error at attempt %d: %s", attempt, e)
+                last_result = None
+                last_evaluation = EvaluationResult(ok=False, errors=[str(e)])
 
-            if not self.validator:
-                return last_result, None, attempt
-
-            last_evaluation = self.validator(last_result)
             decision = self.retry_policy.decide(last_evaluation, attempt=attempt)
 
             # Budget: check if retry is allowed
@@ -316,16 +337,6 @@ class ExecutionEngine:
                         subtask.id,
                         budget_decision.degrade_reason,
                     )
-
-            logger.info(
-                "Evaluation for task %s attempt=%d ok=%s should_retry=%s reason=%s budget_allows=%s",
-                subtask.id,
-                attempt,
-                last_evaluation.ok,
-                decision.should_retry,
-                decision.reason,
-                budget_allows_retry,
-            )
 
             if not decision.should_retry or not budget_allows_retry:
                 return last_result, last_evaluation, attempt

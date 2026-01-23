@@ -86,3 +86,46 @@ def test_run_task_error_handling(mock_env):
     assert result.status == "failed"
     assert Path(result.log_dir).exists()
     assert (Path(result.log_dir) / "result.json").exists()
+
+def test_run_task_retry_flow(mock_env):
+    """Test that temporary LLM errors trigger automatic retries."""
+    task_dict = {
+        "goal": "Trigger a retry flow. keywords: trigger_retry",
+        "category": "generic"
+    }
+    
+    # Execute
+    result = run_task(task_dict)
+    
+    # Should eventually succeed after retry
+    assert result.status == "success"
+    assert "Successful retry response" in result.answer
+
+def test_run_task_budget_error(mock_env):
+    """Test that critical provider errors (e.g. budget) lead to controlled failure."""
+    task_dict = {
+        "goal": "Test budget limit. keywords: trigger_budget_limit",
+        "category": "generic"
+    }
+    
+    # Execute
+    result = run_task(task_dict)
+    
+    # Should fail with budget error info
+    assert result.status == "failed"
+    assert any("Budget exhausted" in w for w in result.warnings)
+
+def test_run_task_empty_llm_response(mock_env):
+    """Test that empty LLM responses are handled (likely causing quality gate failure)."""
+    task_dict = {
+        "goal": "Test empty response. keywords: trigger_empty",
+        "category": "generic"
+    }
+    
+    # Execute
+    result = run_task(task_dict)
+    
+    # LLM returns empty -> Agent might return empty or fail -> Quality gate fails
+    assert result.status == "failed"
+    # Result answer should be empty if agent couldn't handle it
+    assert result.answer == ""

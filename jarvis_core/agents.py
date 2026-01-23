@@ -144,12 +144,12 @@ class ThesisAgent(BaseAgent):
                     meta={"warnings": ["empty_answer"]},
                 )
             return self._create_result(answer)
-        except Exception:
+        except Exception as e:
             return AgentResult(
                 status="fail",
                 answer="",
                 citations=[],
-                meta={"warnings": ["llm_error"]},
+                meta={"warnings": [f"llm_error: {e}"]},
             )
 
 
@@ -179,12 +179,12 @@ class ESEditAgent(BaseAgent):
                     meta={"warnings": ["empty_answer"]},
                 )
             return self._create_result(answer)
-        except Exception:
+        except Exception as e:
             return AgentResult(
                 status="fail",
                 answer="",
                 citations=[],
-                meta={"warnings": ["llm_error"]},
+                meta={"warnings": [f"llm_error: {e}"]},
             )
 
 
@@ -212,12 +212,12 @@ class MiscAgent(BaseAgent):
                     meta={"warnings": ["empty_answer"]},
                 )
             return self._create_result(answer)
-        except Exception:
+        except Exception as e:
             return AgentResult(
                 status="fail",
                 answer="",
                 citations=[],
-                meta={"warnings": ["llm_error"]},
+                meta={"warnings": [f"llm_error: {e}"]},
             )
 
 

@@ -204,10 +204,12 @@ def run_task(
             text="This is an authoritative mock quote for testing golden paths."
         )
 
+    from .retry import RetryPolicy
     engine = ExecutionEngine(
         planner=planner,
         router=router,
         evidence_store=evidence_store,
+        retry_policy=RetryPolicy(max_attempts=config.max_retries),
     )
 
     # Initialize verifier (per MASTER_SPEC: Verify強制)
