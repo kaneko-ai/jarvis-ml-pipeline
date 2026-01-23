@@ -2,4 +2,4 @@
 *.joblib filter=lfs diff=lfs merge=lfs -text
 
 # 例外：テスト用PDFはLFSにしない（CIで確実に取得できるようにする）
-tests/fixtures/*.pdf -filter -diff -merge text
+tests/fixtures/*.pdf -filter -diff -merge -text

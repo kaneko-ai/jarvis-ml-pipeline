@@ -107,7 +107,12 @@ jobs:
       - name: Install python dependencies
         run: uv sync --all-extras --dev
       - name: Install node dependencies
-        run: npm ci || npm install
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
       - name: Start mock server and dashboard
@@ -119,7 +124,7 @@ jobs:
         env:
           MOCK_API_BASE: http://localhost:4010
           DASHBOARD_BASE_URL: http://localhost:4173
-        run: npx playwright test -c tests/e2e/playwright.config.ts || true
+        run: npx playwright test -c tests/e2e/playwright.config.ts
       - name: Upload Playwright artifacts
         if: always()
         uses: actions/upload-artifact@v4

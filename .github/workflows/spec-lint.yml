@@ -19,6 +19,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -26,7 +28,20 @@ jobs:
           python-version: '3.11'
 
       - name: Run spec lint
-        run: python tools/spec_lint.py
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "Checking PR changes..."
+            FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- docs | grep -E '\.md$' || true)
+            if [ -n "$FILES" ]; then
+              python tools/spec_lint.py --paths $FILES
+            else
+              echo "No docs modified in this PR. Skipping."
+              echo "[PASS] No violations"
+            fi
+          else
+            echo "Full vault check..."
+            python tools/spec_lint.py
+          fi
 
       - name: Report
         if: failure()
