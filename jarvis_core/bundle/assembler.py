@@ -364,25 +364,13 @@ class BundleAssembler:
             or (isinstance(e.get("locator"), dict) and not e["locator"].get("section"))
         )
 
-        # 品質ゲート判定
-        gate_passed = True
-        fail_reasons = []
-
-        if citation_count == 0:
-            gate_passed = False
-            fail_reasons.append({"code": "CITATION_MISSING", "msg": "引用がゼロ"})
-
-        if locator_missing > 0:
-            gate_passed = False
-            fail_reasons.append(
-                {"code": "LOCATOR_MISSING", "msg": f"根拠位置情報がない: {locator_missing}件"}
-            )
-
-        # 外部品質レポートがあれば統合
+        # 品質ゲート判定 (AG-02: QualityGateVerifierを優先)
         if quality_report:
-            if not quality_report.get("gate_passed", True):
-                gate_passed = False
-            fail_reasons.extend(quality_report.get("fail_reasons", []))
+            gate_passed = quality_report.get("gate_passed", True)
+            fail_reasons = quality_report.get("fail_reasons", [])
+        else:
+            gate_passed = True
+            fail_reasons = []
 
         feedback_summary = feedback_risk.get("summary") if isinstance(feedback_risk, dict) else None
         ready_to_submit = True

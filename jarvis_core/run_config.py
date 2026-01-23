@@ -6,6 +6,7 @@ Per RP-03, this provides configuration for reproducible execution.
 from __future__ import annotations
 
 import json
+import os
 import random
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -31,7 +32,7 @@ class RunConfig:
     max_retries: int = 3
 
     # LLM Provider
-    provider: str = "gemini"
+    provider: str = field(default_factory=lambda: os.getenv("LLM_PROVIDER", "gemini"))
     model: str = "gemini-2.0-flash"
 
     # Thresholds

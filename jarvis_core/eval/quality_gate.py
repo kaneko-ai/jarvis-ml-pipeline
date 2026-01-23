@@ -141,9 +141,17 @@ class QualityGateVerifier:
         if self.require_locators and citations:
             missing_locators = 0
             for cit in citations:
-                locator = cit.get("locator", {})
-                if not locator or not locator.get("section"):
+                # Support both objects and dicts
+                locator = getattr(cit, "locator", None) or (cit.get("locator") if isinstance(cit, dict) else None)
+                
+                if not locator:
                     missing_locators += 1
+                elif isinstance(locator, dict):
+                    if not locator.get("section"):
+                        missing_locators += 1
+                elif isinstance(locator, str):
+                    if not locator.strip():
+                        missing_locators += 1
 
             if missing_locators > 0:
                 fail_reasons.append(

@@ -63,6 +63,7 @@ class ExecutionEngine:
             subtask.history.append({"event": "start", "status": subtask.status})
 
             result, evaluation, attempts = self._execute_with_retry(subtask)
+            subtask.result = result
 
             # Normalize AgentResult status per quality rules
             normalized_status, quality_warnings = self._normalize_agent_result(result)
@@ -79,6 +80,7 @@ class ExecutionEngine:
                     "status": final_status,
                     "agent_status": normalized_status,
                     "result": getattr(result, "answer", None),
+                    "citations": [c.__dict__ if hasattr(c, "__dict__") else str(c) for c in getattr(result, "citations", [])],
                     "quality_warnings": quality_warnings if quality_warnings else None,
                     "attempts": attempts,
                 }
@@ -114,6 +116,10 @@ class ExecutionEngine:
         # Rule 2: Validate citations
         valid_citations, citation_warnings = self._validate_citations(citations)
         warnings.extend(citation_warnings)
+
+        # Update the result with validated citations from EvidenceStore
+        if hasattr(result, "citations"):
+            result.citations = valid_citations
 
         # Rule 3: Answer exists but no valid citations = partial
         # Per Section 5.4.2: citations required for fact claims

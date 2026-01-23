@@ -41,6 +41,11 @@ class BaseAgent:
     def run_single(self, llm: LLMClient, task: str) -> AgentResult:
         raise NotImplementedError
 
+    def _create_result(self, answer: str, status: str = "success") -> AgentResult:
+        """Create AgentResult with auto-extracted citations."""
+        citations = self._extract_citations(answer)
+        return AgentResult(status=status, answer=answer, citations=citations)
+
     def run_sampling(self, llm: LLMClient, task: str, n_candidates: int) -> list[AgentResult]:
         """
         Verbalized Sampling:
@@ -95,21 +100,22 @@ class BaseAgent:
 
     @staticmethod
     def _extract_answer(text: str) -> str:
-        """Extract answer from LLM output.
-
-        This is the single point for answer extraction.
-        Currently returns the full text; future extensions
-        (e.g., JSON parsing, citation extraction) will be added here.
-
-        Args:
-            text: Raw LLM output.
-
-        Returns:
-            Extracted answer string.
-        """
+        """Extract answer from LLM output."""
         if text is None:
             return ""
         return str(text).strip()
+
+    @staticmethod
+    def _extract_citations(text: str) -> list[Citation]:
+        """Extract [chunk:ID] citations from text."""
+        import re
+
+        citations = []
+        # Find all occurrences of [chunk:XXX]
+        for match in re.finditer(r"\[chunk:([\w\-]+)\]", text):
+            chunk_id = match.group(1)
+            citations.append(Citation(chunk_id=chunk_id, source="", locator="", quote=""))
+        return citations
 
 
 class ThesisAgent(BaseAgent):
@@ -137,7 +143,7 @@ class ThesisAgent(BaseAgent):
                     citations=[],
                     meta={"warnings": ["empty_answer"]},
                 )
-            return AgentResult(status="success", answer=answer, citations=[])
+            return self._create_result(answer)
         except Exception:
             return AgentResult(
                 status="fail",
@@ -172,7 +178,7 @@ class ESEditAgent(BaseAgent):
                     citations=[],
                     meta={"warnings": ["empty_answer"]},
                 )
-            return AgentResult(status="success", answer=answer, citations=[])
+            return self._create_result(answer)
         except Exception:
             return AgentResult(
                 status="fail",
@@ -205,7 +211,7 @@ class MiscAgent(BaseAgent):
                     citations=[],
                     meta={"warnings": ["empty_answer"]},
                 )
-            return AgentResult(status="success", answer=answer, citations=[])
+            return self._create_result(answer)
         except Exception:
             return AgentResult(
                 status="fail",
