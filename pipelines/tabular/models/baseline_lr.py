@@ -11,7 +11,10 @@ import pickle
 from pathlib import Path
 
 import numpy as np
-from sklearn.linear_model import LogisticRegression
+try:
+    from sklearn.linear_model import LogisticRegression
+except ImportError:
+    pass
 
 logger = logging.getLogger(__name__)
 

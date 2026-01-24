@@ -3,6 +3,7 @@
 import json
 import urllib.parse
 import urllib.request
+import datetime
 from dataclasses import dataclass
 
 
@@ -186,7 +187,7 @@ class GoogleDriveExporter:
             File ID
         """
         export_data = {
-            "exported_at": __import__("datetime").datetime.now().isoformat(),
+            "exported_at": datetime.datetime.now().isoformat(),
             "count": len(papers),
             "papers": papers,
         }
@@ -590,7 +591,7 @@ class AnnotationManager:
             self.annotations[paper_id] = []
 
         annotation.id = f"ann_{len(self.annotations[paper_id])}"
-        annotation.created_at = __import__("datetime").datetime.now().isoformat()
+        annotation.created_at = datetime.datetime.now().isoformat()
         self.annotations[paper_id].append(annotation)
 
         return annotation.id

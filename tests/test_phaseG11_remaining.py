@@ -189,7 +189,7 @@ class TestFinanceModulesComplete:
     """Complete tests for finance/ modules."""
 
     def test_optimizer(self):
-        from jarvis_core.finance import optimizer
+        from jarvis_core.experimental.finance import optimizer
         for name in dir(optimizer):
             if not name.startswith('_'):
                 obj = getattr(optimizer, name)
@@ -200,7 +200,7 @@ class TestFinanceModulesComplete:
                         pass
 
     def test_scenarios(self):
-        from jarvis_core.finance import scenarios
+        from jarvis_core.experimental.finance import scenarios
         for name in dir(scenarios):
             if not name.startswith('_'):
                 obj = getattr(scenarios, name)

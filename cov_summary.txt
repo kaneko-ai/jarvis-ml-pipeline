@@ -1,0 +1,40 @@
+MISSING:128 PATH:jarvis_core/submission/package_builder.py
+MISSING:104 PATH:jarvis_core/contradiction/detector.py
+MISSING:101 PATH:jarvis_core/integrations/additional.py
+MISSING: 99 PATH:jarvis_core/connectors/pmc.py
+MISSING: 99 PATH:jarvis_core/stages/retrieval_extraction.py
+MISSING: 95 PATH:jarvis_core/evidence/llm_classifier.py
+MISSING: 94 PATH:jarvis_core/active_learning/cli.py
+MISSING: 94 PATH:jarvis_core/integrations/external.py
+MISSING: 89 PATH:jarvis_core/eval/quality_enhancer.py
+MISSING: 87 PATH:jarvis_core/advanced/features.py
+MISSING: 85 PATH:jarvis_core/notes/note_generator.py
+MISSING: 84 PATH:jarvis_core/multimodal/scientific.py
+MISSING: 84 PATH:jarvis_core/reliability/health.py
+MISSING: 83 PATH:jarvis_core/ingestion/robust_extractor.py
+MISSING: 83 PATH:jarvis_core/intelligence/research_partner.py
+MISSING: 81 PATH:jarvis_core/plugins/zotero_integration.py
+MISSING: 80 PATH:jarvis_core/evaluation/evidence_validator.py
+MISSING: 80 PATH:jarvis_core/renderers/report_renderer.py
+MISSING: 80 PATH:jarvis_core/stages/output_quality.py
+MISSING: 79 PATH:jarvis_core/multimodal/figure_table.py
+MISSING: 78 PATH:jarvis_core/extraction/semantic_search.py
+MISSING: 74 PATH:jarvis_core/iter/phase8_features.py
+MISSING: 74 PATH:jarvis_core/stages/pretrain_citation.py
+MISSING: 72 PATH:jarvis_core/ops/drift_detector.py
+MISSING: 71 PATH:jarvis_core/scientist/coscientist.py
+MISSING: 69 PATH:jarvis_core/active_learning/engine.py
+MISSING: 69 PATH:jarvis_core/integrations/obsidian_sync_v2.py
+MISSING: 68 PATH:jarvis_core/eval/judge_v2.py
+MISSING: 66 PATH:jarvis_core/app.py
+MISSING: 66 PATH:jarvis_core/eval/drift.py
+MISSING: 66 PATH:jarvis_core/lab/automation.py
+MISSING: 65 PATH:jarvis_core/api/run_api.py
+MISSING: 65 PATH:jarvis_core/export/pptx_builder.py
+MISSING: 65 PATH:jarvis_core/retrieval/citation_graph.py
+MISSING: 65 PATH:jarvis_core/storage/retention.py
+MISSING: 64 PATH:jarvis_core/contradiction/semantic_detector.py
+MISSING: 63 PATH:jarvis_core/provenance/linker.py
+MISSING: 63 PATH:jarvis_core/scoring/paper_score.py
+MISSING: 62 PATH:jarvis_core/intelligence/action_planner.py
+MISSING: 62 PATH:jarvis_core/repair/learner.py

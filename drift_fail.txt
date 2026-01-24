@@ -1,0 +1,27 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+collecting ... collected 5 items
+
+tests/core/test_drift_basic.py::test_entity_distribution PASSED          [ 20%]
+tests/core/test_drift_basic.py::test_kl_divergence PASSED                [ 40%]
+tests/core/test_drift_basic.py::test_js_divergence PASSED                [ 60%]
+tests/core/test_drift_basic.py::test_detect_drift FAILED                 [ 80%]
+tests/core/test_drift_basic.py::test_format_drift_report PASSED          [100%]
+
+================================== FAILURES ===================================
+______________________________ test_detect_drift ______________________________
+tests\core\test_drift_basic.py:44: in test_detect_drift
+    assert res.top_losses[0][0] == "Banana"
+E   AssertionError: assert 'Apple' == 'Banana'
+E     
+E     - Banana
+E     + Apple
+=========================== short test summary info ===========================
+FAILED tests/core/test_drift_basic.py::test_detect_drift - AssertionError: assert 'Apple' == 'Banana'
+  
+  - Banana
+  + Apple
+========================= 1 failed, 4 passed in 0.77s =========================

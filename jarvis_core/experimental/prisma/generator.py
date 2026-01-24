@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from jarvis_core.prisma.schema import PRISMAData
+from jarvis_core.experimental.prisma.schema import PRISMAData
 
 logger = logging.getLogger(__name__)
 

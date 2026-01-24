@@ -1,0 +1,62 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+collecting ... collected 9 items
+
+tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_extract_fallback PASSED [ 11%]
+tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_extract_all_fail PASSED [ 22%]
+tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_extraction_result_to_dict PASSED [ 33%]
+tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_convenience_function PASSED [ 44%]
+tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_resolve_run_dir_none PASSED [ 55%]
+tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_extract_pymupdf PASSED [ 66%]
+tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_extract_pdfplumber FAILED [ 77%]
+tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_extract_pypdf FAILED [ 88%]
+tests/core/test_robust_extractor_basic.py::test_extraction_result_defaults PASSED [100%]
+
+================================== FAILURES ===================================
+_______________ TestRobustPDFExtractor.test_extract_pdfplumber ________________
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:1387: in patched
+    with self.decoration_helper(patched,
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:1369: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:1442: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'pdfplumber'
+__________________ TestRobustPDFExtractor.test_extract_pypdf __________________
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:1387: in patched
+    with self.decoration_helper(patched,
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:1369: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:526: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:1458: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:1431: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'jarvis_core.ingestion.robust_extractor' from 'C:\\Users\\kaneko yu\\Documents\\jarvis-work\\jarvis-ml-pipeline\\jarvis_core\\ingestion\\robust_extractor.py'> does not have the attribute 'PdfReader'
+=========================== short test summary info ===========================
+FAILED tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_extract_pdfplumber - ModuleNotFoundError: No module named 'pdfplumber'
+FAILED tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_extract_pypdf - AttributeError: <module 'jarvis_core.ingestion.robust_extractor' from 'C:\\Users\\kaneko yu\\Documents\\jarvis-work\\jarvis-ml-pipeline\\jarvis_core\\ingestion\\robust_extractor.py'> does not have the attribute 'PdfReader'
+========================= 2 failed, 7 passed in 1.35s =========================

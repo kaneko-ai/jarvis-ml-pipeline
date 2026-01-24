@@ -101,7 +101,7 @@ class TestActiveLearningCLI:
     """Tests for active learning CLI module."""
 
     def test_import(self):
-        from jarvis_core.active_learning import cli
+        from jarvis_core.experimental.active_learning import cli
         assert hasattr(cli, "__name__")
 
 

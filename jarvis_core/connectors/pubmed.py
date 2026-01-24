@@ -15,7 +15,7 @@ import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
 from typing import Any
-from xml.etree import ElementTree as ET
+from defusedxml import ElementTree as ET
 
 
 @dataclass

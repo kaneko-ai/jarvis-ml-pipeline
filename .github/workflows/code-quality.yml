@@ -20,30 +20,39 @@ jobs:
         run: |
           echo "Checking for prohibited patterns..."
           ERRORS=0
-          
           # FAKE/MOCK data markers in core code
           if grep -rn "FAKE_DATA\|MOCK_RESULT\|TODO_REPLACE" jarvis_core/ 2>/dev/null; then
             echo "❌ Found fake/mock markers in jarvis_core/"
             ERRORS=$((ERRORS+1))
           fi
-          
           # Empty stage implementations
           if grep -rn "pass  # TODO" jarvis_core/stages/ 2>/dev/null; then
             echo "❌ Found empty TODO implementations in stages"
             ERRORS=$((ERRORS+1))
           fi
-          
           # Suppressed errors
           if grep -rn "except.*pass\$" jarvis_core/ 2>/dev/null; then
             echo "⚠️ Warning: Found exception suppression (except...pass)"
           fi
-          
           if [ $ERRORS -gt 0 ]; then
             echo "❌ $ERRORS prohibited pattern(s) found"
             exit 1
           fi
-          
           echo "✅ No prohibited patterns found"
+
+      - name: Security Scan (Bandit)
+        run: |
+          pip install bandit
+          bandit -r jarvis_core/ jarvis_web/ -ll -ii
+          
+      - name: Banned API Gate (security_gate.py)
+        run: |
+          python scripts/security_gate.py
+
+      - name: Dependency Vulnerability Audit (pip-audit)
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt
       
       - name: Check minimum stage count
         run: |

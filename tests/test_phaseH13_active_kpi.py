@@ -35,19 +35,19 @@ def deep_test_module(module):
 
 class TestActiveLearningEngineBranches:
     def test_deep(self):
-        from jarvis_core.active_learning import engine
+        from jarvis_core.experimental.active_learning import engine
         deep_test_module(engine)
 
 
 class TestActiveLearningCliBranches:
     def test_deep(self):
-        from jarvis_core.active_learning import cli
+        from jarvis_core.experimental.active_learning import cli
         deep_test_module(cli)
 
 
 class TestActiveLearningStrategiesBranches:
     def test_deep(self):
-        from jarvis_core.active_learning import strategies
+        from jarvis_core.experimental.active_learning import strategies
         deep_test_module(strategies)
 
 

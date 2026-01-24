@@ -225,11 +225,11 @@ class TestActiveLearningEngineDetailed:
     """Detailed tests for active_learning/engine.py."""
 
     def test_import(self):
-        from jarvis_core.active_learning import engine
+        from jarvis_core.experimental.active_learning import engine
         assert hasattr(engine, "__name__")
 
     def test_module_classes(self):
-        from jarvis_core.active_learning import engine
+        from jarvis_core.experimental.active_learning import engine
         attrs = [a for a in dir(engine) if not a.startswith('_')]
         for attr in attrs[:10]:
             getattr(engine, attr)

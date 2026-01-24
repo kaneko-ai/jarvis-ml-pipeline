@@ -5,11 +5,11 @@ No mocks - uses real dummy data.
 """
 
 from jarvis_core.chain_builder import build_research_chain
-from jarvis_core.competing_hypothesis import generate_competing_hypotheses
-from jarvis_core.failure_predictor import predict_failure_modes
-from jarvis_core.feasibility import score_feasibility
-from jarvis_core.gap_analysis import score_research_gaps
-from jarvis_core.heatmap import build_concept_heatmap
+from jarvis_core.experimental.competing_hypothesis import generate_competing_hypotheses
+from jarvis_core.experimental.failure_predictor import predict_failure_modes
+from jarvis_core.experimental.feasibility import score_feasibility
+from jarvis_core.experimental.gap_analysis import score_research_gaps
+from jarvis_core.experimental.heatmap import build_concept_heatmap
 from jarvis_core.method_trend import track_method_evolution
 from jarvis_core.model_system import suggest_model_system
 from jarvis_core.paper_vector import (
@@ -21,7 +21,7 @@ from jarvis_core.paper_vector import (
     PaperVector,
     TemporalVector,
 )
-from jarvis_core.paradigm import detect_paradigm_shift
+from jarvis_core.experimental.paradigm import detect_paradigm_shift
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]

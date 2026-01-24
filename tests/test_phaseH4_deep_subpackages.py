@@ -88,13 +88,13 @@ class TestOpsResilienceDeep:
 # finance modules
 class TestFinanceOptimizerDeep:
     def test_deep(self):
-        from jarvis_core.finance import optimizer
+        from jarvis_core.experimental.finance import optimizer
         deep_test_module(optimizer)
 
 
 class TestFinanceScenariosDeep:
     def test_deep(self):
-        from jarvis_core.finance import scenarios
+        from jarvis_core.experimental.finance import scenarios
         deep_test_module(scenarios)
 
 

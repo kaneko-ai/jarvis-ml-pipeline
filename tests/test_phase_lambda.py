@@ -1,16 +1,16 @@
-"""Tests for Phase Λ (Extended Analysis Modules).
+"""Tests for Phase ΁E(Extended Analysis Modules).
 
-Tests Λ-1 to Λ-30 functions.
+Tests ΁E1 to ΁E30 functions.
 """
 
-from jarvis_core.lambda_modules import (
+from jarvis_core.experimental.lambda_modules import (
     alert_decision_delay,
-    # Λ-1〜Λ-5
+    # ΁E1〜΁E5
     analyze_hypothesis_risks,
-    # Λ-6〜Λ-10
+    # ΁E6〜΁E10
     build_experiment_dependency_graph,
     check_figure_claim_consistency,
-    # Λ-21〜Λ-25
+    # ΁E21〜΁E25
     classify_hypothesis_type,
     classify_thinking_style,
     cluster_researchers,
@@ -19,9 +19,9 @@ from jarvis_core.lambda_modules import (
     detect_emerging_journals,
     detect_experiment_bottleneck,
     detect_reproduction_failure_signs,
-    # Λ-11〜Λ-15
+    # ΁E11〜΁E15
     detect_reviewer_fatigue_points,
-    # Λ-16〜Λ-20
+    # ΁E16〜΁E20
     detect_rising_concepts,
     detect_theme_overlap,
     detect_undervaluation,
@@ -32,7 +32,7 @@ from jarvis_core.lambda_modules import (
     optimize_experiment_order,
     optimize_for_notebooklm,
     predict_technique_lifespan,
-    # Λ-26〜Λ-30
+    # ΁E26〜΁E30
     restructure_for_obsidian,
     score_concept_competition,
     suggest_log_improvements,

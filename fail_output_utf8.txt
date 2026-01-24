@@ -1,0 +1,17 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+collecting ... collected 1 item
+
+tests/core/test_golden_path_advanced.py::test_feasibility_scoring FAILED [100%]
+
+================================== FAILURES ===================================
+__________________________ test_feasibility_scoring ___________________________
+tests\core\test_golden_path_advanced.py:27: in test_feasibility_scoring
+    assert "難易度" in res["reason"] or "先行研究" in res["reason"] or "高コスト" in res["reason"]
+E   AssertionError: assert ('\u96e3\u6613\u5ea6' in '\u6a19\u6e96\u7684\u306a\u5b9f\u9a13\u96e3\u5ea6' or '\u5148\u884c\u7814\u7a76' in '\u6a19\u6e96\u7684\u306a\u5b9f\u9a13\u96e3\u5ea6' or '\u9ad8\u30b3\u30b9\u30c8' in '\u6a19\u6e96\u7684\u306a\u5b9f\u9a13\u96e3\u5ea6')
+=========================== short test summary info ===========================
+FAILED tests/core/test_golden_path_advanced.py::test_feasibility_scoring - AssertionError: assert ('\u96e3\u6613\u5ea6' in '\u6a19\u6e96\u7684\u306a\u5b9f\u9a13\u96e3\u5ea6' or '\u5148\u884c\u7814\u7a76' in '\u6a19\u6e96\u7684\u306a\u5b9f\u9a13\u96e3\u5ea6' or '\u9ad8\u30b3\u30b9\u30c8' in '\u6a19\u6e96\u7684\u306a\u5b9f\u9a13\u96e3\u5ea6')
+============================== 1 failed in 0.31s ==============================

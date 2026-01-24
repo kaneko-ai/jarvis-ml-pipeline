@@ -1,6 +1,6 @@
 """Golden Path Test for Advanced Modules (PR-3)."""
 import pytest
-from jarvis_core.feasibility import score_feasibility
+from jarvis_core.experimental.feasibility import score_feasibility
 from jarvis_core.reporting.rank_explain import (
     calculate_average_subscores,
     explain_ranking,

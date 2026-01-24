@@ -13,7 +13,7 @@ class TestPRISMASchema:
 
     def test_prisma_stage_enum(self):
         """Test PRISMAStage enum values."""
-        from jarvis_core.prisma.schema import PRISMAStage
+        from jarvis_core.experimental.prisma.schema import PRISMAStage
 
         assert PRISMAStage.IDENTIFICATION.value == "identification"
         assert PRISMAStage.SCREENING.value == "screening"
@@ -22,7 +22,7 @@ class TestPRISMASchema:
 
     def test_exclusion_reason_dataclass(self):
         """Test ExclusionReason dataclass."""
-        from jarvis_core.prisma.schema import ExclusionReason
+        from jarvis_core.experimental.prisma.schema import ExclusionReason
 
         reason = ExclusionReason(reason="Duplicate publication", count=15, stage="screening")
 
@@ -31,7 +31,7 @@ class TestPRISMASchema:
 
     def test_prisma_data_initialization(self):
         """Test PRISMAData dataclass initialization."""
-        from jarvis_core.prisma.schema import ExclusionReason, PRISMAData
+        from jarvis_core.experimental.prisma.schema import ExclusionReason, PRISMAData
 
         data = PRISMAData(
             records_from_databases=1000,
@@ -53,7 +53,7 @@ class TestPRISMASchema:
 
     def test_prisma_data_calculate_totals(self):
         """Test PRISMAData calculate_totals method."""
-        from jarvis_core.prisma.schema import PRISMAData
+        from jarvis_core.experimental.prisma.schema import PRISMAData
 
         data = PRISMAData(
             records_from_databases=100,
@@ -68,7 +68,7 @@ class TestPRISMASchema:
 
     def test_prisma_data_to_dict(self):
         """Test PRISMAData serialization."""
-        from jarvis_core.prisma.schema import PRISMAData
+        from jarvis_core.experimental.prisma.schema import PRISMAData
 
         data = PRISMAData(
             records_from_databases=500,
@@ -94,15 +94,15 @@ class TestPRISMAGenerator:
 
     def test_generator_initialization(self):
         """Test PRISMAGenerator initialization."""
-        from jarvis_core.prisma.generator import PRISMAGenerator
+        from jarvis_core.experimental.prisma.generator import PRISMAGenerator
 
         generator = PRISMAGenerator()
         assert generator is not None
 
     def test_to_mermaid_basic(self):
         """Test basic Mermaid diagram generation."""
-        from jarvis_core.prisma.generator import PRISMAGenerator
-        from jarvis_core.prisma.schema import PRISMAData
+        from jarvis_core.experimental.prisma.generator import PRISMAGenerator
+        from jarvis_core.experimental.prisma.schema import PRISMAData
 
         generator = PRISMAGenerator()
         data = PRISMAData(
@@ -123,8 +123,8 @@ class TestPRISMAGenerator:
 
     def test_to_mermaid_with_exclusion_reasons(self):
         """Test Mermaid diagram with exclusion reasons."""
-        from jarvis_core.prisma.generator import PRISMAGenerator
-        from jarvis_core.prisma.schema import ExclusionReason, PRISMAData
+        from jarvis_core.experimental.prisma.generator import PRISMAGenerator
+        from jarvis_core.experimental.prisma.schema import ExclusionReason, PRISMAData
 
         generator = PRISMAGenerator()
         data = PRISMAData(
@@ -148,8 +148,8 @@ class TestPRISMAGenerator:
 
     def test_to_svg(self):
         """Test SVG diagram generation."""
-        from jarvis_core.prisma.generator import PRISMAGenerator
-        from jarvis_core.prisma.schema import PRISMAData
+        from jarvis_core.experimental.prisma.generator import PRISMAGenerator
+        from jarvis_core.experimental.prisma.schema import PRISMAData
 
         generator = PRISMAGenerator()
         data = PRISMAData(
@@ -170,8 +170,8 @@ class TestPRISMAGenerator:
 
     def test_to_text(self):
         """Test text representation generation."""
-        from jarvis_core.prisma.generator import PRISMAGenerator
-        from jarvis_core.prisma.schema import PRISMAData
+        from jarvis_core.experimental.prisma.generator import PRISMAGenerator
+        from jarvis_core.experimental.prisma.schema import PRISMAData
 
         generator = PRISMAGenerator()
         data = PRISMAData(
@@ -192,8 +192,8 @@ class TestPRISMAGenerator:
 
     def test_save_svg(self):
         """Test save method with SVG format."""
-        from jarvis_core.prisma.generator import PRISMAGenerator
-        from jarvis_core.prisma.schema import PRISMAData
+        from jarvis_core.experimental.prisma.generator import PRISMAGenerator
+        from jarvis_core.experimental.prisma.schema import PRISMAData
 
         generator = PRISMAGenerator()
         data = PRISMAData(
@@ -221,8 +221,8 @@ class TestGeneratePrismaFlowFunction:
 
     def test_generate_prisma_flow_mermaid(self):
         """Test generate_prisma_flow with Mermaid output."""
-        from jarvis_core.prisma import generate_prisma_flow
-        from jarvis_core.prisma.schema import PRISMAData
+        from jarvis_core.experimental.prisma import generate_prisma_flow
+        from jarvis_core.experimental.prisma.schema import PRISMAData
 
         data = PRISMAData(
             records_from_databases=500,
@@ -241,8 +241,8 @@ class TestGeneratePrismaFlowFunction:
 
     def test_generate_prisma_flow_svg(self):
         """Test generate_prisma_flow with SVG output."""
-        from jarvis_core.prisma import generate_prisma_flow
-        from jarvis_core.prisma.schema import PRISMAData
+        from jarvis_core.experimental.prisma import generate_prisma_flow
+        from jarvis_core.experimental.prisma.schema import PRISMAData
 
         data = PRISMAData(
             records_from_databases=100,
@@ -261,8 +261,8 @@ class TestGeneratePrismaFlowFunction:
 
     def test_generate_prisma_flow_text(self):
         """Test generate_prisma_flow with text output."""
-        from jarvis_core.prisma import generate_prisma_flow
-        from jarvis_core.prisma.schema import PRISMAData
+        from jarvis_core.experimental.prisma import generate_prisma_flow
+        from jarvis_core.experimental.prisma.schema import PRISMAData
 
         data = PRISMAData(
             records_from_databases=100,
@@ -285,7 +285,7 @@ class TestPRISMA2020Compliance:
 
     def test_prisma_2020_required_items(self):
         """Test that all PRISMA 2020 required items are supported."""
-        from jarvis_core.prisma.schema import PRISMAData
+        from jarvis_core.experimental.prisma.schema import PRISMAData
 
         # PRISMA 2020 requires these flow diagram elements
         required_attributes = [
@@ -315,7 +315,7 @@ class TestPRISMA2020Compliance:
 
     def test_multiple_database_sources(self):
         """Test support for multiple database sources."""
-        from jarvis_core.prisma.schema import PRISMAData
+        from jarvis_core.experimental.prisma.schema import PRISMAData
 
         # PRISMA 2020 supports multiple database sources
         data = PRISMAData(
@@ -339,7 +339,7 @@ class TestModuleImports:
 
     def test_main_imports(self):
         """Test main module imports."""
-        from jarvis_core.prisma import (
+        from jarvis_core.experimental.prisma import (
             ExclusionReason,
             PRISMAData,
             PRISMAGenerator,
@@ -355,7 +355,7 @@ class TestModuleImports:
 
     def test_schema_imports(self):
         """Test schema module imports."""
-        from jarvis_core.prisma.schema import (
+        from jarvis_core.experimental.prisma.schema import (
             ExclusionReason,
             PRISMAData,
             PRISMAStage,
@@ -367,7 +367,7 @@ class TestModuleImports:
 
     def test_generator_imports(self):
         """Test generator module imports."""
-        from jarvis_core.prisma.generator import (
+        from jarvis_core.experimental.prisma.generator import (
             PRISMAGenerator,
             generate_prisma_flow,
         )

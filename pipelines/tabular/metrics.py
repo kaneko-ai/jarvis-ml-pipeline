@@ -10,7 +10,12 @@ import logging
 from typing import Dict
 
 import numpy as np
-from sklearn.metrics import accuracy_score, mean_squared_error, r2_score
+try:
+    from sklearn.metrics import accuracy_score, mean_squared_error, r2_score
+except ImportError:
+    accuracy_score = None
+    mean_squared_error = None
+    r2_score = None
 
 logger = logging.getLogger(__name__)
 
