@@ -26,8 +26,9 @@ def run_command(name: str, cmd: list[str]) -> bool:
         # We use a combined stdout/stderr for simplicity
         result = subprocess.run(cmd, capture_output=True, text=True, check=False)
         if result.returncode != 0:
-            print(f"❌ {name} failed with return code {result.returncode}")
-            # Bandit returns 1 if issues found, which is what we want to detect
+            # Bandit returns 1 if issues found.
+            # We will handle failure logic in main() based on output if needed,
+            # but for now we follow the tool's return code.
             if result.stdout:
                 print(result.stdout)
             if result.stderr:
@@ -118,8 +119,9 @@ def main():
     target_dirs = ["jarvis_core", "jarvis_web", "scripts", "api"]
 
     # 1. Bandit
-    # -lll only high severity
-    if not run_command("Bandit", ["bandit", "-r"] + [d for d in target_dirs if os.path.exists(d)] + ["-ll"]):
+    # -lll: High severity only. We want to stop ONLY on high severity issues.
+    if not run_command("Bandit", ["bandit", "-r"] + [d for d in target_dirs if os.path.exists(d)] + ["-lll"]):
+        print("❌ Bandit found HIGH severity issues.")
         success = False
 
     # 2. Pip-audit

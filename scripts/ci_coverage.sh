@@ -30,6 +30,9 @@ echo "Config: $CFG"
 echo "=========================="
 echo ""
 
+# Clean up any existing coverage files to avoid "unable to open database" errors
+rm -f .coverage .coverage.*
+
 # Run pytest with coverage
 python -m pytest \
   --cov=jarvis_core \
