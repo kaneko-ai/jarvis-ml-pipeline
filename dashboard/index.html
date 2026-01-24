@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Research OS Dashboard - Home</title>
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
+
 <body data-page="index">
-    <nav class="top-nav" data-testid="top-nav">
+  <nav class="top-nav" data-testid="top-nav">
     <a href="index.html" data-testid="nav-home">Home</a>
     <a href="runs.html" data-testid="nav-runs">Runs</a>
     <a href="ops.html" data-testid="nav-ops">Ops</a>
@@ -24,29 +26,21 @@
 
     <section class="panel">
       <div class="section-title">
-        <h2>Health</h2>
-        <button class="secondary" id="refresh-health" data-testid="refresh-health">更新</button>
+        <h2>Run Pipeline</h2>
       </div>
-      <div class="grid cols-2">
-        <div>
-          <p class="muted">/api/health</p>
-          <div id="health-status" class="notice" data-testid="health-status">未接続</div>
-          <div id="health-warnings" data-testid="health-warnings"></div>
+      <div class="form-group">
+        <input type="text" id="run-query" placeholder="Enter search query (e.g. CD73 immunotherapy)"
+          class="input-full" />
+        <button id="run-button" class="primary">Run Dispatch</button>
+      </div>
+      <div id="run-status-area" class="notice" style="display:none;">
+        <p>Run ID: <span id="current-run-id">-</span></p>
+        <div id="progress-bar-container" style="background:#eee; height:10px; border-radius:5px; margin: 10px 0;">
+          <div id="progress-bar"
+            style="background:var(--primary); height:100%; width:0%; border-radius:5px; transition: width 0.3s;"></div>
         </div>
-        <div>
-          <p class="muted">/api/health/cron</p>
-          <div id="cron-status" class="notice" data-testid="cron-status">未接続</div>
-          <div id="cron-jobs" data-testid="cron-jobs"></div>
-        </div>
+        <p id="progress-message">Waiting...</p>
       </div>
-    </section>
-
-    <section class="panel">
-      <div class="section-title">
-        <h2>KPI</h2>
-        <button class="secondary" id="refresh-kpi" data-testid="refresh-kpi">更新</button>
-      </div>
-      <div class="grid cols-4" id="kpi-grid" data-testid="kpi-grid"></div>
     </section>
 
     <section class="panel">
@@ -58,12 +52,11 @@
         <thead>
           <tr>
             <th>Run ID</th>
+            <th>Action</th>
+            <th>Query</th>
             <th>Status</th>
-            <th>Progress</th>
-            <th>Tier Summary</th>
-            <th>QA</th>
-            <th>Submission</th>
-            <th>Created</th>
+            <th>Finished</th>
+            <th>Artifacts</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -76,154 +69,111 @@
   <script src="assets/app.js"></script>
   <script src="assets/ui.js"></script>
   <script>
-    const setActiveNav = () => {
-      const page = document.body.dataset.page;
-      ui.qsa(".top-nav a").forEach((link) => {
-        if (link.getAttribute("href").includes(page)) {
-          link.classList.add("active");
-        }
-      });
-    };
-
-    let runsEnabled = true;
-
-    const renderHealth = async () => {
-      const healthEl = ui.qs("#health-status");
-      const cronEl = ui.qs("#cron-status");
-      const warningEl = ui.qs("#health-warnings");
-      const cronJobsEl = ui.qs("#cron-jobs");
-      warningEl.innerHTML = "";
-      cronJobsEl.innerHTML = "";
-
-      const health = await app.apiFetchSafe(app.getPath("health"));
-      if (health.ok) {
-        const data = health.data || {};
-        healthEl.innerHTML = "";
-        healthEl.appendChild(ui.badge(data.redis_ok ? "Redis OK" : "Redis NG", data.redis_ok ? "success" : "danger"));
-        healthEl.appendChild(ui.badge(data.worker_heartbeat_ok ? "Worker OK" : "Worker NG", data.worker_heartbeat_ok ? "success" : "danger"));
-        if (Array.isArray(data.warnings) && data.warnings.length) {
-          warningEl.appendChild(ui.el("div", { className: "notice", text: data.warnings.join(" / ") }));
-        }
-      } else {
-        healthEl.textContent = "未実装/未接続";
-      }
-
-      const cron = await app.apiFetchSafe(app.getPath("health_cron"));
-      if (cron.ok) {
-        const data = cron.data || {};
-        cronEl.innerHTML = "";
-        cronEl.appendChild(ui.badge(data.redis_ok ? "Redis OK" : "Redis NG", data.redis_ok ? "success" : "danger"));
-        cronEl.appendChild(ui.badge(data.worker_heartbeat_ok ? "Cron OK" : "Cron NG", data.worker_heartbeat_ok ? "success" : "danger"));
-        if (Array.isArray(data.last_cron_jobs)) {
-          data.last_cron_jobs.slice(0, 4).forEach((job) => {
-            cronJobsEl.appendChild(ui.el("div", { className: "muted", text: JSON.stringify(job) }));
-          });
-        }
-      } else {
-        cronEl.textContent = "未実装/未接続";
-      }
-    };
-
-    const renderKpi = async () => {
-      const grid = ui.qs("#kpi-grid");
-      grid.innerHTML = "";
-      const runs = await app.apiFetchSafe(app.getPath("runs_list"));
-      if (!runs.ok) {
-        grid.appendChild(ui.el("div", { className: "notice", text: "未接続" }));
-        return;
-      }
-      const list = runs.data || [];
-      const total = list.length;
-      const running = list.filter((item) => item.status === "running").length;
-      const success = list.filter((item) => item.status === "success").length;
-      const qaReady = list.filter((item) => item.qa_status === "READY").length;
-
-      const cards = [
-        { label: "Total Runs", value: total },
-        { label: "Running", value: running },
-        { label: "Success", value: success },
-        { label: "QA Ready", value: qaReady },
-      ];
-      cards.forEach((card) => {
-        const node = ui.el("div", { className: "kpi-card" });
-        node.appendChild(ui.el("h3", { text: card.label }));
-        node.appendChild(ui.el("div", { className: "value", text: ui.formatNumber(card.value) }));
-        grid.appendChild(node);
-      });
-    };
-
-    const renderLatestRuns = async () => {
-      const tableBody = ui.qs("#latest-runs tbody");
-      const empty = ui.qs("#latest-runs-empty");
-      tableBody.innerHTML = "";
-      const runs = await app.apiFetchSafe(app.getPath("runs_list"));
-      if (!runs.ok) {
-        empty.textContent = "未接続";
-        empty.style.display = "block";
-        return;
-      }
-      const list = (runs.data || []).slice(0, 5);
-      if (!list.length) {
-        empty.style.display = "block";
-        return;
-      }
-      empty.style.display = "none";
-      list.forEach((run) => {
-        const row = ui.el("tr");
-        const idLink = ui.el("a", { text: run.id || run.run_id || "-", attrs: { href: `run.html?id=${run.id || run.run_id}` } });
-        row.appendChild(ui.el("td", { html: idLink.outerHTML }));
-        row.appendChild(ui.el("td", { text: run.status || "-" }));
-        row.appendChild(ui.el("td", { text: run.progress || run.step || "-" }));
-        row.appendChild(ui.el("td", { text: run.tier_summary || "-" }));
-        row.appendChild(ui.el("td", { text: run.qa_status || run.qa_ready || "-" }));
-        row.appendChild(ui.el("td", { text: run.submission_status || "-" }));
-        row.appendChild(ui.el("td", { text: ui.formatDateTime(run.created_at) }));
-        tableBody.appendChild(row);
-      });
-    };
-
-    const applyCapabilities = async () => {
-      const result = await app.getCapabilities();
-      if (result.ok) {
-        ui.applyCapabilitiesToNav(result.data);
-        runsEnabled = app.isFeatureEnabled(result.data, "runs");
-        if (!runsEnabled) {
-          ui.qs("#kpi-grid").innerHTML = "";
-          ui.qs("#kpi-grid").appendChild(ui.el("div", { className: "notice", text: "未実装" }));
-          ui.qs("#latest-runs tbody").innerHTML = "";
-          const empty = ui.qs("#latest-runs-empty");
-          empty.textContent = "未実装";
-          empty.style.display = "block";
-        }
-        return;
-      }
-      runsEnabled = false;
-      ui.applyCapabilitiesToNav({});
-      ui.qs("#kpi-grid").innerHTML = "";
-      ui.qs("#kpi-grid").appendChild(ui.el("div", { className: "notice", text: "未接続" }));
-      const empty = ui.qs("#latest-runs-empty");
-      empty.textContent = "未接続";
-      empty.style.display = "block";
-    };
-
     const init = async () => {
-      setActiveNav();
-      await applyCapabilities();
-      renderHealth();
-      if (runsEnabled) {
-        renderKpi();
-        renderLatestRuns();
-      }
-      ui.qs("#refresh-health").addEventListener("click", renderHealth);
-      ui.qs("#refresh-kpi").addEventListener("click", () => {
-        if (runsEnabled) {
-          renderKpi();
-          renderLatestRuns();
+      // Latest Runs rendering
+      const renderLatestRuns = async () => {
+        const tableBody = ui.qs("#latest-runs tbody");
+        const empty = ui.qs("#latest-runs-empty");
+        tableBody.innerHTML = "";
+
+        // Use /api/runs (proxied to gh-pages index.json)
+        const res = await app.apiFetchSafe("/api/runs");
+        if (!res.ok) {
+          empty.textContent = "未接続またはデータがありません";
+          empty.style.display = "block";
+          return;
         }
+
+        const list = (res.data || []).slice(0, 5);
+        if (!list.length) {
+          empty.style.display = "block";
+          return;
+        }
+        empty.style.display = "none";
+
+        list.forEach((run) => {
+          const row = ui.el("tr");
+          row.appendChild(ui.el("td", { text: run.run_id }));
+          row.appendChild(ui.el("td", { text: run.action || "-" }));
+          row.appendChild(ui.el("td", { text: run.inputs?.query || "-" }));
+          row.appendChild(ui.el("td", {
+            html: ui.badge(run.status, run.status === "succeeded" ? "success" : "danger").outerHTML
+          }));
+          row.appendChild(ui.el("td", { text: ui.formatDateTime(run.finished_at) }));
+
+          const links = ui.el("div");
+          if (run.outputs?.report_path) {
+            const baseUrl = app.getApiBase().replace("/api", "");
+            const reportUrl = `${baseUrl}/${run.outputs.report_path}`;
+            links.appendChild(ui.el("a", { text: "Report", attrs: { href: reportUrl, target: "_blank" } }));
+          }
+          row.appendChild(ui.el("td", { html: links.innerHTML }));
+
+          tableBody.appendChild(row);
+        });
+      };
+
+      // Run Dispatch logic
+      const runButton = ui.qs("#run-button");
+      const runQuery = ui.qs("#run-query");
+
+      runButton.addEventListener("click", async () => {
+        const query = runQuery.value.trim();
+        if (!query) {
+          ui.toast("Queryを入力してください", "warning");
+          return;
+        }
+
+        runButton.disabled = true;
+        ui.qs("#run-status-area").style.display = "block";
+        ui.qs("#progress-message").textContent = "Triggering GitHub Actions...";
+
+        const res = await app.apiFetchSafe("/api/run", {
+          method: "POST",
+          body: {
+            action: "report",
+            query: query,
+            max_papers: 10,
+            turnstile_token: "dummy-or-real-token" // 実際にはTurnstileウィジェットが必要
+          }
+        });
+
+        if (!res.ok) {
+          ui.toast(`失敗: ${res.error.message}`, "danger");
+          runButton.disabled = false;
+          return;
+        }
+
+        const run_id = res.data.run_id;
+        ui.qs("#current-run-id").textContent = run_id;
+        ui.toast(`Run開始: ${run_id}`, "success");
+
+        // Polling (simplified simulation as we don't have direct progress API in new spec)
+        // In real use, we would poll runs/<run_id>/progress.json from gh-pages
+        let pollCount = 0;
+        const interval = setInterval(async () => {
+          pollCount++;
+          const progress = Math.min(pollCount * 10, 95);
+          ui.qs("#progress-bar").style.width = `${progress}%`;
+          ui.qs("#progress-message").textContent = "Running on GitHub Actions (this may take 2-5 mins)...";
+
+          if (pollCount > 30) {
+            clearInterval(interval);
+            ui.qs("#progress-message").textContent = "Check 'Latest Runs' in a few minutes.";
+            runButton.disabled = false;
+            renderLatestRuns();
+          }
+        }, 5000);
       });
+
+      renderLatestRuns();
     };
 
     init();
   </script>
 </body>
+
+</html>
+</body>
+
 </html>
