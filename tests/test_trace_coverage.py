@@ -1,8 +1,5 @@
 """Tests for trace module - Comprehensive coverage (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestTraceModule:
     """Tests for trace module."""

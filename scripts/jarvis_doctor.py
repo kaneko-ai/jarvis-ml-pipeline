@@ -2,6 +2,7 @@
 
 Per RP-164, provides environment diagnostics.
 """
+
 from __future__ import annotations
 
 import sys
@@ -105,18 +106,21 @@ def check_pdf_engines() -> DiagnosticResult:
 
     try:
         import fitz
+
         engines.append("pymupdf")
     except ImportError:
         pass
 
     try:
         from pdfminer.high_level import extract_text
+
         engines.append("pdfminer")
     except ImportError:
         pass
 
     try:
         from PyPDF2 import PdfReader
+
         engines.append("pypdf2")
     except ImportError:
         pass

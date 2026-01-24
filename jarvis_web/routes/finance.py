@@ -1,9 +1,5 @@
-"""Finance and optimization API endpoints."""
-
-from __future__ import annotations
-
+import os
 from typing import Any, Dict, List
-
 from fastapi import APIRouter, Body, Query
 from fastapi.responses import JSONResponse, PlainTextResponse, FileResponse
 
@@ -14,6 +10,8 @@ from jarvis_core.optimization.report import generate_html, generate_markdown
 from jarvis_core.optimization.solver import choose_best, optimize
 from jarvis_core.time.schema import DEFAULT_TIME_SCHEMA, TimeSchema, VariableBlock
 
+# FEATURE FLAG: JARVIS_ENABLE_FINANCE
+ENABLE_FINANCE = os.environ.get("JARVIS_ENABLE_FINANCE", "0") == "1"
 
 router = APIRouter()
 

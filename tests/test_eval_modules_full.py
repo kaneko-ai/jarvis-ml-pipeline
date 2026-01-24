@@ -8,8 +8,6 @@ Tests for 0% coverage modules in jarvis_core/eval/:
 - noise_injection.py, quality_enhancer.py, etc.
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
 from pathlib import Path
 import tempfile
 import json
@@ -19,11 +17,13 @@ import json
 # Tests for text_quality.py
 # ============================================================
 
+
 class TestTextQualityResult:
     """Tests for TextQualityResult dataclass."""
 
     def test_default_values(self):
         from jarvis_core.eval.text_quality import TextQualityResult
+
         result = TextQualityResult()
         assert result.passed is True
         assert result.score == 0.0
@@ -32,6 +32,7 @@ class TestTextQualityResult:
 
     def test_to_dict(self):
         from jarvis_core.eval.text_quality import TextQualityResult
+
         result = TextQualityResult(
             passed=False,
             score=0.65,
@@ -49,16 +50,19 @@ class TestTextQualityAssurer:
 
     def test_init_default(self):
         from jarvis_core.eval.text_quality import TextQualityAssurer
+
         assurer = TextQualityAssurer()
         assert assurer.min_score == 0.7
 
     def test_init_custom(self):
         from jarvis_core.eval.text_quality import TextQualityAssurer
+
         assurer = TextQualityAssurer(min_score=0.9)
         assert assurer.min_score == 0.9
 
     def test_check_good_text(self):
         from jarvis_core.eval.text_quality import TextQualityAssurer
+
         assurer = TextQualityAssurer()
         text = """
         This is a comprehensive research paper on machine learning.
@@ -73,6 +77,7 @@ class TestTextQualityAssurer:
 
     def test_check_short_text(self):
         from jarvis_core.eval.text_quality import TextQualityAssurer
+
         assurer = TextQualityAssurer()
         text = "Short."
         result = assurer.check(text)
@@ -80,6 +85,7 @@ class TestTextQualityAssurer:
 
     def test_check_repetitive_text(self):
         from jarvis_core.eval.text_quality import TextQualityAssurer
+
         assurer = TextQualityAssurer()
         text = "This is a test. This is a test. This is a test. Another sentence."
         result = assurer.check(text)
@@ -87,42 +93,48 @@ class TestTextQualityAssurer:
 
     def test_check_length(self):
         from jarvis_core.eval.text_quality import TextQualityAssurer
+
         assurer = TextQualityAssurer()
         short_result = assurer._check_length("word " * 10)
         assert short_result["score"] == 0.3
-        
+
         long_result = assurer._check_length("word " * 6000)
         assert long_result["score"] == 0.6
-        
+
         normal_result = assurer._check_length("word " * 100)
         assert normal_result["score"] == 1.0
 
     def test_check_repetition(self):
         from jarvis_core.eval.text_quality import TextQualityAssurer
+
         assurer = TextQualityAssurer()
         result = assurer._check_repetition("Unique sentence. Another unique one.")
         assert result["score"] == 1.0
 
     def test_check_incomplete_sentences(self):
         from jarvis_core.eval.text_quality import TextQualityAssurer
+
         assurer = TextQualityAssurer()
         result = assurer._check_incomplete_sentences("This is complete. So is this.")
         assert result["score"] == 1.0
 
     def test_check_citation_format_none(self):
         from jarvis_core.eval.text_quality import TextQualityAssurer
+
         assurer = TextQualityAssurer()
         result = assurer._check_citation_format("No citations here.")
         assert result["score"] == 1.0
 
     def test_check_citation_format_consistent(self):
         from jarvis_core.eval.text_quality import TextQualityAssurer
+
         assurer = TextQualityAssurer()
         result = assurer._check_citation_format("As shown in [1], and confirmed in [2].")
         assert result["score"] == 1.0
 
     def test_check_coherence(self):
         from jarvis_core.eval.text_quality import TextQualityAssurer
+
         assurer = TextQualityAssurer()
         text = "First paragraph.\n\nHowever, second point.\n\nFurthermore, third point."
         result = assurer._check_coherence(text)
@@ -134,6 +146,7 @@ class TestCheckTextQuality:
 
     def test_check_text_quality_function(self):
         from jarvis_core.eval.text_quality import check_text_quality
+
         result = check_text_quality("Short text.", min_score=0.5)
         assert hasattr(result, "passed")
         assert hasattr(result, "score")
@@ -143,11 +156,13 @@ class TestCheckTextQuality:
 # Tests for validator.py
 # ============================================================
 
+
 class TestValidationResult:
     """Tests for ValidationResult dataclass."""
 
     def test_default_values(self):
         from jarvis_core.eval.validator import ValidationResult
+
         result = ValidationResult()
         assert result.passed is True
         assert result.errors == []
@@ -155,6 +170,7 @@ class TestValidationResult:
 
     def test_add_error(self):
         from jarvis_core.eval.validator import ValidationResult
+
         result = ValidationResult()
         result.add_error("E001", "Test error", line=10)
         assert len(result.errors) == 1
@@ -162,12 +178,14 @@ class TestValidationResult:
 
     def test_add_warning(self):
         from jarvis_core.eval.validator import ValidationResult
+
         result = ValidationResult()
         result.add_warning("W001", "Test warning")
         assert len(result.warnings) == 1
 
     def test_to_dict(self):
         from jarvis_core.eval.validator import ValidationResult
+
         result = ValidationResult()
         result.add_error("E001", "Error")
         d = result.to_dict()
@@ -180,19 +198,21 @@ class TestSchemaValidator:
 
     def test_validate_file_missing(self):
         from jarvis_core.eval.validator import SchemaValidator
+
         validator = SchemaValidator()
         result = validator.validate_file(Path("/nonexistent/file.json"))
         assert result.passed is False
 
     def test_validate_file_exists(self):
         from jarvis_core.eval.validator import SchemaValidator
+
         validator = SchemaValidator()
-        
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump({"goal": "test", "query": "q", "constraints": {}}, f)
             f.flush()
             result = validator.validate_file(Path(f.name))
-        
+
         # Just check it runs without error
         assert hasattr(result, "passed")
 
@@ -202,13 +222,15 @@ class TestEvidenceCoverageValidator:
 
     def test_init(self):
         from jarvis_core.eval.validator import EvidenceCoverageValidator
+
         validator = EvidenceCoverageValidator(min_coverage=0.8)
         assert validator.min_coverage == 0.8
 
     def test_validate_full_coverage(self):
         from jarvis_core.eval.validator import EvidenceCoverageValidator
+
         validator = EvidenceCoverageValidator()
-        
+
         claims = [
             {"claim_id": "c1", "text": "Claim 1"},
             {"claim_id": "c2", "text": "Claim 2"},
@@ -217,7 +239,7 @@ class TestEvidenceCoverageValidator:
             {"evidence_id": "e1", "claim_id": "c1"},
             {"evidence_id": "e2", "claim_id": "c2"},
         ]
-        
+
         result = validator.validate(claims, evidence)
         assert hasattr(result, "passed")
 
@@ -227,25 +249,27 @@ class TestLocatorValidator:
 
     def test_validate_with_locators(self):
         from jarvis_core.eval.validator import LocatorValidator
+
         validator = LocatorValidator()
-        
+
         evidence = [
             {"evidence_id": "e1", "locator": {"page": 1, "section": "intro"}},
             {"evidence_id": "e2", "locator": {"page": 2, "section": "methods"}},
         ]
-        
+
         result = validator.validate(evidence)
         assert hasattr(result, "passed")
 
     def test_validate_missing_locators(self):
         from jarvis_core.eval.validator import LocatorValidator
+
         validator = LocatorValidator()
-        
+
         evidence = [
             {"evidence_id": "e1"},
             {"evidence_id": "e2", "locator": None},
         ]
-        
+
         result = validator.validate(evidence)
         assert hasattr(result, "passed")
 
@@ -255,12 +279,13 @@ class TestHallucinationValidator:
 
     def test_validate_basic(self):
         from jarvis_core.eval.validator import HallucinationValidator
+
         validator = HallucinationValidator()
-        
+
         answer = "The results show that X is effective."
         evidence = [{"text": "X showed positive results in trials."}]
         claims = [{"claim_id": "c1", "text": "X is effective"}]
-        
+
         result = validator.validate(answer, evidence, claims)
         assert hasattr(result, "passed")
 
@@ -270,6 +295,7 @@ class TestValidateBundleFunction:
 
     def test_validate_bundle_nonexistent(self):
         from jarvis_core.eval.validator import validate_bundle
+
         result = validate_bundle(Path("/nonexistent/path"))
         assert result.passed is False
 
@@ -279,10 +305,10 @@ class TestValidateEvidenceCoverageFunction:
 
     def test_validate_evidence_coverage(self):
         from jarvis_core.eval.validator import validate_evidence_coverage
-        
+
         claims = [{"claim_id": "c1", "text": "Claim"}]
         evidence = [{"evidence_id": "e1", "claim_id": "c1"}]
-        
+
         result = validate_evidence_coverage(claims, evidence)
         assert hasattr(result, "passed")
 
@@ -291,11 +317,13 @@ class TestValidateEvidenceCoverageFunction:
 # Tests for extended_metrics.py (0% coverage)
 # ============================================================
 
+
 class TestExtendedMetrics:
     """Tests for extended_metrics module."""
 
     def test_import(self):
         from jarvis_core.eval import extended_metrics
+
         assert hasattr(extended_metrics, "__name__")
 
 
@@ -303,11 +331,13 @@ class TestExtendedMetrics:
 # Tests for noise_injection.py (0% coverage)
 # ============================================================
 
+
 class TestNoiseInjection:
     """Tests for noise_injection module."""
 
     def test_import(self):
         from jarvis_core.eval import noise_injection
+
         assert hasattr(noise_injection, "__name__")
 
 
@@ -315,11 +345,13 @@ class TestNoiseInjection:
 # Tests for score_paper.py (0% coverage)
 # ============================================================
 
+
 class TestScorePaper:
     """Tests for score_paper module."""
 
     def test_import(self):
         from jarvis_core.eval import score_paper
+
         assert hasattr(score_paper, "__name__")
 
 
@@ -327,11 +359,13 @@ class TestScorePaper:
 # Tests for live_runner.py (0% coverage)
 # ============================================================
 
+
 class TestLiveRunner:
     """Tests for live_runner module."""
 
     def test_import(self):
         from jarvis_core.eval import live_runner
+
         assert hasattr(live_runner, "__name__")
 
 
@@ -339,11 +373,13 @@ class TestLiveRunner:
 # Tests for citation_loop.py (0% coverage)
 # ============================================================
 
+
 class TestCitationLoop:
     """Tests for citation_loop module."""
 
     def test_import(self):
         from jarvis_core.eval import citation_loop
+
         assert hasattr(citation_loop, "__name__")
 
 
@@ -351,11 +387,13 @@ class TestCitationLoop:
 # Tests for claim_checker.py (0% coverage)
 # ============================================================
 
+
 class TestClaimChecker:
     """Tests for claim_checker module."""
 
     def test_import(self):
         from jarvis_core.eval import claim_checker
+
         assert hasattr(claim_checker, "__name__")
 
 
@@ -363,11 +401,13 @@ class TestClaimChecker:
 # Tests for claim_classifier.py (0% coverage)
 # ============================================================
 
+
 class TestClaimClassifier:
     """Tests for claim_classifier module."""
 
     def test_import(self):
         from jarvis_core.eval import claim_classifier
+
         assert hasattr(claim_classifier, "__name__")
 
 
@@ -375,11 +415,13 @@ class TestClaimClassifier:
 # Tests for drift.py (0% coverage)
 # ============================================================
 
+
 class TestDrift:
     """Tests for drift module."""
 
     def test_import(self):
         from jarvis_core.eval import drift
+
         assert hasattr(drift, "__name__")
 
 
@@ -387,11 +429,13 @@ class TestDrift:
 # Tests for failure_taxonomy.py (0% coverage)
 # ============================================================
 
+
 class TestFailureTaxonomy:
     """Tests for failure_taxonomy module."""
 
     def test_import(self):
         from jarvis_core.eval import failure_taxonomy
+
         assert hasattr(failure_taxonomy, "__name__")
 
 
@@ -399,11 +443,13 @@ class TestFailureTaxonomy:
 # Tests for quality_enhancer.py (0% coverage)
 # ============================================================
 
+
 class TestQualityEnhancer:
     """Tests for quality_enhancer module."""
 
     def test_import(self):
         from jarvis_core.eval import quality_enhancer
+
         assert hasattr(quality_enhancer, "__name__")
 
 
@@ -411,11 +457,13 @@ class TestQualityEnhancer:
 # Tests for regression.py (0% coverage)
 # ============================================================
 
+
 class TestRegression:
     """Tests for regression module."""
 
     def test_import(self):
         from jarvis_core.eval import regression
+
         assert hasattr(regression, "__name__")
 
 
@@ -423,9 +471,11 @@ class TestRegression:
 # Tests for judge_v2.py (0% coverage)
 # ============================================================
 
+
 class TestJudgeV2:
     """Tests for judge_v2 module."""
 
     def test_import(self):
         from jarvis_core.eval import judge_v2
+
         assert hasattr(judge_v2, "__name__")

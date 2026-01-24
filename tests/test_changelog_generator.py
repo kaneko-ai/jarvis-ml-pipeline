@@ -1,6 +1,5 @@
 """Tests for submission.changelog_generator module."""
 
-from pathlib import Path
 from unittest.mock import MagicMock
 
 from jarvis_core.submission.changelog_generator import (
@@ -28,9 +27,9 @@ class TestBuildSummary:
         diff_report.docx_sections = []
         diff_report.md_sections = []
         diff_report.pptx_sections = []
-        
+
         summary = _build_summary(diff_report, {})
-        
+
         assert any("初回提出" in s or "差分なし" in s for s in summary)
 
     def test_with_changes(self):
@@ -38,9 +37,9 @@ class TestBuildSummary:
         diff_report.docx_sections = [MagicMock()]
         diff_report.md_sections = []
         diff_report.pptx_sections = []
-        
+
         summary = _build_summary(diff_report, {})
-        
+
         assert any("変更箇所 1 件" in s for s in summary)
 
     def test_with_qa_errors(self):
@@ -48,10 +47,10 @@ class TestBuildSummary:
         diff_report.docx_sections = []
         diff_report.md_sections = []
         diff_report.pptx_sections = []
-        
+
         checklist = {"qa": {"errors": 3}}
         summary = _build_summary(diff_report, checklist)
-        
+
         assert any("QA ERROR: 3" in s for s in summary)
 
 
@@ -74,7 +73,7 @@ class TestBuildReasonGroups:
             ]
         }
         result = _build_reason_groups(checklist)
-        
+
         assert "カテゴリA" in result
         assert len(result["カテゴリA"]) == 2
         assert "カテゴリB" in result
@@ -87,13 +86,13 @@ class TestGenerateChangelog:
         diff_report.docx_sections = []
         diff_report.md_sections = []
         diff_report.pptx_sections = []
-        
+
         checklist = {
             "impact": {"has_impact": False, "details": ""},
             "qa": {"errors": 0, "warnings": 0},
             "checks": [],
         }
-        
+
         output_path = tmp_path / "changelog.md"
         result = generate_changelog(
             run_id="test_run",
@@ -103,7 +102,7 @@ class TestGenerateChangelog:
             attachments=["file1.docx"],
             output_path=output_path,
         )
-        
+
         assert isinstance(result, ChangeLogResult)
         assert output_path.exists()
         content = output_path.read_text(encoding="utf-8")

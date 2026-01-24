@@ -1,4 +1,5 @@
 import pytest
+
 """Tests for Phase ﾎｩ (Research OS v2.0 Core).
 
 Tests ﾎｩ-1 to ﾎｩ-10 modules.
@@ -8,7 +9,10 @@ from jarvis_core.autonomous_loop import get_intervention_summary, run_autonomous
 from jarvis_core.experimental.career_planner import plan_career_strategy
 from jarvis_core.cross_field import find_cross_field_opportunities
 from jarvis_core.experimental.failure_simulator import simulate_failure_tree
-from jarvis_core.experimental.grant_optimizer import optimize_grant_proposal, suggest_grant_improvements
+from jarvis_core.experimental.grant_optimizer import (
+    optimize_grant_proposal,
+    suggest_grant_improvements,
+)
 from jarvis_core.knowledge_graph import build_knowledge_graph
 from jarvis_core.experimental.lab_optimizer import optimize_lab_resources
 from jarvis_core.living_review import generate_living_review, update_living_review
@@ -64,6 +68,7 @@ def _create_test_vectors():
         ),
     ]
 
+
 @pytest.mark.slow
 class TestAutonomousLoop:
     """ﾎｩ-1 tests."""
@@ -90,6 +95,7 @@ class TestAutonomousLoop:
         result = run_autonomous_research_loop([], ["CD73"])
         assert result["status"] == "no_input"
 
+
 class TestCrossField:
     """ﾎｩ-5 tests."""
 
@@ -101,6 +107,7 @@ class TestCrossField:
     def test_empty_safe(self):
         opps = find_cross_field_opportunities([])
         assert opps == []
+
 
 class TestFailureSimulator:
     """ﾎｩ-7 tests."""
@@ -121,6 +128,7 @@ class TestFailureSimulator:
         tree = simulate_failure_tree("test", vectors)
         assert len(tree["mitigation_strategies"]) > 0
 
+
 class TestLivingReview:
     """ﾎｩ-8 tests."""
 
@@ -135,6 +143,7 @@ class TestLivingReview:
         review = generate_living_review(vectors, "CD73")
         updated = update_living_review(review, vectors)
         assert updated["version"] == 2
+
 
 class TestKnowledgeGraph:
     """ﾎｩ-9 tests."""
@@ -151,6 +160,7 @@ class TestKnowledgeGraph:
         sim = graph.get_hybrid_similarity("p1", "p2")
         assert 0 <= sim <= 1
 
+
 class TestGrantOptimizer:
     """ﾎｩ-2 tests."""
 
@@ -164,6 +174,7 @@ class TestGrantOptimizer:
         result = {"alignment": 0.3, "novelty": 0.3, "risks": ["莠亥ｙ繝・・繧ｿ荳崎ｶｳ"]}
         suggestions = suggest_grant_improvements(result)
         assert len(suggestions) > 0
+
 
 class TestReviewerPersona:
     """ﾎｩ-3 tests."""
@@ -179,6 +190,7 @@ class TestReviewerPersona:
         all_fb = generate_all_reviewer_feedback(vectors)
         assert len(all_fb) == 3
 
+
 class TestLabOptimizer:
     """ﾎｩ-4 tests."""
 
@@ -186,6 +198,7 @@ class TestLabOptimizer:
         vectors = _create_test_vectors()
         result = optimize_lab_resources("CD73 experiment", vectors)
         assert "path" in result
+
 
 class TestCareerPlanner:
     """ﾎｩ-6 tests."""
@@ -195,6 +208,7 @@ class TestCareerPlanner:
         plan = plan_career_strategy(vectors, "phd")
         assert plan["stage"] == "phd"
         assert len(plan["recommendations"]) > 0
+
 
 class TestPISupport:
     """ﾎｩ-10 tests."""

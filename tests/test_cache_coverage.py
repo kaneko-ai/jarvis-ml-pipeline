@@ -1,9 +1,6 @@
 """Tests for cache module - Coverage improvement (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
 import tempfile
-import os
 
 
 class TestCacheLevel:
@@ -51,7 +48,7 @@ class TestCacheStats:
 
         stats = CacheStats(l1_hits=10, l2_hits=5, misses=5, writes=15)
         result = stats.to_dict()
-        
+
         assert result["l1_hits"] == 10
         assert result["l2_hits"] == 5
         assert result["misses"] == 5
@@ -84,7 +81,7 @@ class TestMultiLevelCache:
 
         cache = MultiLevelCache()
         cache.put("test_key", {"data": "value"}, write_l2=False)
-        
+
         value, level = cache.get("test_key")
         assert value == {"data": "value"}
         assert level == CacheLevel.L1_MEMORY
@@ -95,7 +92,7 @@ class TestMultiLevelCache:
 
         cache = MultiLevelCache()
         value, level = cache.get("nonexistent")
-        
+
         assert value is None
         assert level == CacheLevel.MISS
 
@@ -107,11 +104,11 @@ class TestMultiLevelCache:
             # Write to cache
             cache1 = MultiLevelCache(l2_path=tmpdir)
             cache1.put("persistent_key", "persistent_value")
-            
+
             # Create new cache instance to test L2 read
             cache2 = MultiLevelCache(l2_path=tmpdir)
             value, level = cache2.get("persistent_key")
-            
+
             assert value == "persistent_value"
             assert level == CacheLevel.L2_DISK
 
@@ -122,20 +119,20 @@ class TestMultiLevelCache:
         cache = MultiLevelCache()
         cache.put("key_to_delete", "value")
         cache.invalidate("key_to_delete")
-        
+
         value, level = cache.get("key_to_delete")
         assert value is None
         assert level == CacheLevel.MISS
 
     def test_clear(self):
         """Test clearing all cache."""
-        from jarvis_core.cache.multi_level import MultiLevelCache, CacheLevel
+        from jarvis_core.cache.multi_level import MultiLevelCache
 
         cache = MultiLevelCache()
         cache.put("key1", "value1", write_l2=False)
         cache.put("key2", "value2", write_l2=False)
         cache.clear()
-        
+
         value1, _ = cache.get("key1")
         value2, _ = cache.get("key2")
         assert value1 is None
@@ -149,7 +146,7 @@ class TestMultiLevelCache:
         cache.put("key", "value", write_l2=False)
         cache.get("key")
         cache.get("missing")
-        
+
         stats = cache.get_stats()
         assert stats["writes"] == 1
         assert stats["l1_hits"] == 1
@@ -164,7 +161,7 @@ class TestMultiLevelCache:
         cache.put("key2", "value2", write_l2=False)
         cache.put("key3", "value3", write_l2=False)
         cache.put("key4", "value4", write_l2=False)
-        
+
         # First key should be evicted
         assert "key1" not in cache.l1_cache
 

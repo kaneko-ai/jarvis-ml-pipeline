@@ -105,9 +105,7 @@ def write_failures_md(output_path: Path, failures: Iterable[dict[str, Any]]) -> 
         for failure in failures:
             message = failure["message"].replace("\n", "<br>")
             files = "<br>".join(failure["files"]) if failure["files"] else ""
-            handle.write(
-                f"| {failure['nodeid']} | {failure['outcome']} | {message} | {files} |\n"
-            )
+            handle.write(f"| {failure['nodeid']} | {failure['outcome']} | {message} | {files} |\n")
 
 
 def main() -> int:

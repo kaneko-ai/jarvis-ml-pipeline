@@ -93,6 +93,7 @@ class TestLoadTrainTest:
             with pytest.raises(ValueError, match="Label column"):
                 load_train_test(str(train_path), str(test_path), "Class")
 
+
 class TestValidateSchema:
     """validate_schema テスト."""
 
@@ -103,6 +104,7 @@ class TestValidateSchema:
         y_train = pd.Series([0, 1])
 
         assert validate_schema(X_train, X_test, y_train) is True
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

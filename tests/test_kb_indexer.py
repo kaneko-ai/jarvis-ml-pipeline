@@ -9,6 +9,7 @@ def _write_jsonl(path: Path, rows: list[dict]) -> None:
         for row in rows:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
+
 def test_kb_indexer_preserves_manual_sections(tmp_path: Path):
     run_dir = tmp_path / "run-1"
     run_dir.mkdir()

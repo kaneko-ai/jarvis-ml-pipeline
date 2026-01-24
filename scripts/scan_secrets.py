@@ -2,6 +2,7 @@
 
 Per RP-158, scans for leaked secrets in code and logs.
 """
+
 from __future__ import annotations
 
 import re
@@ -27,18 +28,18 @@ SECRET_PATTERNS = [
     (r"(?:api[_-]?key|apikey)\s*[=:]\s*['\"]?([a-zA-Z0-9_\-]{20,})['\"]?", "API Key", "high"),
     (r"sk-[a-zA-Z0-9]{32,}", "OpenAI Key", "high"),
     (r"AIza[a-zA-Z0-9_\-]{35}", "Google API Key", "high"),
-
     # AWS
     (r"AKIA[A-Z0-9]{16}", "AWS Access Key", "high"),
-    (r"(?:aws[_-]?secret|secret[_-]?key)\s*[=:]\s*['\"]?([a-zA-Z0-9/+=]{40})['\"]?", "AWS Secret", "high"),
-
+    (
+        r"(?:aws[_-]?secret|secret[_-]?key)\s*[=:]\s*['\"]?([a-zA-Z0-9/+=]{40})['\"]?",
+        "AWS Secret",
+        "high",
+    ),
     # Generic Secrets
     (r"(?:password|passwd|pwd)\s*[=:]\s*['\"]([^'\"]{8,})['\"]", "Password", "high"),
     (r"(?:token|auth[_-]?token)\s*[=:]\s*['\"]?([a-zA-Z0-9_\-]{20,})['\"]?", "Token", "medium"),
-
     # Private Keys
     (r"-----BEGIN (?:RSA|DSA|EC|OPENSSH) PRIVATE KEY-----", "Private Key", "high"),
-
     # Database
     (r"(?:mongo|mysql|postgres)://[^:]+:[^@]+@", "Database URL", "high"),
 ]
@@ -72,13 +73,15 @@ def scan_text(text: str, filename: str = "unknown") -> List[SecretMatch]:
                 else:
                     redacted = matched_text[:3] + "..."
 
-                matches.append(SecretMatch(
-                    file=filename,
-                    line=line_num,
-                    pattern_name=name,
-                    matched_text=redacted,
-                    severity=severity,
-                ))
+                matches.append(
+                    SecretMatch(
+                        file=filename,
+                        line=line_num,
+                        pattern_name=name,
+                        matched_text=redacted,
+                        severity=severity,
+                    )
+                )
 
     return matches
 

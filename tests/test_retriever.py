@@ -40,6 +40,7 @@ class TestTokenize:
         tokens = tokenize("これはテストです")
         assert len(tokens) > 0
 
+
 class TestBM25Retriever:
     """Tests for BM25Retriever."""
 
@@ -110,6 +111,7 @@ class TestBM25Retriever:
         for result in results:
             assert self.store.has_chunk(result.chunk_id)
 
+
 class TestGetRelevantChunks:
     """Tests for convenience function."""
 
@@ -160,6 +162,7 @@ class TestGetRelevantChunks:
         for r in results:
             assert store.has_chunk(r.chunk_id)
 
+
 class TestExecutionContextRetrieval:
     """Tests for ExecutionContext retrieval integration."""
 
@@ -191,6 +194,7 @@ class TestExecutionContextRetrieval:
         assert "chunk_id" in previews[0]
         assert "locator" in previews[0]
         assert "preview" in previews[0]
+
 
 class TestIntegration:
     """Integration tests for full retrieval pipeline."""

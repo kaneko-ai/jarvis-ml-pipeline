@@ -57,6 +57,7 @@ class TestGoldsetIndex:
             assert len(results) > 0
             assert results[0][0].context == "論文RAG設計"
 
+
 class TestMandatorySearchJudge:
     """MandatorySearchJudge テスト."""
 
@@ -104,6 +105,7 @@ class TestMandatorySearchJudge:
 
             # 必須セクションが含まれること
             assert "類似判断" in output or "今回の判断" in output
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

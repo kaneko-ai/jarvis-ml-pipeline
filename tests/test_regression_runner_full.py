@@ -1,8 +1,5 @@
 """Comprehensive tests for eval/regression_runner.py - 10 tests for 41% -> 90% coverage (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestRegressionRunnerModule:
     """Tests for regression_runner module."""

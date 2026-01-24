@@ -13,6 +13,7 @@ class DummyLLM:
     def chat(self, messages):  # pragma: no cover - simple stub
         return "dummy answer"
 
+
 def test_registry_loads_agents_from_yaml():
     registry = AgentRegistry.from_file(Path("configs/agents.yaml"))
 
@@ -23,6 +24,7 @@ def test_registry_loads_agents_from_yaml():
     job_agents = {agent.name for agent in registry.get_agents_for_category("job_hunting")}
     assert "job_assistant" in job_agents
     assert "es_edit" in job_agents
+
 
 def test_registry_instantiates_agent_stub():
     registry = AgentRegistry.from_file(Path("configs/agents.yaml"))

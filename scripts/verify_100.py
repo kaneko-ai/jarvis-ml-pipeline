@@ -130,7 +130,9 @@ def check_quality_metrics(run_dir: Path) -> tuple[bool, str, dict]:
     # evidence_coverage チェック (provenance_rate代替)
     evidence_coverage = metrics.get("evidence_coverage", 0)
     if evidence_coverage < QUALITY_THRESHOLDS["provenance_rate"]:
-        issues.append(f"evidence_coverage={evidence_coverage:.2f} < {QUALITY_THRESHOLDS['provenance_rate']}")
+        issues.append(
+            f"evidence_coverage={evidence_coverage:.2f} < {QUALITY_THRESHOLDS['provenance_rate']}"
+        )
 
     if issues:
         return False, "; ".join(issues), metrics
@@ -173,6 +175,7 @@ def check_api_health(base_url: str = "http://localhost:8000") -> tuple[bool, str
     """Dashboard API healthチェック."""
     try:
         import urllib.request
+
         endpoints = ["/api/runs", "/api/health"]
         for endpoint in endpoints:
             url = f"{base_url}{endpoint}"

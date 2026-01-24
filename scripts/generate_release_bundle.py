@@ -2,6 +2,7 @@
 
 Per RP-222, generates release bundle with all artifacts.
 """
+
 from __future__ import annotations
 
 import shutil
@@ -84,9 +85,7 @@ python scripts/bench.py --cases docs/evals/bench_cases.jsonl
         "files": [f.name for f in out_path.iterdir()],
     }
 
-    (out_path / "manifest.json").write_text(
-        json.dumps(manifest, indent=2), encoding="utf-8"
-    )
+    (out_path / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
     print(f"Release bundle generated: {out_path}")
 

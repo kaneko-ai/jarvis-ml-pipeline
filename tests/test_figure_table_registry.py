@@ -34,7 +34,7 @@ class TestScanText:
     def test_figure_placeholder_found(self):
         text = "[[FIGURE_PLACEHOLDER:FIG1]] shows the result. See Fig. 1."
         result = scan_text(text)
-        
+
         assert len(result["figures"]) == 1
         assert result["figures"][0]["fig_id"] == "FIG1"
         assert result["figures"][0]["referenced_in_text"] is True
@@ -42,7 +42,7 @@ class TestScanText:
     def test_table_placeholder_found(self):
         text = "[[TABLE_PLACEHOLDER:TABLE1]] displays data. Table 1 shows values."
         result = scan_text(text)
-        
+
         assert len(result["tables"]) == 1
         assert result["tables"][0]["fig_id"] == "TABLE1"
         assert result["tables"][0]["referenced_in_text"] is True
@@ -50,7 +50,7 @@ class TestScanText:
     def test_missing_reference_issue(self):
         text = "[[FIGURE_PLACEHOLDER:FIG1]] here."
         result = scan_text(text)
-        
+
         assert len(result["figures"]) == 1
         assert result["figures"][0]["referenced_in_text"] is False
         assert any(i["issue_type"] == "missing_reference" for i in result["issues"])
@@ -58,19 +58,19 @@ class TestScanText:
     def test_duplicate_id_issue(self):
         text = "[[FIGURE_PLACEHOLDER:FIG1]] and [[FIGURE_PLACEHOLDER:FIG1]] again."
         result = scan_text(text)
-        
+
         assert any(i["issue_type"] == "duplicate_id" for i in result["issues"])
 
     def test_non_sequential_numbers_issue(self):
         text = "[[FIGURE_PLACEHOLDER:FIG1]] and [[FIGURE_PLACEHOLDER:FIG3]]. Fig. 1 and Fig. 3."
         result = scan_text(text)
-        
+
         assert any(i["issue_type"] == "non_sequential_number" for i in result["issues"])
 
     def test_no_placeholders(self):
         text = "Normal text without any placeholders."
         result = scan_text(text)
-        
+
         assert len(result["figures"]) == 0
         assert len(result["tables"]) == 0
         assert len(result["issues"]) == 0
@@ -82,7 +82,7 @@ class TestScanText:
         Figure 1 and Fig. 2 show results.
         """
         result = scan_text(text)
-        
+
         assert len(result["figures"]) == 2
         # Should not have non_sequential issue
         non_seq_issues = [i for i in result["issues"] if i["issue_type"] == "non_sequential_number"]

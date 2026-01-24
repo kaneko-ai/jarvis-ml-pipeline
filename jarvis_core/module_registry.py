@@ -73,7 +73,10 @@ def _init_registry():
         "cross_field", "research_os", "Cross-field innovation", file_path="cross_field.py"
     )
     register_module(
-        "failure_simulator", "research_os", "Failure simulation", file_path="experimental/failure_simulator.py"
+        "failure_simulator",
+        "research_os",
+        "Failure simulation",
+        file_path="experimental/failure_simulator.py",
     )
     register_module(
         "living_review", "research_os", "Living review generator", file_path="living_review.py"
@@ -82,23 +85,39 @@ def _init_registry():
         "knowledge_graph", "research_os", "Knowledge graph", file_path="knowledge_graph.py"
     )
     register_module(
-        "grant_optimizer", "research_os", "Grant optimization", file_path="experimental/grant_optimizer.py"
+        "grant_optimizer",
+        "research_os",
+        "Grant optimization",
+        file_path="experimental/grant_optimizer.py",
     )
     register_module(
         "reviewer_persona", "research_os", "Reviewer personas", file_path="reviewer_persona.py"
     )
     register_module(
-        "lab_optimizer", "research_os", "Lab resource optimization", file_path="experimental/lab_optimizer.py"
+        "lab_optimizer",
+        "research_os",
+        "Lab resource optimization",
+        file_path="experimental/lab_optimizer.py",
     )
     register_module(
-        "career_planner", "research_os", "Career planning", file_path="experimental/career_planner.py"
+        "career_planner",
+        "research_os",
+        "Career planning",
+        file_path="experimental/career_planner.py",
     )
-    register_module("pi_support", "research_os", "PI decision support", file_path="experimental/pi_support.py")
+    register_module(
+        "pi_support", "research_os", "PI decision support", file_path="experimental/pi_support.py"
+    )
 
     # Phase Ψ modules
-    register_module("roi_engine", "decision", "Research ROI calculation", file_path="experimental/roi_engine.py")
     register_module(
-        "negative_results", "decision", "Negative results vault", file_path="experimental/negative_results.py"
+        "roi_engine", "decision", "Research ROI calculation", file_path="experimental/roi_engine.py"
+    )
+    register_module(
+        "negative_results",
+        "decision",
+        "Negative results vault",
+        file_path="experimental/negative_results.py",
     )
     register_module(
         "reproducibility_cert",
@@ -107,7 +126,10 @@ def _init_registry():
         file_path="experimental/reproducibility_cert.py",
     )
     register_module(
-        "lab_to_startup", "decision", "Lab to startup translation", file_path="experimental/lab_to_startup.py"
+        "lab_to_startup",
+        "decision",
+        "Lab to startup translation",
+        file_path="experimental/lab_to_startup.py",
     )
     register_module(
         "clinical_readiness",
@@ -126,10 +148,16 @@ def _init_registry():
     )
 
     # Analysis modules
-    register_module("gap_analysis", "analysis", "Research gap scoring", file_path="experimental/gap_analysis.py")
+    register_module(
+        "gap_analysis", "analysis", "Research gap scoring", file_path="experimental/gap_analysis.py"
+    )
     register_module("hypothesis", "analysis", "Hypothesis generation", file_path="hypothesis.py")
-    register_module("feasibility", "analysis", "Experiment feasibility", file_path="experimental/feasibility.py")
-    register_module("paradigm", "analysis", "Paradigm shift detection", file_path="experimental/paradigm.py")
+    register_module(
+        "feasibility", "analysis", "Experiment feasibility", file_path="experimental/feasibility.py"
+    )
+    register_module(
+        "paradigm", "analysis", "Paradigm shift detection", file_path="experimental/paradigm.py"
+    )
     register_module("heatmap", "analysis", "Concept heatmap", file_path="experimental/heatmap.py")
 
     # Paper vector modules
@@ -137,7 +165,9 @@ def _init_registry():
         "recommendation", "paper_vector", "Paper recommendation", file_path="recommendation.py"
     )
     register_module("comparison", "paper_vector", "Paper comparison", file_path="comparison.py")
-    register_module("timeline", "paper_vector", "Timeline tracking", file_path="experimental/timeline.py")
+    register_module(
+        "timeline", "paper_vector", "Timeline tracking", file_path="experimental/timeline.py"
+    )
     register_module("memory", "paper_vector", "Research memory", file_path="memory.py")
 
     # Workflows

@@ -1,6 +1,5 @@
 """Comprehensive tests for api/pubmed.py - 15 tests for 27% -> 90% coverage."""
 
-import pytest
 from unittest.mock import Mock, patch
 
 

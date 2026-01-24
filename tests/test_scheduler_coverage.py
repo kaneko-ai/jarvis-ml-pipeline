@@ -1,8 +1,5 @@
 """Tests for scheduler module - Comprehensive coverage (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestSchedulerModule:
     """Tests for scheduler module."""

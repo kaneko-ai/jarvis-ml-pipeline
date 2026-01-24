@@ -1,7 +1,5 @@
 """Tests for submission.diff_engine module."""
 
-from pathlib import Path
-
 from jarvis_core.submission.diff_engine import (
     SectionDiff,
     DiffReport,
@@ -46,35 +44,35 @@ class TestDiffSections:
     def test_no_change(self):
         old = [("Section1", "Same content")]
         new = [("Section1", "Same content")]
-        
+
         diffs = diff_sections(old, new)
-        
+
         assert len(diffs) == 0
 
     def test_new_section_added(self):
         old = []
         new = [("NewSection", "New content")]
-        
+
         diffs = diff_sections(old, new)
-        
+
         assert len(diffs) == 1
         assert "追加" in diffs[0].summary
 
     def test_section_deleted(self):
         old = [("OldSection", "Old content")]
         new = []
-        
+
         diffs = diff_sections(old, new)
-        
+
         assert len(diffs) == 1
         assert "削除" in diffs[0].summary
 
     def test_section_modified(self):
         old = [("Section", "Original text here")]
         new = [("Section", "Completely different text now")]
-        
+
         diffs = diff_sections(old, new)
-        
+
         assert len(diffs) == 1
         assert "更新" in diffs[0].summary
 
@@ -83,9 +81,9 @@ class TestExtractMdSections:
     def test_extract_from_md_file(self, tmp_path):
         md_file = tmp_path / "test.md"
         md_file.write_text("# Section 1\nContent 1\n\n# Section 2\nContent 2\n")
-        
+
         sections = extract_md_sections(md_file)
-        
+
         assert len(sections) == 2
         assert sections[0][0] == "Section 1"
         assert sections[1][0] == "Section 2"

@@ -13,10 +13,12 @@ from unittest.mock import MagicMock, patch
 google_stub = types.ModuleType("google")
 google_genai_stub = types.ModuleType("google.genai")
 
+
 class _DummyErrors:
     class ServerError(Exception): ...
 
     class ClientError(Exception): ...
+
 
 google_genai_stub.errors = _DummyErrors
 google_stub.genai = google_genai_stub
@@ -35,6 +37,7 @@ class DummyPlanner(Planner):
     def plan(self, task: Task):
         return [task]
 
+
 class DummyRouter:
     """Router that returns a fixed answer without LLM calls."""
 
@@ -51,6 +54,7 @@ class DummyRouter:
             meta={"source": "dummy"},
         )
 
+
 def test_run_jarvis_uses_execution_engine():
     """Verify run_jarvis() produces a string answer via run_task."""
     # run_jarvis uses app.run_task internally, not ExecutionEngine directly
@@ -61,6 +65,7 @@ def test_run_jarvis_uses_execution_engine():
     with patch("jarvis_core.app.run_task", return_value=mock_result):
         result = run_jarvis("test goal")
         assert result == "mocked answer"
+
 
 def test_run_jarvis_returns_string():
     """Verify run_jarvis() returns a string."""
@@ -78,6 +83,7 @@ def test_run_jarvis_returns_string():
 
         assert isinstance(result, str)
 
+
 def test_run_jarvis_with_category():
     """Verify category argument is passed to run_task correctly."""
     captured_dict = None
@@ -94,6 +100,7 @@ def test_run_jarvis_with_category():
 
         assert captured_dict is not None
         assert captured_dict["category"] == "thesis"
+
 
 def test_run_jarvis_with_invalid_category_defaults_to_generic():
     """Verify invalid category is passed through to run_task."""
@@ -113,6 +120,7 @@ def test_run_jarvis_with_invalid_category_defaults_to_generic():
         # Invalid category is passed as-is; run_task handles validation
         assert captured_dict["category"] == "invalid_category"
 
+
 def test_run_and_get_answer_returns_last_answer():
     """Verify ExecutionEngine.run_and_get_answer() extracts the final answer."""
     planner = DummyPlanner()
@@ -130,6 +138,7 @@ def test_run_and_get_answer_returns_last_answer():
 
     assert result == "expected answer"
     assert len(router.calls) == 1
+
 
 def test_run_and_get_answer_empty_when_no_subtasks():
     """Verify run_and_get_answer() returns empty string when no subtasks."""

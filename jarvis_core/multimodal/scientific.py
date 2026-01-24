@@ -440,7 +440,7 @@ class FormulaCalculator:
 
     def evaluate(self, formula: str, variables: dict[str, float]) -> float | None:
         """Evaluate simple formula safely using AST.
-        
+
         Supports basic arithmetic (+, -, *, /, **, parenthesized expressions)
         and provided variables.
         """
@@ -449,12 +449,12 @@ class FormulaCalculator:
 
         # Supported operators
         operators = {
-            ast.Add: op.add, 
-            ast.Sub: op.sub, 
+            ast.Add: op.add,
+            ast.Sub: op.sub,
             ast.Mult: op.mul,
-            ast.Div: op.truediv, 
-            ast.Pow: op.pow, 
-            ast.USub: op.neg
+            ast.Div: op.truediv,
+            ast.Pow: op.pow,
+            ast.USub: op.neg,
         }
 
         def eval_node(node):
@@ -479,7 +479,7 @@ class FormulaCalculator:
         try:
             # Parse formula into AST
             # We use eval mode to ensure it's an expression
-            tree = ast.parse(formula, mode='eval')
+            tree = ast.parse(formula, mode="eval")
             return float(eval_node(tree.body))
         except Exception:
             return None

@@ -1,8 +1,5 @@
 """Comprehensive tests for cross_field.py - 10 tests for 47% -> 90% coverage."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestCrossFieldModule:
     """Tests for cross_field module."""

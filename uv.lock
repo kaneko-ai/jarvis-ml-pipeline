@@ -941,7 +941,9 @@ version = "5.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "pandas" },
+    { name = "pydantic" },
     { name = "pyyaml" },
+    { name = "rank-bm25" },
     { name = "requests" },
 ]
 
@@ -1025,6 +1027,7 @@ requires-dist = [
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0" },
     { name = "numpy", marker = "extra == 'ml'", specifier = ">=1.24.0" },
     { name = "pandas", specifier = ">=2.0.0" },
+    { name = "pydantic", specifier = ">=2.0.0" },
     { name = "pymupdf", marker = "extra == 'pdf'", specifier = ">=1.22.0" },
     { name = "pypdf2", marker = "extra == 'pdf'", specifier = ">=3.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0" },
@@ -1034,6 +1037,7 @@ requires-dist = [
     { name = "python-multipart", marker = "extra == 'web'", specifier = ">=0.0.6" },
     { name = "python-pptx", marker = "extra == 'pdf'", specifier = ">=0.6.21" },
     { name = "pyyaml", specifier = ">=6.0" },
+    { name = "rank-bm25", specifier = ">=0.2.2" },
     { name = "rank-bm25", marker = "extra == 'embedding'", specifier = ">=0.2.2" },
     { name = "reportlab", marker = "extra == 'pdf'", specifier = ">=4.0" },
     { name = "requests", specifier = ">=2.28.0" },

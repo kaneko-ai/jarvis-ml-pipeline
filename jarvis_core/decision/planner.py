@@ -19,10 +19,10 @@ class PlanTimeAssessment:
 
 def build_mvp_plan(option) -> dict:
     """Build MVP plan for an option.
-    
+
     Args:
         option: Option object with goal, theme, time_horizon_months
-        
+
     Returns:
         Dictionary with MVP plan phases
     """
@@ -30,17 +30,21 @@ def build_mvp_plan(option) -> dict:
         "phase1": "initial_setup",
         "phase2": "core_development",
         "phase3": "validation",
-        "timeline_months": option.time_horizon_months.value if hasattr(option.time_horizon_months, 'value') else option.time_horizon_months,
+        "timeline_months": (
+            option.time_horizon_months.value
+            if hasattr(option.time_horizon_months, "value")
+            else option.time_horizon_months
+        ),
         "goal": option.goal,
     }
 
 
 def build_kill_criteria(option) -> list[str]:
     """Build kill criteria for an option.
-    
+
     Args:
         option: Option object
-        
+
     Returns:
         List of kill criteria strings
     """
@@ -79,4 +83,3 @@ def assess_plan_time(plan: dict[str, float], time_schema: TimeSchema) -> PlanTim
         delay_cost=delay_cost,
         notes=notes,
     )
-

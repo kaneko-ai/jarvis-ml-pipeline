@@ -1,6 +1,5 @@
 """Tests for workflow presets module."""
 
-import pytest
 from jarvis_core.workflows.presets import (
     WorkflowPreset,
     PRESETS,
@@ -8,6 +7,7 @@ from jarvis_core.workflows.presets import (
     list_presets,
     apply_preset,
 )
+
 
 class TestWorkflowPreset:
     def test_preset_init(self):
@@ -17,21 +17,18 @@ class TestWorkflowPreset:
             workflow="flow",
             max_inputs=5,
             review_mode=True,
-            depth="deep"
+            depth="deep",
         )
         assert preset.name == "test"
         assert preset.depth == "deep"
 
     def test_to_dict(self):
-        preset = WorkflowPreset(
-            name="test",
-            description="desc",
-            workflow="flow"
-        )
+        preset = WorkflowPreset(name="test", description="desc", workflow="flow")
         data = preset.to_dict()
         assert data["name"] == "test"
         assert data["workflow"] == "flow"
         assert data["max_inputs"] == 1  # Default
+
 
 class TestPresetFunctions:
     def test_get_preset_valid(self):
@@ -57,6 +54,7 @@ class TestPresetFunctions:
     def test_apply_preset_invalid(self):
         config = apply_preset("nonexistent")
         assert config == {}
+
 
 class TestPresetIntegrity:
     def test_all_presets_valid(self):

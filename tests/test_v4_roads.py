@@ -56,6 +56,7 @@ def _create_test_vectors():
         ),
     ]
 
+
 class TestCLI:
     """V4-P01 tests."""
 
@@ -70,6 +71,7 @@ class TestCLI:
         from jarvis_core.cli_v4.main import list_resources
 
         list_resources("workflows")  # Should not raise
+
 
 class TestConfig:
     """V4-P02 tests."""
@@ -86,6 +88,7 @@ class TestConfig:
         config = load_config()
         assert config is not None
 
+
 class TestErrors:
     """V4-P06 tests."""
 
@@ -101,6 +104,7 @@ class TestErrors:
         err = EvidenceError("test")
         assert err.exit_code == 20
 
+
 class TestTrace:
     """V4-P05 tests."""
 
@@ -113,6 +117,7 @@ class TestTrace:
         trace.finish()
         assert trace.status == "success"
         assert len(trace.steps) == 1
+
 
 class TestRegistry:
     """V4-P13 tests."""
@@ -129,6 +134,7 @@ class TestRegistry:
         mod = get_module("gap_analysis")
         assert mod is not None
 
+
 class TestTruthEnforce:
     """V4-T01 tests."""
 
@@ -144,6 +150,7 @@ class TestTruthEnforce:
         assert len(valid) == 1
         assert len(downgraded) == 0
 
+
 class TestTruthAlignment:
     """V4-T02 tests."""
 
@@ -158,6 +165,7 @@ class TestTruthAlignment:
         result = check_alignment_v2("CD73 expressed in tumor cells", facts)
         assert result.status in ["aligned", "partial"]
 
+
 class TestTruthRelevance:
     """V4-T03 tests."""
 
@@ -166,6 +174,7 @@ class TestTruthRelevance:
 
         result = score_relevance("CD73 function", "CD73 plays a role in immune regulation")
         assert result["score"] >= 0
+
 
 class TestTruthContradiction:
     """V4-T04 tests."""
@@ -182,6 +191,7 @@ class TestTruthContradiction:
         results = detect_contradictions(facts)
         assert len(results) >= 1
 
+
 class TestTruthConfidence:
     """V4-T05 tests."""
 
@@ -190,6 +200,7 @@ class TestTruthConfidence:
 
         result = calibrate_confidence(0.8, "test", evidence_count=3)
         assert 0 <= result["value"] <= 1
+
 
 class TestMapSimilarity:
     """V4-M01 tests."""
@@ -201,6 +212,7 @@ class TestMapSimilarity:
         result = explain_similarity(vectors[0], vectors[1])
         assert "similarity_score" in result
 
+
 class TestMapBridges:
     """V4-M02 tests."""
 
@@ -210,6 +222,7 @@ class TestMapBridges:
         vectors = _create_test_vectors()
         bridges = find_bridge_papers([vectors[0]], [vectors[1]], vectors)
         assert isinstance(bridges, list)
+
 
 class TestMapClusters:
     """V4-M03 tests."""
@@ -221,6 +234,7 @@ class TestMapClusters:
         result = build_cluster_map(vectors)
         assert "clusters" in result
 
+
 class TestMapNeighborhood:
     """V4-M04 tests."""
 
@@ -230,6 +244,7 @@ class TestMapNeighborhood:
         vectors = _create_test_vectors()
         neighbors = query_neighborhood(vectors[0], vectors)
         assert isinstance(neighbors, list)
+
 
 class TestMapPathFinder:
     """V4-M05 tests."""
@@ -241,6 +256,7 @@ class TestMapPathFinder:
         path = find_concept_path(vectors[0], vectors[1], vectors)
         assert path is None or "path" in path
 
+
 class TestMapTimeline:
     """V4-M06 tests."""
 
@@ -250,6 +266,7 @@ class TestMapTimeline:
         vectors = _create_test_vectors()
         result = build_timeline_map(vectors)
         assert "years" in result
+
 
 class TestObsidianSync:
     """V4-I01 tests."""
@@ -263,6 +280,7 @@ class TestObsidianSync:
             assert status == "created"
             status2 = syncer.sync_note("test", "# Test\nContent")
             assert status2 == "unchanged"
+
 
 class TestManifestWatch:
     """V4-I02 tests."""

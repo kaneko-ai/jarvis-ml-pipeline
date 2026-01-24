@@ -1,14 +1,15 @@
-
-
 from jarvis_core.executor import ExecutionEngine
 from jarvis_core.planner import Planner
 from jarvis_core.retry import RetryPolicy
 from jarvis_core.task import Task, TaskCategory, TaskPriority, TaskStatus
 from jarvis_core.validation import EvaluationResult
+
+
 class DummyResult:
     def __init__(self, answer: str):
         self.answer = answer
         self.meta = {"answer": answer}
+
 
 class DummyPlanner(Planner):
     def __init__(self, subtasks):
@@ -16,6 +17,7 @@ class DummyPlanner(Planner):
 
     def plan(self, task: Task):  # noqa: D401
         return self._subtasks
+
 
 class DummyRouter:
     def __init__(self, results):
@@ -27,9 +29,11 @@ class DummyRouter:
         self.calls += 1
         return result
 
+
 def validator_for_success(result):
     ok = getattr(result, "answer", "") == "good"
     return EvaluationResult(ok=ok, errors=[] if ok else ["bad_answer"])
+
 
 def make_task(task_id: str) -> Task:
     return Task(
@@ -40,6 +44,7 @@ def make_task(task_id: str) -> Task:
         constraints={},
         priority=TaskPriority.NORMAL,
     )
+
 
 def test_execution_engine_retries_until_success():
     task = make_task("t1")
@@ -54,6 +59,7 @@ def test_execution_engine_retries_until_success():
     assert executed[0].status == TaskStatus.DONE
     assert executed[0].history[-1]["attempts"] == 2
 
+
 def test_execution_engine_stops_after_max_attempts():
     task = make_task("t2")
     planner = DummyPlanner([task])
@@ -65,6 +71,7 @@ def test_execution_engine_stops_after_max_attempts():
 
     assert router.calls == 1
     assert executed[0].status == TaskStatus.FAILED
+
 
 def test_execution_engine_without_validator_runs_once():
     task = make_task("t3")

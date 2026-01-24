@@ -72,6 +72,7 @@ def _create_test_vectors():
         ),
     ]
 
+
 class TestArtifactSchema:
     """V4-A1 tests."""
 
@@ -108,6 +109,7 @@ class TestArtifactSchema:
         assert artifact.kind == "test"
         assert len(artifact.inferences) == 1
 
+
 class TestAdapters:
     """V4-A2 tests."""
 
@@ -125,6 +127,7 @@ class TestAdapters:
         result = {"score": 0.5}
         artifact = adapt_to_artifact("test", result)
         assert "result" in artifact.raw_data or "score" in artifact.raw_data
+
 
 class TestScoreRegistry:
     """V4-A3 tests."""
@@ -145,6 +148,7 @@ class TestScoreRegistry:
     def test_get_score_info(self):
         info = get_score_info("difficulty")
         assert info.direction == "lower_better"
+
 
 class TestClaimFactChecker:
     """V4-B2 tests."""
@@ -173,6 +177,7 @@ class TestClaimFactChecker:
         assert level == "inference"
         assert "推定" in stmt
 
+
 class TestAuditReport:
     """V4-D2 tests."""
 
@@ -192,6 +197,7 @@ class TestAuditReport:
         report = generate_audit_report(artifact)
         md = report.to_markdown()
         assert "Audit Report" in md
+
 
 class TestWorkflows:
     """V4-C1 tests."""
@@ -218,6 +224,7 @@ class TestWorkflows:
         plan = run_literature_to_plan(vectors, ["CD73"])
         artifact = run_plan_to_talk(plan, vectors, 15)
         assert artifact.kind == "presentation"
+
 
 class TestBundleV2:
     """V4-D1 tests."""

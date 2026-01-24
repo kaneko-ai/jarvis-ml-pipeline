@@ -1,8 +1,5 @@
 """Tests for bibtex module - Comprehensive coverage (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestBibtexModule:
     """Tests for bibtex module."""

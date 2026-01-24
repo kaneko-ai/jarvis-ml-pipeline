@@ -1,8 +1,5 @@
 """Tests for sources module - Comprehensive coverage (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestSourcesModule:
     """Tests for sources module."""

@@ -2,6 +2,7 @@
 
 Per RP-203, runs regression evaluation with frozen eval sets.
 """
+
 from __future__ import annotations
 
 import json
@@ -63,10 +64,7 @@ def compute_summary(results: List[Dict[str, Any]]) -> Dict[str, Any]:
     # Aggregate metrics
     all_metrics = [r.get("metrics", {}) for r in results]
 
-    avg = lambda key: (
-        sum(m.get(key, 0) for m in all_metrics) / total
-        if total > 0 else 0
-    )
+    avg = lambda key: (sum(m.get(key, 0) for m in all_metrics) / total if total > 0 else 0)
 
     return {
         "total": total,
@@ -107,11 +105,13 @@ def run_regression(
             result = run_case(case, config)
             results.append(result)
         except Exception as e:
-            results.append({
-                "case_id": case.get("id", "unknown"),
-                "status": "failed",
-                "error": str(e),
-            })
+            results.append(
+                {
+                    "case_id": case.get("id", "unknown"),
+                    "status": "failed",
+                    "error": str(e),
+                }
+            )
 
     # Compute summary
     summary = compute_summary(results)
@@ -128,11 +128,15 @@ def run_regression(
             f.write(json.dumps(r) + "\n")
 
     with open(out_path / "metrics.json", "w", encoding="utf-8") as f:
-        json.dump({
-            "success_rate": summary["success_rate"],
-            "claim_precision": summary["avg_claim_precision"],
-            "citation_precision": summary["avg_citation_precision"],
-        }, f, indent=2)
+        json.dump(
+            {
+                "success_rate": summary["success_rate"],
+                "claim_precision": summary["avg_claim_precision"],
+                "citation_precision": summary["avg_citation_precision"],
+            },
+            f,
+            indent=2,
+        )
 
     return summary
 

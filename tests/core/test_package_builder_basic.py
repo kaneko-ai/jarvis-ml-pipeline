@@ -1,8 +1,7 @@
 import pytest
 import json
-import yaml
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from jarvis_core.submission.package_builder import (
     _resolve_run_dir,
     _discover_artifacts,
@@ -11,6 +10,7 @@ from jarvis_core.submission.package_builder import (
     _write_submission_manifest,
     SubmissionResult,
 )
+
 
 @pytest.fixture
 def temp_run_dir(tmp_path):
@@ -23,6 +23,7 @@ def temp_run_dir(tmp_path):
     (run_dir / "report.md").write_text("md content")
     return run_dir
 
+
 class TestPackageBuilderInternal:
     def test_resolve_run_dir(self, tmp_path):
         # We need to patch DATA_RUNS_DIR and LOGS_RUNS_DIR because they are constants at module level
@@ -30,7 +31,7 @@ class TestPackageBuilderInternal:
             with patch("jarvis_core.submission.package_builder.LOGS_RUNS_DIR", tmp_path / "logs"):
                 data_dir = tmp_path / "data" / "run1"
                 data_dir.mkdir(parents=True)
-                
+
                 assert _resolve_run_dir("run1") == data_dir
                 assert _resolve_run_dir("nonexistent") is None
 
@@ -45,7 +46,7 @@ class TestPackageBuilderInternal:
     def test_apply_naming_rules(self):
         rules = {
             "thesis_docx": "Paper_{project}_{version}.docx",
-            "manifest": "manifest_{run_id}.json"
+            "manifest": "manifest_{run_id}.json",
         }
         context = {"project": "P1", "version": "1.0", "run_id": "R1"}
         named = _apply_naming_rules(rules, context)
@@ -62,7 +63,7 @@ class TestPackageBuilderInternal:
         structure = {"manifest": tmp_path}
         artifacts = {"thesis_pdf": Path("source.pdf")}
         named_files = {"manifest": "m.json"}
-        
+
         manifest_path = _write_submission_manifest("R1", "V1", artifacts, structure, named_files)
         assert manifest_path.exists()
         data = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -71,48 +72,87 @@ class TestPackageBuilderInternal:
 
     def test_run_checklist(self, temp_run_dir):
         from jarvis_core.submission.package_builder import _run_checklist
+
         config = {
             "checks": [
-                {"id": "c1", "title": "Check 1", "type": "required_files", "required": ["thesis_pdf"], "severity": "fail"},
-                {"id": "c2", "title": "Check 2", "type": "required_files", "required": ["nonexistent"], "severity": "warn"}
+                {
+                    "id": "c1",
+                    "title": "Check 1",
+                    "type": "required_files",
+                    "required": ["thesis_pdf"],
+                    "severity": "fail",
+                },
+                {
+                    "id": "c2",
+                    "title": "Check 2",
+                    "type": "required_files",
+                    "required": ["nonexistent"],
+                    "severity": "warn",
+                },
             ]
         }
         artifacts = {"thesis_pdf": Path("exists.pdf")}
         attachments = ["exists.pdf"]
-        
+
         # We need to mock _extract_qa_summary and _extract_impact_summary as they search the dir
-        with patch("jarvis_core.submission.package_builder._extract_qa_summary", return_value={"errors": 0, "warnings": 0, "major_warnings": []}):
-            with patch("jarvis_core.submission.package_builder._extract_impact_summary", return_value={"has_impact": False, "details": ""}):
+        with patch(
+            "jarvis_core.submission.package_builder._extract_qa_summary",
+            return_value={"errors": 0, "warnings": 0, "major_warnings": []},
+        ):
+            with patch(
+                "jarvis_core.submission.package_builder._extract_impact_summary",
+                return_value={"has_impact": False, "details": ""},
+            ):
                 res = _run_checklist(config, temp_run_dir, artifacts, attachments)
                 assert res["blocked"] is False
                 assert len(res["checks"]) == 2
                 assert res["checks"][0]["status"] == "pass"
-                assert res["checks"][1]["status"] == "fail" # because 'nonexistent' is missing in artifacts
+                assert (
+                    res["checks"][1]["status"] == "fail"
+                )  # because 'nonexistent' is missing in artifacts
                 assert res["checks"][1]["severity"] == "warn"
 
     def test_run_checklist_blocking(self, temp_run_dir):
         from jarvis_core.submission.package_builder import _run_checklist
+
         config = {
             "checks": [
-                {"id": "c1", "title": "Check 1", "type": "required_files", "required": ["thesis_docx"], "severity": "fail"},
+                {
+                    "id": "c1",
+                    "title": "Check 1",
+                    "type": "required_files",
+                    "required": ["thesis_docx"],
+                    "severity": "fail",
+                },
             ]
         }
         # thesis_docx is missing in artifacts
         artifacts = {"thesis_pdf": Path("exists.pdf")}
         attachments = ["exists.pdf"]
-        
-        with patch("jarvis_core.submission.package_builder._extract_qa_summary", return_value={"errors": 0}):
-            with patch("jarvis_core.submission.package_builder._extract_impact_summary", return_value={}):
+
+        with patch(
+            "jarvis_core.submission.package_builder._extract_qa_summary", return_value={"errors": 0}
+        ):
+            with patch(
+                "jarvis_core.submission.package_builder._extract_impact_summary", return_value={}
+            ):
                 res = _run_checklist(config, temp_run_dir, artifacts, attachments)
                 assert res["blocked"] is True
                 assert res["checks"][0]["status"] == "fail"
 
+
 def test_submission_result_dataclass():
     res = SubmissionResult(
-        run_id="R1", submission_version="V1", blocked=False,
-        package_path=Path("p.zip"), submission_root=Path("r"),
-        changelog_path=Path("c"), email_path=Path("e"),
-        check_report_path=Path("cr.json"), check_report_md_path=Path("cr.md"),
-        email_subject="S", email_body="B"
+        run_id="R1",
+        submission_version="V1",
+        blocked=False,
+        package_path=Path("p.zip"),
+        submission_root=Path("r"),
+        changelog_path=Path("c"),
+        email_path=Path("e"),
+        check_report_path=Path("cr.json"),
+        check_report_md_path=Path("cr.md"),
+        email_subject="S",
+        email_body="B",
     )
     assert res.run_id == "R1"

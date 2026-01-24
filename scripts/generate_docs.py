@@ -131,11 +131,11 @@ def generate_api_docs(
     output_dir: Optional[Path] = None,
 ) -> Dict[str, str]:
     """Generate API documentation for a package.
-    
+
     Args:
         package_name: Name of package to document
         output_dir: Output directory (optional, for saving files)
-        
+
     Returns:
         Dict mapping module names to documentation
     """
@@ -203,12 +203,14 @@ def main():
 
     parser = argparse.ArgumentParser(description="Generate API documentation")
     parser.add_argument(
-        "--package", "-p",
+        "--package",
+        "-p",
         default="jarvis_core",
         help="Package to document",
     )
     parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         default="docs/api",
         help="Output directory",
     )

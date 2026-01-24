@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jarvis-api
+  labels:
+    app: jarvis
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: jarvis
+  template:
+    metadata:
+      labels:
+        app: jarvis
+    spec:
+      containers:
+      - name: jarvis-api
+        image: jarvis/api:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: CHROMA_HOST
+          value: "chroma-service"
+        - name: REDIS_URL
+          value: "redis://redis-service:6379/0"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jarvis-service
+spec:
+  selector:
+    app: jarvis
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: LoadBalancer

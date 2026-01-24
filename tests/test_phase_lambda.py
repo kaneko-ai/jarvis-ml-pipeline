@@ -78,6 +78,7 @@ def _create_test_vectors():
         ),
     ]
 
+
 class TestLambda1_5:
     def test_hypothesis_risks(self):
         vectors = _create_test_vectors()
@@ -101,6 +102,7 @@ class TestLambda1_5:
         result = warn_strong_assumptions("This definitely proves")
         assert "definitely" in result
 
+
 class TestLambda6_10:
     def test_experiment_graph(self):
         result = build_experiment_dependency_graph(["E1", "E2"])
@@ -123,6 +125,7 @@ class TestLambda6_10:
         result = detect_reproduction_failure_signs(vectors)
         assert isinstance(result, list)
 
+
 class TestLambda11_15:
     def test_reviewer_fatigue(self):
         result = detect_reviewer_fatigue_points("Short text")
@@ -144,6 +147,7 @@ class TestLambda11_15:
         vectors = _create_test_vectors()
         result = evaluate_citation_balance(vectors)
         assert "balance" in result
+
 
 class TestLambda16_20:
     def test_rising_concepts(self):
@@ -171,6 +175,7 @@ class TestLambda16_20:
         result = detect_cross_field_citations(vectors)
         assert result >= 0
 
+
 class TestLambda21_25:
     def test_hypothesis_type(self):
         result = classify_hypothesis_type("mechanism of action")
@@ -193,6 +198,7 @@ class TestLambda21_25:
         vectors = _create_test_vectors()
         result = detect_undervaluation(vectors)
         assert isinstance(result, bool)
+
 
 class TestLambda26_30:
     def test_obsidian(self):

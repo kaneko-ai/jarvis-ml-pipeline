@@ -6,7 +6,7 @@ Bundle契約（10ファイル必須）の遵守状況を監査し、
 
 Usage:
     python scripts/audit_bundle.py [--run-id RUN_ID]
-    
+
 Output:
     reports/audit_bundle_status.md
 """
@@ -132,7 +132,11 @@ def generate_report(audits: list[dict[str, Any]], output_path: Path) -> None:
         f.write(f"- 監査対象run数: {total_count}\n")
         f.write(f"- 契約遵守run数: {valid_count}\n")
         f.write(f"- 契約違反run数: {total_count - valid_count}\n")
-        f.write(f"- 遵守率: {valid_count/total_count*100:.1f}%\n" if total_count > 0 else "- 遵守率: N/A\n")
+        f.write(
+            f"- 遵守率: {valid_count/total_count*100:.1f}%\n"
+            if total_count > 0
+            else "- 遵守率: N/A\n"
+        )
         f.write("\n---\n\n")
 
         # 契約定義

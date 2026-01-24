@@ -2,6 +2,7 @@
 
 Per RP-179, generates PR summaries from changes.
 """
+
 from __future__ import annotations
 
 import subprocess

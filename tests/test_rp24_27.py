@@ -76,6 +76,7 @@ class TestReviewNote:
         assert len(claim.reviews) == 1
         assert claim.reviews[0].note_type == "todo"
 
+
 class TestReviewMode:
     """Tests for Multi-Query Review Mode (RP24)."""
 
@@ -110,6 +111,7 @@ class TestReviewMode:
 
         assert "Query 1" in index
         assert "Research Review" in index
+
 
 class TestPodcastScript:
     """Tests for Podcast Script Generator (RP25)."""
@@ -150,6 +152,7 @@ class TestPodcastScript:
         assert "ANSWER" in script
         assert "EVIDENCE" in script
         assert "CONCLUSION" in script
+
 
 class TestRunLog:
     """Tests for Research Log (RP26)."""

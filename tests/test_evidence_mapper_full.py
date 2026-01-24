@@ -1,8 +1,5 @@
 """Comprehensive tests for analysis/evidence_mapper.py - 10 tests for 42% -> 90% coverage."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestEvidenceMapperInit:
     """Tests for EvidenceMapper initialization."""

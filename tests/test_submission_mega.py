@@ -5,14 +5,21 @@ import pytest
 
 @pytest.mark.slow
 class TestSubmissionMega:
-    def test_1(self): from jarvis_core import submission; pass
-    def test_2(self): from jarvis_core import submission; pass
-    def test_3(self): 
+    def test_1(self):
+        pass
+
+    def test_2(self):
+        pass
+
+    def test_3(self):
         try:
             from jarvis_core.submission import diff_engine
-        except ImportError: pass
+        except ImportError:
+            pass
+
 
 class TestModule:
     def test_submission_module(self):
         from jarvis_core import submission
+
         assert submission is not None

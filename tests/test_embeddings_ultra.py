@@ -8,9 +8,11 @@ class TestEmbeddingsSafe:
     def test_import_safe(self):
         try:
             from jarvis_core import embeddings
+
             assert embeddings is not None
         except ImportError:
             pass
+
 
 class TestModule:
     def test_module(self):

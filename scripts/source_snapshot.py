@@ -73,7 +73,9 @@ class SourceSnapshot:
                 return entry
         return None
 
-    def add_candidate(self, url: str, source_type: str, metadata: Optional[Dict[str, Any]] = None) -> None:
+    def add_candidate(
+        self, url: str, source_type: str, metadata: Optional[Dict[str, Any]] = None
+    ) -> None:
         entry = self._find_entry(url, source_type)
         if entry is None:
             entry = {
@@ -93,7 +95,9 @@ class SourceSnapshot:
             entry.setdefault("metadata", {}).update(metadata)
         self.save()
 
-    def start_request(self, url: str, source_type: str, metadata: Optional[Dict[str, Any]] = None) -> None:
+    def start_request(
+        self, url: str, source_type: str, metadata: Optional[Dict[str, Any]] = None
+    ) -> None:
         self.add_candidate(url, source_type, metadata)
         entry = self._find_entry(url, source_type)
         if entry is None:

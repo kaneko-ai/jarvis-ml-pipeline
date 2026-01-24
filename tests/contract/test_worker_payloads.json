@@ -1,0 +1,24 @@
+{
+    "valid_report": {
+        "action": "report",
+        "query": "Impact of LLMs in biology",
+        "max_papers": 20,
+        "turnstile_token": "XXXXX"
+    },
+    "invalid_action": {
+        "action": "delete_all_files",
+        "query": "something",
+        "turnstile_token": "XXXXX"
+    },
+    "too_short_query": {
+        "action": "report",
+        "query": "a",
+        "turnstile_token": "XXXXX"
+    },
+    "extreme_papers": {
+        "action": "report",
+        "query": "Testing paper limits",
+        "max_papers": 9999,
+        "turnstile_token": "XXXXX"
+    }
+}

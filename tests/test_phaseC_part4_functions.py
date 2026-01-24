@@ -4,23 +4,18 @@ Target: ALL remaining modules with function calls
 Strategy: Call every function with valid/invalid inputs
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
-import tempfile
-from pathlib import Path
-from datetime import datetime
-
-
 # ====================
 # Root Module Function Tests
 # ====================
+
 
 class TestBibtexFunctions:
     """Function tests for bibtex module."""
 
     def test_import_and_attrs(self):
         from jarvis_core import bibtex
-        attrs = [a for a in dir(bibtex) if not a.startswith('_')]
+
+        attrs = [a for a in dir(bibtex) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -29,7 +24,8 @@ class TestBundleFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import bundle
-        attrs = [a for a in dir(bundle) if not a.startswith('_')]
+
+        attrs = [a for a in dir(bundle) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -38,7 +34,8 @@ class TestBundleLayoutFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import bundle_layout
-        attrs = [a for a in dir(bundle_layout) if not a.startswith('_')]
+
+        attrs = [a for a in dir(bundle_layout) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -47,7 +44,8 @@ class TestCareerPlannerFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import career_planner
-        attrs = [a for a in dir(career_planner) if not a.startswith('_')]
+
+        attrs = [a for a in dir(career_planner) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -56,7 +54,8 @@ class TestChainBuilderFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import chain_builder
-        attrs = [a for a in dir(chain_builder) if not a.startswith('_')]
+
+        attrs = [a for a in dir(chain_builder) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -65,7 +64,8 @@ class TestClinicalReadinessFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import clinical_readiness
-        attrs = [a for a in dir(clinical_readiness) if not a.startswith('_')]
+
+        attrs = [a for a in dir(clinical_readiness) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -74,7 +74,8 @@ class TestComparisonFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import comparison
-        attrs = [a for a in dir(comparison) if not a.startswith('_')]
+
+        attrs = [a for a in dir(comparison) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -83,7 +84,8 @@ class TestCrossFieldFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import cross_field
-        attrs = [a for a in dir(cross_field) if not a.startswith('_')]
+
+        attrs = [a for a in dir(cross_field) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -92,7 +94,8 @@ class TestEducationFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import education
-        attrs = [a for a in dir(education) if not a.startswith('_')]
+
+        attrs = [a for a in dir(education) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -101,7 +104,8 @@ class TestFailureSimulatorFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import failure_simulator
-        attrs = [a for a in dir(failure_simulator) if not a.startswith('_')]
+
+        attrs = [a for a in dir(failure_simulator) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -110,7 +114,8 @@ class TestFeasibilityFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import feasibility
-        attrs = [a for a in dir(feasibility) if not a.startswith('_')]
+
+        attrs = [a for a in dir(feasibility) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -119,7 +124,8 @@ class TestGapAnalysisFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import gap_analysis
-        attrs = [a for a in dir(gap_analysis) if not a.startswith('_')]
+
+        attrs = [a for a in dir(gap_analysis) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -128,7 +134,8 @@ class TestGrantOptimizerFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import grant_optimizer
-        attrs = [a for a in dir(grant_optimizer) if not a.startswith('_')]
+
+        attrs = [a for a in dir(grant_optimizer) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -137,7 +144,8 @@ class TestHeatmapFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import heatmap
-        attrs = [a for a in dir(heatmap) if not a.startswith('_')]
+
+        attrs = [a for a in dir(heatmap) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -146,7 +154,8 @@ class TestHypothesisFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import hypothesis
-        attrs = [a for a in dir(hypothesis) if not a.startswith('_')]
+
+        attrs = [a for a in dir(hypothesis) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -155,7 +164,8 @@ class TestJournalTargetingFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import journal_targeting
-        attrs = [a for a in dir(journal_targeting) if not a.startswith('_')]
+
+        attrs = [a for a in dir(journal_targeting) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -164,7 +174,8 @@ class TestKillSwitchFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import kill_switch
-        attrs = [a for a in dir(kill_switch) if not a.startswith('_')]
+
+        attrs = [a for a in dir(kill_switch) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -173,7 +184,8 @@ class TestKnowledgeGraphFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import knowledge_graph
-        attrs = [a for a in dir(knowledge_graph) if not a.startswith('_')]
+
+        attrs = [a for a in dir(knowledge_graph) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -182,7 +194,8 @@ class TestLabCultureFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import lab_culture
-        attrs = [a for a in dir(lab_culture) if not a.startswith('_')]
+
+        attrs = [a for a in dir(lab_culture) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -191,7 +204,8 @@ class TestLabOptimizerFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import lab_optimizer
-        attrs = [a for a in dir(lab_optimizer) if not a.startswith('_')]
+
+        attrs = [a for a in dir(lab_optimizer) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -200,7 +214,8 @@ class TestLambdaModulesFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import lambda_modules
-        attrs = [a for a in dir(lambda_modules) if not a.startswith('_')]
+
+        attrs = [a for a in dir(lambda_modules) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -209,7 +224,8 @@ class TestLivingReviewFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import living_review
-        attrs = [a for a in dir(living_review) if not a.startswith('_')]
+
+        attrs = [a for a in dir(living_review) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -218,7 +234,8 @@ class TestLogicCitationFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import logic_citation
-        attrs = [a for a in dir(logic_citation) if not a.startswith('_')]
+
+        attrs = [a for a in dir(logic_citation) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -227,7 +244,8 @@ class TestMetaScienceFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import meta_science
-        attrs = [a for a in dir(meta_science) if not a.startswith('_')]
+
+        attrs = [a for a in dir(meta_science) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -236,7 +254,8 @@ class TestMethodTrendFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import method_trend
-        attrs = [a for a in dir(method_trend) if not a.startswith('_')]
+
+        attrs = [a for a in dir(method_trend) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -245,7 +264,8 @@ class TestModelSystemFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import model_system
-        attrs = [a for a in dir(model_system) if not a.startswith('_')]
+
+        attrs = [a for a in dir(model_system) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -254,7 +274,8 @@ class TestParadigmFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import paradigm
-        attrs = [a for a in dir(paradigm) if not a.startswith('_')]
+
+        attrs = [a for a in dir(paradigm) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -263,7 +284,8 @@ class TestPaperVectorFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import paper_vector
-        attrs = [a for a in dir(paper_vector) if not a.startswith('_')]
+
+        attrs = [a for a in dir(paper_vector) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -272,7 +294,8 @@ class TestPISuccessionFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import pi_succession
-        attrs = [a for a in dir(pi_succession) if not a.startswith('_')]
+
+        attrs = [a for a in dir(pi_succession) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -281,7 +304,8 @@ class TestPISupportFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import pi_support
-        attrs = [a for a in dir(pi_support) if not a.startswith('_')]
+
+        attrs = [a for a in dir(pi_support) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -290,7 +314,8 @@ class TestRecommendationFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import recommendation
-        attrs = [a for a in dir(recommendation) if not a.startswith('_')]
+
+        attrs = [a for a in dir(recommendation) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -299,7 +324,8 @@ class TestRehearsalFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import rehearsal
-        attrs = [a for a in dir(rehearsal) if not a.startswith('_')]
+
+        attrs = [a for a in dir(rehearsal) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -308,7 +334,8 @@ class TestReproducibilityCertFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import reproducibility_cert
-        attrs = [a for a in dir(reproducibility_cert) if not a.startswith('_')]
+
+        attrs = [a for a in dir(reproducibility_cert) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -317,7 +344,8 @@ class TestReviewerPersonaFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import reviewer_persona
-        attrs = [a for a in dir(reviewer_persona) if not a.startswith('_')]
+
+        attrs = [a for a in dir(reviewer_persona) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -326,7 +354,8 @@ class TestROIEngineFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import roi_engine
-        attrs = [a for a in dir(roi_engine) if not a.startswith('_')]
+
+        attrs = [a for a in dir(roi_engine) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -335,7 +364,8 @@ class TestSigmaModulesFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import sigma_modules
-        attrs = [a for a in dir(sigma_modules) if not a.startswith('_')]
+
+        attrs = [a for a in dir(sigma_modules) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -344,7 +374,8 @@ class TestStudentPortfolioFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import student_portfolio
-        attrs = [a for a in dir(student_portfolio) if not a.startswith('_')]
+
+        attrs = [a for a in dir(student_portfolio) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -353,7 +384,8 @@ class TestThinkingEnginesFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import thinking_engines
-        attrs = [a for a in dir(thinking_engines) if not a.startswith('_')]
+
+        attrs = [a for a in dir(thinking_engines) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -362,7 +394,8 @@ class TestTimelineFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import timeline
-        attrs = [a for a in dir(timeline) if not a.startswith('_')]
+
+        attrs = [a for a in dir(timeline) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -371,5 +404,6 @@ class TestCareerEnginesFunctions:
 
     def test_import_and_attrs(self):
         from jarvis_core import career_engines
-        attrs = [a for a in dir(career_engines) if not a.startswith('_')]
+
+        attrs = [a for a in dir(career_engines) if not a.startswith("_")]
         assert len(attrs) >= 0

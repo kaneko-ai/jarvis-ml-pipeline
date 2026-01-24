@@ -68,6 +68,7 @@ class TestArtifactContract:
         assert "missing_artifacts" in summary
         assert summary["contract_valid"] is False  # ファイルなし
 
+
 class TestSuccessCondition:
     """success条件テスト（DEC-005）."""
 
@@ -136,6 +137,7 @@ class TestSuccessCondition:
         assert "metrics" in eval_summary
         assert eval_summary["run_id"] == "test-run-id"
 
+
 class TestFailReasonCodes:
     """fail_reasonコードテスト."""
 
@@ -166,6 +168,7 @@ class TestFailReasonCodes:
         # 断定の危険は警告レベル（gate_passedには影響しない可能性）
         codes = [r.code for r in result.fail_reasons]
         assert FailCodes.ASSERTION_DANGER in codes
+
 
 class TestRunStoreSaveLoad:
     """RunStore保存・読み込みテスト."""
@@ -207,6 +210,7 @@ class TestRunStoreSaveLoad:
         loaded = store.load_eval()
 
         assert loaded == eval_data
+
 
 class TestGoldenPathIntegration:
     """Golden Path統合テスト（全体フロー）."""

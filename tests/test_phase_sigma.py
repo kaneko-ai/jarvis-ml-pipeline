@@ -80,6 +80,7 @@ def _create_test_vectors():
         ),
     ]
 
+
 class TestSigma1_7:
     """諤晁・・莉ｮ隱ｬ邉ｻ (ﾎ｣-1縲慚｣-7)."""
 
@@ -116,6 +117,7 @@ class TestSigma1_7:
         diagram = generate_hypothesis_diagram(["H1", "H2"])
         assert "nodes" in diagram
 
+
 class TestSigma8_13:
     """蛻・梵繝ｻ蜿ｯ隕門喧邉ｻ (ﾎ｣-8縲慚｣-13)."""
 
@@ -149,6 +151,7 @@ class TestSigma8_13:
         density = map_research_density(vectors)
         assert isinstance(density, dict)
 
+
 class TestSigma14_19:
     """螳滄ｨ薙・險ｭ險育ｳｻ (ﾎ｣-14縲慚｣-19)."""
 
@@ -178,6 +181,7 @@ class TestSigma14_19:
         reasoning = explain_model_reasoning("mouse", vectors)
         assert len(reasoning) > 0
 
+
 class TestSigma20_25:
     """隲匁枚繝ｻ逋ｺ陦ｨ陬懷勧 (ﾎ｣-20縲慚｣-25)."""
 
@@ -206,6 +210,7 @@ class TestSigma20_25:
         vectors = _create_test_vectors()
         bias = detect_citation_bias(vectors)
         assert "recency_bias" in bias
+
 
 class TestSigma26_30:
     """邯咏ｶ壹・驕狗畑邉ｻ (ﾎ｣-26縲慚｣-30)."""

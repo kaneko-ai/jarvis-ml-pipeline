@@ -2,6 +2,7 @@
 
 Per RP-191, runs until success or attempt exhaustion.
 """
+
 from __future__ import annotations
 
 import sys

@@ -3,27 +3,23 @@
 Tests that execute actual function logic with proper mocking.
 """
 
-import pytest
-from unittest.mock import patch, MagicMock, mock_open
-import tempfile
-from pathlib import Path
-import json
-
-
 # ============================================================
 # User's open files - Deep tests
 # ============================================================
+
 
 class TestTimelineDeep:
     """Deep tests for timeline module."""
 
     def test_import(self):
         from jarvis_core import timeline
+
         assert hasattr(timeline, "__name__")
 
     def test_module_attrs(self):
         from jarvis_core import timeline
-        attrs = [a for a in dir(timeline) if not a.startswith('_')]
+
+        attrs = [a for a in dir(timeline) if not a.startswith("_")]
         assert len(attrs) >= 0
 
 
@@ -32,6 +28,7 @@ class TestRecommendationDeep:
 
     def test_import(self):
         from jarvis_core import recommendation
+
         assert hasattr(recommendation, "__name__")
 
 
@@ -40,6 +37,7 @@ class TestMetaScienceDeep:
 
     def test_import(self):
         from jarvis_core import meta_science
+
         assert hasattr(meta_science, "__name__")
 
 
@@ -48,6 +46,7 @@ class TestLogicCitationDeep:
 
     def test_import(self):
         from jarvis_core import logic_citation
+
         assert hasattr(logic_citation, "__name__")
 
 
@@ -56,6 +55,7 @@ class TestClinicalReadinessDeep:
 
     def test_import(self):
         from jarvis_core import clinical_readiness
+
         assert hasattr(clinical_readiness, "__name__")
 
 
@@ -64,6 +64,7 @@ class TestLabOptimizerDeep:
 
     def test_import(self):
         from jarvis_core import lab_optimizer
+
         assert hasattr(lab_optimizer, "__name__")
 
 
@@ -71,11 +72,13 @@ class TestLabOptimizerDeep:
 # Additional modules for coverage
 # ============================================================
 
+
 class TestEvaluationPicoConsistency:
     """Tests for PICO consistency."""
 
     def test_import(self):
         from jarvis_core.evaluation import pico_consistency
+
         assert hasattr(pico_consistency, "__name__")
 
 
@@ -84,6 +87,7 @@ class TestEvaluationCounterevidence:
 
     def test_import(self):
         from jarvis_core.evaluation import counterevidence
+
         assert hasattr(counterevidence, "__name__")
 
 
@@ -92,6 +96,7 @@ class TestRuntimeTaskGraph:
 
     def test_import(self):
         from jarvis_core.runtime import task_graph
+
         assert hasattr(task_graph, "__name__")
 
 
@@ -100,6 +105,7 @@ class TestRuntimeRepairLoop:
 
     def test_import(self):
         from jarvis_core.runtime import repair_loop
+
         assert hasattr(repair_loop, "__name__")
 
 
@@ -108,6 +114,7 @@ class TestRuntimeFailureSignal:
 
     def test_import(self):
         from jarvis_core.runtime import failure_signal
+
         assert hasattr(failure_signal, "__name__")
 
 
@@ -116,6 +123,7 @@ class TestRuntimeOfflineManager:
 
     def test_import(self):
         from jarvis_core.runtime import offline_manager
+
         assert hasattr(offline_manager, "__name__")
 
 
@@ -124,6 +132,7 @@ class TestRuntimeResult:
 
     def test_import(self):
         from jarvis_core.runtime import result
+
         assert hasattr(result, "__name__")
 
 
@@ -132,6 +141,7 @@ class TestTelemetrySummarize:
 
     def test_import(self):
         from jarvis_core.telemetry import summarize
+
         assert hasattr(summarize, "__name__")
 
 
@@ -140,6 +150,7 @@ class TestTelemetryAnalyze:
 
     def test_import(self):
         from jarvis_core.telemetry import analyze
+
         assert hasattr(analyze, "__name__")
 
 
@@ -148,6 +159,7 @@ class TestObservabilityStack:
 
     def test_import(self):
         from jarvis_core.observability import stack
+
         assert hasattr(stack, "__name__")
 
 
@@ -156,6 +168,7 @@ class TestTrendWatcher:
 
     def test_import(self):
         from jarvis_core.trend import watcher
+
         assert hasattr(watcher, "__name__")
 
 
@@ -164,6 +177,7 @@ class TestTrendRanker:
 
     def test_import(self):
         from jarvis_core.trend import ranker
+
         assert hasattr(ranker, "__name__")
 
 
@@ -172,6 +186,7 @@ class TestCitationGraph:
 
     def test_import(self):
         from jarvis_core.citation import graph
+
         assert hasattr(graph, "__name__")
 
 
@@ -180,6 +195,7 @@ class TestCitationInfluence:
 
     def test_import(self):
         from jarvis_core.citation import influence
+
         assert hasattr(influence, "__name__")
 
 
@@ -188,6 +204,7 @@ class TestCitationStanceClassifier:
 
     def test_import(self):
         from jarvis_core.citation import stance_classifier
+
         assert hasattr(stance_classifier, "__name__")
 
 
@@ -196,6 +213,7 @@ class TestCitationContextExtractor:
 
     def test_import(self):
         from jarvis_core.citation import context_extractor
+
         assert hasattr(context_extractor, "__name__")
 
 
@@ -204,6 +222,7 @@ class TestEvidenceVisualizer:
 
     def test_import(self):
         from jarvis_core.evidence import visualizer
+
         assert hasattr(visualizer, "__name__")
 
 
@@ -212,6 +231,7 @@ class TestTruthAlignment:
 
     def test_import(self):
         from jarvis_core.truth import alignment
+
         assert hasattr(alignment, "__name__")
 
 
@@ -220,6 +240,7 @@ class TestTruthContradiction:
 
     def test_import(self):
         from jarvis_core.truth import contradiction
+
         assert hasattr(contradiction, "__name__")
 
 
@@ -228,6 +249,7 @@ class TestTruthConfidence:
 
     def test_import(self):
         from jarvis_core.truth import confidence
+
         assert hasattr(confidence, "__name__")
 
 
@@ -236,6 +258,7 @@ class TestMapTimelineMap:
 
     def test_import(self):
         from jarvis_core.map import timeline_map
+
         assert hasattr(timeline_map, "__name__")
 
 
@@ -244,6 +267,7 @@ class TestMapSimilarityExplain:
 
     def test_import(self):
         from jarvis_core.map import similarity_explain
+
         assert hasattr(similarity_explain, "__name__")
 
 
@@ -252,6 +276,7 @@ class TestMapClusters:
 
     def test_import(self):
         from jarvis_core.map import clusters
+
         assert hasattr(clusters, "__name__")
 
 
@@ -260,6 +285,7 @@ class TestMapBridges:
 
     def test_import(self):
         from jarvis_core.map import bridges
+
         assert hasattr(bridges, "__name__")
 
 
@@ -268,6 +294,7 @@ class TestMapNeighborhood:
 
     def test_import(self):
         from jarvis_core.map import neighborhood
+
         assert hasattr(neighborhood, "__name__")
 
 
@@ -276,6 +303,7 @@ class TestPluginsPluginSystem:
 
     def test_import(self):
         from jarvis_core.plugins import plugin_system
+
         assert hasattr(plugin_system, "__name__")
 
 
@@ -284,6 +312,7 @@ class TestPluginsManager:
 
     def test_import(self):
         from jarvis_core.plugins import manager
+
         assert hasattr(manager, "__name__")
 
 
@@ -292,6 +321,7 @@ class TestPluginsSamplePlugins:
 
     def test_import(self):
         from jarvis_core.plugins import sample_plugins
+
         assert hasattr(sample_plugins, "__name__")
 
 
@@ -300,6 +330,7 @@ class TestDatabasePool:
 
     def test_import(self):
         from jarvis_core.database import pool
+
         assert hasattr(pool, "__name__")
 
 
@@ -308,6 +339,7 @@ class TestIntegrationsAdditional:
 
     def test_import(self):
         from jarvis_core.integrations import additional
+
         assert hasattr(additional, "__name__")
 
 
@@ -316,6 +348,7 @@ class TestIntegrationsObsidian:
 
     def test_import(self):
         from jarvis_core.integrations import obsidian
+
         assert hasattr(obsidian, "__name__")
 
 
@@ -324,6 +357,7 @@ class TestIntegrationsSlack:
 
     def test_import(self):
         from jarvis_core.integrations import slack
+
         assert hasattr(slack, "__name__")
 
 
@@ -332,6 +366,7 @@ class TestIntegrationsSlackBot:
 
     def test_import(self):
         from jarvis_core.integrations import slack_bot
+
         assert hasattr(slack_bot, "__name__")
 
 
@@ -340,6 +375,7 @@ class TestIntegrationsMendeley:
 
     def test_import(self):
         from jarvis_core.integrations import mendeley
+
         assert hasattr(mendeley, "__name__")
 
 
@@ -348,6 +384,7 @@ class TestIntegrationsNotion:
 
     def test_import(self):
         from jarvis_core.integrations import notion
+
         assert hasattr(notion, "__name__")
 
 
@@ -356,6 +393,7 @@ class TestIntegrationsNotebooklm:
 
     def test_import(self):
         from jarvis_core.integrations import notebooklm
+
         assert hasattr(notebooklm, "__name__")
 
 
@@ -364,6 +402,7 @@ class TestIntegrationsPagerduty:
 
     def test_import(self):
         from jarvis_core.integrations import pagerduty
+
         assert hasattr(pagerduty, "__name__")
 
 
@@ -372,6 +411,7 @@ class TestEmbeddingsHybrid:
 
     def test_import(self):
         from jarvis_core.embeddings import hybrid
+
         assert hasattr(hybrid, "__name__")
 
 
@@ -380,6 +420,7 @@ class TestEmbeddingsBm25:
 
     def test_import(self):
         from jarvis_core.embeddings import bm25
+
         assert hasattr(bm25, "__name__")
 
 
@@ -388,6 +429,7 @@ class TestEmbeddingsSentenceTransformer:
 
     def test_import(self):
         from jarvis_core.embeddings import sentence_transformer
+
         assert hasattr(sentence_transformer, "__name__")
 
 
@@ -396,6 +438,7 @@ class TestEmbeddingsChromaStore:
 
     def test_import(self):
         from jarvis_core.embeddings import chroma_store
+
         assert hasattr(chroma_store, "__name__")
 
 
@@ -404,6 +447,7 @@ class TestEmbeddingsSpecter2:
 
     def test_import(self):
         from jarvis_core.embeddings import specter2
+
         assert hasattr(specter2, "__name__")
 
 
@@ -412,6 +456,7 @@ class TestEmbeddingsVectorStore:
 
     def test_import(self):
         from jarvis_core.embeddings import vector_store
+
         assert hasattr(vector_store, "__name__")
 
 
@@ -420,6 +465,7 @@ class TestLLMEnsemble:
 
     def test_import(self):
         from jarvis_core.llm import ensemble
+
         assert hasattr(ensemble, "__name__")
 
 
@@ -428,6 +474,7 @@ class TestLLMModelRouter:
 
     def test_import(self):
         from jarvis_core.llm import model_router
+
         assert hasattr(model_router, "__name__")
 
 
@@ -436,6 +483,7 @@ class TestLLMOllamaAdapter:
 
     def test_import(self):
         from jarvis_core.llm import ollama_adapter
+
         assert hasattr(ollama_adapter, "__name__")
 
 
@@ -444,6 +492,7 @@ class TestLLMLlamacppAdapter:
 
     def test_import(self):
         from jarvis_core.llm import llamacpp_adapter
+
         assert hasattr(llamacpp_adapter, "__name__")
 
 
@@ -452,6 +501,7 @@ class TestSourcesOpenalexClient:
 
     def test_import(self):
         from jarvis_core.sources import openalex_client
+
         assert hasattr(openalex_client, "__name__")
 
 
@@ -460,6 +510,7 @@ class TestSourcesUnifiedSourceClient:
 
     def test_import(self):
         from jarvis_core.sources import unified_source_client
+
         assert hasattr(unified_source_client, "__name__")
 
 
@@ -468,6 +519,7 @@ class TestSourcesChunking:
 
     def test_import(self):
         from jarvis_core.sources import chunking
+
         assert hasattr(chunking, "__name__")
 
 
@@ -476,6 +528,7 @@ class TestStagesPretrainCitation:
 
     def test_import(self):
         from jarvis_core.stages import pretrain_citation
+
         assert hasattr(pretrain_citation, "__name__")
 
 
@@ -484,6 +537,7 @@ class TestStagesPretrainMeta:
 
     def test_import(self):
         from jarvis_core.stages import pretrain_meta
+
         assert hasattr(pretrain_meta, "__name__")
 
 
@@ -492,6 +546,7 @@ class TestMemoryHindsight:
 
     def test_import(self):
         from jarvis_core.memory import hindsight
+
         assert hasattr(hindsight, "__name__")
 
 
@@ -500,6 +555,7 @@ class TestIntelligenceQuestionGenerator:
 
     def test_import(self):
         from jarvis_core.intelligence import question_generator
+
         assert hasattr(question_generator, "__name__")
 
 
@@ -508,6 +564,7 @@ class TestIntelligenceDecision:
 
     def test_import(self):
         from jarvis_core.intelligence import decision
+
         assert hasattr(decision, "__name__")
 
 
@@ -516,6 +573,7 @@ class TestIntelligenceDecisionItem:
 
     def test_import(self):
         from jarvis_core.intelligence import decision_item
+
         assert hasattr(decision_item, "__name__")
 
 
@@ -524,6 +582,7 @@ class TestIntelligenceEvaluatorV2:
 
     def test_import(self):
         from jarvis_core.intelligence import evaluator_v2
+
         assert hasattr(evaluator_v2, "__name__")
 
 
@@ -532,6 +591,7 @@ class TestIntelligenceGoldsetIndex:
 
     def test_import(self):
         from jarvis_core.intelligence import goldset_index
+
         assert hasattr(goldset_index, "__name__")
 
 
@@ -540,6 +600,7 @@ class TestIntelligenceMandatorySearch:
 
     def test_import(self):
         from jarvis_core.intelligence import mandatory_search
+
         assert hasattr(mandatory_search, "__name__")
 
 
@@ -548,6 +609,7 @@ class TestAnalysisGradeSystem:
 
     def test_import(self):
         from jarvis_core.analysis import grade_system
+
         assert hasattr(grade_system, "__name__")
 
 
@@ -556,6 +618,7 @@ class TestAnalysisCitationStance:
 
     def test_import(self):
         from jarvis_core.analysis import citation_stance
+
         assert hasattr(citation_stance, "__name__")
 
 
@@ -564,6 +627,7 @@ class TestAnalysisCitationNetwork:
 
     def test_import(self):
         from jarvis_core.analysis import citation_network
+
         assert hasattr(citation_network, "__name__")
 
 
@@ -572,4 +636,5 @@ class TestAnalysisComparison:
 
     def test_import(self):
         from jarvis_core.analysis import comparison
+
         assert hasattr(comparison, "__name__")

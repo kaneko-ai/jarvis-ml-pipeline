@@ -7,10 +7,12 @@ import pytest
 class TestPubMedBasic:
     def test_import(self):
         from jarvis_core.api import pubmed
+
         assert pubmed is not None
 
 
 class TestModule:
     def test_pubmed_module(self):
         from jarvis_core.api import pubmed
+
         assert pubmed is not None

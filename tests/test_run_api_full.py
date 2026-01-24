@@ -1,8 +1,5 @@
 """Comprehensive tests for api/run_api.py - 15 tests for 18% -> 90% coverage (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestAPIModule:
     """Tests for API module."""

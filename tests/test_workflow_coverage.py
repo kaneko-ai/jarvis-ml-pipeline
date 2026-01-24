@@ -1,8 +1,5 @@
 """Tests for workflow module - Coverage improvement (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-
 
 class TestStepStatus:
     """Tests for StepStatus enum."""

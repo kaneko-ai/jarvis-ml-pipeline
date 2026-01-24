@@ -44,8 +44,8 @@ class ArxivPaper:
         """Convert from core paper model."""
         year = paper.published.year if paper.published else 2024
         # Clean the ID (strip version suffix if needed for consistency)
-        clean_id = paper.arxiv_id.split('v')[0] if 'v' in paper.arxiv_id else paper.arxiv_id
-        
+        clean_id = paper.arxiv_id.split("v")[0] if "v" in paper.arxiv_id else paper.arxiv_id
+
         return cls(
             arxiv_id=clean_id,
             title=paper.title,
@@ -59,7 +59,7 @@ class ArxivPaper:
 
 class ArxivClient:
     """arXiv API Client (Legacy Wrapper).
-    
+
     Now uses jarvis_core.sources.arxiv_client as the engine.
     """
 

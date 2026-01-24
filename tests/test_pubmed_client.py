@@ -4,9 +4,7 @@ Per JARVIS_LOCALFIRST_ROADMAP Task 1.4
 Comprehensive test suite for PubMed client functionality.
 """
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-import xml.etree.ElementTree as ET
+from unittest.mock import Mock, patch
 
 
 class TestPubMedArticle:
@@ -113,9 +111,7 @@ class TestPubMedClient:
         from jarvis_core.sources.pubmed_client import PubMedClient
 
         mock_response = Mock()
-        mock_response.json.return_value = {
-            "esearchresult": {"idlist": ["111", "222", "333"]}
-        }
+        mock_response.json.return_value = {"esearchresult": {"idlist": ["111", "222", "333"]}}
         mock_response.raise_for_status = Mock()
         mock_get.return_value = mock_response
 

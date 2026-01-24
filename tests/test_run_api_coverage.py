@@ -1,8 +1,5 @@
 """Tests for run_api module - Comprehensive coverage (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestRunAPIModule:
     """Tests for run_api module."""

@@ -1,10 +1,10 @@
 """Massive tests for bibtex module - 30 tests for comprehensive coverage."""
 
 import pytest
-from unittest.mock import Mock, patch
 
 
 # ---------- BibTeX Tests ----------
+
 
 @pytest.mark.slow
 class TestBibtexModule:
@@ -12,6 +12,7 @@ class TestBibtexModule:
 
     def test_module_import(self):
         from jarvis_core.bibtex import fetcher
+
         assert fetcher is not None
 
 
@@ -20,6 +21,7 @@ class TestBibtexFetcher:
 
     def test_fetcher_import(self):
         from jarvis_core.bibtex import fetcher
+
         if hasattr(fetcher, "BibtexFetcher"):
             pass
 
@@ -29,6 +31,7 @@ class TestParsing:
 
     def test_parse_bibtex(self):
         from jarvis_core.bibtex import fetcher
+
         if hasattr(fetcher, "parse_bibtex"):
             pass
 
@@ -38,4 +41,5 @@ class TestModuleImports:
 
     def test_bibtex_module(self):
         from jarvis_core.bibtex import fetcher
+
         assert fetcher is not None

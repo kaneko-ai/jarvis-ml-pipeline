@@ -1,6 +1,6 @@
-
-
 import jarvis_core.cli as cli
+
+
 def test_main_invokes_run_jarvis_and_prints(monkeypatch, capsys):
     calls = []
 

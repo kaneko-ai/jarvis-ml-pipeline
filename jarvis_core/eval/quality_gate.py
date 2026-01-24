@@ -142,8 +142,10 @@ class QualityGateVerifier:
             missing_locators = 0
             for cit in citations:
                 # Support both objects and dicts
-                locator = getattr(cit, "locator", None) or (cit.get("locator") if isinstance(cit, dict) else None)
-                
+                locator = getattr(cit, "locator", None) or (
+                    cit.get("locator") if isinstance(cit, dict) else None
+                )
+
                 if not locator:
                     missing_locators += 1
                 elif isinstance(locator, dict):

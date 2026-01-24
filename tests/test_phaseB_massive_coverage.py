@@ -10,40 +10,100 @@ import pytest
 # All jarvis_core root modules
 # ====================
 
+
 @pytest.mark.slow
 class TestAllRootModules:
     """Import all root modules."""
 
-    @pytest.mark.parametrize("module_name", [
-        "alignment", "audio_script", "autonomous_loop", "bibliography",
-        "bibtex", "budget_policy", "bundle", "bundle_layout",
-        "calendar_builder", "career_engines", "career_planner",
-        "chain_builder", "changelog_generator", "claim",
-        "cli", "clinical_readiness", "comparison",
-        "competing_hypothesis", "context_packager", "cross_field",
-        "day_in_life", "diff_engine", "draft_generator",
-        "education", "email_generator", "enforce", "enforcement",
-        "execution_engine", "failure_predictor", "failure_simulator",
-        "feasibility", "figure_table_registry", "funding_cliff",
-        "gap_analysis", "goldset", "grant_optimizer",
-        "heatmap", "hitl", "hypothesis",
-        "journal_targeting", "kill_switch", "knowledge_graph",
-        "lab_culture", "lab_optimizer", "lab_to_startup",
-        "lambda_modules", "living_review", "logic_citation",
-        "meta_science", "method_trend", "model_system",
-        "package_builder", "paper_scoring", "paper_vector",
-        "paradigm", "pi_succession", "pi_support",
-        "planner", "plugins", "positioning",
-        "pretrain_citation_reconstruction", "pretrain_meta_core",
-        "prisma", "quality_gate", "recommendation",
-        "rehearsal", "remediation", "reproducibility_cert",
-        "reviewer_persona", "roi_engine", "scheduler_engine",
-        "scientific_linter", "sigma_modules", "spec_lint",
-        "student_portfolio", "task_model", "thinking_engines",
-        "timeline", "trace", "trend_watcher",
-        "validation", "weekly_pack", "workflow_runner",
-        "workflow_tuner",
-    ])
+    @pytest.mark.parametrize(
+        "module_name",
+        [
+            "alignment",
+            "audio_script",
+            "autonomous_loop",
+            "bibliography",
+            "bibtex",
+            "budget_policy",
+            "bundle",
+            "bundle_layout",
+            "calendar_builder",
+            "career_engines",
+            "career_planner",
+            "chain_builder",
+            "changelog_generator",
+            "claim",
+            "cli",
+            "clinical_readiness",
+            "comparison",
+            "competing_hypothesis",
+            "context_packager",
+            "cross_field",
+            "day_in_life",
+            "diff_engine",
+            "draft_generator",
+            "education",
+            "email_generator",
+            "enforce",
+            "enforcement",
+            "execution_engine",
+            "failure_predictor",
+            "failure_simulator",
+            "feasibility",
+            "figure_table_registry",
+            "funding_cliff",
+            "gap_analysis",
+            "goldset",
+            "grant_optimizer",
+            "heatmap",
+            "hitl",
+            "hypothesis",
+            "journal_targeting",
+            "kill_switch",
+            "knowledge_graph",
+            "lab_culture",
+            "lab_optimizer",
+            "lab_to_startup",
+            "lambda_modules",
+            "living_review",
+            "logic_citation",
+            "meta_science",
+            "method_trend",
+            "model_system",
+            "package_builder",
+            "paper_scoring",
+            "paper_vector",
+            "paradigm",
+            "pi_succession",
+            "pi_support",
+            "planner",
+            "plugins",
+            "positioning",
+            "pretrain_citation_reconstruction",
+            "pretrain_meta_core",
+            "prisma",
+            "quality_gate",
+            "recommendation",
+            "rehearsal",
+            "remediation",
+            "reproducibility_cert",
+            "reviewer_persona",
+            "roi_engine",
+            "scheduler_engine",
+            "scientific_linter",
+            "sigma_modules",
+            "spec_lint",
+            "student_portfolio",
+            "task_model",
+            "thinking_engines",
+            "timeline",
+            "trace",
+            "trend_watcher",
+            "validation",
+            "weekly_pack",
+            "workflow_runner",
+            "workflow_tuner",
+        ],
+    )
     def test_root_module(self, module_name):
         """Test root module import."""
         try:
@@ -56,13 +116,14 @@ class TestAllRootModules:
 # All subpackage modules
 # ====================
 
+
 class TestActivelearningModules:
     @pytest.mark.parametrize("module", ["cli", "engine", "strategy"])
     def test_import(self, module):
         try:
             exec(f"from jarvis_core.experimental.active_learning import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestAdvancedModules:
@@ -71,7 +132,7 @@ class TestAdvancedModules:
         try:
             exec(f"from jarvis_core.advanced import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestAgentsModules:
@@ -80,7 +141,7 @@ class TestAgentsModules:
         try:
             exec(f"from jarvis_core.agents import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestAnalysisModules:
@@ -89,7 +150,7 @@ class TestAnalysisModules:
         try:
             exec(f"from jarvis_core.analysis import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestAPIModules:
@@ -98,7 +159,7 @@ class TestAPIModules:
         try:
             exec(f"from jarvis_core.api import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestArtifactsModules:
@@ -107,7 +168,7 @@ class TestArtifactsModules:
         try:
             exec(f"from jarvis_core.artifacts import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestCacheModules:
@@ -116,7 +177,7 @@ class TestCacheModules:
         try:
             exec(f"from jarvis_core.cache import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestCitationModules:
@@ -125,7 +186,7 @@ class TestCitationModules:
         try:
             exec(f"from jarvis_core.citation import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestContradictionModules:
@@ -134,7 +195,7 @@ class TestContradictionModules:
         try:
             exec(f"from jarvis_core.contradiction import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestDecisionModules:
@@ -143,7 +204,7 @@ class TestDecisionModules:
         try:
             exec(f"from jarvis_core.decision import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestDevtoolsModules:
@@ -152,7 +213,7 @@ class TestDevtoolsModules:
         try:
             exec(f"from jarvis_core.devtools import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestEmbeddingsModules:
@@ -161,16 +222,18 @@ class TestEmbeddingsModules:
         try:
             exec(f"from jarvis_core.embeddings import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestEvalModules:
-    @pytest.mark.parametrize("module", ["citation_loop", "extended_metrics", "text_quality", "validator"])
+    @pytest.mark.parametrize(
+        "module", ["citation_loop", "extended_metrics", "text_quality", "validator"]
+    )
     def test_import(self, module):
         try:
             exec(f"from jarvis_core.eval import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestEvaluationModules:
@@ -179,7 +242,7 @@ class TestEvaluationModules:
         try:
             exec(f"from jarvis_core.evaluation import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestEvidenceModules:
@@ -188,7 +251,7 @@ class TestEvidenceModules:
         try:
             exec(f"from jarvis_core.evidence import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestExtractionModules:
@@ -197,7 +260,7 @@ class TestExtractionModules:
         try:
             exec(f"from jarvis_core.extraction import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestFinanceModules:
@@ -206,7 +269,7 @@ class TestFinanceModules:
         try:
             exec(f"from jarvis_core.experimental.finance import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestIngestionModules:
@@ -215,16 +278,18 @@ class TestIngestionModules:
         try:
             exec(f"from jarvis_core.ingestion import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestIntegrationsModules:
-    @pytest.mark.parametrize("module", ["mendeley", "notion", "pagerduty", "ris_bibtex", "slack", "zotero"])
+    @pytest.mark.parametrize(
+        "module", ["mendeley", "notion", "pagerduty", "ris_bibtex", "slack", "zotero"]
+    )
     def test_import(self, module):
         try:
             exec(f"from jarvis_core.integrations import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestIntelligenceModules:
@@ -233,7 +298,7 @@ class TestIntelligenceModules:
         try:
             exec(f"from jarvis_core.intelligence import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestKBModules:
@@ -242,7 +307,7 @@ class TestKBModules:
         try:
             exec(f"from jarvis_core.kb import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestKnowledgeModules:
@@ -251,7 +316,7 @@ class TestKnowledgeModules:
         try:
             exec(f"from jarvis_core.knowledge import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestKPIModules:
@@ -260,7 +325,7 @@ class TestKPIModules:
         try:
             exec(f"from jarvis_core.kpi import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestLabModules:
@@ -269,7 +334,7 @@ class TestLabModules:
         try:
             exec(f"from jarvis_core.lab import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestLLMModules:
@@ -278,7 +343,7 @@ class TestLLMModules:
         try:
             exec(f"from jarvis_core.llm import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestMetadataModules:
@@ -287,7 +352,7 @@ class TestMetadataModules:
         try:
             exec(f"from jarvis_core.metadata import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestMultimodalModules:
@@ -296,7 +361,7 @@ class TestMultimodalModules:
         try:
             exec(f"from jarvis_core.multimodal import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestNetworkModules:
@@ -305,7 +370,7 @@ class TestNetworkModules:
         try:
             exec(f"from jarvis_core.network import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestNotesModules:
@@ -314,7 +379,7 @@ class TestNotesModules:
         try:
             exec(f"from jarvis_core.notes import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestObsModules:
@@ -323,7 +388,7 @@ class TestObsModules:
         try:
             exec(f"from jarvis_core.obs import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestOpsModules:
@@ -332,7 +397,7 @@ class TestOpsModules:
         try:
             exec(f"from jarvis_core.ops import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestPerfModules:
@@ -341,7 +406,7 @@ class TestPerfModules:
         try:
             exec(f"from jarvis_core.perf import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestPipelinesModules:
@@ -350,7 +415,7 @@ class TestPipelinesModules:
         try:
             exec(f"from jarvis_core.pipelines import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestPoliciesModules:
@@ -359,7 +424,7 @@ class TestPoliciesModules:
         try:
             exec(f"from jarvis_core.policies import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestProvenanceModules:
@@ -368,7 +433,7 @@ class TestProvenanceModules:
         try:
             exec(f"from jarvis_core.provenance import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestProvidersModules:
@@ -377,7 +442,7 @@ class TestProvidersModules:
         try:
             exec(f"from jarvis_core.providers import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestRankingModules:
@@ -386,7 +451,7 @@ class TestRankingModules:
         try:
             exec(f"from jarvis_core.ranking import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestRenderersModules:
@@ -395,7 +460,7 @@ class TestRenderersModules:
         try:
             exec(f"from jarvis_core.renderers import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestRepairModules:
@@ -404,7 +469,7 @@ class TestRepairModules:
         try:
             exec(f"from jarvis_core.repair import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestReplayModules:
@@ -413,7 +478,7 @@ class TestReplayModules:
         try:
             exec(f"from jarvis_core.replay import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestReportModules:
@@ -422,7 +487,7 @@ class TestReportModules:
         try:
             exec(f"from jarvis_core.report import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestReportingModules:
@@ -431,25 +496,30 @@ class TestReportingModules:
         try:
             exec(f"from jarvis_core.reporting import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestRetrievalModules:
-    @pytest.mark.parametrize("module", ["citation_context", "cross_encoder", "export", "hyde", "query_decompose", "retriever"])
+    @pytest.mark.parametrize(
+        "module",
+        ["citation_context", "cross_encoder", "export", "hyde", "query_decompose", "retriever"],
+    )
     def test_import(self, module):
         try:
             exec(f"from jarvis_core.retrieval import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestRuntimeModules:
-    @pytest.mark.parametrize("module", ["cost_tracker", "durable", "gpu", "rate_limiter", "telemetry"])
+    @pytest.mark.parametrize(
+        "module", ["cost_tracker", "durable", "gpu", "rate_limiter", "telemetry"]
+    )
     def test_import(self, module):
         try:
             exec(f"from jarvis_core.runtime import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestSchedulerModules:
@@ -458,7 +528,7 @@ class TestSchedulerModules:
         try:
             exec(f"from jarvis_core.scheduler import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestScoringModules:
@@ -467,7 +537,7 @@ class TestScoringModules:
         try:
             exec(f"from jarvis_core.scoring import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestSearchModules:
@@ -476,25 +546,36 @@ class TestSearchModules:
         try:
             exec(f"from jarvis_core.search import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestSourcesModules:
-    @pytest.mark.parametrize("module", ["arxiv_client", "crossref_client", "pubmed_client", "unpaywall_client"])
+    @pytest.mark.parametrize(
+        "module", ["arxiv_client", "crossref_client", "pubmed_client", "unpaywall_client"]
+    )
     def test_import(self, module):
         try:
             exec(f"from jarvis_core.sources import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestStagesModules:
-    @pytest.mark.parametrize("module", ["extract_claims", "find_evidence", "generate_report", "grade_evidence", "retrieval_extraction"])
+    @pytest.mark.parametrize(
+        "module",
+        [
+            "extract_claims",
+            "find_evidence",
+            "generate_report",
+            "grade_evidence",
+            "retrieval_extraction",
+        ],
+    )
     def test_import(self, module):
         try:
             exec(f"from jarvis_core.stages import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestStorageModules:
@@ -503,7 +584,7 @@ class TestStorageModules:
         try:
             exec(f"from jarvis_core.storage import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestSubmissionModules:
@@ -512,7 +593,7 @@ class TestSubmissionModules:
         try:
             exec(f"from jarvis_core.submission import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestSyncModules:
@@ -521,7 +602,7 @@ class TestSyncModules:
         try:
             exec(f"from jarvis_core.sync import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestTelemetryModules:
@@ -530,7 +611,7 @@ class TestTelemetryModules:
         try:
             exec(f"from jarvis_core.telemetry import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestVisualizationModules:
@@ -539,7 +620,7 @@ class TestVisualizationModules:
         try:
             exec(f"from jarvis_core.visualization import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestWorkflowModules:
@@ -548,7 +629,7 @@ class TestWorkflowModules:
         try:
             exec(f"from jarvis_core.workflow import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")
 
 
 class TestWritingModules:
@@ -557,4 +638,4 @@ class TestWritingModules:
         try:
             exec(f"from jarvis_core.writing import {module}")
         except ImportError:
-            pytest.skip(f"Not available")
+            pytest.skip("Not available")

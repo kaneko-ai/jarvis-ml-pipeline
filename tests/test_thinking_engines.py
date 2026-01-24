@@ -27,7 +27,7 @@ class TestAnalyzeCounterfactual:
     def test_empty_vectors(self):
         mock_vector = make_mock_vector("paper1", ["cancer"])
         result = analyze_counterfactual(mock_vector, [])
-        
+
         assert result["impact_delta"] == 0.0
         assert result["estimated"] is True
 
@@ -37,9 +37,9 @@ class TestAnalyzeCounterfactual:
             make_mock_vector("paper2", ["cancer"]),
             make_mock_vector("paper3", ["diabetes"]),
         ]
-        
+
         result = analyze_counterfactual(vector, others)
-        
+
         assert "impact_delta" in result
         assert "affected_papers" in result
 
@@ -55,9 +55,9 @@ class TestDiscoverBlindSpots:
         v1.biological_axis.immune_activation = 0.1
         v1.biological_axis.metabolism_signal = 0.1
         v1.biological_axis.tumor_context = 0.1
-        
+
         result = discover_blind_spots([v1])
-        
+
         # Should find blind spots due to low coverage
         assert isinstance(result, list)
 
@@ -68,9 +68,9 @@ class TestSimulateConceptMutation:
             make_mock_vector("p1", ["cancer", "treatment"]),
             make_mock_vector("p2", ["cancer", "diagnosis"]),
         ]
-        
+
         result = simulate_concept_mutation("cancer", vectors)
-        
+
         assert result["original_concept"] == "cancer"
         assert "mutation_paths" in result
         assert result["estimated"] is True
@@ -79,9 +79,9 @@ class TestSimulateConceptMutation:
 class TestSimulateResearchDebate:
     def test_debate_structure(self):
         vectors = [make_mock_vector("p1", ["hypothesis"])]
-        
+
         result = simulate_research_debate("Test hypothesis", vectors)
-        
+
         assert "pro_arguments" in result
         assert "con_arguments" in result
         assert result["winner"] in ["pro", "con"]
@@ -91,15 +91,15 @@ class TestSimulateResearchDebate:
 class TestSimulateHypothesisEvolution:
     def test_empty_hypotheses(self):
         result = simulate_hypothesis_evolution([], [])
-        
+
         assert result["surviving_hypotheses"] == []
 
     def test_evolution_selection(self):
         vectors = [make_mock_vector("p1", ["cancer"])]
         hypotheses = ["Cancer treatment", "Random topic"]
-        
+
         result = simulate_hypothesis_evolution(hypotheses, vectors)
-        
+
         assert result["initial_count"] == 2
         assert len(result["surviving_hypotheses"]) >= 1
         assert "survival_rate" in result

@@ -1,6 +1,6 @@
 """Tests for llm.model_router module."""
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from jarvis_core.llm.model_router import (
     TaskType,
@@ -44,7 +44,7 @@ class TestModelConfig:
             model_name="llama3.2",
             max_tokens=2000,
         )
-        
+
         assert config.provider == ModelProvider.OLLAMA
         assert config.model_name == "llama3.2"
 
@@ -53,7 +53,7 @@ class TestModelConfig:
             provider=ModelProvider.GEMINI,
             model_name="gemini-flash",
         )
-        
+
         assert config.max_tokens == 1000
         assert config.temperature == 0.0
 
@@ -66,7 +66,7 @@ class TestRoutingDecision:
             model_config=config,
             reason="Test routing",
         )
-        
+
         assert decision.task_type == TaskType.GENERATE
         assert decision.fallback is None
 
@@ -89,7 +89,7 @@ class TestLocalFirstChain:
 class TestModelRouter:
     def test_init_default(self):
         router = ModelRouter()
-        
+
         assert router.primary_provider == ModelProvider.OLLAMA
         assert router.local_first is True
 
@@ -98,54 +98,54 @@ class TestModelRouter:
             primary_provider=ModelProvider.GEMINI,
             local_first=False,
         )
-        
+
         assert router.primary_provider == ModelProvider.GEMINI
 
     def test_check_availability_rule(self):
         router = ModelRouter()
-        
+
         # Rule provider is always available
         result = router.check_availability(ModelProvider.RULE)
-        
+
         assert result is True
 
     def test_find_available_provider(self):
         router = ModelRouter()
-        
+
         with patch.object(router, "check_availability") as mock_check:
             mock_check.side_effect = lambda p: p == ModelProvider.RULE
-            
+
             provider = router.find_available_provider()
-            
+
             # Should fall back to RULE
             assert provider == ModelProvider.RULE
 
     def test_route_simple(self):
         router = ModelRouter()
-        
+
         with patch.object(router, "find_available_provider", return_value=ModelProvider.RULE):
             decision = router.route(TaskType.CLASSIFY)
-            
+
             assert decision.task_type == TaskType.CLASSIFY
 
     def test_route_with_complexity(self):
         router = ModelRouter()
-        
+
         with patch.object(router, "find_available_provider", return_value=ModelProvider.RULE):
             decision = router.route(TaskType.GENERATE, complexity="high")
-            
+
             assert decision is not None
 
 
 class TestGetRouter:
     def test_returns_router(self):
         router = get_router()
-        
+
         assert isinstance(router, ModelRouter)
 
 
 class TestRouteTask:
     def test_routes_task(self):
         decision = route_task(TaskType.SUMMARIZE)
-        
+
         assert decision.task_type == TaskType.SUMMARIZE

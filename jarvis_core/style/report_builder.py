@@ -98,7 +98,9 @@ def run_qa_gate(
             normalized["md"] = normalized_md
             issues.extend([issue.__dict__ for issue in md_issues])
             replacements.extend(md_replacements)
-            lint_issues.extend([issue.__dict__ for issue in ScientificLinter().lint_text(normalized_md)])
+            lint_issues.extend(
+                [issue.__dict__ for issue in ScientificLinter().lint_text(normalized_md)]
+            )
 
     if "docx" in targets:
         for docx_path in run_dir.glob("*.docx"):
@@ -112,9 +114,7 @@ def run_qa_gate(
             lint_issues.extend(
                 [
                     issue.__dict__
-                    for issue in ScientificLinter().lint_text(
-                        "\n".join(result.normalized_lines)
-                    )
+                    for issue in ScientificLinter().lint_text("\n".join(result.normalized_lines))
                 ]
             )
 
@@ -130,9 +130,7 @@ def run_qa_gate(
             lint_issues.extend(
                 [
                     issue.__dict__
-                    for issue in ScientificLinter().lint_text(
-                        "\n".join(result.normalized_lines)
-                    )
+                    for issue in ScientificLinter().lint_text("\n".join(result.normalized_lines))
                 ]
             )
 

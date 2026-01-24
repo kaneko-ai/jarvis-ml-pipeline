@@ -8,9 +8,11 @@ class TestSubmissionSafe:
     def test_import_safe(self):
         try:
             from jarvis_core import submission
+
             assert submission is not None
         except ImportError:
             pass
+
 
 class TestModule:
     def test_module(self):

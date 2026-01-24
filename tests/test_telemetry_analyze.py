@@ -1,7 +1,6 @@
 """Tests for telemetry.analyze module."""
 
 import json
-from pathlib import Path
 
 from jarvis_core.telemetry.analyze import (
     StepStats,
@@ -61,14 +60,26 @@ class TestAnalyzeEvents:
     def test_analyze_basic_events(self, tmp_path):
         events_file = tmp_path / "events.jsonl"
         events = [
-            {"run_id": "run1", "event": "start", "event_type": "run", "level": "INFO", "ts": "2024-01-01T00:00:00"},
+            {
+                "run_id": "run1",
+                "event": "start",
+                "event_type": "run",
+                "level": "INFO",
+                "ts": "2024-01-01T00:00:00",
+            },
             {"event": "step", "event_type": "step", "level": "INFO", "ts": "2024-01-01T00:00:01"},
-            {"event": "error", "event_type": "step", "level": "ERROR", "ts": "2024-01-01T00:00:02", "payload": {"error_type": "ValueError", "error": "test error"}},
+            {
+                "event": "error",
+                "event_type": "step",
+                "level": "ERROR",
+                "ts": "2024-01-01T00:00:02",
+                "payload": {"error_type": "ValueError", "error": "test error"},
+            },
         ]
         events_file.write_text("\n".join(json.dumps(e) for e in events))
-        
+
         analysis = analyze_events(events_file)
-        
+
         assert analysis.run_id == "run1"
         assert analysis.total_events == 3
         assert "step" in analysis.step_stats
@@ -78,7 +89,7 @@ class TestAnalyzeEvents:
         events_file = tmp_path / "events.jsonl"
         events = [{"event": "test", "event_type": "step", "level": "INFO", "ts": "2024-01-01"}]
         events_file.write_text(json.dumps(events[0]))
-        
+
         analysis = analyze_events(events_file)
         assert analysis.run_id == "unknown"
 
@@ -92,9 +103,9 @@ class TestPrintAnalysis:
             top_failures=[FailureRecord("error", "ValueError", "test error")],
             timeline=[],
         )
-        
+
         print_analysis(analysis)
-        
+
         captured = capsys.readouterr()
         assert "test_run" in captured.out
         assert "50" in captured.out

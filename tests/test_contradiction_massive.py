@@ -8,9 +8,11 @@ class TestContradictionSafe:
     def test_import_safe(self):
         try:
             from jarvis_core import contradiction
+
             assert contradiction is not None
         except ImportError:
             pass
+
 
 class TestModule:
     def test_module(self):

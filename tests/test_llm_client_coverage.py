@@ -1,8 +1,5 @@
 """Tests for llm module - Comprehensive coverage (FIXED v3)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestLLMModule:
     """Tests for llm module."""

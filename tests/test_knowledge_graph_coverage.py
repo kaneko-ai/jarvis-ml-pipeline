@@ -1,8 +1,5 @@
 """Tests for knowledge_graph module - Comprehensive coverage (FIXED v2)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestKnowledgeGraph:
     """Tests for KnowledgeGraph class."""

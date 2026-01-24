@@ -47,6 +47,7 @@ def main():
     # Fetch metadata if available
     try:
         from jarvis_tools.papers import pubmed_esummary
+
         papers = pubmed_esummary(pmids)
         paper_map = {p.pmid: p for p in papers}
     except Exception:

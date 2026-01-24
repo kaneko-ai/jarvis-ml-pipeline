@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from jarvis_core.obs.alerts import engine as alert_engine
 from jarvis_core.obs.alerts.schema import AlertRule, save_rules
+
+
 def test_alert_cooldown(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     (tmp_path / "data" / "ops").mkdir(parents=True, exist_ok=True)

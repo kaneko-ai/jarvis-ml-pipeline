@@ -64,11 +64,13 @@ class TestEvidenceStoreBasic:
         store = EvidenceStore()
         assert store.get_chunk("nonexistent-id") is None
 
+
 class DummyPlanner(Planner):
     """Planner that returns the task itself as the only subtask."""
 
     def plan(self, task: Task):
         return [task]
+
 
 class DummyRouter:
     """Router that returns a configurable AgentResult-like object."""
@@ -91,12 +93,14 @@ class DummyRouter:
             meta={},
         )
 
+
 def make_task() -> Task:
     return Task(
         task_id="test-task",
         title="Test evidence store",
         category=TaskCategory.GENERIC,
     )
+
 
 class TestEvidenceStoreIntegration:
     """Integration tests for EvidenceStore with ExecutionEngine."""

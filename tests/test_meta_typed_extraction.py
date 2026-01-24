@@ -38,6 +38,7 @@ class TestPICOElement:
         keywords = elem.extract_keywords()
         assert keywords == []
 
+
 class TestPICOProfile:
     """PICOProfile テスト."""
 
@@ -63,6 +64,7 @@ class TestPICOProfile:
 
         assert profile.is_complete() is False
         assert "intervention" in profile.missing_elements()
+
 
 class TestPICOConsistencyChecker:
     """PICO整合性チェッカーテスト."""
@@ -125,6 +127,7 @@ class TestPICOConsistencyChecker:
         result = checker.check_numeric_consistency(0.5, 0.8, tolerance=0.01)
         assert result.level == ConsistencyLevel.INCONSISTENT
 
+
 class TestFullPICOConsistency:
     """PICO全体整合性テスト."""
 
@@ -165,6 +168,7 @@ class TestFullPICOConsistency:
         result = checker.check_full_pico_consistency(claim_pico, evidence_pico)
 
         assert result.level == ConsistencyLevel.UNKNOWN
+
 
 class TestPICOGate:
     """PICOゲートテスト."""
@@ -214,6 +218,7 @@ class TestPICOGate:
         assert isinstance(passed_normal, bool)
         assert isinstance(passed_strict, bool)
 
+
 class TestEffectSizeTypeSafety:
     """効果量型安全テスト."""
 
@@ -231,6 +236,7 @@ class TestEffectSizeTypeSafety:
         assert EffectDirection.HARMFUL.value == "harmful"
         assert EffectDirection.NEUTRAL.value == "neutral"
         assert EffectDirection.UNKNOWN.value == "unknown"
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

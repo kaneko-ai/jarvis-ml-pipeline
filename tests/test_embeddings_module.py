@@ -117,7 +117,6 @@ class TestBM25Index:
             results = loaded.search("document", top_k=2)
             assert len(results) == 2
 
-
     def test_add_document(self):
         """Test adding a document."""
         pytest.importorskip("rank_bm25")

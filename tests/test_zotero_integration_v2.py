@@ -5,7 +5,6 @@ Tests for bibtex_export.py to improve coverage.
 
 import tempfile
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 
@@ -122,7 +121,9 @@ class TestExportBibtex:
             output_dir = Path(tmpdir) / "output"
             output_dir.mkdir()
 
-            result = export_bibtex("test_run", source_runs_dir=source_dir, output_base_dir=output_dir)
+            result = export_bibtex(
+                "test_run", source_runs_dir=source_dir, output_base_dir=output_dir
+            )
             assert result.endswith("refs.bib")
 
     def test_export_bibtex_with_papers(self):
@@ -139,7 +140,12 @@ class TestExportBibtex:
             # Create papers.jsonl with test data
             papers_data = [
                 {"title": "Test Paper", "authors": ["Smith, J"], "year": 2024, "journal": "Nature"},
-                {"title": "Another Paper", "authors": ["Doe, J"], "year": 2023, "doi": "10.1234/test"},
+                {
+                    "title": "Another Paper",
+                    "authors": ["Doe, J"],
+                    "year": 2023,
+                    "doi": "10.1234/test",
+                },
             ]
             with open(run_dir / "papers.jsonl", "w", encoding="utf-8") as f:
                 for p in papers_data:
@@ -148,8 +154,10 @@ class TestExportBibtex:
             output_dir = Path(tmpdir) / "output"
             output_dir.mkdir()
 
-            result = export_bibtex("test_run", source_runs_dir=source_dir, output_base_dir=output_dir)
-            
+            result = export_bibtex(
+                "test_run", source_runs_dir=source_dir, output_base_dir=output_dir
+            )
+
             # Verify output file exists and contains entries
             bib_path = Path(result)
             assert bib_path.exists()

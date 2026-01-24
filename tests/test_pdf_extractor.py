@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 SAMPLE_PDF = ROOT / "tests" / "fixtures" / "sample.pdf"
 
+
 class TestExtractPdfPages:
     """Tests for extract_pdf_pages function."""
 
@@ -56,6 +57,7 @@ class TestExtractPdfPages:
         with pytest.raises(FileNotFoundError):
             extract_pdf_pages("nonexistent.pdf")
 
+
 class TestLoadPdfAsDocuments:
     """Tests for load_pdf_as_documents function."""
 
@@ -79,6 +81,7 @@ class TestLoadPdfAsDocuments:
         for i, doc in enumerate(docs):
             assert doc.metadata["page"] == i + 1
             assert doc.metadata["total_pages"] == 3
+
 
 class TestIngestPdf:
     """Tests for ingest_pdf convenience function."""
@@ -119,6 +122,7 @@ class TestIngestPdf:
         assert len(ctx.available_chunks) == len(results)
         for result in results:
             assert result.chunk_id in ctx.get_chunk_ids()
+
 
 class TestIntegration:
     """Integration tests for full PDF pipeline."""

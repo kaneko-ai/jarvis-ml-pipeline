@@ -1,4 +1,5 @@
 """Generate a sample PDF fixture for tests."""
+
 from pathlib import Path
 
 from reportlab.lib.pagesizes import letter

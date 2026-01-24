@@ -4,22 +4,22 @@ Target: Modules with <20% coverage and high line counts.
 Focus: ingestion/pipeline.py (600 lines, 19%), multimodal/scientific.py (208 lines)
 """
 
-import pytest
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, MagicMock
 import tempfile
 from pathlib import Path
-import json
 
 
 # ============================================================
 # Tests for ingestion/pipeline.py - All Classes and Functions
 # ============================================================
 
+
 class TestTextChunk:
     """Tests for TextChunk dataclass."""
 
     def test_creation(self):
         from jarvis_core.ingestion.pipeline import TextChunk
+
         chunk = TextChunk(
             chunk_id="c1",
             text="Test text",
@@ -27,13 +27,14 @@ class TestTextChunk:
             paragraph_index=0,
             page=1,
             char_start=0,
-            char_end=9
+            char_end=9,
         )
         assert chunk.chunk_id == "c1"
         assert chunk.text == "Test text"
 
     def test_to_dict(self):
         from jarvis_core.ingestion.pipeline import TextChunk
+
         chunk = TextChunk(chunk_id="c1", text="Test")
         d = chunk.to_dict()
         assert d["chunk_id"] == "c1"
@@ -46,17 +47,14 @@ class TestExtractedPaper:
 
     def test_creation(self):
         from jarvis_core.ingestion.pipeline import ExtractedPaper
-        paper = ExtractedPaper(
-            paper_id="p1",
-            title="Test Paper",
-            year=2024,
-            source="local"
-        )
+
+        paper = ExtractedPaper(paper_id="p1", title="Test Paper", year=2024, source="local")
         assert paper.paper_id == "p1"
         assert paper.title == "Test Paper"
 
     def test_to_dict(self):
         from jarvis_core.ingestion.pipeline import ExtractedPaper
+
         paper = ExtractedPaper(paper_id="p1", title="Test", year=2024)
         d = paper.to_dict()
         assert d["paper_id"] == "p1"
@@ -68,12 +66,14 @@ class TestIngestionResult:
 
     def test_creation(self):
         from jarvis_core.ingestion.pipeline import IngestionResult
+
         result = IngestionResult()
         assert result.papers == []
         assert result.warnings == []
 
     def test_to_dict(self):
         from jarvis_core.ingestion.pipeline import IngestionResult, ExtractedPaper
+
         result = IngestionResult()
         result.papers.append(ExtractedPaper(paper_id="p1", title="T", year=2024))
         d = result.to_dict()
@@ -85,29 +85,33 @@ class TestPDFExtractor:
 
     def test_init(self):
         from jarvis_core.ingestion.pipeline import PDFExtractor
+
         extractor = PDFExtractor()
         assert extractor is not None
 
     def test_extract_fallback(self):
         from jarvis_core.ingestion.pipeline import PDFExtractor
+
         extractor = PDFExtractor()
         extractor._pdfplumber = None
         extractor._pymupdf = None
         text, pages = extractor._extract_fallback(Path("test.pdf"))
         assert "requires" in text.lower()
 
-    @patch('jarvis_core.ingestion.pipeline.PDFExtractor._extract_pymupdf')
+    @patch("jarvis_core.ingestion.pipeline.PDFExtractor._extract_pymupdf")
     def test_extract_with_pymupdf(self, mock_extract):
         from jarvis_core.ingestion.pipeline import PDFExtractor
+
         mock_extract.return_value = ("Test text", [(1, "Page 1")])
         extractor = PDFExtractor()
         extractor._pymupdf = MagicMock()
         text, pages = extractor.extract(Path("test.pdf"))
         mock_extract.assert_called_once()
 
-    @patch('jarvis_core.ingestion.pipeline.PDFExtractor._extract_pdfplumber')
+    @patch("jarvis_core.ingestion.pipeline.PDFExtractor._extract_pdfplumber")
     def test_extract_with_pdfplumber(self, mock_extract):
         from jarvis_core.ingestion.pipeline import PDFExtractor
+
         mock_extract.return_value = ("Test text", [(1, "Page 1")])
         extractor = PDFExtractor()
         extractor._pymupdf = None
@@ -121,12 +125,14 @@ class TestTextChunker:
 
     def test_init(self):
         from jarvis_core.ingestion.pipeline import TextChunker
+
         chunker = TextChunker(chunk_size=500, overlap=50)
         assert chunker.chunk_size == 500
         assert chunker.overlap == 50
 
     def test_chunk_simple(self):
         from jarvis_core.ingestion.pipeline import TextChunker
+
         chunker = TextChunker(chunk_size=100)
         text = "This is a test paragraph. " * 10
         chunks = chunker.chunk(text, "paper_1")
@@ -135,6 +141,7 @@ class TestTextChunker:
 
     def test_detect_sections(self):
         from jarvis_core.ingestion.pipeline import TextChunker
+
         chunker = TextChunker()
         text = """Abstract
 This is the abstract.
@@ -149,6 +156,7 @@ These are the methods."""
 
     def test_detect_sections_no_headers(self):
         from jarvis_core.ingestion.pipeline import TextChunker
+
         chunker = TextChunker()
         text = "Just plain text without any section headers."
         sections = chunker._detect_sections(text)
@@ -156,6 +164,7 @@ These are the methods."""
 
     def test_chunk_text(self):
         from jarvis_core.ingestion.pipeline import TextChunker
+
         chunker = TextChunker(chunk_size=50, overlap=10)
         text = "Paragraph one.\n\nParagraph two.\n\nParagraph three."
         chunks = chunker._chunk_text(text, 0, "p1", "Section", 0)
@@ -167,13 +176,16 @@ class TestBibTeXParser:
 
     def test_parse_valid(self):
         from jarvis_core.ingestion.pipeline import BibTeXParser
+
         parser = BibTeXParser()
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.bib', delete=False) as f:
-            f.write("""@article{test2024,
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".bib", delete=False) as f:
+            f.write(
+                """@article{test2024,
     title = {Test Title},
     author = {Test Author},
     year = {2024}
-}""")
+}"""
+            )
             path = Path(f.name)
         entries = parser.parse(path)
         assert len(entries) == 1
@@ -182,12 +194,14 @@ class TestBibTeXParser:
 
     def test_parse_invalid(self):
         from jarvis_core.ingestion.pipeline import BibTeXParser
+
         parser = BibTeXParser()
         entries = parser.parse(Path("/nonexistent/file.bib"))
         assert entries == []
 
     def test_parse_fields(self):
         from jarvis_core.ingestion.pipeline import BibTeXParser
+
         parser = BibTeXParser()
         text = 'title = {Test}, author = "Author Name", year = {2024}'
         fields = parser._parse_fields(text)
@@ -200,12 +214,14 @@ class TestIngestionPipeline:
 
     def test_init(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             assert pipeline.output_dir == Path(tmpdir)
 
     def test_generate_paper_id(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             paper_id = pipeline._generate_paper_id(Path("test.pdf"), "Test Title")
@@ -214,6 +230,7 @@ class TestIngestionPipeline:
 
     def test_extract_title_from_text(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             text = "This is a proper title for a paper\nMore content here"
@@ -222,6 +239,7 @@ class TestIngestionPipeline:
 
     def test_extract_title_fallback(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             text = "Short\ntext"
@@ -230,6 +248,7 @@ class TestIngestionPipeline:
 
     def test_extract_year_from_text(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             text = "Published in 2023 by authors"
@@ -239,6 +258,7 @@ class TestIngestionPipeline:
     def test_extract_year_fallback(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
         from datetime import datetime
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             text = "No year here"
@@ -247,6 +267,7 @@ class TestIngestionPipeline:
 
     def test_extract_abstract(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             text = """Title
@@ -260,15 +281,18 @@ The rest of the paper."""
 
     def test_ingest_bibtex(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             # Create bibtex file
             bib_path = Path(tmpdir) / "refs.bib"
-            bib_path.write_text("""@article{test2024,
+            bib_path.write_text(
+                """@article{test2024,
     title = {Test Paper},
     author = {Author One and Author Two},
     year = {2024}
-}""")
+}"""
+            )
             papers = pipeline.ingest_bibtex(bib_path)
             assert len(papers) == 1
             assert papers[0].title == "Test Paper"
@@ -276,6 +300,7 @@ The rest of the paper."""
 
     def test_ingest_batch_empty(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             result = pipeline.ingest_batch([])
@@ -284,6 +309,7 @@ The rest of the paper."""
 
     def test_ingest_batch_with_bibtex(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             bib_path = Path(tmpdir) / "refs.bib"
@@ -292,7 +318,12 @@ The rest of the paper."""
             assert result.stats["bibtex_count"] == 1
 
     def test_save_papers_jsonl(self):
-        from jarvis_core.ingestion.pipeline import IngestionPipeline, IngestionResult, ExtractedPaper
+        from jarvis_core.ingestion.pipeline import (
+            IngestionPipeline,
+            IngestionResult,
+            ExtractedPaper,
+        )
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             result = IngestionResult()
@@ -303,7 +334,13 @@ The rest of the paper."""
             assert "p1" in content
 
     def test_save_chunks_jsonl(self):
-        from jarvis_core.ingestion.pipeline import IngestionPipeline, IngestionResult, ExtractedPaper, TextChunk
+        from jarvis_core.ingestion.pipeline import (
+            IngestionPipeline,
+            IngestionResult,
+            ExtractedPaper,
+            TextChunk,
+        )
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             result = IngestionResult()
@@ -321,6 +358,7 @@ class TestIngestFilesFunction:
 
     def test_ingest_files(self):
         from jarvis_core.ingestion.pipeline import ingest_files
+
         with tempfile.TemporaryDirectory() as tmpdir:
             result = ingest_files([], Path(tmpdir))
             assert result is not None
@@ -331,11 +369,13 @@ class TestIngestFilesFunction:
 # Additional tests for user's open files
 # ============================================================
 
+
 class TestFundingCliff:
     """Tests for funding_cliff module."""
 
     def test_import(self):
         from jarvis_core import funding_cliff
+
         assert hasattr(funding_cliff, "__name__")
 
 
@@ -344,6 +384,7 @@ class TestHeatmap:
 
     def test_import(self):
         from jarvis_core import heatmap
+
         assert hasattr(heatmap, "__name__")
 
 
@@ -352,4 +393,5 @@ class TestCareerPlanner:
 
     def test_import(self):
         from jarvis_core import career_planner
+
         assert hasattr(career_planner, "__name__")

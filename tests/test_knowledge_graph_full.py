@@ -1,8 +1,5 @@
 """Tests for analysis/knowledge_graph - Coverage improvement (FIXED v3)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestKnowledgeGraphInit:
     """Tests for KnowledgeGraph initialization."""

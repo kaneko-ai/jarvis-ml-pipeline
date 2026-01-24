@@ -3,7 +3,6 @@
 Extended tests per JARVIS coverage improvement plan.
 """
 
-import pytest
 from unittest.mock import Mock, patch
 
 

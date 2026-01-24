@@ -56,6 +56,7 @@ class TestClaimExportMarkdown:
 
         assert "Sources" in output
 
+
 class TestClaimExportJSON:
     """Tests for JSON export."""
 
@@ -89,6 +90,7 @@ class TestClaimExportJSON:
 
         assert data["claims"][0]["references"] == ["R1"]
 
+
 class TestClaimExportPPTX:
     """Tests for PPTX outline export."""
 
@@ -117,6 +119,7 @@ class TestClaimExportPPTX:
         assert "Valid claim" in output
         assert "Invalid claim" not in output
 
+
 class TestExportClaimsFunction:
     """Tests for the main export_claims function."""
 
@@ -144,6 +147,7 @@ class TestExportClaimsFunction:
 
         output = export_claims(cs, format="pptx_outline")
         assert "PRESENTATION OUTLINE" in output
+
 
 class TestBundleClaimsExport:
     """Tests for bundle claims export."""

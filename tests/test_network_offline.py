@@ -4,8 +4,6 @@ Per JARVIS_COMPLETION_PLAN_v3 Task 1.5
 Updated to match actual implementation.
 """
 
-from unittest.mock import Mock, patch
-
 import pytest
 
 

@@ -53,6 +53,7 @@ class TestRateLimiter:
         delay = limiter.get_retry_delay(10)  # 2^10 = 1024 > 10
         assert delay == 10.0
 
+
 class TestWithRetry:
     """リトライデコレータテスト."""
 
@@ -83,6 +84,7 @@ class TestWithRetry:
         result = flaky_func()
         assert result == "success"
         assert call_count[0] == 2
+
 
 class TestCheckpointManager:
     """チェックポイントマネージャーテスト."""
@@ -139,6 +141,7 @@ class TestCheckpointManager:
 
             resume_point = manager.get_resume_point("test_run")
             assert resume_point == 3
+
 
 class TestMetricsCollector:
     """メトリクスコレクターテスト."""
@@ -202,6 +205,7 @@ class TestMetricsCollector:
             assert metrics["quality"]["provenance_rate"] == 0.95
             assert metrics["quality"]["pico_consistency_rate"] == 0.88
             assert metrics["quality"]["gate_results"]["provenance"] is True
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

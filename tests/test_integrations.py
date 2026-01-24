@@ -83,6 +83,7 @@ class TestNotebookLM:
         assert "First claim" in output
         assert "Key Findings" in output
 
+
 class TestObsidian:
     """Tests for Obsidian export."""
 
@@ -164,6 +165,7 @@ class TestObsidian:
             content = claim_files[0].read_text(encoding="utf-8")
             assert "[[" in content  # Contains wikilinks
 
+
 class TestNotion:
     """Tests for Notion export."""
 
@@ -206,6 +208,7 @@ class TestNotion:
 
         assert len(data["claims"]) == 1
         assert data["claims"][0]["text"] == "Test claim."
+
 
 class TestBundleIntegrations:
     """Tests for bundle integration exports."""

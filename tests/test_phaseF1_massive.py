@@ -6,13 +6,12 @@ Strategy: Call all functions with proper mocks
 
 import pytest
 from unittest.mock import patch, MagicMock
-import tempfile
-from pathlib import Path
 
 
 # ====================
 # llm/ modules Tests
 # ====================
+
 
 @pytest.mark.slow
 class TestLLMAdapterDetailed:
@@ -20,14 +19,18 @@ class TestLLMAdapterDetailed:
 
     def test_import(self):
         from jarvis_core.llm import adapter
+
         assert hasattr(adapter, "__name__")
 
-    @patch('jarvis_core.llm.adapter.requests.post')
+    @patch("jarvis_core.llm.adapter.requests.post")
     def test_mock_api_call(self, mock_post):
         from jarvis_core.llm import adapter
-        mock_post.return_value = MagicMock(status_code=200, json=lambda: {"choices": [{"message": {"content": "test"}}]})
+
+        mock_post.return_value = MagicMock(
+            status_code=200, json=lambda: {"choices": [{"message": {"content": "test"}}]}
+        )
         # Try to use adapter if it has a main class
-        attrs = [a for a in dir(adapter) if not a.startswith('_')]
+        attrs = [a for a in dir(adapter) if not a.startswith("_")]
         for attr in attrs[:5]:
             obj = getattr(adapter, attr)
             if isinstance(obj, type):
@@ -42,6 +45,7 @@ class TestLLMEnsembleDetailed:
 
     def test_import(self):
         from jarvis_core.llm import ensemble
+
         assert hasattr(ensemble, "__name__")
 
 
@@ -50,6 +54,7 @@ class TestLLMModelRouterDetailed:
 
     def test_import(self):
         from jarvis_core.llm import model_router
+
         assert hasattr(model_router, "__name__")
 
 
@@ -57,11 +62,13 @@ class TestLLMModelRouterDetailed:
 # embeddings/ modules Tests
 # ====================
 
+
 class TestEmbeddingsEmbedderDetailed:
     """Detailed tests for embeddings/embedder.py."""
 
     def test_import(self):
         from jarvis_core.embeddings import embedder
+
         assert hasattr(embedder, "__name__")
 
 
@@ -70,6 +77,7 @@ class TestEmbeddingsChromaStoreDetailed:
 
     def test_import(self):
         from jarvis_core.embeddings import chroma_store
+
         assert hasattr(chroma_store, "__name__")
 
 
@@ -78,6 +86,7 @@ class TestEmbeddingsSpecter2Detailed:
 
     def test_import(self):
         from jarvis_core.embeddings import specter2
+
         assert hasattr(specter2, "__name__")
 
 
@@ -85,11 +94,13 @@ class TestEmbeddingsSpecter2Detailed:
 # sources/ modules Tests
 # ====================
 
+
 class TestSourcesArxivClientDetailed:
     """Detailed tests for sources/arxiv_client.py."""
 
     def test_import(self):
         from jarvis_core.sources import arxiv_client
+
         assert hasattr(arxiv_client, "__name__")
 
 
@@ -98,6 +109,7 @@ class TestSourcesCrossrefClientDetailed:
 
     def test_import(self):
         from jarvis_core.sources import crossref_client
+
         assert hasattr(crossref_client, "__name__")
 
 
@@ -106,6 +118,7 @@ class TestSourcesPubmedClientDetailed:
 
     def test_import(self):
         from jarvis_core.sources import pubmed_client
+
         assert hasattr(pubmed_client, "__name__")
 
 
@@ -114,6 +127,7 @@ class TestSourcesUnpaywallClientDetailed:
 
     def test_import(self):
         from jarvis_core.sources import unpaywall_client
+
         assert hasattr(unpaywall_client, "__name__")
 
 
@@ -121,11 +135,13 @@ class TestSourcesUnpaywallClientDetailed:
 # evidence/ modules Tests
 # ====================
 
+
 class TestEvidenceGraderDetailed:
     """Detailed tests for evidence/grader.py."""
 
     def test_import(self):
         from jarvis_core.evidence import grader
+
         assert hasattr(grader, "__name__")
 
 
@@ -134,6 +150,7 @@ class TestEvidenceMapperDetailed:
 
     def test_import(self):
         from jarvis_core.evidence import mapper
+
         assert hasattr(mapper, "__name__")
 
 
@@ -142,6 +159,7 @@ class TestEvidenceStoreDetailed:
 
     def test_import(self):
         from jarvis_core.evidence import store
+
         assert hasattr(store, "__name__")
 
 
@@ -149,11 +167,13 @@ class TestEvidenceStoreDetailed:
 # citation/ modules Tests
 # ====================
 
+
 class TestCitationAnalyzerDetailed:
     """Detailed tests for citation/analyzer.py."""
 
     def test_import(self):
         from jarvis_core.citation import analyzer
+
         assert hasattr(analyzer, "__name__")
 
 
@@ -162,6 +182,7 @@ class TestCitationGeneratorDetailed:
 
     def test_import(self):
         from jarvis_core.citation import generator
+
         assert hasattr(generator, "__name__")
 
 
@@ -170,6 +191,7 @@ class TestCitationNetworkDetailed:
 
     def test_import(self):
         from jarvis_core.citation import network
+
         assert hasattr(network, "__name__")
 
 
@@ -178,6 +200,7 @@ class TestCitationRelevanceDetailed:
 
     def test_import(self):
         from jarvis_core.citation import relevance
+
         assert hasattr(relevance, "__name__")
 
 
@@ -185,11 +208,13 @@ class TestCitationRelevanceDetailed:
 # contradiction/ modules Tests
 # ====================
 
+
 class TestContradictionDetectorDetailed:
     """Detailed tests for contradiction/detector.py."""
 
     def test_import(self):
         from jarvis_core.contradiction import detector
+
         assert hasattr(detector, "__name__")
 
 
@@ -198,6 +223,7 @@ class TestContradictionNormalizerDetailed:
 
     def test_import(self):
         from jarvis_core.contradiction import normalizer
+
         assert hasattr(normalizer, "__name__")
 
 
@@ -206,6 +232,7 @@ class TestContradictionResolverDetailed:
 
     def test_import(self):
         from jarvis_core.contradiction import resolver
+
         assert hasattr(resolver, "__name__")
 
 
@@ -213,11 +240,13 @@ class TestContradictionResolverDetailed:
 # agents/ modules Tests
 # ====================
 
+
 class TestAgentsBaseDetailed:
     """Detailed tests for agents/base.py."""
 
     def test_import(self):
         from jarvis_core.agents import base
+
         assert hasattr(base, "__name__")
 
 
@@ -226,6 +255,7 @@ class TestAgentsRegistryDetailed:
 
     def test_import(self):
         from jarvis_core.agents import registry
+
         assert hasattr(registry, "__name__")
 
 
@@ -234,4 +264,5 @@ class TestAgentsScientistDetailed:
 
     def test_import(self):
         from jarvis_core.agents import scientist
+
         assert hasattr(scientist, "__name__")

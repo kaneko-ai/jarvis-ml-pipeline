@@ -67,6 +67,7 @@ class TestGoldenTestRunner:
 
             assert result.passed is True
 
+
 class TestDriftDetector:
     """劣化検知テスト."""
 
@@ -92,6 +93,7 @@ class TestDriftDetector:
         assert alert.severity in ["high", "critical"]
         assert "provenance_rate" in alert.message
 
+
 class TestAccessControl:
     """アクセス制御テスト."""
 
@@ -114,6 +116,7 @@ class TestAccessControl:
 
             role = ac.get_user_role("unknown_user")
             assert role == Role.READONLY
+
 
 class TestGDPRCompliance:
     """GDPR対応テスト."""
@@ -154,6 +157,7 @@ class TestGDPRCompliance:
 
             assert request.request_id.startswith("GDPR-")
             assert request.status == "pending"
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

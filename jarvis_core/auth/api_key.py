@@ -207,9 +207,9 @@ class APIKeyManager:
         """Check if key is within rate limit (requests per hour)."""
         now = int(time.time())
         hour_ago_min = (now - 3600) // 60
-        
+
         usage_data = self._usage.get(key_id, {})
-        
+
         # Sum counts in the last 60 minutes (inclusive)
         total_requests = 0
         for minute, count in usage_data.items():
@@ -222,22 +222,20 @@ class APIKeyManager:
         """Record API key usage using bucketed minutes."""
         now = int(time.time())
         current_minute = now // 60
-        
+
         if key_id not in self._usage:
             self._usage[key_id] = {}
-            
+
         usage_data = self._usage[key_id]
         usage_data[current_minute] = usage_data.get(current_minute, 0) + 1
 
         # Cleanup entries older than 2 hours to prevent memory bloat
         # Run cleanup occasionally (e.g., 1% of calls)
         import random
+
         if random.random() < 0.01:
             two_hours_ago = current_minute - 120
-            self._usage[key_id] = {
-                m: c for m, c in usage_data.items() 
-                if m > two_hours_ago
-            }
+            self._usage[key_id] = {m: c for m, c in usage_data.items() if m > two_hours_ago}
 
 
 # Global manager

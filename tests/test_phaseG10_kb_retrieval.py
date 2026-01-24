@@ -3,17 +3,15 @@
 Target: kb/, retrieval/, report/, reporting/ modules
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
-
 
 class TestKBIndexerComplete:
     """Complete tests for kb/indexer.py."""
 
     def test_import_and_classes(self):
         from jarvis_core.kb import indexer
+
         for name in dir(indexer):
-            if not name.startswith('_'):
+            if not name.startswith("_"):
                 obj = getattr(indexer, name)
                 if isinstance(obj, type):
                     try:
@@ -27,8 +25,9 @@ class TestKBRAGComplete:
 
     def test_import_and_classes(self):
         from jarvis_core.kb import rag
+
         for name in dir(rag):
-            if not name.startswith('_'):
+            if not name.startswith("_"):
                 obj = getattr(rag, name)
                 if isinstance(obj, type):
                     try:
@@ -42,8 +41,9 @@ class TestRetrievalCrossEncoderComplete:
 
     def test_import_and_classes(self):
         from jarvis_core.retrieval import cross_encoder
+
         for name in dir(cross_encoder):
-            if not name.startswith('_'):
+            if not name.startswith("_"):
                 obj = getattr(cross_encoder, name)
                 if isinstance(obj, type):
                     try:
@@ -57,8 +57,9 @@ class TestRetrievalQueryDecomposeComplete:
 
     def test_import_and_classes(self):
         from jarvis_core.retrieval import query_decompose
+
         for name in dir(query_decompose):
-            if not name.startswith('_'):
+            if not name.startswith("_"):
                 obj = getattr(query_decompose, name)
                 if isinstance(obj, type):
                     try:
@@ -72,8 +73,9 @@ class TestRetrievalExportComplete:
 
     def test_import_and_classes(self):
         from jarvis_core.retrieval import export
+
         for name in dir(export):
-            if not name.startswith('_'):
+            if not name.startswith("_"):
                 obj = getattr(export, name)
                 if isinstance(obj, type):
                     try:
@@ -87,8 +89,9 @@ class TestReportGeneratorComplete:
 
     def test_import_and_classes(self):
         from jarvis_core.report import generator
+
         for name in dir(generator):
-            if not name.startswith('_'):
+            if not name.startswith("_"):
                 obj = getattr(generator, name)
                 if isinstance(obj, type):
                     try:
@@ -102,8 +105,9 @@ class TestReportTemplatesComplete:
 
     def test_import_and_classes(self):
         from jarvis_core.report import templates
+
         for name in dir(templates):
-            if not name.startswith('_'):
+            if not name.startswith("_"):
                 obj = getattr(templates, name)
                 if isinstance(obj, type):
                     try:
@@ -117,8 +121,9 @@ class TestReportingRankExplainComplete:
 
     def test_import_and_classes(self):
         from jarvis_core.reporting import rank_explain
+
         for name in dir(rank_explain):
-            if not name.startswith('_'):
+            if not name.startswith("_"):
                 obj = getattr(rank_explain, name)
                 if isinstance(obj, type):
                     try:
@@ -132,8 +137,9 @@ class TestReportingSummaryComplete:
 
     def test_import_and_classes(self):
         from jarvis_core.reporting import summary
+
         for name in dir(summary):
-            if not name.startswith('_'):
+            if not name.startswith("_"):
                 obj = getattr(summary, name)
                 if isinstance(obj, type):
                     try:
