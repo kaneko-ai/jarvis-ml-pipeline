@@ -1,13 +1,28 @@
 import pytest
-from fastapi.testclient import TestClient  # noqa: E402
-from jarvis_web import jobs  # noqa: E402
-from jarvis_web.app import app  # noqa: E402
 
-fastapi = pytest.importorskip("fastapi")
+try:
+    from fastapi.testclient import TestClient  # noqa: E402
+    from jarvis_web import jobs  # noqa: E402
+    from jarvis_web.app import app  # noqa: E402
+    HAS_FASTAPI = True
+except ImportError:
+    HAS_FASTAPI = False
+    TestClient = None
+    jobs = None
+    app = None
+
+fastapi = pytest.mark.skipif(not HAS_FASTAPI, reason="fastapi not installed")
 
 
 
+
+
+@fastapi
 def test_schedules_api_smoke(monkeypatch, tmp_path):
+    monkeypatch.setenv("AUTH_MODE", "disabled")
+    from jarvis_web.config import reset_config
+    reset_config()
+
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(jobs, "run_in_background", lambda job_id, fn: None)
 
