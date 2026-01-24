@@ -1,5 +1,8 @@
 # Release Notes v4.3
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## Overview
 
 JARVIS Research OS v4.3 implements comprehensive test infrastructure hardening and foundational features for reproducible research workflows.

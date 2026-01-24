@@ -116,7 +116,7 @@ class ABTestingFramework:
 
         # Deterministic assignment based on hash
         hash_input = f"{experiment_id}:{user_id}"
-        hash_val = int(hashlib.md5(hash_input.encode()).hexdigest(), 16)
+        hash_val = int(hashlib.md5(hash_input.encode(), usedforsecurity=False).hexdigest(), 16)
         bucket = (hash_val % 10000) / 10000.0
 
         cumulative = 0.0

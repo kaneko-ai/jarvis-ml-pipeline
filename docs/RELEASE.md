@@ -1,5 +1,8 @@
 # Release Checklist (P16)
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 1. **Contract checks**
    - `make api-map`
    - Commit any diff in `schemas/api_map_v1.json`.

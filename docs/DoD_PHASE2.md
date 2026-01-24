@@ -1,5 +1,8 @@
 # Definition of Done: Phase 2 (Intelligence Upgrade)
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 > Authority: Phase 2 Completion Criteria  
 > Date: 2024-12-28
 

@@ -1,5 +1,8 @@
 # JARVIS Research OS 設計ドキュメント
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## 概要
 
 Javis は **Research OS（Research Operating System）** として、以下を運用可能な形で回す:
@@ -83,12 +86,12 @@ local:
 
 | タイプ | 説明 |
 |-------|------|
-| **World** | 検証済み事実（evidence必須） |
+| **World** | 検証済み事実（evidence必要） |
 | **Experience** | 実行・失敗・手動判断 |
 | **Observation** | 未検証メモ |
 | **Opinion** | 好み・仮説（隔離） |
 
-**禁止**: Opinion が World に混入すること
+**非推奨**: Opinion が World に混入すること
 
 ### 5. Multi-Judge Evaluator (`jarvis_core/evaluation/multi_judge.py`)
 
@@ -111,8 +114,8 @@ local:
 | arXiv | ✅ 自動取得可 |
 | PMC OA | ✅ 自動取得可 |
 | Unpaywall OA | ✅ 自動取得可 |
-| 有料購読VPN経由 | ❌ **禁止** |
-| 大量DL | ❌ **禁止** |
+| 有料購読VPN経由 | ❌ **非推奨** |
+| 大量DL | ❌ **非推奨** |
 | 非OA | メタデータ+要旨まで |
 
 ### API遵守

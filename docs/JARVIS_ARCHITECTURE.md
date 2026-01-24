@@ -1,5 +1,8 @@
 # JARVIS Research OS v4.3 アーキテクチャ分析
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 **生成日時**: 2024-12-22  
 **バージョン**: v4.3  
 **テスト状況**: Core Tests 127件全パス ✅
@@ -240,7 +243,7 @@ pie title テストカテゴリ
 ```
 
 **テストカテゴリ**:
-- `@pytest.mark.core` - ブロッキング（必須パス）
+- `@pytest.mark.core` - ブロッキング（必要パス）
 - `@pytest.mark.legacy` - 非ブロッキング
 
 ---

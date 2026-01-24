@@ -1,5 +1,8 @@
 # JARVIS Maturity M2: 再現性完備（Reproducibility & Snapshot）
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 **バージョン**: 1.0  
 **ステータス**: 実装完了
 
@@ -49,7 +52,7 @@
 ```yaml
 replay:
   prefer_snapshot: true      # スナップショット優先
-  fallback_to_live: false    # ライブ取得フォールバック禁止
+  fallback_to_live: false    # ライブ取得フォールバック非推奨
 ```
 
 ---
@@ -58,14 +61,14 @@ replay:
 
 | モード | 動作 |
 |-------|------|
-| **Fail-Closed**（デフォルト） | API失敗→即中断、成功扱い禁止 |
-| **Fail-Open** | 継続可能、ただし`degraded`フラグ必須 |
+| **Fail-Closed**（デフォルト） | API失敗→即中断、成功扱い非推奨 |
+| **Fail-Open** | 継続可能、ただし`degraded`フラグ必要 |
 
 ```yaml
 fail_policy:
   default: "closed"
   open:
-    degraded_flag_required: true
+    degraded_flag_recommended: true
     max_degraded_ratio: 0.2  # 20%超でパイプライン失敗
 ```
 

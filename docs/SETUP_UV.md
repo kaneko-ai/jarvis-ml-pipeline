@@ -1,6 +1,9 @@
 # JARVIS環境構築（uv版）
 
-> **重要**: 環境構築は`uv`を正式な方法とします。`pip install`の直接使用は**禁止**です。
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
+> **重要**: 環境構築は`uv`を正式な方法とします。`pip install`の直接使用は**非推奨**です。
 
 ---
 
@@ -111,10 +114,10 @@ uv sync --dev
 
 ---
 
-## ルール（厳守）
+## ルール（遵守）
 
 - ✅ 環境構築は`uv sync`のみ使用
 - ✅ 実行は`uv run`経由
 - ✅ lockファイルは**必ずコミット**
-- ❌ `pip install`の直接使用は禁止（例外なし）
+- ❌ `pip install`の直接使用は非推奨（例外なし）
 - ❌ `requirements.txt`による管理は非推奨

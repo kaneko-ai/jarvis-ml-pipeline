@@ -1,4 +1,7 @@
 # JARVIS Critical Enforcement Layer
+
+> Authority: REFERENCE (Level 2, Non-binding)
+
 # 導入指示書 v1.0
 
 > **第2位強制文書**: MASTER_SPECに次ぐ
@@ -43,7 +46,7 @@ def stage_handler(context, artifacts):
 }
 ```
 
-### 禁止キー
+### 非推奨キー
 - `name`→`id`に統一
 - `requires`→`dependencies`に統一
 
@@ -51,7 +54,7 @@ def stage_handler(context, artifacts):
 
 ## 3. 最小実装義務
 
-### 禁止
+### 非推奨
 
 ```python
 pass
@@ -59,7 +62,7 @@ NotImplementedError
 return  # 空
 ```
 
-### 必須
+### 必要
 
 ```python
 def stage_x(context, artifacts):
@@ -83,10 +86,10 @@ def stage_x(context, artifacts):
 
 ## 4. CI強制
 
-### 禁止
+### 非推奨
 
 ```yaml
-# 絶対禁止
+# 絶対非推奨
 || true
 continue-on-error: true
 ```

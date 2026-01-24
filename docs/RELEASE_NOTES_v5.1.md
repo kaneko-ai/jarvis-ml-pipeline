@@ -1,5 +1,8 @@
 # JARVIS Research OS v5.1.0 リリースノート
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 **リリース日**: 2026-01-07
 
 ---

@@ -1,5 +1,8 @@
 # JARVIS Single Source of Truth (SSoT)
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 このドキュメントは、JARVIS Research OS プロジェクトにおける「唯一の正解」となる設計原則、品質基準、規約を定義します。他のドキュメントがこれと矛盾する場合、本ドキュメントを優先します。
 
 ---
@@ -25,19 +28,19 @@
 - ポリシー詳細は `docs/COVERAGE_POLICY.md` を参照。
 
 ### 2.2 契約テスト (Contract Testing)
-- `BundleV2` 形式の出力は、必須 10 ファイルおよびスキーマ検証をパスしなければならない。
-- PR ごとに `scripts/check_project_contract.py` によるリポジトリ整合性チェックが必須。
+- `BundleV2` 形式の出力は、必要 10 ファイルおよびスキーマ検証をパスすべきである。
+- PR ごとに `scripts/check_project_contract.py` によるリポジトリ整合性チェックが必要。
 
 ---
 
 ## 3. セキュリティポリシー (Security Policy)
 
 ### 3.1 ファイル操作の安全
-- `jarvis_core.security.fs_safety` を通さないファイル入出力・サニタイズを禁止する。
+- `jarvis_core.security.fs_safety` を通さないファイル入出力・サニタイズを非推奨する。
 - 外部からの ZIP ファイルはパス・トラバーサル対策済みの `safe_extract_zip` を用いること。
 
 ### 3.2 危険な関数の制限
-- `eval()`, `exec()` の使用は原則禁止。数式評価などは `ast.parse` を用いた安全な評価器を自実装する。
+- `eval()`, `exec()` の使用は原則非推奨。数式評価などは `ast.parse` を用いた安全な評価器を自実装する。
 - OS コマンドの発行はサニタイズされた引数のみを許可する。
 
 ---

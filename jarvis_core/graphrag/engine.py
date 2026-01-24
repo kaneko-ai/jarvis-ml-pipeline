@@ -359,7 +359,7 @@ class KnowledgeGraphBuilder:
         paper_id = (
             paper.get("pmid")
             or paper.get("id")
-            or hashlib.md5(paper.get("title", "").encode()).hexdigest()[:8]
+            or hashlib.md5(paper.get("title", "").encode(), usedforsecurity=False).hexdigest()[:8]
         )
 
         # Add paper node
@@ -379,7 +379,7 @@ class KnowledgeGraphBuilder:
         entities = self.extract_entities(text)
 
         for entity in entities:
-            entity_id = f"{entity['type']}_{hashlib.md5(entity['text'].encode()).hexdigest()[:6]}"
+            entity_id = f"{entity['type']}_{hashlib.md5(entity['text'].encode(), usedforsecurity=False).hexdigest()[:6]}"
             entity_node = GraphNode(
                 id=entity_id, type=entity["type"], properties={"name": entity["text"]}
             )
@@ -393,7 +393,7 @@ class KnowledgeGraphBuilder:
         authors = paper.get("authors", "").split(", ")
         for author in authors[:5]:
             if author:
-                author_id = f"author_{hashlib.md5(author.encode()).hexdigest()[:6]}"
+                author_id = f"author_{hashlib.md5(author.encode(), usedforsecurity=False).hexdigest()[:6]}"
                 author_node = GraphNode(id=author_id, type="author", properties={"name": author})
                 self.graph.add_node(author_node)
                 edge = GraphEdge(source=paper_id, target=author_id, type="authored_by")

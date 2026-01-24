@@ -1,5 +1,8 @@
 # Fetch Policy Documentation
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 Per RP-157, this documents the official fetch policy for paper sources.
 
 ## Policy Version
@@ -19,7 +22,7 @@ When fetching papers, sources are tried in this order:
 
 ## Allowed Domains
 
-### Always Allowed
+### Should Allowed
 - `ncbi.nlm.nih.gov` (PubMed, PMC)
 - `pmc.ncbi.nlm.nih.gov`
 - `pubmed.ncbi.nlm.nih.gov`

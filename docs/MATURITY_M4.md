@@ -1,5 +1,8 @@
 # JARVIS Maturity M4: 運用完備（Ops-ready Research OS）
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 **バージョン**: 1.0  
 **ステータス**: 実装完了
 
@@ -106,4 +109,4 @@ artifacts/metrics_aggregate.jsonl
 
 - [x] 途中失敗から再開できる
 - [x] 観測メトリクスが継続的に蓄積できる
-- [x] 運用手順が文書化され、属人化しない
+- [x] 運用手順が文書化され、属人化避ける

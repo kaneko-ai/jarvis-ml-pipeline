@@ -1,5 +1,8 @@
 # CHANGELOG v4.2
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## Sprint 2: 運用域（Infrastructure）
 
 ### 道G: Task Graph & Parallel Execution

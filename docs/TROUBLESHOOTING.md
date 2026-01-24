@@ -1,5 +1,8 @@
 # Troubleshooting QA Failures
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## Contract tests failing
 - Check `schemas/api_map_v1.json` and `schemas/capabilities_v1.json` for missing/extra capabilities.
 - Regenerate with `make api-map` and re-run `make test-contract`.

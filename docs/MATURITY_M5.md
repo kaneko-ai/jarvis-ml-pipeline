@@ -1,5 +1,8 @@
 # JARVIS Maturity M5: 科学的妥当性完備（Scientific Validity）
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 **バージョン**: 1.0  
 **ステータス**: 実装完了
 
@@ -56,7 +59,7 @@
 
 ## 論争マップ
 
-### 必須出力
+### 必要出力
 ```json
 {
   "topic": "...",

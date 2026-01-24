@@ -1094,9 +1094,9 @@ class RealTimeCollaboration:
     def create_session(self, document_id: str, users: list[str]) -> dict:
         """Create collaboration session."""
         return {
-            "session_id": hashlib.md5(f"{document_id}{time.time()}".encode()).hexdigest()[
-                :8
-            ],  # nosec B324
+            "session_id": hashlib.md5(
+                f"{document_id}{time.time()}".encode(), usedforsecurity=False
+            ).hexdigest()[:8],  # nosec B324
             "document_id": document_id,
             "users": users,
         }

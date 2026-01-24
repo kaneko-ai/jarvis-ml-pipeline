@@ -1,4 +1,7 @@
 # JARVIS Research OS 開発計画書 v2.0
+
+> Authority: REFERENCE (Level 2, Non-binding)
+
 ## 無料・ローカルファースト戦略
 
 > **Authority**: ROADMAP (Level 5, Non-binding)  
@@ -98,7 +101,7 @@ cost_policy:
       url: "https://core.ac.uk/documentation/api"
       cost: free
       rate_limit: "10,000 req/day"
-      requires_key: required_free
+      requires_key: recommended_free
       
     - name: "Unpaywall API"
       url: "https://unpaywall.org/products/api"
@@ -140,7 +143,7 @@ DESIGN_PRINCIPLES = {
     },
     
     "data_sovereignty": {
-        "description": "ユーザーデータの外部送信禁止",
+        "description": "ユーザーデータの外部送信非推奨",
         "implementation": [
             "LLM推論は完全ローカル",
             "埋め込み生成もローカル",
@@ -195,16 +198,16 @@ llm_strategy:
       models:
         - name: "llama3.2:8b"
           use_case: "general"
-          vram_required: "8GB"
+          vram_recommended: "8GB"
         - name: "mistral:7b"
           use_case: "fast_inference"
-          vram_required: "6GB"
+          vram_recommended: "6GB"
         - name: "codellama:13b"
           use_case: "code_analysis"
-          vram_required: "12GB"
+          vram_recommended: "12GB"
         - name: "mixtral:8x7b"
           use_case: "complex_reasoning"
-          vram_required: "48GB"
+          vram_recommended: "48GB"
       cost: "$0"
       
     fallback:

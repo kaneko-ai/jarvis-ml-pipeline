@@ -1,5 +1,8 @@
 # JARVIS Runbook
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 運用手順書 - 失敗パターン別対処とメンテナンス
 
 ---
@@ -71,7 +74,7 @@ python -m jarvis_core.cli run --resume --run-id <run_id>
 3. 閾値を一時的に下げて実行（監査には記録）
 
 ```python
-# 閾値を下げて実行（推奨しない）
+# 閾値を下げて実行（推奨避ける）
 quality_gates:
   provenance_rate: 0.90  # 95% → 90%
 ```

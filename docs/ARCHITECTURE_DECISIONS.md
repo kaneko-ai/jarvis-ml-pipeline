@@ -1,9 +1,12 @@
 # Architecture Decisions
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## Runtime and deployment boundaries
 
-- Serverless (Pages) must only reference the manifest and static artifacts.
-- The local API is a supporting tool and must not be a required dependency for Pages.
+- Serverless (Pages) should only reference the manifest and static artifacts.
+- The local API is a supporting tool and should not be a recommended dependency for Pages.
 
 ## Bundle assembly
 

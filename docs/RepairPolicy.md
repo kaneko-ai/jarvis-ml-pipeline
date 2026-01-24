@@ -1,5 +1,8 @@
 # JARVIS Repair Policy
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## 失敗タイプと対応
 
 ### 1. 取得失敗（FETCH_FAIL）
@@ -9,7 +12,7 @@
 | API制限 | warnings.jsonlに記録、次回実行 |
 | 論文削除 | paper status=unavailable |
 
-**禁止**: 取得失敗を無視して空bundleを出す
+**非推奨**: 取得失敗を無視して空bundleを出す
 
 ### 2. 根拠抽出失敗（EVIDENCE_FAIL）
 | 条件 | アクション |
@@ -18,19 +21,19 @@
 | パース失敗 | confidence=low + warnings |
 | locator特定不可 | claim残す、evidence無しで明示 |
 
-**禁止**: claimを削除する
+**非推奨**: claimを削除する
 
 ### 3. 品質回帰（REGRESSION）
 | 条件 | アクション |
 |------|-----------|
 | evidence_coverage低下 | 直近変更をrevert |
 | 構造破損 | 即時hotfix |
-| goldset failが増加 | PRマージ禁止 |
+| goldset failが増加 | PRマージ非推奨 |
 
 ### 4. CI失敗（CI_FAIL）
 | タイプ | アクション |
 |--------|-----------|
-| core fail | マージ禁止、即修正 |
+| core fail | マージ非推奨、即修正 |
 | legacy fail | artifact確認、計画的修正 |
 | install fail | requirements.lock確認 |
 

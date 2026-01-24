@@ -1,5 +1,8 @@
 # JARVIS Maturity M3: メタ分析完備（Meta-analysis Core Rigor）
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 **バージョン**: 1.0  
 **ステータス**: 実装完了
 
@@ -7,7 +10,7 @@
 
 ## 目標
 
-"文章としてもっともらしい"ではなく、統計メタ分析として破綻しない抽出・評価・統合設計を成立させる。
+"文章としてもっともらしい"ではなく、統計メタ分析として破綻避ける抽出・評価・統合設計を成立させる。
 
 ---
 
@@ -69,7 +72,7 @@ class ConsistencyLevel(Enum):
 | SMD | Standardized Mean Difference |
 | WMD | Weighted Mean Difference |
 
-### 必須フィールド
+### 必要フィールド
 ```json
 {
   "measure": "OR",
@@ -97,7 +100,7 @@ class ConsistencyLevel(Enum):
 - `some_concerns`: 一部懸念
 - `high`: 高リスク
 
-### 根拠span必須
+### 根拠span必要
 ```json
 {
   "domain_name": "randomization",
@@ -112,4 +115,4 @@ class ConsistencyLevel(Enum):
 
 - [x] 一次研究セットからPICO・効果量・ROBが根拠付きで抽出できる
 - [x] 不整合（PICOズレ/方向ズレ/数値ズレ）がゲートで落ちる
-- [x] 根拠なしのROB評価は禁止（スキーマで強制）
+- [x] 根拠なしのROB評価は非推奨（スキーマで強制）

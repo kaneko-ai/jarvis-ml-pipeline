@@ -1,4 +1,7 @@
 # JARVIS Research OS 完遂計画書 v3.0
+
+> Authority: REFERENCE (Level 2, Non-binding)
+
 ## 47.2% → 100% (120点達成) ロードマップ
 
 > **Authority**: ROADMAP (Level 5, Non-binding)  

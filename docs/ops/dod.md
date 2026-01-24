@@ -1,10 +1,13 @@
 # Definition of Done (DoD)
 
-PRは以下を**すべて**満たさない限り完了扱いにしない。
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
+PRは以下を**すべて**満たさない限り完了扱いに避ける。
 
 ---
 
-## 必須条件
+## 必要条件
 
 ### 1. 目的の明確化
 - [ ] **Why** が1文で書ける

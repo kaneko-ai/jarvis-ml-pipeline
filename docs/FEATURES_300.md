@@ -1,5 +1,8 @@
 # JARVIS 300 Features - Complete Guide
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## 概要
 
 JARVISには300の機能が実装されています。このガイドでは、全機能の使用方法を説明します。

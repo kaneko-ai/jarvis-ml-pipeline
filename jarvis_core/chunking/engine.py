@@ -73,7 +73,7 @@ class StandardChunker:
             if not p: continue
             
             # Simple content based dedupe to prevent duplicate extractions
-            p_hash = hashlib.md5(p.encode()).hexdigest()
+            p_hash = hashlib.md5(p.encode(), usedforsecurity=False).hexdigest()
             if p_hash not in seen:
                 cleaned.append(p)
                 seen.add(p_hash)

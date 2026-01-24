@@ -1,5 +1,8 @@
 # RepairPolicy Documentation
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 Per RP-183, this documents the RepairPolicy configuration contract.
 
 ## Overview
@@ -14,9 +17,9 @@ RepairPolicy defines the behavior of the automatic repair loop. It controls:
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
-| `max_attempts` | int | 3 | Maximum repair attempts (must be ≥1) |
-| `max_wall_time_sec` | float | 300.0 | Maximum wall clock time in seconds (must be >0) |
-| `max_tool_calls` | int | 50 | Maximum tool calls across all attempts (must be ≥1) |
+| `max_attempts` | int | 3 | Maximum repair attempts (should be ≥1) |
+| `max_wall_time_sec` | float | 300.0 | Maximum wall clock time in seconds (should be >0) |
+| `max_tool_calls` | int | 50 | Maximum tool calls across all attempts (should be ≥1) |
 | `allowed_actions` | list[str] | [see below] | List of allowed action IDs |
 | `stop_on` | dict | {} | Stop conditions |
 | `budget_overrides` | dict|None | None | Optional budget overrides |
@@ -46,9 +49,9 @@ RepairPolicy defines the behavior of the automatic repair loop. It controls:
 > [!IMPORTANT]
 > These limits prevent runaway execution:
 
-- `max_attempts`: 3-5 (never >10)
-- `max_wall_time_sec`: 300-600 (never >1800)
-- `max_tool_calls`: 50-100 (never >200)
+- `max_attempts`: 3-5 (should not >10)
+- `max_wall_time_sec`: 300-600 (should not >1800)
+- `max_tool_calls`: 50-100 (should not >200)
 
 ## Usage Example
 

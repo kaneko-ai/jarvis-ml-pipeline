@@ -1,5 +1,8 @@
 # JARVIS Research OS クイックスタートガイド
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## はじめに
 
 JARVIS Research OSは、学術研究のためのローカルファースト研究支援システムです。

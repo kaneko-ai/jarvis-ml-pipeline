@@ -14,7 +14,7 @@ def utc_now_iso() -> str:
 def stable_hash(value: str) -> str:
     import hashlib
 
-    return hashlib.sha1(value.encode("utf-8")).hexdigest()
+    return hashlib.sha1(value.encode("utf-8"), usedforsecurity=False).hexdigest()
 
 
 @dataclass

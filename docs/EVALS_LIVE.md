@@ -1,5 +1,8 @@
 # Live Evaluation Guide
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## 概要
 
 Live評価は「運用中の品質劣化」を検知するための定点観測。

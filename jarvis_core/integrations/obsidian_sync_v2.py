@@ -210,8 +210,8 @@ papers_count: {papers_count}
 
                 # ハッシュで変更をチェック
                 if (
-                    hashlib.md5(existing.encode()).hexdigest()
-                    == hashlib.md5(content.encode()).hexdigest()
+                    hashlib.md5(existing.encode(), usedforsecurity=False).hexdigest()
+                    == hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()
                 ):
                     return SyncResult("unchanged", str(filepath), "No changes")
 
