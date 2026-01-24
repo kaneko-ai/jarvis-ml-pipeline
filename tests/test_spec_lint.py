@@ -7,9 +7,13 @@ spec_lint.py の回帰テスト
 # spec_lint をインポート（相対パスで）
 import sys
 from pathlib import Path
-from spec_lint import check_file, extract_authority
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "tools"))
+# Ensure tools directory is in path for importing spec_lint
+# paths
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools"))
+
+from spec_lint import check_file, extract_authority  # noqa: E402
 
 
 class TestExtractAuthority:
