@@ -7,4 +7,8 @@ pymupdf
 python-docx
 python-pptx
 reportlab
+pydantic
+fastapi
+httpx
+python-multipart
 defusedxml

@@ -1,0 +1,143 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+collecting ... collected 36 items
+
+tests/test_phaseF3_remaining.py::TestReportGeneratorDetailed::test_import PASSED [  2%]
+tests/test_phaseF3_remaining.py::TestReportTemplatesDetailed::test_import FAILED [  5%]
+tests/test_phaseF3_remaining.py::TestReportingRankExplainDetailed::test_import PASSED [  8%]
+tests/test_phaseF3_remaining.py::TestReportingSummaryDetailed::test_import FAILED [ 11%]
+tests/test_phaseF3_remaining.py::TestKnowledgeGraphDetailed::test_import FAILED [ 13%]
+tests/test_phaseF3_remaining.py::TestKnowledgeStoreDetailed::test_import PASSED [ 16%]
+tests/test_phaseF3_remaining.py::TestFinanceOptimizerDetailed::test_import FAILED [ 19%]
+tests/test_phaseF3_remaining.py::TestFinanceScenariosDetailed::test_import PASSED [ 22%]
+tests/test_phaseF3_remaining.py::TestOpsConfigDetailed::test_import FAILED [ 25%]
+tests/test_phaseF3_remaining.py::TestOpsResilienceDetailed::test_import PASSED [ 27%]
+tests/test_phaseF3_remaining.py::TestReplayRecorderDetailed::test_import FAILED [ 30%]
+tests/test_phaseF3_remaining.py::TestReplayReproduceDetailed::test_import PASSED [ 33%]
+tests/test_phaseF3_remaining.py::TestRepairPlannerDetailed::test_import PASSED [ 36%]
+tests/test_phaseF3_remaining.py::TestRepairPolicyDetailed::test_import FAILED [ 38%]
+tests/test_phaseF3_remaining.py::TestRankingRankerDetailed::test_import PASSED [ 41%]
+tests/test_phaseF3_remaining.py::TestRankingScorerDetailed::test_import FAILED [ 44%]
+tests/test_phaseF3_remaining.py::TestScoringRegistryDetailed::test_import PASSED [ 47%]
+tests/test_phaseF3_remaining.py::TestScoringScorerDetailed::test_import FAILED [ 50%]
+tests/test_phaseF3_remaining.py::TestSearchAdapterDetailed::test_import PASSED [ 52%]
+tests/test_phaseF3_remaining.py::TestSearchEngineDetailed::test_import PASSED [ 55%]
+tests/test_phaseF3_remaining.py::TestSchedulerRunnerDetailed::test_import FAILED [ 58%]
+tests/test_phaseF3_remaining.py::TestSchedulerSchedulerDetailed::test_import FAILED [ 61%]
+tests/test_phaseF3_remaining.py::TestStorageArtifactStoreDetailed::test_import PASSED [ 63%]
+tests/test_phaseF3_remaining.py::TestStorageIndexRegistryDetailed::test_import PASSED [ 66%]
+tests/test_phaseF3_remaining.py::TestStorageRunStoreIndexDetailed::test_import PASSED [ 69%]
+tests/test_phaseF3_remaining.py::TestSubmissionFormatterDetailed::test_import FAILED [ 72%]
+tests/test_phaseF3_remaining.py::TestSubmissionJournalCheckerDetailed::test_import FAILED [ 75%]
+tests/test_phaseF3_remaining.py::TestSubmissionValidatorDetailed::test_import FAILED [ 77%]
+tests/test_phaseF3_remaining.py::TestTelemetryExporterDetailed::test_import FAILED [ 80%]
+tests/test_phaseF3_remaining.py::TestTelemetryLoggerDetailed::test_import PASSED [ 83%]
+tests/test_phaseF3_remaining.py::TestTelemetryRedactDetailed::test_import PASSED [ 86%]
+tests/test_phaseF3_remaining.py::TestVisualizationChartsDetailed::test_import FAILED [ 88%]
+tests/test_phaseF3_remaining.py::TestVisualizationPositioningDetailed::test_import PASSED [ 91%]
+tests/test_phaseF3_remaining.py::TestVisualizationTimelineVizDetailed::test_import FAILED [ 94%]
+tests/test_phaseF3_remaining.py::TestWritingGeneratorDetailed::test_import FAILED [ 97%]
+tests/test_phaseF3_remaining.py::TestWritingUtilsDetailed::test_import PASSED [100%]
+
+================================== FAILURES ===================================
+___________________ TestReportTemplatesDetailed.test_import ___________________
+tests\test_phaseF3_remaining.py:20: in test_import
+    from jarvis_core.report import templates
+E   ImportError: cannot import name 'templates' from 'jarvis_core.report' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\report\__init__.py)
+__________________ TestReportingSummaryDetailed.test_import ___________________
+tests\test_phaseF3_remaining.py:39: in test_import
+    from jarvis_core.reporting import summary
+E   ImportError: cannot import name 'summary' from 'jarvis_core.reporting' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\reporting\__init__.py)
+___________________ TestKnowledgeGraphDetailed.test_import ____________________
+tests\test_phaseF3_remaining.py:51: in test_import
+    from jarvis_core.knowledge import graph
+E   ImportError: cannot import name 'graph' from 'jarvis_core.knowledge' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\knowledge\__init__.py)
+__________________ TestFinanceOptimizerDetailed.test_import ___________________
+tests\test_phaseF3_remaining.py:70: in test_import
+    from jarvis_core.experimental.finance import optimizer
+E   ImportError: cannot import name 'optimizer' from 'jarvis_core.experimental.finance' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\experimental\finance\__init__.py)
+______________________ TestOpsConfigDetailed.test_import ______________________
+tests\test_phaseF3_remaining.py:89: in test_import
+    from jarvis_core.ops import config
+E   ImportError: cannot import name 'config' from 'jarvis_core.ops' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\ops\__init__.py)
+___________________ TestReplayRecorderDetailed.test_import ____________________
+tests\test_phaseF3_remaining.py:108: in test_import
+    from jarvis_core.replay import recorder
+E   ImportError: cannot import name 'recorder' from 'jarvis_core.replay' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\replay\__init__.py)
+____________________ TestRepairPolicyDetailed.test_import _____________________
+tests\test_phaseF3_remaining.py:134: in test_import
+    from jarvis_core.repair import policy
+E   ImportError: cannot import name 'policy' from 'jarvis_core.repair' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\repair\__init__.py)
+____________________ TestRankingScorerDetailed.test_import ____________________
+tests\test_phaseF3_remaining.py:153: in test_import
+    from jarvis_core.ranking import scorer
+E   ImportError: cannot import name 'scorer' from 'jarvis_core.ranking' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\ranking\__init__.py)
+____________________ TestScoringScorerDetailed.test_import ____________________
+tests\test_phaseF3_remaining.py:172: in test_import
+    from jarvis_core.scoring import scorer
+E   ImportError: cannot import name 'scorer' from 'jarvis_core.scoring' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\scoring\__init__.py)
+___________________ TestSchedulerRunnerDetailed.test_import ___________________
+tests\test_phaseF3_remaining.py:203: in test_import
+    from jarvis_core.scheduler import runner
+jarvis_core\scheduler\runner.py:8: in <module>
+    from jarvis_core.scheduler import engine, idempotency, locks, store
+jarvis_core\scheduler\store.py:12: in <module>
+    from jarvis_core.scheduler.schema import normalize_schedule_payload, validate_required_fields
+jarvis_core\scheduler\schema.py:8: in <module>
+    from pydantic import BaseModel, Field, validator
+E   ModuleNotFoundError: No module named 'pydantic'
+_________________ TestSchedulerSchedulerDetailed.test_import __________________
+tests\test_phaseF3_remaining.py:210: in test_import
+    from jarvis_core.scheduler import scheduler
+E   ImportError: cannot import name 'scheduler' from 'jarvis_core.scheduler' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\scheduler\__init__.py)
+_________________ TestSubmissionFormatterDetailed.test_import _________________
+tests\test_phaseF3_remaining.py:248: in test_import
+    from jarvis_core.submission import formatter
+E   ImportError: cannot import name 'formatter' from 'jarvis_core.submission' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\submission\__init__.py)
+______________ TestSubmissionJournalCheckerDetailed.test_import _______________
+tests\test_phaseF3_remaining.py:255: in test_import
+    from jarvis_core.submission import journal_checker
+E   ImportError: cannot import name 'journal_checker' from 'jarvis_core.submission' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\submission\__init__.py)
+_________________ TestSubmissionValidatorDetailed.test_import _________________
+tests\test_phaseF3_remaining.py:262: in test_import
+    from jarvis_core.submission import validator
+E   ImportError: cannot import name 'validator' from 'jarvis_core.submission' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\submission\__init__.py)
+__________________ TestTelemetryExporterDetailed.test_import __________________
+tests\test_phaseF3_remaining.py:274: in test_import
+    from jarvis_core.telemetry import exporter
+E   ImportError: cannot import name 'exporter' from 'jarvis_core.telemetry' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\telemetry\__init__.py)
+_________________ TestVisualizationChartsDetailed.test_import _________________
+tests\test_phaseF3_remaining.py:300: in test_import
+    from jarvis_core.visualization import charts
+E   ImportError: cannot import name 'charts' from 'jarvis_core.visualization' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\visualization\__init__.py)
+______________ TestVisualizationTimelineVizDetailed.test_import _______________
+tests\test_phaseF3_remaining.py:314: in test_import
+    from jarvis_core.visualization import timeline_viz
+E   ImportError: cannot import name 'timeline_viz' from 'jarvis_core.visualization' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\visualization\__init__.py)
+__________________ TestWritingGeneratorDetailed.test_import ___________________
+tests\test_phaseF3_remaining.py:326: in test_import
+    from jarvis_core.writing import generator
+E   ImportError: cannot import name 'generator' from 'jarvis_core.writing' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\writing\__init__.py)
+=========================== short test summary info ===========================
+FAILED tests/test_phaseF3_remaining.py::TestReportTemplatesDetailed::test_import
+FAILED tests/test_phaseF3_remaining.py::TestReportingSummaryDetailed::test_import
+FAILED tests/test_phaseF3_remaining.py::TestKnowledgeGraphDetailed::test_import
+FAILED tests/test_phaseF3_remaining.py::TestFinanceOptimizerDetailed::test_import
+FAILED tests/test_phaseF3_remaining.py::TestOpsConfigDetailed::test_import - ...
+FAILED tests/test_phaseF3_remaining.py::TestReplayRecorderDetailed::test_import
+FAILED tests/test_phaseF3_remaining.py::TestRepairPolicyDetailed::test_import
+FAILED tests/test_phaseF3_remaining.py::TestRankingScorerDetailed::test_import
+FAILED tests/test_phaseF3_remaining.py::TestScoringScorerDetailed::test_import
+FAILED tests/test_phaseF3_remaining.py::TestSchedulerRunnerDetailed::test_import
+FAILED tests/test_phaseF3_remaining.py::TestSchedulerSchedulerDetailed::test_import
+FAILED tests/test_phaseF3_remaining.py::TestSubmissionFormatterDetailed::test_import
+FAILED tests/test_phaseF3_remaining.py::TestSubmissionJournalCheckerDetailed::test_import
+FAILED tests/test_phaseF3_remaining.py::TestSubmissionValidatorDetailed::test_import
+FAILED tests/test_phaseF3_remaining.py::TestTelemetryExporterDetailed::test_import
+FAILED tests/test_phaseF3_remaining.py::TestVisualizationChartsDetailed::test_import
+FAILED tests/test_phaseF3_remaining.py::TestVisualizationTimelineVizDetailed::test_import
+FAILED tests/test_phaseF3_remaining.py::TestWritingGeneratorDetailed::test_import
+======================== 18 failed, 18 passed in 0.53s ========================

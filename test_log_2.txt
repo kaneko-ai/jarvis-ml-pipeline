@@ -1,0 +1,50 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+plugins: anyio-4.12.1
+collecting ... collected 36 items / 1 error
+
+=================================== ERRORS ====================================
+_____________ ERROR collecting tests/test_smoke_schedules_api.py ______________
+tests\test_smoke_schedules_api.py:5: in <module>
+    from jarvis_web import jobs  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+jarvis_web\__init__.py:4: in <module>
+    from .app import create_app, run_server
+jarvis_web\app.py:544: in <module>
+    @app.post("/api/upload/pdf", response_model=UploadResponse)
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py:1063: in decorator
+    self.add_api_route(
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py:1002: in add_api_route
+    route = route_class(
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\routing.py:621: in __init__
+    self.dependant = get_dependant(
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\dependencies\utils.py:276: in get_dependant
+    param_details = analyze_param(
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\dependencies\utils.py:495: in analyze_param
+    ensure_multipart_is_installed()
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\dependencies\utils.py:109: in ensure_multipart_is_installed
+    raise RuntimeError(multipart_not_installed_error) from None
+E   RuntimeError: Form data requires "python-multipart" to be installed. 
+E   You can install "python-multipart" with: 
+E   
+E   pip install python-multipart
+------------------------------- Captured stderr -------------------------------
+[2026-01-25 01:19:39,296] [fastapi] [ERROR] [none] Form data requires "python-multipart" to be installed. 
+You can install "python-multipart" with: 
+
+pip install python-multipart
+
+============================== warnings summary ===============================
+jarvis_core\scheduler\schema.py:21
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\scheduler\schema.py:21: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    @validator("oa_policy")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR tests/test_smoke_schedules_api.py - RuntimeError: Form data requires "p...
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+========================= 1 warning, 1 error in 1.70s =========================
