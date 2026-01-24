@@ -1,7 +1,6 @@
 """Tests for submission.changelog_generator module."""
 
 from unittest.mock import MagicMock
-
 from jarvis_core.submission.changelog_generator import (
     ChangeLogResult,
     generate_changelog,
@@ -9,6 +8,7 @@ from jarvis_core.submission.changelog_generator import (
     _build_reason_groups,
 )
 from jarvis_core.submission.diff_engine import DiffReport
+
 
 
 class TestChangeLogResult:

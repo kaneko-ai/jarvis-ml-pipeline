@@ -1,0 +1,139 @@
+tests\test_additional_integrations.py:20: Import after code: import pytest
+tests\test_ai_features.py:16: Import after code: import pytest
+tests\test_api_map_vs_capabilities.py:16: Import after code: import jarvis_web.app as jarvis_app_module
+tests\test_budget_policy.py:10: Import after code: import pytest
+tests\test_changelog_generator.py:11: Import after code: from jarvis_core.submission.diff_engine import DiffReport
+tests\test_claim_export.py:15: Import after code: from jarvis_core.reference import Reference
+tests\test_claim_export.py:16: Import after code: import json
+tests\test_claim_export.py:17: Import after code: import tempfile
+tests\test_claim_export.py:18: Import after code: from pathlib import Path
+tests\test_evidence_qa_integration.py:14: Import after code: from jarvis_core.sources import ExecutionContext
+tests\test_evidence_qa_integration.py:15: Import after code: from pathlib import Path
+tests\test_evidence_qa_integration.py:16: Import after code: from unittest.mock import MagicMock, patch
+tests\test_external_integrations.py:16: Import after code: import pytest
+tests\test_hitl_integration.py:13: Import after code: from jarvis_core.ops.integration import (
+tests\test_hitl_integration.py:20: Import after code: from tempfile import TemporaryDirectory
+tests\test_hitl_integration.py:22: Import after code: import pytest
+tests\test_hybrid_search.py:252: Import after code: import pytest
+tests\test_intelligence.py:10: Import after code: from jarvis_core.intelligence.decision import (
+tests\test_intelligence.py:14: Import after code: from jarvis_core.intelligence.decision_item import (
+tests\test_intelligence.py:19: Import after code: from jarvis_core.intelligence.evaluator_v2 import (
+tests\test_intelligence.py:25: Import after code: from jarvis_core.intelligence.outcome_tracker import (
+tests\test_intelligence.py:29: Import after code: from jarvis_core.intelligence.question_generator import (
+tests\test_intelligence.py:32: Import after code: from tempfile import TemporaryDirectory
+tests\test_intelligence.py:34: Import after code: import pytest
+tests\test_meta_typed_extraction.py:19: Import after code: import pytest
+tests\test_mobile_performance.py:18: Import after code: import pytest
+tests\test_ops.py:16: Import after code: from jarvis_core.ops.metrics import (
+tests\test_ops.py:19: Import after code: from jarvis_core.ops.rate_limiter import (
+tests\test_ops.py:24: Import after code: from tempfile import TemporaryDirectory
+tests\test_ops.py:26: Import after code: import pytest
+tests\test_paper_vector.py:27: Import after code: from jarvis_core.result import EvidenceQAResult
+tests\test_paper_vector.py:28: Import after code: import json
+tests\test_paper_vector.py:29: Import after code: import tempfile
+tests\test_paper_vector.py:30: Import after code: from pathlib import Path
+tests\test_paper_vector.py:32: Import after code: import pytest
+tests\test_pdf_extractor.py:12: Import after code: from jarvis_core.sources import ExecutionContext, ingest
+tests\test_pdf_extractor.py:13: Import after code: from pathlib import Path
+tests\test_pdf_extractor.py:15: Import after code: import pytest
+tests\test_phase2.py:11: Import after code: from jarvis_core.intelligence.mandatory_search import (
+tests\test_phase2.py:15: Import after code: from pathlib import Path
+tests\test_phase2.py:16: Import after code: from tempfile import TemporaryDirectory
+tests\test_phase2.py:18: Import after code: import pytest
+tests\test_phase_alpha_gamma.py:24: Import after code: from jarvis_core.experimental.paradigm import detect_paradigm_shift
+tests\test_phase_alpha_gamma.py:25: Import after code: from pathlib import Path
+tests\test_phase_lambda.py:44: Import after code: from jarvis_core.paper_vector import (
+tests\test_phase_lambda.py:52: Import after code: from pathlib import Path
+tests\test_phase_omega.py:16: Import after code: from jarvis_core.knowledge_graph import build_knowledge_graph
+tests\test_phase_omega.py:17: Import after code: from jarvis_core.experimental.lab_optimizer import optimize_lab_resources
+tests\test_phase_omega.py:18: Import after code: from jarvis_core.living_review import generate_living_review, update_living_review
+tests\test_phase_omega.py:19: Import after code: from jarvis_core.paper_vector import (
+tests\test_phase_omega.py:28: Import after code: from jarvis_core.experimental.pi_support import evaluate_research_themes, generate_pi_summary
+tests\test_phase_omega.py:29: Import after code: from jarvis_core.reviewer_persona import generate_all_reviewer_feedback, generate_reviewer_feedback
+tests\test_phase_psi.py:13: Import after code: from jarvis_core.experimental.clinical_readiness import assess_clinical_readiness
+tests\test_phase_psi.py:14: Import after code: from jarvis_core.experimental.funding_cliff import predict_funding_cliff
+tests\test_phase_psi.py:15: Import after code: from jarvis_core.kill_switch import recommend_kill_switch
+tests\test_phase_psi.py:16: Import after code: from jarvis_core.experimental.lab_culture import detect_lab_culture_risk
+tests\test_phase_psi.py:17: Import after code: from jarvis_core.experimental.lab_to_startup import translate_to_startup
+tests\test_phase_psi.py:18: Import after code: from jarvis_core.logic_citation import (
+tests\test_phase_psi.py:25: Import after code: from jarvis_core.meta_science import (
+tests\test_phase_psi.py:32: Import after code: from jarvis_core.experimental.negative_results import (
+tests\test_phase_psi.py:37: Import after code: from jarvis_core.paper_vector import (
+tests\test_phase_psi.py:46: Import after code: from jarvis_core.experimental.pi_succession import plan_pi_succession
+tests\test_phase_psi.py:47: Import after code: from jarvis_core.experimental.reproducibility_cert import certify_reproducibility
+tests\test_phase_psi.py:48: Import after code: from jarvis_core.experimental.roi_engine import calculate_research_roi
+tests\test_phase_psi.py:49: Import after code: from jarvis_core.experimental.student_portfolio import analyze_student_portfolio
+tests\test_phase_psi.py:50: Import after code: from jarvis_core.thinking_engines import (
+tests\test_phase_psi.py:57: Import after code: from pathlib import Path
+tests\test_phase_sigma.py:15: Import after code: from jarvis_core.experimental.sigma_modules import (
+tests\test_phase_sigma.py:52: Import after code: from pathlib import Path
+tests\test_pubmed_api.py:10: Import after code: import pytest
+tests\test_ranking.py:10: Import after code: import json
+tests\test_ranking.py:11: Import after code: from pathlib import Path
+tests\test_ranking.py:12: Import after code: from tempfile import TemporaryDirectory
+tests\test_ranking.py:14: Import after code: import pytest
+tests\test_reference.py:17: Import after code: import tempfile
+tests\test_reference.py:18: Import after code: from pathlib import Path
+tests\test_reliability_security.py:15: Import after code: from jarvis_core.ops.security import (
+tests\test_reliability_security.py:21: Import after code: from tempfile import TemporaryDirectory
+tests\test_reliability_security.py:23: Import after code: import pytest
+tests\test_reproducibility_snapshot.py:19: Import after code: from tempfile import TemporaryDirectory
+tests\test_reproducibility_snapshot.py:21: Import after code: import pytest
+tests\test_research_os.py:10: Import after code: from jarvis_core.memory.hindsight import (
+tests\test_research_os.py:14: Import after code: from jarvis_core.providers.api_llm import APILLMProvider
+tests\test_research_os.py:15: Import after code: from jarvis_core.providers.base import ProviderConfig, ProviderType
+tests\test_research_os.py:16: Import after code: from jarvis_core.providers.local_llm import LocalLLMProvider
+tests\test_research_os.py:17: Import after code: from jarvis_core.trend.ranker import TrendRanker
+tests\test_research_os.py:18: Import after code: from jarvis_core.trend.sources import TrendItem
+tests\test_research_os.py:19: Import after code: from tempfile import TemporaryDirectory
+tests\test_research_os.py:21: Import after code: import pytest
+tests\test_resolvers.py:16: Import after code: from jarvis_core.resolvers.pubmed_resolver import (
+tests\test_resolvers.py:20: Import after code: import json
+tests\test_resolvers.py:21: Import after code: from pathlib import Path
+tests\test_resolvers.py:22: Import after code: from unittest.mock import MagicMock, patch
+tests\test_retriever.py:12: Import after code: from jarvis_core.sources import ChunkResult, ExecutionContext, SourceDocument, ingest
+tests\test_retriever.py:13: Import after code: from pathlib import Path
+tests\test_rp29_37.py:20: Import after code: from jarvis_core.recommendation import recommend_papers
+tests\test_rp29_37.py:21: Import after code: from jarvis_core.experimental.rehearsal import generate_rehearsal
+tests\test_rp29_37.py:22: Import after code: from jarvis_core.experimental.timeline import build_timeline, summarize_evolution
+tests\test_rp29_37.py:23: Import after code: from jarvis_core.visualization.positioning import get_position_description, project_to_3d
+tests\test_rp29_37.py:24: Import after code: from pathlib import Path
+tests\test_scientific_validity.py:17: Import after code: from jarvis_core.evaluation.dataset_governance import (
+tests\test_scientific_validity.py:21: Import after code: from tempfile import TemporaryDirectory
+tests\test_scientific_validity.py:23: Import after code: import pytest
+tests\test_smoke_schedules_api.py:4: Import after code: from fastapi.testclient import TestClient  # noqa: E402
+tests\test_smoke_schedules_api.py:6: Import after code: from jarvis_web import jobs  # noqa: E402
+tests\test_smoke_schedules_api.py:7: Import after code: from jarvis_web.app import app  # noqa: E402
+tests\test_sources.py:15: Import after code: from pathlib import Path
+tests\test_source_chunking.py:9: Import after code: from jarvis_core.evidence import EvidenceStore
+tests\test_spec_lint.py:12: Import after code: from spec_lint import check_file, extract_authority
+tests\test_task_model.py:7: Import after code: from pathlib import Path
+tests\test_task_model.py:9: Import after code: import pytest
+tests\test_telemetry_logger.py:8: Import after code: from jarvis_core.telemetry.schema import TelemetryEvent
+tests\test_v4_integration.py:10: Import after code: from jarvis_core.artifacts.schema import (
+tests\test_v4_integration.py:17: Import after code: from jarvis_core.audit.report import generate_audit_report
+tests\test_v4_integration.py:18: Import after code: from jarvis_core.bundle_v2 import BundleV2, create_bundle_v2
+tests\test_v4_integration.py:19: Import after code: from jarvis_core.paper_vector import (
+tests\test_v4_integration.py:27: Import after code: from jarvis_core.scoring.registry import (
+tests\test_v4_integration.py:33: Import after code: from jarvis_core.truth_validation.claim_fact import (
+tests\test_v4_integration.py:37: Import after code: from jarvis_core.workflows.canonical import (
+tests\test_v4_integration.py:43: Import after code: import tempfile
+tests\test_v4_integration.py:44: Import after code: from pathlib import Path
+tests\test_v4_integration.py:46: Import after code: import pytest
+tests\test_v4_roads.py:12: Import after code: import tempfile
+tests\test_v4_roads.py:13: Import after code: from pathlib import Path
+tests\test_v4_roads.py:15: Import after code: import pytest
+tests\test_visualization.py:15: Import after code: import pytest
+tests\test_workflow.py:11: Import after code: from jarvis_core.workflow.context_packager import (
+tests\test_workflow.py:15: Import after code: from jarvis_core.workflow.repeated_sampling import (
+tests\test_workflow.py:18: Import after code: from jarvis_core.workflow.runner import (
+tests\test_workflow.py:23: Import after code: from jarvis_core.workflow.spec import (
+tests\test_workflow.py:29: Import after code: from pathlib import Path
+tests\test_workflow.py:30: Import after code: from tempfile import TemporaryDirectory
+tests\test_workflow.py:32: Import after code: import pytest
+tests\test_workflow_runner.py:9: Import after code: from jarvis_core.workflow.spec import Mode, StepSpec, WorkflowSpec
+tests\contradiction\test_detector_smoke.py:5: Import after code: from jarvis_core.contradiction.detector import ContradictionDetector
+tests\core\test_golden_path_advanced.py:10: Import after code: from jarvis_core.runtime.failure_signal import (
+tests\core\test_robust_extractor_basic.py:8: Import after code: from pathlib import Path
+tests\core\test_robust_extractor_basic.py:9: Import after code: from jarvis_core.ingestion.robust_extractor import (
+tests\network\test_api_wrapper.py:11: Import after code: from jarvis_core.network.degradation import (

@@ -14,8 +14,8 @@ from jarvis_core.intelligence.mandatory_search import (
 )
 from pathlib import Path
 from tempfile import TemporaryDirectory
-
 import pytest
+
 
 
 class TestGoldsetIndex:

@@ -28,8 +28,8 @@ from jarvis_core.result import EvidenceQAResult
 import json
 import tempfile
 from pathlib import Path
-
 import pytest
+
 
 # PR-59: Mark all tests in this file as core
 pytestmark = pytest.mark.core

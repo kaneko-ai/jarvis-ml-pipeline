@@ -30,11 +30,11 @@ echo "Config: $CFG"
 echo "=========================="
 echo ""
 
-# Clean up any existing coverage files to avoid "unable to open database" errors
+# Clean up any existing coverage files
 rm -f .coverage .coverage.*
-export COVERAGE_FILE=".coverage.$(date +%s).$RANDOM"
 
 # Run pytest with coverage
+# parallel=True in .coveragerc ensures each process writes its own file
 python -m pytest \
   --cov=jarvis_core \
   --cov-config="$CFG" \
@@ -42,6 +42,10 @@ python -m pytest \
   --cov-report=html \
   --cov-report=term-missing \
   -q
+
+# Combine parallel coverage files
+echo "Combining coverage data..."
+python -m coverage combine --rcfile="$CFG"
 
 # Generate final report with fail_under check
 echo ""

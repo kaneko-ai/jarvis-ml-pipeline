@@ -17,8 +17,8 @@ from jarvis_core.providers.local_llm import LocalLLMProvider
 from jarvis_core.trend.ranker import TrendRanker
 from jarvis_core.trend.sources import TrendItem
 from tempfile import TemporaryDirectory
-
 import pytest
+
 
 # Evaluator tests
 

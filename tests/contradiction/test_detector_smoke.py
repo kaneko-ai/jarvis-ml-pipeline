@@ -1,8 +1,8 @@
 import sys
 from pathlib import Path
+from jarvis_core.contradiction.detector import ContradictionDetector
 sys.path.append(str(Path(__file__).parents[3]))
 
-from jarvis_core.contradiction.detector import ContradictionDetector
 
 def test_contradiction_smoke():
     detector = ContradictionDetector()

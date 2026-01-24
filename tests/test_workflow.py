@@ -28,8 +28,8 @@ from jarvis_core.workflow.spec import (
 )
 from pathlib import Path
 from tempfile import TemporaryDirectory
-
 import pytest
+
 
 
 class TestWorkflowSpec:

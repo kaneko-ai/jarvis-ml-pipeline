@@ -5,8 +5,8 @@ from jarvis_core.task import (  # noqa: E402
     TaskStatus,
 )
 from pathlib import Path
-
 import pytest
+
 
 # Ensure project root is on sys.path for direct module imports
 ROOT = Path(__file__).resolve().parents[1]

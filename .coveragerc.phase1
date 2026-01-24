@@ -1,4 +1,5 @@
 [run]
+parallel = True
 branch = False
 source = jarvis_core
 
