@@ -1,4 +1,3 @@
-import pytest
 from pathlib import Path
 from jarvis_core.ingestion.pdf_extractor import HardenedPDFExtractor
 

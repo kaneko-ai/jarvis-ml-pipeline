@@ -1,4 +1,3 @@
-import pytest
 from jarvis_core.report.citation_audit import CitationAuditor
 
 def test_citation_audit_valid():

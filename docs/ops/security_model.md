@@ -1,5 +1,7 @@
 # Security Model
 
+> Authority: POLICY (Level 1, Binding)
+
 ## Goals
 
 - Prevent powerful tokens from being exposed to browsers.

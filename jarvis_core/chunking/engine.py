@@ -5,7 +5,7 @@ Standardizes chunk_id generation and section detection to ensure reproducibility
 
 import hashlib
 import re
-from typing import List, Optional
+from typing import List
 from jarvis_core.ingestion.pipeline import TextChunk
 
 

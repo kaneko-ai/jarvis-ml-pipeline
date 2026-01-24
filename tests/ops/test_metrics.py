@@ -1,4 +1,3 @@
-import pytest
 from jarvis_core.ops.metrics import PipelineMetrics
 
 def test_metrics_counter():

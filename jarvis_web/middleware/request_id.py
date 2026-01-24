@@ -4,7 +4,6 @@ import uuid
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
-import logging
 
 class RequestIdMiddleware(BaseHTTPMiddleware):
     """Middleware that adds a unique request ID to each request."""

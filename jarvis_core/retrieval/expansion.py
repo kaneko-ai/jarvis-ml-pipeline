@@ -6,7 +6,7 @@ Expands queries using Keyword Expansion and HyDE (Hypothetical Document Embeddin
 from __future__ import annotations
 
 import logging
-from typing import List, Optional
+from typing import List
 
 logger = logging.getLogger(__name__)
 

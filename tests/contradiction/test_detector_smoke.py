@@ -2,7 +2,6 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parents[3]))
 
-import pytest
 from jarvis_core.contradiction.detector import ContradictionDetector
 
 def test_contradiction_smoke():

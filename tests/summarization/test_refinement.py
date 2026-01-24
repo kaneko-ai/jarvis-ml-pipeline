@@ -1,4 +1,3 @@
-import pytest
 from jarvis_core.summarization.iterative import ChainOfDensitySummarizer
 
 def test_cod_initial_summary():

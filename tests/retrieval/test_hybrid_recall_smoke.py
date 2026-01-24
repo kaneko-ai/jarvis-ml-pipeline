@@ -1,4 +1,3 @@
-import pytest
 from jarvis_core.retrieval.hybrid import HybridRetriever
 
 # Mock embedding model for speed/determinism in smoke tests

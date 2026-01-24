@@ -1,6 +1,5 @@
 import pytest
 import os
-from pathlib import Path
 from jarvis_core.security.path_validator import PathValidator, ForbiddenPathError
 
 

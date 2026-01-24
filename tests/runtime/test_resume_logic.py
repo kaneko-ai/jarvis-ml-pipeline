@@ -1,6 +1,3 @@
-import pytest
-import json
-from pathlib import Path
 from jarvis_core.runtime.checkpoint import CheckpointManager
 
 def test_checkpoint_lifecycle(tmp_path):

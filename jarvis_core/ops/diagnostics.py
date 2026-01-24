@@ -6,7 +6,7 @@ Analyzes failed runs to determine root causes and suggest recovery actions.
 from __future__ import annotations
 
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)

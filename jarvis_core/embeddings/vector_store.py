@@ -9,7 +9,7 @@ import abc
 import json
 import logging
 from pathlib import Path
-from typing import Any, List, Tuple, Dict, Optional
+from typing import Any, List, Tuple, Dict
 
 import numpy as np
 

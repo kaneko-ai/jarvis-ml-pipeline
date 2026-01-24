@@ -8,8 +8,8 @@ from __future__ import annotations
 import logging
 import json
 from pathlib import Path
-from typing import Dict, Any, List, Set
-from dataclasses import dataclass, field, asdict
+from typing import Dict, Any, Set
+from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 

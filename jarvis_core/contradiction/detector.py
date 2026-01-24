@@ -6,7 +6,7 @@ Detects logical contradictions between claims.
 from __future__ import annotations
 
 import logging
-from typing import List, Dict, Tuple
+from typing import List
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)

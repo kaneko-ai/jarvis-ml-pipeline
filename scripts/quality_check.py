@@ -1,6 +1,5 @@
 import sys
 import subprocess
-from pathlib import Path
 
 def run_check(name: str, command: list[str]) -> bool:
     print(f"Running {name}...")

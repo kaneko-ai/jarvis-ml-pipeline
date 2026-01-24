@@ -7,9 +7,8 @@ from __future__ import annotations
 
 import logging
 import hashlib
-import json
 from pathlib import Path
-from typing import Any, Callable, TypeVar, Optional, Generic
+from typing import Callable, TypeVar
 
 from jarvis_core.cache.kv_cache import KVCache
 
