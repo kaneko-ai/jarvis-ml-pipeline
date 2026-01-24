@@ -1,5 +1,7 @@
 # Artifact Contract v1
 
+> Authority: CONTRACT (Level 2, Binding)
+
 ## Purpose
 Define the minimum manifest required to declare a run "successful" across UI/CI/Worker/Local.
 This contract fixes the semantics and shape of the artifact manifest so every surface

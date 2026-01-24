@@ -1,5 +1,6 @@
-<!-- Authority: GATE -->
 # NEXT_PHASE（PR-NEXT-01〜03 実行計画）
+
+> Authority: ROADMAP (Level 2, Non-binding)
 
 ## 1. ゴール
 - spec-lintをPhase1方式にしてPRが詰まらないようにする。

@@ -146,7 +146,8 @@ def run_task(
 
     # Initialize telemetry - MUST succeed
     logger = init_logger(run_id, logs_dir="logs/runs")
-    assert logger is not None, "TelemetryLogger must be initialized"
+    if logger is None:
+        raise TelemetryMissingError("TelemetryLogger must be initialized")
 
     # Save config (artifact 1/4)
     store.save_config(

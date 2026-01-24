@@ -1,6 +1,6 @@
 # JARVIS Deep Learning Full-Stack Integration 仕様書
-# Version: 1.0.0
-# Status: Active
+
+> Authority: SPECIFICATION (Level 2, Binding)
 
 ## 0. 目的（非交渉のゴール）
 

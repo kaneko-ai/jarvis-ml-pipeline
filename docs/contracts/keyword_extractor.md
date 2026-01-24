@@ -1,5 +1,7 @@
 # KeywordExtractor Contract
 
+> Authority: CONTRACT (Level 2, Binding)
+
 ## Purpose
 Define the deterministic behavior of `KeywordExtractor.extract` so keyword ordering is stable across runs.
 

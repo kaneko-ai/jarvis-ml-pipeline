@@ -1,5 +1,7 @@
 # Quality Gate v1
 
+> Authority: CONTRACT (Level 2, Binding)
+
 ## 目的
 "空っぽの成功"を禁止し、CIの成果物が最低品質を満たしているかを機械的に判定する。
 

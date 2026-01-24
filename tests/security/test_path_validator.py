@@ -83,7 +83,7 @@ def test_path_validator_symlinks(tmp_path):
     # Accessing via symlink should be caught even if resolved path is technically outside base
     # (Because resolve() follows symlinks, and the startswith check fails)
     # AND our explicit symlink check catches it if it exists.
-    with pytest.raises(ForbiddenPathError, match="Symlinks are restricted"):
+    with pytest.raises(ForbiddenPathError, match="Path traversal detected"):
         validator.validate(link_path / "secret.txt")
 
 
