@@ -1,6 +1,4 @@
-import pytest
-import json
-from jarvis_core.feedback.store import FeedbackStore, FeedbackItem
+from jarvis_core.feedback.store import FeedbackStore
 
 def test_log_and_load(tmp_path):
     store = FeedbackStore(tmp_path)

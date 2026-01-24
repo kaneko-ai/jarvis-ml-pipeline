@@ -1,4 +1,3 @@
-import pytest
 from jarvis_core.ingestion.modalities import TableArtifact, FigureArtifact, ModalityType
 
 def test_table_artifact():

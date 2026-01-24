@@ -1,6 +1,5 @@
 import logging
 import io
-import pytest
 from jarvis_core.redact_logging import RedactionFilter, setup_logging
 
 def test_redaction_filter_basic():

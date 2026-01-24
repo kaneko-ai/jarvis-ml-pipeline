@@ -7,7 +7,7 @@ Ref: "From Sparse to Dense: GPT-4 Summarization with Chain of Density Prompting"
 from __future__ import annotations
 
 import logging
-from typing import List, Dict, Any, Optional
+from typing import List, Any, Optional
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)

@@ -1,5 +1,7 @@
 # Run Retention Policy
 
+> Authority: POLICY (Level 1, Binding)
+
 ## 目的
 
 `public/runs/` に生成される実行結果が増え続けると、GitHubリポジトリが肥大化し続けて運用が破綻します。

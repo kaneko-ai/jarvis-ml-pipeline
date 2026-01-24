@@ -7,9 +7,8 @@ Compatible with Prometheus exposition format.
 from __future__ import annotations
 
 import logging
-import time
-from typing import Dict, Any, Optional
-from collections import Counter, defaultdict
+from typing import Dict, Optional
+from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 

@@ -3,7 +3,6 @@
 import logging
 import re
 import os
-from typing import Any
 
 
 class RedactionFilter(logging.Filter):

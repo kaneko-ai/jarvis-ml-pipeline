@@ -1,4 +1,3 @@
-import pytest
 from jarvis_core.retrieval.expansion import QueryExpander
 
 def test_keyword_expansion():

@@ -1,6 +1,5 @@
 import numpy as np
-import pytest
-from jarvis_core.embeddings.model import DeterministicEmbeddingModel, EmbeddingModel
+from jarvis_core.embeddings.model import DeterministicEmbeddingModel
 
 def test_input_normalization():
     model = DeterministicEmbeddingModel(use_cache=False)

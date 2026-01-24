@@ -1,4 +1,3 @@
-import pytest
 from jarvis_core.ops.diagnostics import RunDiagnostics
 
 def test_diagnostics_timeout():

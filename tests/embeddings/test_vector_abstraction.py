@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
 import numpy as np
-from pathlib import Path
 
 from jarvis_core.embeddings.vector_store import VectorStore, FAISSVectorStore
 from jarvis_core.embeddings.chroma_store import ChromaVectorStore

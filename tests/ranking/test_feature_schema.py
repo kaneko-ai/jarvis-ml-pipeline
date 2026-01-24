@@ -1,4 +1,3 @@
-import pytest
 from jarvis_core.ranking.features import RankingFeatures
 
 def test_feature_extraction_basics():

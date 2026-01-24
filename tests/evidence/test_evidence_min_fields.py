@@ -1,5 +1,3 @@
-from typing import List
-import pytest
 from jarvis_core.evidence.v2_schema import EvidenceReport, Claim, Evidence, SupportSpan
 
 def test_evidence_report_validation():

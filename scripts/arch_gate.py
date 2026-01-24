@@ -1,6 +1,5 @@
 import ast
 import sys
-import os
 from pathlib import Path
 
 # 禁止されているパッケージ

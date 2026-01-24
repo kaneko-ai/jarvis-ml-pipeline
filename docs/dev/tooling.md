@@ -1,5 +1,7 @@
 # JARVIS 開発ツールガイド
 
+> Authority: GUIDE (Level 3, Non-binding)
+
 ## 開発環境セットアップ
 
 ### 1. Python環境

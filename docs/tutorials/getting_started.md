@@ -1,5 +1,7 @@
 # JARVIS Research OS チュートリアル
 
+> Authority: GUIDE (Level 3, Non-binding)
+
 > はじめての体系的文献レビュー
 
 ---

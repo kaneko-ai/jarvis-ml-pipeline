@@ -1,4 +1,3 @@
-import pytest
 from jarvis_core.compliance.license import LicenseFilter, LicenseType
 
 def test_license_parsing():
