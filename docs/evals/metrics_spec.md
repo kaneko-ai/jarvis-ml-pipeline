@@ -1,5 +1,7 @@
 """Metrics Spec.
 
+> Authority: SPECIFICATION (Level 2, Binding)
+
 Per RP-135, defines evaluation metrics precisely.
 """
 # Evaluation Metrics Specification

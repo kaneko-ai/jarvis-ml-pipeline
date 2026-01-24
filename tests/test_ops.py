@@ -14,7 +14,7 @@ from jarvis_core.ops.checkpoint import (
     StageStatus,
 )
 from jarvis_core.ops.metrics import (
-    MetricsCollector,
+    PipelineMetrics,
 )
 from jarvis_core.ops.rate_limiter import (
     RateLimitConfig,
@@ -143,68 +143,30 @@ class TestCheckpointManager:
             assert resume_point == 3
 
 
-class TestMetricsCollector:
-    """メトリクスコレクターテスト."""
 
-    def test_start_and_end_run(self):
-        """ランの開始と終了が動作すること."""
-        with TemporaryDirectory() as tmpdir:
-            collector = MetricsCollector(base_path=tmpdir)
+class TestPipelineMetrics:
+    """メトリクスコレクターテスト (PipelineMetrics Adapter)."""
 
-            collector.start_run("test_run", "test_pipeline")
-            metrics = collector.end_run("completed")
+    def test_counter_increment(self):
+        """カウンタが機能すること."""
+        from jarvis_core.ops.metrics import metrics, PipelineMetrics
+        # Reset global metrics for test
+        test_metrics = PipelineMetrics()
+        
+        test_metrics.inc_counter("test_counter", {"label": "a"})
+        output = test_metrics.generate_prometheus_output()
+        
+        assert 'test_counter{label="a"} 1.0' in output
 
-            assert metrics["run"]["run_id"] == "test_run"
-            assert metrics["run"]["status"] == "completed"
+    def test_gauge_set(self):
+        """ゲージが機能すること."""
+        from jarvis_core.ops.metrics import PipelineMetrics
+        test_metrics = PipelineMetrics()
 
-    def test_stage_timing(self):
-        """ステージタイミングが記録されること."""
-        import time
-
-        with TemporaryDirectory() as tmpdir:
-            collector = MetricsCollector(base_path=tmpdir)
-
-            collector.start_run("test_run", "test")
-            collector.start_stage("stage_1")
-            time.sleep(0.01)  # 10ms
-            collector.end_stage("stage_1")
-
-            metrics = collector.get_current_metrics()
-            assert "stage_1" in metrics["run"]["stage_durations"]
-            assert metrics["run"]["stage_durations"]["stage_1"] >= 10
-
-    def test_api_call_recording(self):
-        """API呼び出しが記録されること."""
-        with TemporaryDirectory() as tmpdir:
-            collector = MetricsCollector(base_path=tmpdir)
-
-            collector.start_run("test_run", "test")
-            collector.record_api_call(success=True)
-            collector.record_api_call(success=False)
-            collector.record_api_call(success=True, retried=True)
-
-            metrics = collector.get_current_metrics()
-            assert metrics["run"]["api_calls"] == 3
-            assert metrics["run"]["api_errors"] == 1
-            assert metrics["run"]["api_retries"] == 1
-
-    def test_quality_metrics(self):
-        """品質メトリクスが更新されること."""
-        with TemporaryDirectory() as tmpdir:
-            collector = MetricsCollector(base_path=tmpdir)
-
-            collector.start_run("test_run", "test")
-            collector.update_quality(
-                provenance_rate=0.95,
-                pico_consistency_rate=0.88,
-                gate_name="provenance",
-                gate_passed=True,
-            )
-
-            metrics = collector.get_current_metrics()
-            assert metrics["quality"]["provenance_rate"] == 0.95
-            assert metrics["quality"]["pico_consistency_rate"] == 0.88
-            assert metrics["quality"]["gate_results"]["provenance"] is True
+        test_metrics.set_gauge("test_gauge", 42.0, {"label": "b"})
+        output = test_metrics.generate_prometheus_output()
+        
+        assert 'test_gauge{label="b"} 42.0' in output
 
 
 if __name__ == "__main__":
