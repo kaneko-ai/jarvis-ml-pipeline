@@ -1,6 +1,6 @@
-"""Tests for Phase Σ (Extended Research Analysis).
+"""Tests for Phase ﾎ｣ (Extended Research Analysis).
 
-Tests Σ-1 to Σ-30 modules.
+Tests ﾎ｣-1 to ﾎ｣-30 modules.
 """
 
 from jarvis_core.paper_vector import (
@@ -12,12 +12,12 @@ from jarvis_core.paper_vector import (
     PaperVector,
     TemporalVector,
 )
-from jarvis_core.sigma_modules import (
+from jarvis_core.experimental.sigma_modules import (
     analyze_cluster_dynamics,
     analyze_hypothesis_dependencies,
     assess_field_saturation,
     assess_reproducibility_risk,
-    # Σ-8〜Σ-13
+    # ﾎ｣-8縲慚｣-13
     build_impact_heatmap,
     check_sample_size,
     check_supplement_completeness,
@@ -25,7 +25,7 @@ from jarvis_core.sigma_modules import (
     detect_consensus,
     detect_discussion_gaps,
     detect_new_concepts,
-    # Σ-26〜Σ-30
+    # ﾎ｣-26縲慚｣-30
     detect_research_drift,
     enumerate_controls,
     estimate_hypothesis_lifetime,
@@ -39,11 +39,11 @@ from jarvis_core.sigma_modules import (
     map_journal_trends,
     map_method_failures,
     map_research_density,
-    # Σ-20〜Σ-25
+    # ﾎ｣-20縲慚｣-25
     plan_figures,
-    # Σ-1〜Σ-7
+    # ﾎ｣-1縲慚｣-7
     score_hypothesis,
-    # Σ-14〜Σ-19
+    # ﾎ｣-14縲慚｣-19
     score_protocol_difficulty,
     structure_graphical_abstract,
     sync_research_log,
@@ -81,7 +81,7 @@ def _create_test_vectors():
     ]
 
 class TestSigma1_7:
-    """思考・仮説系 (Σ-1〜Σ-7)."""
+    """諤晁・・莉ｮ隱ｬ邉ｻ (ﾎ｣-1縲慚｣-7)."""
 
     def test_score_hypothesis(self):
         vectors = _create_test_vectors()
@@ -117,7 +117,7 @@ class TestSigma1_7:
         assert "nodes" in diagram
 
 class TestSigma8_13:
-    """分析・可視化系 (Σ-8〜Σ-13)."""
+    """蛻・梵繝ｻ蜿ｯ隕門喧邉ｻ (ﾎ｣-8縲慚｣-13)."""
 
     def test_impact_heatmap(self):
         vectors = _create_test_vectors()
@@ -150,7 +150,7 @@ class TestSigma8_13:
         assert isinstance(density, dict)
 
 class TestSigma14_19:
-    """実験・設計系 (Σ-14〜Σ-19)."""
+    """螳滄ｨ薙・險ｭ險育ｳｻ (ﾎ｣-14縲慚｣-19)."""
 
     def test_protocol_difficulty(self):
         score = score_protocol_difficulty(["scRNA-seq", "qPCR"])
@@ -179,7 +179,7 @@ class TestSigma14_19:
         assert len(reasoning) > 0
 
 class TestSigma20_25:
-    """論文・発表補助 (Σ-20〜Σ-25)."""
+    """隲匁枚繝ｻ逋ｺ陦ｨ陬懷勧 (ﾎ｣-20縲慚｣-25)."""
 
     def test_plan_figures(self):
         vectors = _create_test_vectors()
@@ -208,7 +208,7 @@ class TestSigma20_25:
         assert "recency_bias" in bias
 
 class TestSigma26_30:
-    """継続・運用系 (Σ-26〜Σ-30)."""
+    """邯咏ｶ壹・驕狗畑邉ｻ (ﾎ｣-26縲慚｣-30)."""
 
     def test_research_drift(self):
         old = _create_test_vectors()[:1]

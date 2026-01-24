@@ -3,18 +3,18 @@
 Tests Ψ-1 to Ψ-30 modules.
 """
 
-from jarvis_core.career_engines import (
+from jarvis_core.experimental.career_engines import (
     monitor_burnout_risk,
     plan_international_mobility,
     simulate_reputation_trajectory,
     suggest_mentor_profile,
     track_skill_gap,
 )
-from jarvis_core.clinical_readiness import assess_clinical_readiness
-from jarvis_core.funding_cliff import predict_funding_cliff
+from jarvis_core.experimental.clinical_readiness import assess_clinical_readiness
+from jarvis_core.experimental.funding_cliff import predict_funding_cliff
 from jarvis_core.kill_switch import recommend_kill_switch
-from jarvis_core.lab_culture import detect_lab_culture_risk
-from jarvis_core.lab_to_startup import translate_to_startup
+from jarvis_core.experimental.lab_culture import detect_lab_culture_risk
+from jarvis_core.experimental.lab_to_startup import translate_to_startup
 from jarvis_core.logic_citation import (
     calculate_citation_power,
     calculate_claim_confidence,
@@ -29,7 +29,7 @@ from jarvis_core.meta_science import (
     suggest_self_evolution,
     track_journal_power_shift,
 )
-from jarvis_core.negative_results import (
+from jarvis_core.experimental.negative_results import (
     NegativeResult,
     NegativeResultsVault,
     analyze_negative_results,
@@ -43,10 +43,10 @@ from jarvis_core.paper_vector import (
     PaperVector,
     TemporalVector,
 )
-from jarvis_core.pi_succession import plan_pi_succession
-from jarvis_core.reproducibility_cert import certify_reproducibility
-from jarvis_core.roi_engine import calculate_research_roi
-from jarvis_core.student_portfolio import analyze_student_portfolio
+from jarvis_core.experimental.pi_succession import plan_pi_succession
+from jarvis_core.experimental.reproducibility_cert import certify_reproducibility
+from jarvis_core.experimental.roi_engine import calculate_research_roi
+from jarvis_core.experimental.student_portfolio import analyze_student_portfolio
 from jarvis_core.thinking_engines import (
     analyze_counterfactual,
     discover_blind_spots,

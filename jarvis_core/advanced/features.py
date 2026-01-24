@@ -1008,7 +1008,7 @@ class TeamWorkspace:
 
     def create_workspace(self, name: str, members: list[str]) -> dict:
         """Create team workspace."""
-        ws_id = hashlib.md5(name.encode()).hexdigest()[:8]
+        ws_id = hashlib.md5(name.encode()).hexdigest()[:8]  # nosec B324
         self.workspaces[ws_id] = {
             "name": name,
             "members": members,
@@ -1094,7 +1094,7 @@ class RealTimeCollaboration:
     def create_session(self, document_id: str, users: list[str]) -> dict:
         """Create collaboration session."""
         return {
-            "session_id": hashlib.md5(f"{document_id}{time.time()}".encode()).hexdigest()[:8],
+            "session_id": hashlib.md5(f"{document_id}{time.time()}".encode()).hexdigest()[:8],  # nosec B324
             "document_id": document_id,
             "users": users,
         }

@@ -51,7 +51,7 @@ class TestActiveLearningEngine:
     """Complete tests for active_learning/engine.py."""
 
     def test_import(self):
-        from jarvis_core.active_learning import engine
+        from jarvis_core.experimental.active_learning import engine
         assert hasattr(engine, "__name__")
 
 
@@ -235,7 +235,7 @@ class TestHighMissModules:
         ("jarvis_core.reporting", "rank_explain"),
         ("jarvis_core.replay", "reproduce"),
         ("jarvis_core.ops", "resilience"),
-        ("jarvis_core.finance", "scenarios"),
+        ("jarvis_core.experimental.finance", "scenarios"),
         ("jarvis_core.knowledge", "store"),
         ("jarvis_core.api", "external"),
         ("jarvis_core.api", "pubmed"),

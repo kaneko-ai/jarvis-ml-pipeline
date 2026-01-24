@@ -1,0 +1,42 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+collecting ... collected 16 items
+
+tests/core/test_scientific_basic.py::TestFormulaCalculator::test_evaluate_basic PASSED [  6%]
+tests/core/test_scientific_basic.py::TestFormulaCalculator::test_evaluate_variables PASSED [ 12%]
+tests/core/test_scientific_basic.py::TestFormulaCalculator::test_evaluate_unary PASSED [ 18%]
+tests/core/test_scientific_basic.py::TestFormulaCalculator::test_evaluate_errors PASSED [ 25%]
+tests/core/test_scientific_basic.py::TestFormulaCalculator::test_parse_latex PASSED [ 31%]
+tests/core/test_scientific_basic.py::TestTableExtractor::test_extract_table PASSED [ 37%]
+tests/core/test_scientific_basic.py::TestTableExtractor::test_compare_tables PASSED [ 43%]
+tests/core/test_scientific_basic.py::TestChemicalStructureAnalyzer::test_parse_smiles FAILED [ 50%]
+tests/core/test_scientific_basic.py::TestChemicalStructureAnalyzer::test_similarity PASSED [ 56%]
+tests/core/test_scientific_basic.py::TestStatisticalResultParser::test_parse_p_value PASSED [ 62%]
+tests/core/test_scientific_basic.py::TestStatisticalResultParser::test_parse_ci PASSED [ 68%]
+tests/core/test_scientific_basic.py::TestCodeRepositoryLinker::test_find_github PASSED [ 75%]
+tests/core/test_scientific_basic.py::test_protein_viewer PASSED          [ 81%]
+tests/core/test_scientific_basic.py::test_protocol_extractor PASSED      [ 87%]
+tests/core/test_scientific_basic.py::test_medical_image_analyzer PASSED  [ 93%]
+tests/core/test_scientific_basic.py::test_figure_analyzer PASSED         [100%]
+
+================================== FAILURES ===================================
+_______________ TestChemicalStructureAnalyzer.test_parse_smiles _______________
+tests\core\test_scientific_basic.py:70: in test_parse_smiles
+    assert res["ring_count"] == 1
+E   assert 2 == 1
+============================== warnings summary ===============================
+tests/core/test_scientific_basic.py: 33 warnings
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\multimodal\scientific.py:461: DeprecationWarning: ast.Num is deprecated and will be removed in Python 3.14; use ast.Constant instead
+    if isinstance(node, ast.Num):  # <3.8
+
+tests/core/test_scientific_basic.py: 14 warnings
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\multimodal\scientific.py:462: DeprecationWarning: Attribute n is deprecated and will be removed in Python 3.14; use value instead
+    return node.n
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/core/test_scientific_basic.py::TestChemicalStructureAnalyzer::test_parse_smiles - assert 2 == 1
+================== 1 failed, 15 passed, 47 warnings in 0.73s ==================

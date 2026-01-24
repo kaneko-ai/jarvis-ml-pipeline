@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
-from jarvis_core.finance.schema import (
+from jarvis_core.experimental.finance.schema import (
     ASSUMPTION_NOTE,
     ExpenseItem,
     IncomeItem,
@@ -62,10 +62,10 @@ def build_scenarios(
     month_labels = build_months(start, months)
     scenarios: dict[str, ScenarioResult] = {}
     for scenario_id, name in [
-        ("S1", "DC1採択（RAなし）"),
-        ("S2", "DC1不採択＋RA/TA"),
-        ("S3", "奨学金＋バイト併用"),
-        ("S4", "最悪ケース（奨学金なし、収入不安定）"),
+        ("S1", "DC1謗｡謚橸ｼ・A縺ｪ縺暦ｼ・),
+        ("S2", "DC1荳肴治謚橸ｼ騎A/TA"),
+        ("S3", "螂ｨ蟄ｦ驥托ｼ九ヰ繧､繝井ｽｵ逕ｨ"),
+        ("S4", "譛謔ｪ繧ｱ繝ｼ繧ｹ・亥･ｨ蟄ｦ驥代↑縺励∝庶蜈･荳榊ｮ牙ｮ夲ｼ・),
     ]:
         cashflows: list[MonthlyCashflow] = []
         current_savings = savings_start

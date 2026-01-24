@@ -60,7 +60,7 @@ class TestActivelearningModules:
     @pytest.mark.parametrize("module", ["cli", "engine", "strategy"])
     def test_import(self, module):
         try:
-            exec(f"from jarvis_core.active_learning import {module}")
+            exec(f"from jarvis_core.experimental.active_learning import {module}")
         except ImportError:
             pytest.skip(f"Not available")
 
@@ -204,7 +204,7 @@ class TestFinanceModules:
     @pytest.mark.parametrize("module", ["optimizer", "scenarios"])
     def test_import(self, module):
         try:
-            exec(f"from jarvis_core.finance import {module}")
+            exec(f"from jarvis_core.experimental.finance import {module}")
         except ImportError:
             pytest.skip(f"Not available")
 

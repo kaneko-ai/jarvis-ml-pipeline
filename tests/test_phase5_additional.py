@@ -377,7 +377,7 @@ class TestFinanceScenarios:
     """Tests for finance scenarios."""
 
     def test_import(self):
-        from jarvis_core.finance import scenarios
+        from jarvis_core.experimental.finance import scenarios
         assert hasattr(scenarios, "__name__")
 
 

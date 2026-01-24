@@ -18,6 +18,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional
 
+from jarvis_core.security.fs_safety import safe_extract_zip, sanitize_filename
+from jarvis_core.security.atomic_io import atomic_write_json
+
 try:
     from fastapi import FastAPI, HTTPException, Depends, UploadFile, File
     from fastapi.responses import FileResponse, JSONResponse
@@ -564,36 +567,50 @@ if FASTAPI_AVAILABLE:
             tmp_path = tmp.name
 
         try:
-            with zipfile.ZipFile(tmp_path, "r") as zf:
-                for name in zf.namelist():
-                    if name.lower().endswith(".pdf"):
-                        # Extract to batch dir
-                        extracted = zf.extract(name, batch_dir)
-                        extracted_path = Path(extracted)
+            # Safe extraction avoiding Zip Slip and DoS
+            allowed_ext = {".pdf"}
+            extracted_paths = safe_extract_zip(
+                Path(tmp_path),
+                batch_dir,
+                max_files=MAX_BATCH_FILES,
+                max_total_size=MAX_UPLOAD_SIZE * MAX_BATCH_FILES,
+                allowed_ext=allowed_ext
+            )
 
-                        # Check for duplicates
-                        file_hash = get_file_hash(extracted_path)
-                        hash_file = UPLOADS_DIR / "hashes.json"
-                        hashes = {}
-                        if hash_file.exists():
-                            with open(hash_file, "r") as f:
-                                hashes = json.load(f)
+            # Load existing hashes
+            hash_file = UPLOADS_DIR / "hashes.json"
+            hashes = {}
+            if hash_file.exists():
+                try:
+                    with open(hash_file, "r") as f:
+                        hashes = json.load(f)
+                except:
+                    pass
 
-                        if file_hash in hashes:
-                            duplicates += 1
-                            extracted_path.unlink()
-                        else:
-                            hashes[file_hash] = str(extracted_path)
-                            with open(hash_file, "w") as f:
-                                json.dump(hashes, f)
-                            accepted += 1
-                            file_info.append(
-                                {
-                                    "name": name,
-                                    "size": extracted_path.stat().st_size,
-                                    "hash": file_hash[:16],
-                                }
-                            )
+            for extracted_path in extracted_paths:
+                # Check for duplicates
+                file_hash = get_file_hash(extracted_path)
+
+                if file_hash in hashes:
+                    duplicates += 1
+                    extracted_path.unlink()
+                else:
+                    hashes[file_hash] = str(extracted_path)
+                    accepted += 1
+                    file_info.append(
+                        {
+                            "name": extracted_path.name,
+                            "size": extracted_path.stat().st_size,
+                            "hash": file_hash[:16],
+                        }
+                    )
+            
+            # Save hashes after batch processing
+            if accepted > 0:
+                atomic_write_json(hash_file, hashes)
+        except Exception as e:
+            # Log error if needed, for now just ensure cleanup
+            raise HTTPException(status_code=400, detail=str(e))
         finally:
             os.unlink(tmp_path)
 
@@ -652,8 +669,9 @@ async def _handle_upload(files: List[UploadFile], file_type: str) -> UploadRespo
                 continue
 
             # Save file
-            safe_name = upload_file.filename or f"file_{accepted}.{file_type}"
-            filepath = batch_dir / safe_name
+            orig_name = upload_file.filename or f"file_{accepted}.{file_type}"
+            safe_name = sanitize_filename(orig_name)
+            filepath = resolve_under(batch_dir, batch_dir / safe_name)
             with open(filepath, "wb") as f:
                 f.write(content)
 
@@ -673,8 +691,7 @@ async def _handle_upload(files: List[UploadFile], file_type: str) -> UploadRespo
             rejected += 1
 
     # Save updated hashes
-    with open(hash_file, "w") as f:
-        json.dump(hashes, f)
+    atomic_write_json(hash_file, hashes)
 
     return UploadResponse(
         batch_id=batch_id,

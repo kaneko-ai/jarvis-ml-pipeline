@@ -12,7 +12,7 @@ class TestALConfig:
 
     def test_config_default_values(self):
         """Test ALConfig default values."""
-        from jarvis_core.active_learning import ALConfig
+        from jarvis_core.experimental.active_learning import ALConfig
 
         config = ALConfig()
 
@@ -22,7 +22,7 @@ class TestALConfig:
 
     def test_config_custom_values(self):
         """Test ALConfig with custom values."""
-        from jarvis_core.active_learning import ALConfig
+        from jarvis_core.experimental.active_learning import ALConfig
 
         config = ALConfig(
             batch_size=20,
@@ -38,7 +38,7 @@ class TestALConfig:
 
     def test_config_target_recall(self):
         """Test ALConfig target_recall."""
-        from jarvis_core.active_learning import ALConfig
+        from jarvis_core.experimental.active_learning import ALConfig
 
         config = ALConfig(target_recall=0.90)
         assert config.target_recall == 0.90
@@ -49,7 +49,7 @@ class TestALState:
 
     def test_state_values(self):
         """Test ALState enum values."""
-        from jarvis_core.active_learning import ALState
+        from jarvis_core.experimental.active_learning import ALState
 
         # ALState is an Enum now
         assert ALState.IDLE.value == "idle"
@@ -59,7 +59,7 @@ class TestALState:
 
     def test_state_comparison(self):
         """Test ALState comparison."""
-        from jarvis_core.active_learning import ALState
+        from jarvis_core.experimental.active_learning import ALState
 
         assert ALState.IDLE != ALState.TRAINING
         assert ALState.IDLE == ALState.IDLE
@@ -70,7 +70,7 @@ class TestALStats:
 
     def test_stats_creation(self):
         """Test ALStats creation."""
-        from jarvis_core.active_learning.engine import ALStats
+        from jarvis_core.experimental.active_learning.engine import ALStats
 
         stats = ALStats(
             total_instances=100,
@@ -86,7 +86,7 @@ class TestALStats:
 
     def test_stats_to_dict(self):
         """Test ALStats to_dict method."""
-        from jarvis_core.active_learning.engine import ALStats
+        from jarvis_core.experimental.active_learning.engine import ALStats
 
         stats = ALStats(
             total_instances=50,
@@ -106,14 +106,14 @@ class TestQueryStrategy:
 
     def test_uncertainty_sampling_init(self):
         """Test UncertaintySampling initialization."""
-        from jarvis_core.active_learning import UncertaintySampling
+        from jarvis_core.experimental.active_learning import UncertaintySampling
 
         strategy = UncertaintySampling()
         assert strategy is not None
 
     def test_uncertainty_sampling_select(self):
         """Test UncertaintySampling selection."""
-        from jarvis_core.active_learning import UncertaintySampling
+        from jarvis_core.experimental.active_learning import UncertaintySampling
 
         strategy = UncertaintySampling()
 
@@ -136,7 +136,7 @@ class TestQueryStrategy:
 
     def test_uncertainty_sampling_empty(self):
         """Test UncertaintySampling with empty input."""
-        from jarvis_core.active_learning import UncertaintySampling
+        from jarvis_core.experimental.active_learning import UncertaintySampling
 
         strategy = UncertaintySampling()
         selected = strategy.select([], {}, {}, n=5)
@@ -144,14 +144,14 @@ class TestQueryStrategy:
 
     def test_diversity_sampling_init(self):
         """Test DiversitySampling initialization."""
-        from jarvis_core.active_learning import DiversitySampling
+        from jarvis_core.experimental.active_learning import DiversitySampling
 
         strategy = DiversitySampling()
         assert strategy is not None
 
     def test_diversity_sampling_select(self):
         """Test DiversitySampling selection."""
-        from jarvis_core.active_learning import DiversitySampling
+        from jarvis_core.experimental.active_learning import DiversitySampling
 
         strategy = DiversitySampling(uncertainty_weight=0.5)
 
@@ -175,15 +175,15 @@ class TestStoppingCriteria:
 
     def test_recall_stopping_init(self):
         """Test RecallStoppingCriterion initialization."""
-        from jarvis_core.active_learning import RecallStoppingCriterion
+        from jarvis_core.experimental.active_learning import RecallStoppingCriterion
 
         criterion = RecallStoppingCriterion(target_recall=0.95)
         assert criterion._target == 0.95
 
     def test_recall_stopping_not_met(self):
         """Test RecallStoppingCriterion when not met."""
-        from jarvis_core.active_learning import RecallStoppingCriterion
-        from jarvis_core.active_learning.stopping import StoppingState
+        from jarvis_core.experimental.active_learning import RecallStoppingCriterion
+        from jarvis_core.experimental.active_learning.stopping import StoppingState
 
         criterion = RecallStoppingCriterion(target_recall=0.95, min_iterations=2)
         state = StoppingState(
@@ -199,8 +199,8 @@ class TestStoppingCriteria:
 
     def test_recall_stopping_met(self):
         """Test RecallStoppingCriterion when met."""
-        from jarvis_core.active_learning import RecallStoppingCriterion
-        from jarvis_core.active_learning.stopping import StoppingState
+        from jarvis_core.experimental.active_learning import RecallStoppingCriterion
+        from jarvis_core.experimental.active_learning.stopping import StoppingState
 
         criterion = RecallStoppingCriterion(target_recall=0.95, min_iterations=2)
         state = StoppingState(
@@ -216,8 +216,8 @@ class TestStoppingCriteria:
 
     def test_budget_stopping_not_met(self):
         """Test BudgetStoppingCriterion when not met."""
-        from jarvis_core.active_learning import BudgetStoppingCriterion
-        from jarvis_core.active_learning.stopping import StoppingState
+        from jarvis_core.experimental.active_learning import BudgetStoppingCriterion
+        from jarvis_core.experimental.active_learning.stopping import StoppingState
 
         criterion = BudgetStoppingCriterion(budget_ratio=0.3)
         state = StoppingState(
@@ -233,8 +233,8 @@ class TestStoppingCriteria:
 
     def test_budget_stopping_met(self):
         """Test BudgetStoppingCriterion when met."""
-        from jarvis_core.active_learning import BudgetStoppingCriterion
-        from jarvis_core.active_learning.stopping import StoppingState
+        from jarvis_core.experimental.active_learning import BudgetStoppingCriterion
+        from jarvis_core.experimental.active_learning.stopping import StoppingState
 
         criterion = BudgetStoppingCriterion(budget_ratio=0.3)
         state = StoppingState(
@@ -250,8 +250,8 @@ class TestStoppingCriteria:
 
     def test_composite_stopping_any(self):
         """Test CompositeStoppingCriterion with any mode."""
-        from jarvis_core.active_learning import BudgetStoppingCriterion, RecallStoppingCriterion
-        from jarvis_core.active_learning.stopping import CompositeStoppingCriterion, StoppingState
+        from jarvis_core.experimental.active_learning import BudgetStoppingCriterion, RecallStoppingCriterion
+        from jarvis_core.experimental.active_learning.stopping import CompositeStoppingCriterion, StoppingState
 
         recall_criterion = RecallStoppingCriterion(target_recall=0.95, min_iterations=1)
         budget_criterion = BudgetStoppingCriterion(budget_ratio=0.5)
@@ -289,7 +289,7 @@ class TestActiveLearningEngine:
 
     def test_engine_initialization(self):
         """Test ActiveLearningEngine initialization."""
-        from jarvis_core.active_learning import ActiveLearningEngine, ALConfig
+        from jarvis_core.experimental.active_learning import ActiveLearningEngine, ALConfig
 
         config = ALConfig(batch_size=10, initial_samples=20)
         engine = ActiveLearningEngine(config=config)
@@ -299,7 +299,7 @@ class TestActiveLearningEngine:
 
     def test_engine_initialize_with_data(self):
         """Test engine initialization with data."""
-        from jarvis_core.active_learning import ActiveLearningEngine, ALConfig
+        from jarvis_core.experimental.active_learning import ActiveLearningEngine, ALConfig
 
         config = ALConfig(batch_size=5, initial_samples=10)
         engine = ActiveLearningEngine(config=config)
@@ -314,7 +314,7 @@ class TestActiveLearningEngine:
 
     def test_engine_get_next_query(self):
         """Test getting next query batch."""
-        from jarvis_core.active_learning import ActiveLearningEngine, ALConfig
+        from jarvis_core.experimental.active_learning import ActiveLearningEngine, ALConfig
 
         config = ALConfig(batch_size=5, initial_samples=10)
         engine = ActiveLearningEngine(config=config)
@@ -329,7 +329,7 @@ class TestActiveLearningEngine:
 
     def test_engine_update_single(self):
         """Test updating with a single label."""
-        from jarvis_core.active_learning import ActiveLearningEngine, ALConfig
+        from jarvis_core.experimental.active_learning import ActiveLearningEngine, ALConfig
 
         config = ALConfig(batch_size=5, initial_samples=10)
         engine = ActiveLearningEngine(config=config)
@@ -346,7 +346,7 @@ class TestActiveLearningEngine:
 
     def test_engine_update_batch(self):
         """Test updating with batch labels."""
-        from jarvis_core.active_learning import ActiveLearningEngine, ALConfig
+        from jarvis_core.experimental.active_learning import ActiveLearningEngine, ALConfig
 
         config = ALConfig(batch_size=5, initial_samples=10)
         engine = ActiveLearningEngine(config=config)
@@ -362,7 +362,7 @@ class TestActiveLearningEngine:
 
     def test_engine_get_stats(self):
         """Test getting engine statistics."""
-        from jarvis_core.active_learning import ActiveLearningEngine, ALConfig
+        from jarvis_core.experimental.active_learning import ActiveLearningEngine, ALConfig
 
         config = ALConfig()
         engine = ActiveLearningEngine(config=config)
@@ -377,7 +377,7 @@ class TestActiveLearningEngine:
 
     def test_engine_state_property(self):
         """Test engine state property."""
-        from jarvis_core.active_learning import ActiveLearningEngine, ALConfig, ALState
+        from jarvis_core.experimental.active_learning import ActiveLearningEngine, ALConfig, ALState
 
         engine = ActiveLearningEngine()
 
@@ -391,7 +391,7 @@ class TestActiveLearningCLI:
 
     def test_cli_entry_point_exists(self):
         """Test CLI entry point is defined."""
-        from jarvis_core.active_learning import cli
+        from jarvis_core.experimental.active_learning import cli
 
         assert hasattr(cli, "cmd_screen")
 
@@ -400,7 +400,7 @@ class TestActiveLearningCLI:
         import subprocess
 
         result = subprocess.run(
-            ["python", "-m", "jarvis_core.active_learning.cli", "--help"],
+            ["python", "-m", "jarvis_core.experimental.active_learning.cli", "--help"],
             capture_output=True,
             text=True,
         )
@@ -418,7 +418,7 @@ class TestModuleImports:
 
     def test_main_imports(self):
         """Test main module imports."""
-        from jarvis_core.active_learning import (
+        from jarvis_core.experimental.active_learning import (
             ActiveLearningEngine,
             ALConfig,
             ALState,

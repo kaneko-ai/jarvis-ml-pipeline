@@ -132,7 +132,7 @@ class TestActiveLearningEngineDeep:
     """Deep tests for active_learning/engine.py."""
 
     def test_all_classes_with_methods(self):
-        from jarvis_core.active_learning import engine
+        from jarvis_core.experimental.active_learning import engine
         for name in dir(engine):
             if not name.startswith('_'):
                 obj = getattr(engine, name)

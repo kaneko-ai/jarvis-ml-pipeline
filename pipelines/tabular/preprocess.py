@@ -13,9 +13,12 @@ from typing import Optional, Tuple
 
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
-
 logger = logging.getLogger(__name__)
+try:
+    from sklearn.preprocessing import StandardScaler
+except ImportError:
+    StandardScaler = None
+    logger.warning("scikit-learn not installed. Some tabular features will be unavailable.")
 
 
 def create_preprocessor(standardize: bool = True) -> Optional[StandardScaler]:

@@ -77,6 +77,7 @@ class SecurityConfig:
     secret_key: str = ""
     token_expiry_hours: int = 24
     require_auth: bool = False
+    auth_mode: str = "required"  # "required" | "disabled"
 
     @classmethod
     def from_env(cls) -> "SecurityConfig":
@@ -86,6 +87,7 @@ class SecurityConfig:
             secret_key=os.getenv("SECRET_KEY", "dev-secret-key-change-in-production"),
             token_expiry_hours=int(os.getenv("TOKEN_EXPIRY_HOURS", "24")),
             require_auth=env == "production",
+            auth_mode=os.getenv("AUTH_MODE", "required"),
         )
 
 

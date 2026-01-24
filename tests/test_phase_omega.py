@@ -1,16 +1,16 @@
 import pytest
-"""Tests for Phase Ω (Research OS v2.0 Core).
+"""Tests for Phase ﾎｩ (Research OS v2.0 Core).
 
-Tests Ω-1 to Ω-10 modules.
+Tests ﾎｩ-1 to ﾎｩ-10 modules.
 """
 
 from jarvis_core.autonomous_loop import get_intervention_summary, run_autonomous_research_loop
-from jarvis_core.career_planner import plan_career_strategy
+from jarvis_core.experimental.career_planner import plan_career_strategy
 from jarvis_core.cross_field import find_cross_field_opportunities
-from jarvis_core.failure_simulator import simulate_failure_tree
-from jarvis_core.grant_optimizer import optimize_grant_proposal, suggest_grant_improvements
+from jarvis_core.experimental.failure_simulator import simulate_failure_tree
+from jarvis_core.experimental.grant_optimizer import optimize_grant_proposal, suggest_grant_improvements
 from jarvis_core.knowledge_graph import build_knowledge_graph
-from jarvis_core.lab_optimizer import optimize_lab_resources
+from jarvis_core.experimental.lab_optimizer import optimize_lab_resources
 from jarvis_core.living_review import generate_living_review, update_living_review
 from jarvis_core.paper_vector import (
     BiologicalAxisVector,
@@ -21,7 +21,7 @@ from jarvis_core.paper_vector import (
     PaperVector,
     TemporalVector,
 )
-from jarvis_core.pi_support import evaluate_research_themes, generate_pi_summary
+from jarvis_core.experimental.pi_support import evaluate_research_themes, generate_pi_summary
 from jarvis_core.reviewer_persona import generate_all_reviewer_feedback, generate_reviewer_feedback
 from pathlib import Path
 
@@ -66,7 +66,7 @@ def _create_test_vectors():
 
 @pytest.mark.slow
 class TestAutonomousLoop:
-    """Ω-1 tests."""
+    """ﾎｩ-1 tests."""
 
     def test_loop_completes(self):
         vectors = _create_test_vectors()
@@ -91,7 +91,7 @@ class TestAutonomousLoop:
         assert result["status"] == "no_input"
 
 class TestCrossField:
-    """Ω-5 tests."""
+    """ﾎｩ-5 tests."""
 
     def test_finds_opportunities(self):
         vectors = _create_test_vectors()
@@ -103,7 +103,7 @@ class TestCrossField:
         assert opps == []
 
 class TestFailureSimulator:
-    """Ω-7 tests."""
+    """ﾎｩ-7 tests."""
 
     def test_generates_tree(self):
         vectors = _create_test_vectors()
@@ -122,7 +122,7 @@ class TestFailureSimulator:
         assert len(tree["mitigation_strategies"]) > 0
 
 class TestLivingReview:
-    """Ω-8 tests."""
+    """ﾎｩ-8 tests."""
 
     def test_generates_review(self):
         vectors = _create_test_vectors()
@@ -137,7 +137,7 @@ class TestLivingReview:
         assert updated["version"] == 2
 
 class TestKnowledgeGraph:
-    """Ω-9 tests."""
+    """ﾎｩ-9 tests."""
 
     def test_builds_graph(self):
         vectors = _create_test_vectors()
@@ -152,7 +152,7 @@ class TestKnowledgeGraph:
         assert 0 <= sim <= 1
 
 class TestGrantOptimizer:
-    """Ω-2 tests."""
+    """ﾎｩ-2 tests."""
 
     def test_optimizes_grant(self):
         vectors = _create_test_vectors()
@@ -161,12 +161,12 @@ class TestGrantOptimizer:
         assert result["estimated"] is True
 
     def test_suggests_improvements(self):
-        result = {"alignment": 0.3, "novelty": 0.3, "risks": ["予備データ不足"]}
+        result = {"alignment": 0.3, "novelty": 0.3, "risks": ["莠亥ｙ繝・・繧ｿ荳崎ｶｳ"]}
         suggestions = suggest_grant_improvements(result)
         assert len(suggestions) > 0
 
 class TestReviewerPersona:
-    """Ω-3 tests."""
+    """ﾎｩ-3 tests."""
 
     def test_generates_feedback(self):
         vectors = _create_test_vectors()
@@ -180,7 +180,7 @@ class TestReviewerPersona:
         assert len(all_fb) == 3
 
 class TestLabOptimizer:
-    """Ω-4 tests."""
+    """ﾎｩ-4 tests."""
 
     def test_optimizes_resources(self):
         vectors = _create_test_vectors()
@@ -188,7 +188,7 @@ class TestLabOptimizer:
         assert "path" in result
 
 class TestCareerPlanner:
-    """Ω-6 tests."""
+    """ﾎｩ-6 tests."""
 
     def test_plans_career(self):
         vectors = _create_test_vectors()
@@ -197,7 +197,7 @@ class TestCareerPlanner:
         assert len(plan["recommendations"]) > 0
 
 class TestPISupport:
-    """Ω-10 tests."""
+    """ﾎｩ-10 tests."""
 
     def test_evaluates_themes(self):
         vectors = _create_test_vectors()
@@ -209,4 +209,4 @@ class TestPISupport:
         vectors = _create_test_vectors()
         evals = evaluate_research_themes({"theme1": vectors})
         summary = generate_pi_summary(evals)
-        assert "サマリー" in summary
+        assert "繧ｵ繝槭Μ繝ｼ" in summary

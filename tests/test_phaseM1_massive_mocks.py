@@ -64,11 +64,11 @@ class TestSummarizationScoringComplete:
 class TestActiveLearningEngineComplete:
     """Complete coverage for active_learning/engine.py."""
 
-    @patch('jarvis_core.active_learning.engine.requests')
+    @patch('jarvis_core.experimental.active_learning.engine.requests')
     def test_all_classes_with_mock(self, mock_requests):
         mock_requests.get.return_value = MagicMock(status_code=200, json=lambda: [])
         
-        from jarvis_core.active_learning import engine
+        from jarvis_core.experimental.active_learning import engine
         for name in dir(engine):
             if not name.startswith('_'):
                 obj = getattr(engine, name)

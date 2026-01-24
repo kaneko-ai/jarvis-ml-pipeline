@@ -47,7 +47,7 @@ class TestActiveLearningEngineComplete:
     """Complete tests for active_learning/engine.py."""
 
     def test_import(self):
-        from jarvis_core.active_learning import engine
+        from jarvis_core.experimental.active_learning import engine
         assert hasattr(engine, "__name__")
 
 

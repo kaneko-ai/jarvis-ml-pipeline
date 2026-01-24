@@ -1,6 +1,6 @@
 """Phase 19: Excellence Push - Edge Cases and Integration.
 
-Target: 85% → 90-95% (+5-10%)
+Target: 85% ↁE90-95% (+5-10%)
 Focus: Edge cases, error handling, integration tests
 """
 
@@ -178,7 +178,7 @@ class TestAdditionalModulesPhase19:
     """Additional module tests for coverage boost."""
 
     @pytest.mark.parametrize("module_path", [
-        ("jarvis_core.active_learning", "cli"),
+        ("jarvis_core.experimental.active_learning", "cli"),
         ("jarvis_core.contradiction", "detector"),
         ("jarvis_core.devtools", "ci"),
         ("jarvis_core.embeddings", "chroma_store"),

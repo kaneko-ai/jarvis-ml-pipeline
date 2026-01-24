@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock
 
-from jarvis_core.timeline import (
+from jarvis_core.experimental.timeline import (
     build_timeline,
     summarize_evolution,
 )

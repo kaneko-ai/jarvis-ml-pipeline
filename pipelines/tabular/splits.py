@@ -10,7 +10,10 @@ import logging
 from typing import Tuple
 
 import numpy as np
-from sklearn.model_selection import train_test_split
+try:
+    from sklearn.model_selection import train_test_split
+except ImportError:
+    pass
 
 logger = logging.getLogger(__name__)
 

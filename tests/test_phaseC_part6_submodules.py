@@ -122,7 +122,7 @@ class TestExtractionSemanticSearchDeep:
 
 class TestFinanceOptimizerDeep:
     def test_import(self):
-        from jarvis_core.finance import optimizer
+        from jarvis_core.experimental.finance import optimizer
         attrs = [a for a in dir(optimizer) if not a.startswith('_')]
         for attr in attrs[:10]:
             getattr(optimizer, attr)

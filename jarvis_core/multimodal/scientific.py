@@ -121,7 +121,7 @@ class ChemicalStructureAnalyzer:
             Parsed structure info
         """
         atoms = re.findall(r"[A-Z][a-z]?", smiles)
-        rings = smiles.count("1") + smiles.count("2")
+        rings = (smiles.count("1") + smiles.count("2")) // 2
 
         return {
             "smiles": smiles,
@@ -439,14 +439,49 @@ class FormulaCalculator:
         return "expression"
 
     def evaluate(self, formula: str, variables: dict[str, float]) -> float | None:
-        """Evaluate simple formula."""
+        """Evaluate simple formula safely using AST.
+        
+        Supports basic arithmetic (+, -, *, /, **, parenthesized expressions)
+        and provided variables.
+        """
+        import ast
+        import operator as op
+
+        # Supported operators
+        operators = {
+            ast.Add: op.add, 
+            ast.Sub: op.sub, 
+            ast.Mult: op.mul,
+            ast.Div: op.truediv, 
+            ast.Pow: op.pow, 
+            ast.USub: op.neg
+        }
+
+        def eval_node(node):
+            if isinstance(node, ast.Num):  # <3.8
+                return node.n
+            elif isinstance(node, ast.Constant):  # >=3.8
+                return node.value
+            elif isinstance(node, ast.BinOp):
+                left = eval_node(node.left)
+                right = eval_node(node.right)
+                return operators[type(node.op)](left, right)
+            elif isinstance(node, ast.UnaryOp):
+                operand = eval_node(node.operand)
+                return operators[type(node.op)](operand)
+            elif isinstance(node, ast.Name):
+                if node.id in variables:
+                    return variables[node.id]
+                raise ValueError(f"Unknown variable: {node.id}")
+            else:
+                raise TypeError(f"Unsupported node: {type(node)}")
+
         try:
-            # Simple eval (in production, use safer method)
-            expr = formula
-            for var, val in variables.items():
-                expr = expr.replace(var, str(val))
-            return eval(expr)
-        except:
+            # Parse formula into AST
+            # We use eval mode to ensure it's an expression
+            tree = ast.parse(formula, mode='eval')
+            return float(eval_node(tree.body))
+        except Exception:
             return None
 
 

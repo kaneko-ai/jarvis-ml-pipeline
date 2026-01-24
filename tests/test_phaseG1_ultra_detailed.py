@@ -198,7 +198,7 @@ class TestActiveLearningEngineAllBranches:
     """Test all branches in active_learning/engine.py."""
 
     def test_import_and_classes(self):
-        from jarvis_core.active_learning import engine
+        from jarvis_core.experimental.active_learning import engine
         for name in dir(engine):
             if not name.startswith('_'):
                 obj = getattr(engine, name)

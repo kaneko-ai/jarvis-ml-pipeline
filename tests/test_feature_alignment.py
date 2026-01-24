@@ -13,6 +13,7 @@ import pytest
 
 np = pytest.importorskip("numpy")
 pd = pytest.importorskip("pandas")
+pytest.importorskip("sklearn")
 
 
 class TestFeatureAlignment:

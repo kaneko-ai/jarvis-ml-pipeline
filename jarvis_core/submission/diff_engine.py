@@ -6,7 +6,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 from pathlib import Path
-from xml.etree import ElementTree
+from defusedxml import ElementTree
 
 
 @dataclass

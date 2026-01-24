@@ -104,7 +104,79 @@ class Redactor:
         }
 
 
+import logging
+import re
+
+
+class RedactingFilter(logging.Filter):
+    """Logging filter that redacts sensitive information from log records."""
+
+    def __init__(self, patterns: list[str] | None = None):
+        super().__init__()
+        self.redactor = Redactor(preserve_format=False)
+        self.patterns = patterns or []
+        # Add common secret patterns with non-greedy matches
+        self.patterns.extend([
+            r"API_KEY=['\"](.*?)['\"]",
+            r"Bearer\s+([a-zA-Z0-9\._\-]+)",
+            r"password=['\"](.*?)['\"]",
+        ])
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        """Redact the message of the log record."""
+        if not isinstance(record.msg, str):
+            return True
+            
+        # 1. Redact based on explicit patterns
+        msg = record.msg
+        for pattern in self.patterns:
+            def redact_match(m):
+                # Replace the content of group(1) within the matched string from group(0)
+                full_match = m.group(0)
+                secret = m.group(1)
+                if not secret:
+                    return full_match
+                # We replace exactly the secret part in the reported full_match string
+                return full_match.replace(secret, "********")
+            msg = re.sub(pattern, redact_match, msg)
+            
+        # 2. Redact general PII
+        record.msg = self.redactor.redact_text(msg)
+        
+        # Also redact from arguments if they are strings
+        if record.args:
+            new_args = []
+            for arg in record.args:
+                if isinstance(arg, str):
+                    # Apply explicit patterns to args too
+                    redacted_arg = arg
+                    for pattern in self.patterns:
+                        def redact_match(m):
+                            full_match = m.group(0)
+                            secret = m.group(1)
+                            return full_match.replace(secret, "********") if secret else full_match
+                        redacted_arg = re.sub(pattern, redact_match, redacted_arg)
+                    new_args.append(self.redactor.redact_text(redacted_arg))
+                else:
+                    new_args.append(arg)
+            record.args = tuple(new_args)
+            
+        return True
+
+
 def redact_text(text: str, preserve_format: bool = True) -> str:
     """Convenience function to redact PII from text."""
     redactor = Redactor(preserve_format=preserve_format)
     return redactor.redact_text(text)
+
+
+def setup_logging_redaction(patterns: list[str] | None = None):
+    """Setup redaction for all existing handlers."""
+    redact_filter = RedactingFilter(patterns)
+    root = logging.getLogger()
+    for handler in root.handlers:
+        handler.addFilter(redact_filter)
+    
+    # Also add to JARVIS specific loggers
+    logging.getLogger("jarvis_core").addFilter(redact_filter)
+    logging.getLogger("jarvis_web").addFilter(redact_filter)

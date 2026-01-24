@@ -32,8 +32,8 @@ def run_literature_to_plan(
     Returns:
         PlanArtifact with research plan.
     """
-    from ..feasibility import score_feasibility
-    from ..gap_analysis import score_research_gaps
+    from ..experimental.feasibility import score_feasibility
+    from ..experimental.gap_analysis import score_research_gaps
     from ..hypothesis import generate_hypotheses
 
     if not vectors:
@@ -136,7 +136,7 @@ def run_plan_to_grant(
     Returns:
         Grant proposal artifact.
     """
-    from ..grant_optimizer import optimize_grant_proposal
+    from ..experimental.grant_optimizer import optimize_grant_proposal
 
     result = optimize_grant_proposal(vectors, grant_keywords)
     artifact = adapt_to_artifact("grant_optimizer", result)
@@ -171,8 +171,8 @@ def run_plan_to_paper(
     Returns:
         Paper structure artifact.
     """
-    from ..lambda_modules import check_figure_claim_consistency
-    from ..sigma_modules import plan_figures
+    from ..experimental.lambda_modules import check_figure_claim_consistency
+    from ..experimental.sigma_modules import plan_figures
 
     figures = plan_figures(vectors)
     claims = [inf.statement for inf in plan_artifact.inferences]
@@ -230,7 +230,7 @@ def run_plan_to_talk(
     Returns:
         Presentation structure artifact.
     """
-    from ..rehearsal import generate_rehearsal
+    from ..experimental.rehearsal import generate_rehearsal
 
     rehearsal = generate_rehearsal(vectors)
 
