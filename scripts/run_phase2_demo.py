@@ -140,7 +140,8 @@ def run_demo():
     accept_count = sum(1 for r in results if r.decision.status.value == "accept")
     reject_count = sum(1 for r in results if r.decision.status.value == "reject")
 
-    print(f"""
+    print(
+        f"""
 結果サマリー:
 - 総判断数: {len(results)}
 - Accept: {accept_count}
@@ -150,7 +151,8 @@ def run_demo():
 Phase3（自己評価）の条件:
 - DecisionItem: {len(decision_store.list_all())} / 20件以上
 - 類似判断検索: {len(results)} / 10回以上
-""")
+"""
+    )
 
     # 判断レポート出力（1件目のみ詳細）
     print()

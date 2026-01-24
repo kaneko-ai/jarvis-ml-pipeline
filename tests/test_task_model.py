@@ -31,6 +31,7 @@ def test_task_creation_with_defaults():
     assert task.id == "task-1"
     assert task.goal == "Survey CD73 literature"
 
+
 def test_task_rejects_invalid_category():
     with pytest.raises(ValueError):
         Task(
@@ -38,6 +39,7 @@ def test_task_rejects_invalid_category():
             title="Do something",
             category="invalid",  # type: ignore[arg-type]
         )
+
 
 def test_task_rejects_invalid_priority_and_status():
     with pytest.raises(ValueError):
@@ -56,6 +58,7 @@ def test_task_rejects_invalid_priority_and_status():
             status="unknown",  # type: ignore[arg-type]
         )
 
+
 def test_history_default_is_isolated():
     first = Task(task_id="t1", title="Study", category=TaskCategory.STUDY)
     second = Task(task_id="t2", title="Study", category=TaskCategory.STUDY)
@@ -63,6 +66,7 @@ def test_history_default_is_isolated():
     first.history.append("step")
     assert first.history == ["step"]
     assert second.history == []
+
 
 def test_task_schema_compliance():
     """Verify Task fields match JARVIS_MASTER.md Section 5.2."""

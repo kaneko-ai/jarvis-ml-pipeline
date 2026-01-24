@@ -1,10 +1,7 @@
 """Comprehensive tests for submission.package_builder module."""
 
-import json
-import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-import pytest
+from unittest.mock import MagicMock
 
 from jarvis_core.submission.package_builder import (
     SubmissionResult,
@@ -45,7 +42,7 @@ class TestSubmissionResult:
             email_subject="Subject",
             email_body="Body",
         )
-        
+
         assert result.run_id == "run-1"
         assert result.blocked is False
 
@@ -60,9 +57,9 @@ class TestLoadYaml:
     def test_load_yaml(self, tmp_path):
         yaml_file = tmp_path / "test.yaml"
         yaml_file.write_text("key: value\nlist:\n  - item1\n  - item2")
-        
+
         result = _load_yaml(yaml_file)
-        
+
         assert result["key"] == "value"
         assert len(result["list"]) == 2
 
@@ -70,9 +67,9 @@ class TestLoadYaml:
 class TestEnsureStructure:
     def test_creates_directories(self, tmp_path):
         submission_root = tmp_path / "submission"
-        
+
         structure = _ensure_structure(submission_root)
-        
+
         assert structure["documents"].exists()
         assert structure["slides"].exists()
         assert structure["reports"].exists()
@@ -84,42 +81,42 @@ class TestEnsureStructure:
 class TestDiscoverArtifacts:
     def test_empty_directory(self, tmp_path):
         result = _discover_artifacts(tmp_path)
-        
+
         assert all(v is None for v in result.values())
 
     def test_finds_docx(self, tmp_path):
         (tmp_path / "thesis.docx").write_text("mock docx")
-        
+
         result = _discover_artifacts(tmp_path)
-        
+
         assert result["thesis_docx"] is not None
 
     def test_finds_pptx(self, tmp_path):
         (tmp_path / "slides.pptx").write_text("mock pptx")
-        
+
         result = _discover_artifacts(tmp_path)
-        
+
         assert result["slides_pptx"] is not None
 
     def test_finds_pdf(self, tmp_path):
         (tmp_path / "thesis.pdf").write_text("mock pdf")
-        
+
         result = _discover_artifacts(tmp_path)
-        
+
         assert result["thesis_pdf"] is not None
 
     def test_finds_qa_pdf(self, tmp_path):
         (tmp_path / "qa_report.pdf").write_text("mock qa pdf")
-        
+
         result = _discover_artifacts(tmp_path)
-        
+
         assert result["qa_report"] is not None
 
     def test_finds_manifest(self, tmp_path):
         (tmp_path / "manifest.json").write_text('{"key": "value"}')
-        
+
         result = _discover_artifacts(tmp_path)
-        
+
         assert result["manifest"] is not None
 
 
@@ -130,9 +127,9 @@ class TestApplyNamingRules:
             "slides_pptx": "slides_{version}_{project}.pptx",
         }
         context = {"version": "v1.0", "project": "JARVIS"}
-        
+
         result = _apply_naming_rules(files, context)
-        
+
         assert result["thesis_docx"] == "thesis_v1.0.docx"
         assert result["slides_pptx"] == "slides_v1.0_JARVIS.pptx"
 
@@ -141,18 +138,18 @@ class TestCopyArtifacts:
     def test_copies_files(self, tmp_path):
         # Create structure
         structure = _ensure_structure(tmp_path / "submission")
-        
+
         # Create source file
         source_dir = tmp_path / "source"
         source_dir.mkdir()
         source_file = source_dir / "thesis.docx"
         source_file.write_text("thesis content")
-        
+
         artifacts = {"thesis_docx": source_file}
         named_files = {"thesis_docx": "thesis_v1.docx"}
-        
+
         result = _copy_artifacts(artifacts, structure, named_files)
-        
+
         assert result["thesis_docx"] is not None
         assert result["thesis_docx"].exists()
 
@@ -167,9 +164,9 @@ class TestBuildAttachmentList:
         }
         copied = {"thesis_docx": tmp_path / "thesis.docx"}
         manifest_path = tmp_path / "manifest.json"
-        
+
         result = _build_attachment_list(structure, named_files, copied, manifest_path)
-        
+
         assert "thesis.docx" in result
         assert "changelog.md" in result
 
@@ -177,23 +174,23 @@ class TestBuildAttachmentList:
 class TestRunSingleCheck:
     def test_required_files_pass(self, tmp_path):
         item = {"id": "req1", "type": "required_files", "required": []}
-        
+
         result = _run_single_check(item, tmp_path, {}, [])
-        
+
         assert result["status"] == "pass"
 
     def test_required_files_fail(self, tmp_path):
         item = {"id": "req1", "type": "required_files", "required": ["thesis_docx"]}
-        
+
         result = _run_single_check(item, tmp_path, {"thesis_docx": None}, [])
-        
+
         assert result["status"] == "fail"
 
     def test_unknown_check_type(self, tmp_path):
         item = {"id": "unknown", "type": "unknown_type"}
-        
+
         result = _run_single_check(item, tmp_path, {}, [])
-        
+
         assert result["status"] == "warn"
 
 
@@ -220,37 +217,37 @@ class TestInferReasonCategory:
 class TestCheckP6Ready:
     def test_not_found(self, tmp_path):
         ready, details = _check_p6_ready(tmp_path)
-        
+
         assert ready is False
         assert "not found" in details
 
     def test_ready_true(self, tmp_path):
         (tmp_path / "p6_ready.json").write_text('{"READY_TO_SUBMIT": true}')
-        
+
         ready, details = _check_p6_ready(tmp_path)
-        
+
         assert ready is True
 
     def test_ready_false(self, tmp_path):
         (tmp_path / "ready.json").write_text('{"ready": false}')
-        
+
         ready, details = _check_p6_ready(tmp_path)
-        
+
         assert ready is False
 
 
 class TestExtractQaSummary:
     def test_no_file(self, tmp_path):
         result = _extract_qa_summary(tmp_path)
-        
+
         assert result["errors"] == 0
         assert result["warnings"] == 0
 
     def test_with_errors(self, tmp_path):
         (tmp_path / "qa_summary.json").write_text('{"error_count": 3, "warn_count": 5}')
-        
+
         result = _extract_qa_summary(tmp_path)
-        
+
         assert result["errors"] == 3
         assert result["warnings"] == 5
 
@@ -258,28 +255,28 @@ class TestExtractQaSummary:
 class TestExtractImpactSummary:
     def test_no_file(self, tmp_path):
         result = _extract_impact_summary(tmp_path)
-        
+
         assert result["has_impact"] is False
 
     def test_with_impact(self, tmp_path):
         (tmp_path / "impact_summary.json").write_text('{"has_impact": true, "details": "High"}')
-        
+
         result = _extract_impact_summary(tmp_path)
-        
+
         assert result["has_impact"] is True
 
 
 class TestExtractMetricFromFiles:
     def test_file_not_found(self, tmp_path):
         result = _extract_metric_from_files(tmp_path, ["missing.json"], "count")
-        
+
         assert result is None
 
     def test_extracts_value(self, tmp_path):
         (tmp_path / "report.json").write_text('{"count": 42}')
-        
+
         result = _extract_metric_from_files(tmp_path, ["report.json"], "count")
-        
+
         assert result == 42
 
 
@@ -287,17 +284,17 @@ class TestSafeLoadJson:
     def test_valid_json(self, tmp_path):
         file = tmp_path / "test.json"
         file.write_text('{"key": "value"}')
-        
+
         result = _safe_load_json(file)
-        
+
         assert result["key"] == "value"
 
     def test_invalid_json(self, tmp_path):
         file = tmp_path / "test.json"
         file.write_text("not valid json")
-        
+
         result = _safe_load_json(file)
-        
+
         assert result == {}
 
 
@@ -318,12 +315,12 @@ class TestVersionKey:
 class TestClosestPreviousVersion:
     def test_finds_previous(self):
         result = _closest_previous_version("1.2", ["1.0", "1.1", "1.3"])
-        
+
         assert result == "1.1"
 
     def test_no_previous(self):
         result = _closest_previous_version("1.0", ["1.1", "1.2"])
-        
+
         assert result is None
 
 
@@ -333,9 +330,9 @@ class TestWriteEmailDraft:
         mock_draft.recipient_type = "advisor"
         mock_draft.subject = "Test Subject"
         mock_draft.body = "Test Body"
-        
+
         result = _write_email_draft(tmp_path / "email", mock_draft)
-        
+
         assert result.exists()
         content = result.read_text()
         assert "Test Subject" in content
@@ -350,9 +347,9 @@ class TestWriteCheckReport:
         }
         json_path = tmp_path / "report.json"
         md_path = tmp_path / "report.md"
-        
+
         _write_check_report([json_path], [md_path], report)
-        
+
         assert json_path.exists()
         assert md_path.exists()
 
@@ -360,6 +357,6 @@ class TestWriteCheckReport:
 class TestIsReadyToSubmit:
     def test_run_not_found(self):
         ready, reason = is_ready_to_submit("nonexistent-run-12345")
-        
+
         assert ready is False
         assert "not found" in reason

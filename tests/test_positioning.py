@@ -23,20 +23,20 @@ def create_mock_paper(
     paper.paper_id = paper_id
     paper.source_locator = source_locator
     paper.metadata.year = year
-    
+
     # BiologicalAxisVector mock
     paper.biological_axis.immune_activation = immune
     paper.biological_axis.metabolism_signal = metabolism
     paper.biological_axis.tumor_context = tumor
     paper.biological_axis.as_tuple.return_value = (immune, metabolism, tumor)
-    
+
     # Concept mock
     paper.concept.concepts = concepts or {}
     if concepts:
         paper.concept.top_concepts.return_value = [(list(concepts.keys())[0], 1.0)]
     else:
         paper.concept.top_concepts.return_value = []
-    
+
     return paper
 
 
@@ -44,7 +44,7 @@ class TestProjectTo3D:
     def test_basic_projection(self):
         paper = create_mock_paper(immune=0.5, metabolism=-0.3, tumor=0.8)
         x, y, z = project_to_3d(paper)
-        
+
         assert x == 0.5
         assert y == -0.3
         assert z == 0.8
@@ -56,9 +56,9 @@ class TestProjectAllTo3D:
             create_mock_paper("p1", "loc1", 2023, 0.1, 0.2, 0.3, {"concept1": 1.0}),
             create_mock_paper("p2", "loc2", 2024, -0.1, -0.2, -0.3, {"concept2": 0.8}),
         ]
-        
+
         results = project_all_to_3d(papers)
-        
+
         assert len(results) == 2
         assert results[0]["paper_id"] == "p1"
         assert results[0]["x"] == 0.1

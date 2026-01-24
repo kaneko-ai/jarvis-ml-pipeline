@@ -1,8 +1,5 @@
 """Tests for artifacts module - Comprehensive coverage (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestArtifactsModule:
     """Tests for artifacts module."""

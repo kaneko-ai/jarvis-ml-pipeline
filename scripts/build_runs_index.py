@@ -1,94 +1,50 @@
-"""Build Runs Index - runs一覧を生成
+"""Script to rebuild runs/index.json from existing summary.json files (Phase 17)."""
 
-このスクリプトは ci_run.py から呼び出され、以下を行います:
-1. public/runs/*/manifest.jsonを走査
-2. 新しい順にソート
-3. 最大50件でカット（Pages容量対策）
-4. public/runs/index.jsonに出力
-"""
 import json
-import sys
-from datetime import datetime
+import logging
 from pathlib import Path
+from jarvis_core.security.atomic_io import atomic_write_json
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("build_runs_index")
 
-def load_manifests(runs_dir):
-    """すべてのmanifest.jsonを読み込む"""
-    manifests = []
-
+def rebuild_index(runs_dir: Path):
+    """Scan runs_dir and build index.json from summary.json files."""
+    runs_dir = Path(runs_dir)
+    index = {}
+    
     if not runs_dir.exists():
-        print(f"[build_runs_index] runs directory not found: {runs_dir}", file=sys.stderr)
-        return manifests
+        logger.error(f"Runs directory {runs_dir} does not exist.")
+        return
 
-    for run_path in runs_dir.iterdir():
-        if not run_path.is_dir():
+    # Scan directories
+    for run_dir in runs_dir.iterdir():
+        if not run_dir.is_dir():
             continue
+            
+        summary_path = run_dir / "summary.json"
+        if summary_path.exists():
+            try:
+                with open(summary_path, "r", encoding="utf-8") as f:
+                    summary = json.load(f)
+                
+                run_id = summary.get("run_id", run_dir.name)
+                index[run_id] = {
+                    "status": summary.get("status"),
+                    "started_at": summary.get("started_at"),
+                    "finished_at": summary.get("finished_at"),
+                    "schema_version": summary.get("schema_version", "v1"),
+                }
+                logger.debug(f"Indexed {run_id}")
+            except Exception as e:
+                logger.warning(f"Failed to index {run_dir.name}: {e}")
 
-        manifest_file = run_path / "manifest.json"
-        if not manifest_file.exists():
-            continue
-
-        try:
-            with open(manifest_file, "r", encoding="utf-8") as f:
-                manifest = json.load(f)
-                manifests.append(manifest)
-        except Exception as e:
-            print(f"[build_runs_index] WARNING: Failed to load {manifest_file}: {e}", file=sys.stderr)
-            continue
-
-    return manifests
-
-
-def sort_manifests(manifests):
-    """manifestを新しい順にソート"""
-    def get_timestamp(manifest):
-        ts = manifest.get("created_at") or ""
-        try:
-            return datetime.fromisoformat(ts.replace("Z", "+00:00"))
-        except Exception:
-            return datetime.min
-
-    return sorted(manifests, key=get_timestamp, reverse=True)
-
-
-def extract_index_entry(manifest):
-    """manifestからindex用の最小情報を抽出"""
-    quality = manifest.get("quality", {})
-    return {
-        "run_id": manifest.get("run_id"),
-        "status": manifest.get("status"),
-        "created_at": manifest.get("created_at"),
-        "papers_found": quality.get("papers_found"),
-        "gate_passed": quality.get("gate_passed"),
-    }
-
-
-def main():
-    runs_dir = Path("public") / "runs"
-    index_file = runs_dir / "index.json"
-
-    # manifest.jsonを読み込み
-    manifests = load_manifests(runs_dir)
-    print(f"[build_runs_index] Found {len(manifests)} runs")
-
-    # ソート
-    manifests = sort_manifests(manifests)
-
-    # 最大50件でカット（Pages容量制限対策）
-    MAX_RUNS = 50
-    if len(manifests) > MAX_RUNS:
-        print(f"[build_runs_index] Truncating to {MAX_RUNS} runs (capacity limit)")
-        manifests = manifests[:MAX_RUNS]
-
-    index_entries = [extract_index_entry(manifest) for manifest in manifests]
-
-    # index.jsonに出力
-    runs_dir.mkdir(parents=True, exist_ok=True)
-    with open(index_file, "w", encoding="utf-8") as f:
-        json.dump(index_entries, f, indent=2, ensure_ascii=False)
-
-    print(f"[build_runs_index] Wrote {len(index_entries)} runs to {index_file}")
-
+    index_path = runs_dir / "index.json"
+    atomic_write_json(index_path, index)
+    logger.info(f"Rebuilt index.json with {len(index)} entries at {index_path}")
 
 if __name__ == "__main__":
-    main()
+    import sys
+    # Default to data/runs if not specified
+    target_dir = sys.argv[1] if len(sys.argv) > 1 else "data/runs"
+    rebuild_index(Path(target_dir))

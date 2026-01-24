@@ -1,10 +1,10 @@
 """Massive tests for workflow module - 40 tests (FIXED)."""
 
 import pytest
-from unittest.mock import Mock, patch
 
 
 # ---------- Workflow Tests ----------
+
 
 @pytest.mark.slow
 class TestWorkflowSpec:
@@ -12,6 +12,7 @@ class TestWorkflowSpec:
 
     def test_module_import(self):
         from jarvis_core.workflow import spec
+
         assert spec is not None
 
 
@@ -20,6 +21,7 @@ class TestStepSpec:
 
     def test_step_spec_import(self):
         from jarvis_core.workflow.spec import StepSpec
+
         assert StepSpec is not None
 
 
@@ -28,6 +30,7 @@ class TestRunner:
 
     def test_runner_import(self):
         from jarvis_core.workflow import runner
+
         assert runner is not None
 
 
@@ -36,4 +39,5 @@ class TestModuleImports:
 
     def test_workflow_module(self):
         from jarvis_core import workflow
+
         assert workflow is not None

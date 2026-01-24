@@ -9,10 +9,12 @@ from pathlib import Path
 google_stub = types.ModuleType("google")
 google_genai_stub = types.ModuleType("google.genai")
 
+
 class _DummyErrors:
     class ServerError(Exception): ...
 
     class ClientError(Exception): ...
+
 
 google_genai_stub.errors = _DummyErrors
 google_stub.genai = google_genai_stub
@@ -35,6 +37,7 @@ class DummyPlanner(Planner):
         self.called = True
         return self.subtasks
 
+
 class DummyRouter:
     def __init__(self):
         self.calls = []
@@ -42,6 +45,7 @@ class DummyRouter:
     def run(self, task: Task):
         self.calls.append(task.goal)
         return types.SimpleNamespace(answer=f"done: {task.goal}", meta={"task": task.id})
+
 
 def make_subtasks():
     return [
@@ -64,6 +68,7 @@ def make_subtasks():
             status=TaskStatus.PENDING,
         ),
     ]
+
 
 def test_execution_engine_runs_subtasks_and_updates_status():
     subtasks = make_subtasks()

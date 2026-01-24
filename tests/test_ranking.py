@@ -28,6 +28,7 @@ class TestRankingItem:
         item = RankingItem(item_id="item1", item_type="paper")
         assert item.get_feature("missing", 0.5) == 0.5
 
+
 class TestHeuristicRanker:
     """HeuristicRanker tests."""
 
@@ -59,6 +60,7 @@ class TestHeuristicRanker:
         ranked = ranker.rank(items, {})
         assert ranked[0].item_id == "b"
 
+
 class TestRankingLogger:
     """RankingLogger tests."""
 
@@ -84,6 +86,7 @@ class TestRankingLogger:
             assert record["task_id"] == "task1"
             assert record["stage"] == "retrieval"
             assert len(record["items"]) == 2
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

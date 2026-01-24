@@ -14,7 +14,23 @@ export default {
         if (url.pathname === "/api/run" && request.method === "POST") {
             try {
                 const body = await request.json();
-                const { action, query, max_papers, turnstile_token } = body;
+                let { action, query, max_papers, turnstile_token } = body;
+
+                // 2. Validation
+                const ALLOWED_ACTIONS = ["report", "paper_fetch", "oa_search", "embed", "index"];
+                if (!action || !ALLOWED_ACTIONS.includes(action)) {
+                    return new Response(JSON.stringify({ ok: false, error: "invalid_action", allowed: ALLOWED_ACTIONS }), {
+                        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+                    });
+                }
+
+                if (!query || query.length < 3) {
+                    return new Response(JSON.stringify({ ok: false, error: "query_too_short" }), {
+                        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+                    });
+                }
+
+                max_papers = Math.min(Math.max(parseInt(max_papers) || 10, 1), 200);
 
                 // 1. Turnstile verify
                 const verify = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {

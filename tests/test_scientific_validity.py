@@ -71,6 +71,7 @@ class TestCounterevidenceSearcher:
         level = searcher.assess_controversy(supporting_count=5, opposing_count=4)
         assert level == ControversyLevel.HIGH
 
+
 class TestControversyMapGenerator:
     """論争マップ生成テスト."""
 
@@ -110,6 +111,7 @@ class TestControversyMapGenerator:
         assert "entries" in data
         assert "summary" in data
 
+
 class TestOneSidedConclusion:
     """一方的結論チェックテスト."""
 
@@ -133,6 +135,7 @@ class TestOneSidedConclusion:
         has_violation, violations = check_one_sided_conclusion(claims, controversy_map)
         assert has_violation is True
         assert "c1" in violations
+
 
 class TestDatasetGovernance:
     """データセットガバナンステスト."""
@@ -190,6 +193,7 @@ class TestDatasetGovernance:
             stats2 = gov.append_to_dataset("test_dataset", records)
             assert stats2["duplicate"] == 2
             assert stats2["added"] == 0
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

@@ -2,6 +2,7 @@
 
 Per PR-90, ensures frozen sets have balanced S1-S5 distribution.
 """
+
 from __future__ import annotations
 
 import json

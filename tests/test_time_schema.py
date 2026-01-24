@@ -10,7 +10,7 @@ from jarvis_core.time.schema import (
 class TestVariableBlock:
     def test_creation(self):
         block = VariableBlock(min=10, target=20, max=30)
-        
+
         assert block.min == 10
         assert block.target == 20
         assert block.max == 30
@@ -23,7 +23,7 @@ class TestTimeSchema:
             fixed={"sleep": 56},
             variable={"research": VariableBlock(min=30, target=45, max=60)},
         )
-        
+
         assert schema.week_hours == 168
 
     def test_fixed_total(self):
@@ -32,7 +32,7 @@ class TestTimeSchema:
             fixed={"sleep": 56, "meals": 14, "commute": 10},
             variable={},
         )
-        
+
         assert schema.fixed_total() == 80
 
     def test_variable_targets_total(self):
@@ -44,7 +44,7 @@ class TestTimeSchema:
                 "coursework": VariableBlock(min=0, target=5, max=10),
             },
         )
-        
+
         assert schema.variable_targets_total() == 50
 
     def test_available_variable_hours(self):
@@ -53,7 +53,7 @@ class TestTimeSchema:
             fixed={"sleep": 56, "meals": 14},  # 70 fixed
             variable={},
         )
-        
+
         assert schema.available_variable_hours() == 98  # 168 - 70
 
     def test_working_hours(self):
@@ -66,7 +66,7 @@ class TestTimeSchema:
                 "part_time": VariableBlock(min=0, target=5, max=10),
             },
         )
-        
+
         assert schema.working_hours() == 60  # 45 + 10 + 5
 
     def test_working_hours_max(self):
@@ -79,7 +79,7 @@ class TestTimeSchema:
                 "part_time": VariableBlock(min=0, target=5, max=10),
             },
         )
-        
+
         assert schema.working_hours_max() == 90  # 60 + 20 + 10
 
 

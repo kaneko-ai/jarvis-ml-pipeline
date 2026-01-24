@@ -35,6 +35,7 @@ class TestVirtualScroller:
         assert len(page) == 20
         assert page[0] == 0
 
+
 class TestBackgroundWorkerManager:
     """Test background worker."""
 
@@ -56,6 +57,7 @@ class TestBackgroundWorkerManager:
         status = wm.get_task_status(task_id)
         assert status["status"] == "complete"
         assert status["progress"] == 100
+
 
 class TestLocalCache:
     """Test local cache."""
@@ -85,6 +87,7 @@ class TestLocalCache:
         assert stats["size"] == 2
         assert stats["max_size"] == 100
 
+
 class TestGestureHandler:
     """Test gesture detection."""
 
@@ -108,6 +111,7 @@ class TestGestureHandler:
         action = gh.get_action("swipe_left")
         assert action == "next_page"
 
+
 class TestPullToRefresh:
     """Test pull to refresh."""
 
@@ -127,6 +131,7 @@ class TestPullToRefresh:
         result = ptr.trigger_refresh()
         assert result is True
 
+
 class TestBottomNavigation:
     """Test bottom navigation."""
 
@@ -143,6 +148,7 @@ class TestBottomNavigation:
         assert "nav" in html
         assert "Home" in html
 
+
 class TestPWAHelper:
     """Test PWA helper."""
 
@@ -155,6 +161,7 @@ class TestPWAHelper:
     def test_check_installability(self):
         result = PWAHelper.check_installability()
         assert result["installable"] is True
+
 
 class TestShareManager:
     """Test share manager."""
@@ -169,6 +176,7 @@ class TestShareManager:
         data = ShareManager.share_paper(paper)
         assert "Test Paper" in data["title"]
         assert "12345" in data["url"]
+
 
 class TestFactoryFunctions:
     """Test factory functions."""
@@ -188,6 +196,7 @@ class TestFactoryFunctions:
 
     def test_get_share_manager(self):
         assert isinstance(get_share_manager(), ShareManager)
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

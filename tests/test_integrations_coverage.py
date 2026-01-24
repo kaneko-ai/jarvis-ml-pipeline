@@ -1,8 +1,5 @@
 """Tests for integrations module - Comprehensive coverage (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestIntegrationsModule:
     """Tests for integrations module."""

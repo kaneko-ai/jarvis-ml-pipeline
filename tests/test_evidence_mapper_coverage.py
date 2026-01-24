@@ -1,8 +1,5 @@
 """Tests for analysis/evidence_mapper module - Coverage improvement (FIXED v2)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestEvidenceMapperInit:
     """Tests for EvidenceMapper initialization."""

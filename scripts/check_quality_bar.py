@@ -2,6 +2,7 @@
 
 Per RP-204, checks if metrics meet quality bar thresholds.
 """
+
 from __future__ import annotations
 
 import json
@@ -72,10 +73,7 @@ def format_report(check_result: Dict[str, Any]) -> str:
 
     for key, data in check_result["results"].items():
         status = "✓" if data["passed"] else "✗"
-        lines.append(
-            f"{status} {key}: {data['actual']:.2%} "
-            f"(target: {data['target']:.2%})"
-        )
+        lines.append(f"{status} {key}: {data['actual']:.2%} " f"(target: {data['target']:.2%})")
 
     lines.append("")
     if check_result["passed"]:

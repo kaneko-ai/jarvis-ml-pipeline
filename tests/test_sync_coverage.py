@@ -1,7 +1,6 @@
 """Tests for sync module - Coverage improvement (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 
 class TestSyncQueueManager:

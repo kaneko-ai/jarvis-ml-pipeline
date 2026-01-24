@@ -1,7 +1,5 @@
 """Tests for style.term_normalizer module."""
 
-from pathlib import Path
-
 from jarvis_core.style.term_normalizer import (
     TermIssue,
     NormalizationResult,
@@ -43,11 +41,11 @@ class TestApplyVariants:
         line = "The color of the sample was red."
         variants = ["color"]
         preferred = "colour"
-        
+
         new_line, issues, replacements = _apply_variants(
             line, variants, preferred, "test_rule", "test:1", "term_variant", "WARN"
         )
-        
+
         assert "colour" in new_line
         assert len(issues) == 1
         assert issues[0].original == "color"
@@ -56,11 +54,11 @@ class TestApplyVariants:
         line = "The colour of the sample."
         variants = ["color"]
         preferred = "colour"
-        
+
         new_line, issues, _ = _apply_variants(
             line, variants, preferred, "test_rule", "test:1", "term_variant", "WARN"
         )
-        
+
         assert new_line == line
         assert len(issues) == 0
 
@@ -73,24 +71,22 @@ class TestNormalizeLines:
             "forbidden_terms": [],
             "units_and_notation": {},
         }
-        
+
         result = normalize_lines(lines, style_guide, "test")
-        
+
         assert isinstance(result, NormalizationResult)
         assert len(result.normalized_lines) == 2
 
     def test_normalize_with_preferred_terms(self):
         lines = ["We observed a color change."]
         style_guide = {
-            "preferred_terms": [
-                {"id": "spelling", "variants": ["color"], "preferred": "colour"}
-            ],
+            "preferred_terms": [{"id": "spelling", "variants": ["color"], "preferred": "colour"}],
             "forbidden_terms": [],
             "units_and_notation": {},
         }
-        
+
         result = normalize_lines(lines, style_guide, "test")
-        
+
         assert "colour" in result.normalized_lines[0]
         assert len(result.issues) == 1
 
@@ -108,9 +104,9 @@ class TestCheckAbbrevRules:
                 }
             ]
         }
-        
+
         issues = check_abbrev_rules(text, style_guide, "test")
-        
+
         assert len(issues) == 1
         assert issues[0].issue_type == "abbrev_missing"
 
@@ -125,9 +121,9 @@ class TestCheckAbbrevRules:
                 }
             ]
         }
-        
+
         issues = check_abbrev_rules(text, style_guide, "test")
-        
+
         # Definition appears before first use
         assert len(issues) == 0
 
@@ -141,9 +137,9 @@ class TestNormalizeMarkdown:
             "units_and_notation": {},
             "abbrev_rules": [],
         }
-        
+
         normalized, issues, replacements = normalize_markdown(text, style_guide)
-        
+
         assert "# Header" in normalized
 
 
@@ -155,9 +151,9 @@ class TestNormalizeDocxParagraphs:
             "forbidden_terms": [],
             "units_and_notation": {},
         }
-        
+
         result = normalize_docx_paragraphs(paragraphs, style_guide)
-        
+
         assert len(result.normalized_lines) == 2
 
 
@@ -169,7 +165,7 @@ class TestNormalizePptxSlides:
             "forbidden_terms": [],
             "units_and_notation": {},
         }
-        
+
         result = normalize_pptx_slides(slides, style_guide)
-        
+
         assert len(result.normalized_lines) == 2

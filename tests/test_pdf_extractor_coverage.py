@@ -1,8 +1,5 @@
 """Tests for pdf_extractor module - Comprehensive coverage (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestPDFExtractorModule:
     """Tests for PDF extractor module."""

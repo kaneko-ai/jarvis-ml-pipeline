@@ -41,6 +41,7 @@ import pytest
 
 # Phase 4
 
+
 class TestPhase1Evaluator:
     """Phase 1: 5軸評価テスト."""
 
@@ -71,6 +72,7 @@ class TestPhase1Evaluator:
         evaluator = IntelligentEvaluator()
         breakdown = evaluator.evaluate("Test Evaluator", "Improve evaluation system")
         assert breakdown.total > 0
+
 
 class TestPhase1Decision:
     """Phase 1: 判断テスト."""
@@ -106,6 +108,7 @@ class TestPhase1Decision:
         assert decision.status == DecisionStatus.REJECT
         assert decision.reject_reason is not None
 
+
 class TestPhase2DecisionItem:
     """Phase 2: DecisionItem テスト."""
 
@@ -128,6 +131,7 @@ class TestPhase2DecisionItem:
             assert retrieved is not None
             assert retrieved.context == "Test context"
 
+
 class TestPhase3Outcome:
     """Phase 3: Outcome テスト."""
 
@@ -142,6 +146,7 @@ class TestPhase3Outcome:
         )
 
         assert record.status == OutcomeStatus.SUCCESS
+
 
 class TestPhase4ActionPlan:
     """Phase 4: ActionPlanner テスト."""
@@ -167,6 +172,7 @@ class TestPhase4ActionPlan:
         questions = generator.generate("Test Topic")
 
         assert len(questions) > 0
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

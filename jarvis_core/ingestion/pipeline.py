@@ -17,6 +17,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from jarvis_core.security.path_validator import PathValidator
+
 
 @dataclass
 class TextChunk:
@@ -113,12 +115,15 @@ class PDFExtractor:
         except ImportError:
             pass
 
-    def extract(self, filepath: Path) -> tuple[str, list[tuple[int, str]]]:
+    def extract(self, filepath: Path, validator: PathValidator | None = None) -> tuple[str, list[tuple[int, str]]]:
         """PDFからテキストを抽出.
 
         Returns:
             (全テキスト, [(ページ番号, ページテキスト), ...])
         """
+        if validator:
+            filepath = validator.validate(filepath)
+
         if self._pymupdf:
             return self._extract_pymupdf(filepath)
         elif self._pdfplumber:
@@ -348,8 +353,11 @@ class TextChunker:
 class BibTeXParser:
     """BibTeXファイルパーサー."""
 
-    def parse(self, filepath: Path) -> list[dict[str, Any]]:
+    def parse(self, filepath: Path, validator: PathValidator | None = None) -> list[dict[str, Any]]:
         """BibTeXファイルをパース."""
+        if validator:
+            filepath = validator.validate(filepath)
+
         entries = []
 
         try:
@@ -399,16 +407,18 @@ class IngestionPipeline:
         self,
         output_dir: Path,
         chunk_size: int = 1000,
+        input_validator: PathValidator | None = None,
     ):
         self.output_dir = output_dir
         self.pdf_extractor = PDFExtractor()
         self.chunker = TextChunker(chunk_size=chunk_size)
         self.bibtex_parser = BibTeXParser()
+        self.input_validator = input_validator
 
     def ingest_pdf(self, filepath: Path) -> ExtractedPaper:
         """単一PDFを取り込み."""
         # PDFからテキスト抽出
-        text, pages = self.pdf_extractor.extract(filepath)
+        text, pages = self.pdf_extractor.extract(filepath, validator=self.input_validator)
 
         # メタデータ推測
         title = self._extract_title(text, filepath)
@@ -432,7 +442,7 @@ class IngestionPipeline:
 
     def ingest_bibtex(self, filepath: Path) -> list[ExtractedPaper]:
         """BibTeXファイルを取り込み."""
-        entries = self.bibtex_parser.parse(filepath)
+        entries = self.bibtex_parser.parse(filepath, validator=self.input_validator)
         papers = []
 
         for entry in entries:

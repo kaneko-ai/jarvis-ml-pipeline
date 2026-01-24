@@ -112,6 +112,7 @@ class TestCrossRefResolver:
         assert ref.doi == "10.1234/cd73"
         assert ref.year == 2022
 
+
 class TestPubMedResolver:
     """Tests for PubMed resolver."""
 
@@ -147,6 +148,7 @@ class TestPubMedResolver:
 
         assert ref.pmid == "98765432"
 
+
 class TestResolveReferences:
     """Tests for resolve_references function."""
 
@@ -178,6 +180,7 @@ class TestResolveReferences:
                 result = resolve_references(refs)
 
                 assert len(result) == 1
+
 
 class TestReferenceExtendedFields:
     """Tests for extended Reference fields."""

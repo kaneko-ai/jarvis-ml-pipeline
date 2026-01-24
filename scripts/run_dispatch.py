@@ -1,6 +1,7 @@
 # scripts/run_dispatch.py
 from __future__ import annotations
-import json, os, time
+import json
+import os
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -11,135 +12,126 @@ try:
 except ImportError:
     # 開発環境やパス設定によっては必要
     import sys
+
     sys.path.append(os.path.abspath("."))
     from jarvis_core.app import run_task
 
+
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
+
 
 def write_json(path: Path, obj: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(obj, ensure_ascii=False, indent=2), encoding="utf-8")
 
+
+from jarvis_core.runs.schema import RunProgress, RunSummary, RunStatus
+from jarvis_core.runs.writer import RunWriter
+
 def main() -> int:
-    run_id = os.environ.get("RUN_ID", "local-test")
+    run_id = os.environ.get("RUN_ID", f"local-{int(datetime.now().timestamp())}")
     action = os.environ.get("ACTION", "report")
     query = os.environ.get("QUERY", "")
     max_papers = int(os.environ.get("MAX_PAPERS", "10"))
 
-    # 出力先ベースディレクトリ (dashboard/ 配下に出して gh-pages にデプロイされる想定)
-    base = Path("dashboard") / "runs" / run_id
-    progress_path = base / "progress.json"
-    summary_path = base / "summary.json"
+    # 出力先ベースディレクトリ
+    base_dir = Path("dashboard") / "runs"
+    writer = RunWriter(base_dir)
+    run_dir = base_dir / run_id
 
-    started = now_iso()
-    
-    # 初期進捗
-    write_json(progress_path, {
-        "schema_version": "runs.progress.v1",
-        "run_id": run_id,
-        "phase": "start",
-        "percent": 0,
-        "message": "starting",
-        "updated_at": now_iso(),
-    })
+    started_at = datetime.now(timezone.utc)
+
+    # Initial Progress
+    writer.write_progress(RunProgress(
+        run_id=run_id,
+        phase="start",
+        percent=0.0,
+        message="Initializing pipeline"
+    ))
 
     try:
-        # jarvis_core.app.run_task を呼び出す
-        # action に応じてタスクを構築
-        task_dict = {
-            "goal": query or f"Perform {action}",
-            "category": "generic",
-            "action": action
-        }
-        
+        task_dict = {"goal": query or f"Perform {action}", "category": "generic", "action": action}
         config_dict = {
-            "pipeline": "configs/pipelines/e2e_oa10.yml", # デフォルト
-            "max_results": max_papers
+            "pipeline": "configs/pipelines/e2e_oa10.yml",
+            "max_results": max_papers,
         }
-        
-        print(f"Executing task: {query} (action={action})")
-        
-        # 中間進捗の更新（シミュレーションまたは実際のフェーズごと）
-        write_json(progress_path, {
-            "schema_version": "runs.progress.v1",
-            "run_id": run_id,
-            "phase": "executing",
-            "percent": 50,
-            "message": f"running action={action}",
-            "updated_at": now_iso(),
-        })
+
+        print(f"Executing run {run_id}: {query} (action={action})")
+
+        writer.write_progress(RunProgress(
+            run_id=run_id,
+            phase="executing",
+            percent=50.0,
+            message=f"Executing action: {action}"
+        ))
 
         # 実際のパイプライン実行
         result = run_task(task_dict, config_dict)
-        
-        # 成果物の保存
-        artifacts = base / "artifacts"
-        artifacts.mkdir(parents=True, exist_ok=True)
-        report = artifacts / "report.md"
-        
-        # 結果からレポート内容を取得（resultオブジェクトの仕様に合わせる）
-        report_content = getattr(result, "answer", f"# RUN {run_id}\n\naction={action}\nquery={query}\n")
-        report.write_text(report_content, encoding="utf-8")
 
-        finished = now_iso()
-        
-        # 完了進捗
-        write_json(progress_path, {
-            "schema_version": "runs.progress.v1",
-            "run_id": run_id,
-            "phase": "done",
-            "percent": 100,
-            "message": "succeeded",
-            "updated_at": finished,
-        })
-        
-        # サマリー
-        write_json(summary_path, {
-            "schema_version": "runs.summary.v1",
-            "run_id": run_id,
-            "status": "succeeded",
-            "started_at": started,
-            "finished_at": finished,
-            "action": action,
-            "inputs": {"query": query, "max_papers": max_papers},
-            "outputs": {"report_path": str(report.relative_to(Path("dashboard"))).replace("\\", "/")},
-            "metrics": {
+        # 成果物の保存
+        artifacts_dir = run_dir / "artifacts"
+        artifacts_dir.mkdir(parents=True, exist_ok=True)
+        report_path = artifacts_dir / "report.md"
+
+        report_content = getattr(
+            result, "answer", f"# RUN {run_id}\n\naction={action}\nquery={query}\n"
+        )
+        report_path.write_text(report_content, encoding="utf-8")
+
+        finished_at = datetime.now(timezone.utc)
+
+        # Success Progress
+        writer.write_progress(RunProgress(
+            run_id=run_id,
+            phase="done",
+            percent=100.0,
+            message="Completed successfully",
+            updated_at=finished_at
+        ))
+
+        # Success Summary
+        writer.write_summary(RunSummary(
+            run_id=run_id,
+            status=RunStatus.SUCCESS,
+            started_at=started_at,
+            finished_at=finished_at,
+            metrics={
                 "papers": len(getattr(result, "citations", [])),
                 "chunks": 0,
-                "elapsed_sec": 0
+                "elapsed_sec": (finished_at - started_at).total_seconds(),
             },
-            "errors": [],
-        })
+            artifacts=[{
+                "kind": "report",
+                "path": str(report_path.relative_to(Path("dashboard"))).replace("\\", "/")
+            }]
+        ))
         return 0
 
     except Exception as e:
-        finished = now_iso()
+        finished_at = datetime.now(timezone.utc)
         print(f"Error during execution: {e}")
-        
-        write_json(progress_path, {
-            "schema_version": "runs.progress.v1",
-            "run_id": run_id,
-            "phase": "failed",
-            "percent": 100,
-            "message": str(e),
-            "updated_at": finished,
-        })
-        
-        write_json(summary_path, {
-            "schema_version": "runs.summary.v1",
-            "run_id": run_id,
-            "status": "failed",
-            "started_at": started,
-            "finished_at": finished,
-            "action": action,
-            "inputs": {"query": query, "max_papers": max_papers},
-            "outputs": {},
-            "metrics": {"papers": 0, "chunks": 0, "elapsed_sec": 0},
-            "errors": [repr(e)],
-        })
+
+        writer.write_progress(RunProgress(
+            run_id=run_id,
+            phase="failed",
+            percent=100.0,
+            message=str(e),
+            updated_at=finished_at
+        ))
+
+        writer.write_summary(RunSummary(
+            run_id=run_id,
+            status=RunStatus.FAILED,
+            started_at=started_at,
+            finished_at=finished_at,
+            error=str(e),
+            metrics={"papers": 0, "chunks": 0, "elapsed_sec": (finished_at - started_at).total_seconds()}
+        ))
         raise
+
 
 if __name__ == "__main__":
     import sys
+
     sys.exit(main())

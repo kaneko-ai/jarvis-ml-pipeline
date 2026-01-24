@@ -1,4 +1,3 @@
-import pytest
 from jarvis_core.multimodal.scientific import (
     FormulaCalculator,
     TableExtractor,
@@ -11,6 +10,7 @@ from jarvis_core.multimodal.scientific import (
     MedicalImageAnalyzer,
     ProtocolExtractor,
 )
+
 
 class TestFormulaCalculator:
     def test_evaluate_basic(self):
@@ -45,6 +45,7 @@ class TestFormulaCalculator:
         assert res["type"] == "integral"
         assert "x" in res["variables"]
 
+
 class TestTableExtractor:
     def test_extract_table(self):
         ext = TableExtractor()
@@ -62,10 +63,11 @@ class TestTableExtractor:
         assert res["same_structure"] is True
         assert res["row_count_diff"] == -1
 
+
 class TestChemicalStructureAnalyzer:
     def test_parse_smiles(self):
         ana = ChemicalStructureAnalyzer()
-        res = ana.parse_smiles("C1=CC=CC=C1") # Benzene
+        res = ana.parse_smiles("C1=CC=CC=C1")  # Benzene
         assert res["atom_count"] == 6
         assert res["ring_count"] == 1
         assert res["is_aromatic"] is True
@@ -75,6 +77,7 @@ class TestChemicalStructureAnalyzer:
         db = [{"name": "Ethanol", "smiles": "CCO"}]
         res = ana.find_similar_compounds("CC", db)
         assert res[0]["similarity"] > 0
+
 
 class TestStatisticalResultParser:
     def test_parse_p_value(self):
@@ -94,6 +97,7 @@ class TestStatisticalResultParser:
         assert ci["lower"] == "1.5"
         assert ci["upper"] == "2.5"
 
+
 class TestCodeRepositoryLinker:
     def test_find_github(self):
         linker = CodeRepositoryLinker()
@@ -102,6 +106,7 @@ class TestCodeRepositoryLinker:
         assert res["platform"] == "github"
         assert res["repo"] == "user/repo"
 
+
 def test_protein_viewer():
     viewer = ProteinViewer()
     s = ProteinStructure(pdb_id="1ABC", sequence="ACD")
@@ -109,10 +114,11 @@ def test_protein_viewer():
     info = viewer.get_sequence_info("1ABC")
     assert info["length"] == 3
     assert info["composition"]["A"] == 1
-    
+
     pred = viewer.predict_secondary_structure("AELMVIY")
     assert "H" in pred
     assert "E" in pred
+
 
 def test_protocol_extractor():
     ext = ProtocolExtractor()
@@ -121,11 +127,13 @@ def test_protocol_extractor():
     assert len(steps) >= 3
     assert steps[0]["duration"] == "10 min"
 
+
 def test_medical_image_analyzer():
     ana = MedicalImageAnalyzer()
     res = ana.analyze({"modality": "ct"})
     assert res["modality"] == "ct"
     assert len(res["findings"]) > 0
+
 
 def test_figure_analyzer():
     ana = FigureAnalyzer()

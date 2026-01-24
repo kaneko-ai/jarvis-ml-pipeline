@@ -85,5 +85,6 @@ class TestFeatureAlignment:
         assert X_train_scaled.dtype == np.float32
         assert X_test_scaled.dtype == np.float32
 
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

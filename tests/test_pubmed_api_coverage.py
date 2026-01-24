@@ -1,7 +1,6 @@
 """Tests for pubmed API module - Comprehensive coverage."""
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 
 
 class TestPubmedModule:
@@ -19,9 +18,7 @@ class TestPubmedModule:
         from jarvis_core.api import pubmed
 
         mock_response = Mock()
-        mock_response.json.return_value = {
-            "esearchresult": {"idlist": ["12345", "67890"]}
-        }
+        mock_response.json.return_value = {"esearchresult": {"idlist": ["12345", "67890"]}}
         mock_response.raise_for_status = Mock()
         mock_get.return_value = mock_response
 

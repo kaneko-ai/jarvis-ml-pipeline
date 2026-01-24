@@ -204,12 +204,12 @@ class BM25Index:
         index._corpus = data.get("corpus", [])
         index._tokenized_corpus = data.get("tokenized_corpus", [])
         index._doc_ids = doc_ids if doc_ids else [str(i) for i in range(len(index._corpus))]
-        
+
         # Rebuild BM25 index from tokenized corpus
         if index._tokenized_corpus:
             try:
                 from rank_bm25 import BM25Okapi
-                
+
                 index._bm25 = BM25Okapi(
                     index._tokenized_corpus,
                     k1=index.config.k1,
@@ -220,7 +220,7 @@ class BM25Index:
                 logger.warning("rank_bm25 not installed. Cannot initialize index.")
                 index._bm25 = None
                 index._initialized = False
-        
+
         logger.info(f"BM25Index loaded from {path}")
         return index
 

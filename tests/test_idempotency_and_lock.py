@@ -14,6 +14,7 @@ def test_idempotency_key_stable():
     key2 = idempotency.idempotency_key(schedule, now)
     assert key1 == key2
 
+
 def test_schedule_lock():
     handle = locks.acquire_schedule_lock("SCH_LOCK", ttl_seconds=1)
     assert handle is not None

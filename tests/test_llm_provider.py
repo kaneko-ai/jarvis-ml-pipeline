@@ -11,14 +11,17 @@ from unittest.mock import MagicMock, patch
 google_stub = types.ModuleType("google")
 google_genai_stub = types.ModuleType("google.genai")
 
+
 class _DummyErrors:
     class ServerError(Exception): ...
 
     class ClientError(Exception): ...
 
+
 class _DummyClient:
     def __init__(self, api_key=None):
         self.models = MagicMock()
+
 
 google_genai_stub.errors = _DummyErrors
 google_genai_stub.Client = _DummyClient
@@ -82,6 +85,7 @@ class TestOllamaProvider:
             client = LLMClient(model="llama3.2", provider="ollama")
             assert client._ollama_base_url == "http://custom:8080"
 
+
 class TestGeminiProvider:
     """Tests for Gemini provider (mocked)."""
 
@@ -104,6 +108,7 @@ class TestGeminiProvider:
                 client = LLMClient(provider="gemini")
                 assert client.provider == "gemini"
                 mock_client.assert_called_once_with(api_key="test-key")
+
 
 class TestProviderSwitching:
     """Tests for provider switching logic."""

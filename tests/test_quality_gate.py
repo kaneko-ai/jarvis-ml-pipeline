@@ -26,6 +26,7 @@ class DummyPlanner(Planner):
     def plan(self, task: Task):
         return [task]
 
+
 class DummyRouter:
     """Router that returns a configurable AgentResult-like object."""
 
@@ -49,12 +50,14 @@ class DummyRouter:
             meta={},
         )
 
+
 def make_task() -> Task:
     return Task(
         task_id="test-task",
         title="Test quality gate",
         category=TaskCategory.GENERIC,
     )
+
 
 def make_evidence_store_with_chunk() -> tuple[EvidenceStore, str]:
     """Create an EvidenceStore with a valid chunk and return both.
@@ -71,6 +74,7 @@ def make_evidence_store_with_chunk() -> tuple[EvidenceStore, str]:
         "This is valid answer content for testing quality gates.",
     )
     return store, chunk_id
+
 
 class TestQualityGateEmptyAnswer:
     """Test case 1: answer empty -> status=fail"""
@@ -103,6 +107,7 @@ class TestQualityGateEmptyAnswer:
         complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         assert complete_event["agent_status"] == "fail"
 
+
 class TestQualityGateNoCitations:
     """Test case 2: answer present, no citations -> status=partial"""
 
@@ -121,6 +126,7 @@ class TestQualityGateNoCitations:
         complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         assert complete_event["agent_status"] == "partial"
         assert "no_valid_citations" in complete_event["quality_warnings"]
+
 
 class TestQualityGateValidCitations:
     """Test case 3: answer + valid citations -> status=success"""
@@ -154,6 +160,7 @@ class TestQualityGateValidCitations:
             complete_event["quality_warnings"] is None
             or len(complete_event["quality_warnings"]) == 0
         )
+
 
 class TestQualityGateInvalidCitations:
     """Test case 4: citation with missing/invalid chunk_id -> status=partial"""
@@ -237,6 +244,7 @@ class TestQualityGateInvalidCitations:
         assert complete_event["agent_status"] == "success"
         # But should have warning about the invalid one
         assert any("chunk_id" in w for w in complete_event["quality_warnings"])
+
 
 class TestAgentStatusOverride:
     """Test that ExecutionEngine overrides agent-provided status."""

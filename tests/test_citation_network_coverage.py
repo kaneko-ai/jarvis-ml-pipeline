@@ -1,8 +1,5 @@
 """Tests for citation_network module - Coverage improvement."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestCitationNode:
     """Tests for CitationNode dataclass."""

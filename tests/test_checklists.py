@@ -40,9 +40,9 @@ class TestRunChecklists:
             "conclusion_sentences": 5,
             "normalized_text": {},
         }
-        
+
         results = run_checklists(qa_result)
-        
+
         assert len(results) == len(CHECKLISTS)
         assert all(r["passed"] for r in results)
 
@@ -51,9 +51,9 @@ class TestRunChecklists:
             "counts": {"term_variant": 3},
             "conclusion_sentences": 5,
         }
-        
+
         results = run_checklists(qa_result)
-        
+
         no_term_result = next(r for r in results if r["id"] == "no_term_variants")
         assert no_term_result["passed"] is False
 
@@ -62,15 +62,15 @@ class TestRunChecklists:
             "counts": {},
             "conclusion_sentences": 1,
         }
-        
+
         results = run_checklists(qa_result)
-        
+
         conclusion_result = next(r for r in results if r["id"] == "conclusion_minimum")
         assert conclusion_result["passed"] is False
 
     def test_result_structure(self):
         results = run_checklists({})
-        
+
         for result in results:
             assert "id" in result
             assert "description" in result

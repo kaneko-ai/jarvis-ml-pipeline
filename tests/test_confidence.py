@@ -42,7 +42,7 @@ class TestGetConfidenceLevel:
 class TestCalibrateConfidence:
     def test_calibrate_basic(self):
         result = calibrate_confidence(0.8, "test_module", evidence_count=2)
-        
+
         assert "value" in result
         assert "level" in result
         assert "description" in result
@@ -50,26 +50,26 @@ class TestCalibrateConfidence:
 
     def test_calibrate_caps_without_evidence(self):
         result = calibrate_confidence(0.9, evidence_count=0)
-        
+
         # Without evidence, capped at 0.4
         assert result["value"] <= 0.4
 
     def test_calibrate_caps_single_evidence(self):
         result = calibrate_confidence(0.9, evidence_count=1)
-        
+
         # With single evidence, capped at 0.7
         assert result["value"] <= 0.7
 
     def test_calibrate_multiple_evidence(self):
         result = calibrate_confidence(0.9, evidence_count=3)
-        
+
         # Multiple evidences allow full confidence
         assert result["value"] == 0.9
 
     def test_calibrate_clamps_to_range(self):
         result = calibrate_confidence(1.5, evidence_count=5)
         assert result["value"] <= 1.0
-        
+
         result = calibrate_confidence(-0.5, evidence_count=5)
         assert result["value"] >= 0.0
 
@@ -108,7 +108,7 @@ class TestConfidenceRegistry:
     def test_register_and_get(self):
         ConfidenceRegistry.register("test_module", 0.65)
         baseline = ConfidenceRegistry.get_baseline("test_module")
-        
+
         assert baseline == 0.65
 
     def test_get_default(self):

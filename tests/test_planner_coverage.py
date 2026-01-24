@@ -1,8 +1,5 @@
 """Tests for planner module - Comprehensive coverage (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestPlannerModule:
     """Tests for planner module."""

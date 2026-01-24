@@ -70,6 +70,7 @@ class TestBibTeX:
         output = export_bibtex([])
         assert "No references" in output
 
+
 class TestRIS:
     """Tests for RIS export."""
 
@@ -124,6 +125,7 @@ class TestRIS:
         # Each entry has TY and ER
         assert output.count("TY  - GEN") == 2
         assert output.count("ER  - ") == 2
+
 
 class TestBundleBibliography:
     """Tests for bundle .bib/.ris generation."""

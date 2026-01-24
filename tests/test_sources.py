@@ -56,6 +56,7 @@ class TestChunker:
         # At least one chunk should end with a sentence boundary
         assert any(c.endswith(".") for c in chunks)
 
+
 class TestIngest:
     """Tests for the ingest function."""
 
@@ -135,6 +136,7 @@ class TestIngest:
         assert len(results[0].preview) <= 53  # 50 + "..."
         assert results[0].preview.endswith("...")
 
+
 class TestExecutionContext:
     """Tests for ExecutionContext."""
 
@@ -173,6 +175,7 @@ class TestExecutionContext:
         assert previews[0]["chunk_id"] == chunk_id
         assert previews[0]["locator"] == "pdf:test.pdf#chunk:0"
         assert previews[0]["preview"] == "PDF content"
+
 
 class TestIntegration:
     """Integration tests for the full pipeline."""

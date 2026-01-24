@@ -13,10 +13,9 @@ def test_chroma_vector_store_add():
 
         store = ChromaVectorStore()
         store.add(
-            texts=["doc1", "doc2"],
             embeddings=[[0.1] * 384, [0.2] * 384],
-            ids=["id1", "id2"],
-            metadata=[{"title": "Title1"}, {"title": "Title2"}],
+            doc_ids=["id1", "id2"],
+            metadata=[{"title": "Title1", "text": "doc1"}, {"title": "Title2", "text": "doc2"}],
         )
 
         mock_collection.add.assert_called_once()
@@ -43,7 +42,7 @@ def test_chroma_vector_store_search():
 
         assert len(results) == 2
         assert results[0][0] == "id1"
-        assert results[0][2] == "doc1"
+        assert results[0][2]["text"] == "doc1"
 
 
 def test_chroma_vector_store_count():

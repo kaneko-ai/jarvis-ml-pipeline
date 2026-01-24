@@ -1,7 +1,6 @@
 """Comprehensive tests for analysis/review_generator.py - 12 tests for 32% -> 90% coverage."""
 
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 
 class TestReviewGeneratorInit:

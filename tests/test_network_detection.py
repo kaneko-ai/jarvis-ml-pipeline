@@ -4,7 +4,6 @@ Per JARVIS_COMPLETION_PLAN_v3 Task 1.5
 Comprehensive test suite for network detection functionality.
 """
 
-import pytest
 from unittest.mock import Mock, patch, MagicMock
 import socket
 import time
@@ -92,7 +91,7 @@ class TestNetworkCheckResult:
 
     def test_is_online_limited(self):
         """Test is_online for LIMITED status.
-        
+
         Note: is_online returns True for LIMITED because the detector's
         is_online method checks for ONLINE or LIMITED status.
         But the NetworkCheckResult.is_online property only returns True for ONLINE.
@@ -239,9 +238,7 @@ class TestNetworkDetector:
         )
 
         detector = NetworkDetector(cache_ttl_seconds=60.0)
-        detector._cached_status = NetworkCheckResult(
-            status=NetworkStatus.ONLINE, endpoints={}
-        )
+        detector._cached_status = NetworkCheckResult(status=NetworkStatus.ONLINE, endpoints={})
         detector._last_check = time.time()
 
         assert detector._should_use_cache() is True
@@ -255,9 +252,7 @@ class TestNetworkDetector:
         )
 
         detector = NetworkDetector(cache_ttl_seconds=1.0)
-        detector._cached_status = NetworkCheckResult(
-            status=NetworkStatus.ONLINE, endpoints={}
-        )
+        detector._cached_status = NetworkCheckResult(status=NetworkStatus.ONLINE, endpoints={})
         detector._last_check = time.time() - 10  # 10 seconds ago
 
         assert detector._should_use_cache() is False
@@ -271,9 +266,7 @@ class TestNetworkDetector:
         )
 
         detector = NetworkDetector(cache_ttl_seconds=60.0)
-        detector._cached_status = NetworkCheckResult(
-            status=NetworkStatus.ONLINE, endpoints={}
-        )
+        detector._cached_status = NetworkCheckResult(status=NetworkStatus.ONLINE, endpoints={})
         detector._last_check = time.time()
 
         with patch.object(detector, "_check_all_endpoints") as mock_check:
@@ -291,15 +284,11 @@ class TestNetworkDetector:
         )
 
         detector = NetworkDetector()
-        detector._cached_status = NetworkCheckResult(
-            status=NetworkStatus.ONLINE, endpoints={}
-        )
+        detector._cached_status = NetworkCheckResult(status=NetworkStatus.ONLINE, endpoints={})
         detector._last_check = time.time()
 
         with patch.object(detector, "_check_all_endpoints") as mock_check:
-            mock_check.return_value = NetworkCheckResult(
-                status=NetworkStatus.OFFLINE, endpoints={}
-            )
+            mock_check.return_value = NetworkCheckResult(status=NetworkStatus.OFFLINE, endpoints={})
 
             result = detector.get_status(force_check=True)
 
@@ -390,11 +379,7 @@ class TestModuleImports:
         from jarvis_core.network import (
             DegradationLevel,
             DegradationManager,
-            get_degradation_manager,
-            degradation_aware,
-            degradation_aware_with_queue,
             OfflineError,
-            OfflineQueuedError,
         )
 
         assert DegradationLevel is not None

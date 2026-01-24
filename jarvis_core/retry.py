@@ -36,7 +36,7 @@ class RetryPolicy:
     def execute(self, func: Callable[..., T], *args: Any, **kwargs: Any) -> T:
         """Execute a function with retries."""
         last_exception = None
-        
+
         for attempt in range(1, self.max_attempts + 1):
             try:
                 return func(*args, **kwargs)
@@ -44,16 +44,16 @@ class RetryPolicy:
                 last_exception = e
                 if attempt == self.max_attempts:
                     break
-                
+
                 # Calculate delay with exponential backoff
                 delay = min(self.max_delay, self.base_delay * (2 ** (attempt - 1)))
-                
+
                 # Add jitter
                 if self.jitter:
                     delay = delay * (0.5 + random.random())
-                
+
                 time.sleep(delay)
-                
+
         if last_exception:
             raise last_exception
         raise RuntimeError("Retry failed without exception")  # Should not happen
@@ -76,9 +76,7 @@ class RetryPolicy:
 
 
 def with_retry(
-    max_attempts: int = 3, 
-    base_delay: float = 1.0, 
-    max_delay: float = 10.0
+    max_attempts: int = 3, base_delay: float = 1.0, max_delay: float = 10.0
 ) -> Callable[[Callable[..., T]], Callable[..., T]]:
     """Decorator for retrying functions."""
     policy = RetryPolicy(max_attempts=max_attempts, base_delay=base_delay, max_delay=max_delay)
@@ -86,5 +84,7 @@ def with_retry(
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         def wrapper(*args: Any, **kwargs: Any) -> T:
             return policy.execute(func, *args, **kwargs)
+
         return cast(Callable[..., T], wrapper)
+
     return decorator

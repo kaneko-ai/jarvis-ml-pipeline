@@ -1,8 +1,6 @@
 """Tests for cli_v4 module - Comprehensive coverage."""
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-import sys
+from unittest.mock import patch
 
 
 class TestCLIModule:

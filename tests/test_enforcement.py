@@ -84,6 +84,7 @@ class TestGoldenExtraction:
 
         assert result1 == result2
 
+
 class TestStageRegistry:
     """Stage Registry Tests."""
 
@@ -128,6 +129,7 @@ class TestStageRegistry:
         with pytest.raises(StageNotImplementedError):
             registry.validate_pipeline(["nonexistent.stage"])
 
+
 class TestPluginValidation:
     """Plugin Validation Tests."""
 
@@ -161,6 +163,7 @@ class TestPluginValidation:
 
             assert "id" in data or "name" in data, f"{plugin_dir.name} missing id"
             assert "entrypoint" in data, f"{plugin_dir.name} missing entrypoint"
+
 
 class TestProvenanceRate:
     """Provenance Rate Tests."""
@@ -209,6 +212,7 @@ class TestProvenanceRate:
 
         assert result.actual == 0.0
         assert not result.passed
+
 
 class TestReproducibility:
     """Reproducibility Tests."""

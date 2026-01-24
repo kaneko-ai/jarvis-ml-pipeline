@@ -24,6 +24,7 @@ class DummyPlanner(Planner):
     def plan(self, task: Task):
         return [task]
 
+
 class DummyRouter:
     """Router that returns a configurable AgentResult-like object."""
 
@@ -45,12 +46,14 @@ class DummyRouter:
             meta={},
         )
 
+
 def make_task() -> Task:
     return Task(
         task_id="test-task",
         title="Test citation relevance",
         category=TaskCategory.GENERIC,
     )
+
 
 class TestCitationRelevance:
     """Tests for citation-answer relevance checking."""
@@ -186,6 +189,7 @@ class TestCitationRelevance:
         complete_event = next(e for e in executed[0].history if e.get("event") == "complete")
         # Should succeed because at least one citation is relevant
         assert complete_event["agent_status"] == "success"
+
 
 class TestCitationRelevanceEdgeCases:
     """Edge case tests for citation relevance."""

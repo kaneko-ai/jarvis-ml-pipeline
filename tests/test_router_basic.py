@@ -9,19 +9,23 @@ from pathlib import Path
 google_stub = types.ModuleType("google")
 google_genai_stub = types.ModuleType("google.genai")
 
+
 class _DummyErrors:
     class ServerError(Exception): ...
 
     class ClientError(Exception): ...
+
 
 class _DummyModels:
     @staticmethod
     def generate_content(model: str, contents: str):  # pragma: no cover - stub
         return types.SimpleNamespace(text="")
 
+
 class _DummyClient:
     def __init__(self, api_key=None):
         self.models = _DummyModels()
+
 
 google_genai_stub.Client = _DummyClient
 google_genai_stub.errors = _DummyErrors
@@ -39,9 +43,11 @@ class DummyLLM:
     def chat(self, messages):  # pragma: no cover - simple stub
         return "dummy answer"
 
+
 def make_router():
     registry = AgentRegistry.from_file(Path("configs/agents.yaml"))
     return Router(llm=DummyLLM(), registry=registry)
+
 
 def test_router_selects_agent_by_category():
     router = make_router()
@@ -58,6 +64,7 @@ def test_router_selects_agent_by_category():
     result = router.run(task)
     assert "fetching papers" in result.answer
     assert result.meta and result.meta.get("source") == "paper_fetcher_stub"
+
 
 def test_router_respects_agent_hint():
     router = make_router()

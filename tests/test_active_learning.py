@@ -4,8 +4,6 @@ Per JARVIS_COMPLETION_PLAN_v3 Task 2.5
 Updated to match actual implementation.
 """
 
-import pytest
-
 
 class TestALConfig:
     """Tests for Active Learning configuration."""
@@ -250,8 +248,14 @@ class TestStoppingCriteria:
 
     def test_composite_stopping_any(self):
         """Test CompositeStoppingCriterion with any mode."""
-        from jarvis_core.experimental.active_learning import BudgetStoppingCriterion, RecallStoppingCriterion
-        from jarvis_core.experimental.active_learning.stopping import CompositeStoppingCriterion, StoppingState
+        from jarvis_core.experimental.active_learning import (
+            BudgetStoppingCriterion,
+            RecallStoppingCriterion,
+        )
+        from jarvis_core.experimental.active_learning.stopping import (
+            CompositeStoppingCriterion,
+            StoppingState,
+        )
 
         recall_criterion = RecallStoppingCriterion(target_recall=0.95, min_iterations=1)
         budget_criterion = BudgetStoppingCriterion(budget_ratio=0.5)
@@ -377,7 +381,7 @@ class TestActiveLearningEngine:
 
     def test_engine_state_property(self):
         """Test engine state property."""
-        from jarvis_core.experimental.active_learning import ActiveLearningEngine, ALConfig, ALState
+        from jarvis_core.experimental.active_learning import ActiveLearningEngine, ALState
 
         engine = ActiveLearningEngine()
 

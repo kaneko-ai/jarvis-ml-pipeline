@@ -1,8 +1,5 @@
 """Comprehensive tests for artifacts/claim_set.py - 10 tests for 44% -> 90% coverage."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestClaimSetModule:
     """Tests for claim_set module."""
@@ -33,7 +30,9 @@ class TestClaimSet:
         """Test ClaimSet creation."""
         from jarvis_core.artifacts.claim_set import ClaimSet
 
-        if hasattr(__import__("jarvis_core.artifacts.claim_set", fromlist=["ClaimSet"]), "ClaimSet"):
+        if hasattr(
+            __import__("jarvis_core.artifacts.claim_set", fromlist=["ClaimSet"]), "ClaimSet"
+        ):
             cs = ClaimSet()
             assert cs is not None
 
@@ -41,7 +40,9 @@ class TestClaimSet:
         """Test adding claim."""
         from jarvis_core.artifacts.claim_set import ClaimSet, Claim
 
-        if hasattr(__import__("jarvis_core.artifacts.claim_set", fromlist=["ClaimSet"]), "ClaimSet"):
+        if hasattr(
+            __import__("jarvis_core.artifacts.claim_set", fromlist=["ClaimSet"]), "ClaimSet"
+        ):
             cs = ClaimSet()
             if hasattr(cs, "add"):
                 claim = Claim(text="Test", source="s1")

@@ -20,6 +20,7 @@ from typing import List, Optional
 
 from jarvis_core.security.fs_safety import safe_extract_zip, sanitize_filename
 from jarvis_core.security.atomic_io import atomic_write_json
+from jarvis_core.redact_logging import setup_logging
 
 try:
     from fastapi import FastAPI, HTTPException, Depends, UploadFile, File
@@ -53,11 +54,15 @@ API_MAP_PATH = Path("jarvis_web/contracts/api_map_v1.json")
 if FASTAPI_AVAILABLE:
     from jarvis_web.auth import verify_api_token, verify_token
     from jarvis_web.routes.research import router as research_router
-    from jarvis_web.routes.finance import router as finance_router
+    # from jarvis_web.routes.finance import router as finance_router (Moved to lazy import)
     from jarvis_web.routes.schedules import router as schedules_router
     from jarvis_web.routes.cron import router as cron_router
     from jarvis_web.routes.queue import router as queue_router
     from jarvis_web.config import get_config
+    from jarvis_web.middleware.request_id import RequestIdMiddleware
+
+    # Setup centralized logging
+    setup_logging(os.environ.get("JARVIS_LOG_LEVEL", "INFO"))
 
     app = FastAPI(
         title="JARVIS Research OS",
@@ -67,6 +72,9 @@ if FASTAPI_AVAILABLE:
         redoc_url="/api/redoc",
         openapi_url="/api/openapi.json",
     )
+
+    # Add Request ID middleware FIRST to capture it in other middlewares/logs
+    app.add_middleware(RequestIdMiddleware)
 
 
     # Get CORS config from environment-aware configuration
@@ -82,7 +90,12 @@ if FASTAPI_AVAILABLE:
     )
 
     app.include_router(research_router)
-    app.include_router(finance_router)
+    
+    # Feature Flagged Router: Finance
+    if os.environ.get("JARVIS_ENABLE_FINANCE") == "1":
+        from jarvis_web.routes.finance import router as finance_router
+        app.include_router(finance_router)
+
     app.include_router(schedules_router)
     app.include_router(cron_router)
     app.include_router(queue_router)

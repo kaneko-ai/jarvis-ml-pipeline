@@ -4,27 +4,28 @@ Target: 75% → 85% (+10%)
 Focus: ingestion/pipeline.py (271 lines), multimodal/scientific.py (208 lines)
 """
 
-import pytest
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, MagicMock
 import tempfile
 from pathlib import Path
-import json
 
 
 # ====================
 # Complete Tests for ingestion/pipeline.py
 # ====================
 
+
 class TestPDFExtractorComplete:
     """Exhaustive tests for PDFExtractor."""
 
     def test_init(self):
         from jarvis_core.ingestion.pipeline import PDFExtractor
+
         extractor = PDFExtractor()
         assert extractor is not None
 
     def test_extract_fallback_no_libraries(self):
         from jarvis_core.ingestion.pipeline import PDFExtractor
+
         extractor = PDFExtractor()
         extractor._pdfplumber = None
         extractor._pymupdf = None
@@ -33,19 +34,21 @@ class TestPDFExtractorComplete:
 
     def test_extract_with_pymupdf_available(self):
         from jarvis_core.ingestion.pipeline import PDFExtractor
+
         extractor = PDFExtractor()
         extractor._pymupdf = MagicMock()
         extractor._pdfplumber = None
-        with patch.object(extractor, '_extract_pymupdf', return_value=("text", [])):
+        with patch.object(extractor, "_extract_pymupdf", return_value=("text", [])):
             result = extractor.extract(Path("test.pdf"))
             assert result[0] == "text"
 
     def test_extract_with_pdfplumber_available(self):
         from jarvis_core.ingestion.pipeline import PDFExtractor
+
         extractor = PDFExtractor()
         extractor._pymupdf = None
         extractor._pdfplumber = MagicMock()
-        with patch.object(extractor, '_extract_pdfplumber', return_value=("text", [])):
+        with patch.object(extractor, "_extract_pdfplumber", return_value=("text", [])):
             result = extractor.extract(Path("test.pdf"))
             assert result[0] == "text"
 
@@ -55,18 +58,21 @@ class TestTextChunkerComplete:
 
     def test_init_default(self):
         from jarvis_core.ingestion.pipeline import TextChunker
+
         chunker = TextChunker()
         assert chunker.chunk_size == 1000
         assert chunker.overlap == 100
 
     def test_init_custom(self):
         from jarvis_core.ingestion.pipeline import TextChunker
+
         chunker = TextChunker(chunk_size=500, overlap=50)
         assert chunker.chunk_size == 500
         assert chunker.overlap == 50
 
     def test_chunk_simple_text(self):
         from jarvis_core.ingestion.pipeline import TextChunker
+
         chunker = TextChunker(chunk_size=100)
         text = "This is a test paragraph. " * 10
         chunks = chunker.chunk(text, "paper_1")
@@ -75,6 +81,7 @@ class TestTextChunkerComplete:
 
     def test_detect_sections_with_headers(self):
         from jarvis_core.ingestion.pipeline import TextChunker
+
         chunker = TextChunker()
         text = """Abstract
 This is the abstract.
@@ -90,6 +97,7 @@ These are the methods.
 
     def test_detect_sections_no_headers(self):
         from jarvis_core.ingestion.pipeline import TextChunker
+
         chunker = TextChunker()
         text = "Just plain text without any section headers."
         sections = chunker._detect_sections(text)
@@ -97,6 +105,7 @@ These are the methods.
 
     def test_chunk_text_with_paragraphs(self):
         from jarvis_core.ingestion.pipeline import TextChunker
+
         chunker = TextChunker(chunk_size=50, overlap=10)
         text = "Paragraph one.\n\nParagraph two.\n\nParagraph three."
         chunks = chunker._chunk_text(text, 0, "p1", "Section", 0)
@@ -104,6 +113,7 @@ These are the methods.
 
     def test_chunk_empty_text(self):
         from jarvis_core.ingestion.pipeline import TextChunker
+
         chunker = TextChunker()
         chunks = chunker.chunk("", "paper_1")
         assert len(chunks) == 0 or chunks[0].text == ""
@@ -114,13 +124,16 @@ class TestBibTeXParserComplete:
 
     def test_parse_valid_file(self):
         from jarvis_core.ingestion.pipeline import BibTeXParser
+
         parser = BibTeXParser()
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.bib', delete=False) as f:
-            f.write("""@article{test2024,
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".bib", delete=False) as f:
+            f.write(
+                """@article{test2024,
     title = {Test Title},
     author = {Test Author},
     year = {2024}
-}""")
+}"""
+            )
             path = Path(f.name)
         entries = parser.parse(path)
         assert len(entries) == 1
@@ -129,10 +142,13 @@ class TestBibTeXParserComplete:
 
     def test_parse_multiple_entries(self):
         from jarvis_core.ingestion.pipeline import BibTeXParser
+
         parser = BibTeXParser()
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.bib', delete=False) as f:
-            f.write("""@article{p1, title={T1}, year={2023}}
-@article{p2, title={T2}, year={2024}}""")
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".bib", delete=False) as f:
+            f.write(
+                """@article{p1, title={T1}, year={2023}}
+@article{p2, title={T2}, year={2024}}"""
+            )
             path = Path(f.name)
         entries = parser.parse(path)
         assert len(entries) == 2
@@ -140,14 +156,16 @@ class TestBibTeXParserComplete:
 
     def test_parse_nonexistent_file(self):
         from jarvis_core.ingestion.pipeline import BibTeXParser
+
         parser = BibTeXParser()
         entries = parser.parse(Path("/nonexistent/file.bib"))
         assert entries == []
 
     def test_parse_empty_file(self):
         from jarvis_core.ingestion.pipeline import BibTeXParser
+
         parser = BibTeXParser()
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.bib', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".bib", delete=False) as f:
             f.write("")
             path = Path(f.name)
         entries = parser.parse(path)
@@ -156,6 +174,7 @@ class TestBibTeXParserComplete:
 
     def test_parse_fields(self):
         from jarvis_core.ingestion.pipeline import BibTeXParser
+
         parser = BibTeXParser()
         text = 'title = {Test}, author = "Author Name", year = {2024}'
         fields = parser._parse_fields(text)
@@ -168,12 +187,14 @@ class TestIngestionPipelineComplete:
 
     def test_init(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             assert pipeline.output_dir == Path(tmpdir)
 
     def test_generate_paper_id(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             paper_id = pipeline._generate_paper_id(Path("test.pdf"), "Test Title")
@@ -182,6 +203,7 @@ class TestIngestionPipelineComplete:
 
     def test_extract_title_from_text(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             text = "This is a proper title for a paper\nMore content here"
@@ -190,6 +212,7 @@ class TestIngestionPipelineComplete:
 
     def test_extract_title_fallback(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             text = "Short\ntext"
@@ -198,6 +221,7 @@ class TestIngestionPipelineComplete:
 
     def test_extract_year_from_text(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             text = "Published in 2023 by authors"
@@ -207,6 +231,7 @@ class TestIngestionPipelineComplete:
     def test_extract_year_fallback(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
         from datetime import datetime
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             text = "No year here"
@@ -215,6 +240,7 @@ class TestIngestionPipelineComplete:
 
     def test_extract_abstract(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             text = """Title
@@ -229,14 +255,17 @@ The rest of the paper."""
 
     def test_ingest_bibtex(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             bib_path = Path(tmpdir) / "refs.bib"
-            bib_path.write_text("""@article{test2024,
+            bib_path.write_text(
+                """@article{test2024,
     title = {Test Paper},
     author = {Author One and Author Two},
     year = {2024}
-}""")
+}"""
+            )
             papers = pipeline.ingest_bibtex(bib_path)
             assert len(papers) == 1
             assert papers[0].title == "Test Paper"
@@ -244,6 +273,7 @@ The rest of the paper."""
 
     def test_ingest_batch_empty(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             result = pipeline.ingest_batch([])
@@ -252,6 +282,7 @@ The rest of the paper."""
 
     def test_ingest_batch_with_bibtex(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             bib_path = Path(tmpdir) / "refs.bib"
@@ -260,7 +291,12 @@ The rest of the paper."""
             assert result.stats["bibtex_count"] == 1
 
     def test_save_papers_jsonl(self):
-        from jarvis_core.ingestion.pipeline import IngestionPipeline, IngestionResult, ExtractedPaper
+        from jarvis_core.ingestion.pipeline import (
+            IngestionPipeline,
+            IngestionResult,
+            ExtractedPaper,
+        )
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             result = IngestionResult()
@@ -271,7 +307,13 @@ The rest of the paper."""
             assert "p1" in content
 
     def test_save_chunks_jsonl(self):
-        from jarvis_core.ingestion.pipeline import IngestionPipeline, IngestionResult, ExtractedPaper, TextChunk
+        from jarvis_core.ingestion.pipeline import (
+            IngestionPipeline,
+            IngestionResult,
+            ExtractedPaper,
+            TextChunk,
+        )
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             result = IngestionResult()
@@ -289,6 +331,7 @@ class TestDataclassesComplete:
 
     def test_text_chunk_to_dict(self):
         from jarvis_core.ingestion.pipeline import TextChunk
+
         chunk = TextChunk(chunk_id="c1", text="Test", section="Abstract")
         d = chunk.to_dict()
         assert d["chunk_id"] == "c1"
@@ -296,6 +339,7 @@ class TestDataclassesComplete:
 
     def test_extracted_paper_to_dict(self):
         from jarvis_core.ingestion.pipeline import ExtractedPaper
+
         paper = ExtractedPaper(paper_id="p1", title="T", year=2024)
         d = paper.to_dict()
         assert d["paper_id"] == "p1"
@@ -303,6 +347,7 @@ class TestDataclassesComplete:
 
     def test_ingestion_result_to_dict(self):
         from jarvis_core.ingestion.pipeline import IngestionResult, ExtractedPaper
+
         result = IngestionResult()
         result.papers.append(ExtractedPaper(paper_id="p1", title="T", year=2024))
         d = result.to_dict()
@@ -314,6 +359,7 @@ class TestIngestFilesFunction:
 
     def test_ingest_files_empty(self):
         from jarvis_core.ingestion.pipeline import ingest_files
+
         with tempfile.TemporaryDirectory() as tmpdir:
             result = ingest_files([], Path(tmpdir))
             assert result is not None
@@ -321,6 +367,7 @@ class TestIngestFilesFunction:
 
     def test_ingest_files_with_bibtex(self):
         from jarvis_core.ingestion.pipeline import ingest_files
+
         with tempfile.TemporaryDirectory() as tmpdir:
             bib_path = Path(tmpdir) / "test.bib"
             bib_path.write_text("@article{t, title={T}, year={2024}}")
@@ -332,11 +379,13 @@ class TestIngestFilesFunction:
 # Tests for multimodal/scientific.py
 # ====================
 
+
 class TestMultimodalScientificComplete:
     """Complete tests for multimodal/scientific module."""
 
     def test_import(self):
         from jarvis_core.multimodal import scientific
+
         assert hasattr(scientific, "__name__")
 
 
@@ -344,11 +393,13 @@ class TestMultimodalScientificComplete:
 # Tests for stages/generate_report.py
 # ====================
 
+
 class TestStagesGenerateReportComplete:
     """Complete tests for stages/generate_report module."""
 
     def test_import(self):
         from jarvis_core.stages import generate_report
+
         assert hasattr(generate_report, "__name__")
 
 
@@ -356,9 +407,11 @@ class TestStagesGenerateReportComplete:
 # Tests for kpi/phase_kpi.py
 # ====================
 
+
 class TestKPIPhaseKPIComplete:
     """Complete tests for kpi/phase_kpi module."""
 
     def test_import(self):
         from jarvis_core.kpi import phase_kpi
+
         assert hasattr(phase_kpi, "__name__")

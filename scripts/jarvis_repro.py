@@ -2,6 +2,7 @@
 
 Per RP-165, replays a run for reproduction.
 """
+
 from __future__ import annotations
 
 import json
@@ -81,10 +82,12 @@ def repro_run(
 
     # Create new run ID
     import uuid
+
     new_run_id = f"repro_{run_id}_{str(uuid.uuid4())[:8]}"
 
     # Set up repro run
     from jarvis_core.runtime.seed import enforce_seed
+
     enforce_seed(config.seed)
 
     result = {
@@ -111,6 +114,7 @@ def compare_runs(run_id_1: str, run_id_2: str, runs_dir: str = "data/runs") -> d
     Returns:
         Comparison dict with differences.
     """
+
     def load_summary(run_id: str) -> Optional[dict]:
         path = Path(runs_dir) / run_id / "summary.json"
         if path.exists():
@@ -132,11 +136,13 @@ def compare_runs(run_id_1: str, run_id_2: str, runs_dir: str = "data/runs") -> d
         v1 = summary1.get(key)
         v2 = summary2.get(key)
         if v1 != v2:
-            differences.append({
-                "key": key,
-                "run1": v1,
-                "run2": v2,
-            })
+            differences.append(
+                {
+                    "key": key,
+                    "run1": v1,
+                    "run2": v2,
+                }
+            )
 
     return {
         "run_id_1": run_id_1,

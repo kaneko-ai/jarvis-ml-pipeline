@@ -7,10 +7,12 @@ import pytest
 class TestArxivBasic:
     def test_import(self):
         from jarvis_core.api.arxiv import ArxivClient
+
         assert ArxivClient is not None
-    
+
     def test_create(self):
         from jarvis_core.api.arxiv import ArxivClient
+
         c = ArxivClient()
         assert c is not None
 
@@ -18,4 +20,5 @@ class TestArxivBasic:
 class TestModule:
     def test_arxiv_module(self):
         from jarvis_core.api import arxiv
+
         assert arxiv is not None

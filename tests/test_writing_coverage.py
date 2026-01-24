@@ -1,8 +1,5 @@
 """Tests for writing module - Coverage improvement (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestWritingModules:
     """Tests for writing module imports."""

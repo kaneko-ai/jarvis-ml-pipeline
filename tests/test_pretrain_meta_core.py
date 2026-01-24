@@ -18,6 +18,7 @@ import pytest
 
 # Stage imports
 
+
 class TestPrimaryStudyFilter:
     """一次研究フィルターテスト。"""
 
@@ -50,6 +51,7 @@ class TestPrimaryStudyFilter:
         assert "2" in excluded_pmids
         assert "3" in excluded_pmids
 
+
 class TestPICOExtraction:
     """PICO抽出テスト。"""
 
@@ -76,6 +78,7 @@ class TestPICOExtraction:
             assert "intervention" in p
             assert "comparison" in p
             assert "outcome" in p
+
 
 class TestBiasRiskAssessment:
     """バイアスリスク評価テスト。"""
@@ -110,6 +113,7 @@ class TestBiasRiskAssessment:
         for domain in required_domains:
             assert domain in assessment["domains"]
 
+
 class TestExtractionAccuracyProxy:
     """抽出精度プロキシテスト。"""
 
@@ -134,6 +138,7 @@ class TestExtractionAccuracyProxy:
         assert "effect_extraction_rate" in accuracy
         assert "overall_score" in accuracy
         assert 0 <= accuracy["overall_score"] <= 1
+
 
 class TestStoreTrainingRecordMeta:
     """メタ分析学習レコード保存テスト。"""
@@ -160,6 +165,7 @@ class TestStoreTrainingRecordMeta:
                 result = stage_store_training_record_meta(context, artifacts)
 
         assert "meta_training_record_saved" in result.metadata
+
 
 class TestPipelineStagesRegistered:
     """パイプラインステージ登録テスト。"""
@@ -191,6 +197,7 @@ class TestPipelineStagesRegistered:
             config = PipelineConfig.from_yaml(config_path)
             assert config.name == "pretrain_meta_core"
             assert len(config.stages) >= 9
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

@@ -3,7 +3,6 @@
 Target: Classes 261-300 with correct arguments
 """
 
-import pytest
 from unittest.mock import patch, MagicMock
 
 
@@ -11,11 +10,13 @@ from unittest.mock import patch, MagicMock
 # PHASE 9: AUTOMATION (261-280)
 # ====================
 
+
 class TestWorkflowEngineComplete:
     """Class 261: WorkflowEngine - Complete coverage."""
 
     def test_add_step(self):
         from jarvis_core.advanced.features import WorkflowEngine
+
         engine = WorkflowEngine()
         engine.add_step("step1", lambda x: x * 2)
         engine.add_step("step2", lambda x: x + 1)
@@ -23,6 +24,7 @@ class TestWorkflowEngineComplete:
 
     def test_run_workflow(self):
         from jarvis_core.advanced.features import WorkflowEngine
+
         engine = WorkflowEngine()
         engine.add_step("step1", lambda x: x * 2)
         engine.add_step("step2", lambda x: x + 1)
@@ -35,6 +37,7 @@ class TestPipelineBuilderComplete:
 
     def test_add_component(self):
         from jarvis_core.advanced.features import PipelineBuilder
+
         builder = PipelineBuilder()
         builder.add_component("preprocess", lambda x: x.lower())
         builder.add_component("tokenize", lambda x: x.split())
@@ -42,6 +45,7 @@ class TestPipelineBuilderComplete:
 
     def test_build_and_run(self):
         from jarvis_core.advanced.features import PipelineBuilder
+
         builder = PipelineBuilder()
         builder.add_component("upper", lambda x: x.upper())
         pipeline = builder.build()
@@ -54,12 +58,14 @@ class TestSchedulerComplete:
 
     def test_schedule_task(self):
         from jarvis_core.advanced.features import Scheduler
+
         scheduler = Scheduler()
         scheduler.schedule_task("task1", "2024-01-01 09:00", lambda: "done")
         assert len(scheduler.tasks) == 1
 
     def test_get_pending_tasks(self):
         from jarvis_core.advanced.features import Scheduler
+
         scheduler = Scheduler()
         scheduler.schedule_task("task1", "2024-01-01 09:00", lambda: "done")
         pending = scheduler.get_pending_tasks()
@@ -71,6 +77,7 @@ class TestNotificationManagerComplete:
 
     def test_add_subscriber(self):
         from jarvis_core.advanced.features import NotificationManager
+
         manager = NotificationManager()
         manager.add_subscriber("user1", "email")
         manager.add_subscriber("user2", "slack")
@@ -78,6 +85,7 @@ class TestNotificationManagerComplete:
 
     def test_notify(self):
         from jarvis_core.advanced.features import NotificationManager
+
         manager = NotificationManager()
         manager.add_subscriber("user1", "email")
         result = manager.notify("Test message")
@@ -89,6 +97,7 @@ class TestReportGeneratorComplete:
 
     def test_add_section(self):
         from jarvis_core.advanced.features import ReportGenerator
+
         generator = ReportGenerator()
         generator.add_section("Introduction", "This is the intro.")
         generator.add_section("Methods", "These are the methods.")
@@ -96,6 +105,7 @@ class TestReportGeneratorComplete:
 
     def test_generate_report(self):
         from jarvis_core.advanced.features import ReportGenerator
+
         generator = ReportGenerator()
         generator.add_section("Introduction", "Intro content")
         report = generator.generate_report("markdown")
@@ -107,6 +117,7 @@ class TestDashboardBuilderComplete:
 
     def test_add_widget(self):
         from jarvis_core.advanced.features import DashboardBuilder
+
         builder = DashboardBuilder()
         builder.add_widget("chart", {"type": "bar", "data": [1, 2, 3]})
         builder.add_widget("table", {"data": [{"a": 1}]})
@@ -114,6 +125,7 @@ class TestDashboardBuilderComplete:
 
     def test_render(self):
         from jarvis_core.advanced.features import DashboardBuilder
+
         builder = DashboardBuilder()
         builder.add_widget("chart", {"type": "line"})
         result = builder.render()
@@ -125,12 +137,14 @@ class TestAlertSystemComplete:
 
     def test_add_rule(self):
         from jarvis_core.advanced.features import AlertSystem
+
         system = AlertSystem()
         system.add_rule("high_citations", lambda x: x > 100)
         assert len(system.rules) == 1
 
     def test_check_alerts(self):
         from jarvis_core.advanced.features import AlertSystem
+
         system = AlertSystem()
         system.add_rule("positive", lambda x: x > 0)
         alerts = system.check_alerts({"value": 50})
@@ -142,6 +156,7 @@ class TestCacheManagerComplete:
 
     def test_set_get(self):
         from jarvis_core.advanced.features import CacheManager
+
         manager = CacheManager()
         manager.set("key1", "value1")
         result = manager.get("key1")
@@ -149,12 +164,14 @@ class TestCacheManagerComplete:
 
     def test_get_nonexistent(self):
         from jarvis_core.advanced.features import CacheManager
+
         manager = CacheManager()
         result = manager.get("nonexistent")
         assert result is None
 
     def test_clear(self):
         from jarvis_core.advanced.features import CacheManager
+
         manager = CacheManager()
         manager.set("key1", "value1")
         manager.clear()
@@ -166,6 +183,7 @@ class TestRateLimiterComplete:
 
     def test_allow_request(self):
         from jarvis_core.advanced.features import RateLimiter
+
         limiter = RateLimiter(max_requests=5, window_seconds=60)
         for i in range(5):
             assert limiter.allow_request("user1") == True
@@ -178,6 +196,7 @@ class TestRetryHandlerComplete:
 
     def test_retry_success(self):
         from jarvis_core.advanced.features import RetryHandler
+
         handler = RetryHandler(max_retries=3)
         result = handler.execute(lambda: "success")
         assert result == "success"
@@ -187,13 +206,15 @@ class TestRetryHandlerComplete:
 # PHASE 10: INTEGRATION (281-300)
 # ====================
 
+
 class TestAPIClientComplete:
     """Class 281: APIClient - Complete coverage."""
 
-    @patch('jarvis_core.advanced.features.requests.get')
+    @patch("jarvis_core.advanced.features.requests.get")
     def test_get(self, mock_get):
         mock_get.return_value = MagicMock(status_code=200, json=lambda: {"data": "test"})
         from jarvis_core.advanced.features import APIClient
+
         client = APIClient("https://api.example.com")
         result = client.get("/endpoint")
         assert result is not None
@@ -204,6 +225,7 @@ class TestDataExporterComplete:
 
     def test_export_json(self):
         from jarvis_core.advanced.features import DataExporter
+
         exporter = DataExporter()
         data = [{"id": 1, "name": "test"}]
         result = exporter.export_json(data)
@@ -211,6 +233,7 @@ class TestDataExporterComplete:
 
     def test_export_csv(self):
         from jarvis_core.advanced.features import DataExporter
+
         exporter = DataExporter()
         data = [{"id": 1, "name": "test"}]
         result = exporter.export_csv(data)
@@ -222,6 +245,7 @@ class TestDataImporterComplete:
 
     def test_import_json(self):
         from jarvis_core.advanced.features import DataImporter
+
         importer = DataImporter()
         json_str = '[{"id": 1}]'
         result = importer.import_json(json_str)
@@ -233,6 +257,7 @@ class TestConfigManagerComplete:
 
     def test_set_get_config(self):
         from jarvis_core.advanced.features import ConfigManager
+
         manager = ConfigManager()
         manager.set("key1", "value1")
         result = manager.get("key1")
@@ -240,6 +265,7 @@ class TestConfigManagerComplete:
 
     def test_load_defaults(self):
         from jarvis_core.advanced.features import ConfigManager
+
         manager = ConfigManager()
         defaults = {"a": 1, "b": 2}
         manager.load_defaults(defaults)
@@ -251,6 +277,7 @@ class TestLoggerComplete:
 
     def test_log_levels(self):
         from jarvis_core.advanced.features import Logger
+
         logger = Logger()
         logger.info("Info message")
         logger.warning("Warning message")
@@ -263,6 +290,7 @@ class TestMetricsCollectorComplete:
 
     def test_record_metric(self):
         from jarvis_core.advanced.features import MetricsCollector
+
         collector = MetricsCollector()
         collector.record("latency", 100)
         collector.record("latency", 150)
@@ -275,6 +303,7 @@ class TestHealthCheckerComplete:
 
     def test_add_check(self):
         from jarvis_core.advanced.features import HealthChecker
+
         checker = HealthChecker()
         checker.add_check("db", lambda: True)
         checker.add_check("api", lambda: True)
@@ -282,6 +311,7 @@ class TestHealthCheckerComplete:
 
     def test_run_checks(self):
         from jarvis_core.advanced.features import HealthChecker
+
         checker = HealthChecker()
         checker.add_check("test", lambda: True)
         result = checker.run_checks()
@@ -293,12 +323,14 @@ class TestFeatureFlagManagerComplete:
 
     def test_set_flag(self):
         from jarvis_core.advanced.features import FeatureFlagManager
+
         manager = FeatureFlagManager()
         manager.set_flag("new_feature", True)
         assert manager.is_enabled("new_feature") == True
 
     def test_disabled_flag(self):
         from jarvis_core.advanced.features import FeatureFlagManager
+
         manager = FeatureFlagManager()
         manager.set_flag("old_feature", False)
         assert manager.is_enabled("old_feature") == False
@@ -309,12 +341,14 @@ class TestVersionManagerComplete:
 
     def test_get_version(self):
         from jarvis_core.advanced.features import VersionManager
+
         manager = VersionManager()
         version = manager.get_version()
         assert version is not None
 
     def test_compare_versions(self):
         from jarvis_core.advanced.features import VersionManager
+
         manager = VersionManager()
         result = manager.compare_versions("1.0.0", "2.0.0")
         assert result < 0  # 1.0.0 < 2.0.0
@@ -325,12 +359,14 @@ class TestPluginManagerComplete:
 
     def test_register_plugin(self):
         from jarvis_core.advanced.features import PluginManager
+
         manager = PluginManager()
         manager.register_plugin("plugin1", lambda: "result")
         assert "plugin1" in manager.plugins
 
     def test_run_plugin(self):
         from jarvis_core.advanced.features import PluginManager
+
         manager = PluginManager()
         manager.register_plugin("test", lambda: "hello")
         result = manager.run_plugin("test")

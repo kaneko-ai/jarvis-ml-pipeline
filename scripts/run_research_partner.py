@@ -6,7 +6,7 @@ Phase4-7 統合版: 研究パートナーAI
 
 使い方:
     python scripts/run_research_partner.py "研究テーマ"
-    
+
 例:
     python scripts/run_research_partner.py "免疫療法 × LLM活用"
 """

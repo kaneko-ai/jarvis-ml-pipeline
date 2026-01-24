@@ -63,6 +63,7 @@ class TestMetadataVector:
         assert mv.year == 2022
         assert "human" in mv.species
 
+
 class TestConceptVector:
     """Tests for ConceptVector."""
 
@@ -72,6 +73,7 @@ class TestConceptVector:
         top = cv.top_concepts(2)
         assert len(top) == 2
         assert top[0][0] == "PD-1"
+
 
 class TestBiologicalAxisVector:
     """Tests for BiologicalAxisVector."""
@@ -86,6 +88,7 @@ class TestBiologicalAxisVector:
         t = bav.as_tuple()
         assert t == (0.5, -0.3, 0.8)
 
+
 class TestImpactVector:
     """Tests for ImpactVector."""
 
@@ -93,6 +96,7 @@ class TestImpactVector:
         """Impact should always be marked as estimated."""
         iv = ImpactVector()
         assert iv.estimated is True
+
 
 class TestPaperVector:
     """Tests for main PaperVector class."""
@@ -172,6 +176,7 @@ class TestPaperVector:
 
             assert any(p["paper_id"] == "index_test" for p in index["papers"])
 
+
 class TestExtraction:
     """Tests for text extraction functions."""
 
@@ -215,6 +220,7 @@ class TestExtraction:
         assert pv.paper_id is not None
         assert "CD73" in pv.concept.concepts
         assert pv.biological_axis.tumor_context > 0  # Detected TME
+
 
 class TestFilterAPI:
     """Tests for filter functions."""

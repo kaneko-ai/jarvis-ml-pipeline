@@ -73,6 +73,7 @@ class TestReference:
         assert ref2.title == "Example"
         assert ref2.year == 2023
 
+
 class TestParseLocator:
     """Tests for locator parsing."""
 
@@ -88,6 +89,7 @@ class TestParseLocator:
         base, source_type, page = _parse_locator("url:https://example.com#chunk:0")
         assert source_type == "url"
         assert page is None
+
 
 class TestExtractReferences:
     """Tests for reference extraction."""
@@ -116,6 +118,7 @@ class TestExtractReferences:
         refs = extract_references(citations)
 
         assert len(refs) == 2
+
 
 class TestFormatter:
     """Tests for reference formatters."""
@@ -165,6 +168,7 @@ class TestFormatter:
         assert len(lines) == 2
         assert "[1]" in lines[0]
         assert "[2]" in lines[1]
+
 
 class TestBundleReferences:
     """Tests for bundle references.md generation."""

@@ -196,15 +196,17 @@ def run_task(
     # In Mock mode, pre-populate a chunk for E2E tests to pass quality gates
     if config.provider == "mock":
         from .evidence.store import Chunk
+
         mock_id = "mock-chunk-id-001"
         evidence_store._chunks[mock_id] = Chunk(
             chunk_id=mock_id,
             source="mock",
             locator="mock:1",
-            text="This is an authoritative mock quote for testing golden paths."
+            text="This is an authoritative mock quote for testing golden paths.",
         )
 
     from .retry import RetryPolicy
+
     engine = ExecutionEngine(
         planner=planner,
         router=router,
@@ -240,7 +242,7 @@ def run_task(
                     answer = st_res.answer
                 if hasattr(st_res, "citations"):
                     citations = list(st_res.citations or [])
-                
+
                 # Metadata extraction
                 if hasattr(st_res, "meta") and st_res.meta:
                     warnings.extend(st_res.meta.get("warnings", []))

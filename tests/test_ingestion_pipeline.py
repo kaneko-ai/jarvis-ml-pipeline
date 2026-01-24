@@ -6,19 +6,17 @@ Tests for 0% coverage modules:
 - robust_extractor.py
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
-
-
 # ============================================================
 # Tests for ingestion/__init__.py
 # ============================================================
+
 
 class TestIngestionInit:
     """Tests for ingestion module init."""
 
     def test_import(self):
         from jarvis_core import ingestion
+
         assert hasattr(ingestion, "__name__")
 
 
@@ -26,11 +24,13 @@ class TestIngestionInit:
 # Tests for normalizer.py (0% coverage - 64 stmts)
 # ============================================================
 
+
 class TestNormalizer:
     """Tests for normalizer functionality."""
 
     def test_import(self):
         from jarvis_core.ingestion import normalizer
+
         assert hasattr(normalizer, "__name__")
 
 
@@ -38,11 +38,13 @@ class TestNormalizer:
 # Tests for pipeline.py (0% coverage - 271 stmts)
 # ============================================================
 
+
 class TestIngestionPipeline:
     """Tests for ingestion pipeline."""
 
     def test_import(self):
         from jarvis_core.ingestion import pipeline
+
         assert hasattr(pipeline, "__name__")
 
 
@@ -50,9 +52,11 @@ class TestIngestionPipeline:
 # Tests for robust_extractor.py (0% coverage - 126 stmts)
 # ============================================================
 
+
 class TestRobustExtractor:
     """Tests for robust extractor."""
 
     def test_import(self):
         from jarvis_core.ingestion import robust_extractor
+
         assert hasattr(robust_extractor, "__name__")

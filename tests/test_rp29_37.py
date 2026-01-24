@@ -74,6 +74,7 @@ def _create_test_vectors():
         ),
     ]
 
+
 class TestRecommendation:
     """Tests for RP29 Recommendation."""
 
@@ -96,6 +97,7 @@ class TestRecommendation:
         """Should handle empty input."""
         assert recommend_papers([], ["CD73"]) == []
 
+
 class TestComparison:
     """Tests for RP30 Comparison."""
 
@@ -115,6 +117,7 @@ class TestComparison:
 
         # They have different methods
         assert result["method_only_a"] or result["method_only_b"]
+
 
 class TestPositioning:
     """Tests for RP31 3D Positioning."""
@@ -151,6 +154,7 @@ class TestPositioning:
         assert "免疫活性化" in desc
         assert "TME" in desc
 
+
 class TestHypothesis:
     """Tests for RP32 Hypothesis Generator."""
 
@@ -166,6 +170,7 @@ class TestHypothesis:
     def test_empty_input(self):
         """Should handle empty input."""
         assert generate_hypotheses([], ["CD73"]) == []
+
 
 class TestTimeline:
     """Tests for RP33 Timeline."""
@@ -188,6 +193,7 @@ class TestTimeline:
 
         assert len(summary) > 0
 
+
 class TestJournalTargeting:
     """Tests for RP34 Journal Targeting."""
 
@@ -208,6 +214,7 @@ class TestJournalTargeting:
         scores = [r["fit_score"] for r in results]
         assert scores == sorted(scores, reverse=True)
 
+
 class TestRehearsal:
     """Tests for RP35 Rehearsal."""
 
@@ -219,6 +226,7 @@ class TestRehearsal:
         assert "questions" in result
         assert "tough_questions" in result
         assert len(result["questions"]) > 0
+
 
 class TestEducation:
     """Tests for RP36 Education."""
@@ -244,6 +252,7 @@ class TestEducation:
 
         assert "大学院生向け" in result
         assert "批判的評価" in result
+
 
 class TestMemory:
     """Tests for RP37 Memory."""

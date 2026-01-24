@@ -1,4 +1,5 @@
 """Audit UI contract for serverless readiness."""
+
 from __future__ import annotations
 
 import argparse

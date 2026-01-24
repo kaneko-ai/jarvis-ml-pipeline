@@ -2,6 +2,7 @@
 
 Per RP-209, generates diff between regression runs.
 """
+
 from __future__ import annotations
 
 import json
@@ -32,13 +33,15 @@ def compare_metrics(prev: Dict[str, Any], curr: Dict[str, Any]) -> List[Dict[str
 
         status = "improved" if delta > 0.01 else ("regressed" if delta < -0.01 else "stable")
 
-        diffs.append({
-            "metric": key,
-            "previous": prev_val,
-            "current": curr_val,
-            "delta": delta,
-            "status": status,
-        })
+        diffs.append(
+            {
+                "metric": key,
+                "previous": prev_val,
+                "current": curr_val,
+                "delta": delta,
+                "status": status,
+            }
+        )
 
     return diffs
 

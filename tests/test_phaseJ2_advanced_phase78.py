@@ -3,19 +3,17 @@
 Target: Classes 221-260 with correct arguments
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
-
-
 # ====================
 # PHASE 7: KNOWLEDGE MANAGEMENT (221-240)
 # ====================
+
 
 class TestOntologyBuilderComplete:
     """Class 221: OntologyBuilder - Complete coverage."""
 
     def test_add_concept(self):
         from jarvis_core.advanced.features import OntologyBuilder
+
         builder = OntologyBuilder()
         builder.add_concept("machine_learning", parent="artificial_intelligence")
         builder.add_concept("deep_learning", parent="machine_learning")
@@ -23,6 +21,7 @@ class TestOntologyBuilderComplete:
 
     def test_get_hierarchy(self):
         from jarvis_core.advanced.features import OntologyBuilder
+
         builder = OntologyBuilder()
         builder.add_concept("A", parent=None)
         builder.add_concept("B", parent="A")
@@ -35,6 +34,7 @@ class TestConceptMapperComplete:
 
     def test_map_concepts(self):
         from jarvis_core.advanced.features import ConceptMapper
+
         mapper = ConceptMapper()
         text = "Machine learning and deep learning are subfields of AI."
         result = mapper.map_concepts(text)
@@ -46,6 +46,7 @@ class TestKnowledgeGraphBuilderComplete:
 
     def test_add_entity(self):
         from jarvis_core.advanced.features import KnowledgeGraphBuilder
+
         builder = KnowledgeGraphBuilder()
         builder.add_entity("Albert Einstein", "Person")
         builder.add_entity("Theory of Relativity", "Theory")
@@ -53,6 +54,7 @@ class TestKnowledgeGraphBuilderComplete:
 
     def test_add_relation(self):
         from jarvis_core.advanced.features import KnowledgeGraphBuilder
+
         builder = KnowledgeGraphBuilder()
         builder.add_entity("Einstein", "Person")
         builder.add_entity("Relativity", "Theory")
@@ -61,6 +63,7 @@ class TestKnowledgeGraphBuilderComplete:
 
     def test_export_graph(self):
         from jarvis_core.advanced.features import KnowledgeGraphBuilder
+
         builder = KnowledgeGraphBuilder()
         builder.add_entity("A", "Type1")
         builder.add_entity("B", "Type2")
@@ -74,6 +77,7 @@ class TestSemanticSearchEngineComplete:
 
     def test_index_documents(self):
         from jarvis_core.advanced.features import SemanticSearchEngine
+
         engine = SemanticSearchEngine()
         docs = [
             {"id": 1, "text": "Machine learning algorithms"},
@@ -84,6 +88,7 @@ class TestSemanticSearchEngineComplete:
 
     def test_search(self):
         from jarvis_core.advanced.features import SemanticSearchEngine
+
         engine = SemanticSearchEngine()
         docs = [{"id": 1, "text": "Machine learning"}]
         engine.index_documents(docs)
@@ -96,6 +101,7 @@ class TestEntityLinkerComplete:
 
     def test_link_entities(self):
         from jarvis_core.advanced.features import EntityLinker
+
         linker = EntityLinker()
         text = "Einstein developed the theory of relativity."
         result = linker.link_entities(text)
@@ -107,6 +113,7 @@ class TestFactVerifierComplete:
 
     def test_verify_fact(self):
         from jarvis_core.advanced.features import FactVerifier
+
         verifier = FactVerifier()
         fact = "Water boils at 100 degrees Celsius."
         result = verifier.verify_fact(fact)
@@ -118,6 +125,7 @@ class TestArgumentMinerComplete:
 
     def test_extract_arguments(self):
         from jarvis_core.advanced.features import ArgumentMiner
+
         miner = ArgumentMiner()
         text = "The treatment is effective because it reduces symptoms. However, side effects are a concern."
         result = miner.extract_arguments(text)
@@ -129,6 +137,7 @@ class TestClaimDetectorComplete:
 
     def test_detect_claims(self):
         from jarvis_core.advanced.features import ClaimDetector
+
         detector = ClaimDetector()
         text = "Studies show that exercise improves mental health."
         result = detector.detect_claims(text)
@@ -140,6 +149,7 @@ class TestStanceClassifierComplete:
 
     def test_classify_stance(self):
         from jarvis_core.advanced.features import StanceClassifier
+
         classifier = StanceClassifier()
         claim = "Vaccines are effective."
         text = "Research confirms that vaccines prevent diseases."
@@ -152,6 +162,7 @@ class TestEvidenceExtractorComplete:
 
     def test_extract_evidence(self):
         from jarvis_core.advanced.features import EvidenceExtractor
+
         extractor = EvidenceExtractor()
         text = "A study of 1000 patients showed 80% improvement."
         claim = "Treatment is effective"
@@ -163,11 +174,13 @@ class TestEvidenceExtractorComplete:
 # PHASE 8: COLLABORATION (241-260)
 # ====================
 
+
 class TestCollaborationNetworkComplete:
     """Class 241: CollaborationNetwork - Complete coverage."""
 
     def test_add_collaborator(self):
         from jarvis_core.advanced.features import CollaborationNetwork
+
         network = CollaborationNetwork()
         network.add_collaborator("Alice", "Institution A")
         network.add_collaborator("Bob", "Institution B")
@@ -175,6 +188,7 @@ class TestCollaborationNetworkComplete:
 
     def test_add_collaboration(self):
         from jarvis_core.advanced.features import CollaborationNetwork
+
         network = CollaborationNetwork()
         network.add_collaborator("Alice", "A")
         network.add_collaborator("Bob", "B")
@@ -183,6 +197,7 @@ class TestCollaborationNetworkComplete:
 
     def test_get_network_metrics(self):
         from jarvis_core.advanced.features import CollaborationNetwork
+
         network = CollaborationNetwork()
         network.add_collaborator("Alice", "A")
         network.add_collaborator("Bob", "B")
@@ -196,6 +211,7 @@ class TestTeamFormationOptimizerComplete:
 
     def test_optimize_team(self):
         from jarvis_core.advanced.features import TeamFormationOptimizer
+
         optimizer = TeamFormationOptimizer()
         candidates = [
             {"name": "Alice", "skills": ["ML", "Stats"]},
@@ -212,6 +228,7 @@ class TestConflictResolverComplete:
 
     def test_detect_conflicts(self):
         from jarvis_core.advanced.features import ConflictResolver
+
         resolver = ConflictResolver()
         opinions = [
             {"author": "A", "claim": "X is true"},
@@ -226,6 +243,7 @@ class TestPeerReviewMatcherComplete:
 
     def test_match_reviewers(self):
         from jarvis_core.advanced.features import PeerReviewMatcher
+
         matcher = PeerReviewMatcher()
         paper = {"title": "Deep Learning for NLP", "keywords": ["NLP", "deep learning"]}
         reviewers = [
@@ -241,6 +259,7 @@ class TestCitationRecommenderComplete:
 
     def test_recommend_citations(self):
         from jarvis_core.advanced.features import CitationRecommender
+
         recommender = CitationRecommender()
         text = "Recent advances in deep learning have shown..."
         result = recommender.recommend_citations(text, top_k=5)
@@ -252,6 +271,7 @@ class TestImpactPredictorComplete:
 
     def test_predict_impact(self):
         from jarvis_core.advanced.features import ImpactPredictor
+
         predictor = ImpactPredictor()
         paper = {"title": "Novel ML method", "abstract": "We propose...", "venue": "Nature"}
         result = predictor.predict_impact(paper)
@@ -263,6 +283,7 @@ class TestTrendAnalyzerComplete:
 
     def test_analyze_trends(self):
         from jarvis_core.advanced.features import TrendAnalyzer
+
         analyzer = TrendAnalyzer()
         papers = [
             {"year": 2020, "keywords": ["deep learning"]},
@@ -278,6 +299,7 @@ class TestResearchGapFinderComplete:
 
     def test_find_gaps(self):
         from jarvis_core.advanced.features import ResearchGapFinder
+
         finder = ResearchGapFinder()
         papers = [{"title": "ML for X"}, {"title": "ML for Y"}]
         result = finder.find_gaps(papers)
@@ -289,6 +311,7 @@ class TestNoveltyAssessorComplete:
 
     def test_assess_novelty(self):
         from jarvis_core.advanced.features import NoveltyAssessor
+
         assessor = NoveltyAssessor()
         paper = {"title": "New method", "abstract": "We propose a novel approach..."}
         existing = [{"title": "Old method 1"}, {"title": "Old method 2"}]
@@ -301,6 +324,7 @@ class TestReproducibilityCheckerComplete:
 
     def test_check_reproducibility(self):
         from jarvis_core.advanced.features import ReproducibilityChecker
+
         checker = ReproducibilityChecker()
         paper = {
             "code_available": True,

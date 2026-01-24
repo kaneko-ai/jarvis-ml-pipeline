@@ -14,7 +14,7 @@ from jarvis_core.telemetry.trace_context import (
 class TestTraceContext:
     def test_create(self):
         ctx = TraceContext.create()
-        
+
         assert ctx.run_id is not None
         assert ctx.trace_id is not None
         assert ctx.step_id == 0
@@ -26,7 +26,7 @@ class TestTraceContext:
     def test_with_step(self):
         ctx = TraceContext.create()
         new_ctx = ctx.with_step(5)
-        
+
         assert new_ctx.step_id == 5
         assert new_ctx.parent_step_id == ctx.step_id
         assert new_ctx.run_id == ctx.run_id
@@ -34,7 +34,7 @@ class TestTraceContext:
     def test_with_tool(self):
         ctx = TraceContext.create()
         new_ctx = ctx.with_tool("search_tool")
-        
+
         assert new_ctx.tool_name == "search_tool"
         assert new_ctx.run_id == ctx.run_id
 
@@ -47,7 +47,7 @@ class TestTraceContext:
             tool_name="test_tool",
         )
         d = ctx.to_dict()
-        
+
         assert d["run_id"] == "run1"
         assert d["trace_id"] == "trace1"
         assert d["step_id"] == 3
@@ -59,22 +59,23 @@ class TestContextFunctions:
     def test_set_and_get_context(self):
         ctx = TraceContext.create()
         set_current_context(ctx)
-        
+
         current = get_current_context()
         assert current == ctx
 
     def test_require_context_when_set(self):
         ctx = TraceContext.create()
         set_current_context(ctx)
-        
+
         result = require_context()
         assert result == ctx
 
     def test_require_context_when_not_set(self):
         # Clear context
         from jarvis_core.telemetry.trace_context import _current_context
+
         _current_context.set(None)
-        
+
         with pytest.raises(RuntimeError, match="TraceContext required"):
             require_context()
 
@@ -91,17 +92,17 @@ class TestTraceContextManager:
 
     def test_next_step(self):
         manager = TraceContextManager()
-        
+
         ctx1 = manager.next_step()
         ctx2 = manager.next_step()
-        
+
         assert ctx1.step_id == 1
         assert ctx2.step_id == 2
 
     def test_enter_tool(self):
         manager = TraceContextManager()
         ctx = manager.enter_tool("my_tool")
-        
+
         assert ctx.tool_name == "my_tool"
         assert ctx.step_id == 1
 
@@ -110,7 +111,7 @@ class TestTraceContextManager:
             ctx = get_current_context()
             assert ctx is not None
             assert ctx.run_id == "test"
-        
+
         # Context should be cleared after exit
         # Note: This may need adjustment based on implementation
 
@@ -120,13 +121,13 @@ class TestTraceTool:
         # Set up context
         ctx = TraceContext.create()
         set_current_context(ctx)
-        
+
         @trace_tool("decorated_tool")
         def my_func():
             return "result"
-        
+
         result = my_func()
-        
+
         assert result == "result"
         # Current context should have tool name
         current = get_current_context()

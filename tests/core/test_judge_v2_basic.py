@@ -1,19 +1,16 @@
-import pytest
 from jarvis_core.eval.judge_v2 import (
     FormJudge,
     SemanticJudge,
     IntegratedJudge,
     JudgeType,
-    JudgeResult,
 )
+
 
 class TestFormJudge:
     def test_judge_pass(self):
         judge = FormJudge()
         answer = "This is a valid answer."
-        citations = [
-            {"paper_id": "P1", "locator": {"section": "Results"}}
-        ]
+        citations = [{"paper_id": "P1", "locator": {"section": "Results"}}]
         res = judge.judge(answer, citations)
         assert res.passed is True
         assert res.score == 1.0
@@ -27,7 +24,7 @@ class TestFormJudge:
 
     def test_judge_fail_missing_fields(self):
         judge = FormJudge()
-        citations = [{"id_only": "P1"}] # missing 'paper_id'
+        citations = [{"id_only": "P1"}]  # missing 'paper_id'
         res = judge.judge("Answer", citations)
         assert res.passed is False
         assert any(i["check"] == "citation_structure" for i in res.issues)
@@ -37,6 +34,7 @@ class TestFormJudge:
         res = judge.judge("", [{"paper_id": "P1", "locator": {"section": "S"}}])
         assert res.passed is False
         assert any(i["check"] == "answer_exists" for i in res.issues)
+
 
 class TestSemanticJudge:
     def test_judge_pass(self):
@@ -64,14 +62,15 @@ class TestSemanticJudge:
         citations = []
         claims = [{"claim_text": "EGFR expression"}]
         res = judge.judge(answer, citations, claims)
-        assert res.score == 1.0 # Length, Relevance (pass because no citations), Claim consistency
+        assert res.score == 1.0  # Length, Relevance (pass because no citations), Claim consistency
         assert res.passed is True
 
     def test_judge_fail_length(self):
         judge = SemanticJudge()
         res = judge.judge("Short", [])
-        assert res.score == 0.5 # Relevance (pass because no citations), Length (fail)
-        assert res.passed is True # 0.5 is pass threshold
+        assert res.score == 0.5  # Relevance (pass because no citations), Length (fail)
+        assert res.passed is True  # 0.5 is pass threshold
+
 
 class TestIntegratedJudge:
     def test_integrated_judge(self):

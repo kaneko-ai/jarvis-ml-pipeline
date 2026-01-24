@@ -1,8 +1,5 @@
 """Tests for router module - Comprehensive coverage (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestRouterModule:
     """Tests for router module."""

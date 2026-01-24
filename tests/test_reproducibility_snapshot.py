@@ -68,6 +68,7 @@ class TestSnapshotCreation:
         assert snapshot.is_degraded is True
         assert "API timeout" in snapshot.degraded_reasons
 
+
 class TestSnapshotManager:
     """スナップショットマネージャテスト."""
 
@@ -123,6 +124,7 @@ class TestSnapshotManager:
 
         assert hash1 == hash2
         assert hash1 != hash3
+
 
 class TestReproducibility:
     """再現性テスト."""
@@ -182,6 +184,7 @@ class TestReproducibility:
         assert len(restored.chunk_mapping) == len(original.chunk_mapping)
         assert len(restored.model_io) == len(original.model_io)
 
+
 class TestDegradedRun:
     """degradedランテスト."""
 
@@ -214,6 +217,7 @@ class TestDegradedRun:
 
         assert restored.is_degraded is True
         assert len(restored.degraded_reasons) == 2
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

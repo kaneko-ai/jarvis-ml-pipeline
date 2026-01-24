@@ -2,6 +2,7 @@
 
 Per RP-223, profiles run latency by stage.
 """
+
 from __future__ import annotations
 
 import json
@@ -45,9 +46,7 @@ def compute_stage_durations(events: List[Dict[str, Any]]) -> Dict[str, List[floa
             stage = action.replace("_END", "")
             if stage in stage_starts:
                 try:
-                    start = datetime.fromisoformat(
-                        stage_starts[stage].replace("Z", "+00:00")
-                    )
+                    start = datetime.fromisoformat(stage_starts[stage].replace("Z", "+00:00"))
                     end = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
                     duration = (end - start).total_seconds()
                     durations[stage].append(duration)

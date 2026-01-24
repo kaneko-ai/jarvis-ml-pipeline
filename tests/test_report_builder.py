@@ -1,6 +1,5 @@
 """Tests for report builder module."""
 
-import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -10,8 +9,8 @@ import pytest
 # But report_builder handles import errors gracefully.
 
 from jarvis_core.style import report_builder
-# Import ScientificLinter for mocking if needed, or rely on report_builder's import
 
+# Import ScientificLinter for mocking if needed, or rely on report_builder's import
 
 
 @pytest.fixture
@@ -63,13 +62,19 @@ class TestReportBuilder:
             "run_id": "test_run",
             "score": 0.85,
             "issues": [
-                {"type": "style", "message": "Issue 1", "severity": "low", "issue_type": "style", "location": "p1"}
+                {
+                    "type": "style",
+                    "message": "Issue 1",
+                    "severity": "low",
+                    "issue_type": "style",
+                    "location": "p1",
+                }
             ],
             "conclusion": "Good job.",
             "metrics": {"total_files": 10},
             "error_count": 0,
             "warn_count": 0,
-            "ready_to_submit": False
+            "ready_to_submit": False,
         }
         md = report_builder._build_markdown_report(qa_result)
         assert "# QA Report: test_run" in md
@@ -93,12 +98,12 @@ class TestReportBuilder:
         output_dir = tmp_path / "output"
         run_dir.mkdir()
         output_dir.mkdir()
-        
+
         # sync_to_run_dir reads from output_dir and writes to run_dir/qa
         (output_dir / "qa_report.md").write_text("content")
-        
+
         report_builder._sync_to_run_dir(run_dir, output_dir)
-        
+
         assert (run_dir / "qa" / "qa_report.md").exists()
         assert (run_dir / "qa" / "qa_report.md").read_text() == "content"
 
@@ -111,10 +116,10 @@ class TestReportBuilder:
         mock_para.text = "Docx content."
         mock_doc.paragraphs = [mock_para]
         mock_docx.Document.return_value = mock_doc
-        
+
         path = tmp_path / "test.docx"
         path.touch()
-        
+
         text_list = report_builder._load_docx_text(path)
         assert text_list == ["Docx content."]
 
@@ -130,10 +135,10 @@ class TestReportBuilder:
         mock_slide.shapes = [mock_shape]
         mock_prs.slides = [mock_slide]
         mock_pptx.Presentation.return_value = mock_prs
-        
+
         path = tmp_path / "test.pptx"
         path.touch()
-        
+
         text_list = report_builder._load_pptx_text(path)
         # Returns list of strings (one per slide)
         assert text_list == ["Slide content."]
@@ -147,35 +152,34 @@ class TestReportBuilder:
             if pattern == "*.pptx":
                 return [Path("test.pptx")]
             return []
-            
+
         mock_glob.side_effect = glob_side_effect
-        
+
         # Test.md exists in run_dir naturally
         (tmp_path / "report.md").write_text("Markdown text")
-        
-        # Mock text loading for specific files since we are watching load calls
-        with patch("jarvis_core.style.report_builder._load_docx_text", return_value=["Docx text"]), \
-             patch("jarvis_core.style.report_builder._load_pptx_text", return_value=["Pptx text"]), \
-             patch("pathlib.Path.read_text", return_value="Markdown text") as mock_read:
-             
-             # Need to ensure read_text is called only for md files or allow it to fail for others
-             # Easier: mock _load_files internally or just let it run with mocks
-             
-             result = report_builder.run_qa_gate(
-                 run_id="test_run",
-                 run_dir=tmp_path,
-                 output_base=tmp_path / "output"
-             )
-             
-             # Implementation does not calculate score
-             # ScientificLinter default mock returns empty list, so lint issues are 0
-             # Normalization creates issues only if rules violated.
-             # We mocked checkists to return list.
-             # So issues list mainly depends on normalization/linting which might be empty with simple mocks.
-             # Let's just check existence of keys.
-             assert "ready_to_submit" in result
-             assert "error_count" in result
-             
-             assert (tmp_path / "output" / "test_run" / "qa" / "qa_report.md").exists()
-             assert (tmp_path / "output" / "test_run" / "qa" / "qa_report.html").exists()
 
+        # Mock text loading for specific files since we are watching load calls
+        with (
+            patch("jarvis_core.style.report_builder._load_docx_text", return_value=["Docx text"]),
+            patch("jarvis_core.style.report_builder._load_pptx_text", return_value=["Pptx text"]),
+            patch("pathlib.Path.read_text", return_value="Markdown text") as mock_read,
+        ):
+
+            # Need to ensure read_text is called only for md files or allow it to fail for others
+            # Easier: mock _load_files internally or just let it run with mocks
+
+            result = report_builder.run_qa_gate(
+                run_id="test_run", run_dir=tmp_path, output_base=tmp_path / "output"
+            )
+
+            # Implementation does not calculate score
+            # ScientificLinter default mock returns empty list, so lint issues are 0
+            # Normalization creates issues only if rules violated.
+            # We mocked checkists to return list.
+            # So issues list mainly depends on normalization/linting which might be empty with simple mocks.
+            # Let's just check existence of keys.
+            assert "ready_to_submit" in result
+            assert "error_count" in result
+
+            assert (tmp_path / "output" / "test_run" / "qa" / "qa_report.md").exists()
+            assert (tmp_path / "output" / "test_run" / "qa" / "qa_report.html").exists()

@@ -1,7 +1,5 @@
 """Tests for submission module - Coverage improvement (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
 import tempfile
 from pathlib import Path
 

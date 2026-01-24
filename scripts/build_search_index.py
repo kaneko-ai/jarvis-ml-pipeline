@@ -118,7 +118,11 @@ def find_candidate_files(run_dir: pathlib.Path) -> List[pathlib.Path]:
         if path.name in preferred_names:
             candidates.append(path)
             continue
-        if path.name.startswith("extracted_text") and path.suffix.lower() in {".txt", ".md", ".json"}:
+        if path.name.startswith("extracted_text") and path.suffix.lower() in {
+            ".txt",
+            ".md",
+            ".json",
+        }:
             candidates.append(path)
     return candidates
 
@@ -198,7 +202,9 @@ def write_index(output_path: pathlib.Path, docs: Iterable[Dict[str, Any]]) -> No
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Build a lightweight search index for serverless search.")
+    parser = argparse.ArgumentParser(
+        description="Build a lightweight search index for serverless search."
+    )
     parser.add_argument(
         "--runs-dir",
         type=pathlib.Path,

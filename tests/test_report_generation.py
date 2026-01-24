@@ -1,12 +1,13 @@
 """Tests for Report Generation with Evidence IDs (Phase 2)."""
 
-
 from jarvis_core.reporting.report_schema import Conclusion, validate_conclusion
 from jarvis_core.reporting.uncertainty import determine_uncertainty
 from jarvis_core.stages.generate_report import (
     build_evidence_map,
     determine_support_level,
 )
+
+
 class TestUncertaintyDetermination:
     """Test uncertainty label determination."""
 
@@ -27,6 +28,7 @@ class TestUncertaintyDetermination:
 
     def test_none_support(self):
         assert determine_uncertainty("None", False) == "推測"
+
 
 class TestSupportLevelDetermination:
     """Test support level determination from evidence."""
@@ -49,6 +51,7 @@ class TestSupportLevelDetermination:
     def test_only_weak(self):
         evidence = [{"evidence_strength": "Weak"}]
         assert determine_support_level(evidence) == "Weak"
+
 
 class TestConclusionValidation:
     """Test conclusion validation rules."""
@@ -99,6 +102,7 @@ class TestConclusionValidation:
         errors = validate_conclusion(conclusion)
         assert len(errors) > 0
         assert "Uncertainty mismatch" in errors[0]
+
 
 class TestEvidenceMapping:
     """Test evidence mapping logic."""

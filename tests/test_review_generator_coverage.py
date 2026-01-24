@@ -1,7 +1,6 @@
 """Tests for review_generator module - Comprehensive coverage."""
 
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 
 class TestReviewGenerator:

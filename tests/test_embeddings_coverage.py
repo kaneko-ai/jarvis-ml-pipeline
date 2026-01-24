@@ -1,8 +1,5 @@
 """Tests for embeddings module - Comprehensive coverage (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestEmbeddingsModule:
     """Tests for embeddings module."""

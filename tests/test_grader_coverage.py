@@ -1,7 +1,5 @@
 """Tests for grader module - FINAL FIX."""
 
-import pytest
-
 
 class TestGraderModule:
     """Tests for grader module - just import test."""
@@ -9,6 +7,7 @@ class TestGraderModule:
     def test_grader_package_import(self):
         """Test grader package import."""
         import jarvis_core.grader
+
         assert jarvis_core.grader is not None
 
 
@@ -18,4 +17,5 @@ class TestModuleImports:
     def test_imports(self):
         """Test imports."""
         import jarvis_core.grader
+
         assert jarvis_core.grader is not None

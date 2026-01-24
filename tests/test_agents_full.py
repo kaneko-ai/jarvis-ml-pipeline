@@ -1,8 +1,5 @@
 """Comprehensive tests for agents.py - 12 tests for 41% -> 90% coverage."""
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
-
 
 class TestBaseAgent:
     """Tests for BaseAgent class."""
@@ -25,7 +22,6 @@ class TestThesisAgent:
 
     def test_thesis_agent_creation(self):
         """Test ThesisAgent creation."""
-        from jarvis_core.agents import ThesisAgent
 
         if hasattr(__import__("jarvis_core.agents", fromlist=["ThesisAgent"]), "ThesisAgent"):
             pass  # Class exists
@@ -36,7 +32,6 @@ class TestESEditAgent:
 
     def test_es_edit_agent_creation(self):
         """Test ESEditAgent creation."""
-        from jarvis_core.agents import ESEditAgent
 
         if hasattr(__import__("jarvis_core.agents", fromlist=["ESEditAgent"]), "ESEditAgent"):
             pass  # Class exists

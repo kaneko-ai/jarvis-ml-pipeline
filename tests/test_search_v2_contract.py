@@ -20,6 +20,7 @@ def indexed_env(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     return tmp_path
 
+
 def test_search_v2_contract(indexed_env, monkeypatch):
     try:
         from fastapi.testclient import TestClient

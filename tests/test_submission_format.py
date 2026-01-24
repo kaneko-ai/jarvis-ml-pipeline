@@ -52,6 +52,7 @@ class TestMakeSubmission:
             df = pd.read_csv(out_path)
             assert list(df["class"]) == [1, 2, 3]
 
+
 class TestValidateSubmission:
     """validate_submission テスト."""
 
@@ -83,6 +84,7 @@ class TestValidateSubmission:
 
             with pytest.raises(ValueError, match="Row count mismatch"):
                 validate_submission(str(path), "class", expected_rows=5)
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

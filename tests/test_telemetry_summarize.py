@@ -43,6 +43,7 @@ class TestRunSummarizer:
 
     def test_file_not_found(self):
         import pytest
+
         with pytest.raises(FileNotFoundError):
             summarize.summarize_events("nonexistent.jsonl")
 

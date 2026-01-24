@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  jarvis-api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - CHROMA_HOST=chroma
+      - CHROMA_PORT=8000
+      - LOG_LEVEL=INFO
+    depends_on:
+      - redis
+      - chroma
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+  chroma:
+    image: chromadb/chroma:latest
+    ports:
+      - "8001:8000"
+    volumes:
+      - chroma-data:/chroma/chroma
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+  chroma-data:

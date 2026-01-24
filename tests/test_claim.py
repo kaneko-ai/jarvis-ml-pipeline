@@ -53,6 +53,7 @@ class TestClaim:
         assert claim.text == "A claim"
         assert claim.valid is False
 
+
 class TestClaimSet:
     """Tests for ClaimSet."""
 

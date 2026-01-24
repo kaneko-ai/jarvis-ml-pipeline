@@ -2,6 +2,7 @@
 
 Per RP-232, runs deterministic benchmarks for performance comparison.
 """
+
 from __future__ import annotations
 
 import json
@@ -50,14 +51,20 @@ def run_benchmark(
             elapsed = time.time() - start
             case_times.append(elapsed)
 
-        results.append({
-            "case_id": case.get("id", "unknown"),
-            "iterations": iterations,
-            "times": case_times,
-            "avg": sum(case_times) / len(case_times),
-            "p50": sorted(case_times)[len(case_times) // 2],
-            "p95": sorted(case_times)[int(len(case_times) * 0.95)] if len(case_times) > 1 else case_times[0],
-        })
+        results.append(
+            {
+                "case_id": case.get("id", "unknown"),
+                "iterations": iterations,
+                "times": case_times,
+                "avg": sum(case_times) / len(case_times),
+                "p50": sorted(case_times)[len(case_times) // 2],
+                "p95": (
+                    sorted(case_times)[int(len(case_times) * 0.95)]
+                    if len(case_times) > 1
+                    else case_times[0]
+                ),
+            }
+        )
 
     # Aggregate
     all_avgs = [r["avg"] for r in results]

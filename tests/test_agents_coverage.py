@@ -1,9 +1,5 @@
 """Tests for agents module - Coverage improvement (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, MagicMock, patch
-from dataclasses import asdict
-
 
 class TestCitation:
     """Tests for Citation dataclass."""

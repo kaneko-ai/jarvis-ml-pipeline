@@ -1,8 +1,5 @@
 """Tests for prisma module - Comprehensive coverage."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestPRISMAModule:
     """Tests for PRISMA module."""

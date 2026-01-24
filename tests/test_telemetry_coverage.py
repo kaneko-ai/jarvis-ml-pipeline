@@ -1,8 +1,5 @@
 """Tests for telemetry module - Comprehensive coverage (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestTelemetryModule:
     """Tests for telemetry module."""

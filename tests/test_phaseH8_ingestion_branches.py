@@ -3,10 +3,7 @@
 Target: ingestion/pipeline.py - all branches
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
 import tempfile
-import json
 from pathlib import Path
 
 
@@ -15,18 +12,21 @@ class TestTextChunkerBranches:
 
     def test_chunk_empty_text(self):
         from jarvis_core.ingestion.pipeline import TextChunker
+
         chunker = TextChunker(chunk_size=100, overlap=10)
         result = chunker.chunk("")
         assert result == [] or result is not None
 
     def test_chunk_small_text(self):
         from jarvis_core.ingestion.pipeline import TextChunker
+
         chunker = TextChunker(chunk_size=100, overlap=10)
         result = chunker.chunk("Short text")
         assert len(result) >= 1
 
     def test_chunk_large_text_with_overlap(self):
         from jarvis_core.ingestion.pipeline import TextChunker
+
         chunker = TextChunker(chunk_size=50, overlap=20)
         text = "This is a longer text that should be split into multiple chunks with overlapping content."
         result = chunker.chunk(text)
@@ -34,6 +34,7 @@ class TestTextChunkerBranches:
 
     def test_chunk_no_overlap(self):
         from jarvis_core.ingestion.pipeline import TextChunker
+
         chunker = TextChunker(chunk_size=50, overlap=0)
         text = "This is text that should be split without overlap."
         result = chunker.chunk(text)
@@ -45,12 +46,14 @@ class TestBibTeXParserBranches:
 
     def test_parse_empty_bibtex(self):
         from jarvis_core.ingestion.pipeline import BibTeXParser
+
         parser = BibTeXParser()
         result = parser.parse("")
         assert result == [] or result is not None
 
     def test_parse_single_entry(self):
         from jarvis_core.ingestion.pipeline import BibTeXParser
+
         parser = BibTeXParser()
         bibtex = "@article{key, author={A}, title={T}, year={2024}}"
         result = parser.parse(bibtex)
@@ -58,6 +61,7 @@ class TestBibTeXParserBranches:
 
     def test_parse_multiple_entries(self):
         from jarvis_core.ingestion.pipeline import BibTeXParser
+
         parser = BibTeXParser()
         bibtex = """
         @article{key1, author={A1}, title={T1}, year={2024}}
@@ -69,6 +73,7 @@ class TestBibTeXParserBranches:
 
     def test_parse_malformed_bibtex(self):
         from jarvis_core.ingestion.pipeline import BibTeXParser
+
         parser = BibTeXParser()
         bibtex = "@article{incomplete"
         result = parser.parse(bibtex)
@@ -80,6 +85,7 @@ class TestIngestionPipelineBranches:
 
     def test_run_empty_directory(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             pipeline = IngestionPipeline(Path(tmpdir))
             try:
@@ -90,11 +96,12 @@ class TestIngestionPipelineBranches:
 
     def test_run_with_txt_files(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             tmppath = Path(tmpdir)
             (tmppath / "test1.txt").write_text("Content 1")
             (tmppath / "test2.txt").write_text("Content 2")
-            
+
             pipeline = IngestionPipeline(tmppath)
             try:
                 result = pipeline.run()
@@ -104,10 +111,11 @@ class TestIngestionPipelineBranches:
 
     def test_run_with_bib_files(self):
         from jarvis_core.ingestion.pipeline import IngestionPipeline
+
         with tempfile.TemporaryDirectory() as tmpdir:
             tmppath = Path(tmpdir)
             (tmppath / "refs.bib").write_text("@article{test, author={A}, title={T}, year={2024}}")
-            
+
             pipeline = IngestionPipeline(tmppath)
             try:
                 result = pipeline.run()
@@ -121,6 +129,7 @@ class TestPDFExtractorBranches:
 
     def test_extract_nonexistent_file(self):
         from jarvis_core.ingestion.pipeline import PDFExtractor
+
         extractor = PDFExtractor()
         try:
             result = extractor.extract(Path("/nonexistent/file.pdf"))
@@ -129,6 +138,7 @@ class TestPDFExtractorBranches:
 
     def test_extract_invalid_pdf(self):
         from jarvis_core.ingestion.pipeline import PDFExtractor
+
         extractor = PDFExtractor()
         with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
             f.write(b"Not a real PDF")

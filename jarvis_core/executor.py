@@ -80,7 +80,10 @@ class ExecutionEngine:
                     "status": final_status,
                     "agent_status": normalized_status,
                     "result": getattr(result, "answer", None),
-                    "citations": [c.__dict__ if hasattr(c, "__dict__") else str(c) for c in getattr(result, "citations", [])],
+                    "citations": [
+                        c.__dict__ if hasattr(c, "__dict__") else str(c)
+                        for c in getattr(result, "citations", [])
+                    ],
                     "quality_warnings": quality_warnings if quality_warnings else None,
                     "attempts": attempts,
                 }
@@ -89,7 +92,11 @@ class ExecutionEngine:
             executed.append(subtask)
 
             if final_status == TaskStatus.FAILED:
-                err_msg = evaluation.errors[0] if evaluation and evaluation.errors else "Subtask failed without specific error"
+                err_msg = (
+                    evaluation.errors[0]
+                    if evaluation and evaluation.errors
+                    else "Subtask failed without specific error"
+                )
                 raise RuntimeError(err_msg)
 
         return executed
@@ -302,7 +309,7 @@ class ExecutionEngine:
 
             try:
                 last_result = self.router.run(subtask)
-                
+
                 # Use provided validator or fallback to status-based check (RP-02)
                 if self.validator:
                     last_evaluation = self.validator(last_result)
@@ -315,9 +322,9 @@ class ExecutionEngine:
                         meta = getattr(last_result, "meta", {}) or {}
                         # Extract detailed warnings from agent meta
                         errors = meta.get("warnings", ["agent_reported_fail"])
-                    
+
                     last_evaluation = EvaluationResult(ok=is_ok, errors=errors)
-                
+
             except Exception as e:
                 logger.warning("Execution error at attempt %d: %s", attempt, e)
                 last_result = None

@@ -1,8 +1,5 @@
 """Comprehensive tests for connectors/pmc.py - 22 tests for 20% -> 90% coverage (FIXED v2)."""
 
-import pytest
-from unittest.mock import Mock, patch
-
 
 class TestPMCConnectorInit:
     """Tests for PMC connector initialization."""

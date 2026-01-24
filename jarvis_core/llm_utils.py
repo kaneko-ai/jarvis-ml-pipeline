@@ -27,33 +27,35 @@ def _get_provider() -> str:
 
 class MockLLM:
     """Stateful LLM Mock for testing complex scenarios."""
-    
+
     def __init__(self):
         self.responses: list[str] = []
         self.failures_remaining: int = 0
         self.error_message: str = "Simulated LLM Error"
         self.budget_remaining: float = 100.0
         self.call_count: int = 0
-        
-    def configure(self, failures: int = 0, error_msg: str = "Simulated LLM Error", budget: float = 100.0):
+
+    def configure(
+        self, failures: int = 0, error_msg: str = "Simulated LLM Error", budget: float = 100.0
+    ):
         """Configure mock behavior."""
         self.failures_remaining = failures
         self.error_message = error_msg
         self.budget_remaining = budget
-        
+
     def generate(self, prompt: str) -> str:
         """Generate a response with stateful behavior."""
         self.call_count += 1
-        
+
         if self.budget_remaining <= 0:
             raise RuntimeError("Budget exhausted (mocked)")
-            
+
         if self.failures_remaining > 0:
             self.failures_remaining -= 1
             raise RuntimeError(self.error_message)
-            
+
         self.budget_remaining -= 1.0  # Simple cost simulation
-        
+
         # Trigger-based legacy support
         if "trigger_budget_limit" in prompt.lower():
             self.budget_remaining = 0
@@ -69,7 +71,7 @@ class MockLLM:
 
         if "plan" in prompt.lower():
             return "Mock Plan:\n1. Step A\n2. [chunk:mock-chunk-id-001]\n[SUCCESS]"
-            
+
         return f"Mock response ({self.call_count}) to: {prompt[:50]}... [chunk:mock-chunk-id-001]"
 
 
@@ -202,5 +204,7 @@ class LLMClient:
 
     def _chat_mock(self, messages: list[Message]) -> str:
         """Return a mock response using MockLLM engine."""
-        last_user_msg = next((m.content for m in reversed(messages) if m.role == "user"), "No input")
+        last_user_msg = next(
+            (m.content for m in reversed(messages) if m.role == "user"), "No input"
+        )
         return self._mock_engine.generate(last_user_msg)

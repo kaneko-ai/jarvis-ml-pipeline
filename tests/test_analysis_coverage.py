@@ -1,7 +1,6 @@
 """Tests for analysis module - Coverage improvement (FIXED)."""
 
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 
 class TestComparisonRow:
@@ -181,7 +180,11 @@ class TestComparisonAnalyzer:
 
     def test_generate_summary(self):
         """Test generate_summary method."""
-        from jarvis_core.analysis.comparison import ComparisonAnalyzer, ComparisonTable, ComparisonRow
+        from jarvis_core.analysis.comparison import (
+            ComparisonAnalyzer,
+            ComparisonTable,
+            ComparisonRow,
+        )
 
         analyzer = ComparisonAnalyzer()
         row = ComparisonRow(

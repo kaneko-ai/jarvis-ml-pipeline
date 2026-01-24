@@ -5,9 +5,6 @@ Tests for draft_generator.py and outline_builder.py to improve coverage.
 
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-
-import pytest
 
 
 class TestClaimDatum:
@@ -203,7 +200,11 @@ class TestLoadClaims:
             claims_dir.mkdir()
 
             data = [
-                {"claim": "Test claim 1", "score": 0.9, "evidence": [{"paper_id": "p1", "chunk_id": "c1"}]},
+                {
+                    "claim": "Test claim 1",
+                    "score": 0.9,
+                    "evidence": [{"paper_id": "p1", "chunk_id": "c1"}],
+                },
                 {"text": "Test claim 2", "weak": True},
                 {"statement": "Test claim 3", "rank_score": 0.7},
             ]
@@ -330,7 +331,6 @@ class TestLoadReferences:
         import json
 
         from jarvis_core.writing.draft_generator import _load_references
-        from jarvis_core.writing.outline_builder import ClaimDatum
 
         with tempfile.TemporaryDirectory() as tmpdir:
             run_dir = Path(tmpdir)
@@ -418,7 +418,6 @@ class TestWriteHelpers:
             assert "Writing Outputs" in content
 
     def test_update_manifest_no_manifest(self):
-        import json
 
         from jarvis_core.writing.draft_generator import _update_manifest
 

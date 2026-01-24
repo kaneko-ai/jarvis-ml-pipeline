@@ -2,6 +2,7 @@
 
 Per RP-163, generates KPI reports from run history.
 """
+
 from __future__ import annotations
 
 import json
@@ -84,16 +85,20 @@ def save_kpi_json(snapshot: KPISnapshot, output_path: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(path, "w", encoding="utf-8") as f:
-        json.dump({
-            "timestamp": snapshot.timestamp,
-            "total_runs": snapshot.total_runs,
-            "success_rate": round(snapshot.success_rate, 4),
-            "partial_rate": round(snapshot.partial_rate, 4),
-            "failed_rate": round(snapshot.failed_rate, 4),
-            "avg_duration_seconds": round(snapshot.avg_duration_seconds, 2),
-            "avg_claims_per_run": round(snapshot.avg_claims_per_run, 2),
-            "avg_citations_per_claim": round(snapshot.avg_citations_per_claim, 2),
-        }, f, indent=2)
+        json.dump(
+            {
+                "timestamp": snapshot.timestamp,
+                "total_runs": snapshot.total_runs,
+                "success_rate": round(snapshot.success_rate, 4),
+                "partial_rate": round(snapshot.partial_rate, 4),
+                "failed_rate": round(snapshot.failed_rate, 4),
+                "avg_duration_seconds": round(snapshot.avg_duration_seconds, 2),
+                "avg_claims_per_run": round(snapshot.avg_claims_per_run, 2),
+                "avg_citations_per_claim": round(snapshot.avg_citations_per_claim, 2),
+            },
+            f,
+            indent=2,
+        )
 
 
 def save_kpi_csv(snapshots: List[KPISnapshot], output_path: str) -> None:
@@ -103,21 +108,31 @@ def save_kpi_csv(snapshots: List[KPISnapshot], output_path: str) -> None:
 
     with open(path, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow([
-            "timestamp", "total_runs", "success_rate", "partial_rate",
-            "failed_rate", "avg_duration", "avg_claims", "avg_citations",
-        ])
+        writer.writerow(
+            [
+                "timestamp",
+                "total_runs",
+                "success_rate",
+                "partial_rate",
+                "failed_rate",
+                "avg_duration",
+                "avg_claims",
+                "avg_citations",
+            ]
+        )
         for s in snapshots:
-            writer.writerow([
-                s.timestamp,
-                s.total_runs,
-                round(s.success_rate, 4),
-                round(s.partial_rate, 4),
-                round(s.failed_rate, 4),
-                round(s.avg_duration_seconds, 2),
-                round(s.avg_claims_per_run, 2),
-                round(s.avg_citations_per_claim, 2),
-            ])
+            writer.writerow(
+                [
+                    s.timestamp,
+                    s.total_runs,
+                    round(s.success_rate, 4),
+                    round(s.partial_rate, 4),
+                    round(s.failed_rate, 4),
+                    round(s.avg_duration_seconds, 2),
+                    round(s.avg_claims_per_run, 2),
+                    round(s.avg_citations_per_claim, 2),
+                ]
+            )
 
 
 def format_kpi_report(snapshot: KPISnapshot) -> str:

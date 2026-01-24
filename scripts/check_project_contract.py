@@ -2,6 +2,7 @@
 
 Per RP-177, ensures project meets evaluation requirements.
 """
+
 from __future__ import annotations
 
 import sys
