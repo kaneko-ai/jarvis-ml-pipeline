@@ -13,6 +13,7 @@ class TestSubmissionSafe:
 class TestModule:
     def test_module(self):
         try:
-            importlib.import_module("jarvis_core.submission")
+            mod = importlib.import_module("jarvis_core.submission")
+            assert mod is not None
         except ImportError:
             pass

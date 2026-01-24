@@ -32,6 +32,7 @@ echo ""
 
 # Clean up any existing coverage files to avoid "unable to open database" errors
 rm -f .coverage .coverage.*
+export COVERAGE_FILE=".coverage.$(date +%s).$RANDOM"
 
 # Run pytest with coverage
 python -m pytest \
