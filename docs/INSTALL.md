@@ -1,5 +1,8 @@
 # JARVIS Research OS Installation Guide
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## Quick Start
 
 ```bash

@@ -60,7 +60,7 @@ class DedupEngine:
         if paper.get("pmcid"):
             return f"pmc:{paper['pmcid']}"
         title = normalize_title(paper.get("title") or "")
-        hashed = hashlib.sha1(title.encode("utf-8")).hexdigest()
+        hashed = hashlib.sha1(title.encode("utf-8"), usedforsecurity=False).hexdigest()
         return f"title:{hashed[:12]}"
 
     def _match_existing(

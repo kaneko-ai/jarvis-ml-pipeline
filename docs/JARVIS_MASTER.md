@@ -1,4 +1,7 @@
 # docs/JARVIS_MASTER.md
+
+> Authority: REFERENCE (Level 2, Non-binding)
+
 Last Updated: 2025-12-20
 Repo: kaneko-ai/jarvis-ml-pipeline
 
@@ -59,8 +62,8 @@ Jarvisは、生命科学研究・修論執筆・文献サーベイ・就職活�
 1) **実行経路の強制**：入口は必ず Plan→Act→Verify→Store を通る  
 2) **根拠優先**：根拠（チャンク等）が不足する場合、言い切らない（「根拠不足」「わかりません」）  
 3) **出力スキーマ固定**：成果物は統一スキーマで返す（後述）  
-4) **観測可能性（ログ）必須**：run_id / task_id / subtask_id で JSONL を残す  
-5) **内部思考の保存禁止**：thoughtを成果物・ログに保存しない（運用を汚染し、後で害になる）
+4) **観測可能性（ログ）必要**：run_id / task_id / subtask_id で JSONL を残す  
+5) **内部思考の保存非推奨**：thoughtを成果物・ログに保存避ける（運用を汚染し、後で害になる）
 
 ---
 
@@ -70,7 +73,7 @@ Jarvisは、生命科学研究・修論執筆・文献サーベイ・就職活�
 - SubTask：Taskを実行可能粒度に分割した単位
 - Agent：SubTaskを処理する実行主体（薄く保つ）
 - Tool：検索・取得・抽出などの外部処理（実体はここに寄せる）
-- Validator：品質ゲート（根拠/形式/禁止事項）
+- Validator：品質ゲート（根拠/形式/非推奨事項）
 
 ### 5.2 Task（入力：JSON互換）
 ```json
@@ -82,7 +85,7 @@ Jarvisは、生命科学研究・修論執筆・文献サーベイ・就職活�
   "user_goal": "CD73に関する最新論文を調べ、要点を整理してまとめてほしい",
   "constraints": {
     "language": "ja",
-    "citation_required": true
+    "citation_recommended": true
   },
   "inputs": {
     "query": "CD73",
@@ -98,7 +101,7 @@ Task は以下を満たすこと（不変条件）：
 
 task_id はシステムが発行する一意キーであり、同一Taskの再実行でも不変（ログ・再現性のキー）。
 
-user_goal はユーザーの原文またはそれに準ずる要求であり、編集・要約はしない（監査可能性）。
+user_goal はユーザーの原文またはそれに準ずる要求であり、編集・要約は避ける（監査可能性）。
 
 title はユーザー要求の短い要約で、UI/ログ表示用途。意味は変えないが短縮は許容。
 
@@ -106,7 +109,7 @@ Task が 表さない もの：
 
 実行計画（ステップ順、並列化、リトライ戦略等）は Task 自体には持たせない。
 
-LLMの内部思考や中間推論は Task に保存しない。
+LLMの内部思考や中間推論は Task に保存避ける。
 
 後方互換：
 
@@ -127,7 +130,7 @@ id は task_id の互換プロパティ、goal は title の互換プロパテ�
     "type": "text",
     "schema": {}
   },
-  "quality_gates": ["citations_required"]
+  "quality_gates": ["citations_recommended"]
 }
 
 ### 5.3.1 SubTask の責務と寿命（Lifecycle）
@@ -149,7 +152,7 @@ Plannerが生成した SubTask を順次（または並列）実行する。
 
 5.4 AgentResult（出力：最小スキーマ固定）
 
-重要：thought（内部思考）フィールドは禁止。
+重要：thought（内部思考）フィールドは非推奨。
 代わりに「根拠」「推測」を分離し、推測は推測と明記する。
 
 {
@@ -234,7 +237,7 @@ Gemini APIの429エラー（レート制限）対策として、LLMバックエ�
 | 環境変数 | 説明 | デフォルト |
 |----------|------|-----------|
 | `LLM_PROVIDER` | `gemini` または `ollama` | `gemini` |
-| `GEMINI_API_KEY` | Gemini APIキー（providerがgeminiの場合必須） | - |
+| `GEMINI_API_KEY` | Gemini APIキー（providerがgeminiの場合必要） | - |
 | `OLLAMA_BASE_URL` | OllamaサーバーのベースURL | `http://127.0.0.1:11434` |
 | `OLLAMA_MODEL` | Ollamaで使用するモデル | `llama3.2` |
 
@@ -300,7 +303,7 @@ jarvis_core/agents.py：PaperFetcherAgentで retrieval tool を呼び、citation
 
 jarvis_core/planner.py：paper_survey手順を現実的に更新（検索→抽出→要約）
 
-M3：Verify（品質ゲート）を仕様化（根拠不足の言い切りを禁止）
+M3：Verify（品質ゲート）を仕様化（根拠不足の言い切りを非推奨）
 
 目的：「信用できる出力」を気分ではなく実装で担保する。
 
@@ -308,7 +311,7 @@ DoD
 
 paper_survey と thesis は、根拠が不足する場合「根拠不足/わかりません」を返す
 
-citations必須ルールが validator で強制される
+citations必要ルールが validator で強制される
 
 失敗理由がログに残る（例：missing_citations / no_hits）
 
@@ -394,13 +397,13 @@ PR1は実装済み（ExecutionEngine経由）
 ### 7.4 Frozen評価セットの運用
 - `data/evals/frozen_*.jsonl` に保存
 - 各エントリに `task`, `expected_entities`, `min_citations` を持つ
-- PRで回帰が出たら **マージ禁止** (CI gateで強制)
+- PRで回帰が出たら **マージ非推奨** (CI gateで強制)
 
 ---
 
 ## 8. ログ仕様（JSONL）拡張
 
-### 8.1 必須フィールド（拡張版）
+### 8.1 必要フィールド（拡張版）
 ```json
 {
   "ts": "ISO8601",
@@ -421,7 +424,7 @@ PR1は実装済み（ExecutionEngine経由）
 ### 8.2 event_type (ATS互換)
 | event_type | 説明 |
 |------------|------|
-| `COGNITIVE` | 推論/判断（ただし内部思考そのものは保存禁止） |
+| `COGNITIVE` | 推論/判断（ただし内部思考そのものは保存非推奨） |
 | `ACTION` | 外部ツール呼び出し（検索/API/ファイル操作） |
 | `COORDINATION` | タスク管理/計画更新/リトライ |
 
@@ -432,8 +435,8 @@ PR1は実装済み（ExecutionEngine経由）
 | `tool_input_hash` | ツール入力のSHA256ハッシュ |
 | `cache_hit` | キャッシュヒット (true/false) |
 
-### 8.4 保存禁止事項（再掲・明確化）
-| 禁止 | 理由 |
+### 8.4 保存非推奨事項（再掲・明確化）
+| 非推奨 | 理由 |
 |------|------|
 | chain-of-thought全文 | 運用を汚染し、後で害になる |
 | 生の推論文 | 監査で問題になる可能性 |
@@ -472,7 +475,7 @@ python jarvis_cli.py --goal "CD73の最新研究" --category paper_survey
 ## 10. 取得ポリシー（出版社PDF）
 
 ### 10.1 基本方針
-- **自動スクレイピングは禁止**: 出版社サイトへの自動アクセスは行わない
+- **自動スクレイピングは非推奨**: 出版社サイトへの自動アクセスは行わない
 - **正式ルート**: OA（オープンアクセス）+ ユーザー提供PDFのみ
 
 ### 10.2 取得元と優先順位
@@ -481,7 +484,7 @@ python jarvis_cli.py --goal "CD73の最新研究" --category paper_survey
 | `pmc_oa` | PMC Open Access | ✅ 可 | ✅ 有効 |
 | `unpaywall` | Unpaywall OA判定 | ✅ 可 | ✅ 有効 |
 | `local_dir` | ユーザー手動取得PDF | - | ✅ 有効 |
-| `publisher` | 出版社直接 | ❌ 禁止 | ❌ 無効 |
+| `publisher` | 出版社直接 | ❌ 非推奨 | ❌ 無効 |
 
 ### 10.3 取得失敗時の挙動
 - 取得できない論文は `partial` 扱い
@@ -513,7 +516,7 @@ local_pdf_dir: ~/papers/
 
 ## 12. リポジトリ衛生（実装前に必ずやるべき運用ルール）
 
-.venv/, __pycache__/, logs/, data/, reports/ は git 管理しない
+.venv/, __pycache__/, logs/, data/, reports/ は git 管理避ける
 
 依存関係は requirements.txt（またはpyproject）に集約し、再現性を担保する
 

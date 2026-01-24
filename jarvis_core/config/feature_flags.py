@@ -179,7 +179,7 @@ class FeatureFlagManager:
 
             # Deterministic hash-based bucketing
             hash_input = f"{flag.name}:{user_id}"
-            hash_value = int(hashlib.md5(hash_input.encode()).hexdigest(), 16)
+            hash_value = int(hashlib.md5(hash_input.encode(), usedforsecurity=False).hexdigest(), 16)
             bucket = (hash_value % 100) / 100.0
 
             return bucket < flag.percentage

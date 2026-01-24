@@ -1,5 +1,8 @@
 # Codex Progress（進捗トラッキング）
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 このファイルは **進捗（状態）だけ** を管理する。  
 仕様（Done条件・設計）は正本 `docs/JARVIS_MASTER.md` に集約する。
 

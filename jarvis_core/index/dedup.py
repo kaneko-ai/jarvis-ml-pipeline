@@ -36,7 +36,7 @@ class DedupFilter:
         else:
             content = str(item)
 
-        return hashlib.md5(content.encode()).hexdigest()
+        return hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()
 
     def compute_shingles(self, text: str, k: int = 3) -> set[str]:
         """Compute k-shingles for near-duplicate detection."""

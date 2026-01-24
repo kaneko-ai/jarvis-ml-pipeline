@@ -1,5 +1,8 @@
 # JARVIS Maturity M6: 長期信頼性・セキュリティ・コンプライアンス
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 **バージョン**: 1.0  
 **ステータス**: 実装完了
 

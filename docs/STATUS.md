@@ -1,5 +1,8 @@
 # CI Sweep Status
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## Latest `ci_sweep` Results
 
 - Date:

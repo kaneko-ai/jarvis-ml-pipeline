@@ -1,5 +1,8 @@
 # JARVIS Research OS ユーザーガイド
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 > AI駆動の体系的文献レビュー支援システム
 
 ## 目次
@@ -314,7 +317,7 @@ active_learning:
 pip install sentence-transformers
 ```
 
-#### オフラインモードで動作しない
+#### オフラインモードで動作避ける
 
 ネットワーク検出を無効化：
 

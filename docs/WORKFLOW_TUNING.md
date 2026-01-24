@@ -1,5 +1,8 @@
 # JARVIS Workflow チューニングガイド
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 PDF知見統合（LayerX/Findy/AI Builders）に基づくワークフロー自動改善ガイド。
 
 ---
@@ -11,7 +14,7 @@ PDF知見統合（LayerX/Findy/AI Builders）に基づくワークフロー自�
 ### 3つの統合原則
 
 1. **自動改善ループ（LayerX）**: Generator→Executor→Evaluator→Memory→Sampling
-2. **ガードレール/適応度関数（Findy）**: "動いたらOK"を禁止、Fitnessで収束
+2. **ガードレール/適応度関数（Findy）**: "動いたらOK"を非推奨、Fitnessで収束
 3. **主導権設計（AI Builders）**: step/hitl/durableモードで運用形を明示
 
 ---
@@ -27,7 +30,7 @@ PDF知見統合（LayerX/Findy/AI Builders）に基づくワークフロー自�
 ### 選び方
 
 - **自動化したい** → `step`
-- **人間のレビューが必須** → `hitl`
+- **人間のレビューが必要** → `hitl`
 - **長時間処理、外部待ち** → `durable`（将来）
 
 ---
@@ -75,7 +78,7 @@ LayerXの「最適化不安定」対策。
 
 ## コンテキスト爆発対策
 
-全ログをLLMに渡すのは**禁止**。
+全ログをLLMに渡すのは**非推奨**。
 
 ### ContextPackager
 
@@ -160,7 +163,7 @@ goldset: data/gold/paper_meta.jsonl
 
 | DoD項目 | Workflow対応 |
 |--------|-------------|
-| スキーマ更新にはschema testを必須 | `workflow_spec_v1.json`バリデーション |
-| workflow追加にはgoldsetを必須 | `--goldset`引数を強制 |
-| tuner導入箇所は回帰テストを必須 | `regression`指標を監視 |
+| スキーマ更新にはschema testを必要 | `workflow_spec_v1.json`バリデーション |
+| workflow追加にはgoldsetを必要 | `--goldset`引数を強制 |
+| tuner導入箇所は回帰テストを必要 | `regression`指標を監視 |
 | events.jsonlが欠けたら失格 | ハードゲート尊重 |

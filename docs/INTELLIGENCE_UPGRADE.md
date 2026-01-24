@@ -1,5 +1,8 @@
 # JARVIS Intelligence Upgrade Guide
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## 概要
 
 Javis 完成度 4.5 → 10 への強化計画。

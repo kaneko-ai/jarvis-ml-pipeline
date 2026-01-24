@@ -1,5 +1,8 @@
 # JARVIS Deployment Guide
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## 概要
 
 JARVISを開発環境および本番環境にデプロイするためのガイドです。
@@ -259,7 +262,7 @@ receivers:
 
 ## 6. トラブルシューティング
 
-### Pod が起動しない
+### Pod が起動避ける
 
 ```bash
 # 詳細を確認

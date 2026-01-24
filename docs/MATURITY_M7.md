@@ -1,5 +1,8 @@
 # JARVIS Maturity M7: Human-in-the-loop & エコシステム統合
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 **バージョン**: 1.0  
 **ステータス**: 実装完了
 
@@ -81,7 +84,7 @@ stats = collector.get_statistics()
 | `run.failed` | ラン失敗 |
 | `quality.alert` | 品質アラート |
 | `drift.detected` | 劣化検知 |
-| `review.required` | レビュー要求 |
+| `review.recommended` | レビュー要求 |
 
 ---
 

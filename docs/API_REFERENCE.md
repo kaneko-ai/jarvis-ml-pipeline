@@ -1,5 +1,8 @@
 # JARVIS Research OS API リファレンス
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 > 完全な API ドキュメンテーション | v5.1.0
 
 ---
@@ -45,8 +48,8 @@ jarvis screen --input papers.jsonl --output screened.jsonl --target-recall 0.95
 
 | オプション | 型 | デフォルト | 説明 |
 |-----------|-----|-----------|------|
-| `--input` | str | 必須 | 入力 JSONL |
-| `--output` | str | 必須 | 出力 JSONL |
+| `--input` | str | 必要 | 入力 JSONL |
+| `--output` | str | 必要 | 出力 JSONL |
 | `--batch-size` | int | 10 | バッチサイズ |
 | `--target-recall` | float | 0.95 | 目標再現率 |
 | `--budget-ratio` | float | 0.3 | 予算比率 |

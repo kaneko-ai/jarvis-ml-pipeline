@@ -1,5 +1,8 @@
 # JARVIS 運用ワークフロー
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 本ドキュメントでは日常運用タスクを説明します。
 
 ---

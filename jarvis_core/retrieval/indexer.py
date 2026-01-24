@@ -380,4 +380,4 @@ class RetrievalIndexer:
 def stable_id(run_id: str, text: str) -> str:
     import hashlib
 
-    return hashlib.sha1(f"{run_id}|{text}".encode()).hexdigest()[:12]
+    return hashlib.sha1(f"{run_id}|{text}".encode(), usedforsecurity=False).hexdigest()[:12]

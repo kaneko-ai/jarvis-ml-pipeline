@@ -1,5 +1,8 @@
 # QA Strategy (P16)
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## Test Layers (order matters)
 1. **Contract tests**
    - `schemas/api_map_v1.json` vs `schemas/capabilities_v1.json`

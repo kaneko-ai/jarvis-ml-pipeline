@@ -1,5 +1,8 @@
 # JARVIS Golden Path (v1.2)
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 > Authority: DEC-006, MASTER_SPEC v1.2
 
 唯一の正しい実行方法。これ以外は「開発用」または「非推奨」。
@@ -71,7 +74,7 @@ python jarvis_cli.py show-run --run-id {run_id}
 
 ---
 
-## 禁止事項
+## 非推奨事項
 
 - ❌ `main.py` からの本番実行（あれはデモ用）
 - ❌ `python run_pipeline.py` の使用（旧実装）
@@ -82,7 +85,7 @@ python jarvis_cli.py show-run --run-id {run_id}
 
 *JARVIS Golden Path - v1.2*
 
-唯一の正しい実行方法。これ以外は禁止。
+唯一の正しい実行方法。これ以外は非推奨。
 
 ---
 
@@ -151,7 +154,7 @@ python jarvis_cli.py show-run --json
 
 ---
 
-## 禁止事項
+## 非推奨事項
 
 - ❌ main.py からの本番実行
 - ❌ jarvis_core.app.run_task() の直接呼び出し（テスト以外）
@@ -160,4 +163,4 @@ python jarvis_cli.py show-run --json
 
 ---
 
-*JARVIS Golden Path - これ以外のやり方は存在しない*
+*JARVIS Golden Path - これ以外のやり方は存在避ける*

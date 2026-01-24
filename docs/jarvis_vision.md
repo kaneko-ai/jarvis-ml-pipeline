@@ -1,4 +1,7 @@
 # docs/jarvis_vision.md
+
+> Authority: REFERENCE (Level 2, Non-binding)
+
 Last Updated: 2025-12-20
 
 ## 0. この文書の役割（概要のみ）
@@ -18,8 +21,8 @@ Jarvisは、研究・執筆・就活のタスクを「計画→実行→検証�
 - 実行経路（Plan→Act→Verify→Store）を強制する
 - 根拠が不足する出力は言い切らない（根拠不足・不明を明示）
 - 出力形式を固定し、後から検証できる形にする
-- ログ（JSONL）を必須にして観測可能にする
-- 内部思考（thought）を保存しない（運用上の害が大きい）
+- ログ（JSONL）を必要にして観測可能にする
+- 内部思考（thought）を保存避ける（運用上の害が大きい）
 
 ---
 
@@ -75,7 +78,7 @@ Last Updated: 2025-12-20
 ## 1. 現在のステータス（短く）
 - M1：実行経路の統一（Plan→Act→Verify→Store の強制） — Status: Planned
 - M2：文献パイプラインのツール化（paper_survey E2E） — Status: Planned
-- M3：品質ゲート（根拠不足の言い切り禁止） — Status: Planned
+- M3：品質ゲート（根拠不足の言い切り非推奨） — Status: Planned
 - M4：拡張可能な構造へ整形（docs一本化＋tools中心） — Status: Planned
 
 ---

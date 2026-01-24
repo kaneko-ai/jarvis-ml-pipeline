@@ -1,6 +1,9 @@
 # Definition of Done
 
-All of the following conditions must be satisfied for work to be considered complete:
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
+All of the following conditions should be satisfied for work to be considered complete:
 
 - `make ci-sweep` failures are `0`.
 - `audit_ui_contract` is `0`.

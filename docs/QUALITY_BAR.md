@@ -1,5 +1,8 @@
 # Quality Bar (Exit Criteria)
 
+> Authority: SPECIFICATION (Level 2, Binding)
+
+
 Per RP-182, this defines the exit criteria for v4.3 development.
 
 ---

@@ -1,14 +1,17 @@
 # JARVIS Decision Log
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## 2024-12-27: Foundation to Scale 9フェーズ実装
 
 ### 決定事項
 
 1. **公式MVP = e2e_oa10**
    - fullstackは実験用に格下げ
-   - PR必須CIはe2e_oa10のみ
+   - PR必要CIはe2e_oa10のみ
 
-2. **bundle必須8ファイル**
+2. **bundle必要8ファイル**
    - input.json, papers.jsonl, claims.jsonl, evidence.jsonl
    - scores.json, report.md, warnings.jsonl, summaries.jsonl
 
@@ -17,7 +20,7 @@
    - main push時はtrue（fail化）
 
 4. **外部API依存分離**
-   - PR必須CI: fixture使用
+   - PR必要CI: fixture使用
    - Nightly: 実データ
 
 ### 背景

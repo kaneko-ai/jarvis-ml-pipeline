@@ -1,5 +1,8 @@
 # STATE BASELINE v1.0
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 現状のJARVIS Research OSの実行経路・I/O契約を"事実"として整理したドキュメント。
 
 ## 1. 主要エントリポイント
@@ -216,7 +219,7 @@ def run(self, root_task: Task) -> List[Task]:
 - RP-02: 観測性 → Telemetryパッケージ追加、events.jsonl生成
 - RP-03: 再現性 → キャッシュ+リプレイ実装
 - RP-04: ツール層分離 → jarvis_tools/papers/ へ移植
-- RP-05: Provenance → locator/page/spanを必須化
+- RP-05: Provenance → locator/page/spanを必要化
 - RP-06: 中核ワークフロー → paper_survey workflow実装
 
 ---

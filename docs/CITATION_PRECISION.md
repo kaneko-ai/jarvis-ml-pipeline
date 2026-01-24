@@ -1,5 +1,8 @@
 # Citation Precision Definition
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 Per RP-205, this defines the official citation precision metric.
 
 ## Definition
@@ -16,7 +19,7 @@ Where:
 
 ### Locator Format
 
-A valid locator must have:
+A valid locator should have:
 ```json
 {
   "document_id": "pmid:12345678",
@@ -28,7 +31,7 @@ A valid locator must have:
 
 ### Minimum Requirements
 
-| Field | Required | Notes |
+| Field | Recommended | Notes |
 |-------|----------|-------|
 | document_id | Yes | PMID, DOI, or internal ID |
 | page | No | Page number if available |

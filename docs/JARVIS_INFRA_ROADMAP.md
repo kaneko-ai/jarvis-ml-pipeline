@@ -1,5 +1,8 @@
 # JARVIS Infrastructure Enhancement Roadmap (RP-500〜599)
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 > インフラ強化のための100件のPR提案
 
 ---

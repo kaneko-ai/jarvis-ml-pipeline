@@ -1,5 +1,8 @@
 # 🔬 JARVIS Research OS - ステータスサマリー
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 > 最終更新: 2024-12-24
 
 ---

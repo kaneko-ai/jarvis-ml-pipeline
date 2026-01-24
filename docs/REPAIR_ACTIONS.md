@@ -1,5 +1,8 @@
 # Repair Actions Documentation
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 Per RP-185, this documents the available remediation actions.
 
 ## Overview

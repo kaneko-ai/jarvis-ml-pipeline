@@ -1,0 +1,4 @@
+Total results: 128
+jarvis_core\dedup\dedup_engine.py line 63: Use of weak SHA1 hash for security. Consider usedforsecurity=False (B324)
+jarvis_core\retrieval\indexer.py line 383: Use of weak SHA1 hash for security. Consider usedforsecurity=False (B324)
+jarvis_core\retrieval\schema.py line 17: Use of weak SHA1 hash for security. Consider usedforsecurity=False (B324)

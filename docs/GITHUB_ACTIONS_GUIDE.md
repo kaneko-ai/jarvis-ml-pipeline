@@ -1,5 +1,8 @@
 # GitHub Actions 実行ガイド
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 このドキュメントでは、JARVISプロジェクトのGitHub Actionsワークフローの使い方を詳しく説明します。
 
 ---
@@ -186,7 +189,7 @@ https://あなたのユーザー名.github.io/jarvis-ml-pipeline/
 ### ステップ 6.3: 承認（Productionの場合）
 Production環境はEnvironment protection rulesで保護できます:
 1. Settings → Environments → production
-2. Required reviewers を追加
+2. Recommended reviewers を追加
 3. デプロイ時に承認が必要になる
 
 ---

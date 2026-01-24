@@ -1,5 +1,8 @@
 # Technical Debt Registry
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 現在の既知の技術負債と修正計画。
 
 ## カテゴリ
@@ -31,7 +34,7 @@
 
 ## CI構成
 
-### Blocking (PRで必須)
+### Blocking (PRで必要)
 - `pytest -m "not legacy"` or 明示的リスト
 - コアテスト: `test_v4*.py`, `test_telemetry*.py`, `test_rp*.py`
 - 回帰テスト: `eval_regression.yml`
@@ -57,8 +60,8 @@
 
 | 対象 | 代替（Golden Path） | 扱い |
 |------|--------------------|------|
-| `main.py` | `jarvis_cli.py` run | デモ専用として残存（本番禁止） |
-| `run_pipeline.py` | `jarvis_cli.py` run | **使用禁止**（CI/CDからも削除済み） |
+| `main.py` | `jarvis_cli.py` run | デモ専用として残存（本番非推奨） |
+| `run_pipeline.py` | `jarvis_cli.py` run | **使用非推奨**（CI/CDからも削除済み） |
 | `jarvis_core.app` (旧) | `jarvis_core.pipelines.executor` | 互換性維持のため残存するが非推奨 |
 | `artifacts/` ディレクトリ | `logs/runs/{run_id}/` | **廃止**（10ファイル契約に違反） |
 

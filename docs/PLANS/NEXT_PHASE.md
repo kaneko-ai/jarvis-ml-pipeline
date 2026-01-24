@@ -8,8 +8,8 @@
 - phase1 coverage 85% 到達。
 
 ## 2. 非ゴール
-- 新機能追加はしない。
-- 大規模リファクタはしない。
+- 新機能追加は避ける。
+- 大規模リファクタは避ける。
 
 ## 3. 変更範囲
 - PR-NEXT-01: `tools/spec_lint.py`, `.github/workflows/spec-lint.yml`, `scripts/ci_coverage.sh`, `pyproject.toml`, `.gitattributes`
@@ -19,7 +19,7 @@
 ## 4. 受け入れ条件（DoD）
 - CI: spec-lint PASS（docs変更時のみ検査）
 - CI: phase1 coverage >= 85%（PR-NEXT-03完了時）
-- MASTER_SPECの禁止事項（`|| true`等）を品質ゲートから排除。
+- MASTER_SPECの非推奨事項（`|| true`等）を品質ゲートから排除。
 
 ## 5. 実行コマンド
 ```bash
@@ -28,4 +28,4 @@ bash scripts/ci_coverage.sh phase1
 ```
 
 ## 6. リスクと回避策
-- mock provider が本番ロジックに影響しないよう、環境変数 `LLM_PROVIDER=mock` で分離する。
+- mock provider が本番ロジックに影響避けるよう、環境変数 `LLM_PROVIDER=mock` で分離する。

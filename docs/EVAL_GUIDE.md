@@ -1,5 +1,8 @@
 # Evaluation Guide (v1.2)
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 > Authority: DEC-006, MASTER_SPEC v1.2
 
 ## 概要
@@ -11,7 +14,7 @@ JARVISの評価モデルは **Quality Gate（実測）** と **Regression（回�
 
 ## 1. Quality Gate（一発必中）
 
-すべてのRun（実行）は、生成時に以下のQuality Gateを通過しなければならない。
+すべてのRun（実行）は、生成時に以下のQuality Gateを通過すべきである。
 ゲートは `jarvis_core/pipelines/executor.py` および `QualityGateVerifier` によって強制される。
 
 | 指標 | 閾値 | 説明 | 失敗時の挙動 |
@@ -19,7 +22,7 @@ JARVISの評価モデルは **Quality Gate（実測）** と **Regression（回�
 | **Provenance Rate** | ≥ 0.95 | 文単位の根拠紐付け率 | `FAIL` (QualityGateFailure) |
 | **Facts w/o Evidence** | = 0 | 根拠のない事実提示 | `FAIL` (HallucinationRisk) |
 | **Pipeline Completion** | 100% | 全ステージ完走 | `FAIL` (SystemError) |
-| **Artifact Contract** | 10 files | 必須成果物の生成 | `FAIL` (ContractViolation) |
+| **Artifact Contract** | 10 files | 必要成果物の生成 | `FAIL` (ContractViolation) |
 
 ### 確認方法
 

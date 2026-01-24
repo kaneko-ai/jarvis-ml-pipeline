@@ -82,3 +82,8 @@ class ContradictionDetector:
                 return 0.8
         
         return 0.0
+
+def detect_contradiction(claims: List[str]) -> List[Contradiction]:
+    """Convenience function to detect contradictions."""
+    detector = ContradictionDetector()
+    return detector.detect(claims)

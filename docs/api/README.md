@@ -1,5 +1,8 @@
 # JARVIS Research OS API Reference
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## Overview
 
 JARVIS Research OS provides both a Python API for programmatic access and a REST API for web integration.
@@ -315,7 +318,7 @@ All responses follow this structure:
   "errors": [
     {
       "code": "VALIDATION_ERROR",
-      "message": "Invalid parameter: max_papers must be positive"
+      "message": "Invalid parameter: max_papers should be positive"
     }
   ]
 }

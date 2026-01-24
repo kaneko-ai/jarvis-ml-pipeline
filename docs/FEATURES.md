@@ -1,5 +1,8 @@
 # JARVIS Features Guide
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 > **50+ features** for AI-powered research management
 
 ---

@@ -1,5 +1,8 @@
 # JARVIS Research OS トラブルシューティングガイド
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 > よくある問題と解決策
 
 ---
@@ -272,7 +275,7 @@ registry.register(MyPlugin)
 
 ## サポート
 
-問題が解決しない場合:
+問題が解決避ける場合:
 
 - **GitHub Issues**: https://github.com/kaneko-ai/jarvis-ml-pipeline/issues
 - **Discussions**: https://github.com/kaneko-ai/jarvis-ml-pipeline/discussions

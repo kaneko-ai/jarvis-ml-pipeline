@@ -1,5 +1,8 @@
 # JARVIS Quality Bar - Phase 2 (Intelligence)
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 > Authority: DEC-006, MASTER_SPEC v1.2  
 > Date: 2024-12-28
 
@@ -56,7 +59,7 @@ Claimは最低でも以下のいずれかを満たす必要がある：
 
 ## 4. Report Quality (レポート品質)
 
-report.md には以下が**必須**：
+report.md には以下が**必要**：
 
 - [ ] 各結論段落に **Evidence ID列** が明記される
 - [ ] 根拠不足の主張は「不明」「推測」とラベル付け

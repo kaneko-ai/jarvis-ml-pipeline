@@ -360,7 +360,7 @@ class ProtocolVersionControl:
             "content": content,
             "author": author,
             "timestamp": datetime.now().isoformat(),
-            "hash": hashlib.md5(content.encode()).hexdigest(),
+            "hash": hashlib.md5(content.encode(), usedforsecurity=False).hexdigest(),
         }
 
         self.protocols[protocol_name].append(entry)
@@ -695,7 +695,7 @@ class BrowserSessionManager:
 
     def create_session(self, name: str) -> str:
         """Create new session."""
-        session_id = hashlib.md5(f"{name}_{time.time()}".encode()).hexdigest()[:8]
+        session_id = hashlib.md5(f"{name}_{time.time()}".encode(), usedforsecurity=False).hexdigest()[:8]
         self.sessions[session_id] = {
             "name": name,
             "created": datetime.now().isoformat(),

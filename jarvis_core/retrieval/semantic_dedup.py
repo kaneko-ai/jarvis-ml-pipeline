@@ -92,7 +92,7 @@ class SemanticDeduplicator:
                     processed.add(j)
 
             if len(cluster_members) > 1:
-                cluster_id = hashlib.md5(str(cluster_members).encode()).hexdigest()[:8]
+                cluster_id = hashlib.md5(str(cluster_members).encode(), usedforsecurity=False).hexdigest()[:8]
 
                 clusters.append(
                     DuplicateCluster(
@@ -131,7 +131,7 @@ class SemanticDeduplicator:
         for i, chunk in enumerate(chunks):
             # Normalize text
             text = chunk.get("text", "").lower().strip()
-            text_hash = hashlib.md5(text.encode()).hexdigest()
+            text_hash = hashlib.md5(text.encode(), usedforsecurity=False).hexdigest()
 
             if text_hash not in text_to_chunks:
                 text_to_chunks[text_hash] = []

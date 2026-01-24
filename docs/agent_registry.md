@@ -1,4 +1,7 @@
 # docs/agent_registry.md
+
+> Authority: REFERENCE (Level 2, Non-binding)
+
 Last Updated: 2025-12-20
 
 ## 0. この文書の位置づけ
@@ -13,7 +16,7 @@ I/O契約、ログ仕様、ロードマップは正本に集約する。
 - Agentは薄く保つ（役割を増やしすぎない）
 - 実体は Tool に寄せる（検索・取得・抽出は tools で実装する）
 - 設定（YAML）を壊さない（`...` や未完の断片を混入させない）
-- 入口の分岐は必ずログを残す（原因追跡不能な分岐は禁止）
+- 入口の分岐は必ずログを残す（原因追跡不能な分岐は非推奨）
 
 ---
 
@@ -49,7 +52,7 @@ agents:
 
   paper_fetcher:
     category: paper_survey
-    description: "Paper survey agent (must return citations)"
+    description: "Paper survey agent (should return citations)"
     entrypoint: "jarvis_core.agents:PaperFetcherAgent"
     capabilities: ["retrieve", "summarize", "cite"]
 
@@ -84,9 +87,9 @@ categories:
 4. Router運用ルール（最低限）
 Task.category を最優先する（曖昧な分類より優先）
 
-category未指定の文字列入力は generic として扱う（過剰な推測分類はしない）
+category未指定の文字列入力は generic として扱う（過剰な推測分類は避ける）
 
-paper_survey は原則として retrieval tool を使用し、citations を伴わない言い切りを禁止する（正本の品質規約に準拠）
+paper_survey は原則として retrieval tool を使用し、citations を伴わない言い切りを非推奨する（正本の品質規約に準拠）
 
 5. 破綻パターン（避ける）
 YAMLに未完断片を混ぜる（ロード不能・運用不能）

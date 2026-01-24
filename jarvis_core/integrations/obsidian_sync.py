@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 def content_hash(text: str) -> str:
     """Calculate content hash."""
-    return hashlib.md5(text.encode()).hexdigest()[:8]
+    return hashlib.md5(text.encode(), usedforsecurity=False).hexdigest()[:8]
 
 
 class ObsidianSync:

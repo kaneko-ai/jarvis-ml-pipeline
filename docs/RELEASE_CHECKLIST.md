@@ -1,5 +1,8 @@
 # JARVIS Research OS リリースチェックリスト
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 ## リリース前チェック
 
 ### コード品質

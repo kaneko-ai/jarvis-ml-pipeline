@@ -95,7 +95,7 @@ class ExternalAPIHandler:
             )
 
         # Abuseチェック
-        input_hash = hashlib.md5(request.task_goal.encode()).hexdigest()
+        input_hash = hashlib.md5(request.task_goal.encode(), usedforsecurity=False).hexdigest()
         is_abuse, abuse_reason = self.abuse_detector.check_abuse(input_hash)
         if is_abuse:
             return APIResponse(

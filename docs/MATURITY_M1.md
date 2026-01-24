@@ -1,5 +1,8 @@
 # JARVIS Maturity M1: 構造完備（Architecture Integrity）
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 **バージョン**: 1.0  
 **ステータス**: 実装中
 
@@ -57,11 +60,11 @@ Registry駆動の実行、YAMLスキーマ整合、CI強制、E2Eが一本通り
 ```yaml
 pipeline: <name>
 stages:
-  - id: <stage_id>  # 必須。StageRegistry登録名
+  - id: <stage_id>  # 必要。StageRegistry登録名
     config: {}      # オプション
 policies:
   seed: 42
-  provenance_required: true
+  provenance_recommended: true
   fail_closed: true
 ```
 

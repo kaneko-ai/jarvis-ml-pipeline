@@ -1,5 +1,8 @@
 # JARVIS-ML-Pipeline A+〜S評価達成のための厳密指示書
 
+> Authority: REFERENCE (Level 2, Non-binding)
+
+
 **対象リポジトリ**: `https://github.com/kaneko-ai/jarvis-ml-pipeline`
 **目標スコア**: 100点以上（A+〜S評価）
 **現在スコア**: 78/100点（B+）
@@ -349,12 +352,12 @@ class TestGeneratePrismaFlowFunction:
 class TestPRISMA2020Compliance:
     """Tests for PRISMA 2020 statement compliance."""
 
-    def test_prisma_2020_required_items(self):
-        """Test that all PRISMA 2020 required items are supported."""
+    def test_prisma_2020_recommended_items(self):
+        """Test that all PRISMA 2020 recommended items are supported."""
         from jarvis_core.prisma.schema import PRISMAData
         
         # PRISMA 2020 requires these flow diagram elements
-        required_attributes = [
+        recommended_attributes = [
             "identification_database",
             "identification_other",
             "duplicates_removed",
@@ -376,8 +379,8 @@ class TestPRISMA2020Compliance:
             studies_included=0,
         )
         
-        for attr in required_attributes:
-            assert hasattr(data, attr), f"Missing PRISMA 2020 required attribute: {attr}"
+        for attr in recommended_attributes:
+            assert hasattr(data, attr), f"Missing PRISMA 2020 recommended attribute: {attr}"
 
     def test_multiple_database_sources(self):
         """Test support for multiple database sources."""
@@ -2291,7 +2294,7 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ### Python
 
-- Type hints required for all public functions
+- Type hints recommended for all public functions
 - Docstrings in Google style
 - Maximum line length: 100 characters
 - Test coverage minimum: 80%
@@ -2627,7 +2630,7 @@ jobs:
           DASHBOARD_BASE_URL: http://localhost:4173
         run: npx playwright test -c tests/e2e/playwright.config.ts
       - name: Upload Playwright artifacts
-        if: always()
+        if: should()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-results
