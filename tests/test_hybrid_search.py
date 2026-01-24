@@ -5,6 +5,7 @@ Updated to match actual implementation.
 """
 
 import numpy as np
+import pytest
 
 
 class TestBM25Index:
@@ -249,7 +250,6 @@ class TestFusionMethod:
         assert FusionMethod.LINEAR.value == "linear"
 
 
-import pytest
 
 
 class TestSPECTER2:

@@ -1,19 +1,19 @@
 from __future__ import annotations
-
 import io
 import json
 import re
 import zipfile
 from pathlib import Path
-
 import pytest
+import jarvis_web.app as jarvis_app_module
+
+
 
 try:
     from fastapi.testclient import TestClient
 except ImportError:  # pragma: no cover
     TestClient = None
 
-import jarvis_web.app as jarvis_app_module
 
 ROOT = Path(__file__).resolve().parents[1]
 API_MAP_PATH = ROOT / "jarvis_web" / "contracts" / "api_map_v1.json"

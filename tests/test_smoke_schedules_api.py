@@ -1,10 +1,10 @@
 import pytest
-
-fastapi = pytest.importorskip("fastapi")
 from fastapi.testclient import TestClient  # noqa: E402
-
 from jarvis_web import jobs  # noqa: E402
 from jarvis_web.app import app  # noqa: E402
+
+fastapi = pytest.importorskip("fastapi")
+
 
 
 def test_schedules_api_smoke(monkeypatch, tmp_path):

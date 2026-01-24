@@ -7,9 +7,9 @@ spec_lint.py の回帰テスト
 # spec_lint をインポート（相対パスで）
 import sys
 from pathlib import Path
+from spec_lint import check_file, extract_authority
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "tools"))
-from spec_lint import check_file, extract_authority
 
 
 class TestExtractAuthority:

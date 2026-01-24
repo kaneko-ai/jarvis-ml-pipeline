@@ -1,7 +1,5 @@
 from unittest.mock import MagicMock, patch
-
 import pytest
-
 from jarvis_core.network.api_wrapper import (
     OfflineError,
     OfflineQueuedError,
@@ -12,6 +10,8 @@ from jarvis_core.network.degradation import (
     DegradationLevel,
     get_degradation_manager,
 )
+
+
 
 
 # Helpers

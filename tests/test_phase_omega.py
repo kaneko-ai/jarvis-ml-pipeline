@@ -1,10 +1,10 @@
-import pytest
+"""Tests for Phase Ω (Research OS v2.0 Core).
 
-"""Tests for Phase ﾎｩ (Research OS v2.0 Core).
-
-Tests ﾎｩ-1 to ﾎｩ-10 modules.
+Tests Ω-1 to Ω-10 modules.
 """
 
+import pytest
+from pathlib import Path
 from jarvis_core.autonomous_loop import get_intervention_summary, run_autonomous_research_loop
 from jarvis_core.experimental.career_planner import plan_career_strategy
 from jarvis_core.cross_field import find_cross_field_opportunities
@@ -27,7 +27,6 @@ from jarvis_core.paper_vector import (
 )
 from jarvis_core.experimental.pi_support import evaluate_research_themes, generate_pi_summary
 from jarvis_core.reviewer_persona import generate_all_reviewer_feedback, generate_reviewer_feedback
-from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 # if str(ROOT) not in sys.path:

@@ -1,16 +1,16 @@
 import sys
 from unittest.mock import MagicMock, patch
-
-# Mock missing modules for testing environments
-sys.modules["pypdf"] = MagicMock()
-sys.modules["pdfplumber"] = MagicMock()
-
 from pathlib import Path
 from jarvis_core.ingestion.robust_extractor import (
     RobustPDFExtractor,
     ExtractionResult,
     extract_pdf_robust,
 )
+
+# Mock missing modules for testing environments
+sys.modules["pypdf"] = MagicMock()
+sys.modules["pdfplumber"] = MagicMock()
+
 
 
 class TestRobustPDFExtractor:

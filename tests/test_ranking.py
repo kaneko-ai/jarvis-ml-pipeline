@@ -10,8 +10,8 @@ from jarvis_core.ranking import (
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
-
 import pytest
+
 
 
 class TestRankingItem:
