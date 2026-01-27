@@ -5,7 +5,7 @@ import asyncio
 import uuid
 from dataclasses import asdict
 from datetime import datetime
-from typing import Any
+from typing import Any, Awaitable, Callable
 
 from .conversation import Conversation, ConversationMessage
 from .schema import AgentInstance, AgentMode, AgentStatus, AgentTask
@@ -19,9 +19,18 @@ class MultiAgentOrchestrator:
         self.default_mode = default_mode
         self._queue: asyncio.Queue[tuple[str, AgentTask, AgentMode, str | None]] = asyncio.Queue()
         self._agents: dict[str, AgentInstance] = {}
+        self._agent_conversations: dict[str, str | None] = {}
         self._workers: list[asyncio.Task] = []
         self._running = False
         self._conversations: dict[str, Conversation] = {}
+        self._pending_approvals: dict[str, dict[str, Any]] = {}
+        self.on_approval_required: Callable[[dict[str, Any]], Awaitable[None]] | None = None
+        self._callbacks: dict[str, list[Callable[[dict[str, Any]], Awaitable[None]]]] = {
+            "status_change": [],
+            "artifact_created": [],
+            "approval_required": [],
+            "progress_update": [],
+        }
 
     async def start(self) -> None:
         if self._running:
@@ -54,6 +63,7 @@ class MultiAgentOrchestrator:
             completed_at=None,
         )
         self._agents[agent_id] = instance
+        self._agent_conversations[agent_id] = conversation_id
         if conversation_id and conversation_id in self._conversations:
             conversation = self._conversations[conversation_id]
             if agent_id not in conversation.agents:
@@ -61,6 +71,48 @@ class MultiAgentOrchestrator:
                 conversation.updated_at = datetime.utcnow()
         await self._queue.put((agent_id, task, instance.mode, conversation_id))
         return agent_id
+
+    def register_callback(self, event_type: str, callback: Callable[[dict[str, Any]], Awaitable[None]]) -> None:
+        if event_type not in self._callbacks:
+            raise ValueError(f"Unsupported event type: {event_type}")
+        self._callbacks[event_type].append(callback)
+
+    async def request_approval(self, agent_id: str, approval_type: str, details: dict) -> None:
+        instance = self._agents.get(agent_id)
+        if not instance:
+            return
+        await self._set_status(instance, AgentStatus.WAITING_APPROVAL)
+        self._pending_approvals[agent_id] = {
+            "approval_type": approval_type,
+            "details": details,
+            "task": instance.task,
+            "mode": instance.mode,
+            "conversation_id": self._agent_conversations.get(agent_id),
+        }
+        payload = {
+            "agent_id": agent_id,
+            "approval_type": approval_type,
+            "details": details,
+        }
+        if self.on_approval_required:
+            await self.on_approval_required(payload)
+        await self._emit_event("approval_required", payload)
+
+    async def approve(self, agent_id: str, approved: bool) -> None:
+        instance = self._agents.get(agent_id)
+        if not instance:
+            return
+        if not approved:
+            await self._set_status(instance, AgentStatus.CANCELLED)
+            self._pending_approvals.pop(agent_id, None)
+            return
+        pending = self._pending_approvals.pop(agent_id, None)
+        if not pending:
+            return
+        await self._set_status(instance, AgentStatus.PLANNING)
+        await self._queue.put(
+            (agent_id, pending["task"], pending["mode"], pending["conversation_id"])
+        )
 
     def create_conversation(self, title: str, workspace: str) -> str:
         conversation_id = str(uuid.uuid4())
@@ -130,6 +182,32 @@ class MultiAgentOrchestrator:
     def get_all_agents(self) -> list[dict]:
         return [self._serialize_agent(instance) for instance in self._agents.values()]
 
+    def find_agent_id(self, task_id: str) -> str | None:
+        for agent_id, instance in self._agents.items():
+            if instance.task.task_id == task_id:
+                return agent_id
+        return None
+
+    async def record_artifact(self, agent_id: str, artifact_path: str) -> None:
+        instance = self._agents.get(agent_id)
+        if not instance:
+            return
+        instance.artifacts.append(artifact_path)
+        await self._emit_event(
+            "artifact_created",
+            {"agent_id": agent_id, "artifact_path": artifact_path},
+        )
+
+    async def update_progress(self, agent_id: str, progress: float) -> None:
+        instance = self._agents.get(agent_id)
+        if not instance:
+            return
+        instance.progress = progress
+        await self._emit_event(
+            "progress_update",
+            {"agent_id": agent_id, "progress": progress},
+        )
+
     def _serialize_agent(self, instance: AgentInstance) -> dict[str, Any]:
         data = asdict(instance)
         data["status"] = instance.status.value
@@ -148,16 +226,44 @@ class MultiAgentOrchestrator:
             if not instance:
                 self._queue.task_done()
                 continue
-            instance.status = AgentStatus.EXECUTING
+            await self._set_status(instance, AgentStatus.EXECUTING)
             instance.started_at = datetime.utcnow()
             try:
-                await asyncio.sleep(0)
-                instance.progress = 1.0
-                instance.status = AgentStatus.COMPLETED
+                handler = self._resolve_agent(task.agent_type)
+                if handler:
+                    await handler.execute(task, self)
+                else:
+                    await asyncio.sleep(0)
+                await self.update_progress(agent_id, 1.0)
+                await self._set_status(instance, AgentStatus.COMPLETED)
                 instance.completed_at = datetime.utcnow()
             except Exception as exc:  # pragma: no cover - defensive
-                instance.status = AgentStatus.FAILED
+                await self._set_status(instance, AgentStatus.FAILED)
                 instance.errors.append(str(exc))
                 instance.completed_at = datetime.utcnow()
             finally:
                 self._queue.task_done()
+
+    async def _set_status(self, instance: AgentInstance, status: AgentStatus) -> None:
+        if instance.status == status:
+            return
+        instance.status = status
+        await self._emit_event(
+            "status_change",
+            {"agent_id": instance.agent_id, "status": status.value},
+        )
+
+    async def _emit_event(self, event_type: str, payload: dict[str, Any]) -> None:
+        for callback in self._callbacks.get(event_type, []):
+            await callback(payload)
+
+    def _resolve_agent(self, agent_type: str):
+        if agent_type == "research":
+            from .agents.research import ResearchAgent
+
+            return ResearchAgent()
+        if agent_type == "browser":
+            from .agents.browser import BrowserAgent
+
+            return BrowserAgent()
+        return None
