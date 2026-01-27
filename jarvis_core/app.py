@@ -8,6 +8,7 @@ Per MASTER_SPEC v1.1, this is the ONLY entry point for task execution.
 from __future__ import annotations
 
 import json
+import time
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -132,6 +133,7 @@ def run_task(
     from .router import Router
     from .storage import RunStore
     from .telemetry import init_logger
+    from .telemetry.cost_tracker import CostTracker
 
     # Generate run_id
     run_id = str(uuid.uuid4())
@@ -148,6 +150,8 @@ def run_task(
     logger = init_logger(run_id, logs_dir="logs/runs")
     if logger is None:
         raise TelemetryMissingError("TelemetryLogger must be initialized")
+
+    cost_tracker = CostTracker()
 
     # Save config (artifact 1/4)
     store.save_config(
@@ -230,6 +234,7 @@ def run_task(
     claims: list[dict[str, Any]] = []
     evidence: list[dict[str, Any]] = []
 
+    execution_start = time.perf_counter()
     try:
         if not goal.strip():
             raise RuntimeError("Task goal cannot be empty")
@@ -273,6 +278,14 @@ def run_task(
             level="ERROR",
             payload={"error": execution_error, "error_type": type(e).__name__},
         )
+    finally:
+        execution_duration_ms = int((time.perf_counter() - execution_start) * 1000)
+        cost_tracker.track_stage(
+            stage_name="execution",
+            tokens=0,
+            time_ms=execution_duration_ms,
+            api_calls=0,
+        )
 
     # === VERIFY (per MASTER_SPEC: Verify強制) ===
     logger.log_event(
@@ -283,9 +296,17 @@ def run_task(
         payload={},
     )
 
+    verify_start = time.perf_counter()
     verify_result = verifier.verify(
         answer=answer,
         citations=citations,
+    )
+    verify_duration_ms = int((time.perf_counter() - verify_start) * 1000)
+    cost_tracker.track_stage(
+        stage_name="verify",
+        tokens=0,
+        time_ms=verify_duration_ms,
+        api_calls=0,
     )
 
     logger.log_event(
@@ -396,6 +417,8 @@ def run_task(
 
     # eval_dataを取得（BundleAssemblerが生成したものを読む）
     eval_data = store.load_eval() or {}
+
+    store.save_cost_report(cost_tracker.get_report())
 
     # === HARD GATE 1: Verify telemetry was written ===
     events_file = store.events_file

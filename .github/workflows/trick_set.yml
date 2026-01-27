@@ -1,0 +1,30 @@
+name: Trick Sets
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  trick_sets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: pip install uv
+      - name: Install dependencies
+        run: uv sync --dev
+      - name: Run trick set evaluations
+        run: |
+          mkdir -p results
+          uv run pytest -q evals/test_trick_sets.py::test_no_evidence | tee results/no_evidence.txt
+          uv run pytest -q evals/test_trick_sets.py::test_overclaim | tee results/overclaim.txt
+          uv run pytest -q evals/test_trick_sets.py::test_contradiction | tee results/contradiction.txt
+      - name: Upload trick set results
+        uses: actions/upload-artifact@v4
+        with:
+          name: trick-set-results
+          path: results/

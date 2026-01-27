@@ -5,6 +5,7 @@ hedging requirements based on uncertainty levels.
 """
 
 import logging
+import re
 from pathlib import Path
 from typing import Any
 
@@ -40,7 +41,23 @@ class LanguageLinter:
         violations = []
         text_lower = text.lower()
 
-        # Check forbidden terms (English)
+        # Check forbidden terms (rule-based patterns)
+        forbidden_rules = self.rules.get("forbidden_causal_terms", [])
+        for rule in forbidden_rules:
+            pattern = rule.get("pattern")
+            if not pattern:
+                continue
+            if re.search(pattern, text, flags=re.IGNORECASE):
+                violations.append(
+                    {
+                        "code": "LANGUAGE_VIOLATION",
+                        "severity": rule.get("severity", "error"),
+                        "term": pattern,
+                        "message": f"Forbidden causal term: '{pattern}'",
+                    }
+                )
+
+        # Check forbidden terms (English legacy list)
         forbidden = self.rules.get("forbidden", [])
         for term in forbidden:
             if term.lower() in text_lower:
