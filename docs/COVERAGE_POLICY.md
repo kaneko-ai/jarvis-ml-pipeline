@@ -113,3 +113,32 @@ PR毎に`docs/coverage_improvement_history.md`に以下を記録:
 
 - [DECISIONS.md](./DECISIONS.md) - DEC-007: 2段階カバレッジゲート
 - [coverage_improvement_history.md](./coverage_improvement_history.md) - 改善履歴
+
+---
+
+## Daily Coverage Snapshotとの役割分担
+
+### 目的の違い
+
+| 観点 | CIゲート（本ポリシー） | Daily Snapshot |
+|------|------------------------|----------------|
+| 目的 | PRの品質担保 | 継続的な観測・トレンド把握 |
+| 実行タイミング | PR/push時 | 毎日00:10 JST |
+| fail_under | 有効（85%/95%） | 無効 |
+| 失敗時 | CIブロック | ログ記録のみ |
+
+### 参照ドキュメント
+
+- 詳細仕様: `docs/JAVIS_STATE_AND_ROADMAP.md` セクション8
+- 実装: `scripts/daily_coverage_snapshot.sh`, `scripts/append_coverage_daily_md.py`
+- 履歴: `docs/coverage_daily.md`
+
+### 禁止事項（共通）
+
+Daily Snapshotの数値が低いからといって、以下を行ってはならない:
+
+1. `# pragma: no cover`を追加してカバレッジを上げる
+2. `.coveragerc`の除外パターンを拡大する
+3. テストをスキップする
+
+これらはCIゲートのポリシー違反として扱われる。
