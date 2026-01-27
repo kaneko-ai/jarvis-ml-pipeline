@@ -52,6 +52,10 @@ API_MAP_PATH = Path("jarvis_web/contracts/api_map_v1.json")
 # Create app if FastAPI available
 if FASTAPI_AVAILABLE:
     from jarvis_web.auth import verify_api_token, verify_token
+    from jarvis_web.api.mcp import router as mcp_router
+    from jarvis_web.api.inbox import router as inbox_router
+    from jarvis_web.api.orchestrator import router as orchestrator_router
+    from jarvis_web.api.ws import router as ws_router
     from jarvis_web.routes.research import router as research_router
     # from jarvis_web.routes.finance import router as finance_router (Moved to lazy import)
     from jarvis_web.routes.schedules import router as schedules_router
@@ -98,6 +102,10 @@ if FASTAPI_AVAILABLE:
     app.include_router(schedules_router)
     app.include_router(cron_router)
     app.include_router(queue_router)
+    app.include_router(mcp_router)
+    app.include_router(orchestrator_router)
+    app.include_router(inbox_router)
+    app.include_router(ws_router)
     if submission_router:
         app.include_router(submission_router)
 else:
