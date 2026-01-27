@@ -103,12 +103,8 @@ def ensure_header(md_path: Path) -> None:
     md_path.parent.mkdir(parents=True, exist_ok=True)
     md_path.write_text(
         "# Daily Coverage Snapshot\n\n"
-        "<!-- This file is auto-updated. Do not edit manually. -->\n"
+        "<!-- This file is auto-updated daily by GitHub Actions -->\n"
         "<!-- Timezone: Asia/Tokyo (JST) -->\n\n"
-        "---\n\n"
-        "## 運用ルール\n\n"
-        "1. このファイルは自動更新される（手動編集禁止）\n"
-        "2. 数値を盛る目的の除外は`COVERAGE_POLICY.md`で禁止されている\n\n"
         "---\n\n"
         "## Log\n\n"
         "<!-- newest entries are appended at the end -->\n",

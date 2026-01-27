@@ -1,14 +1,7 @@
 # Daily Coverage Snapshot
 
-<!-- This file is auto-updated. Do not edit manually. -->
+<!-- This file is auto-updated daily by GitHub Actions -->
 <!-- Timezone: Asia/Tokyo (JST) -->
-
----
-
-## 運用ルール
-
-1. このファイルは自動更新される（手動編集禁止）
-2. 数値を盛る目的の除外は`COVERAGE_POLICY.md`で禁止されている
 
 ---
 

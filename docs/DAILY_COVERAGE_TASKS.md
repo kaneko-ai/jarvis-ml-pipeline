@@ -1,7 +1,9 @@
 # Daily Coverage Snapshot 実装タスク一覧
 
-Codexで段階的に実装を進めるためのタスク定義。
-「Task 1-3を実行して」のように指示する。
+<!-- Codex用タスク定義 -->
+
+このドキュメントはDaily Coverage Snapshotシステムを実装するためのタスクを定義している。
+「Task 1-3を実行して」のように指示して使用する。
 
 ---
 
@@ -30,8 +32,8 @@ Daily Coverage Snapshotシステムを実装するための10個のタスク。
 
 ## 運用ルール
 
-1. このファイルは自動更新される（手動編集禁止）
-2. 数値を盛る目的の除外は`COVERAGE_POLICY.md`で禁止されている
+1. このファイルは自動更新される（手動編集行わない）
+2. 数値を盛る目的の除外は`COVERAGE_POLICY.md`で行わないされている
 
 ---
 
@@ -652,9 +654,9 @@ jobs:
 - 実装: `scripts/daily_coverage_snapshot.sh`, `scripts/append_coverage_daily_md.py`
 - 履歴: `docs/coverage_daily.md`
 
-### 禁止事項（共通）
+### 行わない事項（共通）
 
-Daily Snapshotの数値が低いからといって、以下を行ってはならない:
+Daily Snapshotの数値が低い場合でも、以下は行わない:
 
 1. `# pragma: no cover`を追加してカバレッジを上げる
 2. `.coveragerc`の除外パターンを拡大する
@@ -669,3 +671,4 @@ Daily Snapshotの数値が低いからといって、以下を行ってはなら
 
 - 「docs/DAILY_COVERAGE_TASKS.md を参照して Task 5-8 を実行して」
 - 「docs/DAILY_COVERAGE_TASKS.md を参照して Task 9-10 を実行して」
+```
