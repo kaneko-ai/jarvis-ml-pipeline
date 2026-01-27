@@ -26,6 +26,8 @@ source .venv/bin/activate  # Linux/Mac
 pip install -e .
 ```
 
+> より高速なセットアップを行う場合は `uv sync` を利用できます。
+
 ### 2. オプション: ローカルLLM（Ollama）
 
 ```bash
@@ -90,6 +92,22 @@ markdown = generate_prisma(
     included_results=included,
     title="システマティックレビュー"
 )
+```
+
+## 新しいCLIコマンド
+
+```bash
+# MCP Hub
+jarvis mcp list --config configs/mcp_config.json
+
+# Skills
+jarvis skills list
+
+# Rules
+jarvis rules list
+
+# Workflows
+jarvis workflows list
 ```
 
 ## 次のステップ

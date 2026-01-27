@@ -1,0 +1,12 @@
+site_name: JARVIS Research OS
+site_url: https://example.com/jarvis
+repo_url: https://github.com/kaneko-ai/jarvis-ml-pipeline
+nav:
+  - Home: docs/index.md
+  - MCP Hub: docs/mcp.md
+  - Browser Agent: docs/browser.md
+  - Skills System: docs/skills.md
+  - Multi-Agent: docs/multi_agent.md
+  - Terminal Security: docs/terminal_security.md
+
+site_dir: site

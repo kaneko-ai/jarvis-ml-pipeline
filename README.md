@@ -24,6 +24,10 @@ JARVIS Research OS is a local-first, AI-powered research assistant that helps re
 - **Active Learning**: Efficient screening with uncertainty sampling
 
 ### Phase 3: Ecosystem
+- **MCP Hub**: External search servers (PubMed/Semantic Scholar/OpenAlex)
+- **Browser Agent**: Safe browser automation with security policy
+- **Skills System**: Task-specific workflows via `SKILL.md`
+- **Multi-Agent Orchestrator**: Parallel agents + approval flow
 - **Plugin System**: Extensible architecture
 - **Zotero Integration**: Reference management
 - **Export Formats**: RIS, BibTeX, Markdown
@@ -83,6 +87,34 @@ jarvis run --config pipeline.yaml
 
 # Generate PRISMA diagram
 jarvis prisma --output prisma_flow.svg
+```
+
+### MCP Hub Example
+
+```bash
+# Register MCP servers and list tools
+jarvis mcp list --config configs/mcp_config.json
+
+# Invoke MCP tool
+jarvis mcp invoke search_pubmed --params '{"query": "cancer immunotherapy"}'
+```
+
+### Browser Agent Example
+
+```python
+from jarvis_core.browser.subagent import BrowserSubagent
+from jarvis_core.browser.schema import SecurityPolicy
+
+policy = SecurityPolicy(url_allow_list=["pubmed.ncbi.nlm.nih.gov"])
+agent = BrowserSubagent(security_policy=policy, headless=True)
+```
+
+### Skills System Example
+
+```bash
+# List skills and show details
+jarvis skills list
+jarvis skills show MCP
 ```
 
 ## 📦 Core Modules

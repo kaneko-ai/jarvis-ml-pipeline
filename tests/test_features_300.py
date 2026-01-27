@@ -390,7 +390,7 @@ class TestSecurityCompliance:
 
         hc = HIPAAComplianceChecker()
         result = hc.check("SSN: 123-45-6789")
-        assert result["compliant"] == False
+        assert result.compliant is False
 
     def test_data_anonymizer(self):
         """Test data anonymization"""
@@ -437,7 +437,7 @@ class TestEnterprise:
 
         tw = TeamWorkspace()
         ws = tw.create_workspace("Research Team", ["alice", "bob"])
-        assert ws["name"] == "Research Team"
+        assert ws.name == "Research Team"
 
     def test_role_based_access(self):
         """Test role-based access"""
@@ -452,8 +452,8 @@ class TestEnterprise:
         from jarvis_core.advanced.features import ActivityFeed
 
         af = ActivityFeed()
-        af.add_activity("user1", "created", "document")
-        feed = af.get_feed()
+        af.add_activity("ws1", "user1", "created", {"target": "document"})
+        feed = af.get_feed("ws1")
         assert len(feed) == 1
 
     def test_version_history(self):
