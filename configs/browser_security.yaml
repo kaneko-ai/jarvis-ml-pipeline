@@ -1,0 +1,12 @@
+js_execution: false
+url_allow_list:
+  - "pubmed.ncbi.nlm.nih.gov"
+  - "ncbi.nlm.nih.gov"
+  - "arxiv.org"
+  - "doi.org"
+  - "europepmc.org"
+  - "semanticscholar.org"
+url_deny_list:
+  - "facebook.com"
+  - "twitter.com"
+  - "instagram.com"

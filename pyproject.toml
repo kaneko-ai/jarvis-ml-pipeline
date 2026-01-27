@@ -71,6 +71,9 @@ web = [
     "uvicorn>=0.22.0",
     "python-multipart>=0.0.6",
 ]
+browser = [
+    "playwright>=1.41.0",
+]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
@@ -82,7 +85,7 @@ dev = [
     "bandit>=1.7.0",
 ]
 all = [
-    "jarvis-research-os[ml,pdf,llm,embedding,web]",
+    "jarvis-research-os[ml,pdf,llm,embedding,web,browser]",
 ]
 
 [dependency-groups]
