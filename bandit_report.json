@@ -1,17 +1,17 @@
 {
   "errors": [],
-  "generated_at": "2026-01-24T11:35:10Z",
+  "generated_at": "2026-01-27T17:10:57Z",
   "metrics": {
     "_totals": {
-      "CONFIDENCE.HIGH": 117,
+      "CONFIDENCE.HIGH": 118,
       "CONFIDENCE.LOW": 8,
       "CONFIDENCE.MEDIUM": 0,
       "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
+      "SEVERITY.HIGH": 1,
       "SEVERITY.LOW": 92,
       "SEVERITY.MEDIUM": 33,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 82741,
+      "loc": 85749,
       "nosec": 0,
       "skipped_tests": 1
     },
@@ -42,15 +42,15 @@
       "skipped_tests": 0
     },
     "jarvis_core\\advanced\\features.py": {
-      "CONFIDENCE.HIGH": 3,
+      "CONFIDENCE.HIGH": 4,
       "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 0,
       "CONFIDENCE.UNDEFINED": 0,
-      "SEVERITY.HIGH": 0,
+      "SEVERITY.HIGH": 1,
       "SEVERITY.LOW": 3,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 859,
+      "loc": 931,
       "nosec": 0,
       "skipped_tests": 1
     },
@@ -258,7 +258,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 66,
+      "loc": 67,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -323,7 +323,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 336,
+      "loc": 357,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -509,6 +509,123 @@
       "nosec": 0,
       "skipped_tests": 0
     },
+    "jarvis_core\\browser\\__init__.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 17,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\browser\\agents\\__init__.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 5,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\browser\\agents\\arxiv.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 37,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\browser\\agents\\pdf_download.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 52,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\browser\\agents\\pubmed.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 47,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\browser\\recording.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 42,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\browser\\schema.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 39,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\browser\\security.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 51,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\browser\\subagent.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 162,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
     "jarvis_core\\budget\\__init__.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -648,7 +765,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 47,
+      "loc": 46,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -713,7 +830,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 90,
+      "loc": 93,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -847,6 +964,45 @@
       "nosec": 0,
       "skipped_tests": 0
     },
+    "jarvis_core\\collaboration\\__init__.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 10,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\collaboration\\comments.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 53,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\collaboration\\versioning.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 55,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
     "jarvis_core\\comparison.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -895,7 +1051,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 225,
+      "loc": 227,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -1402,7 +1558,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 108,
+      "loc": 105,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -1428,7 +1584,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 71,
+      "loc": 68,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -1913,6 +2069,19 @@
       "nosec": 0,
       "skipped_tests": 0
     },
+    "jarvis_core\\evidence\\locator_verifier.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 50,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
     "jarvis_core\\evidence\\locator_verify.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -1948,7 +2117,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 173,
+      "loc": 179,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -1965,6 +2134,19 @@
       "nosec": 0,
       "skipped_tests": 0
     },
+    "jarvis_core\\evidence\\uncertainty.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 16,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
     "jarvis_core\\evidence\\v2_schema.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -1975,6 +2157,19 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 35,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\evidence\\validator.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 40,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -2481,7 +2676,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 80,
+      "loc": 84,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -2667,6 +2862,32 @@
       "nosec": 0,
       "skipped_tests": 0
     },
+    "jarvis_core\\extraction\\coi.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 48,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\extraction\\funding.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 33,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
     "jarvis_core\\extraction\\pdf_extractor.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -2819,7 +3040,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 541,
+      "loc": 543,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -2949,7 +3170,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 550,
+      "loc": 552,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -2963,6 +3184,19 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 21,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\ingestion\\figure_extractor.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 37,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3001,7 +3235,20 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 87,
+      "loc": 109,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\ingestion\\pdf_parser.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 92,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3014,7 +3261,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 471,
+      "loc": 473,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3028,6 +3275,19 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 194,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\ingestion\\table_extractor.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 48,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3677,7 +3937,7 @@
       "SEVERITY.LOW": 4,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 784,
+      "loc": 786,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -3925,6 +4185,110 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 84,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\mcp\\__init__.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 8,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\mcp\\chain.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 39,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\mcp\\hub.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 189,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\mcp\\schema.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 38,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\mcp\\servers\\__init__.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 9,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\mcp\\servers\\openalex.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 50,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\mcp\\servers\\pubmed.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 42,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\mcp\\servers\\semantic_scholar.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 52,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -4470,7 +4834,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 74,
+      "loc": 78,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -4640,6 +5004,123 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 90,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\orchestrator\\__init__.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 8,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\orchestrator\\agents\\__init__.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 7,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\orchestrator\\agents\\browser.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 50,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\orchestrator\\agents\\research.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 36,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\orchestrator\\agents\\synthesis.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 47,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\orchestrator\\artifact_store.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 29,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\orchestrator\\conversation.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 22,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\orchestrator\\multi_agent.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 242,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\orchestrator\\schema.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 35,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -4821,7 +5302,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 436,
+      "loc": 438,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -5289,7 +5770,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 32,
+      "loc": 38,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -5380,7 +5861,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 55,
+      "loc": 57,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -5692,7 +6173,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 109,
+      "loc": 124,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -5900,7 +6381,7 @@
       "SEVERITY.LOW": 1,
       "SEVERITY.MEDIUM": 1,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 69,
+      "loc": 63,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -6069,7 +6550,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 61,
+      "loc": 64,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -6121,7 +6602,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 122,
+      "loc": 124,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -6199,7 +6680,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 134,
+      "loc": 136,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -6294,6 +6775,19 @@
       "nosec": 0,
       "skipped_tests": 0
     },
+    "jarvis_core\\review\\living_updater.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 46,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
     "jarvis_core\\review\\triage.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -6356,6 +6850,45 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 122,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\rules\\__init__.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 8,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\rules\\engine.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 57,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\rules\\schema.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 17,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -6979,7 +7512,20 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 12,
+      "loc": 24,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\security\\anonymizer.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 29,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -6993,6 +7539,19 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 45,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\security\\audit.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 85,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -7022,6 +7581,19 @@
       "nosec": 0,
       "skipped_tests": 0
     },
+    "jarvis_core\\security\\injection_guard.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 26,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
     "jarvis_core\\security\\path_validator.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -7031,7 +7603,20 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 63,
+      "loc": 66,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\security\\pii_detector.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 35,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -7057,7 +7642,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 204,
+      "loc": 221,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -7070,7 +7655,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 136,
+      "loc": 133,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -7087,6 +7672,32 @@
       "nosec": 0,
       "skipped_tests": 0
     },
+    "jarvis_core\\security\\terminal.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 139,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\security\\terminal_schema.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 38,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
     "jarvis_core\\settings.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -7097,6 +7708,45 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 24,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\skills\\__init__.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 7,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\skills\\engine.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 129,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\skills\\schema.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 26,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -7178,6 +7828,19 @@
       "nosec": 0,
       "skipped_tests": 0
     },
+    "jarvis_core\\sources\\preprint_matcher.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 42,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
     "jarvis_core\\sources\\pubmed_client.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -7192,6 +7855,19 @@
       "skipped_tests": 0
     },
     "jarvis_core\\sources\\registry.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 35,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\sources\\retraction_watch.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
       "CONFIDENCE.MEDIUM": 0,
@@ -7568,6 +8244,19 @@
       "nosec": 0,
       "skipped_tests": 0
     },
+    "jarvis_core\\style\\language_lint.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 48,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
     "jarvis_core\\style\\report_builder.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -7681,7 +8370,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 55,
+      "loc": 57,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -7864,6 +8553,19 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 107,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\telemetry\\cost_tracker.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 38,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -8257,6 +8959,32 @@
       "nosec": 0,
       "skipped_tests": 0
     },
+    "jarvis_core\\verification\\__init__.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 3,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\verification\\stat_verifier.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 34,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
     "jarvis_core\\visualization\\__init__.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -8409,7 +9137,7 @@
       "SEVERITY.LOW": 0,
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
-      "loc": 13,
+      "loc": 21,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -8426,6 +9154,19 @@
       "nosec": 0,
       "skipped_tests": 0
     },
+    "jarvis_core\\workflows\\engine.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 94,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
     "jarvis_core\\workflows\\presets.py": {
       "CONFIDENCE.HIGH": 0,
       "CONFIDENCE.LOW": 0,
@@ -8436,6 +9177,32 @@
       "SEVERITY.MEDIUM": 0,
       "SEVERITY.UNDEFINED": 0,
       "loc": 74,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\workflows\\schema.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 22,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "jarvis_core\\workflows\\slash_command.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 12,
       "nosec": 0,
       "skipped_tests": 0
     },
@@ -8533,64 +9300,24 @@
   },
   "results": [
     {
-      "code": "403     def cross_validate(self, n_folds: int = 5) -> dict:\n404         scores = [random.uniform(0.7, 0.9) for _ in range(n_folds)]\n405         return {\n",
-      "col_offset": 18,
-      "end_col_offset": 42,
+      "code": "1132         activity = Activity(\n1133             id=hashlib.md5(f\"{workspace_id}{user_id}{time.time()}\".encode()).hexdigest()[\n1134                 :8\n",
+      "col_offset": 15,
+      "end_col_offset": 76,
       "filename": "jarvis_core\\advanced\\features.py",
       "issue_confidence": "HIGH",
       "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
+        "id": 327,
+        "link": "https://cwe.mitre.org/data/definitions/327.html"
       },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 404,
+      "issue_severity": "HIGH",
+      "issue_text": "Use of weak MD5 hash for security. Consider usedforsecurity=False",
+      "line_number": 1133,
       "line_range": [
-        404
+        1133
       ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "549             \"coordinates\": [\n550                 [random.uniform(-5, 5) for _ in range(n_components)] for _ in range(n_samples)\n551             ],\n",
-      "col_offset": 17,
-      "end_col_offset": 38,
-      "filename": "jarvis_core\\advanced\\features.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 550,
-      "line_range": [
-        550
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "785     def verify_request(self, user: str, device: str, location: str) -> dict:\n786         return {\"verified\": True, \"risk_score\": random.uniform(0, 1)}\n787 \n",
-      "col_offset": 48,
-      "end_col_offset": 68,
-      "filename": "jarvis_core\\advanced\\features.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 786,
-      "line_range": [
-        786
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
+      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b324_hashlib.html",
+      "test_id": "B324",
+      "test_name": "hashlib"
     },
     {
       "code": "53 \n54             with urllib.request.urlopen(req, timeout=30) as response:\n55                 result = json.loads(response.read().decode())\n",
@@ -8610,26 +9337,6 @@
       ],
       "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b310-urllib-urlopen",
       "test_id": "B310",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "235 \n236         if random.random() < 0.01:\n237             two_hours_ago = current_minute - 120\n",
-      "col_offset": 11,
-      "end_col_offset": 26,
-      "filename": "jarvis_core\\auth\\api_key.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 236,
-      "line_range": [
-        236
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
       "test_name": "blacklist"
     },
     {
@@ -8673,275 +9380,6 @@
       "test_name": "blacklist"
     },
     {
-      "code": "240             self.close_fn(conn.connection)\n241         except Exception:\n242             pass\n243 \n",
-      "col_offset": 8,
-      "end_col_offset": 16,
-      "filename": "jarvis_core\\database\\pool.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 241,
-      "line_range": [
-        241,
-        242
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "22     if distribution.type == \"triangular\":\n23         return random.triangular(\n24             distribution.low.value,\n25             distribution.high.value,\n26             distribution.mode.value,\n27         )\n28     if distribution.type == \"normal\":\n",
-      "col_offset": 15,
-      "end_col_offset": 9,
-      "filename": "jarvis_core\\decision\\simulator.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 23,
-      "line_range": [
-        23,
-        24,
-        25,
-        26,
-        27
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "121         success_scores.append(base_success)\n122         success = 1 if random.random() < base_success else 0\n123         successes.append(success)\n",
-      "col_offset": 23,
-      "end_col_offset": 38,
-      "filename": "jarvis_core\\decision\\simulator.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 122,
-      "line_range": [
-        122
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "285         return {\n286             \"success_rate\": 0.995 + random.uniform(0, 0.005),\n287             \"error_rate\": random.uniform(0, 0.005),\n",
-      "col_offset": 36,
-      "end_col_offset": 60,
-      "filename": "jarvis_core\\deploy\\canary.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 286,
-      "line_range": [
-        286
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "286             \"success_rate\": 0.995 + random.uniform(0, 0.005),\n287             \"error_rate\": random.uniform(0, 0.005),\n288             \"latency_p99\": random.uniform(100, 200),\n",
-      "col_offset": 26,
-      "end_col_offset": 50,
-      "filename": "jarvis_core\\deploy\\canary.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 287,
-      "line_range": [
-        287
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "287             \"error_rate\": random.uniform(0, 0.005),\n288             \"latency_p99\": random.uniform(100, 200),\n289             \"requests_per_second\": random.uniform(100, 500),\n",
-      "col_offset": 27,
-      "end_col_offset": 51,
-      "filename": "jarvis_core\\deploy\\canary.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 288,
-      "line_range": [
-        288
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "288             \"latency_p99\": random.uniform(100, 200),\n289             \"requests_per_second\": random.uniform(100, 500),\n290         }\n",
-      "col_offset": 35,
-      "end_col_offset": 59,
-      "filename": "jarvis_core\\deploy\\canary.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 289,
-      "line_range": [
-        289
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "8 import argparse\n9 import subprocess\n10 import sys\n",
-      "col_offset": 0,
-      "end_col_offset": 17,
-      "filename": "jarvis_core\\devtools\\ci.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 78,
-        "link": "https://cwe.mitre.org/data/definitions/78.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Consider possible security implications associated with the subprocess module.",
-      "line_number": 9,
-      "line_range": [
-        9
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_imports.html#b404-import-subprocess",
-      "test_id": "B404",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "17         cmd.extend([\"-v\", \"--tb=short\"])\n18     result = subprocess.run(cmd)\n19     return result.returncode\n",
-      "col_offset": 13,
-      "end_col_offset": 32,
-      "filename": "jarvis_core\\devtools\\ci.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 78,
-        "link": "https://cwe.mitre.org/data/definitions/78.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "subprocess call - check for execution of untrusted input.",
-      "line_number": 18,
-      "line_range": [
-        18
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b603_subprocess_without_shell_equals_true.html",
-      "test_id": "B603",
-      "test_name": "subprocess_without_shell_equals_true"
-    },
-    {
-      "code": "26         cmd.extend([\"-v\", \"--tb=short\"])\n27     result = subprocess.run(cmd)\n28     return result.returncode\n",
-      "col_offset": 13,
-      "end_col_offset": 32,
-      "filename": "jarvis_core\\devtools\\ci.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 78,
-        "link": "https://cwe.mitre.org/data/definitions/78.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "subprocess call - check for execution of untrusted input.",
-      "line_number": 27,
-      "line_range": [
-        27
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b603_subprocess_without_shell_equals_true.html",
-      "test_id": "B603",
-      "test_name": "subprocess_without_shell_equals_true"
-    },
-    {
-      "code": "35         cmd.extend([\"-v\", \"--tb=short\"])\n36     result = subprocess.run(cmd)\n37     return result.returncode\n",
-      "col_offset": 13,
-      "end_col_offset": 32,
-      "filename": "jarvis_core\\devtools\\ci.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 78,
-        "link": "https://cwe.mitre.org/data/definitions/78.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "subprocess call - check for execution of untrusted input.",
-      "line_number": 36,
-      "line_range": [
-        36
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b603_subprocess_without_shell_equals_true.html",
-      "test_id": "B603",
-      "test_name": "subprocess_without_shell_equals_true"
-    },
-    {
-      "code": "48     for check in checks:\n49         result = subprocess.run(\n50             [sys.executable, \"-c\", f\"{check}; print('OK')\"],\n51             capture_output=True,\n52             text=True,\n53         )\n54         if result.returncode != 0:\n",
-      "col_offset": 17,
-      "end_col_offset": 9,
-      "filename": "jarvis_core\\devtools\\ci.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 78,
-        "link": "https://cwe.mitre.org/data/definitions/78.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "subprocess call - check for execution of untrusted input.",
-      "line_number": 49,
-      "line_range": [
-        49,
-        50,
-        51,
-        52,
-        53
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b603_subprocess_without_shell_equals_true.html",
-      "test_id": "B603",
-      "test_name": "subprocess_without_shell_equals_true"
-    },
-    {
-      "code": "10 import logging\n11 import pickle\n12 from dataclasses import dataclass, field\n",
-      "col_offset": 0,
-      "end_col_offset": 13,
-      "filename": "jarvis_core\\embeddings\\bm25.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 502,
-        "link": "https://cwe.mitre.org/data/definitions/502.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Consider possible security implications associated with pickle module.",
-      "line_number": 11,
-      "line_range": [
-        11
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_imports.html#b403-import-pickle",
-      "test_id": "B403",
-      "test_name": "blacklist"
-    },
-    {
       "code": "200         with open(path, \"rb\") as f:\n201             data = pickle.load(f)\n202 \n",
       "col_offset": 19,
       "end_col_offset": 33,
@@ -8959,256 +9397,6 @@
       ],
       "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b301-pickle",
       "test_id": "B301",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "132                             existing.add(cit_id)\n133             except Exception:\n134                 continue\n135 \n",
-      "col_offset": 12,
-      "end_col_offset": 24,
-      "filename": "jarvis_core\\eval\\citation_loop.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Continue detected.",
-      "line_number": 133,
-      "line_range": [
-        133,
-        134
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b112_try_except_continue.html",
-      "test_id": "B112",
-      "test_name": "try_except_continue"
-    },
-    {
-      "code": "66     # Seed for reproducibility\n67     rng = random.Random(config.seed)\n68 \n",
-      "col_offset": 10,
-      "end_col_offset": 36,
-      "filename": "jarvis_core\\eval\\noise_injection.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 67,
-      "line_range": [
-        67
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "102                 self._baselines[key] = BaselineScore.from_dict(entry)\n103         except Exception:\n104             pass\n105 \n",
-      "col_offset": 8,
-      "end_col_offset": 16,
-      "filename": "jarvis_core\\eval\\regression.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 103,
-      "line_range": [
-        103,
-        104
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "315                     self.golden = json.load(f)\n316             except:\n317                 pass\n318 \n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "jarvis_core\\eval\\validator.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 316,
-      "line_range": [
-        316,
-        317
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "9 import logging\n10 import subprocess\n11 import sys\n",
-      "col_offset": 0,
-      "end_col_offset": 17,
-      "filename": "jarvis_core\\executor\\tabular_executor.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 78,
-        "link": "https://cwe.mitre.org/data/definitions/78.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Consider possible security implications associated with the subprocess module.",
-      "line_number": 10,
-      "line_range": [
-        10
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_imports.html#b404-import-subprocess",
-      "test_id": "B404",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "58         try:\n59             result = subprocess.run(\n60                 cmd,\n61                 capture_output=True,\n62                 text=True,\n63                 timeout=timeout,\n64                 cwd=str(Path(__file__).parent.parent),\n65             )\n66 \n",
-      "col_offset": 21,
-      "end_col_offset": 13,
-      "filename": "jarvis_core\\executor\\tabular_executor.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 78,
-        "link": "https://cwe.mitre.org/data/definitions/78.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "subprocess call - check for execution of untrusted input.",
-      "line_number": 59,
-      "line_range": [
-        59,
-        60,
-        61,
-        62,
-        63,
-        64,
-        65
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b603_subprocess_without_shell_equals_true.html",
-      "test_id": "B603",
-      "test_name": "subprocess_without_shell_equals_true"
-    },
-    {
-      "code": "163         # Random selection for initial samples\n164         samples = random.sample(self._unlabeled, min(needed, len(self._unlabeled)))\n165         return samples\n",
-      "col_offset": 18,
-      "end_col_offset": 83,
-      "filename": "jarvis_core\\experimental\\active_learning\\engine.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 164,
-      "line_range": [
-        164
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "190             # Fallback to random\n191             samples = random.sample(self._unlabeled, min(n, len(self._unlabeled)))\n192 \n",
-      "col_offset": 22,
-      "end_col_offset": 82,
-      "filename": "jarvis_core\\experimental\\active_learning\\engine.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 191,
-      "line_range": [
-        191
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "357                 return self._stats.relevant_found / predicted_relevant\n358         except Exception:\n359             pass\n360 \n",
-      "col_offset": 8,
-      "end_col_offset": 16,
-      "filename": "jarvis_core\\experimental\\active_learning\\engine.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 358,
-      "line_range": [
-        358,
-        359
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "145             # Fallback to random\n146             return random.sample(remaining, min(n, len(remaining)))\n147 \n",
-      "col_offset": 19,
-      "end_col_offset": 67,
-      "filename": "jarvis_core\\experimental\\active_learning\\query.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 146,
-      "line_range": [
-        146
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "153         \"\"\"Initialize with random seed.\"\"\"\n154         self._rng = random.Random(seed)\n155 \n",
-      "col_offset": 20,
-      "end_col_offset": 39,
-      "filename": "jarvis_core\\experimental\\active_learning\\query.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 154,
-      "line_range": [
-        154
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "9 import json\n10 import pickle\n11 from dataclasses import dataclass\n",
-      "col_offset": 0,
-      "end_col_offset": 13,
-      "filename": "jarvis_core\\index\\bm25_store.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 502,
-        "link": "https://cwe.mitre.org/data/definitions/502.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Consider possible security implications associated with pickle module.",
-      "line_number": 10,
-      "line_range": [
-        10
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_imports.html#b403-import-pickle",
-      "test_id": "B403",
       "test_name": "blacklist"
     },
     {
@@ -9230,27 +9418,6 @@
       "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b301-pickle",
       "test_id": "B301",
       "test_name": "blacklist"
-    },
-    {
-      "code": "297                         )\n298                 except Exception:\n299                     pass\n300 \n",
-      "col_offset": 16,
-      "end_col_offset": 24,
-      "filename": "jarvis_core\\infra\\iac.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 298,
-      "line_range": [
-        298,
-        299
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
     },
     {
       "code": "45             req = urllib.request.Request(url, headers=self._get_headers())\n46             with urllib.request.urlopen(req, timeout=10) as response:\n47                 return json.loads(response.read().decode())\n",
@@ -9593,86 +9760,6 @@
       "test_name": "blacklist"
     },
     {
-      "code": "178         for i in range(min(max_results, len(titles))):\n179             pmid = f\"39{random.randint(100000, 999999)}\"\n180             results.append(\n",
-      "col_offset": 24,
-      "end_col_offset": 54,
-      "filename": "jarvis_core\\integrations\\pubmed.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 179,
-      "line_range": [
-        179
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "183                     \"title\": titles[i],\n184                     \"authors\": random.choice(authors),\n185                     \"journal\": random.choice(journals),\n",
-      "col_offset": 31,
-      "end_col_offset": 53,
-      "filename": "jarvis_core\\integrations\\pubmed.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 184,
-      "line_range": [
-        184
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "184                     \"authors\": random.choice(authors),\n185                     \"journal\": random.choice(journals),\n186                     \"pub_date\": f\"2024 {random.choice(['Jan', 'Feb', 'Mar', 'Apr', 'May'])}\",\n",
-      "col_offset": 31,
-      "end_col_offset": 54,
-      "filename": "jarvis_core\\integrations\\pubmed.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 185,
-      "line_range": [
-        185
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "185                     \"journal\": random.choice(journals),\n186                     \"pub_date\": f\"2024 {random.choice(['Jan', 'Feb', 'Mar', 'Apr', 'May'])}\",\n187                     \"abstract\": f\"This study investigates {query} and its implications...\",\n",
-      "col_offset": 40,
-      "end_col_offset": 90,
-      "filename": "jarvis_core\\integrations\\pubmed.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 186,
-      "line_range": [
-        186
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
       "code": "71 \n72         response = requests.get(url, headers=self._headers, params=params)\n73         response.raise_for_status()\n",
       "col_offset": 19,
       "end_col_offset": 74,
@@ -9753,316 +9840,6 @@
       "test_name": "request_without_timeout"
     },
     {
-      "code": "146                         pending.append(d.decision_id)\n147                 except:\n148                     pass\n149 \n",
-      "col_offset": 16,
-      "end_col_offset": 24,
-      "filename": "jarvis_core\\intelligence\\outcome_tracker.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 147,
-      "line_range": [
-        147,
-        148
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "245                         count += 1\n246                 except Exception:\n247                     pass\n248 \n",
-      "col_offset": 16,
-      "end_col_offset": 24,
-      "filename": "jarvis_core\\kpi\\phase_kpi.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 246,
-      "line_range": [
-        246,
-        247
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "269                         count += 1\n270                 except Exception:\n271                     pass\n272 \n",
-      "col_offset": 16,
-      "end_col_offset": 24,
-      "filename": "jarvis_core\\kpi\\phase_kpi.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 270,
-      "line_range": [
-        270,
-        271
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "290                         coverages.append(coverage)\n291                 except Exception:\n292                     pass\n293 \n",
-      "col_offset": 16,
-      "end_col_offset": 24,
-      "filename": "jarvis_core\\kpi\\phase_kpi.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 291,
-      "line_range": [
-        291,
-        292
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "491                 # Simple random suggestion (real Bayesian would use GP)\n492                 params[param] = random.uniform(low, high)\n493             suggestions.append(params)\n",
-      "col_offset": 32,
-      "end_col_offset": 57,
-      "filename": "jarvis_core\\lab\\automation.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 492,
-      "line_range": [
-        492
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "513         # Simulated plate reading\n514         data = [[random.uniform(0, 3) for _ in range(12)] for _ in range(8)]\n515         return {\"wavelength\": wavelength, \"data\": data}\n",
-      "col_offset": 17,
-      "end_col_offset": 37,
-      "filename": "jarvis_core\\lab\\automation.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 514,
-      "line_range": [
-        514
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "561         return {\n562             \"confluency_pct\": random.uniform(60, 95),\n563             \"passage_recommended\": random.random() > 0.5,\n",
-      "col_offset": 30,
-      "end_col_offset": 52,
-      "filename": "jarvis_core\\lab\\automation.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 562,
-      "line_range": [
-        562
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "562             \"confluency_pct\": random.uniform(60, 95),\n563             \"passage_recommended\": random.random() > 0.5,\n564         }\n",
-      "col_offset": 35,
-      "end_col_offset": 50,
-      "filename": "jarvis_core\\lab\\automation.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 563,
-      "line_range": [
-        563
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "215         elif self.strategy == SamplingStrategy.RANDOM:\n216             return random.sample(unlabeled, min(self.batch_size, len(unlabeled)))\n217         else:  # COMBINED\n",
-      "col_offset": 19,
-      "end_col_offset": 81,
-      "filename": "jarvis_core\\learning\\active_learning.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 216,
-      "line_range": [
-        216
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "250 \n251         return random.random() < self.config.sample_rate\n252 \n",
-      "col_offset": 15,
-      "end_col_offset": 30,
-      "filename": "jarvis_core\\monitoring\\sentry.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 251,
-      "line_range": [
-        251
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "124 \n125         except Exception:\n126             pass\n127 \n",
-      "col_offset": 8,
-      "end_col_offset": 16,
-      "filename": "jarvis_core\\multimodal\\figure_table.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 125,
-      "line_range": [
-        125,
-        126
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "236             pass\n237         except Exception:\n238             pass\n239 \n",
-      "col_offset": 8,
-      "end_col_offset": 16,
-      "filename": "jarvis_core\\multimodal\\figure_table.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 237,
-      "line_range": [
-        237,
-        238
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "63                         return res\n64             except Exception:\n65                 pass\n66 \n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "jarvis_core\\network\\api_wrapper.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 64,
-      "line_range": [
-        64,
-        65
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "88                         return res\n89             except Exception:\n90                 pass\n91 \n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "jarvis_core\\network\\api_wrapper.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 89,
-      "line_range": [
-        89,
-        90
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "47                 listener(old, new)\n48             except Exception:\n49                 # Log error but don't stop notification\n50                 pass\n51 \n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "jarvis_core\\network\\degradation.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 48,
-      "line_range": [
-        48,
-        49,
-        50
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
       "code": "88             req = Request(url, headers={\"User-Agent\": \"Jarvis-ML-Pipeline/1.0\"})\n89             with urlopen(req, timeout=self.timeout) as response:\n90                 payload = response.read().decode(\"utf-8\")\n",
       "col_offset": 17,
       "end_col_offset": 51,
@@ -10101,497 +9878,6 @@
       "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b310-urllib-urlopen",
       "test_id": "B310",
       "test_name": "blacklist"
-    },
-    {
-      "code": "205                     self._snapshots[key] = SpecSnapshot(**val)\n206             except Exception:\n207                 pass\n208 \n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "jarvis_core\\ops\\drift_detector.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 206,
-      "line_range": [
-        206,
-        207
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "293                     self._baselines = json.load(f)\n294             except Exception:\n295                 pass\n296 \n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "jarvis_core\\ops\\drift_detector.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 294,
-      "line_range": [
-        294,
-        295
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "137             jitter_range = delay * 0.25\n138             delay += random.uniform(-jitter_range, jitter_range)\n139 \n",
-      "col_offset": 21,
-      "end_col_offset": 64,
-      "filename": "jarvis_core\\ops\\rate_limiter.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 138,
-      "line_range": [
-        138
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "176                     delay = min(base_delay * (2**attempt), max_delay)\n177                     delay += random.uniform(0, delay * 0.25)  # jitter\n178 \n",
-      "col_offset": 29,
-      "end_col_offset": 60,
-      "filename": "jarvis_core\\ops\\rate_limiter.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 177,
-      "line_range": [
-        177
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "119                 manifest[\"feedback_risk\"] = feedback_summary\n120         except Exception:\n121             pass\n122 \n",
-      "col_offset": 8,
-      "end_col_offset": 16,
-      "filename": "jarvis_core\\output\\manifest.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 120,
-      "line_range": [
-        120,
-        121
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "594             results.append(pv)\n595         except Exception:\n596             pass  # Skip corrupted files\n597 \n",
-      "col_offset": 8,
-      "end_col_offset": 16,
-      "filename": "jarvis_core\\paper_vector.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 595,
-      "line_range": [
-        595,
-        596
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "410                     )\n411             except Exception:\n412                 pass\n413 \n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "jarvis_core\\prompts\\registry.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 411,
-      "line_range": [
-        411,
-        412
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "161             if structure_type == \"helix\":\n162                 aa = random.choice(self.HELIX_FORMING + \"RKQE\")\n163             elif structure_type == \"sheet\":\n",
-      "col_offset": 21,
-      "end_col_offset": 63,
-      "filename": "jarvis_core\\protein\\biomolecule.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 162,
-      "line_range": [
-        162
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "163             elif structure_type == \"sheet\":\n164                 aa = random.choice(self.SHEET_FORMING + \"TFW\")\n165             else:\n",
-      "col_offset": 21,
-      "end_col_offset": 62,
-      "filename": "jarvis_core\\protein\\biomolecule.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 164,
-      "line_range": [
-        164
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "165             else:\n166                 aa = random.choice(self.AMINO_ACIDS)\n167             sequence.append(aa)\n",
-      "col_offset": 21,
-      "end_col_offset": 52,
-      "filename": "jarvis_core\\protein\\biomolecule.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 166,
-      "line_range": [
-        166
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "182             \"molecular_weight\": len(seq) * 110,  # Approximate\n183             \"isoelectric_point\": random.uniform(5, 9),\n184             \"hydrophobicity\": sum(1 for aa in seq if aa in \"VILMFYW\") / len(seq),\n",
-      "col_offset": 33,
-      "end_col_offset": 53,
-      "filename": "jarvis_core\\protein\\biomolecule.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 183,
-      "line_range": [
-        183
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "217                     \"residue\": i + 1,\n218                     \"ca_x\": random.uniform(-50, 50),\n219                     \"ca_y\": random.uniform(-50, 50),\n",
-      "col_offset": 28,
-      "end_col_offset": 51,
-      "filename": "jarvis_core\\protein\\biomolecule.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 218,
-      "line_range": [
-        218
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "218                     \"ca_x\": random.uniform(-50, 50),\n219                     \"ca_y\": random.uniform(-50, 50),\n220                     \"ca_z\": random.uniform(-50, 50),\n",
-      "col_offset": 28,
-      "end_col_offset": 51,
-      "filename": "jarvis_core\\protein\\biomolecule.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 219,
-      "line_range": [
-        219
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "219                     \"ca_y\": random.uniform(-50, 50),\n220                     \"ca_z\": random.uniform(-50, 50),\n221                 }\n",
-      "col_offset": 28,
-      "end_col_offset": 51,
-      "filename": "jarvis_core\\protein\\biomolecule.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 220,
-      "line_range": [
-        220
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "226             \"coordinates\": coordinates,\n227             \"confidence\": random.uniform(0.6, 0.9),\n228             \"method\": \"simplified_diffusion\",\n",
-      "col_offset": 26,
-      "end_col_offset": 50,
-      "filename": "jarvis_core\\protein\\biomolecule.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 227,
-      "line_range": [
-        227
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "271         # Generate CDR based on target properties\n272         cdr = \"\".join(random.choice(\"GSTYN\") for _ in range(cdr_length))\n273 \n",
-      "col_offset": 22,
-      "end_col_offset": 44,
-      "filename": "jarvis_core\\protein\\biomolecule.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 272,
-      "line_range": [
-        272
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "260                 resolve_crossref(ref, timeout=timeout)\n261             except Exception:\n262                 pass  # Don't fail on resolver errors\n263 \n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "jarvis_core\\reference.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 261,
-      "line_range": [
-        261,
-        262
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "267                 resolve_pubmed(ref, timeout=timeout)\n268             except Exception:\n269                 pass  # Don't fail on resolver errors\n270 \n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "jarvis_core\\reference.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 268,
-      "line_range": [
-        268,
-        269
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "145 \n146         if random.random() > self.config.probability:\n147             return 0.0\n",
-      "col_offset": 11,
-      "end_col_offset": 26,
-      "filename": "jarvis_core\\reliability\\chaos.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 146,
-      "line_range": [
-        146
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "148 \n149         latency_ms = random.uniform(\n150             self.config.min_latency_ms,\n151             self.config.max_latency_ms,\n152         )\n153         latency_s = latency_ms / 1000\n",
-      "col_offset": 21,
-      "end_col_offset": 9,
-      "filename": "jarvis_core\\reliability\\chaos.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 149,
-      "line_range": [
-        149,
-        150,
-        151,
-        152
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "181 \n182         should_fail = random.random() < self.config.failure_rate\n183 \n",
-      "col_offset": 22,
-      "end_col_offset": 37,
-      "filename": "jarvis_core\\reliability\\chaos.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 182,
-      "line_range": [
-        182
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "208 \n209         return random.random() < self.config.timeout_rate\n210 \n",
-      "col_offset": 15,
-      "end_col_offset": 30,
-      "filename": "jarvis_core\\reliability\\chaos.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 209,
-      "line_range": [
-        209
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "60         jitter_range = delay * config.jitter_factor\n61         delay += random.uniform(-jitter_range, jitter_range)\n62 \n",
-      "col_offset": 17,
-      "end_col_offset": 60,
-      "filename": "jarvis_core\\reliability\\retry.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 61,
-      "line_range": [
-        61
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "90                         self._records.append(RepairRecord.from_dict(json.loads(line)))\n91         except Exception:\n92             pass\n93 \n",
-      "col_offset": 8,
-      "end_col_offset": 16,
-      "filename": "jarvis_core\\repair\\learner.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 91,
-      "line_range": [
-        91,
-        92
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
     },
     {
       "code": "78 \n79         with urllib.request.urlopen(req, timeout=timeout) as response:\n80             data = json.loads(response.read().decode(\"utf-8\"))\n",
@@ -10654,27 +9940,7 @@
       "test_name": "blacklist"
     },
     {
-      "code": "8 import logging\n9 import pickle\n10 from pathlib import Path\n",
-      "col_offset": 0,
-      "end_col_offset": 13,
-      "filename": "jarvis_core\\retrieval\\bm25.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 502,
-        "link": "https://cwe.mitre.org/data/definitions/502.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Consider possible security implications associated with pickle module.",
-      "line_number": 9,
-      "line_range": [
-        9
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_imports.html#b403-import-pickle",
-      "test_id": "B403",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "87         with open(path, \"rb\") as f:\n88             data = pickle.load(f)\n89             self.bm25 = data[\"bm25\"]\n",
+      "code": "82         with open(path, \"rb\") as f:\n83             data = pickle.load(f)\n84             self.bm25 = data[\"bm25\"]\n",
       "col_offset": 19,
       "end_col_offset": 33,
       "filename": "jarvis_core\\retrieval\\bm25.py",
@@ -10685,364 +9951,13 @@
       },
       "issue_severity": "MEDIUM",
       "issue_text": "Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue.",
-      "line_number": 88,
+      "line_number": 83,
       "line_range": [
-        88
+        83
       ],
       "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b301-pickle",
       "test_id": "B301",
       "test_name": "blacklist"
-    },
-    {
-      "code": "52                 if self.jitter:\n53                     delay = delay * (0.5 + random.random())\n54 \n",
-      "col_offset": 43,
-      "end_col_offset": 58,
-      "filename": "jarvis_core\\retry.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 53,
-      "line_range": [
-        53
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "187                 self._ray.shutdown()\n188             except Exception:\n189                 pass\n190 \n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "jarvis_core\\runtime\\distributed.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 188,
-      "line_range": [
-        188,
-        189
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "93                 )\n94         except Exception:\n95             pass\n96 \n",
-      "col_offset": 8,
-      "end_col_offset": 16,
-      "filename": "jarvis_core\\runtime\\gpu.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 94,
-      "line_range": [
-        94,
-        95
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "52     if policy.jitter:\n53         delay *= 0.5 + random.random()\n54 \n",
-      "col_offset": 23,
-      "end_col_offset": 38,
-      "filename": "jarvis_core\\runtime\\retry.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 53,
-      "line_range": [
-        53
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "172                     self.execute_task(task_id)\n173                 except Exception:\n174                     pass  # Continue with other tasks\n175 \n",
-      "col_offset": 16,
-      "end_col_offset": 24,
-      "filename": "jarvis_core\\runtime\\task_graph.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 173,
-      "line_range": [
-        173,
-        174
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "192                         future.result()\n193                     except Exception:\n194                         pass  # Continue with other tasks\n195 \n",
-      "col_offset": 20,
-      "end_col_offset": 28,
-      "filename": "jarvis_core\\runtime\\task_graph.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 193,
-      "line_range": [
-        193,
-        194
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "44         for i in range(n):\n45             template = random.choice(self.HYPOTHESIS_TEMPLATES)\n46             hypothesis = self._fill_template(template, entities, topic)\n",
-      "col_offset": 23,
-      "end_col_offset": 63,
-      "filename": "jarvis_core\\scientist\\coscientist.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 45,
-      "line_range": [
-        45
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "51                     \"text\": hypothesis,\n52                     \"confidence\": round(random.uniform(0.4, 0.9), 2),\n53                     \"novelty_score\": round(random.uniform(0.3, 0.95), 2),\n",
-      "col_offset": 40,
-      "end_col_offset": 64,
-      "filename": "jarvis_core\\scientist\\coscientist.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 52,
-      "line_range": [
-        52
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "52                     \"confidence\": round(random.uniform(0.4, 0.9), 2),\n53                     \"novelty_score\": round(random.uniform(0.3, 0.95), 2),\n54                     \"testability_score\": round(random.uniform(0.5, 1.0), 2),\n",
-      "col_offset": 43,
-      "end_col_offset": 68,
-      "filename": "jarvis_core\\scientist\\coscientist.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 53,
-      "line_range": [
-        53
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "53                     \"novelty_score\": round(random.uniform(0.3, 0.95), 2),\n54                     \"testability_score\": round(random.uniform(0.5, 1.0), 2),\n55                     \"supporting_papers\": self._find_support(topic)[:3],\n",
-      "col_offset": 47,
-      "end_col_offset": 71,
-      "filename": "jarvis_core\\scientist\\coscientist.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 330,
-        "link": "https://cwe.mitre.org/data/definitions/330.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
-      "line_number": 54,
-      "line_range": [
-        54
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/blacklists/blacklist_calls.html#b311-random",
-      "test_id": "B311",
-      "test_name": "blacklist"
-    },
-    {
-      "code": "213                 return UnifiedPaper.from_openalex(work)\n214         except Exception:\n215             pass\n216 \n",
-      "col_offset": 8,
-      "end_col_offset": 16,
-      "filename": "jarvis_core\\sources\\unified_source_client.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 214,
-      "line_range": [
-        214,
-        215
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "221                 return UnifiedPaper.from_s2(paper)\n222         except Exception:\n223             pass\n224 \n",
-      "col_offset": 8,
-      "end_col_offset": 16,
-      "filename": "jarvis_core\\sources\\unified_source_client.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 222,
-      "line_range": [
-        222,
-        223
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "232                 return UnifiedPaper.from_pubmed(articles[0])\n233         except Exception:\n234             pass\n235         return None\n",
-      "col_offset": 8,
-      "end_col_offset": 16,
-      "filename": "jarvis_core\\sources\\unified_source_client.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 233,
-      "line_range": [
-        233,
-        234
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "251                 return [UnifiedPaper.from_s2(p) for p in papers]\n252             except Exception:\n253                 pass\n254 \n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "jarvis_core\\sources\\unified_source_client.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 252,
-      "line_range": [
-        252,
-        253
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "260                 return [UnifiedPaper.from_openalex(w) for w in works]\n261             except Exception:\n262                 pass\n263 \n",
-      "col_offset": 12,
-      "end_col_offset": 20,
-      "filename": "jarvis_core\\sources\\unified_source_client.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 261,
-      "line_range": [
-        261,
-        262
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "714                             existing_hashes.add(existing.get(\"record_hash\", \"\"))\n715                         except:\n716                             pass\n717 \n",
-      "col_offset": 24,
-      "end_col_offset": 32,
-      "filename": "jarvis_core\\stages\\pretrain_citation.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 715,
-      "line_range": [
-        715,
-        716
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
-    },
-    {
-      "code": "49                 return datetime.now(run_time.tzinfo) - run_time\n50     except Exception:\n51         pass\n52 \n",
-      "col_offset": 4,
-      "end_col_offset": 12,
-      "filename": "jarvis_core\\storage\\retention.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 50,
-      "line_range": [
-        50,
-        51
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
     },
     {
       "code": "142         where = \" AND \".join(conditions) if conditions else \"1=1\"\n143         query = f\"SELECT * FROM runs WHERE {where} ORDER BY created_at DESC LIMIT ?\"\n144         params.append(limit)\n",
@@ -11063,27 +9978,6 @@
       "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b608_hardcoded_sql_expressions.html",
       "test_id": "B608",
       "test_name": "hardcoded_sql_expressions"
-    },
-    {
-      "code": "112             duration = (end - start).total_seconds()\n113         except Exception:\n114             pass\n115 \n",
-      "col_offset": 8,
-      "end_col_offset": 16,
-      "filename": "jarvis_core\\telemetry\\summarize.py",
-      "issue_confidence": "HIGH",
-      "issue_cwe": {
-        "id": 703,
-        "link": "https://cwe.mitre.org/data/definitions/703.html"
-      },
-      "issue_severity": "LOW",
-      "issue_text": "Try, Except, Pass detected.",
-      "line_number": 113,
-      "line_range": [
-        113,
-        114
-      ],
-      "more_info": "https://bandit.readthedocs.io/en/1.9.3/plugins/b110_try_except_pass.html",
-      "test_id": "B110",
-      "test_name": "try_except_pass"
     }
   ]
 }
