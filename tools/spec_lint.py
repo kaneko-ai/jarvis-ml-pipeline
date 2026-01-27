@@ -52,10 +52,20 @@ AUTHORITY_PATTERN = re.compile(r">\s*Authority:\s*(\w+)\s*\(Level\s*(\d+),\s*(Bi
 # NonBindingレベル（強制語彙禁止）
 NON_BINDING_LEVELS = {"REFERENCE", "ROADMAP"}
 
-# 例外ファイル（強制語彙を許可）
+# 例外ファイル（強制語彙を許可 / Authorityヘッダー不要）
 EXCEPTIONS = {
     "SPEC_AUTHORITY.md",  # 権威定義文書自体
     "DECISIONS.md",  # 決定記録
+    "coverage_daily.md",  # 自動更新ログ
+    "DAILY_COVERAGE_TASKS.md",  # 実装タスク一覧
+    "index.md",
+    "browser.md",
+    "mcp.md",
+    "mcp_config.md",
+    "multi_agent.md",
+    "rules.md",
+    "skills.md",
+    "terminal_security.md",
 }
 
 

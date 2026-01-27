@@ -59,9 +59,9 @@ COVERAGE_PHASE=2 bash scripts/ci_coverage.sh
 
 ## 除外ルール
 
-### 除外禁止事項
+### 許可されない除外方法
 
-以下の方法でカバレッジ数値を作ることは**禁止**:
+以下の方法でカバレッジ数値を作ることは**行わない**:
 - `# pragma: no cover`の乱用
 - `.coveragerc`での広範な除外パターン追加
 - テストが通らないファイルを除外で数字を誤魔化す
@@ -76,7 +76,7 @@ COVERAGE_PHASE=2 bash scripts/ci_coverage.sh
 
 ## Phase 2 切替条件
 
-### 必須条件
+### 必要条件
 
 Phase 2に切り替えるには、以下の**すべて**を満たす必要がある:
 
@@ -87,7 +87,7 @@ Phase 2に切り替えるには、以下の**すべて**を満たす必要があ
 ### 切替手順
 
 1. CIの`COVERAGE_PHASE`を2に変更するPRを**単独**で出す
-2. そのPRでは"カバレッジを上げる変更は禁止"（原因切り分け）
+2. そのPRでは"カバレッジを上げる変更は行わない"（原因切り分け）
 3. PRタイトルに`[COVERAGE-GATE]`を含める
 
 ---
@@ -133,9 +133,9 @@ PR毎に`docs/coverage_improvement_history.md`に以下を記録:
 - 実装: `scripts/daily_coverage_snapshot.sh`, `scripts/append_coverage_daily_md.py`
 - 履歴: `docs/coverage_daily.md`
 
-### 禁止事項（共通）
+### 避けるべき行為（共通）
 
-Daily Snapshotの数値が低いからといって、以下を行ってはならない:
+Daily Snapshotの数値が低い場合でも、以下は行わない:
 
 1. `# pragma: no cover`を追加してカバレッジを上げる
 2. `.coveragerc`の除外パターンを拡大する

@@ -6,7 +6,10 @@ rank-bm25>=0.2.2
 defusedxml>=0.7.1
 
 [all]
-jarvis-research-os[embedding,llm,ml,pdf,web]
+jarvis-research-os[browser,embedding,llm,mcp,ml,pdf,web]
+
+[browser]
+playwright>=1.40
 
 [dev]
 pytest>=7.0
@@ -25,6 +28,9 @@ rank_bm25>=0.2.2
 [llm]
 google-generativeai>=0.3.0
 llama-cpp-python>=0.2.0
+
+[mcp]
+httpx>=0.25
 
 [ml]
 lightgbm>=4.0.0
