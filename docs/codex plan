@@ -1,0 +1,1952 @@
+# JARVIS Research OS - Codex タスク定義ファイル
+
+## 概要
+
+このファイルはJARVIS Research OS (v5.2.0) の開発タスクをCodex向けに定義したものです。
+
+**リポジトリ**: https://github.com/kaneko-ai/jarvis-ml-pipeline
+
+**現在のフェーズ**: Phase 2-ΩΩ+ → Phase 3 Ecosystem
+
+---
+
+# Part 1: Phase 2-ΩΩ+ 完了タスク（Quality Gate 100%達成）
+
+---
+
+## Task 001: Evidence Validator モジュール作成
+
+### ゴール
+全ての結論文に対してEvidence IDの参照を強制するバリデーターを実装する。
+
+### 完了条件
+- `jarvis_core/evidence/validator.py` が作成されている
+- `EvidenceValidator` クラスが `validate_conclusion(conclusion, evidence_ids, evidence_store)` メソッドを持つ
+- 戻り値は `EvidenceValidation` dataclass（`is_valid`, `violations`, `uncertainty_label` を含む）
+- Evidence IDが0件の場合は `MISSING_EVIDENCE_ID` violationを返す
+- `tests/test_evidence_validator.py` で最低5ケースのテストがパスする
+
+### 参考
+既存実装: `jarvis_core/evidence/schema.py`, `jarvis_core/evidence/store.py`
+
+---
+
+## Task 002: Uncertainty Label 自動判定
+
+### ゴール
+エビデンス強度に基づいて「確定/高信頼/要注意/推測」の4段階ラベルを自動判定する機能を追加する。
+
+### 完了条件
+- `jarvis_core/evidence/uncertainty.py` が作成されている
+- `determine_uncertainty_label(strength: float) -> str` 関数が実装されている
+- 閾値: 確定(0.95-1.0), 高信頼(0.80-0.95), 要注意(0.60-0.80), 推測(0.0-0.60)
+- `EvidenceGrade` dataclassに `uncertainty_label` フィールドが追加されている
+- `tests/test_uncertainty.py` で境界値テストがパスする
+
+### 参考
+既存実装: `jarvis_core/evidence/schema.py`, `jarvis_core/evidence/ensemble.py`
+
+---
+
+## Task 003: Language Lint ルール定義ファイル
+
+### ゴール
+禁止された因果表現と推奨されるヘッジング表現を定義するYAMLファイルを作成する。
+
+### 完了条件
+- `docs/LANGUAGE_RULES.yaml` が作成されている
+- `forbidden_causal_terms` セクションに最低10個のパターンが定義されている
+- 各パターンに `pattern`, `severity`, `suggestion`, `explanation` が含まれる
+- `evidence_level_language_map` セクションでレベル別の許可表現が定義されている
+- YAMLとして構文エラーなくパースできる
+
+### 参考
+既存実装: `jarvis_core/style/` ディレクトリ
+
+---
+
+## Task 004: Language Lint Checker 実装
+
+### ゴール
+Task 003で定義したルールに基づいてテキストをチェックするリンターを実装する。
+
+### 完了条件
+- `jarvis_core/style/language_lint.py` が作成されている
+- `LanguageLinter` クラスが `check(text: str) -> list[LintViolation]` メソッドを持つ
+- `LintViolation` dataclassに `line`, `pattern`, `severity`, `suggestion` が含まれる
+- `docs/LANGUAGE_RULES.yaml` を読み込んでルールを適用する
+- `tests/test_language_lint.py` でパスする
+
+### 参考
+既存実装: `jarvis_core/style/qa_gate.py`, `docs/LANGUAGE_RULES.yaml`（Task 003で作成）
+
+---
+
+## Task 005: Cost Tracker 詳細化
+
+### ゴール
+既存の `cost_report.json` 生成を拡張し、ステージ別のトークン/時間/API呼び出し数を追跡する。
+
+### 完了条件
+- `jarvis_core/telemetry/cost_tracker.py` が作成されている
+- `CostTracker` クラスが `track_stage(stage_name, tokens, time_ms, api_calls)` メソッドを持つ
+- `get_report()` が `totals` と `by_stage` を含むdictを返す
+- `app.py` から `CostTracker` が呼び出されている
+- `cost_report.json` に `by_stage` セクションが出力される
+
+### 参考
+既存実装: `jarvis_core/telemetry/__init__.py`, `jarvis_core/bundle.py`
+
+---
+
+## Task 006: Trick Set - No Evidence
+
+### ゴール
+エビデンスなしで結論を主張するテストケースセットを作成する。
+
+### 完了条件
+- `evals/trick_sets/no_evidence.jsonl` が作成されている
+- 最低10ケースが含まれている
+- 各ケースは `{"goal": "...", "expected_gate_passed": false, "expected_violation": "MISSING_EVIDENCE_ID"}` 形式
+- `uv run pytest evals/test_trick_sets.py::test_no_evidence` がパスする
+
+### 参考
+既存実装: `evals/benchmarks/` ディレクトリ
+
+---
+
+## Task 007: Trick Set - Overclaim
+
+### ゴール
+エビデンスレベルに対して過剰な因果主張をするテストケースセットを作成する。
+
+### 完了条件
+- `evals/trick_sets/overclaim.jsonl` が作成されている
+- 最低10ケースが含まれている
+- 各ケースは `{"goal": "...", "evidence_level": "3b", "claim_strength": "proves", "expected_violation": "LANGUAGE_VIOLATION"}` 形式
+- Language Lintが90%以上のケースでviolationを検出する
+
+### 参考
+既存実装: `evals/trick_sets/no_evidence.jsonl`（Task 006で作成）
+
+---
+
+## Task 008: Trick Set - Contradiction
+
+### ゴール
+矛盾する主張を含むテストケースセットを作成する。
+
+### 完了条件
+- `evals/trick_sets/contradiction.jsonl` が作成されている
+- 最低10ケースが含まれている
+- 各ケースは `{"claims": [{"text": "..."}, {"text": "..."}], "expected_contradiction": true}` 形式
+- `ContradictionDetector` が85%以上のケースで矛盾を検出する
+
+### 参考
+既存実装: `jarvis_core/contradiction/detector.py`, `tests/test_contradiction.py`
+
+---
+
+## Task 009: Trick Set CI ワークフロー
+
+### ゴール
+Trick SetをCIで自動実行するGitHub Actionsワークフローを作成する。
+
+### 完了条件
+- `.github/workflows/trick_set.yml` が作成されている
+- `push` と `pull_request` で `main` ブランチに対してトリガーされる
+- Task 006, 007, 008 の3つのTrick Setを実行する
+- 各Trick Setの期待結果と実際の結果を比較してassertする
+- 結果を `results/` にアーティファクトとして保存する
+
+### 参考
+既存実装: `.github/workflows/ci.yml`
+
+---
+
+## Task 010: Evidence Locator Verification
+
+### ゴール
+Evidence locatorが実際のPDF/テキスト本文と一致するか検証する機能を実装する。
+
+### 完了条件
+- `jarvis_core/evidence/locator_verifier.py` が作成されている
+- `verify_locator(locator: str, source_text: str) -> VerificationResult` 関数が実装されている
+- `VerificationResult` に `match_ratio`, `is_valid` (閾値0.8), `matched_span` が含まれる
+- 部分一致（fuzzy matching）をサポートする
+- `tests/test_locator_verifier.py` でパスする
+
+### 参考
+既存実装: `jarvis_core/evidence/store.py`
+
+---
+
+# Part 2: MCP Server Hub 構築タスク
+
+---
+
+## Task 011: MCP Server 基本スキーマ定義
+
+### ゴール
+MCP Server と Tool の基本データ構造を定義する。
+
+### 完了条件
+- `jarvis_core/mcp/__init__.py` が作成されている
+- `jarvis_core/mcp/schema.py` に以下のdataclassが定義されている:
+  - `MCPTool` (name, description, parameters, required_params, enabled)
+  - `MCPServer` (name, server_url, server_type, tools, headers, status)
+  - `MCPToolResult` (tool_name, server_name, success, data, error, latency_ms)
+- `MCPServerStatus` Enumが定義されている (CONNECTED, DISCONNECTED, ERROR, RATE_LIMITED)
+
+### 参考
+既存実装: `jarvis_core/lab/automation.py` の `MCPServerManager`
+
+---
+
+## Task 012: MCP Hub コア実装
+
+### ゴール
+複数のMCP Serverを管理し、ツールを呼び出すHubクラスを実装する。
+
+### 完了条件
+- `jarvis_core/mcp/hub.py` が作成されている
+- `MCPHub` クラスが以下のメソッドを持つ:
+  - `register_server(server: MCPServer)`
+  - `register_from_config(config_path: str)` - JSONから一括登録
+  - `async discover_tools(server_name: str) -> list[MCPTool]`
+  - `async invoke_tool(tool_name: str, params: dict) -> MCPToolResult`
+  - `list_all_tools() -> list[dict]`
+- Rate limiting を考慮している（`requests_per_minute` チェック）
+- `tests/test_mcp_hub.py` でモックを使ったテストがパスする
+
+### 参考
+既存実装: `jarvis_core/sources/unified_source_client.py`
+
+---
+
+## Task 013: MCP Config ファイルフォーマット
+
+### ゴール
+MCP Serverの設定ファイルフォーマットとローダーを実装する。
+
+### 完了条件
+- `configs/mcp_config.json` のサンプルが作成されている
+- `mcpServers` オブジェクトに複数サーバーが定義できる
+- 各サーバーに `serverUrl`, `type`, `headers` が設定できる
+- `MCPHub.register_from_config()` がこのファイルを正しくパースする
+- ドキュメント `docs/mcp_config.md` が作成されている
+
+### 参考
+既存実装: `configs/agents.yaml`
+
+---
+
+## Task 014: PubMed MCP Server 定義
+
+### ゴール
+PubMed API用のMCP Server事前定義を作成する。
+
+### 完了条件
+- `jarvis_core/mcp/servers/pubmed.py` が作成されている
+- `get_pubmed_mcp_server() -> MCPServer` 関数が実装されている
+- 以下のツールが定義されている:
+  - `pubmed_search` (query, max_results, date_range)
+  - `pubmed_fetch` (pmids)
+  - `pubmed_citations` (pmid)
+- `requests_per_minute: 30` が設定されている
+- `tests/test_mcp_pubmed.py` でモックテストがパスする
+
+### 参考
+既存実装: `jarvis_core/sources/pubmed_client.py`
+
+---
+
+## Task 015: Semantic Scholar MCP Server 定義
+
+### ゴール
+Semantic Scholar API用のMCP Server事前定義を作成する。
+
+### 完了条件
+- `jarvis_core/mcp/servers/semantic_scholar.py` が作成されている
+- `get_semantic_scholar_mcp_server() -> MCPServer` 関数が実装されている
+- 以下のツールが定義されている:
+  - `s2_search` (query, fields, limit)
+  - `s2_paper` (paper_id)
+  - `s2_citations` (paper_id, limit)
+  - `s2_references` (paper_id, limit)
+- `requests_per_minute: 100` が設定されている
+
+### 参考
+既存実装: `jarvis_core/sources/semantic_scholar_client.py`
+
+---
+
+## Task 016: OpenAlex MCP Server 定義
+
+### ゴール
+OpenAlex API用のMCP Server事前定義を作成する。
+
+### 完了条件
+- `jarvis_core/mcp/servers/openalex.py` が作成されている
+- `get_openalex_mcp_server() -> MCPServer` 関数が実装されている
+- 以下のツールが定義されている:
+  - `openalex_search` (query, filter, sort)
+  - `openalex_work` (work_id)
+  - `openalex_author` (author_id)
+  - `openalex_institution` (institution_id)
+- `requests_per_minute: 100` が設定されている
+
+### 参考
+既存実装: `jarvis_core/sources/openalex_client.py`
+
+---
+
+## Task 017: MCP Tool Chain Builder
+
+### ゴール
+複数のMCPツールを連鎖実行するビルダーを実装する。
+
+### 完了条件
+- `jarvis_core/mcp/chain.py` が作成されている
+- `ToolChain` クラスが以下のメソッドを持つ:
+  - `add_step(tool_name: str, params_mapper: Callable)`
+  - `async execute(initial_input: dict) -> list[MCPToolResult]`
+- 前のステップの出力を次のステップの入力にマッピングできる
+- エラー時に中断するか継続するかを設定できる
+- `tests/test_mcp_chain.py` でパスする
+
+### 参考
+既存実装: `jarvis_core/planner.py`
+
+---
+
+## Task 018: MCP Hub CLI コマンド
+
+### ゴール
+MCP Hubを操作するCLIサブコマンドを追加する。
+
+### 完了条件
+- `jarvis mcp list` - 登録済みサーバーとツール一覧を表示
+- `jarvis mcp discover <server_name>` - サーバーからツールを検出
+- `jarvis mcp invoke <tool_name> --params '{...}'` - ツールを実行
+- `jarvis mcp config` - 設定ファイルのパスを表示
+- `jarvis_cli.py` または `jarvis_tools/` に実装されている
+
+### 参考
+既存実装: `jarvis_cli.py`
+
+---
+
+# Part 3: Browser Subagent タスク
+
+---
+
+## Task 019: Browser Subagent 基本スキーマ
+
+### ゴール
+Browser Subagentのデータ構造を定義する。
+
+### 完了条件
+- `jarvis_core/browser/__init__.py` が作成されている
+- `jarvis_core/browser/schema.py` に以下が定義されている:
+  - `BrowserAction` Enum (NAVIGATE, CLICK, TYPE, SCROLL, SCREENSHOT, EXTRACT_TEXT, EXTRACT_DOM, WAIT, EXECUTE_JS)
+  - `BrowserState` dataclass (current_url, title, dom_snapshot, screenshot_base64, console_logs)
+  - `BrowserActionResult` dataclass (action, success, data, error, screenshot, duration_ms)
+  - `SecurityPolicy` dataclass (js_execution, url_allow_list, url_deny_list)
+
+### 参考
+既存実装: `jarvis_core/lab/automation.py` の `WebScraper`
+
+---
+
+## Task 020: Browser Subagent コア実装
+
+### ゴール
+Playwrightを使用したBrowser Subagentのコア機能を実装する。
+
+### 完了条件
+- `jarvis_core/browser/subagent.py` が作成されている
+- `BrowserSubagent` クラスが以下のメソッドを持つ:
+  - `async initialize()`
+  - `async navigate(url: str) -> BrowserActionResult`
+  - `async click(selector: str) -> BrowserActionResult`
+  - `async type_text(selector: str, text: str) -> BrowserActionResult`
+  - `async screenshot(full_page: bool) -> BrowserActionResult`
+  - `async extract_text(selector: str) -> BrowserActionResult`
+  - `async close()`
+- `SecurityPolicy` によるURL許可/拒否チェックが実装されている
+- `playwright` はオプショナル依存として `pyproject.toml` に追加されている
+
+### 参考
+既存実装: `jarvis_core/lab/automation.py`
+
+---
+
+## Task 021: Browser Security Policy 実装
+
+### ゴール
+Browser SubagentのセキュリティポリシーをYAMLから読み込む機能を実装する。
+
+### 完了条件
+- `jarvis_core/browser/security.py` が作成されている
+- `configs/browser_security.yaml` サンプルが作成されている
+- `BrowserSecurityManager` クラスが以下を持つ:
+  - `from_yaml(path: str)` クラスメソッド
+  - `check_url(url: str) -> bool`
+  - `check_js_execution(script: str) -> tuple[bool, str]`
+- デフォルトで学術サイト（pubmed, arxiv, doi.org等）のみ許可
+
+### 参考
+既存実装: `jarvis_core/network/` ディレクトリ
+
+---
+
+## Task 022: Browser Recording 機能
+
+### ゴール
+ブラウザ操作のスクリーンショット連続キャプチャとビデオ生成機能を実装する。
+
+### 完了条件
+- `jarvis_core/browser/recording.py` が作成されている
+- `BrowserRecorder` クラスが以下のメソッドを持つ:
+  - `start_recording()`
+  - `capture_frame()` - スクリーンショットをフレームとして保存
+  - `stop_recording() -> Path` - フレームをディレクトリに保存
+- `BrowserSubagent` に `start_recording()`, `stop_recording()` が統合されている
+- フレームは `logs/browser_recordings/{session_id}/` に保存される
+
+### 参考
+既存実装: `jarvis_core/telemetry/`
+
+---
+
+## Task 023: PubMed Browser Agent
+
+### ゴール
+PubMedサイトに特化したブラウザエージェントを実装する。
+
+### 完了条件
+- `jarvis_core/browser/agents/pubmed.py` が作成されている
+- `PubMedBrowserAgent` クラスが `BrowserSubagent` を継承している
+- 以下のメソッドを持つ:
+  - `async search(query: str, max_results: int) -> list[dict]`
+  - `async get_abstract(pmid: str) -> str`
+  - `async download_pdf_link(pmid: str) -> str | None`
+- PubMed特有のセレクタ（検索フォーム、結果リスト等）が定義されている
+
+### 参考
+既存実装: `jarvis_core/sources/pubmed_client.py`
+
+---
+
+## Task 024: arXiv Browser Agent
+
+### ゴール
+arXivサイトに特化したブラウザエージェントを実装する。
+
+### 完了条件
+- `jarvis_core/browser/agents/arxiv.py` が作成されている
+- `ArxivBrowserAgent` クラスが `BrowserSubagent` を継承している
+- 以下のメソッドを持つ:
+  - `async search(query: str, max_results: int) -> list[dict]`
+  - `async get_abstract(arxiv_id: str) -> str`
+  - `async get_pdf_url(arxiv_id: str) -> str`
+- arXiv特有のセレクタが定義されている
+
+### 参考
+既存実装: `jarvis_core/browser/agents/pubmed.py`（Task 023で作成）
+
+---
+
+## Task 025: PDF Download Agent
+
+### ゴール
+論文PDFを自動的にダウンロードするエージェントを実装する。
+
+### 完了条件
+- `jarvis_core/browser/agents/pdf_download.py` が作成されている
+- `PDFDownloadAgent` クラスが以下のメソッドを持つ:
+  - `async download(url: str, output_path: Path) -> bool`
+  - `async find_pdf_link(page_url: str) -> str | None`
+- Unpaywall APIと連携してOAリンクを探索する
+- ダウンロードしたPDFは `downloads/` ディレクトリに保存される
+
+### 参考
+既存実装: `jarvis_core/lab/automation.py` の `PDFDownloader`
+
+---
+
+# Part 4: Skills System タスク
+
+---
+
+## Task 026: Skills Engine 基本スキーマ
+
+### ゴール
+Skills Systemのデータ構造を定義する。
+
+### 完了条件
+- `jarvis_core/skills/__init__.py` が作成されている
+- `jarvis_core/skills/schema.py` に以下が定義されている:
+  - `SkillScope` Enum (GLOBAL, WORKSPACE)
+  - `SkillMetadata` dataclass (name, description, triggers, dependencies)
+  - `Skill` dataclass (metadata, scope, path, instructions, resources, scripts, loaded)
+
+### 参考
+既存実装: `jarvis_core/registry.py`
+
+---
+
+## Task 027: Skills Engine コア実装
+
+### ゴール
+Skillsを発見・ロード・適用するエンジンを実装する。
+
+### 完了条件
+- `jarvis_core/skills/engine.py` が作成されている
+- `SkillsEngine` クラスが以下のメソッドを持つ:
+  - `__init__(workspace_path: Path | None)`
+  - `match_skills(user_request: str) -> list[str]` - トリガーマッチング
+  - `get_context_for_llm(skill_names: list[str]) -> str` - LLMコンテキスト生成
+  - `get_resource(skill_name: str, resource_name: str) -> str | None`
+  - `list_all_skills() -> list[dict]`
+- グローバルスキル（`~/.gemini/antigravity/skills/`）とワークスペーススキル（`<ws>/.agent/skills/`）を発見する
+- `SKILL.md` のfrontmatterをパースしてメタデータのみ先に読み込む（遅延ロード）
+
+### 参考
+既存実装: `jarvis_core/registry.py`
+
+---
+
+## Task 028: Evidence Grading Skill
+
+### ゴール
+CEBMエビデンスグレーディング用の組み込みSkillを作成する。
+
+### 完了条件
+- `jarvis_core/skills/builtin/evidence_grading/SKILL.md` が作成されている
+- frontmatterに `name`, `description`, `triggers` が定義されている
+- `triggers` に "evidence level", "grade evidence", "CEBM", "study quality" が含まれる
+- 本文にCEBMレベル表と使用ガイドラインが記載されている
+- `resources/CEBM_CRITERIA.md` に詳細基準が記載されている
+
+### 参考
+既存実装: `jarvis_core/evidence/` ディレクトリ
+
+---
+
+## Task 029: Systematic Review Skill
+
+### ゴール
+システマティックレビュー実施用の組み込みSkillを作成する。
+
+### 完了条件
+- `jarvis_core/skills/builtin/systematic_review/SKILL.md` が作成されている
+- `triggers` に "systematic review", "literature review", "PRISMA" が含まれる
+- `dependencies` に "evidence-grading" が含まれる
+- 本文にPRISMAワークフローが記載されている
+- `resources/SEARCH_STRATEGY_TEMPLATE.md` が作成されている
+- `resources/PRISMA_CHECKLIST.md` が作成されている
+
+### 参考
+既存実装: `jarvis_core/prisma/` ディレクトリ
+
+---
+
+## Task 030: Citation Analysis Skill
+
+### ゴール
+引用分析用の組み込みSkillを作成する。
+
+### 完了条件
+- `jarvis_core/skills/builtin/citation_analysis/SKILL.md` が作成されている
+- `triggers` に "citation", "references", "support", "contrast" が含まれる
+- 本文にSupport/Contrast/Mention分類ガイドが記載されている
+- `resources/CITATION_PATTERNS.md` に引用パターン例が記載されている
+
+### 参考
+既存実装: `jarvis_core/citation/` ディレクトリ
+
+---
+
+## Task 031: Contradiction Detection Skill
+
+### ゴール
+矛盾検出用の組み込みSkillを作成する。
+
+### 完了条件
+- `jarvis_core/skills/builtin/contradiction_detection/SKILL.md` が作成されている
+- `triggers` に "contradiction", "conflict", "inconsistent" が含まれる
+- `dependencies` に "citation-analysis" が含まれる
+- 本文に矛盾タイプ（direct, quantitative, temporal）の説明が記載されている
+
+### 参考
+既存実装: `jarvis_core/contradiction/` ディレクトリ
+
+---
+
+## Task 032: Skills CLI コマンド
+
+### ゴール
+Skillsを操作するCLIサブコマンドを追加する。
+
+### 完了条件
+- `jarvis skills list` - 利用可能なスキル一覧を表示
+- `jarvis skills show <skill_name>` - スキルの詳細を表示
+- `jarvis skills match "<query>"` - クエリにマッチするスキルを表示
+- `jarvis skills init <skill_name>` - 新しいスキルのテンプレートを作成
+- `jarvis_cli.py` に実装されている
+
+### 参考
+既存実装: `jarvis_cli.py`
+
+---
+
+# Part 5: Terminal Security タスク
+
+---
+
+## Task 033: Terminal Security Schema
+
+### ゴール
+ターミナルセキュリティポリシーのデータ構造を定義する。
+
+### 完了条件
+- `jarvis_core/security/__init__.py` が作成されている
+- `jarvis_core/security/terminal_schema.py` に以下が定義されている:
+  - `ExecutionPolicy` Enum (OFF, AUTO, TURBO)
+  - `CommandPattern` dataclass (pattern, is_regex, reason)
+  - `TerminalSecurityConfig` dataclass (execution_policy, allow_list, deny_list, max_execution_time_seconds, require_confirmation_for_sudo)
+  - `CommandExecutionRequest` dataclass (command, working_dir, environment, timeout)
+  - `CommandExecutionResult` dataclass (command, allowed, executed, exit_code, stdout, stderr, blocked_reason, requires_approval)
+
+### 参考
+既存実装: `jarvis_core/run_config.py`
+
+---
+
+## Task 034: Terminal Security Manager
+
+### ゴール
+ターミナルコマンドの実行可否をチェックするマネージャーを実装する。
+
+### 完了条件
+- `jarvis_core/security/terminal.py` が作成されている
+- `TerminalSecurityManager` クラスが以下を持つ:
+  - `from_yaml(config_path: Path)` クラスメソッド
+  - `check_command(request: CommandExecutionRequest) -> CommandExecutionResult`
+  - `async execute_command(request: CommandExecutionRequest, approved: bool) -> CommandExecutionResult`
+- デフォルトのDeny List（`rm -rf /`, fork bomb等）が組み込まれている
+- デフォルトのAllow List（`ls`, `cat`, `git status`等）が組み込まれている
+- `tests/test_terminal_security.py` でパスする
+
+### 参考
+既存実装: `jarvis_core/executor.py`
+
+---
+
+## Task 035: Terminal Security Config ファイル
+
+### ゴール
+ターミナルセキュリティの設定ファイルフォーマットとサンプルを作成する。
+
+### 完了条件
+- `configs/terminal_security.yaml` サンプルが作成されている
+- `execution_policy`, `allow_list`, `deny_list` セクションが含まれる
+- 各パターンに `pattern`, `is_regex`, `reason` が設定できる
+- ドキュメント `docs/terminal_security.md` が作成されている
+
+### 参考
+既存実装: `configs/` ディレクトリ
+
+---
+
+## Task 036: Sudo Approval Flow
+
+### ゴール
+sudoコマンドの実行時に承認を要求するフローを実装する。
+
+### 完了条件
+- `TerminalSecurityManager.check_command()` で `sudo` コマンドを検出する
+- `requires_approval: True` を返す
+- `execute_command(request, approved=True)` で承認後に実行できる
+- 承認なしの実行は `blocked_reason` とともに拒否される
+- `tests/test_sudo_approval.py` でパスする
+
+### 参考
+既存実装: `jarvis_core/security/terminal.py`（Task 034で作成）
+
+---
+
+# Part 6: Multi-Agent Orchestrator タスク
+
+---
+
+## Task 037: Agent Instance Schema
+
+### ゴール
+マルチエージェントのデータ構造を定義する。
+
+### 完了条件
+- `jarvis_core/orchestrator/__init__.py` が作成されている
+- `jarvis_core/orchestrator/schema.py` に以下が定義されている:
+  - `AgentStatus` Enum (IDLE, PLANNING, EXECUTING, WAITING_APPROVAL, COMPLETED, FAILED, CANCELLED)
+  - `AgentMode` Enum (PLANNING, FAST)
+  - `AgentTask` dataclass (task_id, description, agent_type, priority, dependencies, created_at)
+  - `AgentInstance` dataclass (agent_id, task, status, mode, progress, artifacts, errors, started_at, completed_at)
+
+### 参考
+既存実装: `jarvis_core/task.py`
+
+---
+
+## Task 038: Conversation Schema
+
+### ゴール
+会話（Inbox）のデータ構造を定義する。
+
+### 完了条件
+- `jarvis_core/orchestrator/conversation.py` に以下が定義されている:
+  - `ConversationMessage` dataclass (message_id, agent_id, role, content, timestamp, artifacts)
+  - `Conversation` dataclass (conversation_id, title, workspace, agents, messages, status, created_at, updated_at)
+
+### 参考
+既存実装: `jarvis_core/orchestrator/schema.py`（Task 037で作成）
+
+---
+
+## Task 039: Multi-Agent Orchestrator コア
+
+### ゴール
+複数エージェントを並列管理するOrchestratorのコア機能を実装する。
+
+### 完了条件
+- `jarvis_core/orchestrator/multi_agent.py` が作成されている
+- `MultiAgentOrchestrator` クラスが以下を持つ:
+  - `__init__(max_concurrent_agents: int, default_mode: AgentMode)`
+  - `async spawn_agent(task: AgentTask, mode: AgentMode | None, conversation_id: str | None) -> str`
+  - `async start()` - ワーカープール開始
+  - `async stop()` - 停止
+  - `get_agent_status(agent_id: str) -> dict | None`
+  - `get_all_agents() -> list[dict]`
+- `asyncio.Queue` を使ったタスクキューイングが実装されている
+- `tests/test_orchestrator.py` でパスする
+
+### 参考
+既存実装: `jarvis_core/executor.py`
+
+---
+
+## Task 040: Conversation Management
+
+### ゴール
+会話（Inbox）の作成・管理機能を実装する。
+
+### 完了条件
+- `MultiAgentOrchestrator` に以下のメソッドが追加されている:
+  - `create_conversation(title: str, workspace: str) -> str`
+  - `add_message(conversation_id: str, agent_id: str, role: str, content: str, artifacts: list[str] | None) -> str`
+  - `get_inbox() -> list[dict]` - 更新日時降順でソート
+  - `get_conversation(conversation_id: str) -> Conversation | None`
+- `tests/test_conversation.py` でパスする
+
+### 参考
+既存実装: `jarvis_core/orchestrator/multi_agent.py`（Task 039で作成）
+
+---
+
+## Task 041: Approval Flow
+
+### ゴール
+エージェントの承認リクエストと承認/却下フローを実装する。
+
+### 完了条件
+- `MultiAgentOrchestrator` に以下のメソッドが追加されている:
+  - `async request_approval(agent_id: str, approval_type: str, details: dict)`
+  - `async approve(agent_id: str, approved: bool)`
+- 承認待ちエージェントは `status = WAITING_APPROVAL` になる
+- 承認後にタスクキューに再投入される
+- 却下時は `status = CANCELLED` になる
+- コールバック `on_approval_required` が呼ばれる
+
+### 参考
+既存実装: `jarvis_core/orchestrator/multi_agent.py`
+
+---
+
+## Task 042: Agent Event Callbacks
+
+### ゴール
+エージェント状態変化時のコールバック機能を実装する。
+
+### 完了条件
+- `MultiAgentOrchestrator.register_callback(event_type: str, callback: Callable)` が実装されている
+- 以下のイベントタイプをサポート:
+  - `status_change` - 状態変化時
+  - `artifact_created` - アーティファクト生成時
+  - `approval_required` - 承認要求時
+- コールバックは `async` 関数として呼ばれる
+- `tests/test_agent_callbacks.py` でパスする
+
+### 参考
+既存実装: `jarvis_core/network/listener.py`
+
+---
+
+## Task 043: Artifact Store
+
+### ゴール
+エージェントが生成するアーティファクトを保存・管理する機能を実装する。
+
+### 完了条件
+- `jarvis_core/orchestrator/artifact_store.py` が作成されている
+- `ArtifactStore` クラスが以下を持つ:
+  - `save(agent_id: str, filename: str, content: str | bytes) -> str` - パスを返す
+  - `load(artifact_path: str) -> str | bytes`
+  - `list_artifacts(agent_id: str) -> list[str]`
+- アーティファクトは `logs/artifacts/{agent_id}/` に保存される
+- バイナリ（画像等）とテキストの両方をサポートする
+
+### 参考
+既存実装: `jarvis_core/storage.py`
+
+---
+
+## Task 044: Research Agent 実装
+
+### ゴール
+文献調査を行うResearch Agentを実装する。
+
+### 完了条件
+- `jarvis_core/orchestrator/agents/research.py` が作成されている
+- `ResearchAgent` クラスが以下のメソッドを持つ:
+  - `async execute(task: AgentTask, orchestrator: MultiAgentOrchestrator) -> None`
+- 実行時に以下のアーティファクトを生成する:
+  - `task_plan.md`
+  - `implementation_plan.md`
+  - `walkthrough.md`
+- `jarvis_core.run_jarvis()` を内部で使用する
+
+### 参考
+既存実装: `jarvis_core/agents/` ディレクトリ
+
+---
+
+## Task 045: Browser Agent 実装
+
+### ゴール
+Web操作を行うBrowser Agentを実装する。
+
+### 完了条件
+- `jarvis_core/orchestrator/agents/browser.py` が作成されている
+- `BrowserAgent` クラスが以下のメソッドを持つ:
+  - `async execute(task: AgentTask, orchestrator: MultiAgentOrchestrator) -> None`
+- タスク説明からURLを抽出して `BrowserSubagent` を使用する
+- 実行時に以下のアーティファクトを生成する:
+  - `screenshot.png`
+  - `extracted_text.txt`
+  - 録画フレーム（オプション）
+
+### 参考
+既存実装: `jarvis_core/browser/subagent.py`（Task 020で作成）
+
+---
+
+# Part 7: Rules Engine タスク
+
+---
+
+## Task 046: Rules Schema
+
+### ゴール
+Rules Engineのデータ構造を定義する。
+
+### 完了条件
+- `jarvis_core/rules/__init__.py` が作成されている
+- `jarvis_core/rules/schema.py` に以下が定義されている:
+  - `RuleScope` Enum (GLOBAL, WORKSPACE)
+  - `Rule` dataclass (name, scope, path, content, enabled)
+
+### 参考
+既存実装: `jarvis_core/skills/schema.py`
+
+---
+
+## Task 047: Rules Engine コア
+
+### ゴール
+Global/Workspace Rulesを読み込んでLLMコンテキストに適用するエンジンを実装する。
+
+### 完了条件
+- `jarvis_core/rules/engine.py` が作成されている
+- `RulesEngine` クラスが以下を持つ:
+  - `__init__(workspace_path: Path | None)`
+  - `load_rules()` - `~/.gemini/GEMINI.md` と `<ws>/.agent/rules/*.md` を読み込む
+  - `get_context_for_llm() -> str` - 全ルールを結合してLLMコンテキスト用文字列を返す
+  - `list_rules() -> list[dict]`
+- ワークスペースルールがグローバルルールを上書きできる
+
+### 参考
+既存実装: `jarvis_core/skills/engine.py`（Task 027で作成）
+
+---
+
+## Task 048: Global Rules テンプレート
+
+### ゴール
+グローバルルールのサンプルテンプレートを作成する。
+
+### 完了条件
+- `templates/GEMINI.md` サンプルが作成されている
+- 以下のセクションが含まれる:
+  - Code Style Guidelines
+  - Documentation Requirements
+  - Testing Standards
+- ドキュメント `docs/rules.md` が作成されている
+
+### 参考
+既存実装: なし（新規）
+
+---
+
+## Task 049: Workspace Rules テンプレート
+
+### ゴール
+ワークスペースルールのサンプルテンプレートを作成する。
+
+### 完了条件
+- `templates/workspace_rules/` ディレクトリが作成されている
+- 以下のサンプルルールファイルが含まれる:
+  - `code-style.md` - プロジェクト固有のコーディング規約
+  - `evidence-rules.md` - エビデンス引用ルール
+  - `language-rules.md` - 言語使用ルール
+
+### 参考
+既存実装: `templates/GEMINI.md`（Task 048で作成）
+
+---
+
+## Task 050: Rules CLI コマンド
+
+### ゴール
+Rulesを操作するCLIサブコマンドを追加する。
+
+### 完了条件
+- `jarvis rules list` - 適用されているルール一覧を表示
+- `jarvis rules show <rule_name>` - ルールの内容を表示
+- `jarvis rules init` - ワークスペースに `.agent/rules/` を作成
+- `jarvis_cli.py` に実装されている
+
+### 参考
+既存実装: `jarvis_cli.py`
+
+---
+
+# Part 8: Workflows タスク
+
+---
+
+## Task 051: Workflows Schema
+
+### ゴール
+Saved Workflowsのデータ構造を定義する。
+
+### 完了条件
+- `jarvis_core/workflows/__init__.py` が作成されている
+- `jarvis_core/workflows/schema.py` に以下が定義されている:
+  - `WorkflowScope` Enum (GLOBAL, WORKSPACE)
+  - `WorkflowMetadata` dataclass (name, description, command)
+  - `Workflow` dataclass (metadata, scope, path, content)
+
+### 参考
+既存実装: `jarvis_core/skills/schema.py`
+
+---
+
+## Task 052: Workflows Engine コア
+
+### ゴール
+Workflowsを発見・実行するエンジンを実装する。
+
+### 完了条件
+- `jarvis_core/workflows/engine.py` が作成されている
+- `WorkflowsEngine` クラスが以下を持つ:
+  - `__init__(workspace_path: Path | None)`
+  - `discover_workflows()` - `~/.gemini/antigravity/global_workflows/` と `<ws>/.agent/workflows/` を検索
+  - `get_workflow(name: str) -> Workflow | None`
+  - `list_workflows() -> list[dict]`
+  - `execute(name: str, context: dict) -> str` - ワークフロー内容をLLMに渡して実行
+
+### 参考
+既存実装: `jarvis_core/skills/engine.py`
+
+---
+
+## Task 053: Slash Command Parser
+
+### ゴール
+`/command` 形式のスラッシュコマンドをパースする機能を実装する。
+
+### 完了条件
+- `jarvis_core/workflows/slash_command.py` が作成されている
+- `parse_slash_command(input_text: str) -> tuple[str | None, str]` 関数が実装されている
+  - 戻り値: (workflow_name, remaining_text) または (None, original_text)
+- `/systematic-review cancer treatment` → `("systematic-review", "cancer treatment")`
+- スラッシュコマンドがない場合は `(None, original_text)` を返す
+
+### 参考
+既存実装: なし（新規）
+
+---
+
+## Task 054: Systematic Review Workflow
+
+### ゴール
+システマティックレビュー用のワークフローを作成する。
+
+### 完了条件
+- `jarvis_core/workflows/builtin/systematic-review.md` が作成されている
+- frontmatterに `name: systematic-review`, `description`, `command: /systematic-review` が含まれる
+- 本文に以下のステップが記載されている:
+  1. PICO形式で研究質問を定義
+  2. 検索戦略を構築
+  3. データベースを検索
+  4. スクリーニング実施
+  5. エビデンスグレーディング
+  6. PRISMAフロー生成
+  7. 統合レポート作成
+
+### 参考
+既存実装: `jarvis_core/skills/builtin/systematic_review/SKILL.md`（Task 029で作成）
+
+---
+
+## Task 055: Meta-Analysis Workflow
+
+### ゴール
+メタ分析用のワークフローを作成する。
+
+### 完了条件
+- `jarvis_core/workflows/builtin/meta-analysis.md` が作成されている
+- frontmatterに `name: meta-analysis`, `command: /meta-analysis` が含まれる
+- 本文に以下のステップが記載されている:
+  1. 効果量の抽出
+  2. 異質性の評価（I², Q統計量）
+  3. 固定/ランダム効果モデルの選択
+  4. プール効果量の計算
+  5. Forest plotの生成
+  6. 出版バイアスの評価
+
+### 参考
+既存実装: `jarvis_core/advanced/features.py` の `MetaAnalysisBot`
+
+---
+
+## Task 056: Workflows CLI コマンド
+
+### ゴール
+Workflowsを操作するCLIサブコマンドを追加する。
+
+### 完了条件
+- `jarvis workflows list` - 利用可能なワークフロー一覧を表示
+- `jarvis workflows show <name>` - ワークフローの内容を表示
+- `jarvis workflows run <name> [args...]` - ワークフローを実行
+- `jarvis workflows init <name>` - 新しいワークフローのテンプレートを作成
+
+### 参考
+既存実装: `jarvis_cli.py`
+
+---
+
+# Part 9: API 拡張タスク
+
+---
+
+## Task 057: MCP API エンドポイント
+
+### ゴール
+MCP Hub操作用のREST APIエンドポイントを追加する。
+
+### 完了条件
+- `jarvis_web/api/mcp.py` が作成されている
+- 以下のエンドポイントが実装されている:
+  - `GET /api/mcp/servers` - サーバー一覧
+  - `GET /api/mcp/tools` - ツール一覧
+  - `POST /api/mcp/tools/{tool_name}/invoke` - ツール実行
+  - `POST /api/mcp/discover/{server_name}` - ツール検出
+- FastAPIルーターとして実装されている
+
+### 参考
+既存実装: `jarvis_web/` ディレクトリ
+
+---
+
+## Task 058: Orchestrator API エンドポイント
+
+### ゴール
+Multi-Agent Orchestrator操作用のREST APIエンドポイントを追加する。
+
+### 完了条件
+- `jarvis_web/api/orchestrator.py` が作成されている
+- 以下のエンドポイントが実装されている:
+  - `POST /api/agents/spawn` - エージェント生成
+  - `GET /api/agents` - 全エージェント状態
+  - `GET /api/agents/{agent_id}` - 個別エージェント状態
+  - `POST /api/agents/{agent_id}/approve` - 承認
+  - `POST /api/agents/{agent_id}/cancel` - キャンセル
+
+### 参考
+既存実装: `jarvis_web/api/` ディレクトリ
+
+---
+
+## Task 059: Inbox API エンドポイント
+
+### ゴール
+会話（Inbox）操作用のREST APIエンドポイントを追加する。
+
+### 完了条件
+- `jarvis_web/api/inbox.py` が作成されている
+- 以下のエンドポイントが実装されている:
+  - `GET /api/inbox` - 会話一覧
+  - `POST /api/conversations` - 会話作成
+  - `GET /api/conversations/{id}` - 会話詳細
+  - `POST /api/conversations/{id}/messages` - メッセージ追加
+
+### 参考
+既存実装: `jarvis_web/api/` ディレクトリ
+
+---
+
+## Task 060: WebSocket 進捗通知
+
+### ゴール
+エージェント進捗をリアルタイムで通知するWebSocketエンドポイントを追加する。
+
+### 完了条件
+- `jarvis_web/api/ws.py` が作成されている
+- `WebSocket /ws/agents/{agent_id}` エンドポイントが実装されている
+- 以下のイベントを送信する:
+  - `status_change` - ステータス変更
+  - `progress_update` - 進捗更新
+  - `artifact_created` - アーティファクト生成
+  - `approval_required` - 承認要求
+- FastAPIの `WebSocket` を使用している
+
+### 参考
+既存実装: `docs/api/README.md` のWebSocket API セクション
+
+---
+
+# Part 10: ドキュメント・テストタスク
+
+---
+
+## Task 061: MCP ドキュメント
+
+### ゴール
+MCP Hubの使用方法ドキュメントを作成する。
+
+### 完了条件
+- `docs/mcp.md` が作成されている
+- 以下のセクションが含まれる:
+  - 概要とアーキテクチャ図
+  - 設定ファイルの書き方
+  - 組み込みサーバー（PubMed, Semantic Scholar, OpenAlex）の使用方法
+  - カスタムサーバーの追加方法
+  - CLI コマンドリファレンス
+  - トラブルシューティング
+
+### 参考
+既存実装: `docs/api/README.md`
+
+---
+
+## Task 062: Browser Agent ドキュメント
+
+### ゴール
+Browser Subagentの使用方法ドキュメントを作成する。
+
+### 完了条件
+- `docs/browser.md` が作成されている
+- 以下のセクションが含まれる:
+  - 概要とセキュリティモデル
+  - セットアップ（Playwright インストール）
+  - SecurityPolicy の設定
+  - 組み込みエージェント（PubMed, arXiv, PDF Download）の使用方法
+  - 録画機能の使用方法
+
+### 参考
+既存実装: `docs/user_guide.md`
+
+---
+
+## Task 063: Skills ドキュメント
+
+### ゴール
+Skills Systemの使用方法ドキュメントを作成する。
+
+### 完了条件
+- `docs/skills.md` が作成されている
+- 以下のセクションが含まれる:
+  - 概要とディレクトリ構造
+  - SKILL.md の書き方
+  - リソースとスクリプトの使用方法
+  - 組み込みスキル一覧
+  - カスタムスキルの作成方法
+  - CLI コマンドリファレンス
+
+### 参考
+既存実装: `docs/FEATURES_300.md`
+
+---
+
+## Task 064: Terminal Security ドキュメント
+
+### ゴール
+Terminal Security の設定方法ドキュメントを作成する。
+
+### 完了条件
+- `docs/terminal_security.md` が作成されている
+- 以下のセクションが含まれる:
+  - 概要とセキュリティモデル
+  - ExecutionPolicy の説明（OFF/AUTO/TURBO）
+  - Allow List / Deny List の設定方法
+  - デフォルトパターン一覧
+  - Sudo承認フローの説明
+
+### 参考
+既存実装: `RUNBOOK.md`
+
+---
+
+## Task 065: Multi-Agent ドキュメント
+
+### ゴール
+Multi-Agent Orchestratorの使用方法ドキュメントを作成する。
+
+### 完了条件
+- `docs/multi_agent.md` が作成されている
+- 以下のセクションが含まれる:
+  - 概要とアーキテクチャ図
+  - エージェントの生成と管理
+  - 会話（Inbox）の使用方法
+  - 承認フローの説明
+  - API リファレンス
+
+### 参考
+既存実装: `docs/api/README.md`
+
+---
+
+## Task 066: 統合テスト - MCP Hub
+
+### ゴール
+MCP Hubの統合テストを作成する。
+
+### 完了条件
+- `tests/integration/test_mcp_integration.py` が作成されている
+- モックサーバーを使用して以下をテストする:
+  - サーバー登録とツール検出
+  - ツール実行とエラーハンドリング
+  - Rate limitingの動作
+  - ツールチェーン実行
+- `pytest.mark.integration` マーカーが付与されている
+
+### 参考
+既存実装: `tests/` ディレクトリ
+
+---
+
+## Task 067: 統合テスト - Browser Agent
+
+### ゴール
+Browser Agentの統合テストを作成する。
+
+### 完了条件
+- `tests/integration/test_browser_integration.py` が作成されている
+- 以下をテストする:
+  - URL許可/拒否チェック
+  - ページナビゲーション（モック）
+  - スクリーンショット取得（モック）
+  - テキスト抽出（モック）
+- `pytest.mark.integration` マーカーが付与されている
+
+### 参考
+既存実装: `tests/` ディレクトリ
+
+---
+
+## Task 068: 統合テスト - Multi-Agent
+
+### ゴール
+Multi-Agent Orchestratorの統合テストを作成する。
+
+### 完了条件
+- `tests/integration/test_orchestrator_integration.py` が作成されている
+- 以下をテストする:
+  - 複数エージェントの並列実行
+  - 会話の作成とメッセージ追加
+  - 承認フロー
+  - コールバック通知
+- `pytest.mark.integration` マーカーが付与されている
+
+### 参考
+既存実装: `tests/` ディレクトリ
+
+---
+
+## Task 069: E2Eテスト - Systematic Review Pipeline
+
+### ゴール
+Systematic Reviewの完全なE2Eテストを作成する。
+
+### 完了条件
+- `tests/e2e/test_systematic_review_e2e.py` が作成されている
+- 以下のフローをテストする:
+  1. クエリ入力
+  2. 論文検索（モック）
+  3. エビデンスグレーディング
+  4. PRISMAフロー生成
+  5. 最終レポート出力
+- 10ファイル成果物契約がすべて満たされることを確認する
+- `pytest.mark.e2e` マーカーが付与されている
+
+### 参考
+既存実装: `tests/` ディレクトリ, `evals/` ディレクトリ
+
+---
+
+## Task 070: Benchmark - MCP Performance
+
+### ゴール
+MCP Hubのパフォーマンスベンチマークを作成する。
+
+### 完了条件
+- `evals/benchmarks/mcp_performance.py` が作成されている
+- 以下を計測する:
+  - ツール検出レイテンシ
+  - ツール実行レイテンシ
+  - 並列実行スループット
+- 結果を `results/mcp_benchmark.json` に出力する
+- `jarvis benchmark mcp` コマンドで実行できる
+
+### 参考
+既存実装: `evals/benchmarks/` ディレクトリ
+
+---
+
+# Part 11: CI/CD タスク
+
+---
+
+## Task 071: Integration Test ワークフロー
+
+### ゴール
+統合テストを実行するGitHub Actionsワークフローを作成する。
+
+### 完了条件
+- `.github/workflows/integration.yml` が作成されている
+- `push` と `pull_request` で `main` ブランチに対してトリガーされる
+- `pytest.mark.integration` のテストのみを実行する
+- Playwrightのセットアップが含まれている（オプショナル）
+- 結果をアーティファクトとして保存する
+
+### 参考
+既存実装: `.github/workflows/ci.yml`
+
+---
+
+## Task 072: E2E Test ワークフロー
+
+### ゴール
+E2Eテストを実行するGitHub Actionsワークフローを作成する。
+
+### 完了条件
+- `.github/workflows/e2e.yml` が作成されている
+- `main` ブランチへの `push` でのみトリガーされる（PRでは実行しない）
+- `pytest.mark.e2e` のテストのみを実行する
+- タイムアウトを30分に設定する
+- 失敗時にSlack通知を送る（オプショナル）
+
+### 参考
+既存実装: `.github/workflows/ci.yml`
+
+---
+
+## Task 073: Release ワークフロー
+
+### ゴール
+タグpush時にPyPIへ自動リリースするワークフローを作成する。
+
+### 完了条件
+- `.github/workflows/release.yml` が作成されている
+- `v*` タグのpushでトリガーされる
+- 以下のステップを実行する:
+  1. テスト実行
+  2. `uv build` でパッケージビルド
+  3. PyPIへアップロード
+  4. GitHub Releaseの作成
+- `PYPI_API_TOKEN` シークレットを使用する
+
+### 参考
+既存実装: `.github/workflows/ci.yml`
+
+---
+
+## Task 074: Benchmark ワークフロー
+
+### ゴール
+ベンチマークを定期実行するワークフローを作成する。
+
+### 完了条件
+- `.github/workflows/benchmark.yml` が作成されている
+- 週1回（日曜深夜）に `schedule` でトリガーされる
+- `evals/benchmarks/realistic_mix_v1.jsonl` を実行する
+- 結果を `results/` にアーティファクトとして保存する
+- 前回結果との比較を出力する
+
+### 参考
+既存実装: `.github/workflows/ci.yml`, `RUNBOOK.md`
+
+---
+
+## Task 075: Documentation ワークフロー
+
+### ゴール
+ドキュメントをビルド・デプロイするワークフローを作成する。
+
+### 完了条件
+- `.github/workflows/docs.yml` が作成されている
+- `docs/` ディレクトリの変更でトリガーされる
+- MkDocsまたは類似ツールでHTMLを生成する
+- GitHub Pagesにデプロイする
+
+### 参考
+既存実装: `.github/workflows/ci.yml`
+
+---
+
+# Part 12: Research-Specific Features タスク
+
+---
+
+## Task 076: Full-Text PDF Parser
+
+### ゴール
+PDF論文の全文を構造化テキストとして抽出する機能を実装する。
+
+### 完了条件
+- `jarvis_core/ingestion/pdf_parser.py` が作成されている
+- `parse_pdf(pdf_path: Path) -> ParsedPaper` 関数が実装されている
+- `ParsedPaper` に `title`, `abstract`, `sections`, `references`, `tables`, `figures` が含まれる
+- PyMuPDFを使用している
+- `tests/test_pdf_parser.py` でサンプルPDFをパースできる
+
+### 参考
+既存実装: `jarvis_core/ingestion/robust_extractor.py`
+
+---
+
+## Task 077: Table Extractor
+
+### ゴール
+PDF/HTMLから表を抽出する機能を実装する。
+
+### 完了条件
+- `jarvis_core/ingestion/table_extractor.py` が作成されている
+- `extract_tables(content: str | Path) -> list[Table]` 関数が実装されている
+- `Table` dataclassに `headers`, `rows`, `caption` が含まれる
+- PDF（Tabula）とHTML（BeautifulSoup）の両方をサポートする
+- `tests/test_table_extractor.py` でパスする
+
+### 参考
+既存実装: `jarvis_core/ingestion/` ディレクトリ
+
+---
+
+## Task 078: Figure Extractor
+
+### ゴール
+PDFから図を抽出する機能を実装する。
+
+### 完了条件
+- `jarvis_core/ingestion/figure_extractor.py` が作成されている
+- `extract_figures(pdf_path: Path) -> list[Figure]` 関数が実装されている
+- `Figure` dataclassに `image_bytes`, `caption`, `page_number` が含まれる
+- 抽出した画像は `figures/` ディレクトリに保存できる
+- `tests/test_figure_extractor.py` でパスする
+
+### 参考
+既存実装: `jarvis_core/ingestion/` ディレクトリ
+
+---
+
+## Task 079: Statistical Claim Verifier
+
+### ゴール
+論文中の統計的主張を検証する機能を実装する。
+
+### 完了条件
+- `jarvis_core/verification/stat_verifier.py` が作成されている
+- `verify_statistical_claim(claim: str, data: dict) -> VerificationResult` 関数が実装されている
+- 以下を検出・検証する:
+  - p値の妥当性
+  - 効果量の計算
+  - サンプルサイズの整合性
+- `VerificationResult` に `is_valid`, `issues`, `recalculated_values` が含まれる
+
+### 参考
+既存実装: `jarvis_core/contradiction/detector.py`
+
+---
+
+## Task 080: Retraction Watch Integration
+
+### ゴール
+Retraction Watchデータベースと連携して撤回論文を検出する機能を実装する。
+
+### 完了条件
+- `jarvis_core/sources/retraction_watch.py` が作成されている
+- `check_retraction(doi: str) -> RetractionStatus` 関数が実装されている
+- `RetractionStatus` に `is_retracted`, `retraction_date`, `reason`, `source_url` が含まれる
+- Retraction Watch APIまたはデータベースを使用する
+- `tests/test_retraction_watch.py` でパスする
+
+### 参考
+既存実装: `jarvis_core/sources/` ディレクトリ
+
+---
+
+## Task 081: Preprint-Journal Matcher
+
+### ゴール
+プレプリントと出版版をマッチングする機能を実装する。
+
+### 完了条件
+- `jarvis_core/sources/preprint_matcher.py` が作成されている
+- `find_published_version(preprint_id: str) -> PublishedVersion | None` 関数が実装されている
+- `PublishedVersion` に `doi`, `journal`, `publication_date`, `changes_summary` が含まれる
+- arXiv, bioRxiv, medRxivをサポートする
+- Crossref APIを使用してマッチングする
+
+### 参考
+既存実装: `jarvis_core/sources/` ディレクトリ
+
+---
+
+## Task 082: Funding Disclosure Extractor
+
+### ゴール
+論文から資金源開示情報を抽出する機能を実装する。
+
+### 完了条件
+- `jarvis_core/extraction/funding.py` が作成されている
+- `extract_funding(text: str) -> list[FundingSource]` 関数が実装されている
+- `FundingSource` に `funder_name`, `grant_id`, `funder_type` (government, industry, nonprofit) が含まれる
+- 一般的な資金源パターン（NIH, NSF, WHO等）を認識する
+
+### 参考
+既存実装: `jarvis_core/citation/context_extractor.py`
+
+---
+
+## Task 083: Conflict of Interest Detector
+
+### ゴール
+利益相反の可能性を検出する機能を実装する。
+
+### 完了条件
+- `jarvis_core/extraction/coi.py` が作成されている
+- `detect_conflicts(authors: list[Author], funding: list[FundingSource]) -> list[PotentialConflict]` 関数が実装されている
+- 以下を検出する:
+  - 著者の製薬会社所属
+  - 産業界からの資金提供
+  - 著者間の利益相反宣言
+- `PotentialConflict` に `type`, `description`, `severity` が含まれる
+
+### 参考
+既存実装: `jarvis_core/extraction/funding.py`（Task 082で作成）
+
+---
+
+## Task 084: Evidence Synthesis Agent
+
+### ゴール
+複数の論文からエビデンスを統合するエージェントを実装する。
+
+### 完了条件
+- `jarvis_core/orchestrator/agents/synthesis.py` が作成されている
+- `EvidenceSynthesisAgent` クラスが以下のメソッドを持つ:
+  - `async synthesize(papers: list[Paper], research_question: str) -> SynthesisReport`
+- `SynthesisReport` に `summary`, `evidence_table`, `contradictions`, `gaps`, `strength_of_evidence` が含まれる
+- 複数のサブエージェント（Evidence Grading, Contradiction Detection, Citation Analysis）を協調させる
+
+### 参考
+既存実装: `jarvis_core/orchestrator/agents/` ディレクトリ
+
+---
+
+## Task 085: Living Review Updater
+
+### ゴール
+既存のシステマティックレビューを自動更新する機能を実装する。
+
+### 完了条件
+- `jarvis_core/review/living_updater.py` が作成されている
+- `LivingReviewUpdater` クラスが以下のメソッドを持つ:
+  - `check_for_updates(review_id: str) -> list[NewPaper]`
+  - `async update_review(review_id: str, new_papers: list[NewPaper]) -> UpdateReport`
+- 前回の検索日以降の新規論文を検出する
+- 新規論文のエビデンスグレーディングとPRISMAフロー更新を行う
+
+### 参考
+既存実装: `jarvis_core/prisma/`, `jarvis_core/evidence/`
+
+---
+
+# Part 13: Security 強化タスク
+
+---
+
+## Task 086: PII Detector
+
+### ゴール
+個人情報（PII）を検出する機能を実装する。
+
+### 完了条件
+- `jarvis_core/security/pii_detector.py` が作成されている
+- `detect_pii(text: str) -> list[PIIDetection]` 関数が実装されている
+- 以下を検出する:
+  - メールアドレス
+  - 電話番号
+  - 社会保障番号（SSN）
+  - クレジットカード番号
+  - 住所
+- `PIIDetection` に `type`, `value`, `start`, `end`, `confidence` が含まれる
+- 正規表現とヒューリスティクスを使用する
+
+### 参考
+既存実装: `jarvis_core/advanced/features.py` の `HIPAAComplianceChecker`
+
+---
+
+## Task 087: Data Anonymizer
+
+### ゴール
+検出したPIIを匿名化する機能を実装する。
+
+### 完了条件
+- `jarvis_core/security/anonymizer.py` が作成されている
+- `anonymize(text: str, detections: list[PIIDetection]) -> str` 関数が実装されている
+- 匿名化方法を設定できる（マスキング、置換、削除）
+- 匿名化ログを出力する
+- `tests/test_anonymizer.py` でパスする
+
+### 参考
+既存実装: `jarvis_core/security/pii_detector.py`（Task 086で作成）
+
+---
+
+## Task 088: Prompt Injection Guard
+
+### ゴール
+プロンプトインジェクション攻撃を検出・防止する機能を実装する。
+
+### 完了条件
+- `jarvis_core/security/injection_guard.py` が作成されている
+- `check_injection(user_input: str) -> InjectionCheckResult` 関数が実装されている
+- 以下のパターンを検出する:
+  - システムプロンプト上書き試行
+  - ロール変更試行
+  - 命令無視試行
+- `InjectionCheckResult` に `is_suspicious`, `patterns_detected`, `sanitized_input` が含まれる
+
+### 参考
+既存実装: なし（新規）
+
+---
+
+## Task 089: Audit Trail Logger
+
+### ゴール
+全操作を監査ログとして記録する機能を実装する。
+
+### 完了条件
+- `jarvis_core/security/audit.py` が作成されている
+- `AuditLogger` クラスが以下のメソッドを持つ:
+  - `log_action(action: str, user: str, details: dict)`
+  - `log_data_access(resource: str, user: str, access_type: str)`
+  - `export_log(start: datetime, end: datetime) -> list[AuditEntry]`
+- ログは `logs/audit/` に日付別ファイルで保存される
+- ログは改ざん防止のためハッシュチェーンを持つ
+
+### 参考
+既存実装: `jarvis_core/telemetry/`
+
+---
+
+## Task 090: HIPAA Compliance Checker 実装
+
+### ゴール
+既存のスタブ実装を完全に実装する。
+
+### 完了条件
+- `jarvis_core/advanced/features.py` の `HIPAAComplianceChecker` が完全実装されている
+- `check(text: str) -> ComplianceResult` メソッドが以下をチェックする:
+  - PHI（Protected Health Information）の存在
+  - 18種類のHIPAA識別子
+- `ComplianceResult` に `compliant`, `violations`, `recommendations` が含まれる
+- `tests/test_hipaa.py` でパスする
+
+### 参考
+既存実装: `jarvis_core/advanced/features.py`
+
+---
+
+# Part 14: Enterprise Features タスク
+
+---
+
+## Task 091: Team Workspace 実装
+
+### ゴール
+既存のスタブ実装を完全に実装する。
+
+### 完了条件
+- `jarvis_core/advanced/features.py` の `TeamWorkspace` が完全実装されている
+- 以下のメソッドが実装されている:
+  - `create_workspace(name: str, members: list[str]) -> Workspace`
+  - `add_member(workspace_id: str, user_id: str, role: str)`
+  - `remove_member(workspace_id: str, user_id: str)`
+  - `list_workspaces(user_id: str) -> list[Workspace]`
+- `Workspace` に `id`, `name`, `members`, `created_at`, `settings` が含まれる
+
+### 参考
+既存実装: `jarvis_core/advanced/features.py`
+
+---
+
+## Task 092: Role-Based Access Control
+
+### ゴール
+ロールベースのアクセス制御を実装する。
+
+### 完了条件
+- `jarvis_core/security/rbac.py` が作成されている
+- 以下のロールが定義されている:
+  - `admin` - 全権限
+  - `researcher` - 読み書き
+  - `reviewer` - 読み取りのみ
+- `RBACManager` クラスが以下を持つ:
+  - `check_permission(user_id: str, resource: str, action: str) -> bool`
+  - `assign_role(user_id: str, role: str)`
+  - `list_permissions(role: str) -> list[str]`
+
+### 参考
+既存実装: `jarvis_core/advanced/features.py` の `RoleBasedAccess`
+
+---
+
+## Task 093: Activity Feed
+
+### ゴール
+ワークスペース内のアクティビティフィードを実装する。
+
+### 完了条件
+- `jarvis_core/advanced/features.py` の `ActivityFeed` が完全実装されている
+- 以下のメソッドが実装されている:
+  - `add_activity(workspace_id: str, user_id: str, action: str, details: dict)`
+  - `get_feed(workspace_id: str, limit: int) -> list[Activity]`
+  - `get_user_activity(user_id: str, limit: int) -> list[Activity]`
+- `Activity` に `id`, `user_id`, `action`, `details`, `timestamp` が含まれる
+
+### 参考
+既存実装: `jarvis_core/advanced/features.py`
+
+---
+
+## Task 094: Mentions & Comments
+
+### ゴール
+アーティファクトへのメンション・コメント機能を実装する。
+
+### 完了条件
+- `jarvis_core/collaboration/comments.py` が作成されている
+- 以下の機能が実装されている:
+  - `add_comment(artifact_id: str, user_id: str, content: str, selection: Selection | None)`
+  - `resolve_comment(comment_id: str)`
+  - `list_comments(artifact_id: str) -> list[Comment]`
+- `@username` メンション構文をパースする
+- `Selection` で特定のテキスト範囲を指定できる
+
+### 参考
+既存実装: `jarvis_core/advanced/features.py` の `MentionsComments`
+
+---
+
+## Task 095: Version History
+
+### ゴール
+アーティファクトのバージョン履歴を管理する機能を実装する。
+
+### 完了条件
+- `jarvis_core/collaboration/versioning.py` が作成されている
+- 以下の機能が実装されている:
+  - `save_version(artifact_id: str, content: str, author: str) -> Version`
+  - `list_versions(artifact_id: str) -> list[Version]`
+  - `restore_version(artifact_id: str, version_id: str)`
+  - `diff_versions(version_id_1: str, version_id_2: str) -> str`
+- `Version` に `id`, `artifact_id`, `content_hash`, `author`, `timestamp` が含まれる
+
+### 参考
+既存実装: `jarvis_core/advanced/features.py` の `VersionHistory`
+
+---
+
+# Part 15: 仕上げタスク
+
+---
+
+## Task 096: pyproject.toml 更新
+
+### ゴール
+新しく追加したモジュールとオプショナル依存関係を反映する。
+
+### 完了条件
+- `pyproject.toml` が更新されている
+- 以下のオプショナル依存グループが追加されている:
+  - `browser` = ["playwright>=1.40"]
+  - `mcp` = ["httpx>=0.25"]
+- バージョンが `5.3.0` に更新されている
+- 新しいエントリポイントが追加されている（必要に応じて）
+
+### 参考
+既存実装: `pyproject.toml`
+
+---
+
+## Task 097: CHANGELOG 更新
+
+### ゴール
+v5.3.0の変更履歴を追記する。
+
+### 完了条件
+- `CHANGELOG.md` が更新されている
+- 以下のセクションが含まれる:
+  - Added: 新機能一覧
+  - Changed: 変更点
+  - Fixed: バグ修正
+  - Deprecated: 非推奨化
+- 各項目に関連するTask番号が記載されている
+
+### 参考
+既存実装: `CHANGELOG.md`
+
+---
+
+## Task 098: README 更新
+
+### ゴール
+新機能を反映してREADMEを更新する。
+
+### 完了条件
+- `README.md` が更新されている
+- 以下が追加されている:
+  - Phase 3 Ecosystem 機能の概要
+  - MCP Hub の使用例
+  - Browser Agent の使用例
+  - Skills System の使用例
+- バッジが最新状態
+
+### 参考
+既存実装: `README.md`
+
+---
+
+## Task 099: Quick Start Guide 更新
+
+### ゴール
+QUICKSTART.mdを新機能に対応させる。
+
+### 完了条件
+- `docs/QUICKSTART.md` または `QUICKSTART.md` が更新されている
+- 5分で始められるガイドが維持されている
+- 新しいCLIコマンド（`mcp`, `skills`, `rules`, `workflows`）が紹介されている
+
+### 参考
+既存実装: `docs/user_guide.md`
+
+---
+
+## Task 100: 全体統合テスト
+
+### ゴール
+全機能を通した統合テストを実行し、リリース準備を確認する。
+
+### 完了条件
+- `tests/integration/test_full_integration.py` が作成されている
+- 以下のシナリオをテストする:
+  1. ユーザーがクエリを入力
+  2. Skills/Rulesが適用される
+  3. MCP Hubで論文を検索
+  4. Browser Agentで追加情報を取得
+  5. Evidence Gradingを実行
+  6. PRISMAフローを生成
+  7. 最終レポートを出力
+- 全CIワークフローがパスする
+- `uv run pytest` が成功する
+
+### 参考
+既存実装: `tests/` ディレクトリ
+
+---
+
+# 付録: タスク依存関係グラフ
+
+```
+Part 1 (001-010): Phase 2-ΩΩ+ 完了
+    ├── 001 → 002 → 010
+    ├── 003 → 004
+    └── 006 → 007 → 008 → 009
+
+Part 2 (011-018): MCP Hub
+    └── 011 → 012 → 013 → 014,015,016 → 017 → 018
+
+Part 3 (019-025): Browser Agent
+    └── 019 → 020 → 021,022 → 023,024,025
+
+Part 4 (026-032): Skills System
+    └── 026 → 027 → 028,029,030,031 → 032
+
+Part 5 (033-036): Terminal Security
+    └── 033 → 034 → 035 → 036
+
+Part 6 (037-045): Multi-Agent Orchestrator
+    └── 037 → 038 → 039 → 040,041,042 → 043 → 044,045
+
+Part 7-8 (046-056): Rules & Workflows
+    ├── 046 → 047 → 048,049 → 050
+    └── 051 → 052 → 053 → 054,055 → 056
+
+Part 9 (057-060): API拡張
+    └── 057,058,059 → 060
+
+Part 10-15 (061-100): ドキュメント・テスト・仕上げ
+    └── 並列実行可能
+```
+
+---
+
+# 実行優先順位
+
+| 優先度 | タスク範囲 | 目的 |
+|--------|-----------|------|
+| **Critical** | 001-010 | Phase 2-ΩΩ+ Quality Gate 100% |
+| **High** | 011-018 | MCP Hub 基盤 |
+| **High** | 033-036 | Terminal Security |
+| **Medium** | 019-025 | Browser Agent |
+| **Medium** | 026-032 | Skills System |
+| **Medium** | 037-045 | Multi-Agent Orchestrator |
+| **Low** | 046-060 | Rules, Workflows, API |
+| **Low** | 061-100 | ドキュメント、テスト、仕上げ |
