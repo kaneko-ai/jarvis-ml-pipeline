@@ -1,0 +1,116 @@
+name: Daily Coverage Snapshot
+
+on:
+  schedule:
+    - cron: "10 15 * * *"
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: "Coverage phase (1 or 2)"
+        required: false
+        default: "1"
+      notes:
+        description: "Optional notes for this snapshot"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: coverage-daily
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: "3.11"
+  ARTIFACTS_DIR: "artifacts"
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: |
+          uv sync --dev
+          uv pip install coverage[toml]
+
+      - name: Prepare artifacts directory
+        run: mkdir -p ${{ env.ARTIFACTS_DIR }}
+
+      - name: Run daily coverage snapshot
+        env:
+          COVERAGE_PHASE: ${{ github.event.inputs.phase || '1' }}
+          ARTIFACTS_DIR: ${{ env.ARTIFACTS_DIR }}
+        run: |
+          chmod +x scripts/daily_coverage_snapshot.sh
+          bash scripts/daily_coverage_snapshot.sh
+
+      - name: Append result to docs/coverage_daily.md
+        env:
+          COVERAGE_PHASE: ${{ github.event.inputs.phase || '1' }}
+        run: |
+          python scripts/append_coverage_daily_md.py \
+            --md docs/coverage_daily.md \
+            --report ${{ env.ARTIFACTS_DIR }}/coverage_daily_term.txt \
+            --phase "$COVERAGE_PHASE" \
+            --notes "${{ github.event.inputs.notes || '' }}"
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet docs/coverage_daily.md; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/coverage_daily.md
+          git commit -m "chore(coverage): daily snapshot $(TZ=Asia/Tokyo date '+%Y-%m-%d') [skip ci]"
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push && break
+            echo "Push failed, retrying ($i/3)..."
+            sleep 5
+          done
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-daily-${{ github.run_id }}
+          path: |
+            ${{ env.ARTIFACTS_DIR }}/coverage_daily_term.txt
+            ${{ env.ARTIFACTS_DIR }}/coverage.xml
+            ${{ env.ARTIFACTS_DIR }}/htmlcov/
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Summary
+        run: |
+          echo "## Daily Coverage Snapshot" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Date: $(TZ=Asia/Tokyo date '+%Y-%m-%d')" >> $GITHUB_STEP_SUMMARY
+          echo "Phase: ${{ github.event.inputs.phase || '1' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          tail -20 ${{ env.ARTIFACTS_DIR }}/coverage_daily_term.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
