@@ -27,6 +27,28 @@ All notable changes to JARVIS will be documented in this file.
 
 ---
 
+## [v5.3.0] - 2025-01-15
+
+### Added
+- Task 061-065: MCP/Browser/Skills/Multi-Agent/Terminal Security ドキュメントを追加
+- Task 066-069: MCP/Browser/Multi-Agent の統合テストと Systematic Review E2E を追加
+- Task 070-075: MCP ベンチマークと Integration/E2E/Docs ワークフローを追加
+- Task 076-085: PDF パーサー、表/図抽出、統計検証、撤回/プレプリント照合、資金源/COI、Synthesis Agent、Living Review を追加
+- Task 086-089: PII 検出、匿名化、Injection Guard、監査ログを追加
+- Task 094-095: コメント/メンション、バージョン履歴管理を追加
+
+### Changed
+- Task 090-093: HIPAA チェッカー、Team Workspace、Activity Feed、RBAC を刷新
+- Task 096: 依存グループを更新しバージョンを 5.3.0 に更新
+
+### Fixed
+- Task 097: CHANGELOG 構成の整理とタスク番号付与
+
+### Deprecated
+- なし
+
+---
+
 ## [v5.0.0] - 2024-12-23
 
 ### 🚀 Major Release: 300 Features Implementation

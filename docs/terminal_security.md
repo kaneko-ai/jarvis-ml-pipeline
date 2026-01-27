@@ -1,32 +1,19 @@
 # Terminal Security
 
-このドキュメントは、ターミナルコマンドの実行を制御する設定ファイルのフォーマットを説明します。
+## 概要とセキュリティモデル
 
-## 設定ファイル
+Terminal Security はターミナルコマンドの実行を制御するためのポリシー層です。
+`ExecutionPolicy` と Allow/Deny List を組み合わせ、危険なコマンドの実行を防止します。
 
-`configs/terminal_security.yaml` を編集してポリシーを指定します。
+## ExecutionPolicy の説明
 
-### 主要フィールド
+- **OFF**: コマンド実行を完全に無効化します。
+- **AUTO**: 既定の安全パターンに一致するコマンドのみ実行します。
+- **TURBO**: 高速実行モード。Allow/Deny List をベースに実行します。
 
-- `execution_policy`: `off` / `auto` / `turbo` のいずれか
-- `allow_list`: 実行を許可するコマンドパターン
-- `deny_list`: 実行を拒否するコマンドパターン
-- `max_execution_time_seconds`: 実行タイムアウト（秒）
-- `require_confirmation_for_sudo`: sudo 実行時の承認フラグ
+## Allow List / Deny List の設定方法
 
-### パターン形式
-
-`allow_list` と `deny_list` は以下の形式で定義します。
-
-```yaml
-- pattern: "ls"
-  is_regex: false
-  reason: "Directory listing"
-```
-
-`is_regex: true` の場合は正規表現として評価されます。
-
-## 例
+`configs/terminal_security.yaml` でポリシーを指定します。
 
 ```yaml
 execution_policy: auto
@@ -40,3 +27,29 @@ deny_list:
     is_regex: false
     reason: "Dangerous delete"
 ```
+
+`allow_list` と `deny_list` は以下の形式です。
+
+```yaml
+- pattern: "ls"
+  is_regex: false
+  reason: "Directory listing"
+```
+
+`is_regex: true` の場合は正規表現として評価されます。
+
+## デフォルトパターン一覧
+
+既定では以下のコマンドが許可されます。
+
+- `ls`, `pwd`, `cat`
+- `git status`, `git diff`
+- `rg`, `sed`, `awk`
+
+## Sudo 承認フローの説明
+
+`require_confirmation_for_sudo: true` の場合、`sudo` を含むコマンドは承認フローを経由します。
+
+1. 実行前に承認要求が発行される
+2. 承認されると一度だけ実行される
+3. 承認されない場合は実行されない
