@@ -1,0 +1,24 @@
+execution_policy: auto
+max_execution_time_seconds: 30
+require_confirmation_for_sudo: true
+allow_list:
+  - pattern: "ls"
+    is_regex: false
+    reason: "Directory listing"
+  - pattern: "cat"
+    is_regex: false
+    reason: "Read-only file view"
+  - pattern: "git status"
+    is_regex: false
+    reason: "Git status"
+
+deny_list:
+  - pattern: "rm -rf /"
+    is_regex: false
+    reason: "Dangerous recursive delete"
+  - pattern: "mkfs"
+    is_regex: false
+    reason: "Filesystem format"
+  - pattern: ":\s*\(\)\s*\{\s*:\\s*\|\\s*:\\s*&\\s*\\}\\s*;\\s*:"
+    is_regex: true
+    reason: "Fork bomb"
