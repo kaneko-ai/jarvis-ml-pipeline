@@ -12,8 +12,6 @@ from jarvis_core.network.degradation import (
 )
 
 
-
-
 # Helpers
 class MockClient:
     def __init__(self):

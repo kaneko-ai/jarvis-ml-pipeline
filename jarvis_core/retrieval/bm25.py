@@ -19,13 +19,14 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+
 class BM25Retriever:
     """Wrapper for BM25 keyword search."""
 
     def __init__(self, tokenizer=None):
         if BM25Okapi is None:
             raise ImportError("rank-bm25 not installed. Run `pip install rank-bm25`.")
-        
+
         self.tokenizer = tokenizer or self._simple_tokenizer
         self.bm25 = None
         self.corpus: List[Dict[str, Any]] = []
@@ -39,12 +40,9 @@ class BM25Retriever:
         """Index a corpus of documents."""
         self.corpus = corpus
         self._doc_ids = [doc.get(id_key, str(i)) for i, doc in enumerate(corpus)]
-        
-        tokenized_corpus = [
-            self.tokenizer(doc.get(text_key, "")) 
-            for doc in corpus
-        ]
-        
+
+        tokenized_corpus = [self.tokenizer(doc.get(text_key, "")) for doc in corpus]
+
         self.bm25 = BM25Okapi(tokenized_corpus)
         logger.info(f"BM25 index built with {len(corpus)} documents")
 
@@ -56,19 +54,20 @@ class BM25Retriever:
 
         tokenized_query = self.tokenizer(query)
         scores = self.bm25.get_scores(tokenized_query)
-        
+
         # Get top-k indices
         top_indices = np.argsort(scores)[::-1][:top_k]
-        
+
         results = []
         for idx in top_indices:
             score = scores[idx]
-            if score <= 0: continue # Filter zero matches
-            
+            if score <= 0:
+                continue  # Filter zero matches
+
             doc = self.corpus[idx].copy()
             doc["score"] = float(score)
             results.append(doc)
-            
+
         return results
 
     def save(self, path: Union[str, Path]):
@@ -76,11 +75,7 @@ class BM25Retriever:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "wb") as f:
-            pickle.dump({
-                "bm25": self.bm25,
-                "corpus": self.corpus,
-                "doc_ids": self._doc_ids
-            }, f)
+            pickle.dump({"bm25": self.bm25, "corpus": self.corpus, "doc_ids": self._doc_ids}, f)
 
     def load(self, path: Union[str, Path]):
         """Load index from disk."""

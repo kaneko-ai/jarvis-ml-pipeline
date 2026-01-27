@@ -2,6 +2,7 @@
 
 Per RP-24, provides BibTeX and CSL-JSON export.
 """
+
 from __future__ import annotations
 
 import json
@@ -51,9 +52,7 @@ def to_csl_json(paper: PaperRecord) -> dict:
     }
 
     if paper.authors:
-        entry["author"] = [
-            {"literal": author} for author in paper.authors
-        ]
+        entry["author"] = [{"literal": author} for author in paper.authors]
 
     if paper.journal:
         entry["container-title"] = paper.journal

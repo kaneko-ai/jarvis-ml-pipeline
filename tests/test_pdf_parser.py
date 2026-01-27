@@ -11,7 +11,10 @@ def test_pdf_parser(tmp_path):
     pdf_path = Path(tmp_path) / "sample.pdf"
     doc = fitz.open()
     page = doc.new_page()
-    page.insert_text((72, 72), "Sample Title\nAbstract: This is a test.\nINTRODUCTION\nBody text.\nREFERENCES\nRef 1")
+    page.insert_text(
+        (72, 72),
+        "Sample Title\nAbstract: This is a test.\nINTRODUCTION\nBody text.\nREFERENCES\nRef 1",
+    )
     doc.save(pdf_path)
     doc.close()
 

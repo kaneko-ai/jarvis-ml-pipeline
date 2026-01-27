@@ -13,13 +13,18 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List
 
 from jarvis_core.contracts.types import (
-    Artifacts, ArtifactsDelta, EvidenceLink, RuntimeConfig, TaskContext
+    Artifacts,
+    ArtifactsDelta,
+    EvidenceLink,
+    RuntimeConfig,
+    TaskContext,
 )
 
 
 @dataclass
 class Summary:
     """要約結果."""
+
     summary_id: str
     text: str
     length: int  # 文字数
@@ -31,7 +36,7 @@ class Summary:
 class MultiGrainSummarizer:
     """
     多粒度要約器.
-    
+
     - 短文 (~300字): キーポイントのみ
     - 中文 (~1000字): 主要な結果と方法
     - 長文 (~2000字): 詳細な解説
@@ -45,24 +50,25 @@ class MultiGrainSummarizer:
         try:
             import google.generativeai as genai
             import os
+
             if os.environ.get("GEMINI_API_KEY"):
                 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
                 self.llm = genai.GenerativeModel("gemini-1.5-flash")
         except (ImportError, Exception):
             pass
 
-    def summarize(self, text: str, doc_id: str,
-                  target_length: int = 300,
-                  grain: str = "short") -> Summary:
+    def summarize(
+        self, text: str, doc_id: str, target_length: int = 300, grain: str = "short"
+    ) -> Summary:
         """
         テキストを要約.
-        
+
         Args:
             text: 入力テキスト
             doc_id: ドキュメントID
             target_length: 目標文字数
             grain: 粒度 (short/medium/long)
-        
+
         Returns:
             Summary with evidence_links
         """
@@ -71,8 +77,9 @@ class MultiGrainSummarizer:
         else:
             return self._summarize_extractive(text, doc_id, target_length, grain)
 
-    def _summarize_with_llm(self, text: str, doc_id: str,
-                            target_length: int, grain: str) -> Summary:
+    def _summarize_with_llm(
+        self, text: str, doc_id: str, target_length: int, grain: str
+    ) -> Summary:
         """LLMで要約."""
         prompt = f"""以下のテキストを{target_length}字程度で要約してください。
 重要なポイントを漏らさず、根拠を明示してください。
@@ -97,19 +104,30 @@ class MultiGrainSummarizer:
             length=len(summary_text),
             grain=grain,
             source_doc_ids=[doc_id],
-            evidence=evidence
+            evidence=evidence,
         )
 
-    def _summarize_extractive(self, text: str, doc_id: str,
-                              target_length: int, grain: str) -> Summary:
+    def _summarize_extractive(
+        self, text: str, doc_id: str, target_length: int, grain: str
+    ) -> Summary:
         """抽出型要約（LLMなし）."""
-        sentences = re.split(r'[.!?。！？]', text)
+        sentences = re.split(r"[.!?。！？]", text)
         sentences = [s.strip() for s in sentences if len(s.strip()) > 20]
 
         # Score sentences by position and keyword importance
         scored = []
-        keywords = ["result", "show", "demonstrate", "conclude", "significant",
-                   "important", "novel", "first", "major", "clinical"]
+        keywords = [
+            "result",
+            "show",
+            "demonstrate",
+            "conclude",
+            "significant",
+            "important",
+            "novel",
+            "first",
+            "major",
+            "clinical",
+        ]
 
         for i, sent in enumerate(sentences):
             score = 0.0
@@ -145,15 +163,17 @@ class MultiGrainSummarizer:
         for sent in selected[:3]:
             idx = text.find(sent)
             if idx >= 0:
-                evidence.append(EvidenceLink(
-                    doc_id=doc_id,
-                    section="extracted",
-                    chunk_id=f"{doc_id}_sum",
-                    start=idx,
-                    end=idx + len(sent),
-                    confidence=0.8,
-                    text=sent[:100]
-                ))
+                evidence.append(
+                    EvidenceLink(
+                        doc_id=doc_id,
+                        section="extracted",
+                        chunk_id=f"{doc_id}_sum",
+                        start=idx,
+                        end=idx + len(sent),
+                        confidence=0.8,
+                        text=sent[:100],
+                    )
+                )
 
         return Summary(
             summary_id=f"sum-{uuid.uuid4().hex[:8]}",
@@ -161,17 +181,16 @@ class MultiGrainSummarizer:
             length=len(summary_text),
             grain=grain,
             source_doc_ids=[doc_id],
-            evidence=evidence
+            evidence=evidence,
         )
 
-    def _create_evidence_links(self, source: str, summary: str,
-                               doc_id: str) -> List[EvidenceLink]:
+    def _create_evidence_links(self, source: str, summary: str, doc_id: str) -> List[EvidenceLink]:
         """要約から根拠リンクを作成."""
         evidence = []
 
         # Find matching phrases
         summary_words = set(summary.lower().split())
-        sentences = re.split(r'[.!?]', source)
+        sentences = re.split(r"[.!?]", source)
 
         for sent in sentences:
             sent_words = set(sent.lower().split())
@@ -180,20 +199,21 @@ class MultiGrainSummarizer:
             if overlap > 0.3:
                 idx = source.find(sent)
                 if idx >= 0:
-                    evidence.append(EvidenceLink(
-                        doc_id=doc_id,
-                        section="source",
-                        chunk_id=f"{doc_id}_src",
-                        start=idx,
-                        end=idx + len(sent),
-                        confidence=overlap,
-                        text=sent[:100]
-                    ))
+                    evidence.append(
+                        EvidenceLink(
+                            doc_id=doc_id,
+                            section="source",
+                            chunk_id=f"{doc_id}_src",
+                            start=idx,
+                            end=idx + len(sent),
+                            confidence=overlap,
+                            text=sent[:100],
+                        )
+                    )
 
         return evidence[:5]
 
-    def summarize_sections(self, sections: Dict[str, str],
-                           doc_id: str) -> Dict[str, Summary]:
+    def summarize_sections(self, sections: Dict[str, str], doc_id: str) -> Dict[str, Summary]:
         """セクション別に要約."""
         summaries = {}
 
@@ -203,14 +223,12 @@ class MultiGrainSummarizer:
             "Methods": 300,
             "Results": 400,
             "Discussion": 300,
-            "Conclusion": 150
+            "Conclusion": 150,
         }
 
         for section_name, section_text in sections.items():
             target = section_targets.get(section_name, 200)
-            summaries[section_name] = self.summarize(
-                section_text, doc_id, target, grain="section"
-            )
+            summaries[section_name] = self.summarize(section_text, doc_id, target, grain="section")
 
         return summaries
 
@@ -241,26 +259,26 @@ class ComparativeSummarizer:
 
         # Group similar claims
         for i, (doc1, claim1) in enumerate(all_claims):
-            for doc2, claim2 in all_claims[i+1:]:
+            for doc2, claim2 in all_claims[i + 1 :]:
                 similarity = self._text_similarity(claim1, claim2)
                 if similarity > 0.5:
-                    agreements.append({
-                        "docs": [doc1, doc2],
-                        "claims": [claim1, claim2],
-                        "similarity": similarity
-                    })
+                    agreements.append(
+                        {"docs": [doc1, doc2], "claims": [claim1, claim2], "similarity": similarity}
+                    )
                 elif similarity > 0.2:
-                    disagreements.append({
-                        "docs": [doc1, doc2],
-                        "claims": [claim1, claim2],
-                        "type": "potential_disagreement"
-                    })
+                    disagreements.append(
+                        {
+                            "docs": [doc1, doc2],
+                            "claims": [claim1, claim2],
+                            "type": "potential_disagreement",
+                        }
+                    )
 
         return {
             "agreements": agreements,
             "disagreements": disagreements,
             "total_papers": len(papers),
-            "total_claims": len(all_claims)
+            "total_claims": len(all_claims),
         }
 
     def _text_similarity(self, t1: str, t2: str) -> float:
@@ -321,11 +339,7 @@ class SummarizerPlugin:
 
     def run(self, context: TaskContext, artifacts: Artifacts) -> ArtifactsDelta:
         """要約を実行."""
-        delta: ArtifactsDelta = {
-            "summaries": {},
-            "comparison": None,
-            "simplified": {}
-        }
+        delta: ArtifactsDelta = {"summaries": {}, "comparison": None, "simplified": {}}
 
         # Multi-grain summaries for each paper
         for paper in artifacts.papers:
@@ -343,18 +357,12 @@ class SummarizerPlugin:
             section_sums = self.multi_grain.summarize_sections(paper.sections, paper.doc_id)
 
             delta["summaries"][paper.doc_id] = {
-                "short": {
-                    "text": short.text,
-                    "evidence": [e.to_dict() for e in short.evidence]
-                },
-                "medium": {
-                    "text": medium.text,
-                    "evidence": [e.to_dict() for e in medium.evidence]
-                },
+                "short": {"text": short.text, "evidence": [e.to_dict() for e in short.evidence]},
+                "medium": {"text": medium.text, "evidence": [e.to_dict() for e in medium.evidence]},
                 "sections": {
                     k: {"text": v.text, "evidence": [e.to_dict() for e in v.evidence]}
                     for k, v in section_sums.items()
-                }
+                },
             }
 
             # Simplified version
@@ -367,8 +375,7 @@ class SummarizerPlugin:
         # Comparative summary
         if len(artifacts.papers) > 1:
             papers_data = [
-                {"doc_id": p.doc_id, "abstract": p.abstract or ""}
-                for p in artifacts.papers
+                {"doc_id": p.doc_id, "abstract": p.abstract or ""} for p in artifacts.papers
             ]
             delta["comparison"] = self.comparative.compare(papers_data)
 

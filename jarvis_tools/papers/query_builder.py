@@ -6,6 +6,7 @@ PubMed検索クエリを最適化して生成。
 - フィルタの適用
 - 理由付きの検索式
 """
+
 from __future__ import annotations
 
 import re
@@ -51,6 +52,7 @@ MESH_TERMS: Dict[str, str] = {
 @dataclass
 class SearchQuery:
     """構造化された検索クエリ."""
+
     pubmed_query: str
     mesh_terms: List[str] = field(default_factory=list)
     synonyms_used: List[str] = field(default_factory=list)
@@ -71,7 +73,7 @@ class SearchQuery:
 
 class SearchComposer:
     """検索クエリ生成器.
-    
+
     ユーザークエリをPubMed最適化クエリに変換。
     """
 
@@ -90,10 +92,10 @@ class SearchComposer:
 
     def compose(self, query: str) -> SearchQuery:
         """クエリを最適化.
-        
+
         Args:
             query: ユーザーの自然言語クエリ
-            
+
         Returns:
             SearchQuery: 最適化された検索クエリ
         """
@@ -132,15 +134,51 @@ class SearchComposer:
         query_lower = query.lower()
 
         # 簡易的なキーワード抽出
-        words = re.findall(r'\b[a-z][a-z0-9-]+\b', query_lower)
+        words = re.findall(r"\b[a-z][a-z0-9-]+\b", query_lower)
 
         # ストップワード除去
         stopwords = {
-            'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been',
-            'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
-            'this', 'that', 'these', 'those', 'which', 'what', 'when',
-            'where', 'why', 'how', 'and', 'or', 'but', 'if', 'for',
-            'with', 'by', 'from', 'to', 'of', 'in', 'on', 'at', 'as',
+            "the",
+            "a",
+            "an",
+            "is",
+            "are",
+            "was",
+            "were",
+            "be",
+            "been",
+            "have",
+            "has",
+            "had",
+            "do",
+            "does",
+            "did",
+            "will",
+            "would",
+            "this",
+            "that",
+            "these",
+            "those",
+            "which",
+            "what",
+            "when",
+            "where",
+            "why",
+            "how",
+            "and",
+            "or",
+            "but",
+            "if",
+            "for",
+            "with",
+            "by",
+            "from",
+            "to",
+            "of",
+            "in",
+            "on",
+            "at",
+            "as",
         }
 
         keywords = [w for w in words if w not in stopwords and len(w) > 2]

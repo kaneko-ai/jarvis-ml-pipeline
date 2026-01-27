@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-import re
 
 from jarvis_core.extraction.funding import FundingSource
 
@@ -25,7 +24,9 @@ class PotentialConflict:
 PHARMA_KEYWORDS = ["pharma", "therapeutics", "biotech", "drug", "inc.", "ltd"]
 
 
-def detect_conflicts(authors: list[Author], funding: list[FundingSource]) -> list[PotentialConflict]:
+def detect_conflicts(
+    authors: list[Author], funding: list[FundingSource]
+) -> list[PotentialConflict]:
     """Detect potential conflicts of interest."""
     conflicts: list[PotentialConflict] = []
 

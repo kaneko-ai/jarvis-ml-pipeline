@@ -12,6 +12,7 @@ from jarvis_core.ranking.features import RankingFeatures
 
 logger = logging.getLogger(__name__)
 
+
 class RankerTrainer:
     """Trainer for Learning to Rank models."""
 
@@ -22,28 +23,28 @@ class RankerTrainer:
 
     def prepare_dataset(self, click_logs: List[Dict[str, Any]]):
         """Convert click logs to LTR dataset format."""
-        
+
         # Skeleton: In real implementation, this would:
         # 1. Group by query_id
         # 2. Extract features for each doc
         # 3. Assign labels (click=1, impresssion=0)
         # 4. Save to SVM rank format or LightGBM binary format
-        
+
         data = []
         for log in click_logs:
             query = log["query"]
             clicked_doc = log["clicked_doc"]
             negatives = log["negative_docs"]
-            
+
             # Positive sample
             pos_feats = self.feature_extractor.extract(query, clicked_doc)
             data.append({"label": 1, "features": pos_feats, "qid": log["query_id"]})
-            
+
             # Negative samples
             for neg in negatives:
                 neg_feats = self.feature_extractor.extract(query, neg)
                 data.append({"label": 0, "features": neg_feats, "qid": log["query_id"]})
-                
+
         self._save_dataset(data)
 
     def _save_dataset(self, data: List[Dict]):

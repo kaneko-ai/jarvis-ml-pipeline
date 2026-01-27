@@ -14,8 +14,9 @@ API_TOKEN = os.getenv("API_TOKEN")
 def verify_token(authorization: Optional[str] = Header(None)) -> bool:
     """Verify authorization token."""
     from jarvis_web.config import get_config
+
     config = get_config()
-    
+
     if config.security.auth_mode == "disabled":
         return True
 
@@ -37,6 +38,7 @@ def verify_token(authorization: Optional[str] = Header(None)) -> bool:
 def verify_api_token(authorization: Optional[str] = Header(None)) -> bool:
     """Verify API token for job creation."""
     from jarvis_web.config import get_config
+
     config = get_config()
 
     if config.security.auth_mode == "disabled":

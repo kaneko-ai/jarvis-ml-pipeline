@@ -2,6 +2,7 @@
 
 Per PR-63, provides network-isolated testing via recorded fixtures.
 """
+
 from __future__ import annotations
 
 import json

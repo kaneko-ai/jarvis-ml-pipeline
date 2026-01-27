@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 
 class SupportSpan(BaseModel):
     """Specific location of evidence within a source."""
+
     chunk_id: str
     char_range: Tuple[int, int]  # (start, end)
     text_snippet: str
@@ -18,6 +19,7 @@ class SupportSpan(BaseModel):
 
 class Evidence(BaseModel):
     """A piece of supporting evidence for a claim."""
+
     source_url: str
     source_title: str
     spans: List[SupportSpan] = Field(default_factory=list)
@@ -26,6 +28,7 @@ class Evidence(BaseModel):
 
 class Claim(BaseModel):
     """An individual assertion with supporting evidence."""
+
     statement: str
     evidence: List[Evidence] = Field(default_factory=list)
     importance: float = Field(default=1.0, ge=0, le=1.0)
@@ -37,6 +40,7 @@ class Claim(BaseModel):
 
 class EvidenceReport(BaseModel):
     """The collection of claims and evidence forming a report."""
+
     title: str
     claims: List[Claim] = Field(default_factory=list)
     summary: str

@@ -22,7 +22,6 @@ from tempfile import TemporaryDirectory
 import pytest
 
 
-
 class TestCounterevidenceSearcher:
     """反証探索テスト."""
 

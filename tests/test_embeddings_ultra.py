@@ -17,6 +17,6 @@ class TestEmbeddingsSafe:
 class TestModule:
     def test_module(self):
         try:
-            import jarvis_core.embeddings
+            import jarvis_core.embeddings  # noqa: F401
         except ImportError:
             pass

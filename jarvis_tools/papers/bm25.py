@@ -2,6 +2,7 @@
 
 Per RP-14, provides lightweight BM25 ranking.
 """
+
 from __future__ import annotations
 
 import math
@@ -12,7 +13,8 @@ from typing import List, Tuple
 def tokenize(text: str) -> List[str]:
     """Simple tokenizer."""
     import re
-    return re.findall(r'\w+', text.lower())
+
+    return re.findall(r"\w+", text.lower())
 
 
 class BM25:

@@ -2,6 +2,7 @@
 
 Per RP-04, extracted from run_pipeline.py for reuse.
 """
+
 from __future__ import annotations
 
 import os
@@ -126,16 +127,18 @@ def pubmed_esummary(pmids: List[str]) -> List[PaperRecord]:
                         elif aid_type == "doi" and aid.text:
                             doi = aid.text
 
-            records.append(PaperRecord(
-                paper_id=pmid_text,
-                title=title,
-                authors=authors,
-                pubdate=pubdate,
-                journal=journal,
-                pmid=pmid_text,
-                pmcid=pmcid if pmcid else None,
-                doi=doi if doi else None,
-            ))
+            records.append(
+                PaperRecord(
+                    paper_id=pmid_text,
+                    title=title,
+                    authors=authors,
+                    pubdate=pubdate,
+                    journal=journal,
+                    pmid=pmid_text,
+                    pmcid=pmcid if pmcid else None,
+                    doi=doi if doi else None,
+                )
+            )
 
         return records
 

@@ -56,7 +56,11 @@ def test_mcp_tool_invoke_and_error(monkeypatch):
         headers={},
         status=MCPServerStatus.DISCONNECTED,
     )
-    server.tools = [MCPTool(name="search", description="Search", parameters={}, required_params=[], enabled=True)]
+    server.tools = [
+        MCPTool(
+            name="search", description="Search", parameters={}, required_params=[], enabled=True
+        )
+    ]
     hub.register_server(server)
 
     def fake_success(method, url, headers=None, json=None, timeout=None):
@@ -88,7 +92,11 @@ def test_mcp_rate_limiting(monkeypatch):
         status=MCPServerStatus.DISCONNECTED,
         requests_per_minute=1,
     )
-    server.tools = [MCPTool(name="search", description="Search", parameters={}, required_params=[], enabled=True)]
+    server.tools = [
+        MCPTool(
+            name="search", description="Search", parameters={}, required_params=[], enabled=True
+        )
+    ]
     hub.register_server(server)
 
     def fake_success(method, url, headers=None, json=None, timeout=None):
@@ -114,8 +122,12 @@ def test_mcp_tool_chain(monkeypatch):
         status=MCPServerStatus.DISCONNECTED,
     )
     server.tools = [
-        MCPTool(name="step_one", description="Step 1", parameters={}, required_params=[], enabled=True),
-        MCPTool(name="step_two", description="Step 2", parameters={}, required_params=[], enabled=True),
+        MCPTool(
+            name="step_one", description="Step 1", parameters={}, required_params=[], enabled=True
+        ),
+        MCPTool(
+            name="step_two", description="Step 2", parameters={}, required_params=[], enabled=True
+        ),
     ]
     hub.register_server(server)
 

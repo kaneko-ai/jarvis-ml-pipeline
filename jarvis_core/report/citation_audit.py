@@ -12,14 +12,17 @@ from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class AuditResult:
     """Result of a citation audit."""
+
     is_valid: bool
     score: float  # 0.0 to 1.0 (coverage of citations)
     missing_citations: List[str]  # Sentences claiming facts without citations
     hallucinated_citations: List[str]  # Citations that don't exist in source
     details: str
+
 
 class CitationAuditor:
     """Audits text to ensure claims are backed by citations."""
@@ -35,25 +38,25 @@ class CitationAuditor:
         hallucinated_citations = []
         cited_sentences_count = 0
         total_sentences = len(sentences)
-        
+
         valid_ids_set = set(valid_citation_ids)
-        
+
         for sent in sentences:
             sent = sent.strip()
             if not sent:
                 continue
-            
+
             # Extract citations in this sentence
             found_citations = []
             for match in self.citation_pattern.finditer(sent):
                 # Split "1, 2" -> ["1", "2"]
                 ids = [cd.strip() for cd in match.group(1).split(",")]
                 found_citations.extend(ids)
-            
+
             # Check validity
             if not found_citations:
                 # Heuristic: If sentence looks like a claim (long enough), flag it
-                if len(sent.split()) > 5: 
+                if len(sent.split()) > 5:
                     missing_citations.append(sent[:50] + "...")
             else:
                 cited_sentences_count += 1
@@ -62,15 +65,15 @@ class CitationAuditor:
                         hallucinated_citations.append(cid)
 
         # Allow some sentences (intro/outro) to be citation-free
-        # But critical claims must have them. 
+        # But critical claims must have them.
         # For strict audit, we might want higher threshold.
         score = cited_sentences_count / max(total_sentences, 1)
-        
+
         is_valid = (
-            score >= 0.5 and  # At least 50% of sentences have citations (relaxed for now)
-            len(hallucinated_citations) == 0  # ABSOLUTELY NO fake citations allowed
+            score >= 0.5  # At least 50% of sentences have citations (relaxed for now)
+            and len(hallucinated_citations) == 0  # ABSOLUTELY NO fake citations allowed
         )
-        
+
         details = (
             f"Score: {score:.2f} ({cited_sentences_count}/{total_sentences}). "
             f"Missing: {len(missing_citations)}. "
@@ -82,7 +85,7 @@ class CitationAuditor:
             score=score,
             missing_citations=missing_citations,
             hallucinated_citations=hallucinated_citations,
-            details=details
+            details=details,
         )
 
     def _split_sentences(self, text: str) -> List[str]:

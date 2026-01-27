@@ -1,4 +1,5 @@
 """Research agent implementation."""
+
 from __future__ import annotations
 
 import asyncio
@@ -37,7 +38,9 @@ class ResearchAgent:
 
 ## Result
 {result}
-""".format(goal=task.description, result=result)
+""".format(
+            goal=task.description, result=result
+        )
 
         for filename, content in (
             ("task_plan.md", task_plan),

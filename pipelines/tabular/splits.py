@@ -10,6 +10,7 @@ import logging
 from typing import Tuple
 
 import numpy as np
+
 try:
     from sklearn.model_selection import train_test_split
 except ImportError:
@@ -28,9 +29,9 @@ def split_data(
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     データを train/val/test に分割.
-    
+
     デフォルト: 60/20/20（教材準拠）
-    
+
     Args:
         X: 特徴量
         y: ラベル
@@ -38,7 +39,7 @@ def split_data(
         train_ratio: 訓練比率
         val_ratio: 検証比率
         test_ratio: テスト比率
-    
+
     Returns:
         (X_train, X_val, X_test, y_train, y_val, y_test)
     """
@@ -50,7 +51,8 @@ def split_data(
     # まず train と (val+test) に分割
     val_test_ratio = val_ratio + test_ratio
     X_train, X_temp, y_train, y_temp = train_test_split(
-        X, y,
+        X,
+        y,
         test_size=val_test_ratio,
         random_state=seed,
         stratify=y if is_classification(y) else None,
@@ -59,15 +61,14 @@ def split_data(
     # 次に val と test に分割
     val_in_temp = val_ratio / val_test_ratio
     X_val, X_test, y_val, y_test = train_test_split(
-        X_temp, y_temp,
+        X_temp,
+        y_temp,
         test_size=1 - val_in_temp,
         random_state=seed,
         stratify=y_temp if is_classification(y_temp) else None,
     )
 
-    logger.info(
-        f"Split: train={len(X_train)}, val={len(X_val)}, test={len(X_test)}"
-    )
+    logger.info(f"Split: train={len(X_train)}, val={len(X_val)}, test={len(X_test)}")
 
     return X_train, X_val, X_test, y_train, y_val, y_test
 

@@ -11,6 +11,7 @@ from enum import Enum
 
 logger = logging.getLogger(__name__)
 
+
 class LicenseType(Enum):
     CC_BY = "cc-by"
     CC0 = "cc0"
@@ -20,6 +21,7 @@ class LicenseType(Enum):
     CC_BY_ND = "cc-by-nd"
     UNKNOWN = "unknown"
     COPYRIGHTED = "copyrighted"
+
 
 class LicenseFilter:
     """Filters content based on license compatibility."""
@@ -56,9 +58,9 @@ class LicenseFilter:
         """Normalize license string to enum."""
         if not license_str:
             return LicenseType.UNKNOWN
-            
+
         s = license_str.lower().strip()
-        
+
         if "cc0" in s or "public domain" in s:
             return LicenseType.CC0
         if "cc-by-nc" in s or "cc by-nc" in s:
@@ -67,7 +69,7 @@ class LicenseFilter:
             return LicenseType.CC_BY_ND
         if "cc-by-sa" in s or "cc by-sa" in s:
             return LicenseType.CC_BY_SA
-        if "cc-by" in s or "cc by" in s: # Check this last as it's a substring of others
+        if "cc-by" in s or "cc by" in s:  # Check this last as it's a substring of others
             return LicenseType.CC_BY
-        
+
         return LicenseType.UNKNOWN

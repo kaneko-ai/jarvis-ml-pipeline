@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional
 
-from jarvis_core.security.fs_safety import safe_extract_zip, sanitize_filename
+from jarvis_core.security.fs_safety import resolve_under, safe_extract_zip, sanitize_filename
 from jarvis_core.security.atomic_io import atomic_write_json
 from jarvis_core.redact_logging import setup_logging
 
@@ -57,6 +57,7 @@ if FASTAPI_AVAILABLE:
     from jarvis_web.api.orchestrator import router as orchestrator_router
     from jarvis_web.api.ws import router as ws_router
     from jarvis_web.routes.research import router as research_router
+
     # from jarvis_web.routes.finance import router as finance_router (Moved to lazy import)
     from jarvis_web.routes.schedules import router as schedules_router
     from jarvis_web.routes.cron import router as cron_router
@@ -79,7 +80,6 @@ if FASTAPI_AVAILABLE:
     # Add Request ID middleware FIRST to capture it in other middlewares/logs
     app.add_middleware(RequestIdMiddleware)
 
-
     # Get CORS config from environment-aware configuration
     config = get_config()
 
@@ -93,10 +93,11 @@ if FASTAPI_AVAILABLE:
     )
 
     app.include_router(research_router)
-    
+
     # Feature Flagged Router: Finance
     if os.environ.get("JARVIS_ENABLE_FINANCE") == "1":
         from jarvis_web.routes.finance import router as finance_router
+
         app.include_router(finance_router)
 
     app.include_router(schedules_router)
@@ -594,7 +595,7 @@ if FASTAPI_AVAILABLE:
                 batch_dir,
                 max_files=MAX_BATCH_FILES,
                 max_total_size=MAX_UPLOAD_SIZE * MAX_BATCH_FILES,
-                allowed_ext=allowed_ext
+                allowed_ext=allowed_ext,
             )
 
             # Load existing hashes
@@ -624,7 +625,7 @@ if FASTAPI_AVAILABLE:
                             "hash": file_hash[:16],
                         }
                     )
-            
+
             # Save hashes after batch processing
             if accepted > 0:
                 atomic_write_json(hash_file, hashes)

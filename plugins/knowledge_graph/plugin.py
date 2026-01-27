@@ -13,13 +13,19 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from jarvis_core.contracts.types import (
-    Artifacts, ArtifactsDelta, Claim, EvidenceLink, RuntimeConfig, TaskContext
+    Artifacts,
+    ArtifactsDelta,
+    Claim,
+    EvidenceLink,
+    RuntimeConfig,
+    TaskContext,
 )
 
 
 @dataclass
 class Entity:
     """エンティティ."""
+
     entity_id: str
     name: str
     type: str  # gene, protein, drug, disease, pathway, method
@@ -30,6 +36,7 @@ class Entity:
 @dataclass
 class Relation:
     """関係."""
+
     relation_id: str
     source_id: str
     target_id: str
@@ -41,6 +48,7 @@ class Relation:
 @dataclass
 class KnowledgeGraph:
     """知識グラフ."""
+
     entities: Dict[str, Entity] = field(default_factory=dict)
     relations: List[Relation] = field(default_factory=list)
 
@@ -52,29 +60,35 @@ class KnowledgeGraph:
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "entities": {k: {"name": v.name, "type": v.type, "aliases": v.aliases}
-                        for k, v in self.entities.items()},
+            "entities": {
+                k: {"name": v.name, "type": v.type, "aliases": v.aliases}
+                for k, v in self.entities.items()
+            },
             "relations": [
-                {"source": r.source_id, "target": r.target_id,
-                 "type": r.relation_type, "confidence": r.confidence}
+                {
+                    "source": r.source_id,
+                    "target": r.target_id,
+                    "type": r.relation_type,
+                    "confidence": r.confidence,
+                }
                 for r in self.relations
-            ]
+            ],
         }
 
 
 class EntityExtractor:
     """
     エンティティ抽出器.
-    
+
     テキストから遺伝子、タンパク質、薬剤、疾患などを抽出。
     """
 
     # 簡易パターン（本番ではNER/辞書使用）
     PATTERNS = {
-        "gene": r'\b([A-Z][A-Z0-9]{1,5})\b',  # e.g., TP53, BRCA1
-        "protein": r'\b([A-Z][a-z]+(?:\s+[a-z]+)?(?:\s+protein)?)\b',
-        "drug": r'\b([A-Z][a-z]+(?:mab|nib|cept|ide|ine|ol|ast))\b',
-        "pathway": r'\b([A-Z]+(?:/[A-Z]+)?(?:\s+pathway|\s+signaling))\b',
+        "gene": r"\b([A-Z][A-Z0-9]{1,5})\b",  # e.g., TP53, BRCA1
+        "protein": r"\b([A-Z][a-z]+(?:\s+[a-z]+)?(?:\s+protein)?)\b",
+        "drug": r"\b([A-Z][a-z]+(?:mab|nib|cept|ide|ine|ol|ast))\b",
+        "pathway": r"\b([A-Z]+(?:/[A-Z]+)?(?:\s+pathway|\s+signaling))\b",
     }
 
     # 既知エンティティ辞書
@@ -99,12 +113,11 @@ class EntityExtractor:
         for name, (etype, aliases) in self.KNOWN_ENTITIES.items():
             if name.upper() in text_upper:
                 if name not in seen:
-                    entities.append(Entity(
-                        entity_id=self._make_id(name),
-                        name=name,
-                        type=etype,
-                        aliases=aliases
-                    ))
+                    entities.append(
+                        Entity(
+                            entity_id=self._make_id(name), name=name, type=etype, aliases=aliases
+                        )
+                    )
                     seen.add(name)
 
         # Pattern-based extraction
@@ -112,11 +125,7 @@ class EntityExtractor:
             matches = re.findall(pattern, text)
             for match in matches:
                 if match not in seen and len(match) > 2:
-                    entities.append(Entity(
-                        entity_id=self._make_id(match),
-                        name=match,
-                        type=etype
-                    ))
+                    entities.append(Entity(entity_id=self._make_id(match), name=match, type=etype))
                     seen.add(match)
 
         return entities
@@ -129,7 +138,7 @@ class EntityExtractor:
 class RelationExtractor:
     """
     関係抽出器.
-    
+
     エンティティ間の関係を抽出。
     """
 
@@ -142,8 +151,7 @@ class RelationExtractor:
         (r"(\w+)\s+(?:regulates?|modulates?)\s+(\w+)", "regulates"),
     ]
 
-    def extract(self, text: str, entities: List[Entity],
-                doc_id: str = "") -> List[Relation]:
+    def extract(self, text: str, entities: List[Entity], doc_id: str = "") -> List[Relation]:
         """テキストから関係を抽出."""
         relations = []
         entity_names = {e.name.lower(): e.entity_id for e in entities}
@@ -158,22 +166,26 @@ class RelationExtractor:
                 target_id = entity_names.get(target)
 
                 if source_id and target_id and source_id != target_id:
-                    relations.append(Relation(
-                        relation_id=f"rel-{uuid.uuid4().hex[:8]}",
-                        source_id=source_id,
-                        target_id=target_id,
-                        relation_type=rel_type,
-                        confidence=0.7,
-                        evidence=[EvidenceLink(
-                            doc_id=doc_id,
-                            section="extracted",
-                            chunk_id=f"{doc_id}_rel",
-                            start=match.start(),
-                            end=match.end(),
+                    relations.append(
+                        Relation(
+                            relation_id=f"rel-{uuid.uuid4().hex[:8]}",
+                            source_id=source_id,
+                            target_id=target_id,
+                            relation_type=rel_type,
                             confidence=0.7,
-                            text=match.group(0)
-                        )]
-                    ))
+                            evidence=[
+                                EvidenceLink(
+                                    doc_id=doc_id,
+                                    section="extracted",
+                                    chunk_id=f"{doc_id}_rel",
+                                    start=match.start(),
+                                    end=match.end(),
+                                    confidence=0.7,
+                                    text=match.group(0),
+                                )
+                            ],
+                        )
+                    )
 
         return relations
 
@@ -181,7 +193,7 @@ class RelationExtractor:
 class EntityNormalizer:
     """
     エンティティ正規化.
-    
+
     同義語・別名を統一IDに紐付け。
     """
 
@@ -220,7 +232,7 @@ class EntityNormalizer:
 class ControversyMapper:
     """
     論争マッパー.
-    
+
     矛盾する主張、議論のあるトピックを検出。
     """
 
@@ -234,7 +246,7 @@ class ControversyMapper:
 
         # Group claims by topic (simple keyword overlap)
         for i, c1 in enumerate(claims):
-            for c2 in claims[i+1:]:
+            for c2 in claims[i + 1 :]:
                 # Check topic similarity
                 words1 = set(c1.claim_text.lower().split())
                 words2 = set(c2.claim_text.lower().split())
@@ -249,14 +261,16 @@ class ControversyMapper:
                     neg2 = any(w in c2.claim_text.lower() for w in negative_words)
 
                     if (pos1 and neg2) or (neg1 and pos2):
-                        controversies.append({
-                            "claim1_id": c1.claim_id,
-                            "claim2_id": c2.claim_id,
-                            "claim1_text": c1.claim_text,
-                            "claim2_text": c2.claim_text,
-                            "topic_overlap": overlap,
-                            "type": "opposing_claims"
-                        })
+                        controversies.append(
+                            {
+                                "claim1_id": c1.claim_id,
+                                "claim2_id": c2.claim_id,
+                                "claim1_text": c1.claim_text,
+                                "claim2_text": c2.claim_text,
+                                "topic_overlap": overlap,
+                                "type": "opposing_claims",
+                            }
+                        )
 
         return controversies
 
@@ -264,7 +278,7 @@ class ControversyMapper:
 class GraphRAGIndexer:
     """
     GraphRAGインデクサー.
-    
+
     知識グラフをRAG用にインデックス化。
     """
 
@@ -294,11 +308,10 @@ class GraphRAGIndexer:
             "entity_count": len(kg.entities),
             "relation_count": len(kg.relations),
             "entity_texts": entity_texts,
-            "indexed": True
+            "indexed": True,
         }
 
-    def query(self, query: str, kg: KnowledgeGraph,
-              top_k: int = 5) -> List[Dict[str, Any]]:
+    def query(self, query: str, kg: KnowledgeGraph, top_k: int = 5) -> List[Dict[str, Any]]:
         """グラフをクエリ."""
         query_words = set(query.lower().split())
         results = []
@@ -309,12 +322,7 @@ class GraphRAGIndexer:
             score = len(query_words & name_words) / max(len(query_words), 1)
 
             if score > 0:
-                results.append({
-                    "type": "entity",
-                    "id": eid,
-                    "name": entity.name,
-                    "score": score
-                })
+                results.append({"type": "entity", "id": eid, "name": entity.name, "score": score})
 
         # Search relations
         for rel in kg.relations:
@@ -323,12 +331,9 @@ class GraphRAGIndexer:
             score = len(query_words & text_words) / max(len(query_words), 1)
 
             if score > 0:
-                results.append({
-                    "type": "relation",
-                    "id": rel.relation_id,
-                    "text": text,
-                    "score": score
-                })
+                results.append(
+                    {"type": "relation", "id": rel.relation_id, "text": text, "score": score}
+                )
 
         results.sort(key=lambda x: x["score"], reverse=True)
         return results[:top_k]

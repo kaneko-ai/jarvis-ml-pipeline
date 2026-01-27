@@ -23,6 +23,7 @@ META_PATH = ROOT_DIR / "data" / "raw" / "cd73_light" / "pubmed_metadata.json"
 # 2. ロード関数
 # =========================================
 
+
 def load_chunks(path: Path) -> List[Dict[str, Any]]:
     if not path.exists():
         raise FileNotFoundError(f"chunks.jsonl が見つかりません: {path}")
@@ -78,6 +79,7 @@ def load_metadata(path: Path) -> Dict[str, Dict[str, Any]]:
 # 3. 検索本体
 # =========================================
 
+
 def build_index(chunks: List[Dict[str, Any]]):
     if not chunks:
         raise ValueError("チャンクが 0 件です。先にパイプラインの出力を確認してください。")
@@ -113,11 +115,11 @@ def search(query: str, top_k: int = 5):
         paper_id = (
             str(chunk.get("paper_id"))
             if "paper_id" in chunk
-            else str(chunk.get("pmid"))
-            if "pmid" in chunk
-            else str(chunk.get("id"))
-            if "id" in chunk
-            else str(idx)
+            else (
+                str(chunk.get("pmid"))
+                if "pmid" in chunk
+                else str(chunk.get("id")) if "id" in chunk else str(idx)
+            )
         )
 
         m = meta.get(paper_id, {})
@@ -142,9 +144,10 @@ def search(query: str, top_k: int = 5):
 # 4. エントリポイント
 # =========================================
 
+
 def main():
     if len(sys.argv) < 2:
-        print("使い方: python search_cd73.py \"検索クエリ\"")
+        print('使い方: python search_cd73.py "検索クエリ"')
         sys.exit(1)
 
     query = sys.argv[1]

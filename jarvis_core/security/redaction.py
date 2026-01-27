@@ -1,9 +1,6 @@
-"""Redaction.
-
-Per V4.2 Sprint 3, this redacts PII from text.
-"""
-
 from __future__ import annotations
+import logging
+import re
 
 from .pii_scan import PIIScanner
 
@@ -104,8 +101,6 @@ class Redactor:
         }
 
 
-import logging
-import re
 
 
 class RedactingFilter(logging.Filter):

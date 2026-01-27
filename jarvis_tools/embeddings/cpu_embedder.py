@@ -2,6 +2,7 @@
 
 Per RP-118, provides CPU-friendly embeddings with caching.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -76,6 +77,7 @@ class CPUEmbedder:
 
         try:
             from sentence_transformers import SentenceTransformer
+
             self._model = SentenceTransformer(self.model_name)
             self._available = True
         except ImportError:

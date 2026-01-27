@@ -11,6 +11,7 @@ import pickle
 from pathlib import Path
 
 import numpy as np
+
 try:
     from sklearn.linear_model import Ridge
 except ImportError:
@@ -44,7 +45,7 @@ class BaselineRidgeRegression:
         """保存."""
         p = Path(path)
         p.parent.mkdir(parents=True, exist_ok=True)
-        with open(p, 'wb') as f:
+        with open(p, "wb") as f:
             pickle.dump(self.model, f)
         logger.info(f"Model saved: {p}")
         return p
@@ -53,6 +54,6 @@ class BaselineRidgeRegression:
     def load(cls, path: str) -> "BaselineRidgeRegression":
         """読み込み."""
         instance = cls()
-        with open(path, 'rb') as f:
+        with open(path, "rb") as f:
             instance.model = pickle.load(f)
         return instance

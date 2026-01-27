@@ -19,10 +19,12 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/feedback", tags=["feedback"])
 
+
 # Simple dependency injection
 def get_store():
     # TODO: Configure path via settings
     return FeedbackStore(Path("data/feedback"))
+
 
 class FeedbackRequest(BaseModel):
     query_id: str
@@ -30,18 +32,13 @@ class FeedbackRequest(BaseModel):
     rating: int
     metadata: Dict[str, Any] = {}
 
+
 @router.post("/")
-async def submit_feedback(
-    req: FeedbackRequest,
-    store: FeedbackStore = Depends(get_store)
-):
+async def submit_feedback(req: FeedbackRequest, store: FeedbackStore = Depends(get_store)):
     """Submit relevance feedback."""
     try:
         store.log_feedback(
-            query_id=req.query_id,
-            doc_id=req.doc_id,
-            rating=req.rating,
-            metadata=req.metadata
+            query_id=req.query_id, doc_id=req.doc_id, rating=req.rating, metadata=req.metadata
         )
         return {"status": "accepted"}
     except Exception as e:

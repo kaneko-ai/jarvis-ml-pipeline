@@ -75,8 +75,7 @@ def search(
 
     if vectorizer is None or matrix is None or not metadata:
         print(
-            "[search] Index is empty. "
-            "おそらく PDF が無い環境で作ったインデックスです。",
+            "[search] Index is empty. " "おそらく PDF が無い環境で作ったインデックスです。",
             file=sys.stderr,
         )
         sys.exit(1)

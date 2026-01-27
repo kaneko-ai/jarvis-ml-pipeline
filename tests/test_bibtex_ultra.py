@@ -17,6 +17,6 @@ class TestBibtexSafe:
 class TestModule:
     def test_module(self):
         try:
-            import jarvis_core.bibtex
+            import jarvis_core.bibtex  # noqa: F401
         except ImportError:
             pass

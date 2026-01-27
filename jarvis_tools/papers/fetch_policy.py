@@ -2,6 +2,7 @@
 
 Per RP-103/106, defines unified fetch policy rules.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -27,20 +28,24 @@ class FetchPolicy:
     """
 
     # Source priority order (RP-106: single source of truth)
-    source_order: List[FetchSource] = field(default_factory=lambda: [
-        FetchSource.LOCAL,
-        FetchSource.PMC_OA,
-        FetchSource.UNPAYWALL,
-        FetchSource.PUBLISHER,
-        FetchSource.HTML_FALLBACK,
-    ])
+    source_order: List[FetchSource] = field(
+        default_factory=lambda: [
+            FetchSource.LOCAL,
+            FetchSource.PMC_OA,
+            FetchSource.UNPAYWALL,
+            FetchSource.PUBLISHER,
+            FetchSource.HTML_FALLBACK,
+        ]
+    )
 
     # Allowed adapters
-    allowed_adapters: List[str] = field(default_factory=lambda: [
-        "local",
-        "pmc_oa",
-        "unpaywall_pdf",
-    ])
+    allowed_adapters: List[str] = field(
+        default_factory=lambda: [
+            "local",
+            "pmc_oa",
+            "unpaywall_pdf",
+        ]
+    )
 
     # Publisher PDF policy
     publisher_pdf_enabled: bool = False
@@ -50,11 +55,13 @@ class FetchPolicy:
     html_fallback_enabled: bool = True
 
     # Domain allowlist
-    domain_allowlist: List[str] = field(default_factory=lambda: [
-        "ncbi.nlm.nih.gov",
-        "pmc.ncbi.nlm.nih.gov",
-        "pubmed.ncbi.nlm.nih.gov",
-    ])
+    domain_allowlist: List[str] = field(
+        default_factory=lambda: [
+            "ncbi.nlm.nih.gov",
+            "pmc.ncbi.nlm.nih.gov",
+            "pubmed.ncbi.nlm.nih.gov",
+        ]
+    )
 
     # Domain denylist
     domain_denylist: List[str] = field(default_factory=list)

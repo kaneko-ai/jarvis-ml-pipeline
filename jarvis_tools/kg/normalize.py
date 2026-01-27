@@ -2,6 +2,7 @@
 
 Per RP-129, normalizes gene/protein/drug names using offline dictionaries.
 """
+
 from __future__ import annotations
 
 import re

@@ -12,14 +12,13 @@ import re
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
-from jarvis_core.contracts.types import (
-    Artifacts, ArtifactsDelta, Paper, RuntimeConfig, TaskContext
-)
+from jarvis_core.contracts.types import Artifacts, ArtifactsDelta, Paper, RuntimeConfig, TaskContext
 
 
 @dataclass
 class EmbeddingResult:
     """埋め込み結果."""
+
     chunk_id: str
     vector: List[float]
     model: str
@@ -29,6 +28,7 @@ class EmbeddingResult:
 @dataclass
 class SearchResult:
     """検索結果."""
+
     doc_id: str
     chunk_id: str
     score: float
@@ -54,10 +54,10 @@ class QueryExpander:
     def expand(self, query: str) -> List[str]:
         """
         クエリを同義語で展開.
-        
+
         Args:
             query: 元のクエリ
-        
+
         Returns:
             展開されたクエリリスト（元のクエリ含む）
         """
@@ -74,22 +74,22 @@ class QueryExpander:
     def decompose(self, query: str) -> List[str]:
         """
         複合クエリを分解.
-        
+
         Args:
             query: 複合クエリ
-        
+
         Returns:
             分解されたサブクエリリスト
         """
         # AND/OR で分割
-        parts = re.split(r'\s+(?:AND|OR)\s+', query, flags=re.IGNORECASE)
+        parts = re.split(r"\s+(?:AND|OR)\s+", query, flags=re.IGNORECASE)
         return [p.strip() for p in parts if p.strip()]
 
 
 class SectionEmbedder:
     """
     セクション別埋め込み.
-    
+
     Title, Abstract, Methods, Results を個別に埋め込む。
     SentenceTransformerが利用可能な場合は使用、なければ簡易ベクトル。
     """
@@ -102,6 +102,7 @@ class SectionEmbedder:
         # Try to load SentenceTransformer
         try:
             from sentence_transformers import SentenceTransformer
+
             self.model = SentenceTransformer(model_name)
             self.dimension = self.model.get_sentence_embedding_dimension()
         except ImportError:
@@ -110,10 +111,10 @@ class SectionEmbedder:
     def embed(self, text: str) -> List[float]:
         """
         テキストを埋め込む.
-        
+
         Args:
             text: 入力テキスト
-        
+
         Returns:
             埋め込みベクトル
         """
@@ -134,10 +135,10 @@ class SectionEmbedder:
             h = hashlib.md5(word.encode()).digest()
             for j in range(min(16, self.dimension)):
                 idx = (i * 16 + j) % self.dimension
-                vector[idx] += struct.unpack('b', h[j:j+1])[0] / 128.0
+                vector[idx] += struct.unpack("b", h[j : j + 1])[0] / 128.0
 
         # Normalize
-        norm = sum(v*v for v in vector) ** 0.5
+        norm = sum(v * v for v in vector) ** 0.5
         if norm > 0:
             vector = [v / norm for v in vector]
 
@@ -146,10 +147,10 @@ class SectionEmbedder:
     def embed_sections(self, paper: Paper) -> Dict[str, List[float]]:
         """
         論文のセクションを個別に埋め込む.
-        
+
         Args:
             paper: 論文
-        
+
         Returns:
             セクション名 -> 埋め込みベクトル
         """
@@ -213,16 +214,16 @@ class BM25Retriever:
 
     def _tokenize(self, text: str) -> List[str]:
         """トークン化."""
-        return re.findall(r'\w+', text.lower())
+        return re.findall(r"\w+", text.lower())
 
     def search(self, query: str, top_k: int = 10) -> List[SearchResult]:
         """
         検索を実行.
-        
+
         Args:
             query: 検索クエリ
             top_k: 返す結果数
-        
+
         Returns:
             検索結果リスト
         """
@@ -238,12 +239,9 @@ class BM25Retriever:
 
         results = []
         for doc_id, chunk_id, text, score in scores[:top_k]:
-            results.append(SearchResult(
-                doc_id=doc_id,
-                chunk_id=chunk_id,
-                score=score,
-                text=text[:500]
-            ))
+            results.append(
+                SearchResult(doc_id=doc_id, chunk_id=chunk_id, score=score, text=text[:500])
+            )
 
         return results
 
@@ -282,14 +280,14 @@ class DuplicateDetector:
     def find_duplicates(self, papers: List[Paper]) -> List[Tuple[str, str]]:
         """
         重複ペアを検出.
-        
+
         Returns:
             (doc_id1, doc_id2) のリスト
         """
         duplicates = []
 
         for i, p1 in enumerate(papers):
-            for p2 in papers[i+1:]:
+            for p2 in papers[i + 1 :]:
                 similarity = self._title_similarity(p1.title, p2.title)
                 if similarity >= self.threshold:
                     duplicates.append((p1.doc_id, p2.doc_id))
@@ -382,8 +380,7 @@ class RetrievalPlugin:
 
         delta["embeddings"] = embeddings
         delta["search_results"] = [
-            {"doc_id": r.doc_id, "chunk_id": r.chunk_id, "score": r.score}
-            for r in all_results[:50]
+            {"doc_id": r.doc_id, "chunk_id": r.chunk_id, "score": r.score} for r in all_results[:50]
         ]
 
         # 5. Deduplicate

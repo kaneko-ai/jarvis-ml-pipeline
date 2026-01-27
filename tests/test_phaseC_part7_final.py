@@ -484,7 +484,7 @@ class TestPretrainMetaCoreDeep:
 
 class TestPrismaDeep:
     def test_import(self):
-        from jarvis_core import prisma
+        from jarvis_core.experimental import prisma
 
         attrs = [a for a in dir(prisma) if not a.startswith("_")]
         for attr in attrs[:10]:

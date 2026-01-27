@@ -2,6 +2,7 @@
 
 Per RP-11, this provides a simple triple store for CPU environments.
 """
+
 from __future__ import annotations
 
 import sqlite3
@@ -33,7 +34,8 @@ class KGStore:
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
         with sqlite3.connect(str(self.db_path)) as conn:
-            conn.execute("""
+            conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS triples (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     entity1 TEXT NOT NULL,
@@ -43,7 +45,8 @@ class KGStore:
                     chunk_id TEXT,
                     UNIQUE(entity1, relation, entity2, chunk_id)
                 )
-            """)
+            """
+            )
             conn.execute("CREATE INDEX IF NOT EXISTS idx_entity1 ON triples(entity1)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_entity2 ON triples(entity2)")
             conn.commit()

@@ -35,9 +35,7 @@ from jarvis_core.evidence_qa import (
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Evidence-based QA with Jarvis"
-    )
+    parser = argparse.ArgumentParser(description="Evidence-based QA with Jarvis")
     parser.add_argument(
         "--pdf",
         type=str,
@@ -53,7 +51,8 @@ def main():
         help="URL(s) to use as evidence",
     )
     parser.add_argument(
-        "--q", "--query",
+        "--q",
+        "--query",
         type=str,
         required=True,
         dest="query",
@@ -208,5 +207,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

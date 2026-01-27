@@ -7,6 +7,7 @@ Per BUNDLE_CONTRACT.md:
 - evidence.jsonl必須キー: claim_id, paper_id, evidence_text, locator
 - locator形式: {section, paragraph, chunk_id}
 """
+
 from __future__ import annotations
 
 import json
@@ -20,13 +21,14 @@ from jarvis_core.prompts import PromptRegistry
 @dataclass
 class Locator:
     """根拠の位置情報（正規形）."""
+
     section: str = ""
     paragraph: int = 0
     chunk_id: str = ""
     page: Optional[int] = None
     sentence_id: Optional[int] = None  # 反復1で必須化
     char_start: Optional[int] = None  # 反復1で必須化
-    char_end: Optional[int] = None    # 反復1で必須化
+    char_end: Optional[int] = None  # 反復1で必須化
 
     def to_dict(self) -> dict:
         result = {
@@ -60,6 +62,7 @@ class Locator:
 @dataclass
 class Evidence:
     """単一の根拠."""
+
     claim_id: str
     paper_id: str
     evidence_text: str
@@ -81,6 +84,7 @@ class Evidence:
 @dataclass
 class ExtractionResult:
     """抽出結果."""
+
     evidence: List[Evidence] = field(default_factory=list)
     warnings: List[Dict[str, Any]] = field(default_factory=list)
     stats: Dict[str, Any] = field(default_factory=dict)
@@ -88,7 +92,7 @@ class ExtractionResult:
 
 class EvidenceExtractor:
     """根拠抽出器.
-    
+
     主張テキストとチャンクを受け取り、
     関連する根拠を抽出・locator付与して返す。
     """
@@ -112,12 +116,12 @@ class EvidenceExtractor:
         paper_id: str,
     ) -> ExtractionResult:
         """主張に対する根拠を抽出.
-        
+
         Args:
             claims: 主張のリスト [{claim_id, claim_text, ...}]
             chunks: テキストチャンク [{chunk_id, text, section, ...}]
             paper_id: 論文ID
-            
+
         Returns:
             ExtractionResult: 抽出された根拠と統計
         """
@@ -153,22 +157,26 @@ class EvidenceExtractor:
                 result.stats["extracted_evidence"] += len(claim_evidence)
             else:
                 result.stats["claims_without_evidence"] += 1
-                result.warnings.append({
-                    "code": "NO_EVIDENCE",
-                    "message": f"No evidence found for claim: {claim_id}",
-                    "severity": "warning",
-                })
+                result.warnings.append(
+                    {
+                        "code": "NO_EVIDENCE",
+                        "message": f"No evidence found for claim: {claim_id}",
+                        "severity": "warning",
+                    }
+                )
 
         # Locator欠落チェック
         for ev in result.evidence:
             if not ev.locator.section:
                 result.stats["locator_missing"] += 1
                 if self.require_locator:
-                    result.warnings.append({
-                        "code": "LOCATOR_MISSING",
-                        "message": f"Missing locator for evidence: {ev.claim_id}",
-                        "severity": "warning",
-                    })
+                    result.warnings.append(
+                        {
+                            "code": "LOCATOR_MISSING",
+                            "message": f"Missing locator for evidence: {ev.claim_id}",
+                            "severity": "warning",
+                        }
+                    )
 
         return result
 
@@ -180,7 +188,7 @@ class EvidenceExtractor:
         paper_id: str,
     ) -> List[Evidence]:
         """単一の主張に対する根拠を検索.
-        
+
         Hybrid approach:
         1. キーワードベースの初期フィルタ
         2. セマンティック類似度（利用可能な場合）
@@ -228,17 +236,64 @@ class EvidenceExtractor:
     def _extract_keywords(self, text: str) -> List[str]:
         """テキストからキーワードを抽出."""
         # 簡易的なキーワード抽出
-        words = re.findall(r'\b[A-Za-z][A-Za-z0-9-]+\b', text.lower())
+        words = re.findall(r"\b[A-Za-z][A-Za-z0-9-]+\b", text.lower())
 
         # ストップワード除去
         stopwords = {
-            'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been',
-            'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will',
-            'would', 'could', 'should', 'may', 'might', 'must', 'can',
-            'this', 'that', 'these', 'those', 'which', 'who', 'what',
-            'when', 'where', 'why', 'how', 'and', 'or', 'but', 'if',
-            'then', 'else', 'for', 'with', 'by', 'from', 'to', 'of',
-            'in', 'on', 'at', 'as', 'not', 'no', 'yes',
+            "the",
+            "a",
+            "an",
+            "is",
+            "are",
+            "was",
+            "were",
+            "be",
+            "been",
+            "being",
+            "have",
+            "has",
+            "had",
+            "do",
+            "does",
+            "did",
+            "will",
+            "would",
+            "could",
+            "should",
+            "may",
+            "might",
+            "must",
+            "can",
+            "this",
+            "that",
+            "these",
+            "those",
+            "which",
+            "who",
+            "what",
+            "when",
+            "where",
+            "why",
+            "how",
+            "and",
+            "or",
+            "but",
+            "if",
+            "then",
+            "else",
+            "for",
+            "with",
+            "by",
+            "from",
+            "to",
+            "of",
+            "in",
+            "on",
+            "at",
+            "as",
+            "not",
+            "no",
+            "yes",
         }
 
         keywords = [w for w in words if w not in stopwords and len(w) > 2]
@@ -272,7 +327,7 @@ class EvidenceExtractor:
     def _extract_relevant_passage(self, claim_text: str, chunk_text: str) -> str:
         """チャンクから関連する文を抽出."""
         # 文に分割
-        sentences = re.split(r'(?<=[.!?])\s+', chunk_text)
+        sentences = re.split(r"(?<=[.!?])\s+", chunk_text)
 
         if len(sentences) <= 2:
             return chunk_text.strip()

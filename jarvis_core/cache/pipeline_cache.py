@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
 
+
 class PipelineCache:
     """Manages caching for pipeline artifacts."""
 
@@ -31,12 +32,12 @@ class PipelineCache:
 
         logger.debug(f"Cache miss for {input_key}, computing...")
         result = compute_fn()
-        
+
         # Serialize if it's an object with to_dict, otherwise assume JSON serializable
         stored_value = result
         if hasattr(result, "to_dict"):
             stored_value = result.to_dict()
-            
+
         self.kv.set(input_key, stored_value)
         return result
 
@@ -44,7 +45,7 @@ class PipelineCache:
         """Calculate SHA256 of a file for cache keying."""
         if not filepath.exists():
             return "missing"
-            
+
         sha256_hash = hashlib.sha256()
         with open(filepath, "rb") as f:
             # Read in chunks

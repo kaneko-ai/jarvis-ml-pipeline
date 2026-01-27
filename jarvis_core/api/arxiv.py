@@ -4,6 +4,7 @@ JARVIS arXiv API Client
 実API接続: arXiv API
 """
 
+from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from typing import Any

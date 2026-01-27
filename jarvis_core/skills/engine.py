@@ -1,4 +1,5 @@
 """Core engine for discovering and loading skills."""
+
 from __future__ import annotations
 
 import textwrap

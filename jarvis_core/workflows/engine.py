@@ -1,4 +1,5 @@
 """Workflows engine for discovery and execution."""
+
 from __future__ import annotations
 
 import json
@@ -46,10 +47,12 @@ class WorkflowsEngine:
         output = []
         for workflow in self._workflows.values():
             data = asdict(workflow.metadata)
-            data.update({
-                "scope": workflow.scope.value,
-                "path": str(workflow.path),
-            })
+            data.update(
+                {
+                    "scope": workflow.scope.value,
+                    "path": str(workflow.path),
+                }
+            )
             output.append(data)
         return sorted(output, key=lambda item: item.get("name", ""))
 

@@ -14,6 +14,7 @@ class TestSubmissionMega:
     def test_3(self):
         try:
             from jarvis_core.submission import diff_engine
+
             assert diff_engine is not None
         except ImportError:
             pass

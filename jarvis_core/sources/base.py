@@ -12,9 +12,11 @@ from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class SearchResult:
     """Standardized search result from any source."""
+
     source_id: str  # Original ID in the source (PMID, DOI, etc)
     title: str
     url: str
@@ -22,6 +24,7 @@ class SearchResult:
     year: int
     authors: List[str]
     metadata: Dict[str, Any]
+
 
 class SourceAdapter(abc.ABC):
     """Abstract base class for source adapters."""

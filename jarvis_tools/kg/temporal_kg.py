@@ -2,6 +2,7 @@
 
 Per RP-323, implements time-aware knowledge graph.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -46,7 +47,7 @@ class KnowledgeChange:
 
 class TemporalKnowledgeGraph:
     """Time-aware knowledge graph.
-    
+
     Per RP-323:
     - Triples with valid_from/valid_to
     - Time-point queries ("as of 2020")
@@ -69,7 +70,7 @@ class TemporalKnowledgeGraph:
         confidence: float = 1.0,
     ) -> TemporalTriple:
         """Add a temporal triple.
-        
+
         Args:
             subject: Subject entity.
             predicate: Relationship.
@@ -78,7 +79,7 @@ class TemporalKnowledgeGraph:
             valid_to: End of validity.
             source_paper: Source paper ID.
             confidence: Confidence score.
-            
+
         Returns:
             Created triple.
         """
@@ -113,12 +114,12 @@ class TemporalKnowledgeGraph:
         predicate: Optional[str] = None,
     ) -> List[TemporalTriple]:
         """Query knowledge as of a specific time.
-        
+
         Args:
             entity: Entity to query.
             as_of: Time point.
             predicate: Optional predicate filter.
-            
+
         Returns:
             Valid triples at that time.
         """
@@ -152,12 +153,12 @@ class TemporalKnowledgeGraph:
         end: datetime,
     ) -> List[TemporalTriple]:
         """Query knowledge over a time range.
-        
+
         Args:
             entity: Entity to query.
             start: Range start.
             end: Range end.
-            
+
         Returns:
             Triples overlapping the range.
         """
@@ -185,18 +186,15 @@ class TemporalKnowledgeGraph:
         predicate: str,
     ) -> List[KnowledgeChange]:
         """Track how knowledge changed over time.
-        
+
         Args:
             entity: Entity to track.
             predicate: Predicate to track.
-            
+
         Returns:
             List of changes.
         """
-        triples = [
-            t for t in self._triples
-            if t.subject == entity and t.predicate == predicate
-        ]
+        triples = [t for t in self._triples if t.subject == entity and t.predicate == predicate]
 
         # Sort by valid_from
         triples.sort(key=lambda t: t.valid_from or datetime.min)
@@ -207,14 +205,16 @@ class TemporalKnowledgeGraph:
             curr = triples[i]
 
             if prev.object != curr.object:
-                changes.append(KnowledgeChange(
-                    entity=entity,
-                    attribute=predicate,
-                    old_value=prev.object,
-                    new_value=curr.object,
-                    change_date=curr.valid_from or datetime.now(),
-                    source=curr.source_paper or "",
-                ))
+                changes.append(
+                    KnowledgeChange(
+                        entity=entity,
+                        attribute=predicate,
+                        old_value=prev.object,
+                        new_value=curr.object,
+                        change_date=curr.valid_from or datetime.now(),
+                        source=curr.source_paper or "",
+                    )
+                )
 
         return changes
 
@@ -223,10 +223,10 @@ class TemporalKnowledgeGraph:
         entity: str,
     ) -> List[Tuple[datetime, str, TemporalTriple]]:
         """Get timeline of knowledge about entity.
-        
+
         Args:
             entity: Entity.
-            
+
         Returns:
             Timeline events.
         """

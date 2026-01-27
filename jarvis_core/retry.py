@@ -1,8 +1,10 @@
 """Retry policy definitions for ExecutionEngine self-healing loops."""
 
 from __future__ import annotations
-
+import random
+import time
 from dataclasses import dataclass
+from typing import Any, Callable, TypeVar, cast
 
 from .validation import EvaluationResult
 
@@ -17,9 +19,6 @@ class RetryDecision:
     reason: str | None = None
 
 
-import random
-import time
-from typing import Any, Callable, TypeVar, cast
 
 T = TypeVar("T")
 

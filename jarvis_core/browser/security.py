@@ -51,7 +51,9 @@ class BrowserSecurityManager:
         """Return whether JS execution is allowed and message."""
         if not self.policy.js_execution:
             return False, "JavaScript execution disabled by security policy."
-        if self._contains_blocked_patterns(script, ["document.cookie", "localStorage", "sessionStorage"]):
+        if self._contains_blocked_patterns(
+            script, ["document.cookie", "localStorage", "sessionStorage"]
+        ):
             return False, "Script contains blocked storage access patterns."
         return True, "Allowed"
 

@@ -1,4 +1,5 @@
 """Rules engine for global and workspace rules."""
+
 from __future__ import annotations
 
 import textwrap

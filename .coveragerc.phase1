@@ -2,6 +2,7 @@
 parallel = True
 branch = False
 source = jarvis_core
+concurrency = multiprocessing, thread
 
 [report]
 fail_under = 85

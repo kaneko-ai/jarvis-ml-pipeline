@@ -38,7 +38,9 @@ def find_published_version(preprint_id: str) -> PublishedVersion | None:
         if not items:
             return None
         item = items[0]
-        date_parts = item.get("published-print", {}).get("date-parts") or item.get("published-online", {}).get("date-parts")
+        date_parts = item.get("published-print", {}).get("date-parts") or item.get(
+            "published-online", {}
+        ).get("date-parts")
         publication_date = "-".join(str(p) for p in date_parts[0]) if date_parts else None
         return PublishedVersion(
             doi=item.get("DOI", ""),

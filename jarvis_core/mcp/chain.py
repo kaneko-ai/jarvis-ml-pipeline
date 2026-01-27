@@ -14,7 +14,9 @@ class ToolChain:
 
     def __init__(self, hub: MCPHub, continue_on_error: bool = False) -> None:
         self._hub = hub
-        self._steps: list[tuple[str, Callable[[dict[str, Any], list[MCPToolResult]], dict[str, Any]]]] = []
+        self._steps: list[
+            tuple[str, Callable[[dict[str, Any], list[MCPToolResult]], dict[str, Any]]]
+        ] = []
         self._continue_on_error = continue_on_error
 
     def add_step(

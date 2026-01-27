@@ -15,7 +15,9 @@ class Table:
 
 def extract_tables(content: str | Path) -> list[Table]:
     """Extract tables from a PDF path or HTML string."""
-    if isinstance(content, Path) or (isinstance(content, str) and Path(content).suffix.lower() == ".pdf"):
+    if isinstance(content, Path) or (
+        isinstance(content, str) and Path(content).suffix.lower() == ".pdf"
+    ):
         return _extract_from_pdf(Path(content))
     return _extract_from_html(content)
 

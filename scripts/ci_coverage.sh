@@ -41,6 +41,7 @@ python -m pytest \
   --cov-report=xml \
   --cov-report=html \
   --cov-report=term-missing \
+  -p no:randomly \
   -q
 
 # Combine parallel coverage files

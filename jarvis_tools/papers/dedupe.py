@@ -2,6 +2,7 @@
 
 Per RP-115, detects and deduplicates papers.
 """
+
 from __future__ import annotations
 
 import re
@@ -133,11 +134,13 @@ def find_duplicates(
             canonical_paper = group[0]
             duplicates = [p.paper_id for p in group[1:]]
 
-            results.append(DedupeResult(
-                canonical_id=canonical_paper.paper_id,
-                duplicate_ids=duplicates,
-                reason=f"Same canonical ID: {canonical}",
-            ))
+            results.append(
+                DedupeResult(
+                    canonical_id=canonical_paper.paper_id,
+                    duplicate_ids=duplicates,
+                    reason=f"Same canonical ID: {canonical}",
+                )
+            )
 
     # Cross-check titles for papers without strong IDs
     title_only = [p for p in papers if not p.pmid and not p.pmcid and not p.doi]
@@ -164,11 +167,13 @@ def find_duplicates(
                         break
 
                 if not found:
-                    results.append(DedupeResult(
-                        canonical_id=seen_id,
-                        duplicate_ids=[paper.paper_id],
-                        reason=f"Title similarity: {sim:.2f}",
-                    ))
+                    results.append(
+                        DedupeResult(
+                            canonical_id=seen_id,
+                            duplicate_ids=[paper.paper_id],
+                            reason=f"Title similarity: {sim:.2f}",
+                        )
+                    )
                 break
         else:
             seen_titles[normalized] = paper.paper_id

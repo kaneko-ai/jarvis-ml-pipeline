@@ -33,7 +33,9 @@ class EdgeMLInference:
             return {"error": "Model not found"}
 
         # Generate cache key
-        cache_key = hashlib.md5(f"{model_name}_{json.dumps(input_data)}".encode(), usedforsecurity=False).hexdigest()
+        cache_key = hashlib.md5(
+            f"{model_name}_{json.dumps(input_data)}".encode(), usedforsecurity=False
+        ).hexdigest()
 
         if cache_key in self.cache:
             return {"result": self.cache[cache_key], "cached": True}

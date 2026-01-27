@@ -1,5 +1,5 @@
 import os
-import re
+
 
 def find_e402_violations(directory):
     violations = []
@@ -10,20 +10,20 @@ def find_e402_violations(directory):
                 try:
                     with open(path, "r", encoding="utf-8") as f:
                         lines = f.readlines()
-                    
+
                     found_code = False
                     i = 0
                     while i < len(lines):
                         line = lines[i]
                         stripped = line.strip()
-                        
+
                         if not stripped or stripped.startswith("#"):
                             i += 1
                             continue
-                        
+
                         # Skip indented lines (not top-level)
                         if line.startswith(" ") or line.startswith("\t"):
-                            found_code = True # Indented code is still code
+                            found_code = True  # Indented code is still code
                             i += 1
                             continue
 
@@ -35,11 +35,11 @@ def find_e402_violations(directory):
                                 i += 1
                                 while i < len(lines) and quote not in lines[i]:
                                     i += 1
-                            i += 1 
+                            i += 1
                             continue
-                            
+
                         is_import = stripped.startswith("import ") or stripped.startswith("from ")
-                        
+
                         if is_import:
                             if found_code:
                                 violations.append(f"{path}:{i+1}: Import after code: {stripped}")
@@ -47,10 +47,10 @@ def find_e402_violations(directory):
                             found_code = True
                         i += 1
 
-                            
                 except Exception as e:
                     print(f"Error reading {path}: {e}")
     return violations
+
 
 if __name__ == "__main__":
     v = find_e402_violations("tests")
@@ -58,5 +58,3 @@ if __name__ == "__main__":
         for item in v:
             out.write(item + "\n")
     print(f"Found {len(v)} top-level violations.")
-
-

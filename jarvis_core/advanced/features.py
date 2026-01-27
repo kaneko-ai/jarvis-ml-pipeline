@@ -1064,7 +1064,11 @@ class TeamWorkspace:
         workspace.members = [m for m in workspace.members if m["user_id"] != user_id]
 
     def list_workspaces(self, user_id: str) -> list["Workspace"]:
-        return [ws for ws in self.workspaces.values() if any(m["user_id"] == user_id for m in ws.members)]
+        return [
+            ws
+            for ws in self.workspaces.values()
+            if any(m["user_id"] == user_id for m in ws.members)
+        ]
 
 
 @dataclass
@@ -1126,7 +1130,9 @@ class ActivityFeed:
     def add_activity(self, workspace_id: str, user_id: str, action: str, details: dict):
         """Add activity."""
         activity = Activity(
-            id=hashlib.md5(f"{workspace_id}{user_id}{time.time()}".encode()).hexdigest()[:8],  # nosec B324
+            id=hashlib.md5(f"{workspace_id}{user_id}{time.time()}".encode()).hexdigest()[
+                :8
+            ],  # nosec B324
             user_id=user_id,
             action=action,
             details=details,
@@ -1171,7 +1177,9 @@ class RealTimeCollaboration:
         return {
             "session_id": hashlib.md5(
                 f"{document_id}{time.time()}".encode(), usedforsecurity=False
-            ).hexdigest()[:8],  # nosec B324
+            ).hexdigest()[
+                :8
+            ],  # nosec B324
             "document_id": document_id,
             "users": users,
         }

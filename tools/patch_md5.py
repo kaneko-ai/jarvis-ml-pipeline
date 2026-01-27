@@ -23,28 +23,28 @@ for rel_path in files:
         print(f"Skipping {path}, not found")
         continue
 
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, "r", encoding="utf-8") as f:
         content = f.read()
 
     # Pattern: hashlib.md5(...).hexdigest()
     # We want to insert usedforsecurity=False inside the md5() call.
     # We handle the case where .encode() is used.
-    
-    pattern = r'hashlib\.md5\((.+?)\)\.hexdigest\(\)'
-    
+
+    pattern = r"hashlib\.md5\((.+?)\)\.hexdigest\(\)"
+
     def replacer(match):
         inner = match.group(1)
         if "usedforsecurity" in inner:
             return match.group(0)
-            
+
         # If inner ends with .encode(), we append simply
-        return f'hashlib.md5({inner}, usedforsecurity=False).hexdigest()'
+        return f"hashlib.md5({inner}, usedforsecurity=False).hexdigest()"
 
     new_content = re.sub(pattern, replacer, content)
-    
+
     if new_content != content:
         print(f"Patching {rel_path}")
-        with open(path, 'w', encoding='utf-8') as f:
+        with open(path, "w", encoding="utf-8") as f:
             f.write(new_content)
     else:
         print(f"No changes needed for {rel_path}")

@@ -1,6 +1,7 @@
 import pytest
 import importlib
 
+
 @pytest.mark.slow
 class TestSubmissionSafe:
     def test_import_safe(self):
@@ -9,6 +10,7 @@ class TestSubmissionSafe:
             assert mod is not None
         except ImportError:
             pass
+
 
 class TestModule:
     def test_module(self):

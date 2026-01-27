@@ -20,7 +20,9 @@ PATTERNS = {
     "phone": re.compile(r"\b\d{3}[- ]?\d{3}[- ]?\d{4}\b"),
     "ssn": re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),
     "credit_card": re.compile(r"\b(?:\d[ -]*?){13,16}\b"),
-    "address": re.compile(r"\b\d+\s+\w+\s+(Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd)\b", re.IGNORECASE),
+    "address": re.compile(
+        r"\b\d+\s+\w+\s+(Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd)\b", re.IGNORECASE
+    ),
 }
 
 

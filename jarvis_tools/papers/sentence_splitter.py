@@ -2,6 +2,7 @@
 
 Per RP-112, splits text into sentences with stable IDs.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -37,10 +38,31 @@ class Sentence:
 
 # Abbreviations that don't end sentences
 ABBREVIATIONS = {
-    "dr.", "mr.", "mrs.", "ms.", "prof.", "sr.", "jr.",
-    "vs.", "etc.", "i.e.", "e.g.", "cf.", "al.", "et.",
-    "fig.", "figs.", "ref.", "refs.", "vol.", "no.",
-    "p.", "pp.", "ed.", "eds.", "trans.",
+    "dr.",
+    "mr.",
+    "mrs.",
+    "ms.",
+    "prof.",
+    "sr.",
+    "jr.",
+    "vs.",
+    "etc.",
+    "i.e.",
+    "e.g.",
+    "cf.",
+    "al.",
+    "et.",
+    "fig.",
+    "figs.",
+    "ref.",
+    "refs.",
+    "vol.",
+    "no.",
+    "p.",
+    "pp.",
+    "ed.",
+    "eds.",
+    "trans.",
 }
 
 
@@ -101,15 +123,17 @@ def split_sentences(text: str) -> List[Sentence]:
             # Check if this is a real sentence boundary
             if is_sentence_boundary(text, i + 1):
                 # Extract sentence
-                sentence_text = text[current_start:i + 1].strip()
+                sentence_text = text[current_start : i + 1].strip()
 
                 if sentence_text:
-                    sentences.append(Sentence.create(
-                        text=sentence_text,
-                        start=current_start,
-                        end=i + 1,
-                        index=index,
-                    ))
+                    sentences.append(
+                        Sentence.create(
+                            text=sentence_text,
+                            start=current_start,
+                            end=i + 1,
+                            index=index,
+                        )
+                    )
                     index += 1
 
                 # Move past whitespace
@@ -124,12 +148,14 @@ def split_sentences(text: str) -> List[Sentence]:
     # Handle remaining text
     remaining = text[current_start:].strip()
     if remaining:
-        sentences.append(Sentence.create(
-            text=remaining,
-            start=current_start,
-            end=len(text),
-            index=index,
-        ))
+        sentences.append(
+            Sentence.create(
+                text=remaining,
+                start=current_start,
+                end=len(text),
+                index=index,
+            )
+        )
 
     return sentences
 
@@ -142,26 +168,30 @@ def split_japanese(text: str) -> List[Sentence]:
 
     for i, char in enumerate(text):
         if char in "。！？":
-            sentence_text = text[current_start:i + 1].strip()
+            sentence_text = text[current_start : i + 1].strip()
             if sentence_text:
-                sentences.append(Sentence.create(
-                    text=sentence_text,
-                    start=current_start,
-                    end=i + 1,
-                    index=index,
-                ))
+                sentences.append(
+                    Sentence.create(
+                        text=sentence_text,
+                        start=current_start,
+                        end=i + 1,
+                        index=index,
+                    )
+                )
                 index += 1
             current_start = i + 1
 
     # Remaining
     remaining = text[current_start:].strip()
     if remaining:
-        sentences.append(Sentence.create(
-            text=remaining,
-            start=current_start,
-            end=len(text),
-            index=index,
-        ))
+        sentences.append(
+            Sentence.create(
+                text=remaining,
+                start=current_start,
+                end=len(text),
+                index=index,
+            )
+        )
 
     return sentences
 

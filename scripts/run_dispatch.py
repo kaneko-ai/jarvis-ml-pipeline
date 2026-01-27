@@ -1,9 +1,10 @@
-# scripts/run_dispatch.py
 from __future__ import annotations
 import json
 import os
 from pathlib import Path
 from datetime import datetime, timezone
+from jarvis_core.runs.schema import RunProgress, RunSummary, RunStatus
+from jarvis_core.runs.writer import RunWriter
 
 # 既存のjarvis_coreロジックをインポート
 # プロジェクト構造に合わせて調整
@@ -26,8 +27,7 @@ def write_json(path: Path, obj: dict) -> None:
     path.write_text(json.dumps(obj, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-from jarvis_core.runs.schema import RunProgress, RunSummary, RunStatus
-from jarvis_core.runs.writer import RunWriter
+
 
 def main() -> int:
     run_id = os.environ.get("RUN_ID", f"local-{int(datetime.now().timestamp())}")
@@ -43,12 +43,9 @@ def main() -> int:
     started_at = datetime.now(timezone.utc)
 
     # Initial Progress
-    writer.write_progress(RunProgress(
-        run_id=run_id,
-        phase="start",
-        percent=0.0,
-        message="Initializing pipeline"
-    ))
+    writer.write_progress(
+        RunProgress(run_id=run_id, phase="start", percent=0.0, message="Initializing pipeline")
+    )
 
     try:
         task_dict = {"goal": query or f"Perform {action}", "category": "generic", "action": action}
@@ -59,12 +56,14 @@ def main() -> int:
 
         print(f"Executing run {run_id}: {query} (action={action})")
 
-        writer.write_progress(RunProgress(
-            run_id=run_id,
-            phase="executing",
-            percent=50.0,
-            message=f"Executing action: {action}"
-        ))
+        writer.write_progress(
+            RunProgress(
+                run_id=run_id,
+                phase="executing",
+                percent=50.0,
+                message=f"Executing action: {action}",
+            )
+        )
 
         # 実際のパイプライン実行
         result = run_task(task_dict, config_dict)
@@ -82,52 +81,62 @@ def main() -> int:
         finished_at = datetime.now(timezone.utc)
 
         # Success Progress
-        writer.write_progress(RunProgress(
-            run_id=run_id,
-            phase="done",
-            percent=100.0,
-            message="Completed successfully",
-            updated_at=finished_at
-        ))
+        writer.write_progress(
+            RunProgress(
+                run_id=run_id,
+                phase="done",
+                percent=100.0,
+                message="Completed successfully",
+                updated_at=finished_at,
+            )
+        )
 
         # Success Summary
-        writer.write_summary(RunSummary(
-            run_id=run_id,
-            status=RunStatus.SUCCESS,
-            started_at=started_at,
-            finished_at=finished_at,
-            metrics={
-                "papers": len(getattr(result, "citations", [])),
-                "chunks": 0,
-                "elapsed_sec": (finished_at - started_at).total_seconds(),
-            },
-            artifacts=[{
-                "kind": "report",
-                "path": str(report_path.relative_to(Path("dashboard"))).replace("\\", "/")
-            }]
-        ))
+        writer.write_summary(
+            RunSummary(
+                run_id=run_id,
+                status=RunStatus.SUCCESS,
+                started_at=started_at,
+                finished_at=finished_at,
+                metrics={
+                    "papers": len(getattr(result, "citations", [])),
+                    "chunks": 0,
+                    "elapsed_sec": (finished_at - started_at).total_seconds(),
+                },
+                artifacts=[
+                    {
+                        "kind": "report",
+                        "path": str(report_path.relative_to(Path("dashboard"))).replace("\\", "/"),
+                    }
+                ],
+            )
+        )
         return 0
 
     except Exception as e:
         finished_at = datetime.now(timezone.utc)
         print(f"Error during execution: {e}")
 
-        writer.write_progress(RunProgress(
-            run_id=run_id,
-            phase="failed",
-            percent=100.0,
-            message=str(e),
-            updated_at=finished_at
-        ))
+        writer.write_progress(
+            RunProgress(
+                run_id=run_id, phase="failed", percent=100.0, message=str(e), updated_at=finished_at
+            )
+        )
 
-        writer.write_summary(RunSummary(
-            run_id=run_id,
-            status=RunStatus.FAILED,
-            started_at=started_at,
-            finished_at=finished_at,
-            error=str(e),
-            metrics={"papers": 0, "chunks": 0, "elapsed_sec": (finished_at - started_at).total_seconds()}
-        ))
+        writer.write_summary(
+            RunSummary(
+                run_id=run_id,
+                status=RunStatus.FAILED,
+                started_at=started_at,
+                finished_at=finished_at,
+                error=str(e),
+                metrics={
+                    "papers": 0,
+                    "chunks": 0,
+                    "elapsed_sec": (finished_at - started_at).total_seconds(),
+                },
+            )
+        )
         raise
 
 

@@ -2,6 +2,7 @@
 
 Per RP-131, retrieves 2-hop subgraphs for context enrichment.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

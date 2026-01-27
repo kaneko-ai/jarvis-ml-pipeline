@@ -9,14 +9,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
-from jarvis_core.contracts.types import (
-    Artifacts, ArtifactsDelta, RuntimeConfig, TaskContext
-)
+from jarvis_core.contracts.types import Artifacts, ArtifactsDelta, RuntimeConfig, TaskContext
 
 
 @dataclass
 class RerankResult:
     """リランク結果."""
+
     doc_id: str
     chunk_id: str
     original_score: float
@@ -27,7 +26,7 @@ class RerankResult:
 class CrossEncoderReranker:
     """
     CrossEncoderによるリランク.
-    
+
     クエリと文書のペアを直接スコアリング。
     """
 
@@ -38,21 +37,22 @@ class CrossEncoderReranker:
         # Try to load CrossEncoder
         try:
             from sentence_transformers import CrossEncoder
+
             self.model = CrossEncoder(model_name)
         except ImportError:
             pass
 
-    def rerank(self, query: str,
-               candidates: List[Tuple[str, str, str, float]],
-               top_k: int = 10) -> List[RerankResult]:
+    def rerank(
+        self, query: str, candidates: List[Tuple[str, str, str, float]], top_k: int = 10
+    ) -> List[RerankResult]:
         """
         候補をリランク.
-        
+
         Args:
             query: クエリ
             candidates: [(doc_id, chunk_id, text, original_score), ...]
             top_k: 返す件数
-        
+
         Returns:
             リランク結果
         """
@@ -64,29 +64,31 @@ class CrossEncoderReranker:
         else:
             return self._rerank_simple(query, candidates, top_k)
 
-    def _rerank_with_model(self, query: str,
-                           candidates: List[Tuple[str, str, str, float]],
-                           top_k: int) -> List[RerankResult]:
+    def _rerank_with_model(
+        self, query: str, candidates: List[Tuple[str, str, str, float]], top_k: int
+    ) -> List[RerankResult]:
         """CrossEncoderでリランク."""
         pairs = [(query, c[2]) for c in candidates]
         scores = self.model.predict(pairs)
 
         results = []
         for i, (doc_id, chunk_id, text, orig_score) in enumerate(candidates):
-            results.append(RerankResult(
-                doc_id=doc_id,
-                chunk_id=chunk_id,
-                original_score=orig_score,
-                rerank_score=float(scores[i]),
-                text=text[:500]
-            ))
+            results.append(
+                RerankResult(
+                    doc_id=doc_id,
+                    chunk_id=chunk_id,
+                    original_score=orig_score,
+                    rerank_score=float(scores[i]),
+                    text=text[:500],
+                )
+            )
 
         results.sort(key=lambda x: x.rerank_score, reverse=True)
         return results[:top_k]
 
-    def _rerank_simple(self, query: str,
-                       candidates: List[Tuple[str, str, str, float]],
-                       top_k: int) -> List[RerankResult]:
+    def _rerank_simple(
+        self, query: str, candidates: List[Tuple[str, str, str, float]], top_k: int
+    ) -> List[RerankResult]:
         """簡易リランク（キーワードマッチング）."""
         query_words = set(query.lower().split())
 
@@ -98,13 +100,15 @@ class CrossEncoderReranker:
             overlap = len(query_words & text_words)
             rerank_score = orig_score * (1 + overlap * 0.1)
 
-            results.append(RerankResult(
-                doc_id=doc_id,
-                chunk_id=chunk_id,
-                original_score=orig_score,
-                rerank_score=rerank_score,
-                text=text[:500]
-            ))
+            results.append(
+                RerankResult(
+                    doc_id=doc_id,
+                    chunk_id=chunk_id,
+                    original_score=orig_score,
+                    rerank_score=rerank_score,
+                    text=text[:500],
+                )
+            )
 
         results.sort(key=lambda x: x.rerank_score, reverse=True)
         return results[:top_k]
@@ -150,7 +154,7 @@ class RerankPlugin:
                 "doc_id": r.doc_id,
                 "chunk_id": r.chunk_id,
                 "original_score": r.original_score,
-                "rerank_score": r.rerank_score
+                "rerank_score": r.rerank_score,
             }
             for r in results
         ]

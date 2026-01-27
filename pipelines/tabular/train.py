@@ -28,7 +28,7 @@ def train_model(
 ) -> Tuple[Any, Dict[str, float]]:
     """
     モデルを学習.
-    
+
     Args:
         X_train: 訓練特徴量
         y_train: 訓練ラベル
@@ -37,7 +37,7 @@ def train_model(
         task: classification or regression
         model_type: モデルタイプ
         model_params: モデルパラメータ
-    
+
     Returns:
         (model, metrics_dict)
     """

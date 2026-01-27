@@ -74,17 +74,14 @@ class ChromaVectorStore(VectorStore):
             has_text = False
             for m in metadata:
                 txt = m.get("text", m.get("document", ""))
-                temp_docs.append(str(txt)) # Ensure string
+                temp_docs.append(str(txt))  # Ensure string
                 if txt:
                     has_text = True
             if has_text:
                 documents = temp_docs
 
         collection.add(
-            ids=doc_ids,
-            embeddings=embeddings_list,
-            metadatas=metadata,
-            documents=documents
+            ids=doc_ids, embeddings=embeddings_list, metadatas=metadata, documents=documents
         )
         logger.info(f"Added {len(doc_ids)} documents to ChromaDB")
 
@@ -118,11 +115,11 @@ class ChromaVectorStore(VectorStore):
                 # Cosine distance to similarity: 1 - distance
                 score = 1.0 - distances[i]
                 meta = metas[i] if metas[i] else {}
-                
+
                 # Inject text back into metadata if it was stored separately
                 if docs[i]:
                     meta["text"] = docs[i]
-                    
+
                 output.append((doc_id, score, meta))
 
         return output
@@ -135,7 +132,7 @@ class ChromaVectorStore(VectorStore):
         # copying the directory?
         # For Phase 37, we assume the use of PersistentClient means 'save' is implicit or a no-op
         # effectively, or we can treat 'path' as a request to verify persistence.
-        
+
         # If the user asks to save to a specific path but we initialized with a different one,
         # that's tricky.
         # Let's assume for this abstraction that save() logic is mainly for FAISS-like RAM stores.

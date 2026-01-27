@@ -2,6 +2,7 @@
 
 Per RP-119, combines BM25 and vector scores for retrieval.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -95,10 +96,7 @@ def hybrid_score(
         bm25_s = bm25_map.get(doc_id, 0.0)
         vector_s = vector_map.get(doc_id, 0.0)
 
-        combined = (
-            config.bm25_weight * bm25_s +
-            config.vector_weight * vector_s
-        )
+        combined = config.bm25_weight * bm25_s + config.vector_weight * vector_s
 
         # Determine source
         if doc_id in bm25_map and doc_id in vector_map:
@@ -109,13 +107,15 @@ def hybrid_score(
             source = "vector"
 
         if combined >= config.min_score:
-            results.append(RetrievalResult(
-                doc_id=doc_id,
-                bm25_score=bm25_s,
-                vector_score=vector_s,
-                combined_score=combined,
-                source=source,
-            ))
+            results.append(
+                RetrievalResult(
+                    doc_id=doc_id,
+                    bm25_score=bm25_s,
+                    vector_score=vector_s,
+                    combined_score=combined,
+                    source=source,
+                )
+            )
 
     # Sort by combined score descending
     results.sort(key=lambda r: r.combined_score, reverse=True)

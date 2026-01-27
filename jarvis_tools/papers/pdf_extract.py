@@ -2,6 +2,7 @@
 
 Per RP-04, extracted from run_pipeline.py with page tracking.
 """
+
 from __future__ import annotations
 
 from pathlib import Path

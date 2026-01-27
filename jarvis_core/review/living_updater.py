@@ -45,7 +45,9 @@ class LivingReviewUpdater:
         for paper in new_papers:
             review.add_paper(paper.paper_id, {"title": paper.title}, stage="identification")
             grade = grade_evidence(title=paper.title, abstract=paper.abstract, use_llm=False)
-            evidence_grades.append({"paper_id": paper.paper_id, "evidence_level": grade.level.value})
+            evidence_grades.append(
+                {"paper_id": paper.paper_id, "evidence_level": grade.level.value}
+            )
 
         prisma_flow = review.get_prisma_flow()
         return UpdateReport(

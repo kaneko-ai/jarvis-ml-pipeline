@@ -87,7 +87,7 @@ class TestEvenMoreRootModules1:
                     pass
 
     def test_prisma(self):
-        from jarvis_core import prisma
+        from jarvis_core.experimental import prisma
 
         for name in dir(prisma):
             if not name.startswith("_") and isinstance(getattr(prisma, name), type):

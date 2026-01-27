@@ -10,7 +10,6 @@ from jarvis_core.submission.changelog_generator import (
 from jarvis_core.submission.diff_engine import DiffReport
 
 
-
 class TestChangeLogResult:
     def test_creation(self):
         result = ChangeLogResult(

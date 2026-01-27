@@ -250,8 +250,6 @@ class TestFusionMethod:
         assert FusionMethod.LINEAR.value == "linear"
 
 
-
-
 class TestSPECTER2:
     """Tests for SPECTER2 scientific embeddings."""
 

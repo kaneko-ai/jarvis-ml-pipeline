@@ -5,6 +5,7 @@
 - オフセット管理
 - 位置情報の精密化
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -16,6 +17,7 @@ from typing import Dict, List
 @dataclass
 class SentenceLocator:
     """文のロケータ."""
+
     sentence_id: str
     paper_id: str
     section: str
@@ -43,7 +45,7 @@ class SentenceLocator:
 
 class SentenceIndexer:
     """文インデクサ.
-    
+
     文レベルでの位置情報を管理。
     """
 
@@ -59,7 +61,7 @@ class SentenceIndexer:
         """テキストから文をインデックス."""
         locators = []
 
-        paragraphs = re.split(r'\n\s*\n', text)
+        paragraphs = re.split(r"\n\s*\n", text)
         char_pos = 0
 
         for para_idx, para in enumerate(paragraphs):
@@ -101,13 +103,13 @@ class SentenceIndexer:
     def _split_sentences(self, text: str) -> List[str]:
         """文に分割."""
         # 略語を保護
-        text = re.sub(r'(Dr|Mr|Mrs|Ms|Prof|etc|e\.g|i\.e)\. ', r'\1<DOT> ', text)
+        text = re.sub(r"(Dr|Mr|Mrs|Ms|Prof|etc|e\.g|i\.e)\. ", r"\1<DOT> ", text)
 
         # 文分割
-        sentences = re.split(r'(?<=[.!?])\s+', text)
+        sentences = re.split(r"(?<=[.!?])\s+", text)
 
         # 略語を復元
-        sentences = [s.replace('<DOT>', '.') for s in sentences]
+        sentences = [s.replace("<DOT>", ".") for s in sentences]
 
         return sentences
 

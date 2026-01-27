@@ -2,6 +2,7 @@
 
 Per RP-05, chunks must have page/span locators.
 """
+
 from __future__ import annotations
 
 from typing import List, Tuple, Optional

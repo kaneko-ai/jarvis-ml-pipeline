@@ -122,7 +122,7 @@ def cmd_train_ranker(args):
         else:
             print(f"✅ Ranker trained on {result['num_papers']} papers")
             print(f"Features: {', '.join(result['feature_names'])}")
-            if result['model_saved']:
+            if result["model_saved"]:
                 print(f"Model saved to: {result['model_saved']}")
     except ImportError as e:
         print(f"Error: {e}", file=sys.stderr)
@@ -135,9 +135,7 @@ def cmd_train_ranker(args):
 
 def cmd_import(args):
     """Import references from RIS/BibTeX/Zotero (Sprint 20)."""
-    from jarvis_core.integrations.ris_bibtex import (
-        import_references, references_to_jsonl
-    )
+    from jarvis_core.integrations.ris_bibtex import import_references, references_to_jsonl
 
     input_path = Path(args.input)
     output_path = Path(args.output)
@@ -149,6 +147,7 @@ def cmd_import(args):
     try:
         if args.format == "zotero":
             from jarvis_core.plugins.zotero_integration import ZoteroClient
+
             client = ZoteroClient()
             refs = client.get_all_items()
         else:
@@ -167,9 +166,7 @@ def cmd_import(args):
 
 def cmd_export(args):
     """Export references to RIS/BibTeX/PRISMA (Sprint 20)."""
-    from jarvis_core.integrations.ris_bibtex import (
-        jsonl_to_references, export_references
-    )
+    from jarvis_core.integrations.ris_bibtex import jsonl_to_references, export_references
 
     input_path = Path(args.input)
     output_path = Path(args.output)
@@ -183,6 +180,7 @@ def cmd_export(args):
 
         if args.format == "prisma":
             from jarvis_core.prisma import PRISMAData, generate_prisma_flow
+
             data = PRISMAData(
                 records_from_databases=len(refs),
                 studies_included=len([r for r in refs if r.abstract]),
@@ -253,7 +251,9 @@ def cmd_model(args):
 
     elif args.action == "pull":
         if not args.name:
-            print("Error: Model name required. Example: jarvis model pull llama3.2", file=sys.stderr)
+            print(
+                "Error: Model name required. Example: jarvis model pull llama3.2", file=sys.stderr
+            )
             sys.exit(1)
 
         print(f"Pulling model '{args.name}'...")
@@ -291,7 +291,9 @@ def cmd_model(args):
                     print(f"=== Model: {args.name} ===")
                     print(f"Family: {data.get('details', {}).get('family', 'N/A')}")
                     print(f"Parameters: {data.get('details', {}).get('parameter_size', 'N/A')}")
-                    print(f"Quantization: {data.get('details', {}).get('quantization_level', 'N/A')}")
+                    print(
+                        f"Quantization: {data.get('details', {}).get('quantization_level', 'N/A')}"
+                    )
             else:
                 print("Error: Model not found", file=sys.stderr)
                 sys.exit(1)
@@ -327,13 +329,18 @@ def cmd_cache(args):
         size_mb = total_size / (1024 * 1024)
 
         if args.json:
-            print(json.dumps({
-                "cache_dir": str(cache_dir),
-                "size_bytes": total_size,
-                "size_mb": round(size_mb, 2),
-                "file_count": file_count,
-                "dir_count": dir_count,
-            }, indent=2))
+            print(
+                json.dumps(
+                    {
+                        "cache_dir": str(cache_dir),
+                        "size_bytes": total_size,
+                        "size_mb": round(size_mb, 2),
+                        "file_count": file_count,
+                        "dir_count": dir_count,
+                    },
+                    indent=2,
+                )
+            )
         else:
             print("=== Cache Statistics ===")
             print(f"Location: {cache_dir}")
@@ -459,7 +466,11 @@ def cmd_skills(args):
             print(f"Skill not found: {args.skill_name}", file=sys.stderr)
             sys.exit(1)
         if args.json:
-            print(json.dumps({"skill": args.skill_name, "context": context}, ensure_ascii=False, indent=2))
+            print(
+                json.dumps(
+                    {"skill": args.skill_name, "context": context}, ensure_ascii=False, indent=2
+                )
+            )
         else:
             print(context)
         return
@@ -521,7 +532,11 @@ def cmd_rules(args):
             print(f"Rule not found: {args.rule_name}", file=sys.stderr)
             sys.exit(1)
         if args.json:
-            print(json.dumps({"rule": rule["name"], "content": rule["content"]}, ensure_ascii=False, indent=2))
+            print(
+                json.dumps(
+                    {"rule": rule["name"], "content": rule["content"]}, ensure_ascii=False, indent=2
+                )
+            )
         else:
             print(rule["content"])
         return
@@ -561,7 +576,13 @@ def cmd_workflows(args):
             print(f"Workflow not found: {args.name}", file=sys.stderr)
             sys.exit(1)
         if args.json:
-            print(json.dumps({"workflow": workflow.metadata.name, "content": workflow.content}, ensure_ascii=False, indent=2))
+            print(
+                json.dumps(
+                    {"workflow": workflow.metadata.name, "content": workflow.content},
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            )
         else:
             print(workflow.content)
         return
@@ -570,7 +591,9 @@ def cmd_workflows(args):
         context = {"args": args.args or []}
         output = engine.execute(args.name, context)
         if args.json:
-            print(json.dumps({"workflow": args.name, "output": output}, ensure_ascii=False, indent=2))
+            print(
+                json.dumps({"workflow": args.name, "output": output}, ensure_ascii=False, indent=2)
+            )
         else:
             print(output)
         return
@@ -692,7 +715,9 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     # Global options
-    parser.add_argument("--offline", action="store_true", help="Run in offline mode (no network access)")
+    parser.add_argument(
+        "--offline", action="store_true", help="Run in offline mode (no network access)"
+    )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
@@ -732,7 +757,9 @@ def main():
 
     # === train-ranker command (Phase 2) ===
     ranker_parser = subparsers.add_parser("train-ranker", help="Train LightGBM ranker (Phase 2)")
-    ranker_parser.add_argument("--dataset", type=str, required=True, help="Path to golden set JSONL")
+    ranker_parser.add_argument(
+        "--dataset", type=str, required=True, help="Path to golden set JSONL"
+    )
     ranker_parser.add_argument("--output", type=str, help="Path to save model (optional)")
     ranker_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
@@ -740,42 +767,72 @@ def main():
     screen_parser = subparsers.add_parser("screen", help="Active learning paper screening")
     screen_parser.add_argument("--input", type=str, required=True, help="Input JSONL with papers")
     screen_parser.add_argument("--output", type=str, required=True, help="Output JSONL with labels")
-    screen_parser.add_argument("--batch-size", type=int, default=10, help="Batch size (default: 10)")
-    screen_parser.add_argument("--target-recall", type=float, default=0.95, help="Target recall (default: 0.95)")
-    screen_parser.add_argument("--budget-ratio", type=float, default=0.3, help="Budget ratio (default: 0.3)")
-    screen_parser.add_argument("--initial-samples", type=int, default=20, help="Initial samples (default: 20)")
+    screen_parser.add_argument(
+        "--batch-size", type=int, default=10, help="Batch size (default: 10)"
+    )
+    screen_parser.add_argument(
+        "--target-recall", type=float, default=0.95, help="Target recall (default: 0.95)"
+    )
+    screen_parser.add_argument(
+        "--budget-ratio", type=float, default=0.3, help="Budget ratio (default: 0.3)"
+    )
+    screen_parser.add_argument(
+        "--initial-samples", type=int, default=20, help="Initial samples (default: 20)"
+    )
     screen_parser.add_argument("--auto", action="store_true", help="Auto-label (non-interactive)")
     screen_parser.add_argument("--json", action="store_true", help="Output stats as JSON")
 
     # === import command (Sprint 20: External Integration) ===
     import_parser = subparsers.add_parser("import", help="Import references from RIS/BibTeX/Zotero")
-    import_parser.add_argument("--format", type=str, required=True, choices=["ris", "bibtex", "zotero"], help="Import format")
+    import_parser.add_argument(
+        "--format",
+        type=str,
+        required=True,
+        choices=["ris", "bibtex", "zotero"],
+        help="Import format",
+    )
     import_parser.add_argument("--input", type=str, required=True, help="Input file path")
-    import_parser.add_argument("--output", type=str, default="papers.jsonl", help="Output JSONL path")
+    import_parser.add_argument(
+        "--output", type=str, default="papers.jsonl", help="Output JSONL path"
+    )
     import_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
     # === export command (Sprint 20: External Integration) ===
     export_parser = subparsers.add_parser("export", help="Export references to RIS/BibTeX/PRISMA")
-    export_parser.add_argument("--format", type=str, required=True, choices=["ris", "bibtex", "prisma"], help="Export format")
+    export_parser.add_argument(
+        "--format",
+        type=str,
+        required=True,
+        choices=["ris", "bibtex", "prisma"],
+        help="Export format",
+    )
     export_parser.add_argument("--input", type=str, required=True, help="Input JSONL path")
     export_parser.add_argument("--output", type=str, required=True, help="Output file path")
     export_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
     # === model command (Phase 1: Model Management CLI) ===
     model_parser = subparsers.add_parser("model", help="Manage LLM models (Ollama)")
-    model_parser.add_argument("action", type=str, choices=["list", "pull", "info"], help="Action to perform")
+    model_parser.add_argument(
+        "action", type=str, choices=["list", "pull", "info"], help="Action to perform"
+    )
     model_parser.add_argument("name", type=str, nargs="?", help="Model name (for pull/info)")
     model_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
     # === cache command (Phase 1: Cache Management CLI) ===
     cache_parser = subparsers.add_parser("cache", help="Manage cache")
-    cache_parser.add_argument("action", type=str, choices=["stats", "clear", "path"], help="Action to perform")
-    cache_parser.add_argument("--force", "-f", action="store_true", help="Force clear without confirmation")
+    cache_parser.add_argument(
+        "action", type=str, choices=["stats", "clear", "path"], help="Action to perform"
+    )
+    cache_parser.add_argument(
+        "--force", "-f", action="store_true", help="Force clear without confirmation"
+    )
     cache_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
     # === mcp command ===
     mcp_parser = subparsers.add_parser("mcp", help="Manage MCP servers")
-    mcp_parser.add_argument("--config", type=str, default="configs/mcp_config.json", help="Path to MCP config")
+    mcp_parser.add_argument(
+        "--config", type=str, default="configs/mcp_config.json", help="Path to MCP config"
+    )
     mcp_parser.add_argument("--json", action="store_true", help="Output as JSON")
     mcp_subparsers = mcp_parser.add_subparsers(dest="mcp_command", help="MCP commands")
 
@@ -827,13 +884,17 @@ def main():
     rules_show_parser.add_argument("rule_name", type=str, help="Rule name")
     rules_show_parser.set_defaults(rules_command="show")
 
-    rules_init_parser = rules_subparsers.add_parser("init", help="Initialize workspace rules directory")
+    rules_init_parser = rules_subparsers.add_parser(
+        "init", help="Initialize workspace rules directory"
+    )
     rules_init_parser.set_defaults(rules_command="init")
 
     # === workflows command ===
     workflows_parser = subparsers.add_parser("workflows", help="Manage workflows")
     workflows_parser.add_argument("--json", action="store_true", help="Output as JSON")
-    workflows_subparsers = workflows_parser.add_subparsers(dest="workflows_command", help="Workflows commands")
+    workflows_subparsers = workflows_parser.add_subparsers(
+        dest="workflows_command", help="Workflows commands"
+    )
 
     workflows_list_parser = workflows_subparsers.add_parser("list", help="List workflows")
     workflows_list_parser.set_defaults(workflows_command="list")
@@ -844,12 +905,18 @@ def main():
 
     workflows_run_parser = workflows_subparsers.add_parser("run", help="Run a workflow")
     workflows_run_parser.add_argument("name", type=str, help="Workflow name")
-    workflows_run_parser.add_argument("args", nargs=argparse.REMAINDER, help="Arguments for workflow context")
+    workflows_run_parser.add_argument(
+        "args", nargs=argparse.REMAINDER, help="Arguments for workflow context"
+    )
     workflows_run_parser.set_defaults(workflows_command="run")
 
-    workflows_init_parser = workflows_subparsers.add_parser("init", help="Create a workflow template")
+    workflows_init_parser = workflows_subparsers.add_parser(
+        "init", help="Create a workflow template"
+    )
     workflows_init_parser.add_argument("name", type=str, help="Workflow name")
-    workflows_init_parser.add_argument("--force", action="store_true", help="Overwrite existing workflow")
+    workflows_init_parser.add_argument(
+        "--force", action="store_true", help="Overwrite existing workflow"
+    )
     workflows_init_parser.set_defaults(workflows_command="init")
 
     # === sync command ===
@@ -865,7 +932,9 @@ def main():
     benchmark_subparsers = benchmark_parser.add_subparsers(
         dest="benchmark_command", help="Benchmark commands"
     )
-    benchmark_mcp_parser = benchmark_subparsers.add_parser("mcp", help="Benchmark MCP Hub performance")
+    benchmark_mcp_parser = benchmark_subparsers.add_parser(
+        "mcp", help="Benchmark MCP Hub performance"
+    )
     benchmark_mcp_parser.set_defaults(benchmark_command="mcp")
 
     args = parser.parse_args()
@@ -882,8 +951,8 @@ def main():
         # Display banner if command is executed
         banner = get_status_banner()
         if banner and args.command:
-             # Use stderr or standard print
-             print(f"\n{banner}\n", file=sys.stderr)
+            # Use stderr or standard print
+            print(f"\n{banner}\n", file=sys.stderr)
 
     # Legacy mode: if no subcommand but --goal provided
     if not args.command:
@@ -903,6 +972,7 @@ def main():
         cmd_train_ranker(args)
     elif args.command == "screen":
         from jarvis_core.active_learning.cli import cmd_screen
+
         cmd_screen(args)
     elif args.command == "import":
         cmd_import(args)
@@ -922,6 +992,7 @@ def main():
         cmd_workflows(args)
     elif args.command == "sync":
         from jarvis_core.sync.manager import SyncQueueManager
+
         manager = SyncQueueManager()
         results = manager.process_queue()
         completed = sum(1 for r in results if r.status.value == "completed")
@@ -929,6 +1000,7 @@ def main():
         print(f"Sync complete: {completed} succeeded, {failed} failed")
     elif args.command == "sync-status":
         from jarvis_core.sync.manager import SyncQueueManager
+
         manager = SyncQueueManager()
         status = manager.get_queue_status()
         print("Sync Queue Status:")

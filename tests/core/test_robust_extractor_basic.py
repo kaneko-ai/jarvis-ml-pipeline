@@ -12,7 +12,6 @@ sys.modules["pypdf"] = MagicMock()
 sys.modules["pdfplumber"] = MagicMock()
 
 
-
 class TestRobustPDFExtractor:
     @patch("jarvis_core.ingestion.robust_extractor.RobustPDFExtractor._detect_backends")
     def test_extract_fallback(self, mock_detect):

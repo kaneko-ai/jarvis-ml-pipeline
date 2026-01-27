@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 def load_config(config_path: str) -> Dict[str, Any]:
     """設定ファイルを読み込み."""
-    with open(config_path, 'r', encoding='utf-8') as f:
+    with open(config_path, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     return config
 
@@ -49,10 +49,10 @@ def load_config(config_path: str) -> Dict[str, Any]:
 def run_pipeline(config_path: str) -> Path:
     """
     パイプラインを実行.
-    
+
     Args:
         config_path: 設定ファイルパス
-    
+
     Returns:
         submission.csv のパス
     """
@@ -77,7 +77,7 @@ def run_pipeline(config_path: str) -> Path:
 
     # 設定保存
     config_resolved_path = runs_dir / "config_resolved.yaml"
-    with open(config_resolved_path, 'w', encoding='utf-8') as f:
+    with open(config_resolved_path, "w", encoding="utf-8") as f:
         yaml.dump(config, f, allow_unicode=True)
 
     # データ読み込み
@@ -127,8 +127,10 @@ def run_pipeline(config_path: str) -> Path:
 
     # 学習
     model, train_metrics = train_model(
-        X_tr, y_tr,
-        X_val, y_val,
+        X_tr,
+        y_tr,
+        X_val,
+        y_val,
         task=task,
         model_type=model_config["type"],
         model_params=model_config,
@@ -142,7 +144,7 @@ def run_pipeline(config_path: str) -> Path:
     all_metrics = {**train_metrics, **{f"test_{k}": v for k, v in test_metrics.items()}}
 
     # メトリクス保存
-    with open(runs_dir / "metrics.json", 'w') as f:
+    with open(runs_dir / "metrics.json", "w") as f:
         json.dump(all_metrics, f, indent=2)
 
     # モデル保存

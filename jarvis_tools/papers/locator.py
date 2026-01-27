@@ -2,6 +2,7 @@
 
 Per RP-114, defines and validates locator requirements.
 """
+
 from __future__ import annotations
 
 import re

@@ -36,7 +36,7 @@ class VectorStore(abc.ABC):
         top_k: int = 10,
     ) -> List[Tuple[str, float, Dict[str, Any]]]:
         """Search for similar documents.
-        
+
         Returns:
             List of (doc_id, score, metadata) tuples.
         """
@@ -75,6 +75,7 @@ class FAISSVectorStore(VectorStore):
         if self._faiss is None:
             try:
                 import faiss
+
                 self._faiss = faiss
             except ImportError:
                 raise ImportError("faiss is required. Install with: pip install faiss-cpu")
@@ -115,7 +116,7 @@ class FAISSVectorStore(VectorStore):
     ) -> None:
         if isinstance(embeddings, list):
             embeddings = np.array(embeddings)
-            
+
         if self._index is None:
             self.build(embeddings, doc_ids, metadata)
             return

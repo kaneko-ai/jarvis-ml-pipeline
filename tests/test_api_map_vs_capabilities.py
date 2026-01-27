@@ -8,7 +8,6 @@ import pytest
 import jarvis_web.app as jarvis_app_module
 
 
-
 try:
     from fastapi.testclient import TestClient
 except ImportError:  # pragma: no cover

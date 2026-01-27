@@ -5,6 +5,7 @@
 - グラフ構造
 - パス探索
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -14,6 +15,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 @dataclass
 class ClaimNode:
     """主張ノード."""
+
     claim_id: str
     claim_text: str
     paper_id: str
@@ -33,6 +35,7 @@ class ClaimNode:
 @dataclass
 class ClaimEdge:
     """主張エッジ."""
+
     source_id: str
     target_id: str
     relation_type: str  # supports, contradicts, extends, same_as
@@ -49,17 +52,17 @@ class ClaimEdge:
 
 class ClaimGraph:
     """主張グラフ.
-    
+
     主張間の関係をグラフとして管理。
     """
 
     RELATION_TYPES = [
-        "supports",      # 支持する
-        "contradicts",   # 矛盾する
-        "extends",       # 拡張する
-        "same_as",       # 同じ主張
-        "cites",         # 引用する
-        "implies",       # 暗示する
+        "supports",  # 支持する
+        "contradicts",  # 矛盾する
+        "extends",  # 拡張する
+        "same_as",  # 同じ主張
+        "cites",  # 引用する
+        "implies",  # 暗示する
     ]
 
     def __init__(self):
@@ -202,33 +205,37 @@ class ClaimGraph:
         nodes = list(self._nodes.values())
 
         for i, node1 in enumerate(nodes):
-            for node2 in nodes[i+1:]:
+            for node2 in nodes[i + 1 :]:
                 # 同じ論文からの主張
                 if node1.paper_id == node2.paper_id:
                     # 簡易的な類似度チェック
                     similarity = self._text_similarity(node1.claim_text, node2.claim_text)
 
                     if similarity > 0.8:
-                        self.add_edge(ClaimEdge(
-                            source_id=node1.claim_id,
-                            target_id=node2.claim_id,
-                            relation_type="same_as",
-                            confidence=similarity,
-                        ))
+                        self.add_edge(
+                            ClaimEdge(
+                                source_id=node1.claim_id,
+                                target_id=node2.claim_id,
+                                relation_type="same_as",
+                                confidence=similarity,
+                            )
+                        )
                     elif similarity > 0.5:
-                        self.add_edge(ClaimEdge(
-                            source_id=node1.claim_id,
-                            target_id=node2.claim_id,
-                            relation_type="supports",
-                            confidence=similarity,
-                        ))
+                        self.add_edge(
+                            ClaimEdge(
+                                source_id=node1.claim_id,
+                                target_id=node2.claim_id,
+                                relation_type="supports",
+                                confidence=similarity,
+                            )
+                        )
 
     def _text_similarity(self, text1: str, text2: str) -> float:
         """テキスト類似度を計算."""
         import re
 
-        words1 = set(re.findall(r'\w+', text1.lower()))
-        words2 = set(re.findall(r'\w+', text2.lower()))
+        words1 = set(re.findall(r"\w+", text1.lower()))
+        words2 = set(re.findall(r"\w+", text2.lower()))
 
         if not words1 or not words2:
             return 0.0

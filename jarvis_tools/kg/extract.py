@@ -2,6 +2,7 @@
 
 Per RP-11, extracts triples from chunks using schema-guided extraction.
 """
+
 from __future__ import annotations
 
 import re
@@ -40,13 +41,15 @@ def extract_triples_regex(
 
     for pattern, relation in RELATION_PATTERNS:
         for match in re.finditer(pattern, text, re.IGNORECASE):
-            triples.append(Triple(
-                entity1=match.group(1).upper(),
-                relation=relation,
-                entity2=match.group(2).upper(),
-                pmid=pmid,
-                chunk_id=chunk_id,
-            ))
+            triples.append(
+                Triple(
+                    entity1=match.group(1).upper(),
+                    relation=relation,
+                    entity2=match.group(2).upper(),
+                    pmid=pmid,
+                    chunk_id=chunk_id,
+                )
+            )
 
     return triples
 

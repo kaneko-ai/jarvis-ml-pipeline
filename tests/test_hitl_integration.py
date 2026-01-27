@@ -21,7 +21,6 @@ from tempfile import TemporaryDirectory
 import pytest
 
 
-
 class TestReviewQueue:
     """レビューキューテスト."""
 

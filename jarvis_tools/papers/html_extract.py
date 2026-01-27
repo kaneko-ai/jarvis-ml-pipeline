@@ -2,6 +2,7 @@
 
 Per RP-105, extracts text from HTML as PDF fallback.
 """
+
 from __future__ import annotations
 
 import re

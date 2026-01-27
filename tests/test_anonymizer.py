@@ -7,7 +7,9 @@ from jarvis_core.security.pii_detector import PIIDetection
 @pytest.mark.core
 def test_anonymize_mask():
     text = "Email test@example.com"
-    detections = [PIIDetection(type="email", value="test@example.com", start=6, end=22, confidence=0.9)]
+    detections = [
+        PIIDetection(type="email", value="test@example.com", start=6, end=22, confidence=0.9)
+    ]
     result = anonymize(text, detections, strategy="mask")
     assert "*" in result
 

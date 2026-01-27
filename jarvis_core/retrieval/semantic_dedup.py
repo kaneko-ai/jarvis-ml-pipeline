@@ -92,7 +92,9 @@ class SemanticDeduplicator:
                     processed.add(j)
 
             if len(cluster_members) > 1:
-                cluster_id = hashlib.md5(str(cluster_members).encode(), usedforsecurity=False).hexdigest()[:8]
+                cluster_id = hashlib.md5(
+                    str(cluster_members).encode(), usedforsecurity=False
+                ).hexdigest()[:8]
 
                 clusters.append(
                     DuplicateCluster(

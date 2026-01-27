@@ -17,6 +17,6 @@ class TestArtifactsSafe:
 class TestModule:
     def test_module(self):
         try:
-            import jarvis_core.artifacts
+            import jarvis_core.artifacts  # noqa: F401
         except ImportError:
             pass
