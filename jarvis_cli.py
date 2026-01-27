@@ -347,6 +347,66 @@ def cmd_cache(args):
         print(cache_dir)
 
 
+def cmd_mcp(args):
+    """Manage MCP servers and tools."""
+    import asyncio
+    import json
+
+    from jarvis_core.mcp.hub import MCPHub
+
+    config_path = args.config or "configs/mcp_config.json"
+    hub = MCPHub()
+
+    if args.mcp_command == "config":
+        print(config_path)
+        return
+
+    if Path(config_path).exists():
+        hub.register_from_config(config_path)
+    else:
+        print(f"Warning: MCP config not found at {config_path}", file=sys.stderr)
+
+    if args.mcp_command == "list":
+        servers = hub.list_servers()
+        tools = hub.list_all_tools()
+        if args.json:
+            print(json.dumps({"servers": servers, "tools": tools}, ensure_ascii=False, indent=2))
+            return
+        print("=== MCP Servers ===")
+        for server in servers:
+            print(
+                f"  • {server['name']} ({server['server_type']}) - {server['status']} "
+                f"({server['tool_count']} tools)"
+            )
+        print("\n=== MCP Tools ===")
+        for tool in tools:
+            print(f"  • {tool['tool']} [{tool['server']}] - {tool['description']}")
+        return
+
+    if args.mcp_command == "discover":
+        tools = asyncio.run(hub.discover_tools(args.server_name))
+        if args.json:
+            print(json.dumps([tool.__dict__ for tool in tools], ensure_ascii=False, indent=2))
+        else:
+            print(f"Discovered {len(tools)} tools from {args.server_name}:")
+            for tool in tools:
+                print(f"  • {tool.name}: {tool.description}")
+        return
+
+    if args.mcp_command == "invoke":
+        params = json.loads(args.params) if args.params else {}
+        result = asyncio.run(hub.invoke_tool(args.tool_name, params))
+        if args.json:
+            print(json.dumps(result.__dict__, ensure_ascii=False, indent=2))
+        else:
+            status = "success" if result.success else "error"
+            print(f"Tool '{result.tool_name}' ({result.server_name}) => {status}")
+            if result.data is not None:
+                print(json.dumps(result.data, ensure_ascii=False, indent=2))
+            if result.error:
+                print(f"Error: {result.error}", file=sys.stderr)
+
+
 def cmd_show_run(args):
     """Show run summary with fail reasons and missing artifacts (per DEC-006)."""
     from jarvis_core.storage import RunStore
@@ -514,6 +574,27 @@ def main():
     cache_parser.add_argument("--force", "-f", action="store_true", help="Force clear without confirmation")
     cache_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
+    # === mcp command ===
+    mcp_parser = subparsers.add_parser("mcp", help="Manage MCP servers")
+    mcp_parser.add_argument("--config", type=str, default="configs/mcp_config.json", help="Path to MCP config")
+    mcp_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    mcp_subparsers = mcp_parser.add_subparsers(dest="mcp_command", help="MCP commands")
+
+    mcp_list_parser = mcp_subparsers.add_parser("list", help="List MCP servers and tools")
+    mcp_list_parser.set_defaults(mcp_command="list")
+
+    mcp_discover_parser = mcp_subparsers.add_parser("discover", help="Discover tools from a server")
+    mcp_discover_parser.add_argument("server_name", type=str, help="MCP server name")
+    mcp_discover_parser.set_defaults(mcp_command="discover")
+
+    mcp_invoke_parser = mcp_subparsers.add_parser("invoke", help="Invoke an MCP tool")
+    mcp_invoke_parser.add_argument("tool_name", type=str, help="Tool name to invoke")
+    mcp_invoke_parser.add_argument("--params", type=str, help="Tool params as JSON string")
+    mcp_invoke_parser.set_defaults(mcp_command="invoke")
+
+    mcp_config_parser = mcp_subparsers.add_parser("config", help="Show MCP config path")
+    mcp_config_parser.set_defaults(mcp_command="config")
+
     # === sync command ===
     sync_parser = subparsers.add_parser("sync", help="Process pending sync queue items")
 
@@ -564,6 +645,8 @@ def main():
         cmd_model(args)
     elif args.command == "cache":
         cmd_cache(args)
+    elif args.command == "mcp":
+        cmd_mcp(args)
     elif args.command == "sync":
         from jarvis_core.sync.manager import SyncQueueManager
         manager = SyncQueueManager()

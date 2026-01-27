@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "pubmed": {
+      "serverUrl": "https://example-mcp.pubmed.org",
+      "type": "http",
+      "headers": {
+        "User-Agent": "jarvis-mcp/1.0"
+      },
+      "requests_per_minute": 30
+    },
+    "semantic_scholar": {
+      "serverUrl": "https://example-mcp.semanticscholar.org",
+      "type": "http",
+      "headers": {
+        "User-Agent": "jarvis-mcp/1.0"
+      },
+      "requests_per_minute": 100
+    }
+  }
+}
