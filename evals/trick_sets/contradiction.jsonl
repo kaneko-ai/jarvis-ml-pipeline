@@ -1,0 +1,10 @@
+{"claims": [{"text": "The treatment increases survival in patients."}, {"text": "The treatment decreases survival in patients."}], "expected_contradiction": true}
+{"claims": [{"text": "The therapy shows a positive effect on outcomes."}, {"text": "The therapy shows a negative effect on outcomes."}], "expected_contradiction": true}
+{"claims": [{"text": "The drug is effective for symptom relief."}, {"text": "The drug is ineffective for symptom relief."}], "expected_contradiction": true}
+{"claims": [{"text": "The procedure is safe for older adults."}, {"text": "The procedure is dangerous for older adults."}], "expected_contradiction": true}
+{"claims": [{"text": "The trial found a significant difference in response."}, {"text": "The trial found an insignificant difference in response."}], "expected_contradiction": true}
+{"claims": [{"text": "This policy increases compliance rates."}, {"text": "This policy decreases compliance rates."}], "expected_contradiction": true}
+{"claims": [{"text": "The vaccine has a positive impact on immunity."}, {"text": "The vaccine has a negative impact on immunity."}], "expected_contradiction": true}
+{"claims": [{"text": "The supplement is effective for recovery."}, {"text": "The supplement is ineffective for recovery."}], "expected_contradiction": true}
+{"claims": [{"text": "The regimen is safe in patients."}, {"text": "The regimen is dangerous in patients."}], "expected_contradiction": true}
+{"claims": [{"text": "The analysis shows significant improvement."}, {"text": "The analysis shows insignificant improvement."}], "expected_contradiction": true}

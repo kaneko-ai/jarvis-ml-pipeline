@@ -1,0 +1,10 @@
+{"goal": "Explain the mechanism of drug X with no citations.", "expected_gate_passed": false, "expected_violation": "MISSING_EVIDENCE_ID"}
+{"goal": "Summarize study outcomes without evidence.", "expected_gate_passed": false, "expected_violation": "MISSING_EVIDENCE_ID"}
+{"goal": "Provide a confident conclusion with zero evidence IDs.", "expected_gate_passed": false, "expected_violation": "MISSING_EVIDENCE_ID"}
+{"goal": "Describe the causal link without referencing sources.", "expected_gate_passed": false, "expected_violation": "MISSING_EVIDENCE_ID"}
+{"goal": "State the effectiveness of intervention Y without citations.", "expected_gate_passed": false, "expected_violation": "MISSING_EVIDENCE_ID"}
+{"goal": "Report results without evidence for the claim.", "expected_gate_passed": false, "expected_violation": "MISSING_EVIDENCE_ID"}
+{"goal": "Draw conclusions absent any evidence IDs.", "expected_gate_passed": false, "expected_violation": "MISSING_EVIDENCE_ID"}
+{"goal": "Deliver a summary with missing evidence references.", "expected_gate_passed": false, "expected_violation": "MISSING_EVIDENCE_ID"}
+{"goal": "Make assertions without any evidence records.", "expected_gate_passed": false, "expected_violation": "MISSING_EVIDENCE_ID"}
+{"goal": "Conclude findings without linking evidence.", "expected_gate_passed": false, "expected_violation": "MISSING_EVIDENCE_ID"}

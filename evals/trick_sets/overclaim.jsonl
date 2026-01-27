@@ -1,0 +1,10 @@
+{"goal": "the intervention causes weight loss", "evidence_level": "3b", "claim_strength": "proves", "expected_violation": "LANGUAGE_VIOLATION"}
+{"goal": "the drug guarantees recovery", "evidence_level": "3b", "claim_strength": "proves", "expected_violation": "LANGUAGE_VIOLATION"}
+{"goal": "the treatment leads to remission", "evidence_level": "3b", "claim_strength": "proves", "expected_violation": "LANGUAGE_VIOLATION"}
+{"goal": "the policy clearly shows success", "evidence_level": "3b", "claim_strength": "proves", "expected_violation": "LANGUAGE_VIOLATION"}
+{"goal": "the supplement establishes efficacy", "evidence_level": "3b", "claim_strength": "proves", "expected_violation": "LANGUAGE_VIOLATION"}
+{"goal": "the vaccine confirms protection", "evidence_level": "3b", "claim_strength": "proves", "expected_violation": "LANGUAGE_VIOLATION"}
+{"goal": "the biomarker demonstrates causality", "evidence_level": "3b", "claim_strength": "proves", "expected_violation": "LANGUAGE_VIOLATION"}
+{"goal": "the therapy guarantees improvement", "evidence_level": "3b", "claim_strength": "proves", "expected_violation": "LANGUAGE_VIOLATION"}
+{"goal": "the protocol clearly shows benefit", "evidence_level": "3b", "claim_strength": "proves", "expected_violation": "LANGUAGE_VIOLATION"}
+{"goal": "the method proves superiority", "evidence_level": "3b", "claim_strength": "proves", "expected_violation": "LANGUAGE_VIOLATION"}
