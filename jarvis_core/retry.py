@@ -19,7 +19,6 @@ class RetryDecision:
     reason: str | None = None
 
 
-
 T = TypeVar("T")
 
 

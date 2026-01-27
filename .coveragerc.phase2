@@ -1,5 +1,5 @@
 [run]
-parallel = True
+parallel = false
 branch = True
 source = jarvis_core
 concurrency = multiprocessing, thread

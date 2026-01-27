@@ -101,8 +101,6 @@ class Redactor:
         }
 
 
-
-
 class RedactingFilter(logging.Filter):
     """Logging filter that redacts sensitive information from log records."""
 
