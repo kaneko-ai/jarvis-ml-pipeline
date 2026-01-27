@@ -8,6 +8,7 @@ import math
 import random
 import re
 from collections import defaultdict
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 import time
 
@@ -636,20 +637,50 @@ class HolographicDisplay:
 class HIPAAComplianceChecker:
     """HIPAA compliance (241)."""
 
-    PHI_PATTERNS = [
-        r"\b\d{3}-\d{2}-\d{4}\b",  # SSN
-        r"\b[A-Z]{2}\d{6,8}\b",  # Medical record numbers
-        r"\b\d{3}[- ]?\d{3}[- ]?\d{4}\b",  # Phone
+    HIPAA_IDENTIFIERS = [
+        ("names", r"\b[A-Z][a-z]+ [A-Z][a-z]+\b"),
+        ("geography", r"\b\d{1,5}\s+\w+\s+(Street|St|Avenue|Ave|Road|Rd|Blvd|Boulevard)\b"),
+        ("dates", r"\b\d{4}-\d{2}-\d{2}\b"),
+        ("phone", r"\b\d{3}[- ]?\d{3}[- ]?\d{4}\b"),
+        ("fax", r"\bfax[:\s]+\d{3}[- ]?\d{3}[- ]?\d{4}\b"),
+        ("email", r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
+        ("ssn", r"\b\d{3}-\d{2}-\d{4}\b"),
+        ("medical_record", r"\bMRN[:\s]*[A-Za-z0-9-]+\b"),
+        ("health_plan", r"\bHPID[:\s]*[A-Za-z0-9-]+\b"),
+        ("account", r"\bACC[:\s]*[A-Za-z0-9-]+\b"),
+        ("certificate", r"\bCERT[:\s]*[A-Za-z0-9-]+\b"),
+        ("vehicle", r"\bVIN[:\s]*[A-Za-z0-9-]{6,}\b"),
+        ("device", r"\bIMEI[:\s]*[A-Za-z0-9-]+\b"),
+        ("url", r"https?://\S+"),
+        ("ip", r"\b\d{1,3}(?:\.\d{1,3}){3}\b"),
+        ("biometric", r"\b(biometric|fingerprint|retina)\b"),
+        ("photo", r"\b(photo|image) id\b"),
+        ("other_id", r"\bpatient id[:\s]*[A-Za-z0-9-]+\b"),
     ]
 
-    def check(self, text: str) -> dict:
+    def check(self, text: str) -> "ComplianceResult":
         """Check for PHI."""
-        issues = []
-        for pattern in self.PHI_PATTERNS:
-            if re.search(pattern, text):
-                issues.append(f"Potential PHI: {pattern}")
+        violations = []
+        for name, pattern in self.HIPAA_IDENTIFIERS:
+            if re.search(pattern, text, re.IGNORECASE):
+                violations.append(name)
 
-        return {"compliant": len(issues) == 0, "issues": issues}
+        recommendations = []
+        if violations:
+            recommendations.append("Remove or anonymize PHI identifiers before sharing.")
+
+        return ComplianceResult(
+            compliant=len(violations) == 0,
+            violations=violations,
+            recommendations=recommendations,
+        )
+
+
+@dataclass
+class ComplianceResult:
+    compliant: bool
+    violations: list[str]
+    recommendations: list[str]
 
 
 class GDPRDataHandler:
@@ -1004,17 +1035,45 @@ class TeamWorkspace:
     """Team workspaces (281)."""
 
     def __init__(self):
-        self.workspaces: dict[str, dict] = {}
+        self.workspaces: dict[str, Workspace] = {}
 
-    def create_workspace(self, name: str, members: list[str]) -> dict:
+    def create_workspace(self, name: str, members: list[str]) -> "Workspace":
         """Create team workspace."""
         ws_id = hashlib.md5(name.encode()).hexdigest()[:8]  # nosec B324
-        self.workspaces[ws_id] = {
-            "name": name,
-            "members": members,
-            "created_at": datetime.now().isoformat(),
-        }
-        return {"id": ws_id, "name": name}
+        workspace = Workspace(
+            id=ws_id,
+            name=name,
+            members=[{"user_id": member, "role": "member"} for member in members],
+            created_at=datetime.now().isoformat(),
+            settings={},
+        )
+        self.workspaces[ws_id] = workspace
+        return workspace
+
+    def add_member(self, workspace_id: str, user_id: str, role: str) -> None:
+        workspace = self.workspaces.get(workspace_id)
+        if not workspace:
+            return
+        if all(member["user_id"] != user_id for member in workspace.members):
+            workspace.members.append({"user_id": user_id, "role": role})
+
+    def remove_member(self, workspace_id: str, user_id: str) -> None:
+        workspace = self.workspaces.get(workspace_id)
+        if not workspace:
+            return
+        workspace.members = [m for m in workspace.members if m["user_id"] != user_id]
+
+    def list_workspaces(self, user_id: str) -> list["Workspace"]:
+        return [ws for ws in self.workspaces.values() if any(m["user_id"] == user_id for m in ws.members)]
+
+
+@dataclass
+class Workspace:
+    id: str
+    name: str
+    members: list[dict]
+    created_at: str
+    settings: dict
 
 
 class RoleBasedAccess:
@@ -1062,22 +1121,38 @@ class ActivityFeed:
     """Activity feed (285)."""
 
     def __init__(self):
-        self.activities: list[dict] = []
+        self.activities: list[Activity] = []
 
-    def add_activity(self, user: str, action: str, target: str):
+    def add_activity(self, workspace_id: str, user_id: str, action: str, details: dict):
         """Add activity."""
-        self.activities.append(
-            {
-                "user": user,
-                "action": action,
-                "target": target,
-                "timestamp": datetime.now().isoformat(),
-            }
+        activity = Activity(
+            id=hashlib.md5(f"{workspace_id}{user_id}{time.time()}".encode()).hexdigest()[:8],  # nosec B324
+            user_id=user_id,
+            action=action,
+            details=details,
+            timestamp=datetime.now().isoformat(),
         )
+        activity.details["workspace_id"] = workspace_id
+        self.activities.append(activity)
 
-    def get_feed(self, limit: int = 20) -> list[dict]:
-        """Get recent activities."""
-        return self.activities[-limit:]
+    def get_feed(self, workspace_id: str, limit: int = 20) -> list["Activity"]:
+        """Get recent activities for a workspace."""
+        filtered = [a for a in self.activities if a.details.get("workspace_id") == workspace_id]
+        return filtered[-limit:]
+
+    def get_user_activity(self, user_id: str, limit: int = 20) -> list["Activity"]:
+        """Get recent activities for a user."""
+        filtered = [a for a in self.activities if a.user_id == user_id]
+        return filtered[-limit:]
+
+
+@dataclass
+class Activity:
+    id: str
+    user_id: str
+    action: str
+    details: dict
+    timestamp: str
 
 
 class MentionsComments:

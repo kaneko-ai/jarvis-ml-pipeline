@@ -26,11 +26,32 @@ jobs:
       - name: Run Benchmark
         continue-on-error: true
         run: |
-          python scripts/bench.py --cases docs/evals/bench_cases.jsonl --output reports/bench/latest
+          python scripts/bench.py --cases evals/benchmarks/realistic_mix_v1.jsonl --output results/bench/latest
+
+      - name: Compare with previous results
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          current = Path("results/bench/latest/bench_results.json")
+          previous = Path("results/bench/previous/bench_results.json")
+
+          if current.exists():
+              data = json.loads(current.read_text(encoding="utf-8"))
+              if previous.exists():
+                  prev = json.loads(previous.read_text(encoding="utf-8"))
+                  delta = data.get("overall_avg", 0) - prev.get("overall_avg", 0)
+                  print(f"Overall avg delta: {delta:.4f}s")
+              else:
+                  print("No previous benchmark results found.")
+          else:
+              print("Current benchmark results missing.")
+          PY
 
       - name: Upload Results
         uses: actions/upload-artifact@v4
         with:
           name: benchmark-results
-          path: reports/bench/latest/
+          path: results/bench/latest/
           retention-days: 30

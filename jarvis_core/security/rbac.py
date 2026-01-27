@@ -76,6 +76,30 @@ DEFAULT_ROLES = {
 }
 
 
+class RBACManager:
+    """Simplified RBAC manager for workspace permissions."""
+
+    DEFAULT_PERMISSIONS = {
+        "admin": ["*"],
+        "researcher": ["read", "write"],
+        "reviewer": ["read"],
+    }
+
+    def __init__(self) -> None:
+        self._user_roles: dict[str, str] = {}
+
+    def check_permission(self, user_id: str, resource: str, action: str) -> bool:
+        role = self._user_roles.get(user_id)
+        permissions = self.DEFAULT_PERMISSIONS.get(role, [])
+        return "*" in permissions or action in permissions
+
+    def assign_role(self, user_id: str, role: str) -> None:
+        self._user_roles[user_id] = role
+
+    def list_permissions(self, role: str) -> list[str]:
+        return list(self.DEFAULT_PERMISSIONS.get(role, []))
+
+
 class RBAC:
     """Role-Based Access Control.
 

@@ -201,6 +201,22 @@ def cmd_export(args):
         sys.exit(1)
 
 
+def cmd_benchmark(args):
+    """Run benchmarks."""
+    if args.benchmark_command == "mcp":
+        from evals.benchmarks.mcp_performance import run_benchmark
+
+        results = run_benchmark(args.output)
+        if args.json:
+            print(json.dumps(results, ensure_ascii=False, indent=2))
+        else:
+            print("MCP benchmark completed")
+            for key, value in results.items():
+                print(f"  {key}: {value}")
+    else:
+        print("Unknown benchmark command", file=sys.stderr)
+
+
 def cmd_model(args):
     """Manage LLM models (Phase 1: Model Management CLI)."""
     import os
@@ -842,6 +858,16 @@ def main():
     # === sync-status command ===
     sync_status_parser = subparsers.add_parser("sync-status", help="Show sync queue status")
 
+    # === benchmark command ===
+    benchmark_parser = subparsers.add_parser("benchmark", help="Run benchmarks")
+    benchmark_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    benchmark_parser.add_argument("--output", type=str, default="results/mcp_benchmark.json")
+    benchmark_subparsers = benchmark_parser.add_subparsers(
+        dest="benchmark_command", help="Benchmark commands"
+    )
+    benchmark_mcp_parser = benchmark_subparsers.add_parser("mcp", help="Benchmark MCP Hub performance")
+    benchmark_mcp_parser.set_defaults(benchmark_command="mcp")
+
     args = parser.parse_args()
 
     # Handle global flags
@@ -908,6 +934,8 @@ def main():
         print("Sync Queue Status:")
         for k, v in status.items():
             print(f"  {k}: {v}")
+    elif args.command == "benchmark":
+        cmd_benchmark(args)
 
 
 if __name__ == "__main__":
