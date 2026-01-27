@@ -57,6 +57,10 @@ if FASTAPI_AVAILABLE:
     from jarvis_web.routes.schedules import router as schedules_router
     from jarvis_web.routes.cron import router as cron_router
     from jarvis_web.routes.queue import router as queue_router
+    from jarvis_web.api.mcp import router as mcp_router
+    from jarvis_web.api.inbox import router as inbox_router
+    from jarvis_web.api.orchestrator import router as orchestrator_router
+    from jarvis_web.api.ws import router as ws_router
     from jarvis_web.config import get_config
     from jarvis_web.middleware.request_id import RequestIdMiddleware
 
@@ -89,6 +93,10 @@ if FASTAPI_AVAILABLE:
     )
 
     app.include_router(research_router)
+    app.include_router(mcp_router)
+    app.include_router(orchestrator_router)
+    app.include_router(inbox_router)
+    app.include_router(ws_router)
     
     # Feature Flagged Router: Finance
     if os.environ.get("JARVIS_ENABLE_FINANCE") == "1":

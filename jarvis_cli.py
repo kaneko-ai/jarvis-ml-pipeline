@@ -407,6 +407,101 @@ def cmd_mcp(args):
                 print(f"Error: {result.error}", file=sys.stderr)
 
 
+def cmd_rules(args):
+    """Manage global and workspace rules."""
+    from jarvis_core.rules.engine import RulesEngine
+
+    workspace = Path(args.workspace) if args.workspace else Path.cwd()
+    engine = RulesEngine(workspace)
+    engine.load_rules()
+
+    if args.rules_command == "list":
+        rules = engine.list_rules()
+        if args.json:
+            print(json.dumps({"rules": rules}, ensure_ascii=False, indent=2))
+        else:
+            print("=== Rules ===")
+            for rule in rules:
+                print(f"- {rule['name']} ({rule['scope']}) -> {rule['path']}")
+        return
+
+    if args.rules_command == "show":
+        rule = engine.get_rule(args.name)
+        if not rule:
+            print(f"Rule not found: {args.name}", file=sys.stderr)
+            sys.exit(1)
+        print(rule.content)
+        return
+
+    if args.rules_command == "init":
+        rules_dir = workspace / ".agent" / "rules"
+        rules_dir.mkdir(parents=True, exist_ok=True)
+        template_dir = Path("templates/workspace_rules")
+        if template_dir.exists():
+            for template in template_dir.glob("*.md"):
+                target = rules_dir / template.name
+                if not target.exists():
+                    target.write_text(template.read_text(encoding="utf-8"), encoding="utf-8")
+        print(f"Initialized rules directory at {rules_dir}")
+
+
+def cmd_workflows(args):
+    """Manage workflows."""
+    from jarvis_core.workflows.engine import WorkflowsEngine
+
+    workspace = Path(args.workspace) if args.workspace else Path.cwd()
+    engine = WorkflowsEngine(workspace)
+    engine.discover_workflows()
+
+    if args.workflows_command == "list":
+        workflows = engine.list_workflows()
+        if args.json:
+            print(json.dumps({"workflows": workflows}, ensure_ascii=False, indent=2))
+        else:
+            print("=== Workflows ===")
+            for wf in workflows:
+                print(f"- {wf['name']} ({wf['scope']}) {wf['command']} -> {wf['path']}")
+        return
+
+    if args.workflows_command == "show":
+        workflow = engine.get_workflow(args.name)
+        if not workflow:
+            print(f"Workflow not found: {args.name}", file=sys.stderr)
+            sys.exit(1)
+        print(workflow.content)
+        return
+
+    if args.workflows_command == "run":
+        context = {"args": args.args}
+        output = engine.execute(args.name, context)
+        print(output)
+        return
+
+    if args.workflows_command == "init":
+        workflows_dir = workspace / ".agent" / "workflows"
+        workflows_dir.mkdir(parents=True, exist_ok=True)
+        workflow_path = workflows_dir / f"{args.name}.md"
+        if not workflow_path.exists():
+            workflow_path.write_text(
+                "\n".join(
+                    [
+                        "---",
+                        f"name: {args.name}",
+                        f"description: {args.name} workflow",
+                        f"command: /{args.name}",
+                        "---",
+                        "",
+                        "# Workflow Steps",
+                        "",
+                        "1. Describe the first step.",
+                        "2. Describe the second step.",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+        print(f"Initialized workflow at {workflow_path}")
+
+
 def cmd_show_run(args):
     """Show run summary with fail reasons and missing artifacts (per DEC-006)."""
     from jarvis_core.storage import RunStore
@@ -595,6 +690,49 @@ def main():
     mcp_config_parser = mcp_subparsers.add_parser("config", help="Show MCP config path")
     mcp_config_parser.set_defaults(mcp_command="config")
 
+    # === rules command ===
+    rules_parser = subparsers.add_parser("rules", help="Manage rules")
+    rules_parser.add_argument("--workspace", type=str, help="Workspace path")
+    rules_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    rules_subparsers = rules_parser.add_subparsers(dest="rules_command", help="Rules commands")
+
+    rules_list_parser = rules_subparsers.add_parser("list", help="List rules")
+    rules_list_parser.set_defaults(rules_command="list")
+
+    rules_show_parser = rules_subparsers.add_parser("show", help="Show rule content")
+    rules_show_parser.add_argument("name", type=str, help="Rule name")
+    rules_show_parser.set_defaults(rules_command="show")
+
+    rules_init_parser = rules_subparsers.add_parser("init", help="Initialize workspace rules")
+    rules_init_parser.set_defaults(rules_command="init")
+
+    # === workflows command ===
+    workflows_parser = subparsers.add_parser("workflows", help="Manage workflows")
+    workflows_parser.add_argument("--workspace", type=str, help="Workspace path")
+    workflows_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    workflows_subparsers = workflows_parser.add_subparsers(
+        dest="workflows_command",
+        help="Workflows commands",
+    )
+
+    workflows_list_parser = workflows_subparsers.add_parser("list", help="List workflows")
+    workflows_list_parser.set_defaults(workflows_command="list")
+
+    workflows_show_parser = workflows_subparsers.add_parser("show", help="Show workflow content")
+    workflows_show_parser.add_argument("name", type=str, help="Workflow name")
+    workflows_show_parser.set_defaults(workflows_command="show")
+
+    workflows_run_parser = workflows_subparsers.add_parser("run", help="Run a workflow")
+    workflows_run_parser.add_argument("name", type=str, help="Workflow name")
+    workflows_run_parser.add_argument("args", nargs=argparse.REMAINDER, help="Workflow arguments")
+    workflows_run_parser.set_defaults(workflows_command="run")
+
+    workflows_init_parser = workflows_subparsers.add_parser(
+        "init", help="Initialize a workflow template"
+    )
+    workflows_init_parser.add_argument("name", type=str, help="Workflow name")
+    workflows_init_parser.set_defaults(workflows_command="init")
+
     # === sync command ===
     sync_parser = subparsers.add_parser("sync", help="Process pending sync queue items")
 
@@ -647,6 +785,10 @@ def main():
         cmd_cache(args)
     elif args.command == "mcp":
         cmd_mcp(args)
+    elif args.command == "rules":
+        cmd_rules(args)
+    elif args.command == "workflows":
+        cmd_workflows(args)
     elif args.command == "sync":
         from jarvis_core.sync.manager import SyncQueueManager
         manager = SyncQueueManager()
