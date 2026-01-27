@@ -2,6 +2,78 @@
 #
 # Enforces language constraints to prevent causal overgeneralization,
 # assertive claims without evidence, and other prohibited expressions.
+
+forbidden_causal_terms:
+  - pattern: "\bcauses\b"
+    severity: "error"
+    suggestion: "is associated with"
+    explanation: "Direct causation should be avoided without strong evidence."
+  - pattern: "\bleads to\b"
+    severity: "error"
+    suggestion: "is linked to"
+    explanation: "Avoid deterministic causal phrasing."
+  - pattern: "\bguarantees\b"
+    severity: "error"
+    suggestion: "may improve"
+    explanation: "Overconfident guarantee language is disallowed."
+  - pattern: "\bproves?\b"
+    severity: "error"
+    suggestion: "suggests"
+    explanation: "Proof language should be reserved for certain evidence."
+  - pattern: "\bconfirms?\b"
+    severity: "error"
+    suggestion: "is consistent with"
+    explanation: "Confirmation language can overstate the evidence."
+  - pattern: "\bclearly shows\b"
+    severity: "error"
+    suggestion: "indicates"
+    explanation: "Avoid emphatic claims without certainty."
+  - pattern: "\bdemonstrates that\b"
+    severity: "error"
+    suggestion: "suggests that"
+    explanation: "Use hedging instead of definitive claims."
+  - pattern: "\bestablishes that\b"
+    severity: "error"
+    suggestion: "provides evidence that"
+    explanation: "Establishing causation requires strong support."
+  - pattern: "原因となる"
+    severity: "error"
+    suggestion: "関連が示唆される"
+    explanation: "断定的な因果表現は避ける。"
+  - pattern: "引き起こす"
+    severity: "error"
+    suggestion: "影響を与える可能性がある"
+    explanation: "強い因果表現はヘッジが必要。"
+  - pattern: "確実に"
+    severity: "error"
+    suggestion: "可能性がある"
+    explanation: "確実という断定表現は使用しない。"
+  - pattern: "明らかに"
+    severity: "error"
+    suggestion: "示唆される"
+    explanation: "確証を伴わない断定は避ける。"
+
+# Evidence-level hedging guidance
+# Each label provides a list of expressions considered acceptable.
+evidence_level_language_map:
+  確定:
+    - "demonstrates"
+    - "strong evidence indicates"
+    - "明確に示す"
+  高信頼:
+    - "indicates"
+    - "supports"
+    - "示唆する"
+  要注意:
+    - "may"
+    - "could"
+    - "可能性がある"
+  推測:
+    - "hypothesized"
+    - "speculates"
+    - "かもしれない"
+
+# Backward-compatible keys for existing linters
 forbidden:
   - "causes"
   - "leads to"

@@ -10,6 +10,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
+from jarvis_core.evidence.uncertainty import determine_uncertainty_label
+
 
 class EvidenceLevel(Enum):
     """Oxford Centre for Evidence-Based Medicine (CEBM) Evidence Levels.
@@ -136,6 +138,7 @@ class EvidenceGrade:
     level: EvidenceLevel
     study_type: StudyType
     confidence: float  # 0.0 to 1.0
+    uncertainty_label: str | None = None
 
     # Optional details
     sample_size: int | None = None
@@ -152,6 +155,10 @@ class EvidenceGrade:
     classifier_source: str = "unknown"  # "rule", "llm", "ensemble"
     raw_scores: dict[str, float] = field(default_factory=dict)
 
+    def __post_init__(self) -> None:
+        if self.uncertainty_label is None:
+            self.uncertainty_label = determine_uncertainty_label(self.confidence)
+
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
@@ -159,6 +166,7 @@ class EvidenceGrade:
             "level_description": self.level.description,
             "study_type": self.study_type.value,
             "confidence": self.confidence,
+            "uncertainty_label": self.uncertainty_label,
             "sample_size": self.sample_size,
             "population": self.population,
             "intervention": self.intervention,
