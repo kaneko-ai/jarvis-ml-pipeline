@@ -13,6 +13,7 @@ import json
 import sys
 import os
 from pathlib import Path
+import textwrap
 
 
 def cmd_run(args):
@@ -407,6 +408,80 @@ def cmd_mcp(args):
                 print(f"Error: {result.error}", file=sys.stderr)
 
 
+def cmd_skills(args):
+    """Manage skills definitions and templates."""
+    from jarvis_core.skills.engine import SkillsEngine
+
+    engine = SkillsEngine(workspace_path=Path.cwd())
+
+    if args.skills_command == "list":
+        skills = engine.list_all_skills()
+        if args.json:
+            print(json.dumps(skills, ensure_ascii=False, indent=2))
+            return
+        print("=== Skills ===")
+        for skill in skills:
+            print(f"  • {skill['name']} ({skill['scope']}) - {skill['description']}")
+        return
+
+    if args.skills_command == "match":
+        matches = engine.match_skills(args.query)
+        if args.json:
+            print(json.dumps({"matches": matches}, ensure_ascii=False, indent=2))
+            return
+        if matches:
+            print("Matched skills:")
+            for name in matches:
+                print(f"  • {name}")
+        else:
+            print("No matching skills found.")
+        return
+
+    if args.skills_command == "show":
+        context = engine.get_context_for_llm([args.skill_name])
+        if not context:
+            print(f"Skill not found: {args.skill_name}", file=sys.stderr)
+            sys.exit(1)
+        if args.json:
+            print(json.dumps({"skill": args.skill_name, "context": context}, ensure_ascii=False, indent=2))
+        else:
+            print(context)
+        return
+
+    if args.skills_command == "init":
+        base_dir = Path.cwd() / ".agent" / "skills" / args.skill_name
+        base_dir.mkdir(parents=True, exist_ok=True)
+        skill_file = base_dir / "SKILL.md"
+        if skill_file.exists() and not args.force:
+            print(f"Skill already exists: {skill_file}", file=sys.stderr)
+            sys.exit(1)
+        template = textwrap.dedent(
+            f"""\
+            ---
+            name: {args.skill_name}
+            description: Skill description here.
+            triggers:
+              - "trigger phrase"
+            dependencies: []
+            ---
+            # {args.skill_name}
+
+            Describe how to use this skill.
+            """
+        ).strip()
+        skill_file.write_text(template + "\n", encoding="utf-8")
+        (base_dir / "resources").mkdir(exist_ok=True)
+        (base_dir / "scripts").mkdir(exist_ok=True)
+        if args.json:
+            print(json.dumps({"created": str(skill_file)}, ensure_ascii=False, indent=2))
+        else:
+            print(f"✅ Created skill template at {skill_file}")
+        return
+
+    print("Unknown skills command", file=sys.stderr)
+    sys.exit(1)
+
+
 def cmd_show_run(args):
     """Show run summary with fail reasons and missing artifacts (per DEC-006)."""
     from jarvis_core.storage import RunStore
@@ -595,6 +670,27 @@ def main():
     mcp_config_parser = mcp_subparsers.add_parser("config", help="Show MCP config path")
     mcp_config_parser.set_defaults(mcp_command="config")
 
+    # === skills command ===
+    skills_parser = subparsers.add_parser("skills", help="Manage skills")
+    skills_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    skills_subparsers = skills_parser.add_subparsers(dest="skills_command", help="Skills commands")
+
+    skills_list_parser = skills_subparsers.add_parser("list", help="List available skills")
+    skills_list_parser.set_defaults(skills_command="list")
+
+    skills_show_parser = skills_subparsers.add_parser("show", help="Show skill details")
+    skills_show_parser.add_argument("skill_name", type=str, help="Skill name")
+    skills_show_parser.set_defaults(skills_command="show")
+
+    skills_match_parser = skills_subparsers.add_parser("match", help="Match skills to a query")
+    skills_match_parser.add_argument("query", type=str, help="Query to match against triggers")
+    skills_match_parser.set_defaults(skills_command="match")
+
+    skills_init_parser = skills_subparsers.add_parser("init", help="Create a new skill template")
+    skills_init_parser.add_argument("skill_name", type=str, help="New skill name")
+    skills_init_parser.add_argument("--force", action="store_true", help="Overwrite existing skill")
+    skills_init_parser.set_defaults(skills_command="init")
+
     # === sync command ===
     sync_parser = subparsers.add_parser("sync", help="Process pending sync queue items")
 
@@ -647,6 +743,8 @@ def main():
         cmd_cache(args)
     elif args.command == "mcp":
         cmd_mcp(args)
+    elif args.command == "skills":
+        cmd_skills(args)
     elif args.command == "sync":
         from jarvis_core.sync.manager import SyncQueueManager
         manager = SyncQueueManager()

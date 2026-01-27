@@ -3,6 +3,13 @@
 from .pii_scan import PIIMatch, PIIScanner
 from .redaction import Redactor, redact_text
 from .storage_policy import StoragePolicy, check_storage_policy
+from .terminal_schema import (
+    CommandExecutionRequest,
+    CommandExecutionResult,
+    CommandPattern,
+    ExecutionPolicy,
+    TerminalSecurityConfig,
+)
 
 __all__ = [
     "Redactor",
@@ -11,4 +18,9 @@ __all__ = [
     "PIIMatch",
     "StoragePolicy",
     "check_storage_policy",
+    "ExecutionPolicy",
+    "CommandPattern",
+    "TerminalSecurityConfig",
+    "CommandExecutionRequest",
+    "CommandExecutionResult",
 ]
