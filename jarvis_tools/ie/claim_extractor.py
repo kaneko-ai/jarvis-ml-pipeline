@@ -2,6 +2,7 @@
 
 論文テキストから構造化された主張を抽出。
 """
+
 from __future__ import annotations
 
 import re
@@ -12,6 +13,7 @@ from typing import Any, Dict, List, Optional
 @dataclass
 class Claim:
     """単一の主張."""
+
     claim_id: str
     paper_id: str
     claim_text: str
@@ -35,6 +37,7 @@ class Claim:
 @dataclass
 class ExtractionResult:
     """抽出結果."""
+
     claims: List[Claim] = field(default_factory=list)
     warnings: List[Dict[str, Any]] = field(default_factory=list)
     stats: Dict[str, Any] = field(default_factory=dict)
@@ -42,7 +45,7 @@ class ExtractionResult:
 
 class ClaimExtractor:
     """主張抽出器.
-    
+
     論文テキストから以下の種類の主張を抽出:
     - fact: 実証された事実
     - hypothesis: 仮説・推測
@@ -102,13 +105,13 @@ class ClaimExtractor:
         sections: Optional[Dict[str, str]] = None,
     ) -> ExtractionResult:
         """テキストから主張を抽出.
-        
+
         Args:
             text: 論文テキスト（または抽象）
             paper_id: 論文ID
             paper_title: 論文タイトル
             sections: セクション別テキスト（オプション）
-            
+
         Returns:
             ExtractionResult
         """
@@ -150,7 +153,9 @@ class ClaimExtractor:
                     claim_count += 1
 
                     # 統計更新
-                    result.stats["by_type"][claim_type] = result.stats["by_type"].get(claim_type, 0) + 1
+                    result.stats["by_type"][claim_type] = (
+                        result.stats["by_type"].get(claim_type, 0) + 1
+                    )
 
         result.stats["total_claims"] = len(result.claims)
 
@@ -159,7 +164,7 @@ class ClaimExtractor:
     def _split_sentences(self, text: str) -> List[str]:
         """テキストを文に分割."""
         # 簡易的な文分割
-        sentences = re.split(r'(?<=[.!?])\s+', text)
+        sentences = re.split(r"(?<=[.!?])\s+", text)
         return [s.strip() for s in sentences if len(s.strip()) > 20]
 
     def _detect_claim_type(self, sentence: str) -> str:
@@ -180,7 +185,7 @@ class ClaimExtractor:
             return False
 
         # 参照のみの文は除外
-        if re.match(r'^[\[\d\],\s]+$', sentence):
+        if re.match(r"^[\[\d\],\s]+$", sentence):
             return False
 
         # 主張パターンにマッチするか
@@ -188,9 +193,20 @@ class ClaimExtractor:
 
         # 何らかの主張指標があるか
         claim_indicators = [
-            "show", "indicate", "suggest", "demonstrate", "reveal",
-            "found", "observed", "concluded", "determined", "established",
-            "significant", "important", "novel", "first",
+            "show",
+            "indicate",
+            "suggest",
+            "demonstrate",
+            "reveal",
+            "found",
+            "observed",
+            "concluded",
+            "determined",
+            "established",
+            "significant",
+            "important",
+            "novel",
+            "first",
         ]
 
         return any(ind in sentence_lower for ind in claim_indicators) or claim_type != "fact"
@@ -211,7 +227,7 @@ class ClaimExtractor:
             confidence -= 0.1
 
         # 数値データがあれば信頼度UP
-        if re.search(r'\d+\.\d+|p\s*[<>=]\s*\d', sentence_lower):
+        if re.search(r"\d+\.\d+|p\s*[<>=]\s*\d", sentence_lower):
             confidence += 0.15
 
         # タイプ別調整
@@ -225,6 +241,7 @@ class ClaimExtractor:
     def to_jsonl(self, result: ExtractionResult) -> str:
         """結果をJSONL形式に変換."""
         import json
+
         lines = []
         for claim in result.claims:
             lines.append(json.dumps(claim.to_dict(), ensure_ascii=False))

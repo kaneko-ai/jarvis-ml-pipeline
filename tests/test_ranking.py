@@ -13,7 +13,6 @@ from tempfile import TemporaryDirectory
 import pytest
 
 
-
 class TestRankingItem:
     """RankingItem tests."""
 

@@ -13,9 +13,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Type
 
-from jarvis_core.contracts.types import (
-    Artifacts, ArtifactsDelta, RuntimeConfig, TaskContext
-)
+from jarvis_core.contracts.types import Artifacts, ArtifactsDelta, RuntimeConfig, TaskContext
 
 
 @dataclass
@@ -23,6 +21,7 @@ class PluginMetadata:
     """
     プラグインメタデータ（plugin.jsonの内容）.
     """
+
     name: str
     version: str
     type: str  # retrieval, rerank, extract, summarize, score, graph, design, ui
@@ -45,7 +44,7 @@ class PluginMetadata:
             requires=data.get("requires", []),
             hardware=data.get("hardware", {}),
             config_schema=data.get("config_schema"),
-            description=data.get("description", "")
+            description=data.get("description", ""),
         )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -57,14 +56,14 @@ class PluginMetadata:
             "requires": self.requires,
             "hardware": self.hardware,
             "config_schema": self.config_schema,
-            "description": self.description
+            "description": self.description,
         }
 
 
 class BasePlugin(ABC):
     """
     プラグイン基底クラス.
-    
+
     全プラグインはこのクラスを継承し、
     activate/run/deactivate を実装する。
     """
@@ -79,7 +78,7 @@ class BasePlugin(ABC):
     def activate(self, runtime: RuntimeConfig, config: Dict[str, Any]) -> None:
         """
         プラグインをアクティベート（モデルロード、ウォームアップ等）.
-        
+
         Args:
             runtime: ランタイム設定
             config: プラグイン固有設定
@@ -90,11 +89,11 @@ class BasePlugin(ABC):
     def run(self, context: TaskContext, artifacts: Artifacts) -> ArtifactsDelta:
         """
         プラグインを実行し、成果物の差分を返す.
-        
+
         Args:
             context: タスクコンテキスト
             artifacts: 入力成果物
-        
+
         Returns:
             成果物の差分（追加・更新された部分）
         """
@@ -109,16 +108,13 @@ class BasePlugin(ABC):
 
     def get_info(self) -> Dict[str, Any]:
         """プラグイン情報を取得."""
-        return {
-            **self.metadata.to_dict(),
-            "is_active": self.is_active
-        }
+        return {**self.metadata.to_dict(), "is_active": self.is_active}
 
 
 class PluginRegistry:
     """
     プラグインレジストリ.
-    
+
     登録されたプラグインを管理する。
     """
 
@@ -127,8 +123,7 @@ class PluginRegistry:
         self._instances: Dict[str, BasePlugin] = {}
         self._metadata: Dict[str, PluginMetadata] = {}
 
-    def register(self, name: str, plugin_class: Type[BasePlugin],
-                 metadata: PluginMetadata) -> None:
+    def register(self, name: str, plugin_class: Type[BasePlugin], metadata: PluginMetadata) -> None:
         """プラグインを登録."""
         self._plugins[name] = plugin_class
         self._metadata[name] = metadata
@@ -147,11 +142,9 @@ class PluginRegistry:
 
     def list_by_type(self, plugin_type: str) -> List[str]:
         """タイプ別プラグインリスト."""
-        return [name for name, meta in self._metadata.items()
-                if meta.type == plugin_type]
+        return [name for name, meta in self._metadata.items() if meta.type == plugin_type]
 
-    def activate_all(self, runtime: RuntimeConfig,
-                     configs: Dict[str, Dict[str, Any]]) -> None:
+    def activate_all(self, runtime: RuntimeConfig, configs: Dict[str, Dict[str, Any]]) -> None:
         """全プラグインをアクティベート."""
         for name in self._plugins:
             plugin = self.get(name)
@@ -169,7 +162,7 @@ class PluginRegistry:
 class PluginLoader:
     """
     プラグインローダー.
-    
+
     plugins/ ディレクトリからプラグインを動的に読み込む。
     """
 
@@ -238,7 +231,6 @@ def get_plugin_registry() -> PluginRegistry:
     return _global_registry
 
 
-def register_plugin(name: str, plugin_class: Type[BasePlugin],
-                    metadata: PluginMetadata) -> None:
+def register_plugin(name: str, plugin_class: Type[BasePlugin], metadata: PluginMetadata) -> None:
     """プラグインをグローバルレジストリに登録."""
     get_plugin_registry().register(name, plugin_class, metadata)

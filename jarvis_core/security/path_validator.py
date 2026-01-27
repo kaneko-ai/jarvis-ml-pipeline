@@ -7,6 +7,7 @@ from typing import Set
 
 class ForbiddenPathError(ValueError):
     """Raised when a path is forbidden for security reasons."""
+
     pass
 
 
@@ -28,7 +29,10 @@ class PathValidator:
         """
         self.base_dir = Path(base_dir).resolve()
         self.allowed_extensions = (
-            {ext.lower() if ext.startswith(".") else f".{ext.lower()}" for ext in allowed_extensions}
+            {
+                ext.lower() if ext.startswith(".") else f".{ext.lower()}"
+                for ext in allowed_extensions
+            }
             if allowed_extensions
             else None
         )

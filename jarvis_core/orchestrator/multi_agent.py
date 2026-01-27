@@ -1,4 +1,5 @@
 """Core multi-agent orchestrator implementation."""
+
 from __future__ import annotations
 
 import asyncio
@@ -72,7 +73,9 @@ class MultiAgentOrchestrator:
         await self._queue.put((agent_id, task, instance.mode, conversation_id))
         return agent_id
 
-    def register_callback(self, event_type: str, callback: Callable[[dict[str, Any]], Awaitable[None]]) -> None:
+    def register_callback(
+        self, event_type: str, callback: Callable[[dict[str, Any]], Awaitable[None]]
+    ) -> None:
         if event_type not in self._callbacks:
             raise ValueError(f"Unsupported event type: {event_type}")
         self._callbacks[event_type].append(callback)
@@ -213,9 +216,7 @@ class MultiAgentOrchestrator:
         data["status"] = instance.status.value
         data["mode"] = instance.mode.value
         data["started_at"] = instance.started_at.isoformat() if instance.started_at else None
-        data["completed_at"] = (
-            instance.completed_at.isoformat() if instance.completed_at else None
-        )
+        data["completed_at"] = instance.completed_at.isoformat() if instance.completed_at else None
         data["task"]["created_at"] = instance.task.created_at.isoformat()
         return data
 

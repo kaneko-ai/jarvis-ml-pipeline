@@ -13,7 +13,7 @@ class TestArtifactsMega:
 
     def test_3(self):
         try:
-            from jarvis_core.artifacts import claim_set
+            from jarvis_core.artifacts import claim_set  # noqa: F401
         except ImportError:
             pass
 

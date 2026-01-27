@@ -2,6 +2,7 @@
 
 Per RP-107, provides domain-specific rate limiting.
 """
+
 from __future__ import annotations
 
 import time
@@ -73,7 +74,7 @@ class RateLimiter:
     def calculate_backoff(self, domain: str, attempt: int) -> float:
         """Calculate backoff delay for retry attempt."""
         config = self.get_config(domain)
-        delay = config.min_interval_seconds * (config.backoff_base ** attempt)
+        delay = config.min_interval_seconds * (config.backoff_base**attempt)
         return min(delay, config.max_backoff_seconds)
 
     def should_retry(self, domain: str, attempt: int) -> bool:

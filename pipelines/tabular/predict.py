@@ -17,11 +17,11 @@ logger = logging.getLogger(__name__)
 def predict(model: Any, X: np.ndarray) -> np.ndarray:
     """
     推論を実行.
-    
+
     Args:
         model: 学習済みモデル
         X: 特徴量
-    
+
     Returns:
         予測値
     """

@@ -46,5 +46,6 @@ def main() -> None:
     print("\n=== Jarvis の回答 ===\n")
     print(answer)
 
+
 if __name__ == "__main__":
     main()

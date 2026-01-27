@@ -2,6 +2,7 @@
 
 Per RP-320, integrates UMLS for medical term standardization.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -33,7 +34,7 @@ class NormalizedEntity:
 
 class UMLSIntegration:
     """Integrates with UMLS Metathesaurus.
-    
+
     Per RP-320:
     - UMLS Metathesaurus API integration
     - CUI-based entity normalization
@@ -91,10 +92,10 @@ class UMLSIntegration:
 
     def normalize(self, term: str) -> NormalizedEntity:
         """Normalize a term to UMLS.
-        
+
         Args:
             term: The term to normalize.
-            
+
         Returns:
             NormalizedEntity with UMLS mapping.
         """
@@ -151,10 +152,10 @@ class UMLSIntegration:
 
     def get_hierarchy(self, cui: str) -> Dict[str, List[str]]:
         """Get concept hierarchy.
-        
+
         Args:
             cui: UMLS CUI.
-            
+
         Returns:
             Dict with 'parents', 'children', 'siblings'.
         """
@@ -167,10 +168,10 @@ class UMLSIntegration:
 
     def expand_with_synonyms(self, term: str) -> List[str]:
         """Expand term with UMLS synonyms.
-        
+
         Args:
             term: The term to expand.
-            
+
         Returns:
             List of synonyms including original.
         """

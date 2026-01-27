@@ -105,9 +105,7 @@ def run_search(query: str, top_k: int = 5) -> List[Dict[str, Any]]:
         paper_id = (
             str(c.get("paper_id"))
             if "paper_id" in c
-            else str(c.get("pmid"))
-            if "pmid" in c
-            else str(c.get("id", idx))
+            else str(c.get("pmid")) if "pmid" in c else str(c.get("id", idx))
         )
 
         m = META.get(paper_id, {})
@@ -128,6 +126,7 @@ def run_search(query: str, top_k: int = 5) -> List[Dict[str, Any]]:
 # ======================================================
 # 2. HTTP サーバ
 # ======================================================
+
 
 class CD73Handler(BaseHTTPRequestHandler):
     def do_GET(self):

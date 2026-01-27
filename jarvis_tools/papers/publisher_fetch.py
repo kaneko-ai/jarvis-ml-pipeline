@@ -2,6 +2,7 @@
 
 Per RP-103, fetches papers from publisher URLs via DOI resolution.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -66,24 +67,28 @@ def resolve_doi_to_candidates(doi: str) -> List[FetchCandidate]:
 
     # Primary: doi.org redirect URL
     doi_url = f"https://doi.org/{doi}"
-    candidates.append(FetchCandidate(
-        url=doi_url,
-        source="doi",
-        domain="doi.org",
-        priority=1,
-        notes="DOI resolver redirect",
-    ))
+    candidates.append(
+        FetchCandidate(
+            url=doi_url,
+            source="doi",
+            domain="doi.org",
+            priority=1,
+            notes="DOI resolver redirect",
+        )
+    )
 
     # Check for known OA patterns
     if "pmc" in doi.lower() or "nih" in doi.lower():
-        candidates.append(FetchCandidate(
-            url=f"https://www.ncbi.nlm.nih.gov/pmc/articles/{doi}/pdf/",
-            source="pmc",
-            domain="ncbi.nlm.nih.gov",
-            priority=0,
-            is_oa=True,
-            notes="PMC OA",
-        ))
+        candidates.append(
+            FetchCandidate(
+                url=f"https://www.ncbi.nlm.nih.gov/pmc/articles/{doi}/pdf/",
+                source="pmc",
+                domain="ncbi.nlm.nih.gov",
+                priority=0,
+                is_oa=True,
+                notes="PMC OA",
+            )
+        )
 
     return candidates
 

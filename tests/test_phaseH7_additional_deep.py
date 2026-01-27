@@ -229,7 +229,7 @@ class TestPretrainMetaCoreDeep:
 
 class TestPrismaDeep:
     def test_deep(self):
-        from jarvis_core import prisma
+        from jarvis_core.experimental import prisma
 
         deep_test_module(prisma)
 

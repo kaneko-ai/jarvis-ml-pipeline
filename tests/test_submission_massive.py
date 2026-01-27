@@ -18,6 +18,7 @@ class TestModule:
     def test_module(self):
         try:
             import jarvis_core.submission
+
             assert jarvis_core.submission is not None
         except ImportError:
             pass

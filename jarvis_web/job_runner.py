@@ -602,7 +602,9 @@ def run_feedback_analysis(job_id: str, payload: Dict[str, Any]) -> None:
 def run_writing_generate(job_id: str, payload: Dict[str, Any]) -> None:
     # Stub for writing generation
     jobs.set_status(job_id, "success")
-    jobs.append_event(job_id, {"message": "writing_generate not implemented yet", "level": "warning"})
+    jobs.append_event(
+        job_id, {"message": "writing_generate not implemented yet", "level": "warning"}
+    )
 
 
 def _maybe_generate_exports(job_id: str, payload: Dict[str, Any]) -> None:

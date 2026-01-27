@@ -1,4 +1,5 @@
 """Slash command parser for workflows."""
+
 from __future__ import annotations
 
 

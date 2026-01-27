@@ -2,6 +2,7 @@
 
 PubMed/PMC OA論文収集。
 """
+
 from __future__ import annotations
 
 import json
@@ -20,6 +21,7 @@ PMC_OA_URL = "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi"
 @dataclass
 class CollectedPaper:
     """収集された論文."""
+
     pmid: str
     pmcid: str = ""
     title: str = ""
@@ -51,6 +53,7 @@ class CollectedPaper:
 @dataclass
 class CollectionResult:
     """収集結果."""
+
     papers: List[CollectedPaper] = field(default_factory=list)
     total_found: int = 0
     collected: int = 0
@@ -69,7 +72,7 @@ class CollectionResult:
 
 class PubMedCollector:
     """PubMed論文収集器.
-    
+
     E-utilities APIを使用してPubMed/PMCから論文を収集。
     """
 
@@ -91,12 +94,12 @@ class PubMedCollector:
         oa_only: bool = False,
     ) -> CollectionResult:
         """PubMed検索.
-        
+
         Args:
             query: 検索クエリ
             max_results: 最大結果数
             oa_only: OAのみ
-            
+
         Returns:
             CollectionResult
         """
@@ -112,10 +115,12 @@ class PubMedCollector:
             pmids = self._esearch(search_query, max_results)
             result.total_found = len(pmids)
         except Exception as e:
-            result.warnings.append({
-                "code": "SEARCH_ERROR",
-                "message": str(e),
-            })
+            result.warnings.append(
+                {
+                    "code": "SEARCH_ERROR",
+                    "message": str(e),
+                }
+            )
             return result
 
         if not pmids:
@@ -127,10 +132,12 @@ class PubMedCollector:
             result.papers = papers
             result.collected = len(papers)
         except Exception as e:
-            result.warnings.append({
-                "code": "FETCH_ERROR",
-                "message": str(e),
-            })
+            result.warnings.append(
+                {
+                    "code": "FETCH_ERROR",
+                    "message": str(e),
+                }
+            )
 
         return result
 
@@ -166,7 +173,7 @@ class PubMedCollector:
 
         # バッチ処理（最大200件ずつ）
         for i in range(0, len(pmids), 200):
-            batch = pmids[i:i+200]
+            batch = pmids[i : i + 200]
 
             params = {
                 "db": "pubmed",
@@ -202,31 +209,33 @@ class PubMedCollector:
         papers = []
 
         # 簡易XMLパース（完全なXMLパーサーを使うべきだが、軽量化のため）
-        article_pattern = r'<PubmedArticle>(.*?)</PubmedArticle>'
+        article_pattern = r"<PubmedArticle>(.*?)</PubmedArticle>"
 
         for match in re.finditer(article_pattern, xml_content, re.DOTALL):
             article_xml = match.group(1)
 
             # PMID
-            pmid_match = re.search(r'<PMID[^>]*>(\d+)</PMID>', article_xml)
+            pmid_match = re.search(r"<PMID[^>]*>(\d+)</PMID>", article_xml)
             pmid = pmid_match.group(1) if pmid_match else ""
 
             # Title
-            title_match = re.search(r'<ArticleTitle>(.*?)</ArticleTitle>', article_xml, re.DOTALL)
+            title_match = re.search(r"<ArticleTitle>(.*?)</ArticleTitle>", article_xml, re.DOTALL)
             title = title_match.group(1) if title_match else ""
-            title = re.sub(r'<[^>]+>', '', title)  # HTMLタグ除去
+            title = re.sub(r"<[^>]+>", "", title)  # HTMLタグ除去
 
             # Abstract
-            abstract_match = re.search(r'<AbstractText[^>]*>(.*?)</AbstractText>', article_xml, re.DOTALL)
+            abstract_match = re.search(
+                r"<AbstractText[^>]*>(.*?)</AbstractText>", article_xml, re.DOTALL
+            )
             abstract = abstract_match.group(1) if abstract_match else ""
-            abstract = re.sub(r'<[^>]+>', '', abstract)
+            abstract = re.sub(r"<[^>]+>", "", abstract)
 
             # Year
-            year_match = re.search(r'<PubDate>.*?<Year>(\d{4})</Year>', article_xml, re.DOTALL)
+            year_match = re.search(r"<PubDate>.*?<Year>(\d{4})</Year>", article_xml, re.DOTALL)
             year = int(year_match.group(1)) if year_match else 0
 
             # Journal
-            journal_match = re.search(r'<Title>(.*?)</Title>', article_xml)
+            journal_match = re.search(r"<Title>(.*?)</Title>", article_xml)
             journal = journal_match.group(1) if journal_match else ""
 
             # DOI
@@ -237,16 +246,18 @@ class PubMedCollector:
             pmcid_match = re.search(r'<ArticleId IdType="pmc">(PMC\d+)</ArticleId>', article_xml)
             pmcid = pmcid_match.group(1) if pmcid_match else ""
 
-            papers.append(CollectedPaper(
-                pmid=pmid,
-                pmcid=pmcid,
-                title=title,
-                abstract=abstract,
-                year=year,
-                journal=journal,
-                doi=doi,
-                is_oa=bool(pmcid),
-            ))
+            papers.append(
+                CollectedPaper(
+                    pmid=pmid,
+                    pmcid=pmcid,
+                    title=title,
+                    abstract=abstract,
+                    year=year,
+                    journal=journal,
+                    doi=doi,
+                    is_oa=bool(pmcid),
+                )
+            )
 
         return papers
 

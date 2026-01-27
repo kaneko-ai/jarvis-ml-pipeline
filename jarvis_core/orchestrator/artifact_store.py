@@ -1,4 +1,5 @@
 """Artifact storage for orchestrator agents."""
+
 from __future__ import annotations
 
 from pathlib import Path

@@ -1,4 +1,5 @@
 """Orchestrator API endpoints."""
+
 from __future__ import annotations
 
 import uuid
@@ -33,7 +34,9 @@ _orchestrator: MultiAgentOrchestrator | None = None
 def _get_orchestrator() -> MultiAgentOrchestrator:
     global _orchestrator
     if _orchestrator is None:
-        _orchestrator = MultiAgentOrchestrator(max_concurrent_agents=3, default_mode=AgentMode.PLANNING)
+        _orchestrator = MultiAgentOrchestrator(
+            max_concurrent_agents=3, default_mode=AgentMode.PLANNING
+        )
     return _orchestrator
 
 
@@ -54,7 +57,9 @@ async def spawn_agent(payload: SpawnAgentRequest) -> dict[str, Any]:
         dependencies=payload.dependencies,
     )
     mode = AgentMode(payload.mode) if payload.mode else None
-    agent_id = await orchestrator.spawn_agent(task, mode=mode, conversation_id=payload.conversation_id)
+    agent_id = await orchestrator.spawn_agent(
+        task, mode=mode, conversation_id=payload.conversation_id
+    )
     return {"agent_id": agent_id}
 
 

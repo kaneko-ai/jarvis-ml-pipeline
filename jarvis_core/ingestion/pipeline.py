@@ -115,7 +115,9 @@ class PDFExtractor:
         except ImportError:
             pass
 
-    def extract(self, filepath: Path, validator: PathValidator | None = None) -> tuple[str, list[tuple[int, str]]]:
+    def extract(
+        self, filepath: Path, validator: PathValidator | None = None
+    ) -> tuple[str, list[tuple[int, str]]]:
         """PDFからテキストを抽出.
 
         Returns:

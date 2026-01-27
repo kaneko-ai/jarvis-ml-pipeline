@@ -2,6 +2,7 @@
 
 Per RP-322, extracts relations with high precision.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -70,7 +71,7 @@ RELATION_PATTERNS = {
 
 class RelationExtractor:
     """Extracts biomedical relations.
-    
+
     Per RP-322:
     - High precision relation extraction
     - Confidence scoring
@@ -91,11 +92,11 @@ class RelationExtractor:
         entities: Optional[List[Dict]] = None,
     ) -> List[ExtractedRelation]:
         """Extract relations from text.
-        
+
         Args:
             text: Input text.
             entities: Optional pre-extracted entities.
-            
+
         Returns:
             List of extracted relations.
         """
@@ -116,16 +117,18 @@ class RelationExtractor:
                     confidence = self._calculate_confidence(match, text)
 
                     if confidence >= self.min_confidence:
-                        relations.append(ExtractedRelation(
-                            subject=subj,
-                            subject_type=self._infer_type(subj),
-                            relation=rel_type,
-                            object=obj,
-                            object_type=self._infer_type(obj),
-                            confidence=confidence,
-                            evidence=match.group(0),
-                            source_span=(match.start(), match.end()),
-                        ))
+                        relations.append(
+                            ExtractedRelation(
+                                subject=subj,
+                                subject_type=self._infer_type(subj),
+                                relation=rel_type,
+                                object=obj,
+                                object_type=self._infer_type(obj),
+                                confidence=confidence,
+                                evidence=match.group(0),
+                                source_span=(match.start(), match.end()),
+                            )
+                        )
 
         # Model-based extraction (if available)
         if self.model:
@@ -205,14 +208,11 @@ class RelationExtractor:
         relations: List[ExtractedRelation],
     ) -> List[Tuple[str, str, str]]:
         """Convert to simple triples.
-        
+
         Args:
             relations: Extracted relations.
-            
+
         Returns:
             List of (subject, predicate, object) tuples.
         """
-        return [
-            (r.subject, r.relation.value, r.object)
-            for r in relations
-        ]
+        return [(r.subject, r.relation.value, r.object) for r in relations]

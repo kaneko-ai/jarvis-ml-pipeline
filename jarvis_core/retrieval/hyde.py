@@ -64,7 +64,9 @@ class HyDE:
 
         import hashlib
 
-        idx = int(hashlib.md5(query.encode(), usedforsecurity=False).hexdigest(), 16) % len(templates)
+        idx = int(hashlib.md5(query.encode(), usedforsecurity=False).hexdigest(), 16) % len(
+            templates
+        )
         return templates[idx]
 
     def expand_query(self, query: str) -> HyDEResult:

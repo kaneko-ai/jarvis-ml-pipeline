@@ -20,7 +20,6 @@ from tempfile import TemporaryDirectory
 import pytest
 
 
-
 class TestSnapshotCreation:
     """スナップショット作成テスト."""
 

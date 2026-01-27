@@ -72,7 +72,11 @@ def test_full_integration_flow(tmp_path, monkeypatch):
         headers={},
         status=MCPServerStatus.DISCONNECTED,
     )
-    server.tools = [MCPTool(name="search", description="Search", parameters={}, required_params=[], enabled=True)]
+    server.tools = [
+        MCPTool(
+            name="search", description="Search", parameters={}, required_params=[], enabled=True
+        )
+    ]
     hub.register_server(server)
 
     def fake_request(method, url, headers=None, json=None, timeout=None):

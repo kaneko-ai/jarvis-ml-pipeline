@@ -2,6 +2,7 @@
 
 Per RP-10, provides adapters for paper retrieval with safe defaults.
 """
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

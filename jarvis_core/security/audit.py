@@ -64,7 +64,10 @@ class AuditLogger:
         timestamp = datetime.utcnow().isoformat()
         date_key = timestamp.split("T")[0]
         prev_hash = self._last_hash.get(date_key)
-        payload = json.dumps({"timestamp": timestamp, "action": action, "user": user, "details": details}, sort_keys=True)
+        payload = json.dumps(
+            {"timestamp": timestamp, "action": action, "user": user, "details": details},
+            sort_keys=True,
+        )
         entry_hash = hashlib.sha256(f"{prev_hash or ''}{payload}".encode("utf-8")).hexdigest()
         entry = AuditEntry(
             timestamp=timestamp,

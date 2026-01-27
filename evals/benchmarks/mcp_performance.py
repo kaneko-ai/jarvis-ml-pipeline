@@ -60,7 +60,11 @@ def run_benchmark(output_path: str = "results/mcp_benchmark.json") -> dict:
         headers={},
         status=MCPServerStatus.DISCONNECTED,
     )
-    server.tools = [MCPTool(name="search", description="Search", parameters={}, required_params=[], enabled=True)]
+    server.tools = [
+        MCPTool(
+            name="search", description="Search", parameters={}, required_params=[], enabled=True
+        )
+    ]
     hub.register_server(server)
 
     original_request = requests.request

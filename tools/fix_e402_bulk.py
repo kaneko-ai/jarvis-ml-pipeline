@@ -1,14 +1,14 @@
 import os
-import re
+
 
 def fix_e402(path):
     with open(path, "r", encoding="utf-8") as f:
         lines = f.readlines()
-    
+
     docstring = []
     imports = []
     others = []
-    
+
     i = 0
     # Collect docstring if it exists at the top
     while i < len(lines):
@@ -23,7 +23,7 @@ def fix_e402(path):
                 others.append(line)
                 i += 1
                 continue
-        
+
         if stripped.startswith('"""') or stripped.startswith("'''"):
             if not others:
                 quote = '"""' if stripped.startswith('"""') else "'''"
@@ -37,15 +37,19 @@ def fix_e402(path):
                         docstring.append(lines[i])
                 i += 1
                 continue
-        
+
         break
-    
+
     # Process the rest
     while i < len(lines):
         line = lines[i]
         stripped = line.strip()
-        is_top_level_import = (line.startswith("import ") or line.startswith("from ")) and not line.startswith(" ") and not line.startswith("\t")
-        
+        is_top_level_import = (
+            (line.startswith("import ") or line.startswith("from "))
+            and not line.startswith(" ")
+            and not line.startswith("\t")
+        )
+
         if is_top_level_import:
             # Multi-line import check (parentheses)
             imports.append(line)
@@ -64,11 +68,14 @@ def fix_e402(path):
     # Check for __future__
     future_imports = [imp for imp in imports if "from __future__" in imp]
     regular_imports = [imp for imp in imports if "from __future__" not in imp]
-    
-    new_content = "".join(docstring) + "".join(future_imports) + "".join(regular_imports) + "".join(others)
-    
+
+    new_content = (
+        "".join(docstring) + "".join(future_imports) + "".join(regular_imports) + "".join(others)
+    )
+
     with open(path, "w", encoding="utf-8") as f:
         f.write(new_content)
+
 
 if __name__ == "__main__":
     with open("e402_violations_refined.txt", "r", encoding="utf-8") as f:
@@ -76,7 +83,7 @@ if __name__ == "__main__":
         for line in f:
             if ":" in line:
                 files_to_fix.add(line.split(":")[0])
-    
+
     for path in files_to_fix:
         if os.path.exists(path):
             print(f"Fixing {path}")

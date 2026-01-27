@@ -2,6 +2,7 @@
 
 論文選抜ロジック。免疫/がん/抗体創薬向けの論文フィルタリング。
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -11,6 +12,7 @@ from typing import Any, Dict, List, Optional
 @dataclass
 class SelectionCriteria:
     """選抜基準."""
+
     min_year: int = 2015
     max_year: int = 2030
     require_abstract: bool = True
@@ -25,9 +27,19 @@ class SelectionCriteria:
         return cls(
             min_year=2015,
             domain_keywords=[
-                "immunotherapy", "checkpoint", "pd-1", "pd-l1", "ctla-4",
-                "car-t", "t cell", "nk cell", "tumor microenvironment",
-                "adenosine", "cd73", "cd39", "a2a",
+                "immunotherapy",
+                "checkpoint",
+                "pd-1",
+                "pd-l1",
+                "ctla-4",
+                "car-t",
+                "t cell",
+                "nk cell",
+                "tumor microenvironment",
+                "adenosine",
+                "cd73",
+                "cd39",
+                "a2a",
             ],
             exclude_types=["review", "meta-analysis", "commentary", "letter", "editorial"],
         )
@@ -38,9 +50,18 @@ class SelectionCriteria:
         return cls(
             min_year=2018,
             domain_keywords=[
-                "antibody", "monoclonal", "bispecific", "adc", "adcc",
-                "fc receptor", "binding affinity", "epitope", "humanization",
-                "phage display", "hybridoma", "single domain",
+                "antibody",
+                "monoclonal",
+                "bispecific",
+                "adc",
+                "adcc",
+                "fc receptor",
+                "binding affinity",
+                "epitope",
+                "humanization",
+                "phage display",
+                "hybridoma",
+                "single domain",
             ],
             exclude_types=["review", "meta-analysis"],
         )
@@ -49,6 +70,7 @@ class SelectionCriteria:
 @dataclass
 class SelectionResult:
     """選抜結果."""
+
     paper_id: str
     include: bool
     relevance_score: float
@@ -66,6 +88,7 @@ class SelectionResult:
 @dataclass
 class SelectionSummary:
     """選抜サマリ."""
+
     results: List[SelectionResult] = field(default_factory=list)
     included: int = 0
     excluded: int = 0
@@ -80,7 +103,7 @@ class SelectionSummary:
 
 class PaperSelector:
     """論文選抜器.
-    
+
     基準に基づいて論文を選抜。
     """
 
@@ -89,10 +112,10 @@ class PaperSelector:
 
     def select(self, papers: List[Dict[str, Any]]) -> SelectionSummary:
         """論文を選抜.
-        
+
         Args:
             papers: 論文リスト
-            
+
         Returns:
             SelectionSummary
         """
@@ -118,17 +141,14 @@ class PaperSelector:
         k: int = 10,
     ) -> List[Dict[str, Any]]:
         """上位k件を選抜.
-        
+
         Returns:
             選抜された論文リスト
         """
         summary = self.select(papers)
 
         # include=Trueの上位k件
-        selected_ids = [
-            r.paper_id for r in summary.results
-            if r.include
-        ][:k]
+        selected_ids = [r.paper_id for r in summary.results if r.include][:k]
 
         return [p for p in papers if p.get("paper_id") in selected_ids]
 

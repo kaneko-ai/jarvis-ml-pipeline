@@ -1,17 +1,17 @@
 import sys
-import os
 import spec_lint
 from pathlib import Path
 
 # Fix formatting for console output if needed
-sys.stdout.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding="utf-8")
 
 docs_dir = Path("docs")
 files = list(docs_dir.glob("**/*.md"))
 all_violations = []
 
 for md_file in files:
-    if not md_file.exists(): continue
+    if not md_file.exists():
+        continue
     try:
         violations = spec_lint.check_file(md_file)
         all_violations.extend(violations)

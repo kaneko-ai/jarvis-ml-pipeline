@@ -17,7 +17,6 @@ from tempfile import TemporaryDirectory
 import pytest
 
 
-
 class TestGoldsetIndex:
     """GoldsetIndex テスト."""
 

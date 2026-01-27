@@ -695,7 +695,9 @@ class BrowserSessionManager:
 
     def create_session(self, name: str) -> str:
         """Create new session."""
-        session_id = hashlib.md5(f"{name}_{time.time()}".encode(), usedforsecurity=False).hexdigest()[:8]
+        session_id = hashlib.md5(
+            f"{name}_{time.time()}".encode(), usedforsecurity=False
+        ).hexdigest()[:8]
         self.sessions[session_id] = {
             "name": name,
             "created": datetime.now().isoformat(),

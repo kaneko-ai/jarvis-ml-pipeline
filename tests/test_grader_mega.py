@@ -7,13 +7,13 @@ import pytest
 class TestGraderMega:
     def test_1(self):
         try:
-            from jarvis_core import grader
+            from jarvis_core import grader  # noqa: F401
         except ImportError:
             pass
 
     def test_2(self):
         try:
-            import jarvis_core.grader
+            import jarvis_core.grader  # noqa: F401
         except ImportError:
             pass
 

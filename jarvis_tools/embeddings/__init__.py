@@ -1,4 +1,5 @@
 """Embeddings package."""
+
 from .cpu_embedder import (
     CPUEmbedder,
     EmbeddingResult,

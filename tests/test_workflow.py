@@ -31,7 +31,6 @@ from tempfile import TemporaryDirectory
 import pytest
 
 
-
 class TestWorkflowSpec:
     """WorkflowSpec tests."""
 

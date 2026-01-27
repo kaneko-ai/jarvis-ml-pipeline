@@ -35,6 +35,10 @@ def check_retraction(doi: str) -> RetractionStatus:
                 source_url=item.get("url", source_url),
             )
     except requests.RequestException:
-        return RetractionStatus(is_retracted=False, retraction_date=None, reason="unavailable", source_url=source_url)
+        return RetractionStatus(
+            is_retracted=False, retraction_date=None, reason="unavailable", source_url=source_url
+        )
 
-    return RetractionStatus(is_retracted=False, retraction_date=None, reason=None, source_url=source_url)
+    return RetractionStatus(
+        is_retracted=False, retraction_date=None, reason=None, source_url=source_url
+    )

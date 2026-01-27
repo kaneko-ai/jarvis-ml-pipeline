@@ -1,4 +1,5 @@
 """Information Extraction tools."""
+
 from .evidence_extractor import (
     EvidenceExtractor,
     Evidence,
@@ -24,4 +25,3 @@ __all__ = [
     "ClaimExtractionResult",
     "extract_claims",
 ]
-

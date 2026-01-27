@@ -10,6 +10,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 # ========== ロード系 ==========
 
+
 def load_chunks(chunks_path: pathlib.Path) -> List[Dict[str, Any]]:
     """chunks.jsonl を読み込んで list[dict] にする"""
     chunks: List[Dict[str, Any]] = []
@@ -85,6 +86,7 @@ def load_metadata(meta_path: pathlib.Path) -> Dict[str, Dict[str, Any]]:
 
 # ========== 検索系 ==========
 
+
 def build_tfidf_index(chunks: List[Dict[str, Any]]):
     """チャンクの text から TF-IDF ベクトルを作成"""
 
@@ -130,11 +132,11 @@ def search(
         paper_id = (
             str(chunk.get("paper_id"))
             if "paper_id" in chunk
-            else str(chunk.get("pmid"))
-            if "pmid" in chunk
-            else str(chunk.get("id"))
-            if "id" in chunk
-            else str(idx)
+            else (
+                str(chunk.get("pmid"))
+                if "pmid" in chunk
+                else str(chunk.get("id")) if "id" in chunk else str(idx)
+            )
         )
 
         meta = meta_dict.get(paper_id, {})
@@ -158,6 +160,7 @@ def search(
 
 
 # ========== main ==========
+
 
 def main():
     parser = argparse.ArgumentParser()

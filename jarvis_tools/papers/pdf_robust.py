@@ -2,6 +2,7 @@
 
 Per RP-108, provides PDF extraction with fallback chain.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -53,26 +54,32 @@ def extract_with_pymupdf(pdf_path: str) -> Result[PDFExtractResult]:
         page_count = len(doc)
         doc.close()
 
-        return Result.success(PDFExtractResult(
-            text=text,
-            engine_used=PDFEngine.PYMUPDF,
-            page_count=page_count,
-            char_count=len(text),
-            warnings=[],
-        ))
+        return Result.success(
+            PDFExtractResult(
+                text=text,
+                engine_used=PDFEngine.PYMUPDF,
+                page_count=page_count,
+                char_count=len(text),
+                warnings=[],
+            )
+        )
 
     except ImportError:
-        return Result.fail(ErrorRecord(
-            error_type="ImportError",
-            message="PyMuPDF not installed",
-            recoverable=True,
-        ))
+        return Result.fail(
+            ErrorRecord(
+                error_type="ImportError",
+                message="PyMuPDF not installed",
+                recoverable=True,
+            )
+        )
     except Exception as e:
-        return Result.fail(ErrorRecord(
-            error_type=type(e).__name__,
-            message=str(e),
-            recoverable=True,
-        ))
+        return Result.fail(
+            ErrorRecord(
+                error_type=type(e).__name__,
+                message=str(e),
+                recoverable=True,
+            )
+        )
 
 
 def extract_with_pdfminer(pdf_path: str) -> Result[PDFExtractResult]:
@@ -82,26 +89,32 @@ def extract_with_pdfminer(pdf_path: str) -> Result[PDFExtractResult]:
 
         text = extract_text(pdf_path)
 
-        return Result.success(PDFExtractResult(
-            text=text,
-            engine_used=PDFEngine.PDFMINER,
-            page_count=0,  # pdfminer doesn't easily give page count
-            char_count=len(text),
-            warnings=[],
-        ))
+        return Result.success(
+            PDFExtractResult(
+                text=text,
+                engine_used=PDFEngine.PDFMINER,
+                page_count=0,  # pdfminer doesn't easily give page count
+                char_count=len(text),
+                warnings=[],
+            )
+        )
 
     except ImportError:
-        return Result.fail(ErrorRecord(
-            error_type="ImportError",
-            message="pdfminer not installed",
-            recoverable=True,
-        ))
+        return Result.fail(
+            ErrorRecord(
+                error_type="ImportError",
+                message="pdfminer not installed",
+                recoverable=True,
+            )
+        )
     except Exception as e:
-        return Result.fail(ErrorRecord(
-            error_type=type(e).__name__,
-            message=str(e),
-            recoverable=True,
-        ))
+        return Result.fail(
+            ErrorRecord(
+                error_type=type(e).__name__,
+                message=str(e),
+                recoverable=True,
+            )
+        )
 
 
 def extract_with_pypdf2(pdf_path: str) -> Result[PDFExtractResult]:
@@ -116,26 +129,32 @@ def extract_with_pypdf2(pdf_path: str) -> Result[PDFExtractResult]:
 
         text = "\n".join(text_parts)
 
-        return Result.success(PDFExtractResult(
-            text=text,
-            engine_used=PDFEngine.PYPDF2,
-            page_count=len(reader.pages),
-            char_count=len(text),
-            warnings=[],
-        ))
+        return Result.success(
+            PDFExtractResult(
+                text=text,
+                engine_used=PDFEngine.PYPDF2,
+                page_count=len(reader.pages),
+                char_count=len(text),
+                warnings=[],
+            )
+        )
 
     except ImportError:
-        return Result.fail(ErrorRecord(
-            error_type="ImportError",
-            message="PyPDF2 not installed",
-            recoverable=True,
-        ))
+        return Result.fail(
+            ErrorRecord(
+                error_type="ImportError",
+                message="PyPDF2 not installed",
+                recoverable=True,
+            )
+        )
     except Exception as e:
-        return Result.fail(ErrorRecord(
-            error_type=type(e).__name__,
-            message=str(e),
-            recoverable=True,
-        ))
+        return Result.fail(
+            ErrorRecord(
+                error_type=type(e).__name__,
+                message=str(e),
+                recoverable=True,
+            )
+        )
 
 
 # Engine chain (order of fallback)
@@ -178,11 +197,13 @@ def extract_pdf_with_chain(pdf_path: str) -> ChainExtractResult:
                 success=True,
             )
         else:
-            failures.append(EngineFailure(
-                engine=engine,
-                error_type=result.error.error_type if result.error else "Unknown",
-                error_message=result.error.message if result.error else "",
-            ))
+            failures.append(
+                EngineFailure(
+                    engine=engine,
+                    error_type=result.error.error_type if result.error else "Unknown",
+                    error_message=result.error.message if result.error else "",
+                )
+            )
 
     return ChainExtractResult(
         result=None,

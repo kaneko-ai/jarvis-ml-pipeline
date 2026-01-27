@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class DataSchema:
     """データスキーマ."""
+
     train_shape: Tuple[int, int]
     test_shape: Tuple[int, int]
     feature_columns: List[str]
@@ -43,15 +44,15 @@ def load_train_test(
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, DataSchema]:
     """
     train/testを読み込み、スキーマ検証.
-    
+
     Args:
         train_path: 訓練データパス
         test_path: テストデータパス
         label_col: ラベル列名
-    
+
     Returns:
         (X_train, X_test, y_train, schema)
-    
+
     Raises:
         ValueError: 列不整合、ラベル欠損等
     """
@@ -127,10 +128,10 @@ def validate_schema(
 ) -> bool:
     """
     スキーマ検証.
-    
+
     Returns:
         True if valid
-    
+
     Raises:
         ValueError: 検証失敗
     """
@@ -158,7 +159,7 @@ def save_schema(schema: DataSchema, output_path: str) -> Path:
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(path, 'w', encoding='utf-8') as f:
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(schema.to_dict(), f, indent=2, ensure_ascii=False)
 
     logger.info(f"Schema saved to {path}")

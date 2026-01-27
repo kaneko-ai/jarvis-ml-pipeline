@@ -2,6 +2,7 @@
 
 Per RP-14, provides diversity-aware reranking.
 """
+
 from __future__ import annotations
 
 from typing import List, Tuple

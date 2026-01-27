@@ -12,13 +12,20 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from jarvis_core.contracts.types import (
-    Artifacts, ArtifactsDelta, Claim, EvidenceLink, Score, RuntimeConfig, TaskContext
+    Artifacts,
+    ArtifactsDelta,
+    Claim,
+    EvidenceLink,
+    Score,
+    RuntimeConfig,
+    TaskContext,
 )
 
 
 @dataclass
 class ScoringResult:
     """スコアリング結果."""
+
     score_name: str
     value: float  # 0-1
     explanation: str
@@ -29,14 +36,19 @@ class ScoringResult:
 class ImportanceScorer:
     """
     重要度スコアラー.
-    
+
     論文の重要度を多因子で評価。
     """
 
-    def score(self, doc_id: str, title: str, abstract: str,
-              year: Optional[int] = None,
-              journal: Optional[str] = None,
-              citations: int = 0) -> ScoringResult:
+    def score(
+        self,
+        doc_id: str,
+        title: str,
+        abstract: str,
+        year: Optional[int] = None,
+        journal: Optional[str] = None,
+        citations: int = 0,
+    ) -> ScoringResult:
         """重要度をスコア."""
         factors = {}
 
@@ -62,7 +74,9 @@ class ImportanceScorer:
         high_impact_journals = ["nature", "science", "cell", "lancet", "nejm"]
         if journal:
             journal_lower = journal.lower()
-            factors["journal"] = 0.8 if any(j in journal_lower for j in high_impact_journals) else 0.5
+            factors["journal"] = (
+                0.8 if any(j in journal_lower for j in high_impact_journals) else 0.5
+            )
         else:
             factors["journal"] = 0.5
 
@@ -70,24 +84,26 @@ class ImportanceScorer:
         factors["citations"] = min(citations / 100, 1.0)
 
         # Overall score
-        weights = {"novelty": 0.25, "impact": 0.25, "recency": 0.2,
-                   "journal": 0.15, "citations": 0.15}
+        weights = {
+            "novelty": 0.25,
+            "impact": 0.25,
+            "recency": 0.2,
+            "journal": 0.15,
+            "citations": 0.15,
+        }
         overall = sum(factors[k] * weights[k] for k in weights)
 
         explanation = f"重要度スコア: 新規性{factors['novelty']:.2f}, 影響度{factors['impact']:.2f}"
 
         return ScoringResult(
-            score_name="importance",
-            value=overall,
-            explanation=explanation,
-            factors=factors
+            score_name="importance", value=overall, explanation=explanation, factors=factors
         )
 
 
 class ConfidenceScorer:
     """
     Claim信頼度スコアラー.
-    
+
     主張の信頼度を評価。
     """
 
@@ -113,12 +129,16 @@ class ConfidenceScorer:
         factors["certainty"] = max(0, 1 - hedging_count * 0.15)
 
         # 4. Quantitative support
-        has_numbers = bool(re.search(r'\d+(?:\.\d+)?%?', claim.claim_text))
+        has_numbers = bool(re.search(r"\d+(?:\.\d+)?%?", claim.claim_text))
         factors["quantitative"] = 0.8 if has_numbers else 0.4
 
         # Overall
-        weights = {"evidence_count": 0.3, "evidence_quality": 0.3,
-                   "certainty": 0.2, "quantitative": 0.2}
+        weights = {
+            "evidence_count": 0.3,
+            "evidence_quality": 0.3,
+            "certainty": 0.2,
+            "quantitative": 0.2,
+        }
         overall = sum(factors[k] * weights[k] for k in weights)
 
         explanation = f"根拠数{evidence_count}, 確実性{factors['certainty']:.2f}"
@@ -128,14 +148,14 @@ class ConfidenceScorer:
             value=overall,
             explanation=explanation,
             factors=factors,
-            evidence=claim.evidence[:3]
+            evidence=claim.evidence[:3],
         )
 
 
 class BiasRiskScorer:
     """
     バイアスリスクスコアラー.
-    
+
     研究のバイアスリスクを評価。
     """
 
@@ -167,17 +187,14 @@ class BiasRiskScorer:
         explanation = f"バイアスリスク: {', '.join(high_risks) if high_risks else 'Low'}"
 
         return ScoringResult(
-            score_name="bias_risk",
-            value=quality_score,
-            explanation=explanation,
-            factors=factors
+            score_name="bias_risk", value=quality_score, explanation=explanation, factors=factors
         )
 
 
 class EvidenceTierScorer:
     """
     エビデンス階層スコアラー.
-    
+
     研究タイプに基づくエビデンスレベル。
     """
 
@@ -216,19 +233,20 @@ class EvidenceTierScorer:
             score_name="evidence_tier",
             value=highest_tier,
             explanation=explanation,
-            factors={t: self.TIERS[t] for t in detected_types}
+            factors={t: self.TIERS[t] for t in detected_types},
         )
 
 
 class LearningROIScorer:
     """
     Learning ROIスコアラー.
-    
+
     学習効率（読む価値）を評価。
     """
 
-    def score(self, doc_id: str, title: str, abstract: str,
-              user_goal: str, user_domain: str) -> ScoringResult:
+    def score(
+        self, doc_id: str, title: str, abstract: str, user_goal: str, user_domain: str
+    ) -> ScoringResult:
         """Learning ROIをスコア."""
         factors = {}
 
@@ -251,23 +269,33 @@ class LearningROIScorer:
         factors["readability"] = max(0, 1 - word_count / 500)
 
         # 4. Actionability
-        actionable_keywords = ["recommend", "should", "guidelines", "protocol",
-                              "treatment", "intervention", "strategy"]
+        actionable_keywords = [
+            "recommend",
+            "should",
+            "guidelines",
+            "protocol",
+            "treatment",
+            "intervention",
+            "strategy",
+        ]
         actionable_count = sum(1 for kw in actionable_keywords if kw in abstract.lower())
         factors["actionability"] = min(actionable_count * 0.2, 1.0)
 
         # Overall
-        weights = {"goal_relevance": 0.4, "domain_match": 0.25,
-                   "readability": 0.15, "actionability": 0.2}
+        weights = {
+            "goal_relevance": 0.4,
+            "domain_match": 0.25,
+            "readability": 0.15,
+            "actionability": 0.2,
+        }
         overall = sum(factors[k] * weights[k] for k in weights)
 
-        explanation = f"目標適合度{factors['goal_relevance']:.2f}, ドメイン一致{factors['domain_match']:.2f}"
+        explanation = (
+            f"目標適合度{factors['goal_relevance']:.2f}, ドメイン一致{factors['domain_match']:.2f}"
+        )
 
         return ScoringResult(
-            score_name="learning_roi",
-            value=overall,
-            explanation=explanation,
-            factors=factors
+            score_name="learning_roi", value=overall, explanation=explanation, factors=factors
         )
 
 
@@ -287,56 +315,46 @@ class ScoringPlugin:
 
     def run(self, context: TaskContext, artifacts: Artifacts) -> ArtifactsDelta:
         """スコアリングを実行."""
-        delta: ArtifactsDelta = {
-            "paper_scores": {},
-            "claim_scores": {}
-        }
+        delta: ArtifactsDelta = {"paper_scores": {}, "claim_scores": {}}
 
         for paper in artifacts.papers:
             paper_text = paper.abstract or ""
 
             # Paper-level scores
             importance = self.importance.score(
-                paper.doc_id, paper.title, paper_text,
-                paper.year, paper.journal
+                paper.doc_id, paper.title, paper_text, paper.year, paper.journal
             )
             bias = self.bias.score(paper_text, paper.doc_id)
             tier = self.evidence_tier.score(paper_text, paper.doc_id)
             roi = self.learning_roi.score(
-                paper.doc_id, paper.title, paper_text,
-                context.goal, context.domain
+                paper.doc_id, paper.title, paper_text, context.goal, context.domain
             )
 
             delta["paper_scores"][paper.doc_id] = {
                 "importance": {
                     "value": importance.value,
                     "explanation": importance.explanation,
-                    "factors": importance.factors
+                    "factors": importance.factors,
                 },
                 "bias_risk": {
                     "value": bias.value,
                     "explanation": bias.explanation,
-                    "factors": bias.factors
+                    "factors": bias.factors,
                 },
-                "evidence_tier": {
-                    "value": tier.value,
-                    "explanation": tier.explanation
-                },
+                "evidence_tier": {"value": tier.value, "explanation": tier.explanation},
                 "learning_roi": {
                     "value": roi.value,
                     "explanation": roi.explanation,
-                    "factors": roi.factors
-                }
+                    "factors": roi.factors,
+                },
             }
 
             # Store in artifacts
             artifacts.scores[f"{paper.doc_id}_importance"] = Score(
-                name="importance", value=importance.value,
-                explanation=importance.explanation
+                name="importance", value=importance.value, explanation=importance.explanation
             )
             artifacts.scores[f"{paper.doc_id}_roi"] = Score(
-                name="learning_roi", value=roi.value,
-                explanation=roi.explanation
+                name="learning_roi", value=roi.value, explanation=roi.explanation
             )
 
         # Claim-level scores
@@ -346,7 +364,7 @@ class ScoringPlugin:
                 "confidence": {
                     "value": conf.value,
                     "explanation": conf.explanation,
-                    "factors": conf.factors
+                    "factors": conf.factors,
                 }
             }
 

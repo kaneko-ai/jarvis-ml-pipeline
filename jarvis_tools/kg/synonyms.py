@@ -2,6 +2,7 @@
 
 Per RP-25, provides offline synonym normalization for query expansion.
 """
+
 from __future__ import annotations
 
 import json

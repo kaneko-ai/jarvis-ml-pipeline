@@ -19,6 +19,7 @@ from typing import List, NamedTuple, Optional
 
 class Violation(NamedTuple):
     """違反."""
+
     file: str
     line: int
     word: str
@@ -47,7 +48,9 @@ FORCE_WORDS_JA = [
 FORCE_PATTERNS = [re.compile(p, re.IGNORECASE) for p in FORCE_WORDS_EN + FORCE_WORDS_JA]
 
 # Authority Header パターン
-AUTHORITY_PATTERN = re.compile(r">\s*Authority:\s*(\w+)\s*\(Level\s*(\d+),\s*(Binding|Non-binding)\)")
+AUTHORITY_PATTERN = re.compile(
+    r">\s*Authority:\s*(\w+)\s*\(Level\s*(\d+),\s*(Binding|Non-binding)\)"
+)
 
 # NonBindingレベル（強制語彙禁止）
 NON_BINDING_LEVELS = {"REFERENCE", "ROADMAP"}
@@ -95,12 +98,14 @@ def check_file(filepath: Path) -> List[Violation]:
 
     # Authorityがない場合はエラー
     if authority is None:
-        violations.append(Violation(
-            file=str(filepath),
-            line=1,
-            word="MISSING_AUTHORITY_HEADER",
-            authority="NONE",
-        ))
+        violations.append(
+            Violation(
+                file=str(filepath),
+                line=1,
+                word="MISSING_AUTHORITY_HEADER",
+                authority="NONE",
+            )
+        )
         return violations
 
     # Binding文書は強制語彙OK
@@ -117,12 +122,14 @@ def check_file(filepath: Path) -> List[Violation]:
         for pattern in FORCE_PATTERNS:
             match = pattern.search(line)
             if match:
-                violations.append(Violation(
-                    file=str(filepath),
-                    line=i,
-                    word=match.group(),
-                    authority=authority,
-                ))
+                violations.append(
+                    Violation(
+                        file=str(filepath),
+                        line=i,
+                        word=match.group(),
+                        authority=authority,
+                    )
+                )
 
     return violations
 

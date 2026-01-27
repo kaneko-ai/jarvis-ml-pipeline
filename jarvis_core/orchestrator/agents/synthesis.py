@@ -31,7 +31,9 @@ class EvidenceSynthesisAgent:
         evidence_table = []
         claims = []
         for paper in papers:
-            grade = grade_evidence(title=paper.title, abstract=paper.abstract, full_text=paper.full_text, use_llm=False)
+            grade = grade_evidence(
+                title=paper.title, abstract=paper.abstract, full_text=paper.full_text, use_llm=False
+            )
             evidence_table.append({"title": paper.title, "evidence_level": grade.level.value})
             claims.append(paper.title)
 

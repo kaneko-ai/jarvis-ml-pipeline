@@ -1,4 +1,5 @@
 """Run retrieval eval set and compute basic metrics."""
+
 from __future__ import annotations
 
 import argparse

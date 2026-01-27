@@ -10,6 +10,7 @@ import logging
 from typing import Dict
 
 import numpy as np
+
 try:
     from sklearn.metrics import accuracy_score, mean_squared_error, r2_score
 except ImportError:
@@ -27,12 +28,12 @@ def calculate_metrics(
 ) -> Dict[str, float]:
     """
     メトリクスを計算.
-    
+
     Args:
         y_true: 正解
         y_pred: 予測
         task: classification or regression
-    
+
     Returns:
         メトリクス辞書
     """

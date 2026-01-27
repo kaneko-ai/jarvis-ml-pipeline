@@ -25,7 +25,6 @@ from tempfile import TemporaryDirectory
 import pytest
 
 
-
 class TestRateLimiter:
     """レートリミッターテスト."""
 
@@ -143,29 +142,26 @@ class TestCheckpointManager:
             assert resume_point == 3
 
 
-
 class TestPipelineMetrics:
     """メトリクスコレクターテスト (PipelineMetrics Adapter)."""
 
     def test_counter_increment(self):
         """カウンタが機能すること."""
-        from jarvis_core.ops.metrics import metrics, PipelineMetrics
         # Reset global metrics for test
         test_metrics = PipelineMetrics()
-        
+
         test_metrics.inc_counter("test_counter", {"label": "a"})
         output = test_metrics.generate_prometheus_output()
-        
+
         assert 'test_counter{label="a"} 1.0' in output
 
     def test_gauge_set(self):
         """ゲージが機能すること."""
-        from jarvis_core.ops.metrics import PipelineMetrics
         test_metrics = PipelineMetrics()
 
         test_metrics.set_gauge("test_gauge", 42.0, {"label": "b"})
         output = test_metrics.generate_prometheus_output()
-        
+
         assert 'test_gauge{label="b"} 42.0' in output
 
 

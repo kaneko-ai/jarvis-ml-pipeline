@@ -9,7 +9,9 @@ from jarvis_core.orchestrator.schema import AgentMode, AgentTask
 @pytest.mark.integration
 def test_multi_agent_parallel_and_conversation():
     async def run_case():
-        orchestrator = MultiAgentOrchestrator(max_concurrent_agents=2, default_mode=AgentMode.PLANNING)
+        orchestrator = MultiAgentOrchestrator(
+            max_concurrent_agents=2, default_mode=AgentMode.PLANNING
+        )
         await orchestrator.start()
 
         task_a = AgentTask(task_id="a", description="Task A", agent_type="unknown")
@@ -41,7 +43,9 @@ def test_multi_agent_parallel_and_conversation():
 @pytest.mark.integration
 def test_multi_agent_approval_and_callbacks():
     async def run_case():
-        orchestrator = MultiAgentOrchestrator(max_concurrent_agents=1, default_mode=AgentMode.PLANNING)
+        orchestrator = MultiAgentOrchestrator(
+            max_concurrent_agents=1, default_mode=AgentMode.PLANNING
+        )
         status_events = []
         approval_events = []
 

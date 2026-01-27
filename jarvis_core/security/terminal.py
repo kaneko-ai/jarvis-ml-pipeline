@@ -1,4 +1,5 @@
 """Terminal security manager implementation."""
+
 from __future__ import annotations
 
 import asyncio
@@ -53,7 +54,11 @@ class TerminalSecurityManager:
             CommandPattern(pattern="mkfs", is_regex=False, reason="Filesystem format"),
             CommandPattern(pattern="shutdown", is_regex=False, reason="Shutdown command"),
             CommandPattern(pattern="reboot", is_regex=False, reason="Reboot command"),
-            CommandPattern(pattern=r":\s*\(\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;\s*:", is_regex=True, reason="Fork bomb"),
+            CommandPattern(
+                pattern=r":\s*\(\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;\s*:",
+                is_regex=True,
+                reason="Fork bomb",
+            ),
             CommandPattern(pattern="dd if=", is_regex=False, reason="Raw disk write"),
         ]
 

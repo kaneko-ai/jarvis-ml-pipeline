@@ -87,7 +87,9 @@ def _extract_sections(lines: Iterable[str]) -> list[Section]:
     def flush():
         nonlocal current_title, current_lines
         if current_title or current_lines:
-            sections.append(Section(title=current_title or "Section", text=" ".join(current_lines).strip()))
+            sections.append(
+                Section(title=current_title or "Section", text=" ".join(current_lines).strip())
+            )
         current_title = ""
         current_lines = []
 

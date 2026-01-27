@@ -8,6 +8,7 @@ from .baseline_ridge import BaselineRidgeRegression
 # PyTorch models (optional)
 try:
     from .mlp_torch import MLP, create_mlp
+
     TORCH_AVAILABLE = True
 except ImportError:
     MLP = None
@@ -16,6 +17,7 @@ except ImportError:
 
 try:
     from .lightning_module import TabularLightningModule
+
     LIGHTNING_AVAILABLE = True
 except ImportError:
     TabularLightningModule = None
@@ -30,4 +32,3 @@ __all__ = [
     "TORCH_AVAILABLE",
     "LIGHTNING_AVAILABLE",
 ]
-

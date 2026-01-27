@@ -6,9 +6,10 @@ Expands queries using Keyword Expansion and HyDE (Hypothetical Document Embeddin
 from __future__ import annotations
 
 import logging
-from typing import List
+from typing import Any, List
 
 logger = logging.getLogger(__name__)
+
 
 class QueryExpander:
     """Expands user queries to improve retrieval recall."""
@@ -21,14 +22,14 @@ class QueryExpander:
         # Simple heuristic expansion for smoke testing
         # In prod: Call LLM "Generate 3 synonyms for: <query>"
         keywords = [query]
-        
+
         words = query.lower().split()
         if "cancer" in words:
             keywords.append("neoplasm")
             keywords.append("tumor")
         if "ai" in words:
             keywords.append("artificial intelligence")
-            
+
         return list(set(keywords))
 
     def generate_hyde(self, query: str) -> str:

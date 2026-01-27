@@ -13,6 +13,7 @@ import torch.nn as nn
 
 try:
     import pytorch_lightning as pl
+
     LIGHTNING_AVAILABLE = True
 except ImportError:
     LIGHTNING_AVAILABLE = False
@@ -24,9 +25,10 @@ logger = logging.getLogger(__name__)
 
 
 if LIGHTNING_AVAILABLE:
+
     class TabularLightningModule(pl.LightningModule):
         """Tabular用LightningModule.
-        
+
         契約:
         - forward(x): logits（分類）/ y_pred（回帰）
         - training_step: loss + train metric
@@ -138,5 +140,6 @@ if LIGHTNING_AVAILABLE:
         def configure_optimizers(self):
             """オプティマイザ設定."""
             return torch.optim.Adam(self.parameters(), lr=self.lr)
+
 else:
     TabularLightningModule = None

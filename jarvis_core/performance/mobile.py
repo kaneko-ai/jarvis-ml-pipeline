@@ -88,7 +88,9 @@ class BackgroundWorkerManager:
         Returns:
             Task ID
         """
-        task_id = hashlib.md5(f"{task_type}{datetime.now().isoformat()}".encode(), usedforsecurity=False).hexdigest()[:8]
+        task_id = hashlib.md5(
+            f"{task_type}{datetime.now().isoformat()}".encode(), usedforsecurity=False
+        ).hexdigest()[:8]
         self.tasks[task_id] = WorkerTask(id=task_id, task_type=task_type, data=data)
         return task_id
 

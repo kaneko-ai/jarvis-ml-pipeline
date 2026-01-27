@@ -61,11 +61,16 @@ def check_banned_apis(target_dirs: list[str]) -> list[str]:
                 for node in ast.walk(tree):
                     if isinstance(node, ast.Call):
                         if isinstance(node.func, ast.Name) and node.func.id in BANNED_FUNCTIONS:
-                            errors.append(f"{py_file}:{node.lineno}: Banned function '{node.func.id}'")
+                            errors.append(
+                                f"{py_file}:{node.lineno}: Banned function '{node.func.id}'"
+                            )
                         elif (
-                            isinstance(node.func, ast.Attribute) and node.func.attr in BANNED_FUNCTIONS
+                            isinstance(node.func, ast.Attribute)
+                            and node.func.attr in BANNED_FUNCTIONS
                         ):
-                            errors.append(f"{py_file}:{node.lineno}: Banned attribute '{node.func.attr}'")
+                            errors.append(
+                                f"{py_file}:{node.lineno}: Banned attribute '{node.func.attr}'"
+                            )
             except Exception as e:
                 print(f"Error checking {py_file}: {e}")
     return errors
@@ -77,7 +82,9 @@ def scan_secrets(target_dirs: list[str]) -> list[str]:
     # Simple regex for strings that look like keys/secrets
     patterns = [
         (
-            re.compile(r"(?i)(api_key|secret|token|password|auth)\s*[:=]\s*['\"][a-zA-Z0-9_\-]{16,}['\"]"),
+            re.compile(
+                r"(?i)(api_key|secret|token|password|auth)\s*[:=]\s*['\"][a-zA-Z0-9_\-]{16,}['\"]"
+            ),
             "Potential hardcoded secret",
         ),
         (re.compile(r"['\"][a-zA-Z0-9]{32,}['\"]"), "Long hex/alphanumeric string (potential key)"),
@@ -120,7 +127,9 @@ def main():
 
     # 1. Bandit
     # -lll: High severity only. We want to stop ONLY on high severity issues.
-    if not run_command("Bandit", ["bandit", "-r"] + [d for d in target_dirs if os.path.exists(d)] + ["-lll"]):
+    if not run_command(
+        "Bandit", ["bandit", "-r"] + [d for d in target_dirs if os.path.exists(d)] + ["-lll"]
+    ):
         print("❌ Bandit found HIGH severity issues.")
         success = False
 

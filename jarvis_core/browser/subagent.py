@@ -10,7 +10,12 @@ from dataclasses import dataclass
 from typing import Any
 
 from jarvis_core.browser.recording import BrowserRecorder, generate_session_id
-from jarvis_core.browser.schema import BrowserAction, BrowserActionResult, BrowserState, SecurityPolicy
+from jarvis_core.browser.schema import (
+    BrowserAction,
+    BrowserActionResult,
+    BrowserState,
+    SecurityPolicy,
+)
 from jarvis_core.browser.security import BrowserSecurityManager
 
 
@@ -55,7 +60,9 @@ class BrowserSubagent:
         await self.session.page.goto(url)
         await self._refresh_state()
         await self._capture_recording_frame()
-        return self._result(BrowserAction.NAVIGATE, True, data={"url": url}, duration_ms=self._elapsed_ms(start))
+        return self._result(
+            BrowserAction.NAVIGATE, True, data={"url": url}, duration_ms=self._elapsed_ms(start)
+        )
 
     async def click(self, selector: str) -> BrowserActionResult:
         start = time.perf_counter()
@@ -63,7 +70,12 @@ class BrowserSubagent:
         await self.session.page.click(selector)
         await self._refresh_state()
         await self._capture_recording_frame()
-        return self._result(BrowserAction.CLICK, True, data={"selector": selector}, duration_ms=self._elapsed_ms(start))
+        return self._result(
+            BrowserAction.CLICK,
+            True,
+            data={"selector": selector},
+            duration_ms=self._elapsed_ms(start),
+        )
 
     async def type_text(self, selector: str, text: str) -> BrowserActionResult:
         start = time.perf_counter()

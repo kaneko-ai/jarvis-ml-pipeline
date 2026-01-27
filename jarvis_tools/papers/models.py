@@ -2,6 +2,7 @@
 
 Per RP-04/RP-05, defines data structures for paper processing with provenance.
 """
+
 from __future__ import annotations
 
 import hashlib

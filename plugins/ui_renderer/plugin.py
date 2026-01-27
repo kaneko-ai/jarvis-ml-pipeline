@@ -10,14 +10,13 @@ import json
 from dataclasses import dataclass, field
 from typing import Any, Dict, List
 
-from jarvis_core.contracts.types import (
-    Artifacts, ArtifactsDelta, RuntimeConfig, TaskContext
-)
+from jarvis_core.contracts.types import Artifacts, ArtifactsDelta, RuntimeConfig, TaskContext
 
 
 @dataclass
 class DashboardWidget:
     """ダッシュボードウィジェット."""
+
     widget_id: str
     widget_type: str  # chart, table, text, graph
     title: str
@@ -28,6 +27,7 @@ class DashboardWidget:
 @dataclass
 class DashboardBundle:
     """ダッシュボードバンドル."""
+
     bundle_id: str
     title: str
     widgets: List[DashboardWidget] = field(default_factory=list)
@@ -38,11 +38,16 @@ class DashboardBundle:
             "bundle_id": self.bundle_id,
             "title": self.title,
             "widgets": [
-                {"id": w.widget_id, "type": w.widget_type,
-                 "title": w.title, "data": w.data, "config": w.config}
+                {
+                    "id": w.widget_id,
+                    "type": w.widget_type,
+                    "title": w.title,
+                    "data": w.data,
+                    "config": w.config,
+                }
                 for w in self.widgets
             ],
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     def to_json(self) -> str:
@@ -52,92 +57,68 @@ class DashboardBundle:
 class ChartRenderer:
     """チャートレンダラー."""
 
-    def render_bar_chart(self,
-                         labels: List[str],
-                         values: List[float],
-                         title: str = "Bar Chart") -> DashboardWidget:
+    def render_bar_chart(
+        self, labels: List[str], values: List[float], title: str = "Bar Chart"
+    ) -> DashboardWidget:
         """棒グラフをレンダリング."""
         return DashboardWidget(
             widget_id=f"chart_{title.replace(' ', '_').lower()}",
             widget_type="chart",
             title=title,
-            data={
-                "type": "bar",
-                "labels": labels,
-                "datasets": [{"data": values}]
-            },
-            config={"responsive": True}
+            data={"type": "bar", "labels": labels, "datasets": [{"data": values}]},
+            config={"responsive": True},
         )
 
-    def render_line_chart(self,
-                          labels: List[str],
-                          datasets: List[Dict[str, Any]],
-                          title: str = "Line Chart") -> DashboardWidget:
+    def render_line_chart(
+        self, labels: List[str], datasets: List[Dict[str, Any]], title: str = "Line Chart"
+    ) -> DashboardWidget:
         """折れ線グラフをレンダリング."""
         return DashboardWidget(
             widget_id=f"chart_{title.replace(' ', '_').lower()}",
             widget_type="chart",
             title=title,
-            data={
-                "type": "line",
-                "labels": labels,
-                "datasets": datasets
-            },
-            config={"responsive": True}
+            data={"type": "line", "labels": labels, "datasets": datasets},
+            config={"responsive": True},
         )
 
-    def render_pie_chart(self,
-                         labels: List[str],
-                         values: List[float],
-                         title: str = "Pie Chart") -> DashboardWidget:
+    def render_pie_chart(
+        self, labels: List[str], values: List[float], title: str = "Pie Chart"
+    ) -> DashboardWidget:
         """円グラフをレンダリング."""
         return DashboardWidget(
             widget_id=f"chart_{title.replace(' ', '_').lower()}",
             widget_type="chart",
             title=title,
-            data={
-                "type": "pie",
-                "labels": labels,
-                "datasets": [{"data": values}]
-            },
-            config={"responsive": True}
+            data={"type": "pie", "labels": labels, "datasets": [{"data": values}]},
+            config={"responsive": True},
         )
 
-    def render_radar_chart(self,
-                           labels: List[str],
-                           values: List[float],
-                           title: str = "Radar Chart") -> DashboardWidget:
+    def render_radar_chart(
+        self, labels: List[str], values: List[float], title: str = "Radar Chart"
+    ) -> DashboardWidget:
         """レーダーチャートをレンダリング."""
         return DashboardWidget(
             widget_id=f"chart_{title.replace(' ', '_').lower()}",
             widget_type="chart",
             title=title,
-            data={
-                "type": "radar",
-                "labels": labels,
-                "datasets": [{"data": values}]
-            },
-            config={"responsive": True}
+            data={"type": "radar", "labels": labels, "datasets": [{"data": values}]},
+            config={"responsive": True},
         )
 
 
 class TableRenderer:
     """テーブルレンダラー."""
 
-    def render_table(self,
-                     headers: List[str],
-                     rows: List[List[Any]],
-                     title: str = "Table") -> DashboardWidget:
+    def render_table(
+        self, headers: List[str], rows: List[List[Any]], title: str = "Table"
+    ) -> DashboardWidget:
         """テーブルをレンダリング."""
         return DashboardWidget(
             widget_id=f"table_{title.replace(' ', '_').lower()}",
             widget_type="table",
             title=title,
-            data={
-                "headers": headers,
-                "rows": rows
-            },
-            config={"sortable": True, "filterable": True}
+            data={"headers": headers, "rows": rows},
+            config={"sortable": True, "filterable": True},
         )
 
     def render_paper_table(self, papers: List[Dict[str, Any]]) -> DashboardWidget:
@@ -146,13 +127,15 @@ class TableRenderer:
         rows = []
 
         for p in papers:
-            rows.append([
-                p.get("title", "")[:100],
-                ", ".join(p.get("authors", [])[:3]),
-                p.get("year", ""),
-                p.get("journal", ""),
-                f"{p.get('score', 0):.2f}"
-            ])
+            rows.append(
+                [
+                    p.get("title", "")[:100],
+                    ", ".join(p.get("authors", [])[:3]),
+                    p.get("year", ""),
+                    p.get("journal", ""),
+                    f"{p.get('score', 0):.2f}",
+                ]
+            )
 
         return self.render_table(headers, rows, "論文一覧")
 
@@ -162,13 +145,15 @@ class TableRenderer:
         rows = []
 
         for c in claims:
-            rows.append([
-                c.get("claim_id", ""),
-                c.get("claim_text", "")[:150],
-                c.get("claim_type", ""),
-                len(c.get("evidence", [])),
-                f"{c.get('confidence', 0):.2f}"
-            ])
+            rows.append(
+                [
+                    c.get("claim_id", ""),
+                    c.get("claim_text", "")[:150],
+                    c.get("claim_type", ""),
+                    len(c.get("evidence", [])),
+                    f"{c.get('confidence', 0):.2f}",
+                ]
+            )
 
         return self.render_table(headers, rows, "主張一覧")
 
@@ -182,25 +167,25 @@ class GraphRenderer:
         edges = []
 
         for eid, entity in kg.get("entities", {}).items():
-            nodes.append({
-                "id": eid,
-                "label": entity.get("name", ""),
-                "group": entity.get("type", "")
-            })
+            nodes.append(
+                {"id": eid, "label": entity.get("name", ""), "group": entity.get("type", "")}
+            )
 
         for rel in kg.get("relations", []):
-            edges.append({
-                "from": rel.get("source", ""),
-                "to": rel.get("target", ""),
-                "label": rel.get("type", "")
-            })
+            edges.append(
+                {
+                    "from": rel.get("source", ""),
+                    "to": rel.get("target", ""),
+                    "label": rel.get("type", ""),
+                }
+            )
 
         return DashboardWidget(
             widget_id="knowledge_graph",
             widget_type="graph",
             title="知識グラフ",
             data={"nodes": nodes, "edges": edges},
-            config={"physics": True, "hierarchical": False}
+            config={"physics": True, "hierarchical": False},
         )
 
 
@@ -214,7 +199,7 @@ class SummaryRenderer:
             widget_type="text",
             title=title,
             data={"content": summary, "format": "markdown"},
-            config={}
+            config={},
         )
 
     def render_provenance(self, claims: List[Dict[str, Any]]) -> DashboardWidget:
@@ -237,7 +222,7 @@ class SummaryRenderer:
             widget_type="text",
             title="根拠付き主張",
             data={"content": content, "format": "markdown"},
-            config={}
+            config={},
         )
 
 
@@ -273,8 +258,9 @@ class UIPlugin:
                     "authors": p.authors,
                     "year": p.year,
                     "journal": p.journal,
-                    "score": artifacts.scores.get(f"{p.doc_id}_importance",
-                             type('', (), {'value': 0})()).value
+                    "score": artifacts.scores.get(
+                        f"{p.doc_id}_importance", type("", (), {"value": 0})()
+                    ).value,
                 }
                 for p in artifacts.papers
             ]
@@ -289,15 +275,13 @@ class UIPlugin:
         if artifacts.scores:
             labels = list(artifacts.scores.keys())[:10]
             values = [artifacts.scores[k].value for k in labels]
-            widgets.append(self.chart_renderer.render_bar_chart(
-                labels, values, "スコア分布"
-            ))
+            widgets.append(self.chart_renderer.render_bar_chart(labels, values, "スコア分布"))
 
         # 5. Knowledge graph
         if "knowledge_graph" in artifacts.graphs:
-            widgets.append(self.graph_renderer.render_knowledge_graph(
-                artifacts.graphs["knowledge_graph"]
-            ))
+            widgets.append(
+                self.graph_renderer.render_knowledge_graph(artifacts.graphs["knowledge_graph"])
+            )
 
         # 6. Provenance
         if artifacts.claims:
@@ -313,8 +297,8 @@ class UIPlugin:
                 "goal": context.goal,
                 "domain": context.domain,
                 "papers_count": len(artifacts.papers),
-                "claims_count": len(artifacts.claims)
-            }
+                "claims_count": len(artifacts.claims),
+            },
         )
 
         delta["dashboard_bundle"] = bundle.to_dict()

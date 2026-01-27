@@ -37,8 +37,10 @@ class PRISMAData:
 
     # Identification
     records_from_databases: int = 0
+    identification_database: int = 0  # Added for compatibility with existing tests
     records_from_registers: int = 0
     records_from_other_sources: int = 0
+    identification_other: int = 0  # Added for compatibility with existing tests
     duplicates_removed: int = 0
 
     # Screening
@@ -49,7 +51,9 @@ class PRISMAData:
     reports_sought: int = 0
     reports_not_retrieved: int = 0
     reports_assessed: int = 0
+    full_text_assessed: int = 0  # Added for compatibility with existing tests
     reports_excluded: int = 0
+    full_text_excluded: int = 0  # Added for compatibility with existing tests
 
     # Included
     studies_included: int = 0

@@ -2,6 +2,7 @@
 
 Per RP-111, detects IMRaD sections in scientific papers.
 """
+
 from __future__ import annotations
 
 import re
@@ -127,13 +128,15 @@ def sectionize(text: str) -> List[Section]:
         if is_section_header(line):
             # Save previous section
             if current_lines or current_start < i:
-                sections.append(Section(
-                    section_type=current_type,
-                    title=current_title,
-                    start_line=current_start,
-                    end_line=i - 1,
-                    content="\n".join(current_lines),
-                ))
+                sections.append(
+                    Section(
+                        section_type=current_type,
+                        title=current_title,
+                        start_line=current_start,
+                        end_line=i - 1,
+                        content="\n".join(current_lines),
+                    )
+                )
 
             # Start new section
             detected = detect_section_type(line)
@@ -146,13 +149,15 @@ def sectionize(text: str) -> List[Section]:
 
     # Save final section
     if current_lines:
-        sections.append(Section(
-            section_type=current_type,
-            title=current_title,
-            start_line=current_start,
-            end_line=len(lines) - 1,
-            content="\n".join(current_lines),
-        ))
+        sections.append(
+            Section(
+                section_type=current_type,
+                title=current_title,
+                start_line=current_start,
+                end_line=len(lines) - 1,
+                content="\n".join(current_lines),
+            )
+        )
 
     return sections
 

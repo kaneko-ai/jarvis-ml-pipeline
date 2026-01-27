@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class RunReport:
     """実行レポート."""
+
     run_id: str
     task: str
     dataset: Dict[str, Any]
@@ -47,20 +48,24 @@ class RunReport:
         for k, v in self.dataset.items():
             lines.append(f"| {k} | {v} |")
 
-        lines.extend([
-            "",
-            "## Metrics",
-            "| Metric | Value |",
-            "|--------|-------|",
-        ])
+        lines.extend(
+            [
+                "",
+                "## Metrics",
+                "| Metric | Value |",
+                "|--------|-------|",
+            ]
+        )
 
         for k, v in self.metrics.items():
             lines.append(f"| {k} | {v:.4f} |")
 
-        lines.extend([
-            "",
-            "## Submission Checks",
-        ])
+        lines.extend(
+            [
+                "",
+                "## Submission Checks",
+            ]
+        )
 
         for k, v in self.submission_checks.items():
             status = "✅" if v else "❌"
@@ -80,7 +85,7 @@ def generate_report(
 ) -> RunReport:
     """
     レポートを生成・保存.
-    
+
     Args:
         run_id: 実行ID
         task: タスク種別
@@ -89,7 +94,7 @@ def generate_report(
         submission_checks: 提出チェック結果
         config_path: 設定ファイルパス
         output_dir: 出力ディレクトリ
-    
+
     Returns:
         RunReport
     """
@@ -108,12 +113,12 @@ def generate_report(
 
     # JSON保存
     json_path = out_path / "report.json"
-    with open(json_path, 'w', encoding='utf-8') as f:
+    with open(json_path, "w", encoding="utf-8") as f:
         json.dump(report.to_dict(), f, indent=2, ensure_ascii=False)
 
     # Markdown保存
     md_path = out_path / "report.md"
-    with open(md_path, 'w', encoding='utf-8') as f:
+    with open(md_path, "w", encoding="utf-8") as f:
         f.write(report.to_markdown())
 
     logger.info(f"Report saved: {out_path}")

@@ -17,6 +17,6 @@ class TestLLMSafe:
 class TestModule:
     def test_module(self):
         try:
-            import jarvis_core.llm
+            import jarvis_core.llm  # noqa: F401
         except ImportError:
             pass

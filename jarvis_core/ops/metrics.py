@@ -12,6 +12,7 @@ from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
+
 class PipelineMetrics:
     """Collector for pipeline metrics."""
 
@@ -47,34 +48,35 @@ class PipelineMetrics:
     def generate_prometheus_output(self) -> str:
         """Export metrics in Prometheus text format."""
         lines = []
-        
+
         # Counters
         for name, data in self._counters.items():
             lines.append(f"# TYPE {name} counter")
             for label_key, value in data.items():
                 lbl = f"{{{label_key}}}" if label_key else ""
                 lines.append(f"{name}{lbl} {value}")
-                
+
         # Gauges
         for name, data in self._gauges.items():
             lines.append(f"# TYPE {name} gauge")
             for label_key, value in data.items():
                 lbl = f"{{{label_key}}}" if label_key else ""
                 lines.append(f"{name}{lbl} {value}")
-        
+
         # Histograms (Simplified: just count and sum for now)
         for name, data in self._histograms.items():
             lines.append(f"# TYPE {name} histogram")
             for label_key, values in data.items():
                 lbl_content = label_key
                 lbl_prefix = f"{{{lbl_content}, " if lbl_content else "{"
-                
+
                 # Count
                 lines.append(f"{name}_count{{{lbl_content}}} {len(values)}")
                 # Sum
                 lines.append(f"{name}_sum{{{lbl_content}}} {sum(values)}")
-                
+
         return "\n".join(lines) + "\n"
+
 
 # Global instance
 metrics = PipelineMetrics()

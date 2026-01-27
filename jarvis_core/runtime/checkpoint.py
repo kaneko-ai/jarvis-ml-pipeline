@@ -13,9 +13,11 @@ from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class CheckpointState:
     """Snapshot of execution state."""
+
     run_id: str
     current_stage: str
     processed_items: Set[str] = field(default_factory=set)
@@ -28,7 +30,7 @@ class CheckpointState:
             "current_stage": self.current_stage,
             "processed_items": list(self.processed_items),
             "failed_items": self.failed_items,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     @classmethod
@@ -38,8 +40,9 @@ class CheckpointState:
             current_stage=data["current_stage"],
             processed_items=set(data.get("processed_items", [])),
             failed_items=data.get("failed_items", {}),
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
+
 
 class CheckpointManager:
     """Persists pipeline state."""
@@ -49,7 +52,7 @@ class CheckpointManager:
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
         self.run_id = run_id
         self.file_path = self.checkpoint_dir / f"{run_id}_checkpoint.json"
-        
+
         # Load existing or create new
         self.state = self._load()
 
@@ -62,7 +65,7 @@ class CheckpointManager:
                 return CheckpointState.from_dict(data)
             except Exception as e:
                 logger.warning(f"Failed to load checkpoint {self.file_path}: {e}")
-        
+
         return CheckpointState(run_id=self.run_id, current_stage="init")
 
     def save(self):
@@ -85,7 +88,7 @@ class CheckpointManager:
     def mark_failed(self, item_id: str, error: str):
         """Mark an item as failed."""
         self.state.failed_items[item_id] = error
-        
+
     def set_stage(self, stage: str):
         """Update current pipeline stage."""
         self.state.current_stage = stage

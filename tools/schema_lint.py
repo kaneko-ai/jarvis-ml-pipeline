@@ -18,6 +18,7 @@ logger = logging.getLogger("SchemaLint")
 
 SCHEMAS_DIR = Path("docs/SCHEMAS")
 
+
 def load_schema(name: str) -> Dict:
     schema_path = SCHEMAS_DIR / f"{name}.schema.json"
     if not schema_path.exists():
@@ -25,6 +26,7 @@ def load_schema(name: str) -> Dict:
         sys.exit(1)
     with open(schema_path, "r", encoding="utf-8") as f:
         return json.load(f)
+
 
 def validate_jsonl(file_path: Path, schema: Dict) -> bool:
     if not file_path.exists():
@@ -45,7 +47,9 @@ def validate_jsonl(file_path: Path, schema: Dict) -> bool:
                     data = json.loads(line)
                     for field in required_fields:
                         if field not in data:
-                            logger.error(f"{file_path.name} L{i+1}: Missing required field '{field}'")
+                            logger.error(
+                                f"{file_path.name} L{i+1}: Missing required field '{field}'"
+                            )
                             valid = False
                 except json.JSONDecodeError:
                     logger.error(f"{file_path.name} L{i+1}: Invalid JSON")
@@ -55,6 +59,7 @@ def validate_jsonl(file_path: Path, schema: Dict) -> bool:
         return False
 
     return valid
+
 
 def main():
     parser = argparse.ArgumentParser(description="Schema Linter")
@@ -82,6 +87,7 @@ def main():
     else:
         logger.error("❌ Schema validation failed.")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

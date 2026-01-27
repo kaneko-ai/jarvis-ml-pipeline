@@ -55,31 +55,31 @@ class TestHyper17:
 class TestHyper18:
     def test_h18a1(self):
         try:
-            from jarvis_core import grader
+            from jarvis_core import grader  # noqa: F401
         except ImportError:
             pass
 
     def test_h18a2(self):
         try:
-            from jarvis_core import grader
+            from jarvis_core import grader  # noqa: F401
         except ImportError:
             pass
 
     def test_h18a3(self):
         try:
-            from jarvis_core import grader
+            from jarvis_core import grader  # noqa: F401
         except ImportError:
             pass
 
     def test_h18a4(self):
         try:
-            from jarvis_core import grader
+            from jarvis_core import grader  # noqa: F401
         except ImportError:
             pass
 
     def test_h18a5(self):
         try:
-            from jarvis_core import grader
+            from jarvis_core import grader  # noqa: F401
         except ImportError:
             pass
 

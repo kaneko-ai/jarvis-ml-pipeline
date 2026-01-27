@@ -393,7 +393,9 @@ class KnowledgeGraphBuilder:
         authors = paper.get("authors", "").split(", ")
         for author in authors[:5]:
             if author:
-                author_id = f"author_{hashlib.md5(author.encode(), usedforsecurity=False).hexdigest()[:6]}"
+                author_id = (
+                    f"author_{hashlib.md5(author.encode(), usedforsecurity=False).hexdigest()[:6]}"
+                )
                 author_node = GraphNode(id=author_id, type="author", properties={"name": author})
                 self.graph.add_node(author_node)
                 edge = GraphEdge(source=paper_id, target=author_id, type="authored_by")

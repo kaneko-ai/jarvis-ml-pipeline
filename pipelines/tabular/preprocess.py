@@ -13,6 +13,7 @@ from typing import Optional, Tuple
 
 import numpy as np
 import pandas as pd
+
 logger = logging.getLogger(__name__)
 try:
     from sklearn.preprocessing import StandardScaler
@@ -34,11 +35,11 @@ def fit_transform(
 ) -> Tuple[np.ndarray, Optional[StandardScaler]]:
     """
     訓練データでfit_transform.
-    
+
     Args:
         X_train: 訓練データ
         scaler: StandardScaler（Noneならそのまま返す）
-    
+
     Returns:
         (変換後データ, scaler)
     """
@@ -57,11 +58,11 @@ def transform(
 ) -> np.ndarray:
     """
     scalerで変換（transform only）.
-    
+
     Args:
         X: データ
         scaler: StandardScaler
-    
+
     Returns:
         変換後データ
     """
@@ -78,7 +79,7 @@ def save_scaler(scaler: StandardScaler, output_path: str) -> Path:
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(path, 'wb') as f:
+    with open(path, "wb") as f:
         pickle.dump(scaler, f)
 
     logger.info(f"Scaler saved: {path}")
@@ -87,6 +88,6 @@ def save_scaler(scaler: StandardScaler, output_path: str) -> Path:
 
 def load_scaler(scaler_path: str) -> StandardScaler:
     """Scalerを読み込み."""
-    with open(scaler_path, 'rb') as f:
+    with open(scaler_path, "rb") as f:
         scaler = pickle.load(f)
     return scaler

@@ -72,7 +72,10 @@ def test_systematic_review_e2e(tmp_path):
     artifacts = {
         "papers": papers,
         "claims": [{"claim_text": "Evidence graded", "evidence_ids": ["p1", "p2"]}],
-        "evidence": [{"paper_id": paper["paper_id"], "grade": grade.level.value} for paper, grade in zip(papers, grades)],
+        "evidence": [
+            {"paper_id": paper["paper_id"], "grade": grade.level.value}
+            for paper, grade in zip(papers, grades)
+        ],
         "scores": {"quality": 0.9},
         "warnings": [],
         "answer": report,

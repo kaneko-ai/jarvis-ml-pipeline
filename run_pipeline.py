@@ -24,6 +24,7 @@ from scripts.source_snapshot import (
 # PyMuPDF（pymupdf）は任意。あれば優先的に使う。
 try:
     import fitz  # type: ignore
+
     HAS_PYMUPDF = True
 except ImportError:
     HAS_PYMUPDF = False
@@ -249,7 +250,9 @@ def get_oa_pdf_url(
 
     url = build_url(OA_SERVICE_URL, params)
     if snapshot:
-        snapshot.start_request(url, "pmc_oa_lookup", metadata={"pmcid": pmcid_str, "params": params})
+        snapshot.start_request(
+            url, "pmc_oa_lookup", metadata={"pmcid": pmcid_str, "params": params}
+        )
 
     try:
         resp = requests.get(OA_SERVICE_URL, params=params, timeout=30)
@@ -592,10 +595,7 @@ def extract_and_chunk(config: Dict[str, Any]) -> None:
         for rec in all_chunks:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
-    print(
-        f"[extract_and_chunk] wrote {len(all_chunks)} chunks "
-        f"to {chunks_path}"
-    )
+    print(f"[extract_and_chunk] wrote {len(all_chunks)} chunks " f"to {chunks_path}")
 
 
 # ---- TF-IDF インデックス構築 -------------------------------
@@ -646,8 +646,7 @@ def build_index(config: Dict[str, Any]) -> None:
 
     if not texts:
         print(
-            "[build_index] WARNING: no chunks found to index. "
-            "Saving empty index.",
+            "[build_index] WARNING: no chunks found to index. " "Saving empty index.",
             file=sys.stderr,
         )
         index_obj = {
@@ -675,10 +674,7 @@ def build_index(config: Dict[str, Any]) -> None:
     }
 
     dump(index_obj, index_path)
-    print(
-        f"[build_index] wrote TF-IDF index to {index_path} "
-        f"shape={matrix.shape}"
-    )
+    print(f"[build_index] wrote TF-IDF index to {index_path} " f"shape={matrix.shape}")
 
 
 # ---- レポート生成 -------------------------------------------
@@ -706,8 +702,7 @@ def generate_report(config: Dict[str, Any]) -> None:
         msg = f"[generate_report] WARNING: metadata JSON not found: {meta_path}"
         print(msg, file=sys.stderr)
         report_path.write_text(
-            "# CDH13 文献レポート\n\n"
-            f"{msg}\n",
+            "# CDH13 文献レポート\n\n" f"{msg}\n",
             encoding="utf-8",
         )
         print(f"[generate_report] wrote warning report: {report_path}")

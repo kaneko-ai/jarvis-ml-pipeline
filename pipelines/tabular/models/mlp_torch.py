@@ -29,7 +29,7 @@ class MLP(nn.Module):
     ):
         """
         初期化.
-        
+
         Args:
             input_dim: 入力次元
             output_dim: 出力次元（分類ならクラス数、回帰なら1）
@@ -68,12 +68,12 @@ def create_mlp(
 ) -> MLP:
     """
     設定からMLPを作成.
-    
+
     Args:
         input_dim: 入力次元
         output_dim: 出力次元
         config: モデル設定
-    
+
     Returns:
         MLP
     """

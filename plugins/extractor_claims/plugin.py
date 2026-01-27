@@ -13,7 +13,12 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from jarvis_core.contracts.types import (
-    Artifacts, ArtifactsDelta, Claim, EvidenceLink, RuntimeConfig, TaskContext
+    Artifacts,
+    ArtifactsDelta,
+    Claim,
+    EvidenceLink,
+    RuntimeConfig,
+    TaskContext,
 )
 from jarvis_core.provenance import get_provenance_linker
 
@@ -21,6 +26,7 @@ from jarvis_core.provenance import get_provenance_linker
 @dataclass
 class NumericExtraction:
     """数値抽出結果."""
+
     value: str
     type: str  # n, p, CI, effect_size, percentage
     context: str
@@ -30,6 +36,7 @@ class NumericExtraction:
 @dataclass
 class MethodExtraction:
     """Methods抽出結果."""
+
     method_name: str
     description: str
     parameters: Dict[str, str] = field(default_factory=dict)
@@ -39,6 +46,7 @@ class MethodExtraction:
 @dataclass
 class LimitationExtraction:
     """Limitation抽出結果."""
+
     limitation: str
     severity: str  # minor, moderate, major
     evidence: Optional[EvidenceLink] = None
@@ -47,7 +55,7 @@ class LimitationExtraction:
 class ClaimExtractor:
     """
     Claim抽出器.
-    
+
     論文テキストから主張を抽出し、根拠を紐付ける。
     """
 
@@ -62,16 +70,15 @@ class ClaimExtractor:
     def __init__(self):
         self.linker = get_provenance_linker(strict=True)
 
-    def extract_claims(self, doc_id: str, text: str,
-                       section: str = "unknown") -> List[Claim]:
+    def extract_claims(self, doc_id: str, text: str, section: str = "unknown") -> List[Claim]:
         """
         テキストからClaimを抽出.
-        
+
         Args:
             doc_id: ドキュメントID
             text: テキスト
             section: セクション名
-        
+
         Returns:
             Claimリスト（evidence_links付き）
         """
@@ -101,15 +108,14 @@ class ClaimExtractor:
                     claim_text=claim_text,
                     evidence=evidence[:3],  # Top 3 evidence
                     claim_type="fact" if evidence else "hypothesis",
-                    confidence=sum(e.confidence for e in evidence[:3]) / 3 if evidence else 0.0
+                    confidence=sum(e.confidence for e in evidence[:3]) / 3 if evidence else 0.0,
                 )
 
                 claims.append(claim)
 
         return claims
 
-    def extract_from_sections(self, doc_id: str,
-                              sections: Dict[str, str]) -> List[Claim]:
+    def extract_from_sections(self, doc_id: str, sections: Dict[str, str]) -> List[Claim]:
         """複数セクションからClaim抽出."""
         all_claims = []
 
@@ -123,7 +129,7 @@ class ClaimExtractor:
 class NumericExtractor:
     """
     数値抽出器.
-    
+
     n, p値, CI, 効果量などを抽出。
     """
 
@@ -138,8 +144,7 @@ class NumericExtractor:
         "mean_sd": r"(?:mean|M)\s*[=:]\s*([0-9.]+)\s*±\s*([0-9.]+)",
     }
 
-    def extract(self, text: str, doc_id: str = "",
-                section: str = "") -> List[NumericExtraction]:
+    def extract(self, text: str, doc_id: str = "", section: str = "") -> List[NumericExtraction]:
         """数値を抽出."""
         results = []
 
@@ -161,15 +166,14 @@ class NumericExtractor:
                     start=match.start(),
                     end=match.end(),
                     confidence=0.9,
-                    text=match.group(0)
+                    text=match.group(0),
                 )
 
-                results.append(NumericExtraction(
-                    value=value,
-                    type=num_type,
-                    context=context,
-                    evidence=evidence
-                ))
+                results.append(
+                    NumericExtraction(
+                        value=value, type=num_type, context=context, evidence=evidence
+                    )
+                )
 
         return results
 
@@ -178,36 +182,53 @@ class MethodExtractor:
     """Methods抽出器."""
 
     METHOD_KEYWORDS = [
-        "western blot", "PCR", "qPCR", "RNA-seq", "ELISA",
-        "flow cytometry", "immunofluorescence", "microscopy",
-        "cell culture", "transfection", "knockout", "knockdown",
-        "statistical analysis", "t-test", "ANOVA", "regression",
-        "machine learning", "deep learning", "neural network"
+        "western blot",
+        "PCR",
+        "qPCR",
+        "RNA-seq",
+        "ELISA",
+        "flow cytometry",
+        "immunofluorescence",
+        "microscopy",
+        "cell culture",
+        "transfection",
+        "knockout",
+        "knockdown",
+        "statistical analysis",
+        "t-test",
+        "ANOVA",
+        "regression",
+        "machine learning",
+        "deep learning",
+        "neural network",
     ]
 
-    def extract(self, text: str, doc_id: str = "",
-                section: str = "Methods") -> List[MethodExtraction]:
+    def extract(
+        self, text: str, doc_id: str = "", section: str = "Methods"
+    ) -> List[MethodExtraction]:
         """Methods情報を抽出."""
         results = []
 
         for method in self.METHOD_KEYWORDS:
             if method.lower() in text.lower():
                 # Find the sentence containing the method
-                sentences = re.split(r'[.!?]', text)
+                sentences = re.split(r"[.!?]", text)
                 for sent in sentences:
                     if method.lower() in sent.lower():
-                        results.append(MethodExtraction(
-                            method_name=method,
-                            description=sent.strip()[:200],
-                            evidence=EvidenceLink(
-                                doc_id=doc_id,
-                                section=section,
-                                chunk_id=f"{doc_id}_{section}",
-                                start=0,
-                                end=len(sent),
-                                confidence=0.85
+                        results.append(
+                            MethodExtraction(
+                                method_name=method,
+                                description=sent.strip()[:200],
+                                evidence=EvidenceLink(
+                                    doc_id=doc_id,
+                                    section=section,
+                                    chunk_id=f"{doc_id}_{section}",
+                                    start=0,
+                                    end=len(sent),
+                                    confidence=0.85,
+                                ),
                             )
-                        ))
+                        )
                         break
 
         return results
@@ -217,14 +238,21 @@ class LimitationExtractor:
     """Limitation抽出器."""
 
     LIMITATION_PATTERNS = [
-        (r"(?:limitation|drawback|weakness)[s]?\s+(?:of|in)\s+(?:this|our|the)\s+study[^.]*include[s]?\s+([^.]+\.)", "major"),
-        (r"(?:however|nonetheless|nevertheless)[,\s]+([^.]*(?:limit|restrict|constrain)[^.]+\.)", "moderate"),
+        (
+            r"(?:limitation|drawback|weakness)[s]?\s+(?:of|in)\s+(?:this|our|the)\s+study[^.]*include[s]?\s+([^.]+\.)",
+            "major",
+        ),
+        (
+            r"(?:however|nonetheless|nevertheless)[,\s]+([^.]*(?:limit|restrict|constrain)[^.]+\.)",
+            "moderate",
+        ),
         (r"(?:future\s+(?:studies?|research|work)\s+(?:should|could|may)[^.]+\.)", "minor"),
         (r"(?:small\s+sample\s+size|limited\s+(?:sample|data|scope))[^.]*\.", "major"),
     ]
 
-    def extract(self, text: str, doc_id: str = "",
-                section: str = "Discussion") -> List[LimitationExtraction]:
+    def extract(
+        self, text: str, doc_id: str = "", section: str = "Discussion"
+    ) -> List[LimitationExtraction]:
         """Limitationを抽出."""
         results = []
 
@@ -233,18 +261,20 @@ class LimitationExtractor:
             for match in matches:
                 limitation_text = match.group(1) if match.groups() else match.group(0)
 
-                results.append(LimitationExtraction(
-                    limitation=limitation_text.strip()[:300],
-                    severity=severity,
-                    evidence=EvidenceLink(
-                        doc_id=doc_id,
-                        section=section,
-                        chunk_id=f"{doc_id}_{section}",
-                        start=match.start(),
-                        end=match.end(),
-                        confidence=0.8
+                results.append(
+                    LimitationExtraction(
+                        limitation=limitation_text.strip()[:300],
+                        severity=severity,
+                        evidence=EvidenceLink(
+                            doc_id=doc_id,
+                            section=section,
+                            chunk_id=f"{doc_id}_{section}",
+                            start=match.start(),
+                            end=match.end(),
+                            confidence=0.8,
+                        ),
                     )
-                ))
+                )
 
         return results
 
@@ -264,19 +294,11 @@ class ExtractionPlugin:
 
     def run(self, context: TaskContext, artifacts: Artifacts) -> ArtifactsDelta:
         """抽出を実行."""
-        delta: ArtifactsDelta = {
-            "claims": [],
-            "numerics": [],
-            "methods": [],
-            "limitations": []
-        }
+        delta: ArtifactsDelta = {"claims": [], "numerics": [], "methods": [], "limitations": []}
 
         for paper in artifacts.papers:
             # Extract claims
-            claims = self.claim_extractor.extract_from_sections(
-                paper.doc_id,
-                paper.sections
-            )
+            claims = self.claim_extractor.extract_from_sections(paper.doc_id, paper.sections)
 
             for claim in claims:
                 artifacts.add_claim(claim)
@@ -289,12 +311,14 @@ class ExtractionPlugin:
                         paper.sections[section], paper.doc_id, section
                     )
                     for n in numerics:
-                        delta["numerics"].append({
-                            "value": n.value,
-                            "type": n.type,
-                            "context": n.context,
-                            "evidence": n.evidence.to_dict() if n.evidence else None
-                        })
+                        delta["numerics"].append(
+                            {
+                                "value": n.value,
+                                "type": n.type,
+                                "context": n.context,
+                                "evidence": n.evidence.to_dict() if n.evidence else None,
+                            }
+                        )
 
             # Extract methods
             for section in ["Methods", "Materials and Methods", "methods"]:
@@ -303,11 +327,13 @@ class ExtractionPlugin:
                         paper.sections[section], paper.doc_id, section
                     )
                     for m in methods:
-                        delta["methods"].append({
-                            "method": m.method_name,
-                            "description": m.description,
-                            "evidence": m.evidence.to_dict() if m.evidence else None
-                        })
+                        delta["methods"].append(
+                            {
+                                "method": m.method_name,
+                                "description": m.description,
+                                "evidence": m.evidence.to_dict() if m.evidence else None,
+                            }
+                        )
 
             # Extract limitations
             for section in ["Discussion", "Limitations", "discussion"]:
@@ -316,11 +342,13 @@ class ExtractionPlugin:
                         paper.sections[section], paper.doc_id, section
                     )
                     for lim in limitations:
-                        delta["limitations"].append({
-                            "limitation": lim.limitation,
-                            "severity": lim.severity,
-                            "evidence": lim.evidence.to_dict() if lim.evidence else None
-                        })
+                        delta["limitations"].append(
+                            {
+                                "limitation": lim.limitation,
+                                "severity": lim.severity,
+                                "evidence": lim.evidence.to_dict() if lim.evidence else None,
+                            }
+                        )
 
         return delta
 

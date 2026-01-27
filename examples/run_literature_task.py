@@ -1,4 +1,5 @@
 """Minimal example to run a literature task through the AgentRegistry and Router."""
+
 from __future__ import annotations
 
 from pathlib import Path

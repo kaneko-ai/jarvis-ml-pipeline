@@ -17,6 +17,6 @@ class TestContradictionSafe:
 class TestModule:
     def test_module(self):
         try:
-            import jarvis_core.contradiction
+            import jarvis_core.contradiction  # noqa: F401
         except ImportError:
             pass
