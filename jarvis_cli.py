@@ -482,6 +482,114 @@ def cmd_skills(args):
     sys.exit(1)
 
 
+def cmd_rules(args):
+    """Manage rules for global/workspace contexts."""
+    from jarvis_core.rules.engine import RulesEngine
+
+    engine = RulesEngine(workspace_path=Path.cwd())
+
+    if args.rules_command == "list":
+        rules = engine.list_rules()
+        if args.json:
+            print(json.dumps(rules, ensure_ascii=False, indent=2))
+            return
+        print("=== Rules ===")
+        for rule in rules:
+            print(f"  • {rule['name']} ({rule['scope']})")
+        return
+
+    if args.rules_command == "show":
+        rules = engine.list_rules()
+        rule = next((item for item in rules if item["name"] == args.rule_name), None)
+        if not rule:
+            print(f"Rule not found: {args.rule_name}", file=sys.stderr)
+            sys.exit(1)
+        if args.json:
+            print(json.dumps({"rule": rule["name"], "content": rule["content"]}, ensure_ascii=False, indent=2))
+        else:
+            print(rule["content"])
+        return
+
+    if args.rules_command == "init":
+        rules_dir = Path.cwd() / ".agent" / "rules"
+        rules_dir.mkdir(parents=True, exist_ok=True)
+        if args.json:
+            print(json.dumps({"created": str(rules_dir)}, ensure_ascii=False, indent=2))
+        else:
+            print(f"✅ Created rules directory at {rules_dir}")
+        return
+
+    print("Unknown rules command", file=sys.stderr)
+    sys.exit(1)
+
+
+def cmd_workflows(args):
+    """Manage workflows for saved prompts."""
+    from jarvis_core.workflows.engine import WorkflowsEngine
+
+    engine = WorkflowsEngine(workspace_path=Path.cwd())
+
+    if args.workflows_command == "list":
+        workflows = engine.list_workflows()
+        if args.json:
+            print(json.dumps(workflows, ensure_ascii=False, indent=2))
+            return
+        print("=== Workflows ===")
+        for workflow in workflows:
+            print(f"  • {workflow['name']} ({workflow['scope']}) - {workflow['description']}")
+        return
+
+    if args.workflows_command == "show":
+        workflow = engine.get_workflow(args.name)
+        if not workflow:
+            print(f"Workflow not found: {args.name}", file=sys.stderr)
+            sys.exit(1)
+        if args.json:
+            print(json.dumps({"workflow": workflow.metadata.name, "content": workflow.content}, ensure_ascii=False, indent=2))
+        else:
+            print(workflow.content)
+        return
+
+    if args.workflows_command == "run":
+        context = {"args": args.args or []}
+        output = engine.execute(args.name, context)
+        if args.json:
+            print(json.dumps({"workflow": args.name, "output": output}, ensure_ascii=False, indent=2))
+        else:
+            print(output)
+        return
+
+    if args.workflows_command == "init":
+        workflows_dir = Path.cwd() / ".agent" / "workflows"
+        workflows_dir.mkdir(parents=True, exist_ok=True)
+        workflow_path = workflows_dir / f"{args.name}.md"
+        if workflow_path.exists() and not args.force:
+            print(f"Workflow already exists: {workflow_path}", file=sys.stderr)
+            sys.exit(1)
+        template = textwrap.dedent(
+            f"""\
+            ---
+            name: {args.name}
+            description: Describe this workflow.
+            command: /{args.name}
+            ---
+            # {args.name}
+
+            1. Describe the first step.
+            2. Describe the next step.
+            """
+        ).strip()
+        workflow_path.write_text(template + "\n", encoding="utf-8")
+        if args.json:
+            print(json.dumps({"created": str(workflow_path)}, ensure_ascii=False, indent=2))
+        else:
+            print(f"✅ Created workflow template at {workflow_path}")
+        return
+
+    print("Unknown workflows command", file=sys.stderr)
+    sys.exit(1)
+
+
 def cmd_show_run(args):
     """Show run summary with fail reasons and missing artifacts (per DEC-006)."""
     from jarvis_core.storage import RunStore
@@ -691,6 +799,43 @@ def main():
     skills_init_parser.add_argument("--force", action="store_true", help="Overwrite existing skill")
     skills_init_parser.set_defaults(skills_command="init")
 
+    # === rules command ===
+    rules_parser = subparsers.add_parser("rules", help="Manage rules")
+    rules_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    rules_subparsers = rules_parser.add_subparsers(dest="rules_command", help="Rules commands")
+
+    rules_list_parser = rules_subparsers.add_parser("list", help="List active rules")
+    rules_list_parser.set_defaults(rules_command="list")
+
+    rules_show_parser = rules_subparsers.add_parser("show", help="Show rule content")
+    rules_show_parser.add_argument("rule_name", type=str, help="Rule name")
+    rules_show_parser.set_defaults(rules_command="show")
+
+    rules_init_parser = rules_subparsers.add_parser("init", help="Initialize workspace rules directory")
+    rules_init_parser.set_defaults(rules_command="init")
+
+    # === workflows command ===
+    workflows_parser = subparsers.add_parser("workflows", help="Manage workflows")
+    workflows_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    workflows_subparsers = workflows_parser.add_subparsers(dest="workflows_command", help="Workflows commands")
+
+    workflows_list_parser = workflows_subparsers.add_parser("list", help="List workflows")
+    workflows_list_parser.set_defaults(workflows_command="list")
+
+    workflows_show_parser = workflows_subparsers.add_parser("show", help="Show workflow content")
+    workflows_show_parser.add_argument("name", type=str, help="Workflow name")
+    workflows_show_parser.set_defaults(workflows_command="show")
+
+    workflows_run_parser = workflows_subparsers.add_parser("run", help="Run a workflow")
+    workflows_run_parser.add_argument("name", type=str, help="Workflow name")
+    workflows_run_parser.add_argument("args", nargs=argparse.REMAINDER, help="Arguments for workflow context")
+    workflows_run_parser.set_defaults(workflows_command="run")
+
+    workflows_init_parser = workflows_subparsers.add_parser("init", help="Create a workflow template")
+    workflows_init_parser.add_argument("name", type=str, help="Workflow name")
+    workflows_init_parser.add_argument("--force", action="store_true", help="Overwrite existing workflow")
+    workflows_init_parser.set_defaults(workflows_command="init")
+
     # === sync command ===
     sync_parser = subparsers.add_parser("sync", help="Process pending sync queue items")
 
@@ -745,6 +890,10 @@ def main():
         cmd_mcp(args)
     elif args.command == "skills":
         cmd_skills(args)
+    elif args.command == "rules":
+        cmd_rules(args)
+    elif args.command == "workflows":
+        cmd_workflows(args)
     elif args.command == "sync":
         from jarvis_core.sync.manager import SyncQueueManager
         manager = SyncQueueManager()
