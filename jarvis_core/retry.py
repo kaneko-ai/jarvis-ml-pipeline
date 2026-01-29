@@ -52,7 +52,7 @@ class RetryPolicy:
 
                 time.sleep(delay)
 
-        if last_exception:
+        if last_exception is not None:
             raise last_exception
         raise RuntimeError("Retry failed without exception")  # Should not happen
 

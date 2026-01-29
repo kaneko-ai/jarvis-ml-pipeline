@@ -35,7 +35,7 @@ class TestRetrievalExtractionDetailed:
                                     m()
                                 except TypeError:
                                     pass  # Needs arguments
-                except:
+                except Exception as e:
                     pass
 
 
@@ -82,7 +82,7 @@ class TestMultimodalScientificDetailed:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 
@@ -108,7 +108,7 @@ class TestNoteGeneratorDetailed:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 
@@ -134,7 +134,7 @@ class TestActiveLearningEngineDetailed:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 
@@ -160,7 +160,7 @@ class TestCitationLoopDetailed:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 
@@ -186,7 +186,7 @@ class TestRobustExtractorDetailed:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 
@@ -212,7 +212,7 @@ class TestPhaseKPIDetailed:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 
@@ -238,5 +238,5 @@ class TestPDFExtractorDetailed:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass

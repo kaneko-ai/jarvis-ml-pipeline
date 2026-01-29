@@ -37,9 +37,9 @@ class TestQueryDecomposeComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("What is the effect of X on Y?")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -67,9 +67,9 @@ class TestIntelligencePatternsComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)([{"pattern": "test"}])
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -97,9 +97,9 @@ class TestArtifactStoreComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("artifact_id", {"data": "test"})
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -127,9 +127,9 @@ class TestIndexRegistryComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("index_name")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -157,9 +157,9 @@ class TestSchedulerRunnerComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)(lambda: "task")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -190,9 +190,9 @@ class TestSearchAdapterComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("search query")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -220,9 +220,9 @@ class TestMemoryOptimizerComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)(1000)
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -255,9 +255,9 @@ class TestProvidersFactoryComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("openai")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -285,9 +285,9 @@ class TestContradictionNormalizerComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("text to normalize")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -320,7 +320,7 @@ class TestSpecter2Complete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)(["text1", "text2"])
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass

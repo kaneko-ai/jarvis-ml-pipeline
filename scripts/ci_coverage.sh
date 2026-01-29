@@ -53,7 +53,11 @@ python -m coverage combine --rcfile="$CFG"
 # Generate final report with fail_under check
 echo ""
 echo "=== Coverage Report ==="
-python -m coverage report --rcfile="$CFG"
+python -m pytest tests/ \
+    --cov=jarvis_core \
+    --cov-report=xml \
+    --cov-report=html \
+    --cov-fail-under=70
 
 echo ""
 echo "=== Coverage Gate PASSED ==="

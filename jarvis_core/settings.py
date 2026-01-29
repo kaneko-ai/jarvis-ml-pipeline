@@ -22,7 +22,7 @@ class CoreSettings:
     # Paths
     cache_dir: str = field(default_factory=lambda: os.getenv("JARVIS_CACHE_DIR", ".cache"))
 
-    def validate(self):
+    def validate(self) -> None:
         """Validate that mandatory settings are present."""
         # NCBI_API_KEY is usually mandatory for production-like runs
         if not self.ncbi_api_key and self.env == "production":
@@ -33,7 +33,7 @@ class CoreSettings:
 
 
 # Global settings instance
-_settings = None
+_settings: CoreSettings | None = None
 
 
 def get_settings() -> CoreSettings:

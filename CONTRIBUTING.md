@@ -24,6 +24,11 @@ uv sync
 pip install -e ".[dev]"
 ```
 
+### Environment Variables
+
+環境変数は `.env.example` をコピーして `.env` を作成してください。
+`.env` は絶対にコミットしないでください。
+
 ### Running Tests
 
 ```bash

@@ -31,12 +31,12 @@ class TestErrorPathsAdvanced:
 
         try:
             result = analyzer.decompose([None, None, None], period=2)
-        except:
+        except Exception as e:
             pass
 
         try:
             result = analyzer.forecast([1], steps=0)
-        except:
+        except Exception as e:
             pass
 
 
@@ -85,14 +85,14 @@ class TestErrorPathsIngestion:
 
         try:
             result = extractor.extract(Path("/nonexistent/file.pdf"))
-        except:
+        except Exception as e:
             pass
 
         with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
             f.write(b"Not a PDF")
             try:
                 result = extractor.extract(Path(f.name))
-            except:
+            except Exception as e:
                 pass
 
     def test_bibtex_parser_invalid_bibtex(self):
@@ -120,7 +120,7 @@ class TestErrorPathsStages:
             # No files at all
             try:
                 result = generate_report(run_dir, "Test query")
-            except:
+            except Exception as e:
                 pass
 
     def test_generate_report_empty_files(self):
@@ -154,9 +154,9 @@ class TestErrorPathsSources:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)()
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     @patch("jarvis_core.sources.crossref_client.requests.get")
@@ -168,5 +168,5 @@ class TestErrorPathsSources:
             if isinstance(getattr(crossref_client, name), type):
                 try:
                     instance = getattr(crossref_client, name)()
-                except:
+                except Exception as e:
                     pass

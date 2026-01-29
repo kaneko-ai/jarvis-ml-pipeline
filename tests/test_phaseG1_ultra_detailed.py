@@ -201,7 +201,7 @@ class TestRetrievalExtractionAllBranches:
                                         method()
                                     except TypeError:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -222,7 +222,7 @@ class TestActiveLearningEngineAllBranches:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -243,7 +243,7 @@ class TestCitationLoopAllBranches:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -264,7 +264,7 @@ class TestMultimodalScientificAllBranches:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -285,7 +285,7 @@ class TestNoteGeneratorAllBranches:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -306,7 +306,7 @@ class TestRobustExtractorAllBranches:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -327,5 +327,5 @@ class TestPhaseKPIAllBranches:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass

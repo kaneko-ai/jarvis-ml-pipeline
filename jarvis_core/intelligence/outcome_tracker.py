@@ -144,7 +144,7 @@ class OutcomeTracker:
                     decision_time = datetime.fromisoformat(d.timestamp.replace("Z", "+00:00"))
                     if decision_time < cutoff:
                         pending.append(d.decision_id)
-                except:
+                except Exception as e:
                     pass
 
         return pending

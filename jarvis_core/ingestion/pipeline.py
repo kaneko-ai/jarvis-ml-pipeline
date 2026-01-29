@@ -365,7 +365,7 @@ class BibTeXParser:
         try:
             with open(filepath, encoding="utf-8") as f:
                 content = f.read()
-        except:
+        except Exception as e:
             return []
 
         # エントリを抽出
@@ -455,7 +455,7 @@ class IngestionPipeline:
             year_str = entry.get("year", "0")
             try:
                 year = int(year_str)
-            except:
+            except Exception as e:
                 year = 0
 
             papers.append(

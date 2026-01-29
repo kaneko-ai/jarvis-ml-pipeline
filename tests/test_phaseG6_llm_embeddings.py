@@ -22,7 +22,7 @@ class TestLLMAdapterComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -38,7 +38,7 @@ class TestLLMEnsembleComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -54,7 +54,7 @@ class TestLLMModelRouterComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -70,7 +70,7 @@ class TestLLMOllamaAdapterComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -86,7 +86,7 @@ class TestEmbeddingsEmbedderComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -102,7 +102,7 @@ class TestEmbeddingsChromaStoreComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -118,5 +118,5 @@ class TestEmbeddingsSpecter2Complete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass

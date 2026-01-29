@@ -21,12 +21,12 @@ def deep_test_module(module):
                                 except TypeError:
                                     try:
                                         method("")
-                                    except:
+                                    except Exception as e:
                                         try:
                                             method([])
-                                        except:
+                                        except Exception as e:
                                             pass
-                except:
+                except Exception as e:
                     pass
 
 
@@ -69,10 +69,10 @@ class TestStagesRetrievalExtractionBranches:
             except TypeError:
                 try:
                     func("")
-                except:
+                except Exception as e:
                     try:
                         func([])
-                    except:
+                    except Exception as e:
                         pass
 
 

@@ -313,7 +313,7 @@ class GoldenSetValidator:
             try:
                 with open(self.golden_path, encoding="utf-8") as f:
                     self.golden = json.load(f)
-            except:
+            except Exception as e:
                 pass
 
     def validate_run(

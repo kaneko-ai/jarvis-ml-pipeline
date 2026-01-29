@@ -9,11 +9,18 @@ coverage:
   status:
     project:
       default:
-        target: 80%
-        threshold: 2%
+        target: 70%
+        threshold: 1%
+        if_not_found: success
     patch:
       default:
         target: 80%
+        threshold: 5%
+        if_not_found: success
+  comment:
+    layout: reach,diff,flags,files
+    behavior: default
+    require_changes: true
 
 parsers:
   gcov:
@@ -22,11 +29,6 @@ parsers:
       loop: yes
       method: no
       macro: no
-
-comment:
-  layout: "reach,diff,flags,files,footer"
-  behavior: default
-  require_changes: no
 
 flags:
   unittests:

@@ -33,9 +33,9 @@ class TestReportGeneratorComplete:
                                         getattr(instance, method)(
                                             {"title": "Report", "sections": []}
                                         )
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -63,9 +63,9 @@ class TestReportTemplatesComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("template_name")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -95,9 +95,9 @@ class TestRankExplainComplete:
                                         getattr(instance, method)(
                                             [{"score": 0.8, "reason": "high"}]
                                         )
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -125,9 +125,9 @@ class TestReportingSummaryComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("text to summarize")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -155,9 +155,9 @@ class TestReplayRecorderComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("event_name", {"data": "test"})
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -185,9 +185,9 @@ class TestReplayReproduceComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("session_id")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -215,9 +215,9 @@ class TestOpsConfigComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("config_key")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -245,9 +245,9 @@ class TestOpsResilienceComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)(lambda: "result")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -277,9 +277,9 @@ class TestFinanceOptimizerComplete:
                                         getattr(instance, method)(
                                             {"budget": 100000, "constraints": []}
                                         )
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -307,7 +307,7 @@ class TestFinanceScenariosComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("scenario_name")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass

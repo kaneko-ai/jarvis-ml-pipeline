@@ -30,9 +30,9 @@ class TestCareerPlannerComplete:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)()
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
 
@@ -58,7 +58,7 @@ class TestFailurePredictorComplete:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 
@@ -84,7 +84,7 @@ class TestFailureSimulatorComplete:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 
@@ -110,7 +110,7 @@ class TestParadigmComplete:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 
@@ -136,7 +136,7 @@ class TestCompetingHypothesisComplete:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 
@@ -162,7 +162,7 @@ class TestLabCultureComplete:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 
@@ -188,7 +188,7 @@ class TestSigmaModulesComplete:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 
@@ -214,7 +214,7 @@ class TestHeatmapComplete:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 
@@ -240,7 +240,7 @@ class TestAutonomousLoopComplete:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 
@@ -266,7 +266,7 @@ class TestChainBuilderComplete:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 
@@ -292,7 +292,7 @@ class TestComparisonComplete:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 
@@ -318,5 +318,5 @@ class TestArtifactsSchemaComplete:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass

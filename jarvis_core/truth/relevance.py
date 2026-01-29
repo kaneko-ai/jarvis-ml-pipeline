@@ -66,14 +66,12 @@ def jaccard_similarity(text1: str, text2: str) -> float:
 def score_relevance(
     query: str,
     evidence_text: str,
-    use_embedding: bool = False,
 ) -> dict:
     """Score relevance of evidence to query.
 
     Args:
         query: Query/claim text.
         evidence_text: Evidence text.
-        use_embedding: Whether to use embedding (placeholder).
 
     Returns:
         Relevance score dict.

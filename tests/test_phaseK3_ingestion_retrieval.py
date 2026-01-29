@@ -94,7 +94,7 @@ class TestIngestionPipelineComplete:
             try:
                 result = pipeline.run()
                 assert result is not None
-            except:
+            except Exception as e:
                 pass
 
     def test_run_empty_directory(self):
@@ -105,7 +105,7 @@ class TestIngestionPipelineComplete:
             try:
                 result = pipeline.run()
                 assert result is not None
-            except:
+            except Exception as e:
                 pass
 
 
@@ -135,9 +135,9 @@ class TestCrossEncoderComplete:
                                     except TypeError:
                                         try:
                                             method()
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -162,9 +162,9 @@ class TestQueryDecomposeComplete:
                                     except TypeError:
                                         try:
                                             method()
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -193,9 +193,9 @@ class TestRetrievalExportComplete:
                                     except TypeError:
                                         try:
                                             method()
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -220,9 +220,9 @@ class TestCitationContextComplete:
                                     except TypeError:
                                         try:
                                             method()
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -252,9 +252,9 @@ class TestEvalCitationLoopComplete:
                                     except TypeError:
                                         try:
                                             method()
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -279,9 +279,9 @@ class TestEvalValidatorComplete:
                                     except TypeError:
                                         try:
                                             method()
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -306,7 +306,7 @@ class TestEvalTextQualityComplete:
                                     except TypeError:
                                         try:
                                             method()
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass

@@ -36,7 +36,7 @@ class TestLLMAdapterDetailed:
             if isinstance(obj, type):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 

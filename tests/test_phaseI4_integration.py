@@ -168,7 +168,7 @@ class TestIntegrationIngestionPipeline:
             try:
                 result = pipeline.run()
                 assert result is not None
-            except:
+            except Exception as e:
                 pass
 
 

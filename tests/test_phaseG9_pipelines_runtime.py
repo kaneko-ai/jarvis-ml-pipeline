@@ -16,7 +16,7 @@ class TestPipelinesReviewGeneratorComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -32,7 +32,7 @@ class TestPipelinesPaperPipelineComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -48,7 +48,7 @@ class TestRuntimeCostTrackerComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -64,7 +64,7 @@ class TestRuntimeTelemetryComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -80,7 +80,7 @@ class TestRuntimeRateLimiterComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -96,7 +96,7 @@ class TestStorageArtifactStoreComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -112,5 +112,5 @@ class TestStorageIndexRegistryComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass

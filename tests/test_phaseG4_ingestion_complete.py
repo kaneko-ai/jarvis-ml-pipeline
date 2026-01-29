@@ -23,7 +23,7 @@ class TestIngestionPipelineComplete:
         try:
             result = extractor.extract(Path(pdf_path))
             assert result is not None
-        except:
+        except Exception as e:
             pass  # PDF parsing may fail without proper PDF
 
     def test_text_chunker_all_methods(self):
@@ -93,7 +93,7 @@ class TestIngestionPipelineComplete:
             try:
                 result = pipeline.run()
                 assert result is not None
-            except:
+            except Exception as e:
                 pass
 
 
@@ -144,5 +144,5 @@ class TestRobustExtractorComplete:
                                         method()
                                     except TypeError:
                                         pass
-                    except:
+                    except Exception as e:
                         pass

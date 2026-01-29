@@ -16,7 +16,7 @@ class TestKBIndexerComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -32,7 +32,7 @@ class TestKBRAGComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -48,7 +48,7 @@ class TestRetrievalCrossEncoderComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -64,7 +64,7 @@ class TestRetrievalQueryDecomposeComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -80,7 +80,7 @@ class TestRetrievalExportComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -96,7 +96,7 @@ class TestReportGeneratorComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -112,7 +112,7 @@ class TestReportTemplatesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -128,7 +128,7 @@ class TestReportingRankExplainComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -144,5 +144,5 @@ class TestReportingSummaryComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass

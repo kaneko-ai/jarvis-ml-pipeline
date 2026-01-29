@@ -15,9 +15,9 @@ class TestEvenMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"goal": "research"})
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_plugins(self):
@@ -31,9 +31,9 @@ class TestEvenMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("plugin_name")
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_positioning(self):
@@ -47,9 +47,9 @@ class TestEvenMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"x": 0, "y": 0})
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_pretrain_citation_reconstruction(self):
@@ -65,9 +65,9 @@ class TestEvenMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("citation [1]")
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_pretrain_meta_core(self):
@@ -81,9 +81,9 @@ class TestEvenMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)([{"text": "data"}])
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_prisma(self):
@@ -97,9 +97,9 @@ class TestEvenMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"stage": "identification"})
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_quality_gate(self):
@@ -113,9 +113,9 @@ class TestEvenMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"score": 0.9})
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_remediation(self):
@@ -129,9 +129,9 @@ class TestEvenMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"issue": "bug"})
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_scheduler_engine(self):
@@ -145,9 +145,9 @@ class TestEvenMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)(lambda: "task")
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_scientific_linter(self):
@@ -161,9 +161,9 @@ class TestEvenMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("scientific text")
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
 
@@ -181,9 +181,9 @@ class TestEvenMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"spec": "data"})
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_task_model(self):
@@ -197,9 +197,9 @@ class TestEvenMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"task_id": "t1"})
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_trace(self):
@@ -213,9 +213,9 @@ class TestEvenMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("trace_event")
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_trend_watcher(self):
@@ -229,9 +229,9 @@ class TestEvenMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)(["AI", "ML"])
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_validation(self):
@@ -245,9 +245,9 @@ class TestEvenMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"data": "test"})
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_weekly_pack(self):
@@ -261,9 +261,9 @@ class TestEvenMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"week": 1})
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_workflow_runner(self):
@@ -277,9 +277,9 @@ class TestEvenMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"workflow": []})
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_workflow_tuner(self):
@@ -293,9 +293,9 @@ class TestEvenMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"param": 0.5})
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_cross_field(self):
@@ -309,9 +309,9 @@ class TestEvenMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)(["field1", "field2"])
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_gap_analysis(self):
@@ -325,7 +325,7 @@ class TestEvenMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)([{"topic": "AI"}])
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass

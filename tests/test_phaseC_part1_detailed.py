@@ -26,7 +26,7 @@ class TestAdvancedFeaturesComplete:
             if obj and callable(obj):
                 try:
                     instance = obj()
-                except:
+                except Exception as e:
                     pass
 
 

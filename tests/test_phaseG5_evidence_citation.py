@@ -24,7 +24,7 @@ class TestEvidenceGraderComplete:
                                         method()
                                     except TypeError:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -40,7 +40,7 @@ class TestEvidenceMapperComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -56,7 +56,7 @@ class TestEvidenceStoreComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -72,7 +72,7 @@ class TestCitationAnalyzerComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -88,7 +88,7 @@ class TestCitationGeneratorComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -104,7 +104,7 @@ class TestCitationNetworkComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -120,7 +120,7 @@ class TestCitationRelevanceComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -136,7 +136,7 @@ class TestContradictionModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
     def test_normalizer(self):
@@ -148,7 +148,7 @@ class TestContradictionModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
     def test_resolver(self):
@@ -160,5 +160,5 @@ class TestContradictionModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
