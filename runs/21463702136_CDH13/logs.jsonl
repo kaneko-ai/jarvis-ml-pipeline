@@ -1,0 +1,7 @@
+{"type": "event", "stage": "start", "message": "Pipeline start", "at": "2026-01-29T02:49:42.121952+00:00"}
+{"type": "progress", "percent": 25, "stage": "config", "message": "Creating pipeline configuration", "counters": {"query": "(CDH13[Title/Abstract] OR T-cadherin[Title/Abstract]) AND free full text[filter]"}, "at": "2026-01-29T02:49:42.122057+00:00"}
+{"type": "progress", "percent": 30, "stage": "pipeline", "message": "Running paper collection pipeline", "counters": {}, "at": "2026-01-29T02:49:42.124410+00:00"}
+{"type": "event", "stage": "pipeline", "message": "Pipeline completed", "at": "2026-01-29T02:54:27.064294+00:00"}
+{"type": "progress", "percent": 85, "stage": "artifacts", "message": "Generating artifacts", "counters": {}, "at": "2026-01-29T02:54:27.064467+00:00"}
+{"type": "quality_gate_failed", "message": "Citations not attached", "at": "2026-01-29T02:54:27.070495+00:00"}
+{"type": "event", "stage": "complete", "message": "Run completed with status=failed", "at": "2026-01-29T02:54:27.072671+00:00"}
