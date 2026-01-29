@@ -37,9 +37,9 @@ class TestChromaStoreComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)([0.1, 0.2, 0.3])
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -73,9 +73,9 @@ class TestLLMEnsembleComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("prompt")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -103,9 +103,9 @@ class TestModelRouterComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("task_type")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -129,10 +129,10 @@ class TestMendeleyComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj(api_key="test")
-                    except:
+                    except Exception as e:
                         try:
                             instance = obj()
-                        except:
+                        except Exception as e:
                             continue
 
                     for method in dir(instance):
@@ -142,7 +142,7 @@ class TestMendeleyComplete:
                             except TypeError:
                                 try:
                                     getattr(instance, method)("search query")
-                                except:
+                                except Exception as e:
                                     pass
 
 
@@ -166,10 +166,10 @@ class TestSlackComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj(token="test")
-                    except:
+                    except Exception as e:
                         try:
                             instance = obj()
-                        except:
+                        except Exception as e:
                             continue
 
                     for method in dir(instance):
@@ -179,7 +179,7 @@ class TestSlackComplete:
                             except TypeError:
                                 try:
                                     getattr(instance, method)("channel", "message")
-                                except:
+                                except Exception as e:
                                     pass
 
 
@@ -203,10 +203,10 @@ class TestNotionComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj(token="test")
-                    except:
+                    except Exception as e:
                         try:
                             instance = obj()
-                        except:
+                        except Exception as e:
                             continue
 
                     for method in dir(instance):
@@ -216,7 +216,7 @@ class TestNotionComplete:
                             except TypeError:
                                 try:
                                     getattr(instance, method)("database_id")
-                                except:
+                                except Exception as e:
                                     pass
 
 
@@ -244,9 +244,9 @@ class TestObsRetentionComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)(30)
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -274,9 +274,9 @@ class TestStopPolicyComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)({"iteration": 10})
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -304,9 +304,9 @@ class TestProvenanceLinkerComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("source_id", "target_id")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -334,7 +334,7 @@ class TestDriftDetectorComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)([0.1, 0.2, 0.3], [0.4, 0.5, 0.6])
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass

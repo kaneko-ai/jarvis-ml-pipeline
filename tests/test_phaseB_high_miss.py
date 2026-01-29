@@ -178,7 +178,7 @@ class TestEducationModule:
             mock_paper.abstract = "Test abstract"
             try:
                 result = education.translate_for_level(mock_paper, "highschool")
-            except:
+            except Exception as e:
                 pass  # Function may require specific input
 
 

@@ -712,7 +712,7 @@ def stage_store_training_record(context: TaskContext, artifacts: Artifacts) -> A
                         try:
                             existing = json.loads(line)
                             existing_hashes.add(existing.get("record_hash", ""))
-                        except:
+                        except Exception as e:
                             pass
 
             if record_hash not in existing_hashes:

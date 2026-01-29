@@ -125,13 +125,13 @@ class TestRetrievalExtractionDeep:
                                         # Try with mock arguments
                                         try:
                                             method("")
-                                        except:
+                                        except Exception as e:
                                             pass
                                         try:
                                             method([])
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -161,9 +161,9 @@ class TestActiveLearningEngineDeep:
                                     except TypeError:
                                         try:
                                             method("")
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -193,12 +193,12 @@ class TestZoteroIntegrationDeep:
                                     except TypeError:
                                         try:
                                             method("")
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         try:
                             instance = obj()
-                        except:
+                        except Exception as e:
                             pass
 
 
@@ -228,9 +228,9 @@ class TestMultimodalScientificDeep:
                                     except TypeError:
                                         try:
                                             method("")
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -260,9 +260,9 @@ class TestNoteGeneratorDeep:
                                     except TypeError:
                                         try:
                                             method("")
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -292,9 +292,9 @@ class TestPhaseKPIDeep:
                                     except TypeError:
                                         try:
                                             method("")
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -324,9 +324,9 @@ class TestPDFExtractorDeep:
                                     except TypeError:
                                         try:
                                             method("")
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -356,9 +356,9 @@ class TestCrossEncoderDeep:
                                     except TypeError:
                                         try:
                                             method("query", ["doc1", "doc2"])
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -388,7 +388,7 @@ class TestRobustExtractorDeep:
                                     except TypeError:
                                         try:
                                             method("")
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass

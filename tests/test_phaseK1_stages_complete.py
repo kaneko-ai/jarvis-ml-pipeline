@@ -275,9 +275,9 @@ class TestExtractClaimsComplete:
                                     except TypeError:
                                         try:
                                             method()
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -308,9 +308,9 @@ class TestFindEvidenceComplete:
                                     except TypeError:
                                         try:
                                             method()
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -344,9 +344,9 @@ class TestGradeEvidenceComplete:
                                     except TypeError:
                                         try:
                                             method()
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -376,7 +376,7 @@ class TestRetrievalExtractionComplete:
                                     except TypeError:
                                         try:
                                             method()
-                                        except:
+                                        except Exception as e:
                                             pass
-                    except:
+                    except Exception as e:
                         pass

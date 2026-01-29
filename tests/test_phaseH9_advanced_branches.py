@@ -21,15 +21,15 @@ def deep_test_module(module):
                                 except TypeError:
                                     try:
                                         method("")
-                                    except:
+                                    except Exception as e:
                                         try:
                                             method([])
-                                        except:
+                                        except Exception as e:
                                             try:
                                                 method({})
-                                            except:
+                                            except Exception as e:
                                                 pass
-                except:
+                except Exception as e:
                     pass
 
 
@@ -81,13 +81,13 @@ class TestAdvancedFeaturesAllClasses:
         # Empty data
         try:
             result1 = analyzer.decompose([], period=4)
-        except:
+        except Exception as e:
             pass
 
         # Single data point
         try:
             result2 = analyzer.forecast([1], steps=3)
-        except:
+        except Exception as e:
             pass
 
 
@@ -110,7 +110,7 @@ class TestAdvancedFeaturesPhase7_10:
                 cls = getattr(features, cls_name)
                 try:
                     instance = cls()
-                except:
+                except Exception as e:
                     pass
 
     def test_phase8_classes(self):
@@ -129,7 +129,7 @@ class TestAdvancedFeaturesPhase7_10:
                 cls = getattr(features, cls_name)
                 try:
                     instance = cls()
-                except:
+                except Exception as e:
                     pass
 
     def test_phase9_classes(self):
@@ -148,7 +148,7 @@ class TestAdvancedFeaturesPhase7_10:
                 cls = getattr(features, cls_name)
                 try:
                     instance = cls()
-                except:
+                except Exception as e:
                     pass
 
     def test_phase10_classes(self):
@@ -167,5 +167,5 @@ class TestAdvancedFeaturesPhase7_10:
                 cls = getattr(features, cls_name)
                 try:
                     instance = cls()
-                except:
+                except Exception as e:
                     pass

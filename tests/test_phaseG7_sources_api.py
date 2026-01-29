@@ -22,7 +22,7 @@ class TestSourcesArxivClientComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -40,7 +40,7 @@ class TestSourcesCrossrefClientComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -60,7 +60,7 @@ class TestSourcesPubmedClientComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -78,7 +78,7 @@ class TestSourcesUnpaywallClientComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -94,7 +94,7 @@ class TestAPIExternalComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -110,7 +110,7 @@ class TestAPIPubmedComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -126,5 +126,5 @@ class TestAPISemanticScholarComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass

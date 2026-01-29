@@ -986,10 +986,6 @@ class DocumentScanner:
         return {"path": image_path, "text_extracted": "Sample text from scan"}
 
 
-class VoiceMemoTranscription:
-    def transcribe(self, audio_path: str) -> str:
-        return "Transcribed text from voice memo"
-
 
 class GestureControls:
     def get_gestures(self) -> dict:

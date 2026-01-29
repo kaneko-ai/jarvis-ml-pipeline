@@ -16,7 +16,7 @@ class TestAnalysisModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
     def test_network(self):
@@ -28,7 +28,7 @@ class TestAnalysisModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
     def test_trends(self):
@@ -40,7 +40,7 @@ class TestAnalysisModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -56,7 +56,7 @@ class TestMetadataModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
     def test_normalizer(self):
@@ -68,7 +68,7 @@ class TestMetadataModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -84,7 +84,7 @@ class TestNetworkModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
     def test_detector(self):
@@ -96,7 +96,7 @@ class TestNetworkModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -112,7 +112,7 @@ class TestSyncModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
     def test_storage(self):
@@ -124,7 +124,7 @@ class TestSyncModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -140,7 +140,7 @@ class TestEvalModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
     def test_text_quality(self):
@@ -152,7 +152,7 @@ class TestEvalModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
     def test_extended_metrics(self):
@@ -164,7 +164,7 @@ class TestEvalModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -180,7 +180,7 @@ class TestProvenanceModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
     def test_tracker(self):
@@ -192,7 +192,7 @@ class TestProvenanceModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -208,7 +208,7 @@ class TestFinanceModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
     def test_scenarios(self):
@@ -220,7 +220,7 @@ class TestFinanceModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -236,7 +236,7 @@ class TestOpsModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
     def test_resilience(self):
@@ -248,7 +248,7 @@ class TestOpsModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -264,7 +264,7 @@ class TestReplayModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
     def test_reproduce(self):
@@ -276,7 +276,7 @@ class TestReplayModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -292,7 +292,7 @@ class TestRepairModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass
 
     def test_policy(self):
@@ -304,5 +304,5 @@ class TestRepairModulesComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj()
-                    except:
+                    except Exception as e:
                         pass

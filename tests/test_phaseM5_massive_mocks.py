@@ -32,9 +32,9 @@ class TestKnowledgeGraphComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("entity1", "relation", "entity2")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -62,9 +62,9 @@ class TestKnowledgeStoreComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("key", {"value": "data"})
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -95,9 +95,9 @@ class TestAPIExternalComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("endpoint", {})
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -128,9 +128,9 @@ class TestAPIPubmedComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("search query")
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -158,9 +158,9 @@ class TestRankingRankerComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)([{"score": 0.8}, {"score": 0.5}])
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -188,9 +188,9 @@ class TestRankingScorerComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)({"text": "document"})
-                                    except:
+                                    except Exception as e:
                                         pass
-                    except:
+                    except Exception as e:
                         pass
 
 
@@ -213,9 +213,9 @@ class TestRootModulesComplete:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)([[0.1, 0.2], [0.3, 0.4]])
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_journal_targeting(self):
@@ -229,9 +229,9 @@ class TestRootModulesComplete:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"title": "paper", "keywords": []})
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_kill_switch(self):
@@ -245,9 +245,9 @@ class TestRootModulesComplete:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)()
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_logic_citation(self):
@@ -261,9 +261,9 @@ class TestRootModulesComplete:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("citation text [1]")
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_method_trend(self):
@@ -277,9 +277,9 @@ class TestRootModulesComplete:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)([{"method": "ML", "year": 2024}])
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_pi_succession(self):
@@ -293,9 +293,9 @@ class TestRootModulesComplete:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"pi_name": "Dr. Test"})
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_student_portfolio(self):
@@ -309,9 +309,9 @@ class TestRootModulesComplete:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"name": "Student", "projects": []})
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_lab_to_startup(self):
@@ -327,9 +327,9 @@ class TestRootModulesComplete:
                                 getattr(instance, method)(
                                     {"technology": "AI", "market": "Healthcare"}
                                 )
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_package_builder(self):
@@ -343,9 +343,9 @@ class TestRootModulesComplete:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"name": "package", "files": []})
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
 
     def test_paper_scoring(self):
@@ -361,7 +361,7 @@ class TestRootModulesComplete:
                                 getattr(instance, method)(
                                     {"title": "Paper", "abstract": "Abstract"}
                                 )
-                            except:
+                            except Exception as e:
                                 pass
-                except:
+                except Exception as e:
                     pass
