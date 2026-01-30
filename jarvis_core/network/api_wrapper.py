@@ -5,9 +5,9 @@ import functools
 from collections.abc import Callable
 from typing import Any
 
-logger = logging.getLogger(__name__)
-
 from jarvis_core.network.degradation import DegradationLevel, get_degradation_manager
+
+logger = logging.getLogger(__name__)
 
 
 class OfflineError(Exception):
