@@ -23,7 +23,7 @@ def test_specter2_embed_paper_format():
 
         model = SPECTER2Embedding()
 
-        result = model.embed_paper("Test Title", "Test Abstract")
+        model.embed_paper("Test Title", "Test Abstract")
 
         # Verify the format
         mock_model.encode.assert_called_once()

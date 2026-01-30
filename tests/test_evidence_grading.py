@@ -84,10 +84,10 @@ class TestEvidenceSchema:
             outcome="HbA1c reduction",
         )
 
-        assert pico.is_complete() == True
+        assert pico.is_complete()
 
         incomplete_pico = PICOExtraction(population="Adults")
-        assert incomplete_pico.is_complete() == False
+        assert not incomplete_pico.is_complete()
 
 
 class TestRuleBasedClassifier:

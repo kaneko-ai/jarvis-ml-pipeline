@@ -15,8 +15,8 @@ class TestKBIndexerComplete:
                 obj = getattr(indexer, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -31,8 +31,8 @@ class TestKBRAGComplete:
                 obj = getattr(rag, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -47,8 +47,8 @@ class TestRetrievalCrossEncoderComplete:
                 obj = getattr(cross_encoder, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -63,8 +63,8 @@ class TestRetrievalQueryDecomposeComplete:
                 obj = getattr(query_decompose, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -79,8 +79,8 @@ class TestRetrievalExportComplete:
                 obj = getattr(export, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -95,8 +95,8 @@ class TestReportGeneratorComplete:
                 obj = getattr(generator, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -111,8 +111,8 @@ class TestReportTemplatesComplete:
                 obj = getattr(templates, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -127,8 +127,8 @@ class TestReportingRankExplainComplete:
                 obj = getattr(rank_explain, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -143,6 +143,6 @@ class TestReportingSummaryComplete:
                 obj = getattr(summary, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass

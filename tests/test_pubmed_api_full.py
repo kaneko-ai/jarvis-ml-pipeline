@@ -27,7 +27,7 @@ class TestSearch:
         mock_get.return_value = mock_response
 
         if hasattr(pubmed, "search"):
-            result = pubmed.search("cancer treatment")
+            pubmed.search("cancer treatment")
 
     @patch("jarvis_core.api.pubmed.requests.get")
     def test_search_with_params(self, mock_get):
@@ -40,7 +40,7 @@ class TestSearch:
         mock_get.return_value = mock_response
 
         if hasattr(pubmed, "search"):
-            result = pubmed.search("query", max_results=50, sort="date")
+            pubmed.search("query", max_results=50, sort="date")
 
 
 class TestFetch:
@@ -57,7 +57,7 @@ class TestFetch:
         mock_get.return_value = mock_response
 
         if hasattr(pubmed, "fetch"):
-            result = pubmed.fetch(["12345"])
+            pubmed.fetch(["12345"])
 
     @patch("jarvis_core.api.pubmed.requests.get")
     def test_fetch_multiple(self, mock_get):
@@ -70,7 +70,7 @@ class TestFetch:
         mock_get.return_value = mock_response
 
         if hasattr(pubmed, "fetch"):
-            result = pubmed.fetch(["12345", "67890"])
+            pubmed.fetch(["12345", "67890"])
 
 
 class TestParsing:
@@ -82,7 +82,7 @@ class TestParsing:
 
         if hasattr(pubmed, "parse_article"):
             xml = "<PubmedArticle><MedlineCitation/></PubmedArticle>"
-            result = pubmed.parse_article(xml)
+            pubmed.parse_article(xml)
 
 
 class TestModuleImports:

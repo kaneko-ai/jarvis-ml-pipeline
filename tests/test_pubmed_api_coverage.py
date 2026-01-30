@@ -23,7 +23,7 @@ class TestPubmedModule:
         mock_get.return_value = mock_response
 
         if hasattr(pubmed, "search"):
-            result = pubmed.search("cancer treatment")
+            pubmed.search("cancer treatment")
 
     @patch("jarvis_core.api.pubmed.requests.get")
     def test_fetch(self, mock_get):
@@ -46,7 +46,7 @@ class TestPubmedModule:
         mock_get.return_value = mock_response
 
         if hasattr(pubmed, "fetch"):
-            result = pubmed.fetch(["12345"])
+            pubmed.fetch(["12345"])
 
 
 class TestModuleImports:

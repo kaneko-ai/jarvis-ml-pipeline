@@ -21,15 +21,15 @@ def deep_test_module(module):
                                 except TypeError:
                                     try:
                                         method("")
-                                    except Exception as e:
+                                    except Exception:
                                         try:
                                             method([])
-                                        except Exception as e:
+                                        except Exception:
                                             try:
                                                 method({})
-                                            except Exception as e:
+                                            except Exception:
                                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -80,14 +80,14 @@ class TestAdvancedFeaturesAllClasses:
 
         # Empty data
         try:
-            result1 = analyzer.decompose([], period=4)
-        except Exception as e:
+            analyzer.decompose([], period=4)
+        except Exception:
             pass
 
         # Single data point
         try:
-            result2 = analyzer.forecast([1], steps=3)
-        except Exception as e:
+            analyzer.forecast([1], steps=3)
+        except Exception:
             pass
 
 
@@ -109,8 +109,8 @@ class TestAdvancedFeaturesPhase7_10:
             if hasattr(features, cls_name):
                 cls = getattr(features, cls_name)
                 try:
-                    instance = cls()
-                except Exception as e:
+                    cls()
+                except Exception:
                     pass
 
     def test_phase8_classes(self):
@@ -128,8 +128,8 @@ class TestAdvancedFeaturesPhase7_10:
             if hasattr(features, cls_name):
                 cls = getattr(features, cls_name)
                 try:
-                    instance = cls()
-                except Exception as e:
+                    cls()
+                except Exception:
                     pass
 
     def test_phase9_classes(self):
@@ -147,8 +147,8 @@ class TestAdvancedFeaturesPhase7_10:
             if hasattr(features, cls_name):
                 cls = getattr(features, cls_name)
                 try:
-                    instance = cls()
-                except Exception as e:
+                    cls()
+                except Exception:
                     pass
 
     def test_phase10_classes(self):
@@ -166,6 +166,6 @@ class TestAdvancedFeaturesPhase7_10:
             if hasattr(features, cls_name):
                 cls = getattr(features, cls_name)
                 try:
-                    instance = cls()
-                except Exception as e:
+                    cls()
+                except Exception:
                     pass

@@ -84,7 +84,6 @@ def suggest_model_system(
                     break
 
     # Check species from metadata
-    species_suggestions = set()
     for v in vectors:
         for species in v.metadata.species:
             if "human" in species.lower():

@@ -105,7 +105,6 @@ class CircuitBreaker:
 
     def _transition_to(self, new_state: CircuitState) -> None:
         """Transition to a new state."""
-        old_state = self._state
         self._state = new_state
 
         if new_state == CircuitState.HALF_OPEN:

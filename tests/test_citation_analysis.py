@@ -65,11 +65,11 @@ class TestCitationContextExtractor:
 
         text = """
         Introduction
-        
+
         Previous work [1] established the baseline.
-        
+
         Methods
-        
+
         We extended [2] with modifications.
         """
 

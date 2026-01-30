@@ -284,7 +284,7 @@ class TestWebMonitoringAgentBranches:
         agent.add_monitor("https://example.com", 60)
         agent.check_for_changes("https://example.com", "hash1")
         result = agent.check_for_changes("https://example.com", "hash1")
-        assert result["changed"] == False
+        assert not result["changed"]
 
     def test_check_for_changes_with_change(self):
         from jarvis_core.lab.automation import WebMonitoringAgent
@@ -294,7 +294,7 @@ class TestWebMonitoringAgentBranches:
         agent.add_monitor("https://example.com", 60)
         agent.check_for_changes("https://example.com", "hash1")
         result = agent.check_for_changes("https://example.com", "hash2")
-        assert result["changed"] == True
+        assert result["changed"]
 
 
 class TestRealTimeDataAnalyzerBranches:

@@ -92,7 +92,7 @@ class TestAICoScientist:
 
         ec = EthicsChecker()
         result = ec.check("This study involves human patients")
-        assert result["requires_irb"] == True
+        assert result["requires_irb"]
 
     def test_irb_generator(self):
         """Test IRB document generation"""
@@ -312,7 +312,7 @@ class TestMCPIntegration:
 
         rlh = RateLimitHandler()
         rlh.set_limit("api", 60)
-        assert rlh.can_call("api") == True
+        assert rlh.can_call("api")
 
     def test_cost_tracker(self):
         """Test cost tracking"""
@@ -416,7 +416,7 @@ class TestSecurityCompliance:
         acm = AccessControlManager()
         acm.define_role("admin", ["read", "write"])
         acm.assign_role("user1", "admin")
-        assert acm.check_permission("user1", "read") == True
+        assert acm.check_permission("user1", "read")
 
     def test_encryption(self):
         """Test encryption"""

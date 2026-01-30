@@ -10,7 +10,9 @@ class TestSyncProgressReporter:
 
     def test_add_callback(self):
         reporter = SyncProgressReporter()
-        callback = lambda completed, total: None
+
+        def callback(completed, total):
+            return None
 
         reporter.add_callback(callback)
 

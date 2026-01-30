@@ -15,8 +15,8 @@ class TestAgentsBaseComplete:
                 obj = getattr(base, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -31,8 +31,8 @@ class TestAgentsRegistryComplete:
                 obj = getattr(registry, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -47,8 +47,8 @@ class TestAgentsScientistComplete:
                 obj = getattr(scientist, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -63,8 +63,8 @@ class TestWorkflowEngineComplete:
                 obj = getattr(engine, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -79,8 +79,8 @@ class TestWorkflowPresetsComplete:
                 obj = getattr(presets, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -95,8 +95,8 @@ class TestDecisionModelComplete:
                 obj = getattr(model, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -111,6 +111,6 @@ class TestDecisionPlannerComplete:
                 obj = getattr(planner, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass

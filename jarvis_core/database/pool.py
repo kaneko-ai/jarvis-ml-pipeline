@@ -5,6 +5,7 @@ Per RP-550, implements connection pooling.
 
 from __future__ import annotations
 
+import logging
 import queue
 import threading
 import time
@@ -12,6 +13,8 @@ from collections.abc import Callable
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -115,7 +118,8 @@ class ConnectionPool:
                 pool=self,
                 created_at=time.time(),
             )
-        except Exception:
+        except Exception as e:
+            logger.error(f"Failed to create connection: {e}")
             return None
 
     def _is_healthy(self, conn: PooledConnection) -> bool:
@@ -123,7 +127,8 @@ class ConnectionPool:
         if self.health_fn:
             try:
                 return self.health_fn(conn.connection)
-            except Exception:
+            except Exception as e:
+                logger.warning(f"Health check failed: {e}")
                 return False
         return True
 
@@ -238,8 +243,8 @@ class ConnectionPool:
         """Close a connection."""
         try:
             self.close_fn(conn.connection)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to close connection: {e}")
 
     def get_stats(self) -> PoolStats:
         """Get pool statistics."""

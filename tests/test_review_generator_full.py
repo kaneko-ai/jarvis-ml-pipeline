@@ -31,7 +31,7 @@ class TestReviewGeneration:
 
         gen = ReviewGenerator()
         if hasattr(gen, "generate"):
-            result = gen.generate([])
+            gen.generate([])
 
     def test_generate_single_paper(self):
         """Test generating with single paper."""
@@ -40,7 +40,7 @@ class TestReviewGeneration:
         gen = ReviewGenerator()
         papers = [{"title": "Test Paper", "abstract": "Abstract"}]
         if hasattr(gen, "generate"):
-            result = gen.generate(papers)
+            gen.generate(papers)
 
     def test_generate_multiple_papers(self):
         """Test generating with multiple papers."""
@@ -52,7 +52,7 @@ class TestReviewGeneration:
             {"title": "Paper 2", "abstract": "Abstract 2"},
         ]
         if hasattr(gen, "generate"):
-            result = gen.generate(papers)
+            gen.generate(papers)
 
 
 class TestSectionGeneration:
@@ -64,7 +64,7 @@ class TestSectionGeneration:
 
         gen = ReviewGenerator()
         if hasattr(gen, "generate_section"):
-            result = gen.generate_section("introduction", [])
+            gen.generate_section("introduction", [])
 
     def test_generate_conclusion(self):
         """Test generating conclusion."""
@@ -72,7 +72,7 @@ class TestSectionGeneration:
 
         gen = ReviewGenerator()
         if hasattr(gen, "generate_conclusion"):
-            result = gen.generate_conclusion({})
+            gen.generate_conclusion({})
 
 
 class TestModuleImports:

@@ -19,7 +19,7 @@ class TestDetectorInit:
     def test_with_config(self):
         from jarvis_core.contradiction.detector import ContradictionDetector
 
-        detector = ContradictionDetector(config={})
+        ContradictionDetector(config={})
 
 
 class TestDetection:
@@ -29,19 +29,19 @@ class TestDetection:
         from jarvis_core.contradiction.detector import ContradictionDetector
 
         detector = ContradictionDetector()
-        result = detector.detect([])
+        detector.detect([])
 
     def test_detect_single(self):
         from jarvis_core.contradiction.detector import ContradictionDetector
 
         detector = ContradictionDetector()
-        result = detector.detect([{"text": "A", "id": "1"}])
+        detector.detect([{"text": "A", "id": "1"}])
 
     def test_detect_pair(self):
         from jarvis_core.contradiction.detector import ContradictionDetector
 
         detector = ContradictionDetector()
-        result = detector.detect(
+        detector.detect(
             [
                 {"text": "X is true", "id": "1"},
                 {"text": "X is false", "id": "2"},
@@ -53,7 +53,7 @@ class TestDetection:
 
         detector = ContradictionDetector()
         claims = [{"text": f"C{i}", "id": str(i)} for i in range(10)]
-        result = detector.detect(claims)
+        detector.detect(claims)
 
 
 class TestPairwise:

@@ -215,7 +215,7 @@ class TestAllAdvancedFeaturesClasses:
                                 method()
                             except TypeError:
                                 pass  # Needs arguments
-            except Exception as e:
+            except Exception:
                 pass
 
         # Should instantiate at least 10 classes

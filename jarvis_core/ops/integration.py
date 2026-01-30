@@ -126,9 +126,7 @@ class WebhookManager:
         """
         triggered = []
 
-        payload = WebhookPayload(
-            event=event, run_id=run_id, timestamp=datetime.now().isoformat(), data=data
-        )
+        WebhookPayload(event=event, run_id=run_id, timestamp=datetime.now().isoformat(), data=data)
 
         for webhook_id, config in self._webhooks.items():
             if not config.enabled:

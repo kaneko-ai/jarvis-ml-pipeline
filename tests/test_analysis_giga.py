@@ -11,7 +11,7 @@ class TestCitationNetwork1:
     def test_c2(self):
         from jarvis_core.analysis.citation_network import CitationNetwork
 
-        cn = CitationNetwork()
+        CitationNetwork()
 
     def test_c3(self):
         pass
@@ -24,7 +24,7 @@ class TestContradiction1:
     def test_d2(self):
         from jarvis_core.analysis.contradiction import ContradictionDetector
 
-        d = ContradictionDetector()
+        ContradictionDetector()
 
     def test_d3(self):
         pass

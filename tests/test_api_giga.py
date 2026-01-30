@@ -52,7 +52,7 @@ class TestArxiv2:
     def test_b5(self):
         from jarvis_core.api.arxiv import ArxivClient
 
-        c = ArxivClient()
+        ArxivClient()
 
 
 class TestPubmed1:

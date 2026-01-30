@@ -48,7 +48,7 @@ professor:
   subject: "{title} submit ver{version}"
   body: |
     Submitting revised version of {title}.
-    
+
     Attachments:
     {attachments_list}
   salutation: Dear Professor

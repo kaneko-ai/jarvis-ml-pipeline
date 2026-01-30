@@ -357,7 +357,7 @@ AB  - This is the abstract text.
 KW  - keyword1
 KW  - keyword2
 UR  - https://example.com
-ER  - 
+ER  -
 """
         parser = RISParser()
         refs = parser.parse(ris)
@@ -371,17 +371,17 @@ ER  -
         ris = """TY  - JOUR
 TI  - First Paper
 AU  - Author One
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Second Paper
 AU  - Author Two
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Third Paper
 AU  - Author Three
-ER  - 
+ER  -
 """
         parser = RISParser()
         refs = parser.parse(ris)

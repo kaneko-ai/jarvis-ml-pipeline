@@ -22,7 +22,7 @@ def find_counter_evidence(claim: dict[str, Any], papers: list[dict], **kwargs) -
     """
     counter_evidence = []
     claim_id = claim.get("claim_id", "")
-    claim_text = claim.get("claim_text", "")
+    claim.get("claim_text", "")
 
     # Simple heuristic: look for negation patterns
     # In production, use LLM with "find contradicting evidence" prompt

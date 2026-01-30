@@ -43,7 +43,6 @@ python -m pytest \
   --cov-report=term-missing \
   -p no:randomly \
   -p no:xdist \
-  --dist=no \
   -q
 
 # Combine parallel coverage files

@@ -10,7 +10,7 @@ def test_diagnostics_timeout():
 
     res = diag.analyze(summary)
     assert res.error_type == "NetworkTimeout"
-    assert res.is_recoverable == True
+    assert res.is_recoverable
     assert "backoff" in res.suggested_action
 
 
@@ -20,7 +20,7 @@ def test_diagnostics_rate_limit():
 
     res = diag.analyze(summary)
     assert res.error_type == "RateLimit"
-    assert res.is_recoverable == True
+    assert res.is_recoverable
 
 
 def test_diagnostics_unrecoverable():
@@ -29,7 +29,7 @@ def test_diagnostics_unrecoverable():
 
     res = diag.analyze(summary)
     assert res.error_type == "MissingResource"
-    assert res.is_recoverable == False
+    assert not res.is_recoverable
 
 
 def test_diagnostics_no_error():

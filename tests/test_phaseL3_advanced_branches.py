@@ -63,7 +63,7 @@ class TestSystematicReviewAgentBranches:
         agent = SystematicReviewAgent()
         agent.add_paper("p1", {"title": "Paper 1"})
         agent.exclude_paper("p1", "Duplicate")
-        assert agent.papers["p1"]["excluded"] == True
+        assert agent.papers["p1"]["excluded"]
 
     def test_exclude_paper_nonexistent(self):
         from jarvis_core.advanced.features import SystematicReviewAgent

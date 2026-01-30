@@ -68,7 +68,7 @@ class TestClaimSet:
     def test_get_valid_claims(self):
         """Should filter valid claims."""
         cs = ClaimSet()
-        c1 = cs.add_new("Valid claim", ["c1"])
+        cs.add_new("Valid claim", ["c1"])
         c2 = cs.add_new("Invalid claim", [])
         c2.valid = False
 
@@ -88,8 +88,8 @@ class TestClaimSet:
     def test_generate_answer(self):
         """Should generate answer from valid claims."""
         cs = ClaimSet()
-        c1 = cs.add_new("First claim.", ["c1"])
-        c2 = cs.add_new("Second claim.", ["c2"])
+        cs.add_new("First claim.", ["c1"])
+        cs.add_new("Second claim.", ["c2"])
         c3 = cs.add_new("Invalid claim.", [])
         c3.valid = False
 
@@ -101,7 +101,7 @@ class TestClaimSet:
     def test_generate_answer_with_invalid(self):
         """Should include invalid claims with marker."""
         cs = ClaimSet()
-        c1 = cs.add_new("Valid.", ["c1"])
+        cs.add_new("Valid.", ["c1"])
         c2 = cs.add_new("Invalid.", [])
         c2.valid = False
 

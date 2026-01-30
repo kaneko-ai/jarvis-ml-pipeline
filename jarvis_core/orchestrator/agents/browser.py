@@ -35,7 +35,7 @@ class BrowserAgent:
             screenshot_result = await subagent.screenshot(full_page=True)
             text_result = await subagent.extract_text("body")
         finally:
-            recording_dir = subagent.stop_recording()
+            subagent.stop_recording()
             await subagent.close()
 
         if screenshot_result.screenshot:

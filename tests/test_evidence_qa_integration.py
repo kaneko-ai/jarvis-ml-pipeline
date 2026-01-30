@@ -165,13 +165,13 @@ class TestRunEvidenceQA:
 
     def test_full_pipeline_with_pdf(self):
         """Full pipeline: PDF → ingest → agent → answer."""
-        mock_llm = MagicMock()
+        MagicMock()
 
         with patch("jarvis_core.evidence_qa.LLMClient") as MockLLMClient:
             # We need to create a custom LLM that references chunks correctly
             # First, let's extract actual chunk content
             store = EvidenceStore()
-            ctx = ExecutionContext(evidence_store=store)
+            ExecutionContext(evidence_store=store)
 
             from jarvis_core.pdf_extractor import ingest_pdf
 
@@ -180,7 +180,7 @@ class TestRunEvidenceQA:
             # Get a real chunk_id to use in mock response
             if results:
                 real_chunk_id = results[0].chunk_id
-                real_chunk = store.get_chunk(real_chunk_id)
+                store.get_chunk(real_chunk_id)
 
                 # Mock LLM to return response with real chunk_id
                 mock_response = f"Page 1 contains test content. {real_chunk_id} status: success"
@@ -227,7 +227,7 @@ class TestE2EWithMockedLLM:
 
             # Get chunk info
             chunk_id = results[0].chunk_id
-            chunk = store.get_chunk(chunk_id)
+            store.get_chunk(chunk_id)
 
             # Mock LLM to return answer with valid chunk_id and overlapping content
             mock_response = (

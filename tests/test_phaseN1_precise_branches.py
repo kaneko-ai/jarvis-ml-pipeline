@@ -159,7 +159,7 @@ class TestSummarizationRefutable:
 
         result = stage_summarization_refutable(context, artifacts)
         ref = result.metadata.get("c1_refutable", {})
-        assert ref.get("is_refutable") == True
+        assert ref.get("is_refutable")
         assert ref.get("evidence_count") == 1
 
     @patch("jarvis_core.stages.summarization_scoring.log_audit")
@@ -176,7 +176,7 @@ class TestSummarizationRefutable:
 
         result = stage_summarization_refutable(context, artifacts)
         ref = result.metadata.get("c1_refutable", {})
-        assert ref.get("is_refutable") == False
+        assert not ref.get("is_refutable")
 
     @patch("jarvis_core.stages.summarization_scoring.log_audit")
     def test_with_non_fact_claims(self, mock_log):

@@ -68,7 +68,6 @@ class PipelineMetrics:
             lines.append(f"# TYPE {name} histogram")
             for label_key, values in data.items():
                 lbl_content = label_key
-                lbl_prefix = f"{{{lbl_content}, " if lbl_content else "{"
 
                 # Count
                 lines.append(f"{name}_count{{{lbl_content}}} {len(values)}")

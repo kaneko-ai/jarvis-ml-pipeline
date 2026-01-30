@@ -15,8 +15,8 @@ class TestPipelinesReviewGeneratorComplete:
                 obj = getattr(review_generator, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -31,8 +31,8 @@ class TestPipelinesPaperPipelineComplete:
                 obj = getattr(paper_pipeline, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -47,8 +47,8 @@ class TestRuntimeCostTrackerComplete:
                 obj = getattr(cost_tracker, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -63,8 +63,8 @@ class TestRuntimeTelemetryComplete:
                 obj = getattr(telemetry, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -79,8 +79,8 @@ class TestRuntimeRateLimiterComplete:
                 obj = getattr(rate_limiter, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -95,8 +95,8 @@ class TestStorageArtifactStoreComplete:
                 obj = getattr(artifact_store, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -111,6 +111,6 @@ class TestStorageIndexRegistryComplete:
                 obj = getattr(index_registry, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass

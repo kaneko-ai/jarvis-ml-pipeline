@@ -96,7 +96,7 @@ class TwoStageRetriever:
 def simple_bm25_stage1(query: str, k: int) -> list[dict[str, Any]]:
     """Simple BM25-like stage 1 retriever (placeholder)."""
     # In production, this would use actual BM25 index
-    query_terms = set(query.lower().split())
+    set(query.lower().split())
 
     return [
         {"id": f"doc_{i}", "score": 0.5, "text": f"Document {i} content"}

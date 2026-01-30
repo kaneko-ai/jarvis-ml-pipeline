@@ -91,7 +91,7 @@ class TestIngestionPipelineBranches:
             try:
                 result = pipeline.run()
                 assert result is not None
-            except Exception as e:
+            except Exception:
                 pass
 
     def test_run_with_txt_files(self):
@@ -106,7 +106,7 @@ class TestIngestionPipelineBranches:
             try:
                 result = pipeline.run()
                 assert result is not None
-            except Exception as e:
+            except Exception:
                 pass
 
     def test_run_with_bib_files(self):
@@ -120,7 +120,7 @@ class TestIngestionPipelineBranches:
             try:
                 result = pipeline.run()
                 assert result is not None
-            except Exception as e:
+            except Exception:
                 pass
 
 
@@ -132,8 +132,8 @@ class TestPDFExtractorBranches:
 
         extractor = PDFExtractor()
         try:
-            result = extractor.extract(Path("/nonexistent/file.pdf"))
-        except Exception as e:
+            extractor.extract(Path("/nonexistent/file.pdf"))
+        except Exception:
             pass
 
     def test_extract_invalid_pdf(self):
@@ -144,6 +144,6 @@ class TestPDFExtractorBranches:
             f.write(b"Not a real PDF")
             path = Path(f.name)
         try:
-            result = extractor.extract(path)
-        except Exception as e:
+            extractor.extract(path)
+        except Exception:
             pass

@@ -1,4 +1,0 @@
-# Development dependencies (use pyproject.toml for production)
-# This file is for legacy compatibility only
-
--e .[all,dev]

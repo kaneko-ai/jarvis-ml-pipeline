@@ -515,8 +515,8 @@ class JupyterIntegration:
         """Convert paper to markdown cell."""
         return f"""## {paper.get('title', 'Unknown')}
 
-**Authors:** {paper.get('authors', 'Unknown')}  
-**Journal:** {paper.get('journal', 'Unknown')} ({paper.get('year', 'Unknown')})  
+**Authors:** {paper.get('authors', 'Unknown')}
+**Journal:** {paper.get('journal', 'Unknown')} ({paper.get('year', 'Unknown')})
 **PMID:** {paper.get('pmid', 'Unknown')}
 
 ### Abstract

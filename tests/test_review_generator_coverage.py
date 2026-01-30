@@ -42,7 +42,7 @@ class TestReviewGenerator:
         gen = ReviewGenerator()
 
         if hasattr(gen, "generate_section"):
-            result = gen.generate_section("Introduction", [])
+            gen.generate_section("Introduction", [])
 
     def test_summarize_papers(self):
         """Test summarizing papers."""
@@ -52,7 +52,7 @@ class TestReviewGenerator:
 
         if hasattr(gen, "summarize_papers"):
             papers = [{"title": "Test", "abstract": "Abstract"}]
-            result = gen.summarize_papers(papers)
+            gen.summarize_papers(papers)
 
     def test_identify_themes(self):
         """Test identifying themes."""
@@ -62,7 +62,7 @@ class TestReviewGenerator:
 
         if hasattr(gen, "identify_themes"):
             papers = [{"title": "ML Paper", "abstract": "Machine learning..."}]
-            themes = gen.identify_themes(papers)
+            gen.identify_themes(papers)
 
     def test_generate_conclusion(self):
         """Test generating conclusion."""
@@ -71,7 +71,7 @@ class TestReviewGenerator:
         gen = ReviewGenerator()
 
         if hasattr(gen, "generate_conclusion"):
-            result = gen.generate_conclusion({})
+            gen.generate_conclusion({})
 
 
 class TestModuleImports:

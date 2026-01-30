@@ -493,4 +493,4 @@ class TestAdditionalClasses:
 
         monitor = LabSafetyMonitor()
         result = monitor.check_safety()
-        assert result["fume_hood_on"] == True
+        assert result["fume_hood_on"]

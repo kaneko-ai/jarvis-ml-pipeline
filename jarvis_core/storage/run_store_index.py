@@ -59,7 +59,7 @@ class RunStoreIndex:
         conn = sqlite3.connect(str(self.db_path))
         conn.execute(
             """
-            INSERT OR REPLACE INTO runs 
+            INSERT OR REPLACE INTO runs
             (run_id, status, category, created_at, query, docs_count, claims_count, duration_seconds)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """,

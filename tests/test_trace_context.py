@@ -107,7 +107,7 @@ class TestTraceContextManager:
         assert ctx.step_id == 1
 
     def test_context_manager(self):
-        with TraceContextManager(run_id="test") as manager:
+        with TraceContextManager(run_id="test"):
             ctx = get_current_context()
             assert ctx is not None
             assert ctx.run_id == "test"

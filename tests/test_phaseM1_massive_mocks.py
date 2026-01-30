@@ -35,10 +35,10 @@ class TestSummarizationScoringComplete:
                     except TypeError:
                         try:
                             obj("test", {})
-                        except Exception as e:
+                        except Exception:
                             try:
                                 obj([{"text": "test"}])
-                            except Exception as e:
+                            except Exception:
                                 pass
                 elif isinstance(obj, type):
                     try:
@@ -50,12 +50,12 @@ class TestSummarizationScoringComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("test")
-                                    except Exception as e:
+                                    except Exception:
                                         try:
                                             getattr(instance, method)([{"text": "test"}])
-                                        except Exception as e:
+                                        except Exception:
                                             pass
-                    except Exception as e:
+                    except Exception:
                         pass
 
 
@@ -86,12 +86,12 @@ class TestActiveLearningEngineComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)([])
-                                    except Exception as e:
+                                    except Exception:
                                         try:
                                             getattr(instance, method)({})
-                                        except Exception as e:
+                                        except Exception:
                                             pass
-                    except Exception as e:
+                    except Exception:
                         pass
 
 
@@ -116,10 +116,10 @@ class TestZoteroIntegrationComplete:
                 if isinstance(obj, type):
                     try:
                         instance = obj(api_key="test", library_id="test")
-                    except Exception as e:
+                    except Exception:
                         try:
                             instance = obj()
-                        except Exception as e:
+                        except Exception:
                             continue
 
                     for method in dir(instance):
@@ -129,10 +129,10 @@ class TestZoteroIntegrationComplete:
                             except TypeError:
                                 try:
                                     getattr(instance, method)("test")
-                                except Exception as e:
+                                except Exception:
                                     try:
                                         getattr(instance, method)([])
-                                    except Exception as e:
+                                    except Exception:
                                         pass
 
 
@@ -164,12 +164,12 @@ class TestMultimodalScientificComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)(b"fake_image")
-                                    except Exception as e:
+                                    except Exception:
                                         try:
                                             getattr(instance, method)("test.png")
-                                        except Exception as e:
+                                        except Exception:
                                             pass
-                    except Exception as e:
+                    except Exception:
                         pass
 
 
@@ -204,12 +204,12 @@ class TestNoteGeneratorComplete:
                                         getattr(instance, method)(
                                             {"title": "test", "content": "test"}
                                         )
-                                    except Exception as e:
+                                    except Exception:
                                         try:
                                             getattr(instance, method)([])
-                                        except Exception as e:
+                                        except Exception:
                                             pass
-                    except Exception as e:
+                    except Exception:
                         pass
 
 
@@ -237,9 +237,9 @@ class TestPhaseKPIComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)({"phase": "test", "metrics": {}})
-                                    except Exception as e:
+                                    except Exception:
                                         pass
-                    except Exception as e:
+                    except Exception:
                         pass
 
 
@@ -272,9 +272,9 @@ class TestPDFExtractorComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)(Path("test.pdf"))
-                                    except Exception as e:
+                                    except Exception:
                                         pass
-                    except Exception as e:
+                    except Exception:
                         pass
 
 
@@ -309,9 +309,9 @@ class TestCrossEncoderComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("query", ["doc1", "doc2"])
-                                    except Exception as e:
+                                    except Exception:
                                         pass
-                    except Exception as e:
+                    except Exception:
                         pass
 
 
@@ -344,14 +344,14 @@ class TestRobustExtractorComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)(Path("test.pdf"))
-                                    except Exception as e:
+                                    except Exception:
                                         try:
                                             getattr(instance, method)(
                                                 "https://example.com/paper.pdf"
                                             )
-                                        except Exception as e:
+                                        except Exception:
                                             pass
-                    except Exception as e:
+                    except Exception:
                         pass
 
 
@@ -386,10 +386,10 @@ class TestContradictionDetectorComplete:
                                 except TypeError:
                                     try:
                                         getattr(instance, method)("claim1", "claim2")
-                                    except Exception as e:
+                                    except Exception:
                                         try:
                                             getattr(instance, method)([{"text": "claim"}])
-                                        except Exception as e:
+                                        except Exception:
                                             pass
-                    except Exception as e:
+                    except Exception:
                         pass

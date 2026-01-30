@@ -318,8 +318,8 @@ class ExperimentDesignAgent(Agent):
     def _power_analysis(self, variables: dict) -> int:
         """Simple power analysis for sample size."""
         effect_size = variables.get("expected_effect_size", 0.5)
-        power = variables.get("power", 0.8)
-        alpha = variables.get("alpha", 0.05)
+        variables.get("power", 0.8)
+        variables.get("alpha", 0.05)
 
         # Simplified formula
         n = int(16 / (effect_size**2))  # Approximation

@@ -30,9 +30,9 @@ class TestCareerPlannerComplete:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)()
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -57,8 +57,8 @@ class TestFailurePredictorComplete:
             obj = getattr(failure_predictor, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -83,8 +83,8 @@ class TestFailureSimulatorComplete:
             obj = getattr(failure_simulator, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -109,8 +109,8 @@ class TestParadigmComplete:
             obj = getattr(paradigm, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -135,8 +135,8 @@ class TestCompetingHypothesisComplete:
             obj = getattr(competing_hypothesis, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -161,8 +161,8 @@ class TestLabCultureComplete:
             obj = getattr(lab_culture, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -187,8 +187,8 @@ class TestSigmaModulesComplete:
             obj = getattr(sigma_modules, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -213,8 +213,8 @@ class TestHeatmapComplete:
             obj = getattr(heatmap, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -239,8 +239,8 @@ class TestAutonomousLoopComplete:
             obj = getattr(autonomous_loop, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -265,8 +265,8 @@ class TestChainBuilderComplete:
             obj = getattr(chain_builder, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -291,8 +291,8 @@ class TestComparisonComplete:
             obj = getattr(comparison, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -317,6 +317,6 @@ class TestArtifactsSchemaComplete:
             obj = getattr(schema, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass

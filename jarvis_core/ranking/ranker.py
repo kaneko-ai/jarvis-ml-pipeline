@@ -46,7 +46,7 @@ class RankingWeights:
             with open(filepath, encoding="utf-8") as f:
                 data = yaml.safe_load(f)
             return cls.from_dict(data)
-        except Exception as e:
+        except Exception:
             return cls()
 
 

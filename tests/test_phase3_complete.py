@@ -108,7 +108,6 @@ class TestPerformanceUtils:
         assert load_count == 1
 
         # Second access doesn't reload
-        value2 = lazy.value
         assert load_count == 1
 
     def test_memory_manager(self):

@@ -64,7 +64,7 @@ class TestRunTrace:
 
     def test_finish(self):
         trace = RunTrace("test_workflow")
-        step_id = trace.start_step("step_name")
+        trace.start_step("step_name")
         # Don't end the step manually
 
         trace.finish("success")

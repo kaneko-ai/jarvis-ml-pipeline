@@ -1,0 +1,36 @@
+﻿F402 Import `field` from line 14 shadowed by loop variable
+   --> jarvis_core\evaluation\dataset_governance.py:179:13
+    |
+177 |         # 蠢・医ヵ繧｣繝ｼ繝ｫ繝峨メ繧ｧ繝・け
+178 |         required_fields = ["input", "output"]
+179 |         for field in required_fields:
+    |             ^^^^^
+180 |             if field not in record:
+181 |                 return False, f"Missing required field: {field}"
+    |
+
+F402 Import `field` from line 6 shadowed by loop variable
+   --> jarvis_core\workflow\automation.py:288:17
+    |
+286 |         for key, ref in self.local_refs.items():
+287 |             result += f"@article{{{key},\n"
+288 |             for field, value in ref.items():
+    |                 ^^^^^
+289 |                 if field != "raw":
+290 |                     result += f"  {field} = {{{value}}},\n"
+    |
+
+F841 [*] Local variable `e` is assigned to but never used
+  --> tests\e2e\test_dashboard_real_api.py:86:29
+   |
+84 |                 success = True
+85 |                 break
+86 |         except Exception as e:
+   |                             ^
+87 |             pass
+88 |         time.sleep(1)
+   |
+help: Remove assignment to unused variable `e`
+
+Found 3 errors.
+[*] 1 fixable with the `--fix` option.

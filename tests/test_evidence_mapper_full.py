@@ -21,7 +21,7 @@ class TestMapping:
 
         mapper = EvidenceMapper()
         if hasattr(mapper, "map"):
-            result = mapper.map([])
+            mapper.map([])
 
     def test_map_single_claim(self):
         """Test mapping single claim."""
@@ -30,7 +30,7 @@ class TestMapping:
         mapper = EvidenceMapper()
         claims = [{"text": "Claim 1", "source": "paper1"}]
         if hasattr(mapper, "map"):
-            result = mapper.map(claims)
+            mapper.map(claims)
 
 
 class TestExtraction:
@@ -43,7 +43,7 @@ class TestExtraction:
         mapper = EvidenceMapper()
         if hasattr(mapper, "extract_evidence"):
             paper = {"title": "Test", "abstract": "Abstract"}
-            result = mapper.extract_evidence(paper)
+            mapper.extract_evidence(paper)
 
 
 class TestModuleImports:

@@ -109,7 +109,7 @@ class RuleBasedStanceClassifier:
     ) -> StanceResult:
         """Classify stance between claim and evidence."""
         text_lower = evidence_text.lower()
-        claim_lower = claim_text.lower()
+        claim_text.lower()
 
         # Find cue words
         support_matches = self._find_cues(text_lower, self.SUPPORT_CUES)

@@ -25,8 +25,8 @@ class TestAdvancedFeaturesComplete:
             obj = getattr(features, attr, None)
             if obj and callable(obj):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -120,10 +120,10 @@ class TestLabAutomationRemaining:
         assert "changed" in result
         # Check again with same hash
         result2 = agent.check_for_changes("https://example.com", "hash123")
-        assert result2["changed"] == False
+        assert not result2["changed"]
         # Check with different hash
         result3 = agent.check_for_changes("https://example.com", "hash456")
-        assert result3["changed"] == True
+        assert result3["changed"]
 
     def test_web_monitoring_not_monitored(self):
         from jarvis_core.lab.automation import WebMonitoringAgent

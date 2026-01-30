@@ -84,7 +84,7 @@ class TestPaperPipelineOrchestrator:
         orchestrator = PaperPipelineOrchestrator()
         orchestrator.add_task(PipelineTask("t1", "T1", "missing"))
 
-        result = orchestrator.execute()
+        orchestrator.execute()
         # Task completes with error message in result
         assert orchestrator.tasks["t1"].status == TaskStatus.COMPLETED
         assert "not found" in orchestrator.tasks["t1"].result["message"]

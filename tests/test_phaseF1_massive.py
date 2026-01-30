@@ -35,8 +35,8 @@ class TestLLMAdapterDetailed:
             obj = getattr(adapter, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 

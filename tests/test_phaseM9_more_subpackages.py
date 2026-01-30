@@ -15,9 +15,9 @@ class TestNetworkModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)([{"author": "A"}, {"author": "B"}])
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_detector(self):
@@ -31,9 +31,9 @@ class TestNetworkModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)([{"node": "A"}])
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -51,9 +51,9 @@ class TestSyncModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"event": "sync"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_storage(self):
@@ -67,9 +67,9 @@ class TestSyncModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("key", "value")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -87,9 +87,9 @@ class TestScoringModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("scorer_name")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_scorer(self):
@@ -103,9 +103,9 @@ class TestScoringModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"text": "document"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -123,9 +123,9 @@ class TestEvaluationModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)([{"pred": 1, "label": 1}])
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_metrics(self):
@@ -139,9 +139,9 @@ class TestEvaluationModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)([1, 0, 1], [1, 1, 0])
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -159,9 +159,9 @@ class TestCacheModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("key", "value")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_policy(self):
@@ -175,9 +175,9 @@ class TestCacheModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("key")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -195,9 +195,9 @@ class TestDevtoolsModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)(lambda: "result")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_debug(self):
@@ -211,9 +211,9 @@ class TestDevtoolsModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("debug message")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -231,9 +231,9 @@ class TestArtifactsModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"artifact": "data"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_adapters(self):
@@ -247,7 +247,7 @@ class TestArtifactsModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"format": "json"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass

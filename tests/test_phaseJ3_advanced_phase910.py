@@ -186,7 +186,7 @@ class TestRateLimiterComplete:
 
         limiter = RateLimiter(max_requests=5, window_seconds=60)
         for i in range(5):
-            assert limiter.allow_request("user1") == True
+            assert limiter.allow_request("user1")
         # 6th request should be rate limited
         # Note: depends on implementation
 
@@ -315,7 +315,7 @@ class TestHealthCheckerComplete:
         checker = HealthChecker()
         checker.add_check("test", lambda: True)
         result = checker.run_checks()
-        assert result["test"] == True
+        assert result["test"]
 
 
 class TestFeatureFlagManagerComplete:
@@ -326,14 +326,14 @@ class TestFeatureFlagManagerComplete:
 
         manager = FeatureFlagManager()
         manager.set_flag("new_feature", True)
-        assert manager.is_enabled("new_feature") == True
+        assert manager.is_enabled("new_feature")
 
     def test_disabled_flag(self):
         from jarvis_core.advanced.features import FeatureFlagManager
 
         manager = FeatureFlagManager()
         manager.set_flag("old_feature", False)
-        assert manager.is_enabled("old_feature") == False
+        assert not manager.is_enabled("old_feature")
 
 
 class TestVersionManagerComplete:

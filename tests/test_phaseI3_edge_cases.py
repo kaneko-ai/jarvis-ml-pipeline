@@ -30,15 +30,15 @@ class TestEdgeCasesAdvanced:
         # Very long series
         data = list(range(10000))
         try:
-            result = analyzer.decompose(data, period=100)
-        except Exception as e:
+            analyzer.decompose(data, period=100)
+        except Exception:
             pass
 
         # Constant values
         data = [5] * 100
         try:
-            result = analyzer.forecast(data, steps=10)
-        except Exception as e:
+            analyzer.forecast(data, steps=10)
+        except Exception:
             pass
 
 
@@ -151,10 +151,10 @@ class TestEdgeCasesRoot:
                 if callable(obj):
                     try:
                         obj()
-                    except Exception as e:
+                    except Exception:
                         try:
                             obj("")
-                        except Exception as e:
+                        except Exception:
                             pass
 
     def test_bundle_edge_cases(self):
@@ -165,6 +165,6 @@ class TestEdgeCasesRoot:
                 obj = getattr(bundle, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass

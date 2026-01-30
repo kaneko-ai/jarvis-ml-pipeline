@@ -30,13 +30,13 @@ class TestErrorPathsAdvanced:
         analyzer = TimeSeriesAnalyzer()
 
         try:
-            result = analyzer.decompose([None, None, None], period=2)
-        except Exception as e:
+            analyzer.decompose([None, None, None], period=2)
+        except Exception:
             pass
 
         try:
-            result = analyzer.forecast([1], steps=0)
-        except Exception as e:
+            analyzer.forecast([1], steps=0)
+        except Exception:
             pass
 
 
@@ -84,15 +84,15 @@ class TestErrorPathsIngestion:
         extractor = PDFExtractor()
 
         try:
-            result = extractor.extract(Path("/nonexistent/file.pdf"))
-        except Exception as e:
+            extractor.extract(Path("/nonexistent/file.pdf"))
+        except Exception:
             pass
 
         with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
             f.write(b"Not a PDF")
             try:
-                result = extractor.extract(Path(f.name))
-            except Exception as e:
+                extractor.extract(Path(f.name))
+            except Exception:
                 pass
 
     def test_bibtex_parser_invalid_bibtex(self):
@@ -119,8 +119,8 @@ class TestErrorPathsStages:
             run_dir = Path(tmpdir)
             # No files at all
             try:
-                result = generate_report(run_dir, "Test query")
-            except Exception as e:
+                generate_report(run_dir, "Test query")
+            except Exception:
                 pass
 
     def test_generate_report_empty_files(self):
@@ -154,9 +154,9 @@ class TestErrorPathsSources:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)()
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     @patch("jarvis_core.sources.crossref_client.requests.get")
@@ -167,6 +167,6 @@ class TestErrorPathsSources:
         for name in dir(crossref_client):
             if isinstance(getattr(crossref_client, name), type):
                 try:
-                    instance = getattr(crossref_client, name)()
-                except Exception as e:
+                    getattr(crossref_client, name)()
+                except Exception:
                     pass
