@@ -58,6 +58,8 @@ jobs:
           rm -f .coverage .coverage.* coverage.xml
           rm -rf htmlcov/ .pytest_cache/
       - name: Run tests with coverage
+        id: test
+        continue-on-error: true
         run: |
           uv run pytest tests/ \
             --cov=jarvis_core \
@@ -68,15 +70,15 @@ jobs:
             -q \
             --ignore=tests/e2e \
             --ignore=tests/integration \
-            -p no:randomly \
-            || true
-      - name: Check coverage.xml exists
+            -p no:randomly
+      - name: Ensure coverage.xml exists
         run: |
-          if [[ -f coverage.xml ]]; then
-            echo "✅ coverage.xml generated"
+          if [[ ! -f coverage.xml ]]; then
+            echo "Creating placeholder coverage.xml..."
+            rm -f coverage.xml 2>/dev/null || true
+            printf '<?xml version="1.0" ?>\n<coverage version="7.0" timestamp="0" lines-valid="0" lines-covered="0" line-rate="0" branches-valid="0" branches-covered="0" branch-rate="0" complexity="0">\n  <packages></packages>\n</coverage>\n' > coverage.xml
           else
-            echo "⚠️ coverage.xml not found, creating placeholder"
-            echo '<?xml version="1.0"?><coverage></coverage>' > coverage.xml
+            echo "coverage.xml exists ($(wc -c < coverage.xml) bytes)"
           fi
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -91,6 +93,9 @@ jobs:
           path: |
             htmlcov/
             coverage.xml
+      - name: Fail if tests failed
+        if: steps.test.outcome == 'failure'
+        run: exit 1
 
   contract_and_unit:
     runs-on: ubuntu-latest
@@ -202,8 +207,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install security tools
-        run: |
-          pip install bandit safety pip-audit
+        run: pip install bandit safety pip-audit
       - name: Run bandit security scan
         run: bandit -r jarvis_core -ll || true
       - name: Run pip-audit
