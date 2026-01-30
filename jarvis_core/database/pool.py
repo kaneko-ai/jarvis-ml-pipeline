@@ -175,7 +175,9 @@ class ConnectionPool:
                 return conn
 
             except queue.Empty:
-                logger.debug("Connection pool is empty, attempting to create overflow connection or wait")
+                logger.debug(
+                    "Connection pool is empty, attempting to create overflow connection or wait"
+                )
 
             # Create new if under limit
             total = self._pool.qsize() + self._checked_out + self._overflow_count
