@@ -6,9 +6,12 @@ Per RP-400, implements distributed processing with Ray.
 from __future__ import annotations
 
 import time
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -185,8 +188,8 @@ class DistributedProcessor:
         if self.backend == "ray" and self._ray:
             try:
                 self._ray.shutdown()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Ray shutdown failed: {e}")
 
     def get_workers(self) -> list[WorkerInfo]:
         """Get worker information.

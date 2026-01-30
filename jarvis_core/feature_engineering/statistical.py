@@ -60,8 +60,8 @@ def extract_p_value(text: str) -> float | None:
         try:
             p_values = [float(m) for m in matches]
             return min(p_values)
-        except ValueError:
-            pass
+        except ValueError as e:
+            logger.debug(f"Failed to parse p-values: {e}")
 
     return None
 

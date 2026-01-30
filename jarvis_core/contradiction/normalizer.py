@@ -161,8 +161,8 @@ class ClaimNormalizer:
                 value = float(match.group(1))
                 unit = match.group(2).lower()
                 quantities.append((value, unit))
-            except ValueError:
-                pass
+            except ValueError as e:
+                logger.debug(f"Failed to parse quantity '{match.group(1)}': {e}")
         return quantities
 
     def _extract_components(self, text: str) -> tuple[str | None, str | None, str | None]:

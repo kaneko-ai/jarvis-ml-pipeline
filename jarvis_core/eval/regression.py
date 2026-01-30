@@ -6,10 +6,13 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -100,8 +103,8 @@ class PromptRegressionChecker:
 
             for key, entry in data.items():
                 self._baselines[key] = BaselineScore.from_dict(entry)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to load baselines from {self.baseline_path}: {e}")
 
     def _save_baselines(self) -> None:
         """ベースラインを保存."""

@@ -6,14 +6,15 @@
 - ドリフトアラート
 """
 
-from __future__ import annotations
-
+import logging
 import hashlib
 import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -203,8 +204,8 @@ class SpecFreezer:
                     data = json.load(f)
                 for key, val in data.items():
                     self._snapshots[key] = SpecSnapshot(**val)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to load spec snapshots from {snapshot_file}: {e}")
 
     def _save_snapshots(self) -> None:
         """スナップショットを保存."""
@@ -291,8 +292,8 @@ class DriftDetector:
             try:
                 with open(self.baseline_path, encoding="utf-8") as f:
                     self._baselines = json.load(f)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to load baselines from {self.baseline_path}: {e}")
 
     def _save_baselines(self) -> None:
         """ベースラインを保存."""

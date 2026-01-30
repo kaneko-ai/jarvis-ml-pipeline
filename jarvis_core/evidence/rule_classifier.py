@@ -264,8 +264,8 @@ class RuleBasedClassifier:
                 # Remove commas and convert to int
                 size_str = match.group(1).replace(",", "")
                 return int(size_str)
-            except ValueError:
-                pass
+            except ValueError as e:
+                logger.debug(f"Failed to parse sample size '{match.group(1)}': {e}")
         return None
 
     def extract_pico(self, text: str) -> PICOExtraction:

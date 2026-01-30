@@ -15,9 +15,6 @@ logger = logging.getLogger(__name__)
 class RankingFeatures:
     """Feature extractor for query-document pairs."""
 
-    def __init__(self):
-        pass
-
     def extract(
         self,
         query: str,

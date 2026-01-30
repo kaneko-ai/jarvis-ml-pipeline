@@ -120,8 +120,8 @@ JSON形式で出力してください：
         if match:
             try:
                 return json.loads(match.group())
-            except json.JSONDecodeError:
-                pass
+            except json.JSONDecodeError as e:
+                logger.debug(f"Failed to decode JSON from LLM response: {e}")
 
         return []
 

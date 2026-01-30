@@ -1,13 +1,11 @@
-"""Remediation Actions.
-
-Per RP-185, provides componentized repair actions.
-"""
-
 from __future__ import annotations
 
+import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -68,8 +66,8 @@ class SwitchFetchAdapter(RemediationAction):
                     config_changes={"fetch_adapter": next_adapter},
                     message=f"Switched adapter: {current} → {next_adapter}",
                 )
-        except ValueError:
-            pass
+        except ValueError as e:
+            logger.debug(f"Adapter {current} not found in order: {e}")
 
         return ActionResult(
             success=False,

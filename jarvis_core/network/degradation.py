@@ -1,7 +1,11 @@
+from __future__ import annotations
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 # Try to import is_online safely to avoid circular imports if possible,
 # or import it inside the method.
@@ -45,9 +49,8 @@ class DegradationManager:
         for listener in self._listeners:
             try:
                 listener(old, new)
-            except Exception:
-                # Log error but don't stop notification
-                pass
+            except Exception as e:
+                logger.warning(f"Degradation listener failed: {e}")
 
     def auto_detect_level(self) -> DegradationLevel:
         from jarvis_core.network.detector import is_online

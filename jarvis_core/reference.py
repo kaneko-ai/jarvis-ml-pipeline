@@ -1,20 +1,13 @@
-"""Reference structure for academic citation management.
-
-This module provides:
-- Reference: A bibliographic reference (PDF/URL/local)
-- extract_references(): Extract references from citations
-
-Per RP14, this enables generating academic reference lists
-(Vancouver/APA) from evidence citations.
-"""
-
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from .agents import Citation
@@ -258,14 +251,14 @@ def resolve_references(
         if use_crossref:
             try:
                 resolve_crossref(ref, timeout=timeout)
-            except Exception:
-                pass  # Don't fail on resolver errors
+            except Exception as e:
+                logger.debug(f"CrossRef resolver failed for {ref.id}: {e}")
 
         # Try PubMed for biomedical content
         if use_pubmed and ref.title:
             try:
                 resolve_pubmed(ref, timeout=timeout)
-            except Exception:
-                pass  # Don't fail on resolver errors
+            except Exception as e:
+                logger.debug(f"PubMed resolver failed for {ref.id}: {e}")
 
     return refs

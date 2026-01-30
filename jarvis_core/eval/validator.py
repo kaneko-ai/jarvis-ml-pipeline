@@ -9,9 +9,13 @@
 from __future__ import annotations
 
 import json
+import logging
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -247,9 +251,6 @@ class HallucinationValidator:
         claim_texts = " ".join([c.get("claim_text", "") for c in claims])
         all_context = evidence_texts + " " + claim_texts
 
-        # 回答から断言的な文を抽出
-        import re
-
         assertions = re.findall(
             r"[^.!?]*(?:is|are|was|were|has|have|show|demonstrate)[^.!?]*[.!?]", answer.lower()
         )
@@ -313,8 +314,8 @@ class GoldenSetValidator:
             try:
                 with open(self.golden_path, encoding="utf-8") as f:
                     self.golden = json.load(f)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to load golden set from {self.golden_path}: {e}")
 
     def validate_run(
         self,

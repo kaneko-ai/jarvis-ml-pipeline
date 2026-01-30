@@ -69,8 +69,8 @@ class UnifiedPaper:
         if article.pub_date:
             try:
                 year = int(article.pub_date.split("-")[0])
-            except (ValueError, IndexError):
-                pass
+            except (ValueError, IndexError) as e:
+                logger.debug(f"Failed to parse publication year from '{article.pub_date}': {e}")
 
         return cls(
             id=f"pubmed:{article.pmid}",
@@ -211,16 +211,16 @@ class UnifiedSourceClient:
             work = self.openalex.get_work(doi)
             if work:
                 return UnifiedPaper.from_openalex(work)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"OpenAlex get_work failed for DOI {doi}: {e}")
 
         # Try Semantic Scholar
         try:
             paper = self.s2.get_paper(doi)
             if paper:
                 return UnifiedPaper.from_s2(paper)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Semantic Scholar get_paper failed for DOI {doi}: {e}")
 
         return None
 
@@ -230,8 +230,8 @@ class UnifiedSourceClient:
             articles = self.pubmed.fetch([pmid])
             if articles:
                 return UnifiedPaper.from_pubmed(articles[0])
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"PubMed fetch failed for PMID {pmid}: {e}")
         return None
 
     def get_citations(
@@ -249,8 +249,8 @@ class UnifiedSourceClient:
                 # Semantic Scholar has better citation data
                 papers = self.s2.get_citations(f"DOI:{paper.doi}", limit=max_results)
                 return [UnifiedPaper.from_s2(p) for p in papers]
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Semantic Scholar get_citations failed: {e}")
 
             try:
                 works = self.openalex.get_citing_works(
@@ -258,8 +258,8 @@ class UnifiedSourceClient:
                     per_page=max_results,
                 )
                 return [UnifiedPaper.from_openalex(w) for w in works]
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"OpenAlex get_citing_works failed: {e}")
 
         return []
 

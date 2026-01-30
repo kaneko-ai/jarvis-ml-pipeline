@@ -7,9 +7,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 class DiskCache:
@@ -59,8 +62,8 @@ class DiskCache:
                     data = json.load(f)
                 self.hit_count += 1
                 return data.get("result")
-            except (json.JSONDecodeError, KeyError):
-                pass
+            except (json.JSONDecodeError, KeyError) as e:
+                logger.debug(f"Failed to load cache from {cache_path}: {e}")
 
         self.miss_count += 1
         return None

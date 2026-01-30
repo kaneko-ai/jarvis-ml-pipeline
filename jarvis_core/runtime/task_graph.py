@@ -6,11 +6,14 @@ Per V4.2 Sprint 2, this provides DAG-based task execution with dependency resolu
 from __future__ import annotations
 
 import hashlib
+import logging
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 class TaskState(Enum):
@@ -170,8 +173,8 @@ class TaskGraph:
             for task_id in ready:
                 try:
                     self.execute_task(task_id)
-                except Exception:
-                    pass  # Continue with other tasks
+                except Exception as e:
+                    logger.error(f"Sequential task execution failed for {task_id}: {e}")
 
         return self.results
 
@@ -190,8 +193,8 @@ class TaskGraph:
                 for future in as_completed(futures):
                     try:
                         future.result()
-                    except Exception:
-                        pass  # Continue with other tasks
+                    except Exception as e:
+                        logger.error(f"Parallel task execution failed for {futures[future]}: {e}")
 
         return self.results
 
