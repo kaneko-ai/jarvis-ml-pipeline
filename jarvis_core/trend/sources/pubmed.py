@@ -59,5 +59,8 @@ class PubMedSource(TrendSource):
         ]
 
     def is_available(self) -> bool:
-        """利用可能かどうか."""
+        """利用可能かどうか。
+        
+        TODO: PubMed API (E-utilities) への接続確認が必要な場合はここに実装する。
+        """
         return True

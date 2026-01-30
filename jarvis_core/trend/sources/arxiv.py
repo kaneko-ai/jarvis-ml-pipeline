@@ -57,5 +57,8 @@ class ArxivSource(TrendSource):
         ]
 
     def is_available(self) -> bool:
-        """利用可能かどうか."""
+        """利用可能かどうか。
+        
+        TODO: 実際のネットワーク接続確認やAPIキーの検証が必要な場合はここに実装する。
+        """
         return True

@@ -202,8 +202,8 @@ class CrossrefClient:
                 day = parts[2] if len(parts) > 2 else 1
                 try:
                     published_date = datetime(year, month, day)
-                except ValueError:
-                    pass
+                except ValueError as e:
+                    logger.debug(f"Failed to parse published date {year}-{month}-{day}: {e}")
 
             # Journal
             container = item.get("container-title", [])

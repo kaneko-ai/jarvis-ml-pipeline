@@ -8,10 +8,13 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -88,8 +91,8 @@ class SelfRepairLearner:
                 for line in f:
                     if line.strip():
                         self._records.append(RepairRecord.from_dict(json.loads(line)))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to load repair history from {self.history_path}: {e}")
 
     def record(
         self,

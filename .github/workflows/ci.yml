@@ -52,9 +52,7 @@ jobs:
         run: pip install uv
       - name: Install dependencies
         run: uv sync --dev
-      - name: Run tests with coverage (Phase 1)
-        env:
-          COVERAGE_PHASE: "1"
+      - name: Run tests with Unified Coverage Gate (Phase 1 & 2)
         run: |
           uv run bash scripts/ci_coverage.sh
       - name: Upload coverage to Codecov

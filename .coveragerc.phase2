@@ -1,10 +1,11 @@
 [run]
-parallel = false
 branch = True
 source = jarvis_core
-concurrency = multiprocessing, thread
+omit =
+    tests/*
+    setup.py
 
 [report]
 fail_under = 95
 show_missing = True
-skip_covered = False
+precision = 2

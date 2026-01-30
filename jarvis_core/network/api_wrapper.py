@@ -1,6 +1,11 @@
+from __future__ import annotations
+
+import logging
 import functools
 from collections.abc import Callable
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from jarvis_core.network.degradation import DegradationLevel, get_degradation_manager
 
@@ -61,8 +66,8 @@ def degradation_aware(func: Callable) -> Callable:
                     res = args[0].get_cached_result(func.__name__, args[1:], kwargs)
                     if res is not None:
                         return res
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Cache lookup failed in degradation_aware: {e}")
 
             raise OfflineError(f"Offline mode: {func.__name__} unavailable")
 
@@ -86,8 +91,8 @@ def degradation_aware_with_queue(func: Callable) -> Callable:
                     res = args[0].get_cached_result(func.__name__, args[1:], kwargs)
                     if res is not None:
                         return res
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Cache lookup failed in degradation_aware_with_queue: {e}")
 
             # 2. Queue
             # We need to import SyncQueueManager here to avoid circular imports at top level

@@ -18,10 +18,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from .reference import Reference
@@ -592,7 +595,7 @@ def load_all_vectors(vectors_dir: str) -> list[PaperVector]:
         try:
             pv = PaperVector.load(str(file_path))
             results.append(pv)
-        except Exception:
-            pass  # Skip corrupted files
+        except Exception as e:
+            logger.debug(f"Failed to load paper vector from {file_path}: {e}")
 
     return results

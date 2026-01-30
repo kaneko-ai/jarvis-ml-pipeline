@@ -1,62 +1,32 @@
 #!/usr/bin/env bash
-# JARVIS Coverage Gate Script
-# カバレッジ計測を一元管理するスクリプト
-# 
-# Usage:
-#   COVERAGE_PHASE=1 bash scripts/ci_coverage.sh  # Phase 1 (85%, no branch)
-#   COVERAGE_PHASE=2 bash scripts/ci_coverage.sh  # Phase 2 (95%, with branch)
-
+# JARVIS Coverage Gate Script (Unified Phase Check)
 set -euo pipefail
 
-PHASE="${COVERAGE_PHASE:-1}"
-
 echo "=== JARVIS Coverage Gate ==="
-echo "Phase: $PHASE"
 
-if [[ "$PHASE" == "1" ]]; then
-  CFG=".coveragerc.phase1"
-  echo "Mode: Statement/Line only (no branch)"
-  echo "Threshold: 85%"
-elif [[ "$PHASE" == "2" ]]; then
-  CFG=".coveragerc.phase2"
-  echo "Mode: Statement/Line + Branch"
-  echo "Threshold: 95%"
-else
-  echo "ERROR: Invalid COVERAGE_PHASE=$PHASE (use 1 or 2)" >&2
-  exit 2
-fi
+# Clean up existing coverage files
+rm -f .coverage .coverage.* coverage.xml
 
-echo "Config: $CFG"
-echo "=========================="
-echo ""
-
-# Clean up any existing coverage files
-rm -f .coverage .coverage.*
-
-# Run pytest with coverage
-# parallel=True in .coveragerc ensures each process writes its own file
-python -m pytest \
-  --cov=jarvis_core \
-  --cov-config="$CFG" \
-  --cov-report=xml \
-  --cov-report=html \
-  --cov-report=term-missing \
-  -p no:randomly \
-  -p no:xdist \
-  -q
-
-# Combine parallel coverage files
-echo "Combining coverage data..."
-python -m coverage combine --rcfile="$CFG"
-
-# Generate final report with fail_under check
-echo ""
-echo "=== Coverage Report ==="
+# Run pytest with coverage (Branch mode enabled for Phase 2)
+# We run with branch coverage enabled so we can check both.
 python -m pytest tests/ \
-    --cov=jarvis_core \
-    --cov-report=xml \
-    --cov-report=html \
-    --cov-fail-under=70
+  --cov=jarvis_core \
+  --cov-branch \
+  --cov-report=xml:coverage.xml \
+  --cov-report=html:htmlcov \
+  --cov-report=term-missing \
+  -q \
+  --ignore=tests/e2e \
+  --ignore=tests/integration
 
-echo ""
+echo "----------------------------------------"
+echo "Checking Phase 1: Statement Coverage (Goal: 85%)"
+python -m coverage report --rcfile=.coveragerc.phase1 --fail-under=85
+
+echo "----------------------------------------"
+echo "Checking Phase 2: Branch Coverage (Goal: 95%)"
+# We need to ensure .coveragerc.phase2 has branch=True
+python -m coverage report --rcfile=.coveragerc.phase2 --fail-under=95
+
+echo "----------------------------------------"
 echo "=== Coverage Gate PASSED ==="

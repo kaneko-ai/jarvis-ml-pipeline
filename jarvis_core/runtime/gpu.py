@@ -1,11 +1,9 @@
-"""GPU Acceleration.
-
-Per RP-414, implements GPU acceleration for embeddings and inference.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -91,8 +89,8 @@ class GPUAccelerator:
                         utilization_percent=0.0,  # Would need nvidia-smi
                     )
                 )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to list GPUs: {e}")
 
         return gpus
 

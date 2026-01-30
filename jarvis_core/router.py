@@ -3,6 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+import logging
+
+logger = logging.getLogger(__name__)
 
 from .agents import (
     AgentResult,
@@ -101,8 +104,8 @@ class Router:
         if agent_hint:
             try:
                 return self.registry.create_agent_instance(agent_hint)
-            except KeyError:
-                pass
+            except KeyError as e:
+                logger.debug(f"Agent hint '{agent_hint}' not found in registry: {e}")
 
         default = self.registry.get_default_agent_for_category(task.category.value)
         if default:
