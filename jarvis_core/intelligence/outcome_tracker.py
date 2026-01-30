@@ -145,7 +145,9 @@ class OutcomeTracker:
                     if decision_time < cutoff:
                         pending.append(d.decision_id)
                 except (ValueError, AttributeError, TypeError) as e:
-                    logger.debug(f"Failed to parse timestamp '{getattr(d, 'timestamp', 'N/A')}' for decision {getattr(d, 'decision_id', 'unknown')}: {e}")
+                    logger.debug(
+                        f"Failed to parse timestamp '{getattr(d, 'timestamp', 'N/A')}' for decision {getattr(d, 'decision_id', 'unknown')}: {e}"
+                    )
 
         return pending
 
