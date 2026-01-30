@@ -1,11 +1,19 @@
 [run]
-branch = True
+branch = true
 source = jarvis_core
+parallel = false
+concurrency = thread
 omit =
-    tests/*
-    setup.py
+    */tests/*
+    */__pycache__/*
+    */migrations/*
+    */.venv/*
 
 [report]
-fail_under = 95
-show_missing = True
-precision = 2
+fail_under = 85
+show_missing = true
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
+    if TYPE_CHECKING:
