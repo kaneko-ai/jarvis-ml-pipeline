@@ -54,9 +54,7 @@ jobs:
       - name: Install dependencies
         run: uv sync --dev
       - name: Clean coverage artifacts
-        run: |
-          rm -f .coverage .coverage.* coverage.xml
-          rm -rf htmlcov/ .pytest_cache/
+        run: rm -rf .coverage .coverage.* coverage.xml htmlcov/ .pytest_cache/
       - name: Run tests with coverage
         id: test
         continue-on-error: true
@@ -71,15 +69,20 @@ jobs:
             --ignore=tests/e2e \
             --ignore=tests/integration \
             -p no:randomly
-      - name: Ensure coverage.xml exists
+      - name: Create coverage placeholder if missing
         run: |
-          if [[ ! -f coverage.xml ]]; then
-            echo "Creating placeholder coverage.xml..."
-            rm -f coverage.xml 2>/dev/null || true
-            printf '<?xml version="1.0" ?>\n<coverage version="7.0" timestamp="0" lines-valid="0" lines-covered="0" line-rate="0" branches-valid="0" branches-covered="0" branch-rate="0" complexity="0">\n  <packages></packages>\n</coverage>\n' > coverage.xml
-          else
-            echo "coverage.xml exists ($(wc -c < coverage.xml) bytes)"
-          fi
+          python3 -c "
+          import os
+          if not os.path.exists('coverage.xml'):
+              print('Creating placeholder coverage.xml...')
+              with open('coverage.xml', 'w') as f:
+                  f.write('<?xml version=\"1.0\" ?>\n')
+                  f.write('<coverage version=\"7.0\"></coverage>\n')
+              print('Done')
+          else:
+              size = os.path.getsize('coverage.xml')
+              print(f'coverage.xml exists ({size} bytes)')
+          "
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
