@@ -7,10 +7,13 @@ Provides import/export functionality for common reference formats.
 from __future__ import annotations
 
 import json
+import logging
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -127,8 +130,8 @@ class RISParser:
         if data.get("year"):
             try:
                 year = int(data["year"][:4])
-            except (ValueError, TypeError):
-                pass
+            except (ValueError, TypeError) as e:
+                logger.debug(f"Failed to parse year '{data.get('year')}': {e}")
 
         return Reference(
             id=f"ris_{index}",
@@ -197,8 +200,8 @@ class BibTeXParser:
         if fields.get("year"):
             try:
                 year = int(fields["year"])
-            except ValueError:
-                pass
+            except ValueError as e:
+                logger.debug(f"Failed to parse year '{fields.get('year')}': {e}")
 
         keywords = []
         if fields.get("keywords"):

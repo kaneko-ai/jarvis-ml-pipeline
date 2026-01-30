@@ -117,8 +117,8 @@ def build_manifest(run_dir: Path) -> dict[str, Any]:
             feedback_summary = eval_summary.get("feedback_risk")
             if feedback_summary:
                 manifest["feedback_risk"] = feedback_summary
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to load eval_summary.json in {run_dir}: {e}")
 
     return manifest
 

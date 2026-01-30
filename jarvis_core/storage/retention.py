@@ -6,10 +6,13 @@ Per PR-76, manages automatic cleanup of old runs.
 from __future__ import annotations
 
 import json
+import logging
 import shutil
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -47,8 +50,8 @@ def get_run_age(run_dir: Path) -> timedelta | None:
             if ts:
                 run_time = datetime.fromisoformat(ts.replace("Z", "+00:00"))
                 return datetime.now(run_time.tzinfo) - run_time
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug(f"Failed to parse age for run {run_dir}: {e}")
 
     # Fallback to file mtime
     return timedelta(seconds=datetime.now().timestamp() - events_file.stat().st_mtime)

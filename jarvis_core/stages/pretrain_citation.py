@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -19,6 +20,8 @@ from typing import Any
 from jarvis_core.contracts.types import Artifacts, Claim, EvidenceLink, TaskContext
 from jarvis_core.ops import log_audit
 from jarvis_core.pipelines.stage_registry import register_stage
+
+logger = logging.getLogger(__name__)
 
 # ============================================
 # データスキーマ
@@ -712,8 +715,8 @@ def stage_store_training_record(context: TaskContext, artifacts: Artifacts) -> A
                         try:
                             existing = json.loads(line)
                             existing_hashes.add(existing.get("record_hash", ""))
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.debug(f"Failed to parse line in {output_path}: {e}")
 
             if record_hash not in existing_hashes:
                 with open(output_path, "a", encoding="utf-8") as f:

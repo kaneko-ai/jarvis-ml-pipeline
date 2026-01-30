@@ -1127,7 +1127,9 @@ class ActivityFeed:
         activity = Activity(
             id=hashlib.md5(
                 f"{workspace_id}{user_id}{time.time()}".encode(), usedforsecurity=False
-            ).hexdigest()[:8],  # nosec B324
+            ).hexdigest()[
+                :8
+            ],  # nosec B324
             user_id=user_id,
             action=action,
             details=details,
@@ -1172,7 +1174,9 @@ class RealTimeCollaboration:
         return {
             "session_id": hashlib.md5(
                 f"{document_id}{time.time()}".encode(), usedforsecurity=False
-            ).hexdigest()[:8],  # nosec B324
+            ).hexdigest()[
+                :8
+            ],  # nosec B324
             "document_id": document_id,
             "users": users,
         }

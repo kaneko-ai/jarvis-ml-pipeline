@@ -5,9 +5,12 @@ Per RP-340, processes and indexes figures from papers.
 
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -114,16 +117,16 @@ class FigureUnderstanding:
                 with pdfplumber.open(pdf_path) as pdf:
                     for page in pdf.pages:
                         text += page.extract_text() or ""
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.debug(f"pdfplumber not available: {e}")
 
             # Find figure captions
             pattern = r"(?:Figure|Fig\.?)\s*\d+[.:]\s*([^\n]{10,300})"
             for match in re.finditer(pattern, text, re.IGNORECASE):
                 captions.append(f"Figure: {match.group(1).strip()}")
 
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to extract captions from {pdf_path}: {e}")
 
         return captions
 
@@ -232,10 +235,10 @@ class TableExtractor:
                                 metadata={},
                             )
                         )
-        except ImportError:
-            pass
-        except Exception:
-            pass
+        except ImportError as e:
+            logger.debug(f"pdfplumber not available: {e}")
+        except Exception as e:
+            logger.debug(f"Failed to extract tables from {pdf_path}: {e}")
 
         return tables
 

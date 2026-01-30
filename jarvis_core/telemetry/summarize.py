@@ -6,8 +6,11 @@ Per RP-146, generates human-readable run summaries from telemetry.
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -110,8 +113,8 @@ def summarize_events(events_path: str) -> RunSummary:
             start = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
             end = datetime.fromisoformat(end_time.replace("Z", "+00:00"))
             duration = (end - start).total_seconds()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Duration calculation failed for run {run_id}: {e}")
 
     return RunSummary(
         run_id=run_id,

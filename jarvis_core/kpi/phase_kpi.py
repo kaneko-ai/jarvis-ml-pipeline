@@ -243,8 +243,8 @@ class PhaseKPIEvaluator:
                     data = json.loads(result_file.read_text(encoding="utf-8"))
                     if data.get("status") == "success" and not data.get("citations"):
                         count += 1
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"Failed to parse result file in {run_dir}: {e}")
 
         return count
 
@@ -267,8 +267,8 @@ class PhaseKPIEvaluator:
 
                     if result.get("status") == "success" and not eval_data.get("gate_passed"):
                         count += 1
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"Failed to parse files in {run_dir}: {e}")
 
         return count
 
@@ -288,7 +288,7 @@ class PhaseKPIEvaluator:
                     coverage = data.get("metrics", {}).get("evidence_coverage")
                     if coverage is not None:
                         coverages.append(coverage)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"Failed to parse eval file in {run_dir}: {e}")
 
         return sum(coverages) / len(coverages) if coverages else 0.0
