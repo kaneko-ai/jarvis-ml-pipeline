@@ -355,8 +355,8 @@ class ActiveLearningEngine:
 
             if predicted_relevant > 0:
                 return self._stats.relevant_found / predicted_relevant
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Recall estimation failed: {e}")
 
         return 0.0
 

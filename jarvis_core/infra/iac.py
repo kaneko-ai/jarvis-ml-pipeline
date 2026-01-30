@@ -6,10 +6,13 @@ Per RP-596, implements Terraform-like IaC management.
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 class ResourceState(Enum):
@@ -295,7 +298,7 @@ class InfrastructureManager:
                                 "actual": current,
                             }
                         )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"Failed to detect drift for {res.resource_id}: {e}")
 
         return drifts

@@ -6,11 +6,14 @@ Per V4.2 Sprint 2, this provides L1 memory / L2 disk caching.
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 class CacheLevel(Enum):
@@ -97,8 +100,8 @@ class MultiLevelCache:
 
                     self.stats.l2_hits += 1
                     return value, CacheLevel.L2_DISK
-                except (json.JSONDecodeError, KeyError):
-                    pass
+                except (json.JSONDecodeError, KeyError) as e:
+                    logger.debug(f"Failed to load L2 cache for key {key}: {e}")
 
         self.stats.misses += 1
         return None, CacheLevel.MISS

@@ -10,10 +10,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -408,8 +411,8 @@ Output JSON:
                             category=data.get("category", "general"),
                         )
                     )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to load prompt template from {yaml_file}: {e}")
 
     def register(self, entry: PromptEntry) -> None:
         """Register a prompt."""
