@@ -317,7 +317,7 @@ class PublicationBiasDetector:
 
         # Simple correlation check
         mean_effect = sum(effect_sizes) / len(effect_sizes)
-        mean_precision = sum(precisions) / len(precisions)
+        sum(precisions) / len(precisions)
 
         return {
             "asymmetry_detected": abs(mean_effect) > 0.5,  # Simplified
@@ -986,7 +986,6 @@ class DocumentScanner:
         return {"path": image_path, "text_extracted": "Sample text from scan"}
 
 
-
 class GestureControls:
     def get_gestures(self) -> dict:
         return {"swipe_left": "next", "swipe_right": "previous", "pinch": "zoom"}
@@ -1035,7 +1034,7 @@ class TeamWorkspace:
 
     def create_workspace(self, name: str, members: list[str]) -> "Workspace":
         """Create team workspace."""
-        ws_id = hashlib.md5(name.encode()).hexdigest()[:8]  # nosec B324
+        ws_id = hashlib.md5(name.encode(), usedforsecurity=False).hexdigest()[:8]  # nosec B324
         workspace = Workspace(
             id=ws_id,
             name=name,
@@ -1126,9 +1125,9 @@ class ActivityFeed:
     def add_activity(self, workspace_id: str, user_id: str, action: str, details: dict):
         """Add activity."""
         activity = Activity(
-            id=hashlib.md5(f"{workspace_id}{user_id}{time.time()}".encode()).hexdigest()[
-                :8
-            ],  # nosec B324
+            id=hashlib.md5(
+                f"{workspace_id}{user_id}{time.time()}".encode(), usedforsecurity=False
+            ).hexdigest()[:8],  # nosec B324
             user_id=user_id,
             action=action,
             details=details,
@@ -1173,9 +1172,7 @@ class RealTimeCollaboration:
         return {
             "session_id": hashlib.md5(
                 f"{document_id}{time.time()}".encode(), usedforsecurity=False
-            ).hexdigest()[
-                :8
-            ],  # nosec B324
+            ).hexdigest()[:8],  # nosec B324
             "document_id": document_id,
             "users": users,
         }

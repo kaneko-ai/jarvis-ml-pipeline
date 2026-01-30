@@ -77,7 +77,7 @@ def inject_noise(
 
     # Combine and shuffle
     combined = documents + noise_docs
-    noise_indices = list(range(len(documents), len(combined)))
+    list(range(len(documents), len(combined)))
 
     # Shuffle while tracking noise positions
     indices = list(range(len(combined)))

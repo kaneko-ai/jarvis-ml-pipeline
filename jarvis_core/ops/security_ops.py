@@ -209,15 +209,15 @@ from typing import Any, Dict
 class {class_name}:
     """
     {name} Skill.
-    
+
     Inputs: {inputs}
     Outputs: {outputs}
     """
-    
+
     def __init__(self):
         """初期化."""
         pass
-    
+
     def run(self, **kwargs) -> Dict[str, Any]:
         """実行."""
         # TODO: Implement skill logic

@@ -138,7 +138,7 @@ class TestPluginValidation:
         from jarvis_core.plugins import get_plugin_manager
 
         manager = get_plugin_manager()
-        manifests = manager.discover()
+        manager.discover()
 
         errors = manager.get_errors()
         assert len(errors) == 0, f"Plugin errors: {errors}"

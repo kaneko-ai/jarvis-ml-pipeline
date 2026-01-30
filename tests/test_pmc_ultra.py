@@ -21,31 +21,31 @@ class TestPMCMethods:
     def test_1(self):
         from jarvis_core.connectors.pmc import PMCConnector
 
-        c = PMCConnector()
+        PMCConnector()
         pass
 
     def test_2(self):
         from jarvis_core.connectors.pmc import PMCConnector
 
-        c = PMCConnector()
+        PMCConnector()
         pass
 
     def test_3(self):
         from jarvis_core.connectors.pmc import PMCConnector
 
-        c = PMCConnector()
+        PMCConnector()
         pass
 
     def test_4(self):
         from jarvis_core.connectors.pmc import PMCConnector
 
-        c = PMCConnector()
+        PMCConnector()
         pass
 
     def test_5(self):
         from jarvis_core.connectors.pmc import PMCConnector
 
-        c = PMCConnector()
+        PMCConnector()
         pass
 
 

@@ -20,20 +20,20 @@ MERMAID_TEMPLATE = """flowchart TD
         B[Records from registers<br>n = {reg_records}] --> D
         C[Records from other sources<br>n = {other_records}] --> D
     end
-    
+
     subgraph Screening
         D --> E[Records screened<br>n = {screened}]
         E --> F[Records excluded<br>n = {screen_excluded}]
         E --> G[Reports sought<br>n = {sought}]
     end
-    
+
     subgraph Eligibility
         G --> H[Reports not retrieved<br>n = {not_retrieved}]
         G --> I[Reports assessed<br>n = {assessed}]
         I --> J[Reports excluded<br>n = {elig_excluded}]
         I --> K[Studies included<br>n = {included}]
     end
-    
+
     subgraph Included
         K --> L[Final included studies<br>n = {included}<br>Reports: n = {reports}]
     end
@@ -53,42 +53,42 @@ SVG_TEMPLATE = """<?xml version="1.0" encoding="UTF-8"?>
       <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
     </marker>
   </defs>
-  
+
   <!-- Identification -->
   <rect x="50" y="30" width="200" height="60" rx="5" class="box"/>
   <text x="150" y="55" class="header">Identification</text>
   <text x="150" y="75" class="text">Records: {total_records}</text>
-  
+
   <!-- Duplicates -->
   <rect x="300" y="30" width="180" height="60" rx="5" class="box"/>
   <text x="390" y="55" class="header">Duplicates removed</text>
   <text x="390" y="75" class="text">n = {duplicates}</text>
-  
+
   <!-- Screening -->
   <rect x="50" y="130" width="200" height="60" rx="5" class="box"/>
   <text x="150" y="155" class="header">Screening</text>
   <text x="150" y="175" class="text">Records: {screened}</text>
-  
+
   <!-- Excluded screening -->
   <rect x="300" y="130" width="180" height="60" rx="5" class="box"/>
   <text x="390" y="155" class="header">Excluded</text>
   <text x="390" y="175" class="text">n = {excluded_screening}</text>
-  
+
   <!-- Eligibility -->
   <rect x="50" y="230" width="200" height="60" rx="5" class="box"/>
   <text x="150" y="255" class="header">Eligibility</text>
   <text x="150" y="275" class="text">Reports: {assessed}</text>
-  
+
   <!-- Excluded eligibility -->
   <rect x="300" y="230" width="180" height="60" rx="5" class="box"/>
   <text x="390" y="255" class="header">Excluded</text>
   <text x="390" y="275" class="text">n = {excluded_eligibility}</text>
-  
+
   <!-- Included -->
   <rect x="50" y="330" width="200" height="60" rx="5" class="box" style="fill: #e8f5e9;"/>
   <text x="150" y="355" class="header">Included</text>
   <text x="150" y="375" class="text">Studies: {included}</text>
-  
+
   <!-- Arrows -->
   <path d="M 150 90 L 150 130" class="arrow"/>
   <path d="M 250 60 L 300 60" class="arrow"/>

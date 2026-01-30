@@ -178,7 +178,7 @@ class CounterevidenceSearcher:
         if total == 0:
             return EvidenceStance.NEUTRAL, 0.5
 
-        support_ratio = support_count / total
+        support_count / total
 
         if opposition_count > support_count * 1.5:
             return EvidenceStance.OPPOSING, min(0.9, 0.5 + opposition_count * 0.1)

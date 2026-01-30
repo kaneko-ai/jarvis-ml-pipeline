@@ -129,7 +129,7 @@ def run(protocol: protocol_api.ProtocolContext):
     plate = protocol.load_labware("corning_96_wellplate_360ul_flat", 1)
     tiprack = protocol.load_labware("opentrons_96_tiprack_300ul", 2)
     pipette = protocol.load_instrument("p300_single", "right", tip_racks=[tiprack])
-    
+
 """
         for step in steps:
             if step.get("action") == "transfer":

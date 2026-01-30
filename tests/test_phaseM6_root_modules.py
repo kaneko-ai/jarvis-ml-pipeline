@@ -15,9 +15,9 @@ class TestMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"text1": "a", "text2": "b"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_audio_script(self):
@@ -31,9 +31,9 @@ class TestMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("script text")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_bibliography(self):
@@ -49,9 +49,9 @@ class TestMoreRootModules1:
                                 getattr(instance, method)(
                                     [{"author": "A", "title": "T", "year": 2024}]
                                 )
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_budget_policy(self):
@@ -65,9 +65,9 @@ class TestMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)(10000)
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_calendar_builder(self):
@@ -83,9 +83,9 @@ class TestMoreRootModules1:
                                 getattr(instance, method)(
                                     [{"date": "2024-01-01", "event": "deadline"}]
                                 )
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_changelog_generator(self):
@@ -99,9 +99,9 @@ class TestMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)([{"version": "1.0", "changes": []}])
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_claim(self):
@@ -115,9 +115,9 @@ class TestMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("claim text")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_context_packager(self):
@@ -131,9 +131,9 @@ class TestMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"context": "data"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_day_in_life(self):
@@ -147,9 +147,9 @@ class TestMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"role": "researcher"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_diff_engine(self):
@@ -163,9 +163,9 @@ class TestMoreRootModules1:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("text1", "text2")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -183,9 +183,9 @@ class TestMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"outline": []})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_email_generator(self):
@@ -199,9 +199,9 @@ class TestMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"subject": "test", "body": "content"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_enforce(self):
@@ -215,9 +215,9 @@ class TestMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"rule": "check"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_enforcement(self):
@@ -231,9 +231,9 @@ class TestMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"policy": "strict"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_execution_engine(self):
@@ -247,9 +247,9 @@ class TestMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)(lambda: "result")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_failure_predictor(self):
@@ -263,9 +263,9 @@ class TestMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"metrics": [0.1, 0.2]})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_figure_table_registry(self):
@@ -279,9 +279,9 @@ class TestMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"figure_id": "fig1"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_funding_cliff(self):
@@ -295,9 +295,9 @@ class TestMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"deadline": "2024-12-31"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_goldset(self):
@@ -311,9 +311,9 @@ class TestMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)([{"id": 1, "label": "gold"}])
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_hitl(self):
@@ -327,7 +327,7 @@ class TestMoreRootModules2:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"task": "review"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass

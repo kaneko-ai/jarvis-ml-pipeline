@@ -72,7 +72,7 @@ class TestArxivClient:
 
         client = ArxivClient()
         if hasattr(client, "fetch"):
-            result = client.fetch("2401.12345")
+            client.fetch("2401.12345")
 
     @patch("jarvis_core.api.arxiv.requests.get")
     def test_get_paper(self, mock_get):
@@ -93,7 +93,7 @@ class TestArxivClient:
 
         client = ArxivClient()
         if hasattr(client, "get_paper"):
-            result = client.get_paper("2401.12345")
+            client.get_paper("2401.12345")
 
     def test_parse_date(self):
         """Test date parsing."""
@@ -101,7 +101,7 @@ class TestArxivClient:
 
         client = ArxivClient()
         if hasattr(client, "_parse_date"):
-            result = client._parse_date("2024-01-15T00:00:00Z")
+            client._parse_date("2024-01-15T00:00:00Z")
 
 
 class TestModuleImports:

@@ -60,30 +60,30 @@ class RobustPDFExtractor:
             import fitz  # PyMuPDF
 
             backends.append("pymupdf")
-        except ImportError:
-            pass
+        except ImportError as e:
+            logger.debug(f"PyMuPDF not available: {e}")
 
         try:
             import pdfplumber
 
             backends.append("pdfplumber")
-        except ImportError:
-            pass
+        except ImportError as e:
+            logger.debug(f"pdfplumber not available: {e}")
 
         try:
             import pypdf
 
             backends.append("pypdf")
-        except ImportError:
-            pass
+        except ImportError as e:
+            logger.debug(f"pypdf not available: {e}")
 
         if self.enable_ocr:
             try:
                 import pytesseract
 
                 backends.append("ocr")
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.debug(f"pytesseract not available: {e}")
 
         return backends
 

@@ -19,14 +19,14 @@ class TestCrossFieldAnalysis:
         from jarvis_core import cross_field
 
         if hasattr(cross_field, "analyze"):
-            result = cross_field.analyze([])
+            cross_field.analyze([])
 
     def test_find_connections(self):
         """Test finding connections."""
         from jarvis_core import cross_field
 
         if hasattr(cross_field, "find_connections"):
-            result = cross_field.find_connections([], [])
+            cross_field.find_connections([], [])
 
 
 class TestModuleImports:

@@ -106,13 +106,13 @@ class SQLiteCache:
             )
             cursor.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_namespace 
+                CREATE INDEX IF NOT EXISTS idx_namespace
                 ON cache(namespace)
             """
             )
             cursor.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_accessed_at 
+                CREATE INDEX IF NOT EXISTS idx_accessed_at
                 ON cache(accessed_at)
             """
             )
@@ -196,7 +196,7 @@ class SQLiteCache:
         with self._cursor() as cursor:
             cursor.execute(
                 """
-                INSERT OR REPLACE INTO cache 
+                INSERT OR REPLACE INTO cache
                 (key, namespace, value, created_at, accessed_at, ttl_seconds, size_bytes)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
@@ -263,8 +263,8 @@ class SQLiteCache:
             cursor.execute(
                 """
                 DELETE FROM cache WHERE key IN (
-                    SELECT key FROM cache 
-                    ORDER BY accessed_at ASC 
+                    SELECT key FROM cache
+                    ORDER BY accessed_at ASC
                     LIMIT (SELECT COUNT(*) * 0.2 FROM cache)
                 )
             """
@@ -277,7 +277,7 @@ class SQLiteCache:
         with self._cursor() as cursor:
             cursor.execute(
                 """
-                SELECT 
+                SELECT
                     COUNT(*) as count,
                     SUM(size_bytes) as total_bytes,
                     COUNT(DISTINCT namespace) as namespaces

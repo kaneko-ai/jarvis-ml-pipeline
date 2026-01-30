@@ -279,7 +279,6 @@ class ResearchPartner:
 
     def _generate_key_questions(self, theme: str, current_situation: str | None) -> KeyQuestions:
         """Phase4: 問い生成."""
-        context = f"{theme} - {current_situation or ''}"
 
         return KeyQuestions(
             unverified=f"「{theme}」で未検証だが価値がありそうな仮説は何か？",

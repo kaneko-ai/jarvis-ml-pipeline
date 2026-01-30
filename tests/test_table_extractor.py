@@ -3,7 +3,7 @@ import pytest
 
 @pytest.mark.core
 def test_table_extractor_html():
-    BeautifulSoup = pytest.importorskip("bs4").BeautifulSoup
+    pytest.importorskip("bs4").BeautifulSoup
     from jarvis_core.ingestion.table_extractor import extract_tables
 
     html = """

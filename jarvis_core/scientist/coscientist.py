@@ -201,9 +201,7 @@ class LiteratureGapAnalyzer:
         area_lower = research_area.lower()
 
         # Analyze coverage
-        related_topics = [
-            k for k in self.topics_covered.keys() if area_lower in k or k in area_lower
-        ]
+        [k for k in self.topics_covered.keys() if area_lower in k or k in area_lower]
 
         gaps = []
 
@@ -435,7 +433,7 @@ class FundingOpportunityMatcher:
     SOURCES = ["NIH Reporter", "NSF Awards", "EU Horizon", "Wellcome Trust"]
 
     def match(self, project: dict) -> list[dict]:
-        keywords = project.get("keywords", ["research"])
+        project.get("keywords", ["research"])
         return [
             {
                 "source": "NIH Reporter",

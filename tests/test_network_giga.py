@@ -40,7 +40,7 @@ class TestDegradation1:
     def test_dg1(self):
         from jarvis_core.network.degradation import DegradationManager
 
-        m = DegradationManager.get_instance()
+        DegradationManager.get_instance()
 
     def test_dg2(self):
         pass
@@ -62,7 +62,7 @@ class TestSync1:
     def test_s2(self):
         from jarvis_core.sync.manager import SyncQueueManager
 
-        m = SyncQueueManager()
+        SyncQueueManager()
 
     def test_s3(self):
         pass
@@ -96,7 +96,7 @@ class TestSources1:
     def test_so2(self):
         from jarvis_core.sources.pubmed_client import PubMedClient
 
-        c = PubMedClient()
+        PubMedClient()
 
     def test_so3(self):
         pass

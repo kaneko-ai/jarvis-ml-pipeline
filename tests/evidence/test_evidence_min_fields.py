@@ -20,7 +20,7 @@ def test_evidence_report_validation():
             )
         ],
     )
-    assert report.validate_audit() == True
+    assert report.validate_audit()
 
 
 def test_evidence_report_rejection():
@@ -31,4 +31,4 @@ def test_evidence_report_rejection():
         claims=[Claim(statement="Unbacked claim", evidence=[])],
     )
     # The requirement is that claims must have at least one piece of evidence
-    assert report.validate_audit() == False
+    assert not report.validate_audit()

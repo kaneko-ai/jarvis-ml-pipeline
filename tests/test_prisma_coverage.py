@@ -23,7 +23,7 @@ class TestPRISMAModule:
         from jarvis_core.experimental import prisma
 
         if hasattr(prisma, "generate_diagram"):
-            result = prisma.generate_diagram({})
+            prisma.generate_diagram({})
 
 
 class TestModuleImports:

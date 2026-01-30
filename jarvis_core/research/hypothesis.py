@@ -106,8 +106,8 @@ class HypothesisGenerator:
         aspects = []
 
         for paper in papers:
-            title = paper.get("title", "")
-            abstract = paper.get("abstract", "")
+            paper.get("title", "")
+            paper.get("abstract", "")
 
             # Simple keyword extraction
             keywords = paper.get("keywords", [])

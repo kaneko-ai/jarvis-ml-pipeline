@@ -10,7 +10,7 @@ def test_offline_flag_sets_degradation_level():
         with patch(
             "jarvis_core.network.degradation.DegradationManager.set_level"
         ) as mock_set_level:
-            with patch("jarvis_cli.cmd_show_run") as mock_cmd:  # Prevent actual run
+            with patch("jarvis_cli.cmd_show_run"):  # Prevent actual run
                 with patch("jarvis_core.ui.status.get_status_banner", return_value="Offline Mode"):
                     main()
                     mock_set_level.assert_called_with(DegradationLevel.OFFLINE)
@@ -22,7 +22,7 @@ def test_offline_env_var_sets_degradation_level():
             with patch(
                 "jarvis_core.network.degradation.DegradationManager.set_level"
             ) as mock_set_level:
-                with patch("jarvis_cli.cmd_show_run") as mock_cmd:
+                with patch("jarvis_cli.cmd_show_run"):
                     main()
                     mock_set_level.assert_called_with(DegradationLevel.OFFLINE)
 
@@ -32,6 +32,6 @@ def test_no_offline_flag():
         with patch(
             "jarvis_core.network.degradation.DegradationManager.set_level"
         ) as mock_set_level:
-            with patch("jarvis_cli.cmd_show_run") as mock_cmd:
+            with patch("jarvis_cli.cmd_show_run"):
                 main()
                 mock_set_level.assert_not_called()

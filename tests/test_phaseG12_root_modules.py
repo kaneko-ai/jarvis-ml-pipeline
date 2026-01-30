@@ -22,7 +22,7 @@ def test_module_classes(module):
                                     method()
                                 except TypeError:
                                     pass
-                except Exception as e:
+                except Exception:
                     pass
 
 

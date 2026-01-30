@@ -167,7 +167,7 @@ class TestGenerateReportAllBranches:
 
         # Remove evidence -> low support
         (temp_run_dir / "evidence.jsonl").unlink(missing_ok=True)
-        with open(temp_run_dir / "evidence.jsonl", "w") as f:
+        with open(temp_run_dir / "evidence.jsonl", "w"):
             pass  # Empty file
 
         result = generate_report(temp_run_dir, "Test Query")
@@ -201,7 +201,7 @@ class TestRetrievalExtractionAllBranches:
                                         method()
                                     except TypeError:
                                         pass
-                    except Exception as e:
+                    except Exception:
                         pass
 
 
@@ -221,8 +221,8 @@ class TestActiveLearningEngineAllBranches:
                 obj = getattr(engine, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -242,8 +242,8 @@ class TestCitationLoopAllBranches:
                 obj = getattr(citation_loop, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -263,8 +263,8 @@ class TestMultimodalScientificAllBranches:
                 obj = getattr(scientific, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -284,8 +284,8 @@ class TestNoteGeneratorAllBranches:
                 obj = getattr(note_generator, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -305,8 +305,8 @@ class TestRobustExtractorAllBranches:
                 obj = getattr(robust_extractor, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -326,6 +326,6 @@ class TestPhaseKPIAllBranches:
                 obj = getattr(phase_kpi, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass

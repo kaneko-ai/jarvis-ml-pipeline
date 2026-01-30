@@ -62,7 +62,7 @@ class TestSystematicReviewAgentComplete:
         agent = SystematicReviewAgent()
         agent.add_paper("p1", {"title": "Paper 1"}, stage="identification")
         agent.exclude_paper("p1", "Duplicate")
-        assert agent.papers["p1"]["excluded"] == True
+        assert agent.papers["p1"]["excluded"]
 
     def test_advance_stage_all_stages(self):
         from jarvis_core.advanced.features import SystematicReviewAgent

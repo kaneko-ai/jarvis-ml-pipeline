@@ -137,8 +137,8 @@ class TestLabAutomationMonitoringClasses:
         r4 = agent.check_for_changes("https://unregistered.com", "hash")
 
         assert r1 is not None
-        assert r2["changed"] == False
-        assert r3["changed"] == True
+        assert not r2["changed"]
+        assert r3["changed"]
         assert "error" in r4
 
     def test_conference_tracker_all_methods(self):

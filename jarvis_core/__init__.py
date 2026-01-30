@@ -55,4 +55,9 @@ def __getattr__(name: str):
 
         return AgentRegistry
 
+    if name == "active_learning":
+        import importlib
+
+        return importlib.import_module(".active_learning", __name__)
+
     raise AttributeError(name)

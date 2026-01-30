@@ -21,8 +21,8 @@ class TestSourcesArxivClientComplete:
                 obj = getattr(arxiv_client, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -39,8 +39,8 @@ class TestSourcesCrossrefClientComplete:
                 obj = getattr(crossref_client, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -59,8 +59,8 @@ class TestSourcesPubmedClientComplete:
                 obj = getattr(pubmed_client, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -77,8 +77,8 @@ class TestSourcesUnpaywallClientComplete:
                 obj = getattr(unpaywall_client, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -93,8 +93,8 @@ class TestAPIExternalComplete:
                 obj = getattr(external, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -109,8 +109,8 @@ class TestAPIPubmedComplete:
                 obj = getattr(pubmed, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -125,6 +125,6 @@ class TestAPISemanticScholarComplete:
                 obj = getattr(semantic_scholar, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass

@@ -9,7 +9,7 @@ from jarvis_core.sync.schema import QueueItem, QueueItemStatus
 class TestSyncQueueStorage:
     def test_init_with_custom_path(self, tmp_path):
         db_path = tmp_path / "test.db"
-        storage = SyncQueueStorage(db_path=db_path)
+        SyncQueueStorage(db_path=db_path)
 
         assert db_path.exists()
 

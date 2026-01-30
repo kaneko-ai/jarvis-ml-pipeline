@@ -100,20 +100,20 @@ flowchart TD
         B[Records from other sources<br/>n = {other_records}] --> C
         C[Records after duplicates removed<br/>n = {after_duplicates}]
     end
-    
+
     subgraph Screening
         C --> D[Records screened<br/>n = {screened}]
         D --> E[Records excluded<br/>n = {excluded_screen}]
         D --> F[Reports sought for retrieval<br/>n = {sought}]
     end
-    
+
     subgraph Eligibility
         F --> G[Reports not retrieved<br/>n = {not_retrieved}]
         F --> H[Reports assessed for eligibility<br/>n = {assessed}]
         H --> I[Reports excluded<br/>n = {excluded_elig}]
         H --> J[Studies included in review<br/>n = {included}]
     end
-    
+
     subgraph Included
         J --> K[Studies included in synthesis<br/>n = {synthesis}]
     end
@@ -121,7 +121,7 @@ flowchart TD
 
     MARKDOWN_TEMPLATE = """# PRISMA 2020 Flow Diagram
 
-**Title:** {title}  
+**Title:** {title}
 **Date:** {date}
 
 ## Identification

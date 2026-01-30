@@ -162,7 +162,7 @@ class TestReportBuilder:
         with (
             patch("jarvis_core.style.report_builder._load_docx_text", return_value=["Docx text"]),
             patch("jarvis_core.style.report_builder._load_pptx_text", return_value=["Pptx text"]),
-            patch("pathlib.Path.read_text", return_value="Markdown text") as mock_read,
+            patch("pathlib.Path.read_text", return_value="Markdown text"),
         ):
 
             # Need to ensure read_text is called only for md files or allow it to fail for others

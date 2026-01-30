@@ -15,9 +15,9 @@ class TestSubmissionModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"document": "text"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_journal_checker(self):
@@ -31,9 +31,9 @@ class TestSubmissionModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("Nature")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_validator(self):
@@ -47,9 +47,9 @@ class TestSubmissionModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"manuscript": "text"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -67,9 +67,9 @@ class TestVisualizationModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)([1, 2, 3, 4, 5])
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_positioning(self):
@@ -83,9 +83,9 @@ class TestVisualizationModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)([{"x": 0, "y": 0}])
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_timeline_viz(self):
@@ -101,9 +101,9 @@ class TestVisualizationModules:
                                 getattr(instance, method)(
                                     [{"date": "2024-01-01", "event": "start"}]
                                 )
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -121,9 +121,9 @@ class TestWritingModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"outline": []})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_utils(self):
@@ -137,9 +137,9 @@ class TestWritingModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("text")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -157,9 +157,9 @@ class TestRenderersModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("<html></html>")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_markdown(self):
@@ -173,9 +173,9 @@ class TestRenderersModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("# Markdown")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -193,9 +193,9 @@ class TestTelemetryModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"metric": 0.5})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_logger(self):
@@ -209,9 +209,9 @@ class TestTelemetryModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("log message")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_redact(self):
@@ -225,9 +225,9 @@ class TestTelemetryModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("sensitive data")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -245,9 +245,9 @@ class TestRuntimeModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)(100)
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_rate_limiter(self):
@@ -261,9 +261,9 @@ class TestRuntimeModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("key")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_durable(self):
@@ -277,7 +277,7 @@ class TestRuntimeModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)(lambda: "result")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass

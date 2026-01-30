@@ -427,7 +427,7 @@ def stage_extraction_accuracy_proxy(context: TaskContext, artifacts: Artifacts) 
     - バイアス評価完全性
     """
     pico = artifacts.metadata.get("pico_extractions", [])
-    outcomes = artifacts.metadata.get("outcome_extractions", [])
+    artifacts.metadata.get("outcome_extractions", [])
     effect_sizes = artifacts.metadata.get("effect_size_data", [])
     bias = artifacts.metadata.get("bias_assessments", [])
 

@@ -77,7 +77,7 @@ class TestKillSwitchFunctional:
 
         with tempfile.TemporaryDirectory() as tmpdir:
             ks = KillSwitch(incidents_file=f"{tmpdir}/incidents.md")
-            assert ks.is_killed == False
+            assert not ks.is_killed
             assert ks.kill_reason is None
             assert ks.events == []
 
@@ -86,22 +86,22 @@ class TestKillSwitchFunctional:
         from jarvis_core.kill_switch import KillSwitch
 
         ks = KillSwitch()
-        assert ks.check_retry_limit(5, max_retries=3) == True
+        assert ks.check_retry_limit(5, max_retries=3)
 
     def test_kill_switch_check_retry_limit_not_exceeded(self):
         """Test check_retry_limit when not exceeded."""
         from jarvis_core.kill_switch import KillSwitch
 
         ks = KillSwitch()
-        assert ks.check_retry_limit(2, max_retries=3) == False
+        assert not ks.check_retry_limit(2, max_retries=3)
 
     def test_kill_switch_check_retry_limit_boundary(self):
         """Test check_retry_limit at boundary."""
         from jarvis_core.kill_switch import KillSwitch
 
         ks = KillSwitch()
-        assert ks.check_retry_limit(3, max_retries=3) == False
-        assert ks.check_retry_limit(4, max_retries=3) == True
+        assert not ks.check_retry_limit(3, max_retries=3)
+        assert ks.check_retry_limit(4, max_retries=3)
 
     def test_kill_switch_check_no_citation_success_true(self):
         """Test check_no_citation_success when true."""
@@ -109,7 +109,7 @@ class TestKillSwitchFunctional:
 
         ks = KillSwitch()
         result = {"status": "success", "citations": []}
-        assert ks.check_no_citation_success(result) == True
+        assert ks.check_no_citation_success(result)
 
     def test_kill_switch_check_no_citation_success_false(self):
         """Test check_no_citation_success when false."""
@@ -117,7 +117,7 @@ class TestKillSwitchFunctional:
 
         ks = KillSwitch()
         result = {"status": "success", "citations": ["citation1"]}
-        assert ks.check_no_citation_success(result) == False
+        assert not ks.check_no_citation_success(result)
 
     def test_kill_switch_check_no_citation_not_success(self):
         """Test check_no_citation_success when not success."""
@@ -125,7 +125,7 @@ class TestKillSwitchFunctional:
 
         ks = KillSwitch()
         result = {"status": "failed", "citations": []}
-        assert ks.check_no_citation_success(result) == False
+        assert not ks.check_no_citation_success(result)
 
     def test_kill_switch_check_gate_fail_success_true(self):
         """Test check_gate_fail_success when true."""
@@ -134,7 +134,7 @@ class TestKillSwitchFunctional:
         ks = KillSwitch()
         result = {"status": "success"}
         eval_summary = {"gate_passed": False}
-        assert ks.check_gate_fail_success(result, eval_summary) == True
+        assert ks.check_gate_fail_success(result, eval_summary)
 
     def test_kill_switch_check_gate_fail_success_false(self):
         """Test check_gate_fail_success when false."""
@@ -143,7 +143,7 @@ class TestKillSwitchFunctional:
         ks = KillSwitch()
         result = {"status": "success"}
         eval_summary = {"gate_passed": True}
-        assert ks.check_gate_fail_success(result, eval_summary) == False
+        assert not ks.check_gate_fail_success(result, eval_summary)
 
     def test_kill_switch_get_condition_by_id_found(self):
         """Test get_condition_by_id when found."""
@@ -178,7 +178,7 @@ class TestKillSwitchFunctional:
             )
             event = ks.trigger_kill(cond, {"test": "details"})
             assert event.condition_id == "TEST-001"
-            assert ks.is_killed == True
+            assert ks.is_killed
             assert "TEST-001" in ks.kill_reason
 
     def test_kill_switch_trigger_kill_non_critical(self):
@@ -197,7 +197,7 @@ class TestKillSwitchFunctional:
             )
             event = ks.trigger_kill(cond, {"test": "details"})
             assert event.condition_id == "TEST-002"
-            assert ks.is_killed == False  # Should not be killed
+            assert not ks.is_killed  # Should not be killed
 
     def test_recommend_kill_switch_empty_vectors(self):
         """Test recommend_kill_switch with empty vectors."""

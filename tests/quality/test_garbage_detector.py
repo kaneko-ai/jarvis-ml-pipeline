@@ -1,5 +1,3 @@
-import pytest
-from pathlib import Path
 from scripts.detect_garbage_code import scan_file
 
 

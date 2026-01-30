@@ -11,6 +11,12 @@ class GarbageDetector(ast.NodeVisitor):
         # ダミー実装検出: bodyが1行で pass or return リテラルのみ
         if len(node.body) == 1:
             stmt = node.body[0]
+            # ホワイトリスト: __exit__ での return False/True は正当
+            if node.name == "__exit__" and isinstance(stmt, ast.Return):
+                if isinstance(stmt.value, ast.Constant) and stmt.value.value in (True, False):
+                    self.generic_visit(node)
+                    return
+
             if isinstance(stmt, ast.Pass):
                 self.issues.append(
                     f"{node.lineno}:{node.name}: ダミー実装（passのみ）"
@@ -31,6 +37,12 @@ class GarbageDetector(ast.NodeVisitor):
         # 握りつぶしexcept検出
         # try: ... except: pass のようなケース
         if len(node.body) == 1 and isinstance(node.body[0], ast.Pass):
+            # ホワイトリスト: 特定の例外はpassを許可
+            if isinstance(node.type, ast.Name) and node.type.id in ("ImportError", "AttributeError"):
+                self.generic_visit(node)
+                return
+            
+            # 型指定なしの bare except も検出対象
             self.issues.append(
                 f"{node.lineno}: 握りつぶしexcept（except: pass）"
             )

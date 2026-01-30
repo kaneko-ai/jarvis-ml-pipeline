@@ -311,7 +311,7 @@ class TestRISBibTeXFunctional:
 TI  - Test Title
 AU  - Author One
 PY  - 2024
-ER  - 
+ER  -
 """
         parser = RISParser()
         refs = parser.parse(ris)
@@ -324,11 +324,11 @@ ER  -
 
         ris = """TY  - JOUR
 TI  - Paper 1
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Paper 2
-ER  - 
+ER  -
 """
         parser = RISParser()
         refs = parser.parse(ris)

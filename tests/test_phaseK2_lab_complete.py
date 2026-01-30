@@ -246,15 +246,15 @@ class TestWebMonitoringAgentComplete:
         agent.add_monitor("https://site1.com", 30)
 
         # First check (new hash)
-        r1 = agent.check_for_changes("https://site1.com", "hash1")
+        agent.check_for_changes("https://site1.com", "hash1")
 
         # Same hash
         r2 = agent.check_for_changes("https://site1.com", "hash1")
-        assert r2["changed"] == False
+        assert not r2["changed"]
 
         # Different hash
         r3 = agent.check_for_changes("https://site1.com", "hash2")
-        assert r3["changed"] == True
+        assert r3["changed"]
 
 
 # ====================

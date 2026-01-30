@@ -33,7 +33,7 @@ class TestGenerate:
 
         gen = ReviewGenerator()
         if hasattr(gen, "generate"):
-            result = gen.generate([])
+            gen.generate([])
 
     def test_generate_single(self):
         from jarvis_core.analysis.review_generator import ReviewGenerator
@@ -41,7 +41,7 @@ class TestGenerate:
         gen = ReviewGenerator()
         papers = [{"title": "P1", "abstract": "A1"}]
         if hasattr(gen, "generate"):
-            result = gen.generate(papers)
+            gen.generate(papers)
 
     def test_generate_multiple(self):
         from jarvis_core.analysis.review_generator import ReviewGenerator
@@ -49,7 +49,7 @@ class TestGenerate:
         gen = ReviewGenerator()
         papers = [{"title": f"P{i}", "abstract": f"A{i}"} for i in range(5)]
         if hasattr(gen, "generate"):
-            result = gen.generate(papers)
+            gen.generate(papers)
 
 
 class TestSections:
@@ -60,14 +60,14 @@ class TestSections:
 
         gen = ReviewGenerator()
         if hasattr(gen, "generate_section"):
-            result = gen.generate_section("introduction", [])
+            gen.generate_section("introduction", [])
 
     def test_generate_conclusion(self):
         from jarvis_core.analysis.review_generator import ReviewGenerator
 
         gen = ReviewGenerator()
         if hasattr(gen, "generate_conclusion"):
-            result = gen.generate_conclusion({})
+            gen.generate_conclusion({})
 
 
 class TestThemes:
@@ -78,7 +78,7 @@ class TestThemes:
 
         gen = ReviewGenerator()
         if hasattr(gen, "identify_themes"):
-            result = gen.identify_themes([])
+            gen.identify_themes([])
 
 
 class TestModuleImports:

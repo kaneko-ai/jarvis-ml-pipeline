@@ -87,7 +87,7 @@ class Summarizer:
     def generate_300(self, topic: str, claims_text: str) -> str:
         """300字要約を生成."""
         if self.llm:
-            prompt = self.prompts.render(
+            self.prompts.render(
                 "summarizer_300",
                 topic=topic,
                 claims=claims_text,
@@ -101,7 +101,7 @@ class Summarizer:
     def generate_detailed(self, topic: str, claims_text: str) -> str:
         """詳細解説を生成."""
         if self.llm:
-            prompt = self.prompts.render(
+            self.prompts.render(
                 "summarizer_detailed",
                 topic=topic,
                 claims=claims_text,
@@ -113,7 +113,7 @@ class Summarizer:
     def generate_notebooklm(self, topic: str, claims_text: str) -> str:
         """NotebookLM台本を生成."""
         if self.llm:
-            prompt = self.prompts.render(
+            self.prompts.render(
                 "summarizer_notebooklm",
                 topic=topic,
                 claims=claims_text,

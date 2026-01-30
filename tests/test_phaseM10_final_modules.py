@@ -17,9 +17,9 @@ class TestSearchEngineModule:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("search query")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -37,9 +37,9 @@ class TestSchedulerModule:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"task": "run"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -59,9 +59,9 @@ class TestProvidersModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("prompt")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     @patch("jarvis_core.providers.anthropic_provider.anthropic")
@@ -77,9 +77,9 @@ class TestProvidersModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)("prompt")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -97,9 +97,9 @@ class TestPoliciesModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)(lambda: "result")
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -117,9 +117,9 @@ class TestFinalRootModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)([0.1, 0.2, 0.3])
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_pi_support(self):
@@ -133,9 +133,9 @@ class TestFinalRootModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"pi": "Dr. Test"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_reproducibility_cert(self):
@@ -149,9 +149,9 @@ class TestFinalRootModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"paper": "data"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_roi_engine(self):
@@ -165,9 +165,9 @@ class TestFinalRootModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"investment": 100000})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_career_engines(self):
@@ -181,9 +181,9 @@ class TestFinalRootModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"career_stage": "postdoc"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_autonomous_loop(self):
@@ -197,9 +197,9 @@ class TestFinalRootModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"max_iterations": 10})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_chain_builder(self):
@@ -213,9 +213,9 @@ class TestFinalRootModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)([lambda x: x])
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_negative_results(self):
@@ -229,9 +229,9 @@ class TestFinalRootModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"result": "negative"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_clinical_readiness(self):
@@ -245,9 +245,9 @@ class TestFinalRootModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)({"phase": "2"})
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
     def test_competing_hypothesis(self):
@@ -261,7 +261,7 @@ class TestFinalRootModules:
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
                                 getattr(instance, method)([{"hypothesis": "H1"}])
-                            except Exception as e:
+                            except Exception:
                                 pass
-                except Exception as e:
+                except Exception:
                     pass

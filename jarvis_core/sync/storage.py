@@ -56,7 +56,7 @@ class SyncQueueStorage:
         with self._get_connection() as conn:
             conn.execute(
                 """
-                INSERT INTO sync_queue 
+                INSERT INTO sync_queue
                 (id, operation, params, status, created_at, updated_at, max_retries, retry_count, error, result)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
@@ -79,7 +79,7 @@ class SyncQueueStorage:
         with self._get_connection() as conn:
             rows = conn.execute(
                 """
-                SELECT * FROM sync_queue 
+                SELECT * FROM sync_queue
                 WHERE status IN (?, ?)
                 ORDER BY created_at ASC
                 LIMIT ?
@@ -95,7 +95,7 @@ class SyncQueueStorage:
         with self._get_connection() as conn:
             conn.execute(
                 """
-                UPDATE sync_queue 
+                UPDATE sync_queue
                 SET status = ?, updated_at = ?, error = ?
                 WHERE id = ?
                 """,

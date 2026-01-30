@@ -21,15 +21,15 @@ def deep_test_module(module):
                                 except TypeError:
                                     try:
                                         method("")
-                                    except Exception as e:
+                                    except Exception:
                                         try:
                                             method([])
-                                        except Exception as e:
+                                        except Exception:
                                             try:
                                                 method({})
-                                            except Exception as e:
+                                            except Exception:
                                                 pass
-                except Exception as e:
+                except Exception:
                     pass
 
 

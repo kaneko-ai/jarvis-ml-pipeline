@@ -32,7 +32,7 @@ class TestScoringWeights:
             journal_impact=1.0,
             contradiction_penalty=1.0,
         )
-        result = weights.normalize()
+        weights.normalize()
 
         # normalize() returns a new ScoringWeights or modifies in place
         # Check that original or result has normalized values

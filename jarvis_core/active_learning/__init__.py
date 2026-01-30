@@ -4,17 +4,17 @@ Active learning engine for efficient paper screening.
 Per JARVIS_COMPLETION_PLAN_v3 Task 2.5
 """
 
-from jarvis_core.experimental.active_learning.engine import (
+from .engine import (
     ActiveLearningEngine,
     ALConfig,
     ALState,
 )
-from jarvis_core.experimental.active_learning.query import (
+from .query import (
     DiversitySampling,
     QueryStrategy,
     UncertaintySampling,
 )
-from jarvis_core.experimental.active_learning.stopping import (
+from .stopping import (
     BudgetStoppingCriterion,
     RecallStoppingCriterion,
     StoppingCriterion,

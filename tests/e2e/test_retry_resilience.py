@@ -20,7 +20,6 @@ def test_llm_retry_resilience():
     policy = RetryPolicy(max_attempts=3, base_delay=0.1, jitter=False)
 
     # 4. Execute a chat call via the policy
-    messages = [{"role": "user", "content": "Hello, resolve this scientific query."}]
 
     # We need to wrap the chat call in a lambda because execute expects a callable
     # Note: chat expecting list[Message] but we pass list[dict] here for simplicity if allowed,

@@ -129,13 +129,13 @@ class TestIntegrationIngestionPipeline:
             (tmppath / "article.txt").write_text(
                 """
             Abstract: This is a test article about machine learning.
-            
+
             Introduction: Machine learning is a subset of artificial intelligence.
-            
+
             Methods: We used deep learning techniques.
-            
+
             Results: The model achieved 95% accuracy.
-            
+
             Conclusion: Deep learning is effective.
             """
             )
@@ -168,7 +168,7 @@ class TestIntegrationIngestionPipeline:
             try:
                 result = pipeline.run()
                 assert result is not None
-            except Exception as e:
+            except Exception:
                 pass
 
 
@@ -187,25 +187,25 @@ class TestIntegrationLabAutomation:
         # Step 1: Schedule experiment
         scheduler = ExperimentScheduler()
         scheduler.add_experiment("Exp1", "2024-01-01 09:00", 4, ["microscope", "centrifuge"])
-        conflicts = scheduler.check_conflicts("2024-01-01 10:00", 2, ["microscope"])
+        scheduler.check_conflicts("2024-01-01 10:00", 2, ["microscope"])
 
         # Step 2: Check reagents
         inventory = ReagentInventoryManager()
         inventory.add_reagent("buffer", 500, "ml")
         inventory.add_reagent("enzyme", 100, "units")
-        low_stock = inventory.check_low_stock(threshold=50)
+        inventory.check_low_stock(threshold=50)
 
         # Step 3: Get protocol
         protocols = ProtocolVersionControl()
         protocols.save_version("PCR", "Step 1: Prepare samples. Step 2: Add reagents.", "Dr. Smith")
-        protocol = protocols.get_version("PCR")
+        protocols.get_version("PCR")
 
         # Step 4: Log experiment
         logger = ExperimentLogger()
         logger.log_event("Exp1", "start", {"protocol": "PCR"})
         logger.log_event("Exp1", "data", {"temperature": 95})
         logger.log_event("Exp1", "end", {"success": True})
-        logs = logger.get_logs("Exp1")
+        logger.get_logs("Exp1")
 
         # Step 5: Quality control
         qc = QualityControlAgent()

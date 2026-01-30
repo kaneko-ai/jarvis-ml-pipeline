@@ -176,9 +176,9 @@ class DatasetGovernance:
 
         # 必須フィールドチェック
         required_fields = ["input", "output"]
-        for field in required_fields:
-            if field not in record:
-                return False, f"Missing required field: {field}"
+        for f_name in required_fields:
+            if f_name not in record:
+                return False, f"Missing required field: {f_name}"
 
         return True, "Valid"
 

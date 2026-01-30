@@ -285,7 +285,7 @@ def stage_leakage_filter(context: TaskContext, artifacts: Artifacts) -> Artifact
     R_set_docs = artifacts.metadata.get("R_set_docs", [])
 
     # Aのタイトル・アブスト要約からキーフレーズを抽出
-    a_title = paper_A.get("title", "").lower()
+    paper_A.get("title", "").lower()
     a_abstract = paper_A.get("abstract", "")[:500].lower()
 
     # 簡易リーク検出
@@ -411,7 +411,7 @@ def stage_reconstruct_background_discussion(
 
     重要: paper_A本文は絶対に使わない。
     """
-    R_digest = artifacts.metadata.get("R_digest", {})
+    artifacts.metadata.get("R_digest", {})
 
     # 再構成出力（実際にはLLMで生成）
     reconstruction = {
@@ -712,7 +712,7 @@ def stage_store_training_record(context: TaskContext, artifacts: Artifacts) -> A
                         try:
                             existing = json.loads(line)
                             existing_hashes.add(existing.get("record_hash", ""))
-                        except Exception as e:
+                        except Exception:
                             pass
 
             if record_hash not in existing_hashes:

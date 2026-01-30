@@ -192,7 +192,7 @@ class TestEnvironmentalMonitor:
         from jarvis_core.lab.automation import EnvironmentalMonitor
 
         monitor = EnvironmentalMonitor()
-        result = monitor.record_reading(22.0, 45.0, 400.0)
+        monitor.record_reading(22.0, 45.0, 400.0)
         assert len(monitor.readings) == 1
 
     def test_record_reading_alert_temperature(self):

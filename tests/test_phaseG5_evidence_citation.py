@@ -24,7 +24,7 @@ class TestEvidenceGraderComplete:
                                         method()
                                     except TypeError:
                                         pass
-                    except Exception as e:
+                    except Exception:
                         pass
 
 
@@ -39,8 +39,8 @@ class TestEvidenceMapperComplete:
                 obj = getattr(mapper, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -55,8 +55,8 @@ class TestEvidenceStoreComplete:
                 obj = getattr(store, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -71,8 +71,8 @@ class TestCitationAnalyzerComplete:
                 obj = getattr(analyzer, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -87,8 +87,8 @@ class TestCitationGeneratorComplete:
                 obj = getattr(generator, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -103,8 +103,8 @@ class TestCitationNetworkComplete:
                 obj = getattr(network, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -119,8 +119,8 @@ class TestCitationRelevanceComplete:
                 obj = getattr(relevance, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -135,8 +135,8 @@ class TestContradictionModulesComplete:
                 obj = getattr(detector, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
     def test_normalizer(self):
@@ -147,8 +147,8 @@ class TestContradictionModulesComplete:
                 obj = getattr(normalizer, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
     def test_resolver(self):
@@ -159,6 +159,6 @@ class TestContradictionModulesComplete:
                 obj = getattr(resolver, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass

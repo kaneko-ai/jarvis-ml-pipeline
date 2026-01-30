@@ -21,7 +21,7 @@ class TestMapping:
 
         mapper = EvidenceMapper()
         if hasattr(mapper, "map"):
-            result = mapper.map([])
+            mapper.map([])
 
 
 class TestModuleImports:

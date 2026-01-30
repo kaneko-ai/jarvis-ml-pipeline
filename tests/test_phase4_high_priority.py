@@ -155,7 +155,7 @@ AU  - Doe, John
 AU  - Smith, Jane
 PY  - 2024
 JO  - Test Journal
-ER  - 
+ER  -
 """
         parser = RISParser()
         refs = parser.parse(ris_content)
@@ -175,12 +175,12 @@ ER  -
         ris_content = """TY  - JOUR
 TI  - First Paper
 AU  - Author A
-ER  - 
+ER  -
 
 TY  - JOUR
 TI  - Second Paper
 AU  - Author B
-ER  - 
+ER  -
 """
         parser = RISParser()
         refs = parser.parse(ris_content)

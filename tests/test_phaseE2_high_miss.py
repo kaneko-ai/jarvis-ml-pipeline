@@ -35,7 +35,7 @@ class TestRetrievalExtractionDetailed:
                                     m()
                                 except TypeError:
                                     pass  # Needs arguments
-                except Exception as e:
+                except Exception:
                     pass
 
 
@@ -81,8 +81,8 @@ class TestMultimodalScientificDetailed:
             obj = getattr(scientific, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -107,8 +107,8 @@ class TestNoteGeneratorDetailed:
             obj = getattr(note_generator, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -133,8 +133,8 @@ class TestActiveLearningEngineDetailed:
             obj = getattr(engine, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -159,8 +159,8 @@ class TestCitationLoopDetailed:
             obj = getattr(citation_loop, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -185,8 +185,8 @@ class TestRobustExtractorDetailed:
             obj = getattr(robust_extractor, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -211,8 +211,8 @@ class TestPhaseKPIDetailed:
             obj = getattr(phase_kpi, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass
 
 
@@ -237,6 +237,6 @@ class TestPDFExtractorDetailed:
             obj = getattr(pdf_extractor, attr)
             if isinstance(obj, type):
                 try:
-                    instance = obj()
-                except Exception as e:
+                    obj()
+                except Exception:
                     pass

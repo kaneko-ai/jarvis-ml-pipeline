@@ -54,7 +54,7 @@ class TestSyncQueueManager:
         manager._handlers = {}  # Clear handlers
         manager.enqueue("unknown_op", {})
 
-        results = manager.process_queue(max_items=1)
+        manager.process_queue(max_items=1)
         # Should return results even if handler missing
 
 

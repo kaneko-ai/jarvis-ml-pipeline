@@ -32,7 +32,7 @@ class TestArxivAPI:
 
         client = ArxivClient()
         if hasattr(client, "search"):
-            results = client.search("machine learning")
+            client.search("machine learning")
 
 
 class TestPubmedAPIModule:

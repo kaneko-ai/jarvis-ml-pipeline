@@ -25,7 +25,7 @@ class TestMapping:
 
         mapper = EvidenceMapper()
         if hasattr(mapper, "map"):
-            result = mapper.map([])
+            mapper.map([])
 
     def test_map_single_claim(self):
         from jarvis_core.analysis.evidence_mapper import EvidenceMapper
@@ -33,7 +33,7 @@ class TestMapping:
         mapper = EvidenceMapper()
         claims = [{"text": "Claim 1", "source": "paper1"}]
         if hasattr(mapper, "map"):
-            result = mapper.map(claims)
+            mapper.map(claims)
 
     def test_map_multiple_claims(self):
         from jarvis_core.analysis.evidence_mapper import EvidenceMapper
@@ -41,7 +41,7 @@ class TestMapping:
         mapper = EvidenceMapper()
         claims = [{"text": f"C{i}", "source": f"p{i}"} for i in range(5)]
         if hasattr(mapper, "map"):
-            result = mapper.map(claims)
+            mapper.map(claims)
 
 
 class TestExtraction:
@@ -53,7 +53,7 @@ class TestExtraction:
         mapper = EvidenceMapper()
         if hasattr(mapper, "extract_evidence"):
             paper = {"title": "Test", "abstract": "Abstract"}
-            result = mapper.extract_evidence(paper)
+            mapper.extract_evidence(paper)
 
 
 class TestLinking:
@@ -66,7 +66,7 @@ class TestLinking:
         if hasattr(mapper, "link_to_claims"):
             evidence = [{"text": "E1"}]
             claims = [{"text": "C1"}]
-            result = mapper.link_to_claims(evidence, claims)
+            mapper.link_to_claims(evidence, claims)
 
 
 class TestModuleImports:

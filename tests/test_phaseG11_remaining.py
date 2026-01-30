@@ -15,8 +15,8 @@ class TestAnalysisModulesComplete:
                 obj = getattr(impact, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
     def test_network(self):
@@ -27,8 +27,8 @@ class TestAnalysisModulesComplete:
                 obj = getattr(network, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
     def test_trends(self):
@@ -39,8 +39,8 @@ class TestAnalysisModulesComplete:
                 obj = getattr(trends, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -55,8 +55,8 @@ class TestMetadataModulesComplete:
                 obj = getattr(extractor, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
     def test_normalizer(self):
@@ -67,8 +67,8 @@ class TestMetadataModulesComplete:
                 obj = getattr(normalizer, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -83,8 +83,8 @@ class TestNetworkModulesComplete:
                 obj = getattr(collaboration, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
     def test_detector(self):
@@ -95,8 +95,8 @@ class TestNetworkModulesComplete:
                 obj = getattr(detector, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -111,8 +111,8 @@ class TestSyncModulesComplete:
                 obj = getattr(handlers, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
     def test_storage(self):
@@ -123,8 +123,8 @@ class TestSyncModulesComplete:
                 obj = getattr(storage, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -139,8 +139,8 @@ class TestEvalModulesComplete:
                 obj = getattr(validator, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
     def test_text_quality(self):
@@ -151,8 +151,8 @@ class TestEvalModulesComplete:
                 obj = getattr(text_quality, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
     def test_extended_metrics(self):
@@ -163,8 +163,8 @@ class TestEvalModulesComplete:
                 obj = getattr(extended_metrics, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -179,8 +179,8 @@ class TestProvenanceModulesComplete:
                 obj = getattr(linker, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
     def test_tracker(self):
@@ -191,8 +191,8 @@ class TestProvenanceModulesComplete:
                 obj = getattr(tracker, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -207,8 +207,8 @@ class TestFinanceModulesComplete:
                 obj = getattr(optimizer, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
     def test_scenarios(self):
@@ -219,8 +219,8 @@ class TestFinanceModulesComplete:
                 obj = getattr(scenarios, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -235,8 +235,8 @@ class TestOpsModulesComplete:
                 obj = getattr(config, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
     def test_resilience(self):
@@ -247,8 +247,8 @@ class TestOpsModulesComplete:
                 obj = getattr(resilience, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -263,8 +263,8 @@ class TestReplayModulesComplete:
                 obj = getattr(recorder, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
     def test_reproduce(self):
@@ -275,8 +275,8 @@ class TestReplayModulesComplete:
                 obj = getattr(reproduce, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -291,8 +291,8 @@ class TestRepairModulesComplete:
                 obj = getattr(planner, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
     def test_policy(self):
@@ -303,6 +303,6 @@ class TestRepairModulesComplete:
                 obj = getattr(policy, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass

@@ -285,9 +285,9 @@ class ReferenceManagerSync:
         result = ""
         for key, ref in self.local_refs.items():
             result += f"@article{{{key},\n"
-            for field, value in ref.items():
-                if field != "raw":
-                    result += f"  {field} = {{{value}}},\n"
+            for f_name, value in ref.items():
+                if f_name != "raw":
+                    result += f"  {f_name} = {{{value}}},\n"
             result += "}\n\n"
         return result
 
@@ -317,7 +317,7 @@ class DeadlineTracker:
     def get_alerts(self) -> list[dict]:
         """Get deadline alerts."""
         alerts = []
-        today = datetime.now().strftime("%Y-%m-%d")
+        datetime.now().strftime("%Y-%m-%d")
 
         for d in self.deadlines:
             days_until = (datetime.strptime(d["date"], "%Y-%m-%d") - datetime.now()).days

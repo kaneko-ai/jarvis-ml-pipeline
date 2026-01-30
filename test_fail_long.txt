@@ -1,0 +1,26 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+plugins: anyio-4.12.0, asyncio-1.3.0, base-url-2.1.0, cov-7.0.0, playwright-0.7.2, xdist-3.8.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 2213 items / 1544 deselected / 669 selected
+run-last-failure: rerun previous 669 failures (skipped 363 files)
+
+tests/test_active_learning_coverage.py::TestActiveLearning::test_import FAILED [  0%]
+
+================================== FAILURES ===================================
+_______________________ TestActiveLearning.test_import ________________________
+
+self = <test_active_learning_coverage.TestActiveLearning object at 0x00000270289AC560>
+
+    def test_import(self):
+>       from jarvis_core import active_learning
+E       ImportError: cannot import name 'active_learning' from 'jarvis_core' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\__init__.py)
+
+tests\test_active_learning_coverage.py:6: ImportError
+=========================== short test summary info ===========================
+FAILED tests/test_active_learning_coverage.py::TestActiveLearning::test_import - ImportError: cannot import name 'active_learning' from 'jarvis_core' (C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\__init__.py)
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+===================== 1 failed, 1544 deselected in 2.63s ======================

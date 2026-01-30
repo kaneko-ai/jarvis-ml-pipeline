@@ -110,7 +110,7 @@ class TestClaimExportPPTX:
     def test_skips_invalid_claims(self):
         """Should skip invalid claims in presentation."""
         cs = ClaimSet()
-        c1 = cs.add_new("Valid claim.", ["c1"])
+        cs.add_new("Valid claim.", ["c1"])
         c2 = cs.add_new("Invalid claim.", [])
         c2.valid = False
 

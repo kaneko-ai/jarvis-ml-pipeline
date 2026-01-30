@@ -420,8 +420,6 @@ class TestGenerateReportAllBranches:
 
             # Create claims that might cause validation errors
             claims = [{"claim_id": "c1", "claim_text": ""}]  # Empty claim text
-            evidence = []
-            papers = []
 
             with open(run_dir / "claims.jsonl", "w") as f:
                 for c in claims:

@@ -21,8 +21,8 @@ class TestLLMAdapterComplete:
                 obj = getattr(adapter, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -37,8 +37,8 @@ class TestLLMEnsembleComplete:
                 obj = getattr(ensemble, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -53,8 +53,8 @@ class TestLLMModelRouterComplete:
                 obj = getattr(model_router, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -69,8 +69,8 @@ class TestLLMOllamaAdapterComplete:
                 obj = getattr(ollama_adapter, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -85,8 +85,8 @@ class TestEmbeddingsEmbedderComplete:
                 obj = getattr(embedder, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -101,8 +101,8 @@ class TestEmbeddingsChromaStoreComplete:
                 obj = getattr(chroma_store, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass
 
 
@@ -117,6 +117,6 @@ class TestEmbeddingsSpecter2Complete:
                 obj = getattr(specter2, name)
                 if isinstance(obj, type):
                     try:
-                        instance = obj()
-                    except Exception as e:
+                        obj()
+                    except Exception:
                         pass

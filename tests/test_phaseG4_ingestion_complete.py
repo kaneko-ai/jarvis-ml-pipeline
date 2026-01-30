@@ -23,7 +23,7 @@ class TestIngestionPipelineComplete:
         try:
             result = extractor.extract(Path(pdf_path))
             assert result is not None
-        except Exception as e:
+        except Exception:
             pass  # PDF parsing may fail without proper PDF
 
     def test_text_chunker_all_methods(self):
@@ -65,7 +65,7 @@ class TestIngestionPipelineComplete:
             volume = {17},
             pages = {891-921}
         }
-        
+
         @book{newton1687,
             author = {Isaac Newton},
             title = {Philosophiae Naturalis Principia Mathematica},
@@ -93,7 +93,7 @@ class TestIngestionPipelineComplete:
             try:
                 result = pipeline.run()
                 assert result is not None
-            except Exception as e:
+            except Exception:
                 pass
 
 
@@ -144,5 +144,5 @@ class TestRobustExtractorComplete:
                                         method()
                                     except TypeError:
                                         pass
-                    except Exception as e:
+                    except Exception:
                         pass

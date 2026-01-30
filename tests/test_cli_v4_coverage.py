@@ -47,7 +47,7 @@ class TestCLIModule:
         from jarvis_core.cli_v4 import main
 
         if hasattr(main, "create_parser"):
-            parser = main.create_parser()
+            main.create_parser()
             # Parser should have subparsers
 
 
