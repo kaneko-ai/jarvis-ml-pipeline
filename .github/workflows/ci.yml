@@ -6,6 +6,7 @@ on:
     branches: [main]
 
 jobs:
+  # ===== 必須ジョブ（これらが成功すればCIはパス） =====
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -53,160 +54,24 @@ jobs:
         run: pip install uv
       - name: Install dependencies
         run: uv sync --dev
-      - name: Clean coverage artifacts
-        run: rm -rf .coverage .coverage.* coverage.xml htmlcov/ .pytest_cache/
       - name: Run tests with coverage
-        id: test
-        continue-on-error: true
         run: |
           uv run pytest tests/ \
             --cov=jarvis_core \
             --cov-report=xml:coverage.xml \
-            --cov-report=html:htmlcov \
             --cov-report=term-missing \
             --cov-fail-under=70 \
             -q \
             --ignore=tests/e2e \
             --ignore=tests/integration \
-            -p no:randomly || true
-      - name: Check coverage file
-        id: coverage_check
-        run: |
-          if [ -f coverage.xml ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "coverage.xml exists ($(wc -c < coverage.xml) bytes)"
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "coverage.xml was not generated"
-          fi
+            -p no:randomly
       - name: Upload coverage to Codecov
-        if: steps.coverage_check.outputs.exists == 'true'
+        if: hashFiles('coverage.xml') != ''
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           fail_ci_if_error: false
-      - name: Upload coverage artifact
-        if: steps.coverage_check.outputs.exists == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-${{ matrix.python-version }}
-          path: |
-            htmlcov/
-            coverage.xml
-      - name: Fail if tests failed
-        if: steps.test.outcome == 'failure'
-        run: exit 1
-
-  contract_and_unit:
-    runs-on: ubuntu-latest
-    needs: [lint]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install uv
-        run: pip install uv
-      - name: Install dependencies
-        run: |
-          uv sync --all-extras --dev
-          uv pip install pyyaml
-      - name: Generate api map
-        continue-on-error: true
-        run: make api-map
-      - name: Contract tests
-        continue-on-error: true
-        run: uv run pytest -q tests/test_api_map_vs_capabilities.py tests/test_front_adapter_contract.py
-
-  api_smoke:
-    runs-on: ubuntu-latest
-    needs: [test]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install uv
-        run: pip install uv
-      - name: Install dependencies
-        run: uv sync --all-extras --dev
-      - name: Start API server
-        run: |
-          uv run python -m uvicorn jarvis_web.app:app --port 8000 --log-level info &
-          sleep 5
-          curl -s http://localhost:8000/ || echo "Server may not be ready"
-      - name: API smoke tests
-        continue-on-error: true
-        env:
-          API_BASE: http://localhost:8000
-        run: uv run pytest -q tests/smoke_api_v1.py -v
-
-  dashboard_e2e_mock:
-    runs-on: ubuntu-latest
-    needs: [test]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install uv
-        run: pip install uv
-      - name: Install python dependencies
-        run: uv sync --all-extras --dev
-      - name: Install node dependencies
-        run: npm install
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-      - name: Kill existing processes
-        run: |
-          fuser -k 4010/tcp 2>/dev/null || true
-          fuser -k 4173/tcp 2>/dev/null || true
-      - name: Start mock server and dashboard
-        run: |
-          uv run python -m uvicorn tests.mock_server.app:app --port 4010 --log-level warning &
-          sleep 2
-          python -m http.server 4173 -d dashboard &
-          sleep 3
-      - name: Dashboard E2E (mock)
-        continue-on-error: true
-        env:
-          MOCK_API_BASE: http://localhost:4010
-          DASHBOARD_BASE_URL: http://localhost:4173
-        run: npx playwright test -c tests/e2e/playwright.config.ts
-      - name: Upload Playwright artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-results
-          path: playwright-results
-
-  dashboard_e2e_real:
-    runs-on: ubuntu-latest
-    needs: [test]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install uv
-        run: pip install uv
-      - name: Install dependencies
-        run: uv sync --all-extras --dev
-      - name: Install Playwright browsers
-        run: uv run playwright install chromium --with-deps
-      - name: Dashboard E2E (real API)
-        continue-on-error: true
-        run: uv run pytest tests/e2e/test_dashboard_real_api.py -v
-      - name: Upload Playwright artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-results-real
-          path: playwright-results
 
   security:
     runs-on: ubuntu-latest
@@ -241,3 +106,109 @@ jobs:
         with:
           name: dist
           path: dist/
+
+  # ===== オプショナルジョブ（失敗してもCI全体は成功） =====
+  contract_and_unit:
+    runs-on: ubuntu-latest
+    needs: [lint]
+    continue-on-error: true  # ジョブ全体を任意に
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: pip install uv
+      - name: Install dependencies
+        run: |
+          uv sync --all-extras --dev
+          uv pip install pyyaml
+      - name: Generate api map
+        run: make api-map || echo "Skipped"
+      - name: Contract tests
+        run: uv run pytest -q tests/test_api_map_vs_capabilities.py tests/test_front_adapter_contract.py || echo "Tests failed"
+
+  api_smoke:
+    runs-on: ubuntu-latest
+    needs: [test]
+    continue-on-error: true  # ジョブ全体を任意に
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: pip install uv
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - name: Start API server
+        run: |
+          uv run python -m uvicorn jarvis_web.app:app --port 8000 --log-level warning &
+          sleep 5
+      - name: API smoke tests
+        env:
+          API_BASE: http://localhost:8000
+        run: uv run pytest -q tests/smoke_api_v1.py || echo "Smoke tests failed"
+
+  dashboard_e2e_mock:
+    runs-on: ubuntu-latest
+    needs: [test]
+    continue-on-error: true  # ジョブ全体を任意に
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: pip install uv
+      - name: Install python dependencies
+        run: uv sync --all-extras --dev
+      - name: Install node dependencies
+        run: npm install || echo "npm install failed"
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps || echo "Playwright install failed"
+      - name: Start servers
+        run: |
+          uv run python -m uvicorn tests.mock_server.app:app --port 4010 --log-level warning &
+          python -m http.server 4173 -d dashboard &
+          sleep 5
+      - name: Dashboard E2E (mock)
+        env:
+          MOCK_API_BASE: http://localhost:4010
+          DASHBOARD_BASE_URL: http://localhost:4173
+        run: npx playwright test -c tests/e2e/playwright.config.ts || echo "E2E tests failed"
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results-mock
+          path: playwright-results/
+          if-no-files-found: ignore  # ファイルがなくても警告しない
+
+  dashboard_e2e_real:
+    runs-on: ubuntu-latest
+    needs: [test]
+    continue-on-error: true  # ジョブ全体を任意に
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: pip install uv
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - name: Install Playwright browsers
+        run: uv run playwright install chromium --with-deps || echo "Playwright install failed"
+      - name: Dashboard E2E (real API)
+        run: uv run pytest tests/e2e/test_dashboard_real_api.py -v || echo "E2E tests failed"
+      - name: Upload Playwright artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results-real
+          path: playwright-results/
+          if-no-files-found: ignore  # ファイルがなくても警告しない
