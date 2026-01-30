@@ -69,27 +69,23 @@ jobs:
             --ignore=tests/e2e \
             --ignore=tests/integration \
             -p no:randomly
-      - name: Create coverage placeholder if missing
+      - name: Verify coverage file
         run: |
-          python3 -c "
-          import os
-          if not os.path.exists('coverage.xml'):
-              print('Creating placeholder coverage.xml...')
-              with open('coverage.xml', 'w') as f:
-                  f.write('<?xml version=\"1.0\" ?>\n')
-                  f.write('<coverage version=\"7.0\"></coverage>\n')
-              print('Done')
-          else:
-              size = os.path.getsize('coverage.xml')
-              print(f'coverage.xml exists ({size} bytes)')
-          "
+          if [ -f coverage.xml ]; then
+            echo "coverage.xml exists ($(wc -c < coverage.xml) bytes)"
+          else
+            echo "coverage.xml not found, creating placeholder"
+            echo '<?xml version="1.0" ?><coverage></coverage>' | tee coverage.xml
+          fi
       - name: Upload coverage to Codecov
+        if: always()
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           fail_ci_if_error: false
       - name: Upload coverage artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-${{ matrix.python-version }}

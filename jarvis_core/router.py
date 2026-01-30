@@ -5,8 +5,6 @@ from pathlib import Path
 from typing import Any
 import logging
 
-logger = logging.getLogger(__name__)
-
 from .agents import (
     AgentResult,
     ESEditAgent,
@@ -18,6 +16,8 @@ from .agents import (
 from .llm import LLMClient
 from .registry import AgentRegistry
 from .task import Task, TaskCategory
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
