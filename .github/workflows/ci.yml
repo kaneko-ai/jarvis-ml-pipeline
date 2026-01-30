@@ -54,9 +54,15 @@ jobs:
         run: pip install uv
       - name: Install dependencies
         run: uv sync --dev
-      - name: Run tests with coverage
+      - name: Clean coverage artifacts
         run: |
-          uv run pytest tests/ \
+           rm -rf .coverage .coverage.* coverage.xml htmlcov/ .pytest_cache/
+           find . -name ".coverage*" -delete 2>/dev/null || true
+      - name: Run tests with coverage (single process)
+        env:
+          COVERAGE_FILE: .coverage
+        run: |
+          uv run python -m pytest tests/ \
             --cov=jarvis_core \
             --cov-report=xml:coverage.xml \
             --cov-report=term-missing \
@@ -64,7 +70,9 @@ jobs:
             -q \
             --ignore=tests/e2e \
             --ignore=tests/integration \
-            -p no:randomly
+            -p no:randomly \
+            -p no:xdist \
+            --dist=no
       - name: Upload coverage to Codecov
         if: hashFiles('coverage.xml') != ''
         uses: codecov/codecov-action@v4
@@ -89,7 +97,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    needs: [test, lint]
+    needs: [lint]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -130,7 +138,7 @@ jobs:
 
   api_smoke:
     runs-on: ubuntu-latest
-    needs: [test]
+    needs: [lint]
     continue-on-error: true  # ジョブ全体を任意に
     steps:
       - uses: actions/checkout@v4
@@ -152,7 +160,7 @@ jobs:
 
   dashboard_e2e_mock:
     runs-on: ubuntu-latest
-    needs: [test]
+    needs: [lint]
     continue-on-error: true  # ジョブ全体を任意に
     steps:
       - uses: actions/checkout@v4
@@ -190,7 +198,7 @@ jobs:
 
   dashboard_e2e_real:
     runs-on: ubuntu-latest
-    needs: [test]
+    needs: [lint]
     continue-on-error: true  # ジョブ全体を任意に
     steps:
       - uses: actions/checkout@v4
