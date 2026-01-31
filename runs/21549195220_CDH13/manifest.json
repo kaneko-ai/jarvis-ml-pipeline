@@ -1,0 +1,26 @@
+{
+  "run_id": "21549195220_CDH13",
+  "created_at": "2026-01-31T18:49:21.695934+00:00",
+  "mode": "serverless",
+  "query": "(CDH13[Title/Abstract] OR T-cadherin[Title/Abstract]) AND free full text[filter]",
+  "pipeline_version": "unknown",
+  "status": "failed",
+  "artifacts": {
+    "summary_json": "runs/21549195220_CDH13/summary.json",
+    "report_md": "runs/21549195220_CDH13/report.md",
+    "stats_json": "runs/21549195220_CDH13/stats.json",
+    "meta_json": "runs/21549195220_CDH13/raw/pubmed_metadata.json",
+    "logs_jsonl": "runs/21549195220_CDH13/logs.jsonl"
+  },
+  "quality": {
+    "papers_found": 50,
+    "papers_processed": 559,
+    "citations_attached": false,
+    "gate_passed": false,
+    "gate_reason": "Citations not attached"
+  },
+  "repro": {
+    "query_hash": "58f62bc6c719268e41749a4b6436c7675d777e9589afdacbb1ed9170b845bee0",
+    "source_snapshot_ref": "runs/21549195220_CDH13/snapshot.json"
+  }
+}
