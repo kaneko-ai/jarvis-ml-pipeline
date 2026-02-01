@@ -52,7 +52,9 @@ jobs:
       - name: Install uv
         run: pip install uv
       - name: Install dependencies
-        run: uv sync --dev
+        run: |
+          uv sync --dev
+          uv pip install coverage[toml]
       - name: Clean all coverage artifacts
         run: |
           rm -rf .coverage .coverage.* coverage.xml htmlcov/ .pytest_cache/
@@ -67,8 +69,7 @@ jobs:
             -p no:randomly \
             -p no:xdist \
             -p no:cov \
-            --tb=short \
-            || true
+            --tb=short
       - name: Generate coverage report
         run: |
           uv run coverage xml -o coverage.xml --fail-under=0 || true
