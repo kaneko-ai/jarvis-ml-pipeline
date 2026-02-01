@@ -43,16 +43,12 @@ mkdir -p "$ARTIFACTS_DIR"
 # Clean up existing coverage files
 rm -f .coverage .coverage.* 2>/dev/null || true
 
-# Run pytest with coverage (ignore test failures for snapshot)
+# Run tests with coverage (ignore test failures for snapshot)
 echo ""
-echo "Running tests with coverage..."
+echo "Running tests with coverage (subprocess mode)..."
 set +e
-python -m pytest \
-    --cov=jarvis_core \
-    --cov-config="$CFG" \
-    --cov-report=xml \
-    --cov-report=html \
-    --cov-report=term-missing \
+python -m coverage run --rcfile="$CFG" -m pytest \
+    -p no:cov \
     -q \
     2>&1 | tee "$ARTIFACTS_DIR/pytest_output.txt"
 PYTEST_EXIT=$?

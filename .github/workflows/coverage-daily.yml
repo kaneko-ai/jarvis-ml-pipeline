@@ -58,7 +58,7 @@ jobs:
           ARTIFACTS_DIR: ${{ env.ARTIFACTS_DIR }}
         run: |
           chmod +x scripts/daily_coverage_snapshot.sh
-          bash scripts/daily_coverage_snapshot.sh
+          uv run bash scripts/daily_coverage_snapshot.sh
 
       - name: Append result to docs/coverage_daily.md
         env:
