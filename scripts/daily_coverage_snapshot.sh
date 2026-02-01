@@ -47,7 +47,7 @@ rm -f .coverage .coverage.* 2>/dev/null || true
 echo ""
 echo "Running tests with coverage (subprocess mode)..."
 set +e
-python -m coverage run --rcfile="$CFG" -m pytest \
+uv run coverage run --rcfile="$CFG" -m pytest tests/ \
     -p no:cov \
     -q \
     2>&1 | tee "$ARTIFACTS_DIR/pytest_output.txt"
@@ -60,7 +60,7 @@ echo "Pytest exit code: $PYTEST_EXIT (ignored for snapshot)"
 # Combine parallel coverage files if any
 if ls .coverage.* 1>/dev/null 2>&1; then
     echo "Combining coverage data..."
-    python -m coverage combine --rcfile="$CFG" 2>/dev/null || true
+    uv run coverage combine --rcfile="$CFG" 2>/dev/null || true
 fi
 
 echo ""
@@ -71,7 +71,8 @@ TEMP_CFG=$(mktemp)
 grep -v "^fail_under" "$CFG" > "$TEMP_CFG" || cp "$CFG" "$TEMP_CFG"
 
 # Generate report
-python -m coverage report --rcfile="$TEMP_CFG" 2>&1 | tee "$ARTIFACTS_DIR/coverage_daily_term.txt"
+uv run coverage report --rcfile="$TEMP_CFG" 2>&1 | tee "$ARTIFACTS_DIR/coverage_daily_term.txt" || echo "Report generation failed"
+uv run coverage xml --rcfile="$TEMP_CFG" -o coverage.xml 2>/dev/null || true
 
 # Cleanup temp config
 rm -f "$TEMP_CFG"
