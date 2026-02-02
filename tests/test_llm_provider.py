@@ -1,3 +1,4 @@
+import pytest
 """Unit tests for LLM provider switching."""
 
 from jarvis_core.llm_utils import LLMClient, Message  # noqa: E402
