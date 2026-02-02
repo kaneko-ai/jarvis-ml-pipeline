@@ -1,3 +1,4 @@
+import pytest
 from unittest.mock import MagicMock, patch
 from jarvis_core.integrations.additional import (
     ZoteroClient,
@@ -19,6 +20,7 @@ from jarvis_core.integrations.additional import (
 
 class TestZoteroClient:
     @patch("urllib.request.urlopen")
+    @pytest.mark.network
     def test_get_items(self, mock_urlopen):
         mock_response = MagicMock()
         mock_response.read.return_value = b'[{"key": "abc"}]'
@@ -31,6 +33,7 @@ class TestZoteroClient:
         assert items[0]["key"] == "abc"
 
     @patch("urllib.request.urlopen")
+    @pytest.mark.network
     def test_add_item(self, mock_urlopen):
         mock_response = MagicMock()
         mock_response.status = 201
@@ -43,6 +46,7 @@ class TestZoteroClient:
 
 
 class TestGoogleDriveExporter:
+    @pytest.mark.network
     def test_export_papers(self):
         config = GoogleDriveConfig(access_token="tok")
         exporter = GoogleDriveExporter(config)

@@ -1,3 +1,4 @@
+import pytest
 """Tests for Local LLM adapters and model router.
 
 Tests for Task 1.1: ローカルLLM統合
@@ -10,6 +11,7 @@ from unittest.mock import MagicMock, patch
 class TestOllamaAdapter:
     """Tests for Ollama adapter."""
 
+    @pytest.mark.network
     def test_ollama_adapter_init(self):
         """Test OllamaAdapter initialization."""
         from jarvis_core.llm.ollama_adapter import OllamaAdapter, OllamaConfig
@@ -23,6 +25,7 @@ class TestOllamaAdapter:
         assert adapter.base_url == "http://localhost:11434"
         assert adapter.model == "llama3.2"
 
+    @pytest.mark.network
     def test_ollama_adapter_env_config(self):
         """Test OllamaAdapter uses environment variables."""
         with patch.dict(
@@ -39,6 +42,7 @@ class TestOllamaAdapter:
             assert adapter.base_url == "http://custom:8080"
             assert adapter.model == "mistral"
 
+    @pytest.mark.network
     def test_ollama_is_available_success(self):
         """Test Ollama availability check when server is running."""
         from jarvis_core.llm.ollama_adapter import OllamaAdapter
@@ -49,6 +53,7 @@ class TestOllamaAdapter:
 
             assert adapter.is_available() is True
 
+    @pytest.mark.network
     def test_ollama_is_available_failure(self):
         """Test Ollama availability check when server is not running."""
         import requests
@@ -62,6 +67,7 @@ class TestOllamaAdapter:
 
             assert adapter.is_available() is False
 
+    @pytest.mark.network
     def test_ollama_generate_success(self):
         """Test Ollama generate method."""
         from jarvis_core.llm.ollama_adapter import OllamaAdapter
@@ -78,6 +84,7 @@ class TestOllamaAdapter:
             assert result == "Hello, world!"
             mock_post.assert_called_once()
 
+    @pytest.mark.network
     def test_ollama_chat_success(self):
         """Test Ollama chat method."""
         from jarvis_core.llm.ollama_adapter import OllamaAdapter

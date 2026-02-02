@@ -14,6 +14,7 @@ from jarvis_core.web_fetcher import (
 
 
 class TestFetchMeta:
+    @pytest.mark.network
     def test_creation(self):
         meta = FetchMeta(
             final_url="https://example.com",
@@ -25,6 +26,7 @@ class TestFetchMeta:
         assert meta.status_code == 200
         assert meta.is_pdf is False
 
+    @pytest.mark.network
     def test_pdf_detection(self):
         meta = FetchMeta(
             final_url="https://example.com/doc.pdf",
@@ -37,12 +39,14 @@ class TestFetchMeta:
 
 
 class TestFetchError:
+    @pytest.mark.network
     def test_creation_with_status(self):
         error = FetchError("Not Found", status_code=404)
 
         assert str(error) == "Not Found"
         assert error.status_code == 404
 
+    @pytest.mark.network
     def test_creation_without_status(self):
         error = FetchError("Connection failed")
 
@@ -50,6 +54,7 @@ class TestFetchError:
 
 
 class TestFetchUrl:
+    @pytest.mark.network
     def test_successful_html_fetch(self):
         with patch("jarvis_core.web_fetcher.requests.get") as mock_get:
             mock_response = MagicMock()
@@ -66,6 +71,7 @@ class TestFetchUrl:
             assert meta.status_code == 200
             assert meta.is_pdf is False
 
+    @pytest.mark.network
     def test_pdf_response(self):
         with patch("jarvis_core.web_fetcher.requests.get") as mock_get:
             mock_response = MagicMock()
@@ -80,6 +86,7 @@ class TestFetchUrl:
             assert meta.is_pdf is True
             assert html == ""
 
+    @pytest.mark.network
     def test_xhtml_content(self):
         with patch("jarvis_core.web_fetcher.requests.get") as mock_get:
             mock_response = MagicMock()
@@ -94,6 +101,7 @@ class TestFetchUrl:
 
             assert "XHTML" in html
 
+    @pytest.mark.network
     def test_timeout_error(self):
         with patch("jarvis_core.web_fetcher.requests.get") as mock_get:
             mock_get.side_effect = requests.Timeout("Connection timed out")
@@ -103,6 +111,7 @@ class TestFetchUrl:
 
             assert "timed out" in str(excinfo.value)
 
+    @pytest.mark.network
     def test_request_exception(self):
         with patch("jarvis_core.web_fetcher.requests.get") as mock_get:
             mock_get.side_effect = requests.RequestException("Connection refused")
@@ -112,6 +121,7 @@ class TestFetchUrl:
 
             assert "failed" in str(excinfo.value)
 
+    @pytest.mark.network
     def test_unsupported_content_type(self):
         with patch("jarvis_core.web_fetcher.requests.get") as mock_get:
             mock_response = MagicMock()
@@ -126,6 +136,7 @@ class TestFetchUrl:
 
             assert "Unsupported content type" in str(excinfo.value)
 
+    @pytest.mark.network
     def test_custom_user_agent(self):
         with patch("jarvis_core.web_fetcher.requests.get") as mock_get:
             mock_response = MagicMock()

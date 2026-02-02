@@ -18,6 +18,7 @@ class TestSummarizationScoringComplete:
     """Complete coverage for summarization_scoring.py."""
 
     @patch("jarvis_core.stages.summarization_scoring.requests")
+    @pytest.mark.network
     def test_all_functions_with_mock(self, mock_requests):
         mock_requests.get.return_value = MagicMock(status_code=200, json=lambda: {"result": "test"})
         mock_requests.post.return_value = MagicMock(
@@ -68,6 +69,7 @@ class TestActiveLearningEngineComplete:
     """Complete coverage for active_learning/engine.py."""
 
     @patch("jarvis_core.experimental.active_learning.engine.requests")
+    @pytest.mark.network
     def test_all_classes_with_mock(self, mock_requests):
         mock_requests.get.return_value = MagicMock(status_code=200, json=lambda: [])
 
@@ -104,6 +106,7 @@ class TestZoteroIntegrationComplete:
     """Complete coverage for zotero_integration.py."""
 
     @patch("jarvis_core.plugins.zotero_integration.requests")
+    @pytest.mark.network
     def test_all_classes_with_mock(self, mock_requests):
         mock_requests.get.return_value = MagicMock(status_code=200, json=lambda: [])
         mock_requests.post.return_value = MagicMock(status_code=200)
@@ -146,6 +149,7 @@ class TestMultimodalScientificComplete:
 
     @patch("jarvis_core.multimodal.scientific.PIL")
     @patch("jarvis_core.multimodal.scientific.requests")
+    @pytest.mark.network
     def test_all_classes_with_mock(self, mock_requests, mock_pil):
         mock_requests.get.return_value = MagicMock(status_code=200, content=b"fake_image")
 
@@ -182,6 +186,7 @@ class TestNoteGeneratorComplete:
     """Complete coverage for note_generator.py."""
 
     @patch("jarvis_core.notes.note_generator.requests")
+    @pytest.mark.network
     def test_all_classes_with_mock(self, mock_requests):
         mock_requests.post.return_value = MagicMock(
             status_code=200, json=lambda: {"text": "generated"}
@@ -287,6 +292,7 @@ class TestCrossEncoderComplete:
     """Complete coverage for cross_encoder.py."""
 
     @patch("jarvis_core.retrieval.cross_encoder.transformers")
+    @pytest.mark.network
     def test_all_classes_with_mock(self, mock_transformers):
         mock_model = MagicMock()
         mock_model.return_value = [[0.5, 0.8, 0.3]]
@@ -325,6 +331,7 @@ class TestRobustExtractorComplete:
 
     @patch("jarvis_core.ingestion.robust_extractor.fitz")
     @patch("jarvis_core.ingestion.robust_extractor.requests")
+    @pytest.mark.network
     def test_all_classes_with_mock(self, mock_requests, mock_fitz):
         mock_requests.get.return_value = MagicMock(status_code=200, content=b"PDF content")
         mock_fitz.open.return_value = MagicMock()

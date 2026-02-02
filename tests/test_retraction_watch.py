@@ -1,3 +1,4 @@
+from unittest.mock import MagicMock, patch
 import pytest
 
 from jarvis_core.sources.retraction_watch import check_retraction, RetractionStatus
@@ -15,6 +16,7 @@ class _FakeResponse:
 
 
 @pytest.mark.core
+@pytest.mark.network
 def test_retraction_watch_detects(monkeypatch):
     def fake_get(url, timeout=10):
         return _FakeResponse(

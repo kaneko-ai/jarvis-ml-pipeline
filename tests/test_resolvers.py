@@ -1,3 +1,4 @@
+import pytest
 """Tests for DOI/PubMed/CrossRef Resolver (RP22).
 
 Per RP22, these tests verify:
@@ -30,6 +31,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class TestCrossRefResolver:
     """Tests for CrossRef resolver."""
 
+    @pytest.mark.network
     def test_crossref_result_dataclass(self):
         """Should create result dataclass."""
         result = CrossRefResult(
@@ -43,6 +45,7 @@ class TestCrossRefResolver:
         assert result.success is True
 
     @patch("jarvis_core.resolvers.crossref_resolver.urllib.request.urlopen")
+    @pytest.mark.network
     def test_search_crossref_success(self, mock_urlopen):
         """Should parse CrossRef response."""
         mock_response = MagicMock()

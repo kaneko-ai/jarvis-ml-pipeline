@@ -1,3 +1,11 @@
+
+try:
+    import sentence_transformers
+    HAS_SENTENCE_TRANSFORMERS = True
+except ImportError:
+    HAS_SENTENCE_TRANSFORMERS = False
+
+
 """Phase 12: Deep Functional Tests for Maximum Coverage.
 
 Tests that execute actual function logic with proper mocking.

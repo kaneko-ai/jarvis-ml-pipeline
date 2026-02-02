@@ -1,3 +1,4 @@
+from unittest.mock import MagicMock, patch
 from __future__ import annotations
 
 import pytest

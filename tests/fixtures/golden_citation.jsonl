@@ -1,0 +1,5 @@
+{"context": "Previous studies have shown that Drug X is effective [1], and our results confirm these findings.", "expected_stance": "support"}
+{"context": "In contrast to Smith et al. [2] who found no effect, our study demonstrates significant improvement.", "expected_stance": "contrast"}
+{"context": "The method was based on the approach described by Johnson [3].", "expected_stance": "mention"}
+{"context": "Our findings are consistent with the results reported by Lee et al. [4].", "expected_stance": "support"}
+{"context": "Unlike the conclusions of prior work [5], we found no correlation between the variables.", "expected_stance": "contrast"}

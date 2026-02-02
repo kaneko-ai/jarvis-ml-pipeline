@@ -87,6 +87,7 @@ class TestLLMEnsembleComplete:
 class TestModelRouterComplete:
     """Complete coverage for llm/model_router.py."""
 
+    @pytest.mark.network
     def test_all_classes(self):
         from jarvis_core.llm import model_router
 
@@ -118,6 +119,7 @@ class TestMendeleyComplete:
     """Complete coverage for integrations/mendeley.py."""
 
     @patch("jarvis_core.integrations.mendeley.requests")
+    @pytest.mark.network
     def test_all_classes_with_mock(self, mock_requests):
         mock_requests.get.return_value = MagicMock(status_code=200, json=lambda: [])
 
@@ -155,6 +157,7 @@ class TestSlackComplete:
     """Complete coverage for integrations/slack.py."""
 
     @patch("jarvis_core.integrations.slack.requests")
+    @pytest.mark.network
     def test_all_classes_with_mock(self, mock_requests):
         mock_requests.post.return_value = MagicMock(status_code=200, json=lambda: {"ok": True})
 
@@ -192,6 +195,7 @@ class TestNotionComplete:
     """Complete coverage for integrations/notion.py."""
 
     @patch("jarvis_core.integrations.notion.requests")
+    @pytest.mark.network
     def test_all_classes_with_mock(self, mock_requests):
         mock_requests.post.return_value = MagicMock(status_code=200, json=lambda: {"results": []})
 

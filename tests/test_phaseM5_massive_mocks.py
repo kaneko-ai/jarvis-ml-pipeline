@@ -46,6 +46,7 @@ class TestKnowledgeGraphComplete:
 class TestKnowledgeStoreComplete:
     """Complete coverage for knowledge/store.py."""
 
+    @pytest.mark.network
     def test_all_classes(self):
         from jarvis_core.knowledge import store
 
@@ -77,6 +78,7 @@ class TestAPIExternalComplete:
     """Complete coverage for api/external.py."""
 
     @patch("jarvis_core.api.external.requests")
+    @pytest.mark.network
     def test_all_classes_with_mock(self, mock_requests):
         mock_requests.get.return_value = MagicMock(status_code=200, json=lambda: {"data": []})
 
@@ -110,6 +112,7 @@ class TestAPIPubmedComplete:
     """Complete coverage for api/pubmed.py."""
 
     @patch("jarvis_core.api.pubmed.requests")
+    @pytest.mark.network
     def test_all_classes_with_mock(self, mock_requests):
         mock_requests.get.return_value = MagicMock(status_code=200, text="<result></result>")
 

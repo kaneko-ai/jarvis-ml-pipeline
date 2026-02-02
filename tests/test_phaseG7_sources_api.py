@@ -1,3 +1,4 @@
+import pytest
 """Phase G-7: Sources and API Complete Coverage.
 
 Target: sources/, api/ modules
@@ -10,6 +11,7 @@ class TestSourcesArxivClientComplete:
     """Complete tests for sources/arxiv_client.py."""
 
     @patch("jarvis_core.sources.arxiv_client.requests.get")
+    @pytest.mark.network
     def test_with_mock_api(self, mock_get):
         mock_get.return_value = MagicMock(
             status_code=200, text='<?xml version="1.0"?><feed></feed>'
@@ -30,6 +32,7 @@ class TestSourcesCrossrefClientComplete:
     """Complete tests for sources/crossref_client.py."""
 
     @patch("jarvis_core.sources.crossref_client.requests.get")
+    @pytest.mark.network
     def test_with_mock_api(self, mock_get):
         mock_get.return_value = MagicMock(status_code=200, json=lambda: {"message": {"items": []}})
         from jarvis_core.sources import crossref_client
@@ -48,6 +51,7 @@ class TestSourcesPubmedClientComplete:
     """Complete tests for sources/pubmed_client.py."""
 
     @patch("jarvis_core.sources.pubmed_client.requests.get")
+    @pytest.mark.network
     def test_with_mock_api(self, mock_get):
         mock_get.return_value = MagicMock(
             status_code=200, json=lambda: {"esearchresult": {"idlist": []}}

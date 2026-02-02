@@ -1,3 +1,4 @@
+import pytest
 """Phase J-3: Advanced Features Phase 9-10 Complete Coverage.
 
 Target: Classes 261-300 with correct arguments
@@ -162,6 +163,7 @@ class TestCacheManagerComplete:
         result = manager.get("key1")
         assert result == "value1"
 
+    @pytest.mark.network
     def test_get_nonexistent(self):
         from jarvis_core.advanced.features import CacheManager
 
@@ -169,6 +171,7 @@ class TestCacheManagerComplete:
         result = manager.get("nonexistent")
         assert result is None
 
+    @pytest.mark.network
     def test_clear(self):
         from jarvis_core.advanced.features import CacheManager
 
@@ -181,6 +184,7 @@ class TestCacheManagerComplete:
 class TestRateLimiterComplete:
     """Class 269: RateLimiter - Complete coverage."""
 
+    @pytest.mark.network
     def test_allow_request(self):
         from jarvis_core.advanced.features import RateLimiter
 
@@ -194,6 +198,7 @@ class TestRateLimiterComplete:
 class TestRetryHandlerComplete:
     """Class 270: RetryHandler - Complete coverage."""
 
+    @pytest.mark.network
     def test_retry_success(self):
         from jarvis_core.advanced.features import RetryHandler
 

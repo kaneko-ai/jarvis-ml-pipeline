@@ -17,6 +17,7 @@ from unittest.mock import patch, MagicMock
 class TestLLMAdapterDetailed:
     """Detailed tests for llm/adapter.py."""
 
+    @pytest.mark.network
     def test_import(self):
         from jarvis_core.llm import adapter
 

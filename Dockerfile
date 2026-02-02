@@ -1,79 +1,55 @@
-# JARVIS Research OS Docker Image
-# Multi-stage build optimized for production
+# syntax=docker/dockerfile:1.4
 
-# ============================================
-# Stage 1: Builder
-# ============================================
-FROM python:3.12-slim AS builder
-
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PIP_NO_CACHE_DIR=1
-
-WORKDIR /build
-
-# Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install uv
-RUN pip install uv
-
-# Copy dependency files
-COPY pyproject.toml uv.lock ./
-
-# Install dependencies
-RUN uv sync --no-dev --frozen
-
-# ============================================
-# Stage 2: Runtime
-# ============================================
-FROM python:3.12-slim AS runtime
-
-LABEL maintainer="kaneko-ai"
-LABEL version="5.1.0"
-LABEL description="JARVIS Research OS - AI-Powered Systematic Review Assistant"
-
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
+# ===== Build Stage =====
+FROM python:3.11-slim as builder
 
 WORKDIR /app
 
-# Install runtime dependencies only
+# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
+# Install uv for fast package installation
+RUN pip install uv
+
+# Copy dependency files
+COPY pyproject.toml uv.lock* ./
+
+# Install dependencies
+RUN uv sync --no-dev --frozen || uv sync --no-dev
+
+# ===== Runtime Stage =====
+FROM python:3.11-slim as runtime
+
+WORKDIR /app
+
+# Create non-root user
+RUN useradd -m -u 1000 jarvis
+
 # Copy virtual environment from builder
-COPY --from=builder /build/.venv /app/.venv
-ENV PATH="/app/.venv/bin:$PATH"
+COPY --from=builder /app/.venv /app/.venv
 
 # Copy application code
-COPY jarvis_core ./jarvis_core
+COPY jarvis_core/ ./jarvis_core/
+COPY jarvis_web/ ./jarvis_web/
 COPY jarvis_cli.py ./
-COPY pyproject.toml ./
 
-# Create directories
-RUN mkdir -p /app/data /app/artifacts /app/cache
+# Set environment variables
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONPATH="/app"
+ENV JARVIS_LOG_LEVEL="INFO"
 
-# Set up non-root user
-RUN useradd -m -u 1000 jarvis && \
-    chown -R jarvis:jarvis /app
+# Switch to non-root user
 USER jarvis
 
-# Environment variables
-ENV JARVIS_DATA_DIR=/app/data
-ENV JARVIS_CACHE_DIR=/app/cache
-ENV JARVIS_ARTIFACTS_DIR=/app/artifacts
-ENV JARVIS_OFFLINE=false
-
-# Health check
+# Health check (requests is usually in dependencies)
+# If not, we might need to add it or use a simpler check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "from jarvis_core import __version__; print(f'OK: {__version__}')" || exit 1
+    CMD python -c "import requests; requests.get('http://localhost:8000/api/health')" || exit 1
+
+# Expose port
+EXPOSE 8000
 
 # Default command
-ENTRYPOINT ["python", "jarvis_cli.py"]
-CMD ["--help"]
-
+CMD ["python", "-m", "uvicorn", "jarvis_web.app:app", "--host", "0.0.0.0", "--port", "8000"]

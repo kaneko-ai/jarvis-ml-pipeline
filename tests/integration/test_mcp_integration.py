@@ -1,3 +1,4 @@
+from unittest.mock import MagicMock, patch
 import asyncio
 from dataclasses import dataclass
 

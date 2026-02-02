@@ -1,3 +1,4 @@
+import pytest
 """Detailed logic tests for high-impact 0% coverage modules.
 
 These tests go beyond import checks to actually test functionality.
@@ -263,6 +264,7 @@ class TestDedupEngine:
 class TestArxivPaper:
     """Tests for ArxivPaper dataclass."""
 
+    @pytest.mark.network
     def test_arxiv_paper_creation(self):
         from jarvis_core.sources.arxiv_client import ArxivPaper
 
@@ -275,6 +277,7 @@ class TestArxivPaper:
         assert paper.arxiv_id == "2101.00001"
         assert len(paper.authors) == 2
 
+    @pytest.mark.network
     def test_arxiv_paper_to_dict(self):
         from jarvis_core.sources.arxiv_client import ArxivPaper
 
@@ -292,6 +295,7 @@ class TestArxivPaper:
 class TestArxivClientInit:
     """Tests for ArxivClient initialization."""
 
+    @pytest.mark.network
     def test_init_default(self):
         from jarvis_core.sources.arxiv_client import ArxivClient
 
@@ -299,6 +303,7 @@ class TestArxivClientInit:
         assert client.timeout == 30.0
         assert client.rate_limit_delay == 3.0
 
+    @pytest.mark.network
     def test_init_custom(self):
         from jarvis_core.sources.arxiv_client import ArxivClient
 

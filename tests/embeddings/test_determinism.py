@@ -1,3 +1,4 @@
+from unittest.mock import MagicMock, patch
 import numpy as np
 from jarvis_core.embeddings.model import DeterministicEmbeddingModel
 
