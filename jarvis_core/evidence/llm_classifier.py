@@ -111,9 +111,10 @@ class LLMBasedClassifier:
             return self._llm is not None
 
         try:
-            from jarvis_core.llm.ollama_adapter import OllamaBackend
+            from jarvis_core.llm.ollama_adapter import OllamaAdapter, OllamaConfig
 
-            self._llm = OllamaBackend(model=self._config.model)
+            config = OllamaConfig(model=self._config.model)
+            self._llm = OllamaAdapter(config=config)
             self._initialized = True
             logger.info(f"LLM classifier initialized with model: {self._config.model}")
             return True

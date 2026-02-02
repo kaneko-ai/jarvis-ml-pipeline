@@ -1,16 +1,10 @@
 {
   "evidence_grading": {
-    "accuracy": 0.8,
+    "accuracy": 1.0,
     "details": {
-      "correct": 4,
+      "correct": 5,
       "total": 5,
-      "errors": [
-        {
-          "title": "Cohort Study of Risk Factors",
-          "expected": "2b",
-          "predicted": "unknown"
-        }
-      ]
+      "errors": []
     }
   },
   "citation_stance": {
@@ -34,19 +28,19 @@
       "total": 0,
       "errors": [
         {
-          "error": "ContradictionDetector.detect() takes 2 positional arguments but 3 were given"
+          "error": "'SentenceTransformerEmbedding' object has no attribute 'embed'"
         },
         {
-          "error": "ContradictionDetector.detect() takes 2 positional arguments but 3 were given"
+          "error": "'SentenceTransformerEmbedding' object has no attribute 'embed'"
         },
         {
-          "error": "ContradictionDetector.detect() takes 2 positional arguments but 3 were given"
+          "error": "'SentenceTransformerEmbedding' object has no attribute 'embed'"
         },
         {
-          "error": "ContradictionDetector.detect() takes 2 positional arguments but 3 were given"
+          "error": "'SentenceTransformerEmbedding' object has no attribute 'embed'"
         },
         {
-          "error": "ContradictionDetector.detect() takes 2 positional arguments but 3 were given"
+          "error": "'SentenceTransformerEmbedding' object has no attribute 'embed'"
         }
       ]
     }

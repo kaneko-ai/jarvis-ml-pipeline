@@ -1,17 +1,16 @@
+from __future__ import annotations
 """Phase Loop 2: 再現性検証テスト.
 
-同一入力 → 同一構造 を検証
+同一入力 -> 同一構造 を検証
 - タイムスタンプ、run_id 以外は同一であること
 """
-
-from __future__ import annotations
 
 from jarvis_core.storage import RunStore
 from typing import Any
 
 
 def get_structure_keys(data: Any, prefix: str = "") -> set[str]:
-    """JSONデータの構造（キーのパス）を抽出."""
+    """JSONデータの構造(キーのパス)を抽出."""
     keys = set()
     if isinstance(data, dict):
         for k, v in data.items():
