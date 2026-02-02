@@ -1,3 +1,4 @@
+import pytest
 """Comprehensive mock tests for external API clients.
 
 Tests with full mocking for:
@@ -19,6 +20,7 @@ class TestArxivClientMocked:
     """Full mock tests for ArXiv API client."""
 
     @patch("jarvis_core.sources.arxiv_client.requests.get")
+    @pytest.mark.network
     def test_search_successful(self, mock_get):
         from jarvis_core.sources.arxiv_client import ArxivClient
 
@@ -49,6 +51,7 @@ class TestArxivClientMocked:
         mock_get.assert_called_once()
 
     @patch("jarvis_core.sources.arxiv_client.requests.get")
+    @pytest.mark.network
     def test_search_empty_results(self, mock_get):
         from jarvis_core.sources.arxiv_client import ArxivClient
 
@@ -66,6 +69,7 @@ class TestArxivClientMocked:
         assert results == []
 
     @patch("jarvis_core.sources.arxiv_client.requests.get")
+    @pytest.mark.network
     def test_get_paper_by_id(self, mock_get):
         from jarvis_core.sources.arxiv_client import ArxivClient
 
@@ -90,6 +94,7 @@ class TestArxivClientMocked:
         assert paper is not None or paper is None  # May return None if not found
 
     @patch("jarvis_core.sources.arxiv_client.requests.get")
+    @pytest.mark.network
     def test_search_by_category(self, mock_get):
         from jarvis_core.sources.arxiv_client import ArxivClient
 
@@ -107,6 +112,7 @@ class TestArxivClientMocked:
         assert isinstance(results, list)
 
     @patch("jarvis_core.sources.arxiv_client.requests.get")
+    @pytest.mark.network
     def test_download_pdf(self, mock_get):
         from jarvis_core.sources.arxiv_client import ArxivClient
         import tempfile
@@ -141,6 +147,7 @@ class TestCrossrefClientMocked:
     """Full mock tests for Crossref API client."""
 
     @patch("jarvis_core.sources.crossref_client.requests.get")
+    @pytest.mark.network
     def test_search_works(self, mock_get):
         from jarvis_core.sources.crossref_client import CrossrefClient
 
@@ -166,6 +173,7 @@ class TestCrossrefClientMocked:
         assert isinstance(results, list)
 
     @patch("jarvis_core.sources.crossref_client.requests.get")
+    @pytest.mark.network
     def test_get_work_by_doi(self, mock_get):
         from jarvis_core.sources.crossref_client import CrossrefClient
 
@@ -196,6 +204,7 @@ class TestUnpaywallClientMocked:
     """Full mock tests for Unpaywall API client."""
 
     @patch("jarvis_core.sources.unpaywall_client.requests.get")
+    @pytest.mark.network
     def test_find_open_access(self, mock_get):
         from jarvis_core.sources.unpaywall_client import UnpaywallClient
 
@@ -242,6 +251,7 @@ class TestUnpaywallClientMocked:
 class TestPubmedClientMocked:
     """Full mock tests for PubMed API client."""
 
+    @pytest.mark.network
     def test_import(self):
         from jarvis_core.sources import pubmed_client
 
@@ -256,6 +266,7 @@ class TestPubmedClientMocked:
 class TestSemanticScholarMocked:
     """Tests for Semantic Scholar client."""
 
+    @pytest.mark.network
     def test_import(self):
         from jarvis_core.sources import semantic_scholar_client
 

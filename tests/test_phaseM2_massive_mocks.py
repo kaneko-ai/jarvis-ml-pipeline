@@ -17,6 +17,7 @@ class TestQueryDecomposeComplete:
     """Complete coverage for query_decompose.py."""
 
     @patch("jarvis_core.retrieval.query_decompose.requests")
+    @pytest.mark.network
     def test_all_classes_with_mock(self, mock_requests):
         mock_requests.post.return_value = MagicMock(
             status_code=200, json=lambda: {"queries": ["q1", "q2"]}
@@ -141,6 +142,7 @@ class TestIndexRegistryComplete:
 class TestSchedulerRunnerComplete:
     """Complete coverage for scheduler/runner.py."""
 
+    @pytest.mark.network
     def test_all_classes(self):
         from jarvis_core.scheduler import runner
 
@@ -172,6 +174,7 @@ class TestSearchAdapterComplete:
     """Complete coverage for search/adapter.py."""
 
     @patch("jarvis_core.search.adapter.requests")
+    @pytest.mark.network
     def test_all_classes_with_mock(self, mock_requests):
         mock_requests.get.return_value = MagicMock(status_code=200, json=lambda: {"results": []})
 

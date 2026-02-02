@@ -1,3 +1,4 @@
+from unittest.mock import MagicMock, patch
 from pathlib import Path
 from jarvis_core.ingestion.pdf_extractor import HardenedPDFExtractor
 

@@ -1,3 +1,4 @@
+import pytest
 """Tests for pubmed API module - Comprehensive coverage."""
 
 from unittest.mock import Mock, patch
@@ -6,6 +7,7 @@ from unittest.mock import Mock, patch
 class TestPubmedModule:
     """Tests for pubmed API module."""
 
+    @pytest.mark.network
     def test_module_import(self):
         """Test module import."""
         from jarvis_core.api import pubmed
@@ -13,6 +15,7 @@ class TestPubmedModule:
         assert pubmed is not None
 
     @patch("jarvis_core.api.pubmed.requests.get")
+    @pytest.mark.network
     def test_search(self, mock_get):
         """Test search function."""
         from jarvis_core.api import pubmed

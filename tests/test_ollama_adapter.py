@@ -11,6 +11,7 @@ from jarvis_core.llm.ollama_adapter import (
 
 
 class TestOllamaConfig:
+    @pytest.mark.network
     def test_default_values(self):
         config = OllamaConfig()
 
@@ -18,6 +19,7 @@ class TestOllamaConfig:
         assert config.model == "llama3.2"
         assert config.timeout == 120
 
+    @pytest.mark.network
     def test_custom_values(self):
         config = OllamaConfig(
             base_url="http://localhost:12345",
@@ -30,28 +32,33 @@ class TestOllamaConfig:
 
 
 class TestOllamaAdapter:
+    @pytest.mark.network
     def test_init_default(self):
         adapter = OllamaAdapter()
 
         assert adapter.config is not None
         assert adapter.base_url == adapter.config.base_url
 
+    @pytest.mark.network
     def test_init_with_config(self):
         config = OllamaConfig(model="custom-model")
         adapter = OllamaAdapter(config=config)
 
         assert adapter.model == "custom-model"
 
+    @pytest.mark.network
     def test_base_url_property(self):
         adapter = OllamaAdapter()
 
         assert "http" in adapter.base_url
 
+    @pytest.mark.network
     def test_model_property(self):
         adapter = OllamaAdapter()
 
         assert isinstance(adapter.model, str)
 
+    @pytest.mark.network
     def test_is_available_success(self):
         adapter = OllamaAdapter()
 
@@ -64,6 +71,7 @@ class TestOllamaAdapter:
 
             assert result is True
 
+    @pytest.mark.network
     def test_is_available_failure(self):
         adapter = OllamaAdapter()
 
@@ -74,6 +82,7 @@ class TestOllamaAdapter:
 
             assert result is False
 
+    @pytest.mark.network
     def test_list_models_success(self):
         adapter = OllamaAdapter()
 
@@ -87,6 +96,7 @@ class TestOllamaAdapter:
 
             assert len(result) >= 0
 
+    @pytest.mark.network
     def test_generate_success(self):
         adapter = OllamaAdapter()
 
@@ -100,6 +110,7 @@ class TestOllamaAdapter:
 
             assert result == "Hello, world!"
 
+    @pytest.mark.network
     def test_generate_failure(self):
         adapter = OllamaAdapter()
 
@@ -109,6 +120,7 @@ class TestOllamaAdapter:
             with pytest.raises(Exception):
                 adapter.generate("Test prompt")
 
+    @pytest.mark.network
     def test_chat_success(self):
         adapter = OllamaAdapter()
 

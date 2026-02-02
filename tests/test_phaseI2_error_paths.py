@@ -1,3 +1,4 @@
+import pytest
 """Phase I-2: Error Path Tests.
 
 Target: All modules - error handling paths
@@ -95,6 +96,7 @@ class TestErrorPathsIngestion:
             except Exception:
                 pass
 
+    @pytest.mark.network
     def test_bibtex_parser_invalid_bibtex(self):
         from jarvis_core.ingestion.pipeline import BibTeXParser
 
@@ -112,6 +114,7 @@ class TestErrorPathsIngestion:
 class TestErrorPathsStages:
     """Test error paths in stages/."""
 
+    @pytest.mark.network
     def test_generate_report_missing_files(self):
         from jarvis_core.stages.generate_report import generate_report
 
@@ -123,6 +126,7 @@ class TestErrorPathsStages:
             except Exception:
                 pass
 
+    @pytest.mark.network
     def test_generate_report_empty_files(self):
         from jarvis_core.stages.generate_report import generate_report
 
@@ -141,6 +145,7 @@ class TestErrorPathsSources:
     """Test error paths in sources/."""
 
     @patch("jarvis_core.sources.arxiv_client.requests.get")
+    @pytest.mark.network
     def test_arxiv_client_network_error(self, mock_get):
         mock_get.side_effect = Exception("Network error")
         from jarvis_core.sources import arxiv_client

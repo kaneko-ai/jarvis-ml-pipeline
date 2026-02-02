@@ -1,3 +1,4 @@
+import pytest
 """Tests for arxiv module - Comprehensive coverage."""
 
 from unittest.mock import Mock, patch
@@ -6,6 +7,7 @@ from unittest.mock import Mock, patch
 class TestArxivClient:
     """Tests for ArxivClient class."""
 
+    @pytest.mark.network
     def test_creation(self):
         """Test ArxivClient creation."""
         from jarvis_core.api.arxiv import ArxivClient
@@ -14,6 +16,7 @@ class TestArxivClient:
         assert client is not None
 
     @patch("jarvis_core.api.arxiv.requests.get")
+    @pytest.mark.network
     def test_search_basic(self, mock_get):
         """Test basic search."""
         from jarvis_core.api.arxiv import ArxivClient
@@ -38,6 +41,7 @@ class TestArxivClient:
             assert isinstance(results, list)
 
     @patch("jarvis_core.api.arxiv.requests.get")
+    @pytest.mark.network
     def test_search_empty(self, mock_get):
         """Test search with no results."""
         from jarvis_core.api.arxiv import ArxivClient
@@ -55,6 +59,7 @@ class TestArxivClient:
             assert isinstance(results, list)
 
     @patch("jarvis_core.api.arxiv.requests.get")
+    @pytest.mark.network
     def test_fetch_by_id(self, mock_get):
         """Test fetching by arxiv ID."""
         from jarvis_core.api.arxiv import ArxivClient

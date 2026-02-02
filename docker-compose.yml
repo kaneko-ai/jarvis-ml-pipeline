@@ -1,40 +1,22 @@
-# Docker Compose for JARVIS Research OS
+version: '3.8'
 
 services:
   jarvis:
     build:
       context: .
       dockerfile: Dockerfile
-    image: jarvis-research-os:latest
-    container_name: jarvis
-    volumes:
-      - ./data:/app/data
-      - ./artifacts:/app/artifacts
-      - ./cache:/app/cache
+    ports:
+      - "8000:8000"
     environment:
       - JARVIS_LOG_LEVEL=INFO
-      - JARVIS_OFFLINE_MODE=false
-    ports:
-      - "8080:8080"
-    restart: unless-stopped
-
-  # Optional: Ollama for local LLM
-  ollama:
-    image: ollama/ollama:latest
-    container_name: jarvis-ollama
+      - JARVIS_OFFLINE=0
     volumes:
-      - ollama_data:/root/.ollama
-    ports:
-      - "11434:11434"
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
-    profiles:
-      - with-llm
+      - jarvis-data:/app/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
-  ollama_data:
+  jarvis-data:

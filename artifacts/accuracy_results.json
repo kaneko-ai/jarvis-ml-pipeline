@@ -1,0 +1,54 @@
+{
+  "evidence_grading": {
+    "accuracy": 0.8,
+    "details": {
+      "correct": 4,
+      "total": 5,
+      "errors": [
+        {
+          "title": "Cohort Study of Risk Factors",
+          "expected": "2b",
+          "predicted": "unknown"
+        }
+      ]
+    }
+  },
+  "citation_stance": {
+    "accuracy": 0.8,
+    "details": {
+      "correct": 4,
+      "total": 5,
+      "errors": [
+        {
+          "context": "The method was based on the approach described by ",
+          "expected": "mention",
+          "predicted": "support"
+        }
+      ]
+    }
+  },
+  "contradiction": {
+    "accuracy": 0,
+    "details": {
+      "correct": 0,
+      "total": 0,
+      "errors": [
+        {
+          "error": "ContradictionDetector.detect() takes 2 positional arguments but 3 were given"
+        },
+        {
+          "error": "ContradictionDetector.detect() takes 2 positional arguments but 3 were given"
+        },
+        {
+          "error": "ContradictionDetector.detect() takes 2 positional arguments but 3 were given"
+        },
+        {
+          "error": "ContradictionDetector.detect() takes 2 positional arguments but 3 were given"
+        },
+        {
+          "error": "ContradictionDetector.detect() takes 2 positional arguments but 3 were given"
+        }
+      ]
+    }
+  }
+}

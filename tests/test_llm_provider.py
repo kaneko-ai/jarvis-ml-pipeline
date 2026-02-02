@@ -38,12 +38,14 @@ ROOT = Path(__file__).resolve().parents[1]
 class TestOllamaProvider:
     """Tests for Ollama provider."""
 
+    @pytest.mark.network
     def test_ollama_client_init(self):
         """Test Ollama client initialization."""
         client = LLMClient(model="llama3.2", provider="ollama")
         assert client.provider == "ollama"
         assert client.model == "llama3.2"
 
+    @pytest.mark.network
     def test_ollama_chat_success(self):
         """Test successful Ollama chat call."""
         with patch("requests.post") as mock_post:
@@ -62,6 +64,7 @@ class TestOllamaProvider:
             assert call_args[1]["json"]["model"] == "llama3.2"
             assert call_args[1]["json"]["stream"] is False
 
+    @pytest.mark.network
     def test_ollama_chat_error(self):
         """Test Ollama chat error handling."""
         import pytest

@@ -1,3 +1,4 @@
+import pytest
 """Comprehensive tests for api/pubmed.py - 15 tests for 27% -> 90% coverage."""
 
 from unittest.mock import Mock, patch
@@ -6,6 +7,7 @@ from unittest.mock import Mock, patch
 class TestPubmedAPI:
     """Tests for PubMed API module."""
 
+    @pytest.mark.network
     def test_module_import(self):
         """Test module import."""
         from jarvis_core.api import pubmed
@@ -17,6 +19,7 @@ class TestSearch:
     """Tests for search functionality."""
 
     @patch("jarvis_core.api.pubmed.requests.get")
+    @pytest.mark.network
     def test_search_basic(self, mock_get):
         """Test basic search."""
         from jarvis_core.api import pubmed
@@ -30,6 +33,7 @@ class TestSearch:
             pubmed.search("cancer treatment")
 
     @patch("jarvis_core.api.pubmed.requests.get")
+    @pytest.mark.network
     def test_search_with_params(self, mock_get):
         """Test search with parameters."""
         from jarvis_core.api import pubmed
@@ -47,6 +51,7 @@ class TestFetch:
     """Tests for fetch functionality."""
 
     @patch("jarvis_core.api.pubmed.requests.get")
+    @pytest.mark.network
     def test_fetch_single(self, mock_get):
         """Test fetching single article."""
         from jarvis_core.api import pubmed

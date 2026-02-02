@@ -1,0 +1,5 @@
+{"claim_a": "Drug X increases survival rates", "claim_b": "Drug X decreases survival rates", "expected_contradiction": true}
+{"claim_a": "The treatment is effective", "claim_b": "The treatment shows positive results", "expected_contradiction": false}
+{"claim_a": "Patients showed improvement", "claim_b": "No improvement was observed in patients", "expected_contradiction": true}
+{"claim_a": "The study included 100 participants", "claim_b": "The study enrolled 500 subjects", "expected_contradiction": true}
+{"claim_a": "Side effects were minimal", "claim_b": "Adverse events were rare", "expected_contradiction": false}

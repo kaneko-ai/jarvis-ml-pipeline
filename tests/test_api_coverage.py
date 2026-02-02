@@ -1,3 +1,4 @@
+import pytest
 """Tests for API modules - Coverage improvement (FIXED)."""
 
 from unittest.mock import Mock, patch
@@ -6,6 +7,7 @@ from unittest.mock import Mock, patch
 class TestArxivAPI:
     """Tests for arxiv API module."""
 
+    @pytest.mark.network
     def test_arxiv_client_creation(self):
         """Test ArxivClient creation."""
         from jarvis_core.api.arxiv import ArxivClient
