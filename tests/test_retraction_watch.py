@@ -1,4 +1,3 @@
-from unittest.mock import MagicMock, patch
 import pytest
 
 from jarvis_core.sources.retraction_watch import check_retraction, RetractionStatus

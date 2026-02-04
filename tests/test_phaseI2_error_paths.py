@@ -1,4 +1,5 @@
 import pytest
+
 """Phase I-2: Error Path Tests.
 
 Target: All modules - error handling paths

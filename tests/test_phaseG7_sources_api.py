@@ -1,4 +1,5 @@
 import pytest
+
 """Phase G-7: Sources and API Complete Coverage.
 
 Target: sources/, api/ modules

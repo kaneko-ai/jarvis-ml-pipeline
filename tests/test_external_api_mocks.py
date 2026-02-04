@@ -1,4 +1,5 @@
 import pytest
+
 """Comprehensive mock tests for external API clients.
 
 Tests with full mocking for:

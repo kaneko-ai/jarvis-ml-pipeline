@@ -6,7 +6,7 @@ import tempfile
 import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-from typing import Generator, Any
+from typing import Generator
 
 import pytest
 
@@ -26,6 +26,7 @@ os.environ.setdefault("JARVIS_LOG_LEVEL", "WARNING")
 # Pytest Configuration
 # =============================================================================
 
+
 def pytest_configure(config):
     """Configure pytest with custom markers."""
     config.addinivalue_line("markers", "slow: mark test as slow running")
@@ -33,20 +34,25 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "integration: mark test as integration test")
     config.addinivalue_line("markers", "e2e: mark test as end-to-end test")
 
+
 def pytest_collection_modifyitems(config, items):
     """Modify test collection to skip network tests by default."""
-    skip_network = pytest.mark.skip(reason="Network tests disabled (set JARVIS_NETWORK_TESTS=1 to enable)")
+    skip_network = pytest.mark.skip(
+        reason="Network tests disabled (set JARVIS_NETWORK_TESTS=1 to enable)"
+    )
     skip_slow = pytest.mark.skip(reason="Slow tests disabled (set JARVIS_SLOW_TESTS=1 to enable)")
-    
+
     for item in items:
         if "network" in item.keywords and not os.environ.get("JARVIS_NETWORK_TESTS"):
             item.add_marker(skip_network)
         if "slow" in item.keywords and not os.environ.get("JARVIS_SLOW_TESTS"):
             item.add_marker(skip_slow)
 
+
 # =============================================================================
 # Directory Fixtures
 # =============================================================================
+
 
 @pytest.fixture
 def tmp_dir() -> Generator[Path, None, None]:
@@ -54,15 +60,18 @@ def tmp_dir() -> Generator[Path, None, None]:
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)
 
+
 @pytest.fixture
 def project_root() -> Path:
     """Return the project root directory."""
     return Path(__file__).resolve().parents[1]
 
+
 @pytest.fixture
 def fixtures_dir(project_root: Path) -> Path:
     """Return the fixtures directory."""
     return project_root / "tests" / "fixtures"
+
 
 @pytest.fixture
 def data_dir(tmp_dir: Path) -> Path:
@@ -71,6 +80,7 @@ def data_dir(tmp_dir: Path) -> Path:
     data.mkdir(parents=True, exist_ok=True)
     return data
 
+
 @pytest.fixture
 def runs_dir(data_dir: Path) -> Path:
     """Create and return a temporary runs directory."""
@@ -78,9 +88,11 @@ def runs_dir(data_dir: Path) -> Path:
     runs.mkdir(parents=True, exist_ok=True)
     return runs
 
+
 # =============================================================================
 # Mock Fixtures
 # =============================================================================
+
 
 @pytest.fixture
 def mock_llm() -> Generator[MagicMock, None, None]:
@@ -92,6 +104,7 @@ def mock_llm() -> Generator[MagicMock, None, None]:
         mock.return_value = instance
         yield instance
 
+
 @pytest.fixture
 def mock_embeddings() -> Generator[MagicMock, None, None]:
     """Mock embeddings model."""
@@ -101,6 +114,7 @@ def mock_embeddings() -> Generator[MagicMock, None, None]:
         instance.dimension.return_value = 384
         mock.return_value = instance
         yield instance
+
 
 @pytest.fixture
 def mock_network() -> Generator[MagicMock, None, None]:
@@ -112,47 +126,40 @@ def mock_network() -> Generator[MagicMock, None, None]:
         mock.return_value = instance
         yield instance
 
+
 @pytest.fixture
 def mock_requests() -> Generator[MagicMock, None, None]:
     """Mock requests library for API tests."""
-    with patch("requests.get") as mock_get, \
-         patch("requests.post") as mock_post:
+    with patch("requests.get") as mock_get, patch("requests.post") as mock_post:
         mock_get.return_value = MagicMock(
-            status_code=200,
-            json=lambda: {"results": []},
-            text="",
-            content=b""
+            status_code=200, json=lambda: {"results": []}, text="", content=b""
         )
         mock_post.return_value = MagicMock(
-            status_code=200,
-            json=lambda: {"success": True},
-            text="",
-            content=b""
+            status_code=200, json=lambda: {"success": True}, text="", content=b""
         )
         yield {"get": mock_get, "post": mock_post}
+
 
 @pytest.fixture
 def mock_httpx() -> Generator[MagicMock, None, None]:
     """Mock httpx library for async API tests."""
     with patch("httpx.AsyncClient") as mock:
         client = MagicMock()
-        client.get = MagicMock(return_value=MagicMock(
-            status_code=200,
-            json=lambda: {"results": []},
-            text=""
-        ))
-        client.post = MagicMock(return_value=MagicMock(
-            status_code=200,
-            json=lambda: {"success": True},
-            text=""
-        ))
+        client.get = MagicMock(
+            return_value=MagicMock(status_code=200, json=lambda: {"results": []}, text="")
+        )
+        client.post = MagicMock(
+            return_value=MagicMock(status_code=200, json=lambda: {"success": True}, text="")
+        )
         mock.return_value.__aenter__ = MagicMock(return_value=client)
         mock.return_value.__aexit__ = MagicMock(return_value=None)
         yield client
 
+
 # =============================================================================
 # Sample Data Fixtures
 # =============================================================================
+
 
 @pytest.fixture
 def sample_paper() -> dict:
@@ -165,8 +172,9 @@ def sample_paper() -> dict:
         "year": 2024,
         "doi": "10.1234/test.001",
         "source": "pubmed",
-        "pmid": "12345678"
+        "pmid": "12345678",
     }
+
 
 @pytest.fixture
 def sample_papers(sample_paper: dict) -> list:
@@ -179,6 +187,7 @@ def sample_papers(sample_paper: dict) -> list:
         papers.append(paper)
     return papers
 
+
 @pytest.fixture
 def sample_claim() -> dict:
     """Return a sample claim dictionary."""
@@ -187,8 +196,9 @@ def sample_claim() -> dict:
         "text": "Drug X significantly improves survival rates",
         "paper_id": "test_paper_001",
         "evidence_level": "1b",
-        "confidence": 0.85
+        "confidence": 0.85,
     }
+
 
 @pytest.fixture
 def sample_evidence() -> dict:
@@ -198,8 +208,9 @@ def sample_evidence() -> dict:
         "claim_id": "claim_001",
         "text": "Survival rate improved from 60% to 85%",
         "locator": {"page": 5, "section": "Results"},
-        "source_paper_id": "test_paper_001"
+        "source_paper_id": "test_paper_001",
     }
+
 
 @pytest.fixture
 def sample_run_config() -> dict:
@@ -209,12 +220,14 @@ def sample_run_config() -> dict:
         "max_papers": 10,
         "offline": True,
         "llm_backend": "mock",
-        "embedding_model": "mock"
+        "embedding_model": "mock",
     }
+
 
 # =============================================================================
 # File Fixtures
 # =============================================================================
+
 
 @pytest.fixture
 def sample_papers_jsonl(tmp_dir: Path, sample_papers: list) -> Path:
@@ -225,6 +238,7 @@ def sample_papers_jsonl(tmp_dir: Path, sample_papers: list) -> Path:
             f.write(json.dumps(paper) + "\n")
     return filepath
 
+
 @pytest.fixture
 def sample_claims_jsonl(tmp_dir: Path, sample_claim: dict) -> Path:
     """Create a sample claims.jsonl file."""
@@ -233,13 +247,14 @@ def sample_claims_jsonl(tmp_dir: Path, sample_claim: dict) -> Path:
         f.write(json.dumps(sample_claim) + "\n")
     return filepath
 
+
 @pytest.fixture
 def sample_run_dir(runs_dir: Path, sample_paper: dict, sample_claim: dict) -> Path:
     """Create a sample run directory with all required files."""
     run_id = "test_run_001"
     run_dir = runs_dir / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Create required bundle files
     files = {
         "input.json": {"query": "test query", "max_papers": 10},
@@ -251,9 +266,9 @@ def sample_run_dir(runs_dir: Path, sample_paper: dict, sample_claim: dict) -> Pa
         "result.json": {"status": "success", "timestamp": "2024-01-01T00:00:00Z"},
         "eval_summary.json": {"gate_passed": True, "metrics": {}},
         "warnings.jsonl": [],
-        "report.md": "# Test Report\n\nThis is a test report."
+        "report.md": "# Test Report\n\nThis is a test report.",
     }
-    
+
     for filename, content in files.items():
         filepath = run_dir / filename
         if filename.endswith(".jsonl"):
@@ -266,12 +281,14 @@ def sample_run_dir(runs_dir: Path, sample_paper: dict, sample_claim: dict) -> Pa
         else:
             with open(filepath, "w") as f:
                 f.write(content)
-    
+
     return run_dir
+
 
 # =============================================================================
 # API Test Fixtures
 # =============================================================================
+
 
 @pytest.fixture
 def test_client():
@@ -279,25 +296,25 @@ def test_client():
     try:
         from fastapi.testclient import TestClient
         from jarvis_web.app import app
-        
+
         if app is None:
             pytest.skip("FastAPI not available")
-        
+
         return TestClient(app)
     except ImportError:
         pytest.skip("FastAPI not installed")
 
+
 @pytest.fixture
 def auth_headers() -> dict:
     """Return authentication headers for API tests."""
-    return {
-        "Authorization": "Bearer test_token",
-        "X-API-Key": "test_api_key"
-    }
+    return {"Authorization": "Bearer test_token", "X-API-Key": "test_api_key"}
+
 
 # =============================================================================
 # Database Fixtures
 # =============================================================================
+
 
 @pytest.fixture
 def mock_db() -> Generator[MagicMock, None, None]:
@@ -312,9 +329,11 @@ def mock_db() -> Generator[MagicMock, None, None]:
         mock.return_value = mock_db_instance
         yield conn
 
+
 # =============================================================================
 # Cleanup Fixtures
 # =============================================================================
+
 
 @pytest.fixture(autouse=True)
 def cleanup_env():
@@ -324,6 +343,7 @@ def cleanup_env():
     # Restore original environment
     os.environ.clear()
     os.environ.update(original_env)
+
 
 @pytest.fixture(autouse=True)
 def reset_singletons():

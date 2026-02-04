@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 """Phase Loop 2: 再現性検証テスト.
 
 同一入力 -> 同一構造 を検証

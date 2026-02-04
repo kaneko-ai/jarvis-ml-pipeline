@@ -148,6 +148,9 @@ known-first-party = ["jarvis_core", "jarvis_web", "jarvis_tools"]
 "examples/run_evidence_qa.py" = ["E402"]
 "jarvis_core/embeddings/chroma_store.py" = ["F401"]
 "jarvis_core/obs/__init__.py" = ["F401"]
+# Test files: allow E402 (imports after docstrings) and F401 (dependency detection imports)
+"tests/*.py" = ["E402", "F401"]
+"tests/**/*.py" = ["E402", "F401"]
 
 
 

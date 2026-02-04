@@ -1,4 +1,5 @@
 import pytest
+
 """Tests for Local LLM adapters and model router.
 
 Tests for Task 1.1: ローカルLLM統合

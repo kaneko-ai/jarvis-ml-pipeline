@@ -1,4 +1,5 @@
 import pytest
+
 """Tests for API modules - Coverage improvement (FIXED)."""
 
 from unittest.mock import Mock, patch

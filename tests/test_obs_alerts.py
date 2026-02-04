@@ -1,5 +1,4 @@
 from __future__ import annotations
-from unittest.mock import MagicMock, patch
 
 
 from jarvis_core.obs.alerts import engine as alert_engine
