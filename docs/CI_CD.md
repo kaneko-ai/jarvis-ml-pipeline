@@ -8,7 +8,7 @@ All CI jobs are defined in `.github/workflows/ci.yml`.
 
 ---
 
-## 🟢 Required Jobs (Must Pass)
+## 🟢 Core Jobs (Expected to Pass)
 
 | Job | Description | Tools |
 |-----|-------------|-------|
@@ -112,6 +112,6 @@ Failed to properly upload report
 
 ## 📊 Current Status
 
-- **Required Jobs**: ✅ All passing
+- **Core Jobs**: ✅ All passing
 - **Optional Jobs**: ⚠️ May fail (acceptable)
 - **Coverage**: Collected but threshold not enforced

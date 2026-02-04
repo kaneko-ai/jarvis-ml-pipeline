@@ -1,3 +1,5 @@
+> Authority: REFERENCE (Level 4, Non-binding)
+
 # JARVIS Research OS Documentation
 
 > AI-Powered Research Operating System for Systematic Literature Reviews
