@@ -1,4 +1,5 @@
 import pytest
+
 """Detailed logic tests for high-impact 0% coverage modules.
 
 These tests go beyond import checks to actually test functionality.

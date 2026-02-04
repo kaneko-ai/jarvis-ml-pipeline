@@ -1,6 +1,6 @@
-
 try:
     import sentence_transformers
+
     HAS_SENTENCE_TRANSFORMERS = True
 except ImportError:
     HAS_SENTENCE_TRANSFORMERS = False

@@ -1,4 +1,3 @@
-from unittest.mock import MagicMock, patch
 """Test Telemetry Required.
 
 Per RP-18, this test ensures telemetry is ALWAYS generated.

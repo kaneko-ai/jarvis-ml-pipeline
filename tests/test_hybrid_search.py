@@ -4,9 +4,9 @@ Per JARVIS_COMPLETION_PLAN_v3 Task 1.2
 Updated to match actual implementation.
 """
 
-
 try:
     import sentence_transformers
+
     HAS_SENTENCE_TRANSFORMERS = True
 except ImportError:
     HAS_SENTENCE_TRANSFORMERS = False

@@ -50,7 +50,7 @@ def verify_statistical_claim(claim: str, data: dict) -> VerificationResult:
     if ci_low is not None and ci_high is not None:
         if ci_low > ci_high:
             issues.append("invalid_ci_range")
-        
+
         # If CI crosses the null hypothesis (e.g., 0 for difference, 1 for ratio)
         # but p_value is claimed to be < 0.05
         crosses_null = (ci_low <= 0 <= ci_high) or (ci_low <= 1 <= ci_high)
@@ -69,8 +69,10 @@ def verify_statistical_claim(claim: str, data: dict) -> VerificationResult:
     claim_lower = claim.lower()
     if "significant" in claim_lower and p_value is not None and p_value > 0.05:
         issues.append("claim_significance_mismatch")
-    
+
     if "not significant" in claim_lower and p_value is not None and p_value <= 0.05:
         issues.append("claim_insignificance_mismatch")
 
-    return VerificationResult(is_valid=len(issues) == 0, issues=issues, recalculated_values=recalculated)
+    return VerificationResult(
+        is_valid=len(issues) == 0, issues=issues, recalculated_values=recalculated
+    )

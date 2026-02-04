@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable, Any
+from typing import Iterable
 
 from .table_extractor import Table, extract_tables
 from .figure_extractor import Figure, extract_figures
@@ -62,6 +62,7 @@ def parse_pdf(pdf_path: Path) -> ParsedPaper:
         tables = extract_tables(pdf_path)
     except Exception as e:
         import logging
+
         logging.getLogger(__name__).warning(f"Failed to extract tables: {e}")
 
     figures = []
@@ -69,6 +70,7 @@ def parse_pdf(pdf_path: Path) -> ParsedPaper:
         figures = extract_figures(pdf_path)
     except Exception as e:
         import logging
+
         logging.getLogger(__name__).warning(f"Failed to extract figures: {e}")
 
     return ParsedPaper(

@@ -29,27 +29,26 @@ class EvidenceSynthesisAgent:
 
     async def synthesize(self, papers: list[Paper], research_question: str) -> SynthesisReport:
         """Aggregate evidence across multiple papers.
-        
+
         This agent integrates findings, detects contradictions, and assesses
         the overall quality of the evidence base.
         """
         evidence_table = []
         claims = []
         levels = []
-        
+
         for paper in papers:
             # Evaluate using ensemble grader
             grade = grade_evidence(
-                title=paper.title, 
-                abstract=paper.abstract, 
-                full_text=paper.full_text, 
-                use_llm=False
+                title=paper.title, abstract=paper.abstract, full_text=paper.full_text, use_llm=False
             )
-            evidence_table.append({
-                "title": paper.title, 
-                "evidence_level": grade.level.value,
-                "confidence": grade.confidence
-            })
+            evidence_table.append(
+                {
+                    "title": paper.title,
+                    "evidence_level": grade.level.value,
+                    "confidence": grade.confidence,
+                }
+            )
             # Collect main claims (using title/abstract snippet as proxy in this stage)
             claims.append(f"{paper.title}: Significant findings in the study.")
             levels.append(grade.level.value)
@@ -59,12 +58,14 @@ class EvidenceSynthesisAgent:
         detector = ContradictionDetector()
         found_contradictions = detector.detect(claims)
         for contradiction in found_contradictions:
-            contradictions.append({
-                "statement_a": contradiction.statement_a,
-                "statement_b": contradiction.statement_b,
-                "confidence": contradiction.confidence,
-                "reason": contradiction.reason
-            })
+            contradictions.append(
+                {
+                    "statement_a": contradiction.statement_a,
+                    "statement_b": contradiction.statement_b,
+                    "confidence": contradiction.confidence,
+                    "reason": contradiction.reason,
+                }
+            )
 
         # Assess overall strength of evidence
         # Level 1-2 = High/Moderate, 3-4 = Low/Extremely Low
@@ -78,7 +79,7 @@ class EvidenceSynthesisAgent:
                 overall_strength = "moderate"
             else:
                 overall_strength = "low"
-            
+
             # Downgrade if contradictions exist
             if len(contradictions) > 0 and overall_strength != "low":
                 overall_strength += " (downgraded due to contradictions)"
@@ -91,7 +92,7 @@ class EvidenceSynthesisAgent:
         )
         if contradictions:
             summary += f"Note: {len(contradictions)} potential contradictions were identified during analysis."
-        
+
         gaps = []
         if paper_count < 3:
             gaps.append("Limited publication volume (less than 3 relevant papers)")

@@ -1,4 +1,5 @@
 import pytest
+
 """Tests for pubmed API module - Comprehensive coverage."""
 
 from unittest.mock import Mock, patch

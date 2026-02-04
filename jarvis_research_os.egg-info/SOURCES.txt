@@ -61,6 +61,11 @@ jarvis_core/trace.py
 jarvis_core/validation.py
 jarvis_core/vector_index.py
 jarvis_core/web_fetcher.py
+jarvis_core/active_learning/__init__.py
+jarvis_core/active_learning/cli.py
+jarvis_core/active_learning/engine.py
+jarvis_core/active_learning/query.py
+jarvis_core/active_learning/stopping.py
 jarvis_core/advanced/__init__.py
 jarvis_core/advanced/features.py
 jarvis_core/agents/orchestrator.py
@@ -124,6 +129,7 @@ jarvis_core/collaboration/__init__.py
 jarvis_core/collaboration/comments.py
 jarvis_core/collaboration/versioning.py
 jarvis_core/compliance/license.py
+jarvis_core/compliance/prisma.py
 jarvis_core/config/__init__.py
 jarvis_core/config/feature_flags.py
 jarvis_core/connectors/__init__.py
@@ -237,11 +243,6 @@ jarvis_core/experimental/roi_engine.py
 jarvis_core/experimental/sigma_modules.py
 jarvis_core/experimental/student_portfolio.py
 jarvis_core/experimental/timeline.py
-jarvis_core/experimental/active_learning/__init__.py
-jarvis_core/experimental/active_learning/cli.py
-jarvis_core/experimental/active_learning/engine.py
-jarvis_core/experimental/active_learning/query.py
-jarvis_core/experimental/active_learning/stopping.py
 jarvis_core/experimental/evals/ranking_eval.py
 jarvis_core/experimental/evals/trick_eval.py
 jarvis_core/experimental/finance/__init__.py

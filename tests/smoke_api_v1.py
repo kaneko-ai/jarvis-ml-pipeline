@@ -7,6 +7,7 @@ from time import sleep
 
 API_BASE = os.environ.get("API_BASE", "http://localhost:8000")
 
+
 @pytest.fixture(scope="module")
 def wait_for_api():
     """Wait for API to be ready."""
@@ -21,6 +22,7 @@ def wait_for_api():
         sleep(1)
     pytest.skip("API not available")
 
+
 def test_health_endpoint(wait_for_api):
     """Test health endpoint."""
     response = requests.get(f"{API_BASE}/api/health")
@@ -28,22 +30,21 @@ def test_health_endpoint(wait_for_api):
     data = response.json()
     assert data["status"] == "ok"
 
+
 def test_runs_list_endpoint(wait_for_api):
     """Test runs list endpoint."""
-    response = requests.get(
-        f"{API_BASE}/api/runs",
-        headers={"Authorization": "Bearer test"}
-    )
+    response = requests.get(f"{API_BASE}/api/runs", headers={"Authorization": "Bearer test"})
     # 200 or 401 (if auth required) are acceptable
     assert response.status_code in [200, 401, 403]
+
 
 def test_capabilities_endpoint(wait_for_api):
     """Test capabilities endpoint."""
     response = requests.get(
-        f"{API_BASE}/api/capabilities",
-        headers={"Authorization": "Bearer test"}
+        f"{API_BASE}/api/capabilities", headers={"Authorization": "Bearer test"}
     )
     assert response.status_code in [200, 401, 403]
+
 
 def test_api_map_endpoint(wait_for_api):
     """Test API map endpoint."""

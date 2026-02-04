@@ -1,4 +1,5 @@
 import pytest
+
 """Tests for arxiv module - Comprehensive coverage."""
 
 from unittest.mock import Mock, patch

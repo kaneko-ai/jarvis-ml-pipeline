@@ -1,4 +1,5 @@
 import pytest
+
 """Tests for DOI/PubMed/CrossRef Resolver (RP22).
 
 Per RP22, these tests verify:

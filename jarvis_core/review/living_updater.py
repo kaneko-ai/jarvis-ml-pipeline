@@ -32,19 +32,21 @@ class LivingReviewUpdater:
     def __init__(self):
         self._last_checked: dict[str, str] = {}
 
-    async def check_for_updates(self, review_id: str, available_papers: list[NewPaper]) -> list[NewPaper]:
+    async def check_for_updates(
+        self, review_id: str, available_papers: list[NewPaper]
+    ) -> list[NewPaper]:
         """Return new papers since last check.
-        
+
         Typically this would query PubMed/OpenAlex with a date range,
         but for this implementation we simulate by filtering provided papers.
         """
         last_check_str = self._last_checked.get(review_id)
         now = datetime.utcnow()
         self._last_checked[review_id] = now.isoformat()
-        
+
         if not last_check_str:
             return available_papers  # First check, everything is "new"
-            
+
         last_check = datetime.fromisoformat(last_check_str)
         new_only = []
         for paper in available_papers:
@@ -55,7 +57,7 @@ class LivingReviewUpdater:
             else:
                 # If no date, treat as new for safety in this simulation
                 new_only.append(paper)
-        
+
         return new_only
 
     async def update_review(self, review_id: str, new_papers: list[NewPaper]) -> UpdateReport:
