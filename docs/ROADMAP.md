@@ -45,7 +45,7 @@
 ### Test Quality
 - [ ] Resolve 727 failing tests
 - [ ] Achieve 70% coverage threshold
-- [ ] Enable coverage gate as required job
+- [ ] Enable coverage gate as core job
 
 ### Integration Tests
 - [ ] Stabilize contract_and_unit
