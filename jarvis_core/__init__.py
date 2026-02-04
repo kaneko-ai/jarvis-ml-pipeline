@@ -12,6 +12,9 @@ __all__ = [
     "AgentRegistry",
     "LLMClient",
     "Router",
+    "timeline",
+    "clinical_readiness",
+    "lab_optimizer",
 ]
 
 
@@ -59,5 +62,10 @@ def __getattr__(name: str):
         import importlib
 
         return importlib.import_module(".active_learning", __name__)
+
+    if name in ("timeline", "clinical_readiness", "lab_optimizer"):
+        import importlib
+
+        return importlib.import_module(f".experimental.{name}", __name__)
 
     raise AttributeError(name)

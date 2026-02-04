@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Any
+
+from .table_extractor import Table, extract_tables
+from .figure_extractor import Figure, extract_figures
 
 
 @dataclass
@@ -19,8 +22,8 @@ class ParsedPaper:
     abstract: str
     sections: list[Section] = field(default_factory=list)
     references: list[str] = field(default_factory=list)
-    tables: list[str] = field(default_factory=list)
-    figures: list[str] = field(default_factory=list)
+    tables: list[Table] = field(default_factory=list)
+    figures: list[Figure] = field(default_factory=list)
 
 
 def parse_pdf(pdf_path: Path) -> ParsedPaper:
@@ -53,13 +56,28 @@ def parse_pdf(pdf_path: Path) -> ParsedPaper:
     sections = _extract_sections(lines)
     references = _extract_references(lines)
 
+    # NEW: Integrate Table and Figure extraction
+    tables = []
+    try:
+        tables = extract_tables(pdf_path)
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Failed to extract tables: {e}")
+
+    figures = []
+    try:
+        figures = extract_figures(pdf_path)
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Failed to extract figures: {e}")
+
     return ParsedPaper(
         title=title,
         abstract=abstract,
         sections=sections,
         references=references,
-        tables=[],
-        figures=[],
+        tables=tables,
+        figures=figures,
     )
 
 

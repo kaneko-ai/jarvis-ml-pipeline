@@ -94,6 +94,65 @@ markdown = generate_prisma(
 )
 ```
 
+## 新機能 (Phase 12)
+
+### PDF フルテキスト解析
+
+```python
+from jarvis_core.ingestion.pdf_parser import parse_pdf
+from pathlib import Path
+
+# PDF を解析
+paper = parse_pdf(Path("path/to/paper.pdf"))
+
+print(f"タイトル: {paper.title}")
+print(f"抄録: {paper.abstract[:200]}...")
+print(f"抽出されたセクション数: {len(paper.sections)}")
+print(f"抽出された表の数: {len(paper.tables)}")
+print(f"抽出された図の数: {len(paper.figures)}")
+```
+
+### 統計的主張検証
+
+```python
+from jarvis_core.verification.stat_verifier import verify_statistical_claim
+
+result = verify_statistical_claim(
+    claim="The treatment showed significant improvement (p < 0.05)",
+    data={
+        "p_value": 0.03,
+        "sample_size": 120,
+        "effect_size": 0.45,
+        "ci_low": 0.2,
+        "ci_high": 0.7
+    }
+)
+
+print(f"検証結果: {'有効' if result.is_valid else '問題あり'}")
+print(f"検出された問題: {result.issues}")
+```
+
+### エビデンス統合
+
+```python
+from jarvis_core.orchestrator.agents.synthesis import EvidenceSynthesisAgent, Paper
+import asyncio
+
+agent = EvidenceSynthesisAgent()
+
+papers = [
+    Paper(title="Study A", abstract="RCT showing positive results..."),
+    Paper(title="Study B", abstract="Meta-analysis confirming..."),
+]
+
+report = asyncio.run(agent.synthesize(papers, "Treatment efficacy"))
+
+print(f"要約: {report.summary}")
+print(f"証拠の強さ: {report.strength_of_evidence}")
+print(f"ギャップ: {report.gaps}")
+```
+
+
 ## 新しいCLIコマンド
 
 ```bash

@@ -94,7 +94,7 @@ class RISParser:
             if not line:
                 continue
 
-            match = re.match(r"^([A-Z0-9]{2})\s+-\s+(.*)$", line)
+            match = re.match(r"^([A-Z0-9]{2})\s*-\s*(.*)$", line)
             if match:
                 tag, value = match.groups()
                 field_name = self.TAG_MAP.get(tag)
