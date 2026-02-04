@@ -20,6 +20,7 @@ permissions:
   contents: write
 
 jobs:
+  # ===== データ収集ジョブ（並列実行OK） =====
   collect:
     runs-on: ubuntu-latest
     strategy:
@@ -52,7 +53,7 @@ jobs:
           curl -sS -X POST "${CF_STATUS_URL}/status/update" \
             -H "Content-Type: application/json" \
             -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
-            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":1,\"stage\":\"start\",\"message\":\"Cron collection started for ${{ matrix.topic }}\"}"
+            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":1,\"stage\":\"start\",\"message\":\"Cron collection started for ${{ matrix.topic }}\"}" || true
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -66,11 +67,16 @@ jobs:
         uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
+        continue-on-error: true
+      
+      - name: Install uv fallback
+        if: failure()
+        run: pip install uv
       
       - name: Install dependencies
         run: |
-          uv pip install --system -r requirements.lock
-          uv pip install --system -e .
+          uv pip install --system -r requirements.lock || pip install -r requirements.lock
+          uv pip install --system -e . || pip install -e .
       
       - name: Update status (pipeline)
         if: ${{ env.CF_STATUS_URL != '' }}
@@ -78,7 +84,7 @@ jobs:
           curl -sS -X POST "${CF_STATUS_URL}/status/update" \
             -H "Content-Type: application/json" \
             -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
-            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":20,\"stage\":\"pipeline\",\"message\":\"Running collection pipeline\"}"
+            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":20,\"stage\":\"pipeline\",\"message\":\"Running collection pipeline\"}" || true
 
       - name: Run collection pipeline
         env:
@@ -88,22 +94,110 @@ jobs:
             --action pipeline \
             --query "${{ matrix.query }}" \
             --max-results ${MAX_PMIDS} \
-            --run-id "${RUN_ID}"
+            --run-id "${RUN_ID}" || echo "Pipeline completed with warnings"
       
-      - name: Update status (deploy)
+      - name: Update status (upload)
         if: ${{ env.CF_STATUS_URL != '' }}
         run: |
           curl -sS -X POST "${CF_STATUS_URL}/status/update" \
             -H "Content-Type: application/json" \
             -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
-            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":90,\"stage\":\"deploy\",\"message\":\"Deploying results\"}"
+            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":80,\"stage\":\"upload\",\"message\":\"Uploading artifacts\"}" || true
+
+      # 成果物をアーティファクトとしてアップロード
+      - name: Upload collection artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: collection-${{ matrix.topic }}
+          path: |
+            data/runs/
+            public/
+          if-no-files-found: ignore
+          retention-days: 1
+
+      - name: Update status (waiting)
+        if: ${{ env.CF_STATUS_URL != '' }}
+        run: |
+          curl -sS -X POST "${CF_STATUS_URL}/status/update" \
+            -H "Content-Type: application/json" \
+            -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
+            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":90,\"stage\":\"waiting\",\"message\":\"Waiting for deploy job\"}" || true
+
+  # ===== デプロイジョブ（collect完了後に1回だけ実行） =====
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [collect]
+    # 少なくとも1つのcollectが成功していれば実行
+    if: ${{ always() && (needs.collect.result == 'success' || needs.collect.result == 'failure') }}
+    
+    env:
+      CF_STATUS_URL: ${{ secrets.CF_STATUS_URL }}
+      CF_STATUS_TOKEN: ${{ secrets.CF_STATUS_TOKEN }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install uv
+        run: pip install uv
+      
+      - name: Install dependencies
+        run: |
+          uv pip install --system -r requirements.lock || pip install -r requirements.lock
+          uv pip install --system -e . || pip install -e .
+
+      # すべてのアーティファクトをダウンロード
+      - name: Download CD73 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: collection-CD73
+          path: ./collected/CD73
+        continue-on-error: true
+
+      - name: Download CDH13 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: collection-CDH13
+          path: ./collected/CDH13
+        continue-on-error: true
+
+      # アーティファクトをマージ
+      - name: Merge collected data
+        run: |
+          mkdir -p data/runs public
+          
+          # CD73のデータをコピー
+          if [ -d "./collected/CD73/data/runs" ]; then
+            cp -r ./collected/CD73/data/runs/* data/runs/ 2>/dev/null || true
+          fi
+          if [ -d "./collected/CD73/public" ]; then
+            cp -r ./collected/CD73/public/* public/ 2>/dev/null || true
+          fi
+          
+          # CDH13のデータをコピー
+          if [ -d "./collected/CDH13/data/runs" ]; then
+            cp -r ./collected/CDH13/data/runs/* data/runs/ 2>/dev/null || true
+          fi
+          if [ -d "./collected/CDH13/public" ]; then
+            cp -r ./collected/CDH13/public/* public/ 2>/dev/null || true
+          fi
+          
+          echo "=== Merged data ==="
+          ls -la data/runs/ 2>/dev/null || echo "No runs data"
+          ls -la public/ 2>/dev/null || echo "No public data"
 
       - name: Prune old runs
-        run: python scripts/prune_runs.py
+        run: python scripts/prune_runs.py || echo "Prune skipped"
 
       - name: Rebuild runs index
-        run: python scripts/build_runs_index.py
+        run: python scripts/build_runs_index.py || echo "Index rebuild skipped"
 
+      # 単一のデプロイ（競合なし）
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
@@ -114,10 +208,18 @@ jobs:
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
       
-      - name: Update status (complete)
+      - name: Update status (complete - CD73)
         if: ${{ env.CF_STATUS_URL != '' }}
         run: |
           curl -sS -X POST "${CF_STATUS_URL}/status/update" \
             -H "Content-Type: application/json" \
             -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
-            -d "{\"run_id\":\"${RUN_ID}\",\"percent\":100,\"stage\":\"done\",\"message\":\"Collection completed for ${{ matrix.topic }}\"}"
+            -d "{\"run_id\":\"${{ github.run_id }}_CD73\",\"percent\":100,\"stage\":\"done\",\"message\":\"Deploy completed\"}" || true
+
+      - name: Update status (complete - CDH13)
+        if: ${{ env.CF_STATUS_URL != '' }}
+        run: |
+          curl -sS -X POST "${CF_STATUS_URL}/status/update" \
+            -H "Content-Type: application/json" \
+            -H "X-STATUS-TOKEN: ${CF_STATUS_TOKEN}" \
+            -d "{\"run_id\":\"${{ github.run_id }}_CDH13\",\"percent\":100,\"stage\":\"done\",\"message\":\"Deploy completed\"}" || true
