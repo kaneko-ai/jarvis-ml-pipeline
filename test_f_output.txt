@@ -1,0 +1,21 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+plugins: anyio-4.12.0, asyncio-1.3.0, base-url-2.1.0, cov-7.0.0, playwright-0.7.2, xdist-3.8.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 48 items / 47 deselected / 1 selected
+run-last-failure: rerun previous 1 failure
+
+tests/test_phase7_functional.py::TestRISBibTeXFunctional::test_ris_parser_multiple_entries FAILED [100%]
+
+================================== FAILURES ===================================
+__________ TestRISBibTeXFunctional.test_ris_parser_multiple_entries ___________
+tests\test_phase7_functional.py:388: in test_ris_parser_multiple_entries
+    assert len(refs) == 3
+E   AssertionError: assert 1 == 3
+E    +  where 1 = len([Reference(id='ris_1', title='Third Paper', authors=['Author One', 'Author Two', 'Author Three'], year=None, journal='', volume='', issue='', pages='', doi='', pmid='', abstract='', keywords=[], url='')])
+=========================== short test summary info ===========================
+FAILED tests/test_phase7_functional.py::TestRISBibTeXFunctional::test_ris_parser_multiple_entries
+====================== 1 failed, 47 deselected in 0.70s =======================

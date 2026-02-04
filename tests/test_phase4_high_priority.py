@@ -58,7 +58,8 @@ class TestNoteGeneratorHelpers:
 
         locator = {"section": "abstract", "paragraph_index": 0, "sentence_index": 1}
         result = _extract_locator(locator)
-        assert isinstance(result, dict)
+        assert isinstance(result, tuple)
+        assert result == ("abstract", 0, 1, None)
 
     def test_format_locator(self):
         from jarvis_core.notes.note_generator import _format_locator
@@ -102,15 +103,15 @@ class TestGenerateNotes:
 
     def test_generate_notes_missing_dir(self):
         from jarvis_core.notes.note_generator import generate_notes
+        import pytest
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            result = generate_notes(
-                run_id="nonexistent_run",
-                source_runs_dir=Path(tmpdir) / "runs",
-                output_base_dir=Path(tmpdir) / "output",
-            )
-            # Should handle missing directory gracefully
-            assert result is not None or result is None
+            with pytest.raises(FileNotFoundError):
+                generate_notes(
+                    run_id="nonexistent_run",
+                    source_runs_dir=Path(tmpdir) / "runs",
+                    output_base_dir=Path(tmpdir) / "output",
+                )
 
 
 # ============================================================

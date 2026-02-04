@@ -3,46 +3,21 @@
     "accuracy": 1.0,
     "details": {
       "correct": 5,
-      "total": 5,
-      "errors": []
+      "total": 5
     }
   },
   "citation_stance": {
     "accuracy": 0.8,
     "details": {
       "correct": 4,
-      "total": 5,
-      "errors": [
-        {
-          "context": "The method was based on the approach described by ",
-          "expected": "mention",
-          "predicted": "support"
-        }
-      ]
+      "total": 5
     }
   },
   "contradiction": {
-    "accuracy": 0,
+    "accuracy": 1.0,
     "details": {
-      "correct": 0,
-      "total": 0,
-      "errors": [
-        {
-          "error": "'SentenceTransformerEmbedding' object has no attribute 'embed'"
-        },
-        {
-          "error": "'SentenceTransformerEmbedding' object has no attribute 'embed'"
-        },
-        {
-          "error": "'SentenceTransformerEmbedding' object has no attribute 'embed'"
-        },
-        {
-          "error": "'SentenceTransformerEmbedding' object has no attribute 'embed'"
-        },
-        {
-          "error": "'SentenceTransformerEmbedding' object has no attribute 'embed'"
-        }
-      ]
+      "correct": 5,
+      "total": 5
     }
   }
 }
