@@ -1,0 +1,675 @@
+﻿FAILED tests/integration/test_browser_integration.py::test_browser_navigation_and_screenshot
+FAILED tests/integration/test_browser_integration.py::test_browser_text_extraction
+FAILED tests/integration/test_full_integration.py::test_full_integration_flow
+FAILED tests/integration/test_mcp_integration.py::test_mcp_server_registration_and_discovery
+FAILED tests/integration/test_mcp_integration.py::test_mcp_tool_invoke_and_error
+FAILED tests/integration/test_mcp_integration.py::test_mcp_rate_limiting - Ru...
+FAILED tests/integration/test_mcp_integration.py::test_mcp_tool_chain - Runti...
+FAILED tests/integration/test_orchestrator_integration.py::test_multi_agent_parallel_and_conversation
+FAILED tests/integration/test_orchestrator_integration.py::test_multi_agent_approval_and_callbacks
+FAILED tests/quality/test_garbage_detector.py::test_detect_return_none - asse...
+FAILED tests/test_active_learning.py::TestALConfig::test_config_default_values
+FAILED tests/test_active_learning.py::TestALConfig::test_config_custom_values
+FAILED tests/test_active_learning.py::TestALConfig::test_config_target_recall
+FAILED tests/test_active_learning.py::TestALState::test_state_values - Module...
+FAILED tests/test_active_learning.py::TestALState::test_state_comparison - Mo...
+FAILED tests/test_active_learning.py::TestALStats::test_stats_creation - Modu...
+FAILED tests/test_active_learning.py::TestALStats::test_stats_to_dict - Modul...
+FAILED tests/test_active_learning.py::TestQueryStrategy::test_uncertainty_sampling_init
+FAILED tests/test_active_learning.py::TestQueryStrategy::test_uncertainty_sampling_select
+FAILED tests/test_active_learning.py::TestQueryStrategy::test_uncertainty_sampling_empty
+FAILED tests/test_active_learning.py::TestQueryStrategy::test_diversity_sampling_init
+FAILED tests/test_active_learning.py::TestQueryStrategy::test_diversity_sampling_select
+FAILED tests/test_active_learning.py::TestStoppingCriteria::test_recall_stopping_init
+FAILED tests/test_active_learning.py::TestStoppingCriteria::test_recall_stopping_not_met
+FAILED tests/test_active_learning.py::TestStoppingCriteria::test_recall_stopping_met
+FAILED tests/test_active_learning.py::TestStoppingCriteria::test_budget_stopping_not_met
+FAILED tests/test_active_learning.py::TestStoppingCriteria::test_budget_stopping_met
+FAILED tests/test_active_learning.py::TestStoppingCriteria::test_composite_stopping_any
+FAILED tests/test_active_learning.py::TestActiveLearningEngine::test_engine_initialization
+FAILED tests/test_active_learning.py::TestActiveLearningEngine::test_engine_initialize_with_data
+FAILED tests/test_active_learning.py::TestActiveLearningEngine::test_engine_get_next_query
+FAILED tests/test_active_learning.py::TestActiveLearningEngine::test_engine_update_single
+FAILED tests/test_active_learning.py::TestActiveLearningEngine::test_engine_update_batch
+FAILED tests/test_active_learning.py::TestActiveLearningEngine::test_engine_get_stats
+FAILED tests/test_active_learning.py::TestActiveLearningEngine::test_engine_state_property
+FAILED tests/test_active_learning.py::TestActiveLearningCLI::test_cli_entry_point_exists
+FAILED tests/test_active_learning.py::TestActiveLearningCLI::test_cli_help - ...
+FAILED tests/test_active_learning.py::TestModuleImports::test_main_imports - ...
+FAILED tests/test_api_coverage.py::TestArxivAPI::test_search - AttributeError...
+FAILED tests/test_api_map_vs_capabilities.py::test_api_map_vs_capabilities - ...
+FAILED tests/test_arxiv_coverage.py::TestArxivClient::test_get_paper - Attrib...
+FAILED tests/test_claim_set_full.py::TestClaim::test_claim_creation - TypeErr...
+FAILED tests/test_contradiction_detector_massive.py::TestDetection::test_detect_pair
+FAILED tests/test_contradiction_detector_massive.py::TestDetection::test_detect_many
+FAILED tests/test_dashboard_features.py::TestAPIKeyManager::test_manager_init
+FAILED tests/test_dashboard_features.py::TestAPIKeyManager::test_generate_key
+FAILED tests/test_dashboard_features.py::TestAPIKeyManager::test_validate_key
+FAILED tests/test_dashboard_features.py::TestAPIKeyManager::test_validate_invalid_key
+FAILED tests/test_dashboard_features.py::TestAPIKeyManager::test_scope_validation
+FAILED tests/test_dashboard_features.py::TestAPIKeyManager::test_revoke_key
+FAILED tests/test_dashboard_features.py::TestAPIKeyManager::test_list_keys - ...
+FAILED tests/test_dashboard_features.py::TestAPIKeyManager::test_key_expiration
+FAILED tests/test_detailed_logic.py::TestUnpaywallClient::test_import_and_init
+FAILED tests/test_execution_engine_retry.py::test_execution_engine_stops_after_max_attempts
+FAILED tests/test_external_api_mocks.py::TestUnpaywallClientMocked::test_find_open_access_not_oa
+FAILED tests/test_external_api_mocks.py::TestWebFetcherMocked::test_fetch_url
+FAILED tests/test_figure_extractor.py::test_figure_extractor - pymupdf.mupdf....
+FAILED tests/test_front_adapter_contract.py::test_adapter_manifest_matches_api_map
+FAILED tests/test_grader_coverage.py::TestGraderModule::test_grader_package_import
+FAILED tests/test_grader_coverage.py::TestModuleImports::test_imports - Modul...
+FAILED tests/test_grader_ultra.py::TestModule::test_grader_module - ModuleNot...
+FAILED tests/test_language_lint.py::test_check_no_violations - UnicodeDecodeE...
+FAILED tests/test_language_lint.py::test_check_detects_english_pattern - Unic...
+FAILED tests/test_language_lint.py::test_check_detects_japanese_pattern - Uni...
+FAILED tests/test_language_lint.py::test_line_numbers - UnicodeDecodeError: '...
+FAILED tests/test_mcp_chain.py::test_tool_chain_executes_steps - RuntimeError...
+FAILED tests/test_mcp_chain.py::test_tool_chain_continue_on_error - RuntimeEr...
+FAILED tests/test_mcp_hub.py::test_discover_and_invoke_tools - RuntimeError: ...
+FAILED tests/test_mcp_hub.py::test_rate_limit_exceeded - RuntimeError: Runner...
+FAILED tests/test_ops_dashboard.py::test_ops_dashboard_renders - playwright._...
+FAILED tests/test_orchestrator.py::test_orchestrator_executes_agent - Runtime...
+FAILED tests/test_orchestrator.py::test_orchestrator_lists_agents - RuntimeEr...
+FAILED tests/test_phase10_high_impact.py::TestEducationModule::test_import - ...
+FAILED tests/test_phase10_high_impact.py::TestEducationModule::test_module_functions
+FAILED tests/test_phase10_high_impact.py::TestRehearsalModule::test_import - ...
+FAILED tests/test_phase13_maximum.py::TestActiveLearningCLI::test_import - Mo...
+FAILED tests/test_phase16_low_coverage.py::TestTextChunker::test_detect_sections_no_headers
+FAILED tests/test_phase16_low_coverage.py::TestFundingCliff::test_import - Im...
+FAILED tests/test_phase16_low_coverage.py::TestHeatmap::test_import - ImportE...
+FAILED tests/test_phase16_low_coverage.py::TestCareerPlanner::test_import - I...
+FAILED tests/test_phase17_more_low_coverage.py::TestActiveLearningCLI::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestCareerPlannerComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestGapAnalysisComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestPISuccessionComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestStudentPortfolioComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestReproducibilityCertComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestROIEngineComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestPISupportComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestSigmaModulesComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestFailureSimulatorComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestParadigmComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestCompetingHypothesisComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestLabCultureComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestGrantOptimizerComplete::test_import
+FAILED tests/test_phase18_ingestion_complete.py::TestTextChunkerComplete::test_detect_sections_no_headers
+FAILED tests/test_phase19_edge_cases.py::TestEdgeCasesLarge::test_chunk_large_text
+FAILED tests/test_phase5_additional.py::TestConstraints::test_import - Module...
+FAILED tests/test_phase5_medium_priority.py::TestActiveLearningCLI::test_import
+FAILED tests/test_phase5_medium_priority.py::TestOptimizationReport::test_import
+FAILED tests/test_phase6_coverage.py::TestOptimizationSolver::test_import - M...
+FAILED tests/test_phase8_deep.py::TestGapAnalysis::test_import_gap_analysis
+FAILED tests/test_phase8_deep.py::TestGapAnalysis::test_module_has_functions
+FAILED tests/test_phase8_deep.py::TestPISuccession::test_import - ImportError...
+FAILED tests/test_phase8_deep.py::TestStudentPortfolio::test_import - ImportE...
+FAILED tests/test_phase8_deep.py::TestReproducibilityCert::test_import - Impo...
+FAILED tests/test_phase8_deep.py::TestROIEngine::test_import - ImportError: c...
+FAILED tests/test_phase8_deep.py::TestLambdaModules::test_import - ImportErro...
+FAILED tests/test_phase8_deep.py::TestLabToStartup::test_import - ImportError...
+FAILED tests/test_phaseA_additional.py::TestActiveLearningEngine::test_import
+FAILED tests/test_phaseA_v2_direct_coverage.py::TestAnomalyDetectorPaths::test_detect_anomaly_medium_line431_438
+FAILED tests/test_phaseB_high_miss.py::TestActiveLearningEngineComplete::test_import
+FAILED tests/test_phaseB_high_miss.py::TestEducationModule::test_import - Imp...
+FAILED tests/test_phaseB_high_miss.py::TestEducationModule::test_translate_for_level_function
+FAILED tests/test_phaseB_high_miss.py::TestRehearsalModule::test_import - Imp...
+FAILED tests/test_phaseB_high_miss.py::TestCareerPlannerModule::test_import
+FAILED tests/test_phaseB_high_miss.py::TestFailurePredictorModule::test_import
+FAILED tests/test_phaseC_part1_detailed.py::TestActiveLearningEngineDetailed::test_import
+FAILED tests/test_phaseC_part1_detailed.py::TestActiveLearningEngineDetailed::test_module_classes
+FAILED tests/test_phaseC_part2_detailed.py::TestCompetingHypothesis::test_import
+FAILED tests/test_phaseC_part2_detailed.py::TestCompetingHypothesis::test_module_functions
+FAILED tests/test_phaseC_part2_detailed.py::TestLabCulture::test_import - Imp...
+FAILED tests/test_phaseC_part2_detailed.py::TestFeasibility::test_import - Im...
+FAILED tests/test_phaseC_part3_detailed.py::TestCitationAnalyzerDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestCitationGeneratorDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestCitationNetworkDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestEvidenceGraderDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestEvidenceMapperDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestAgentsBaseDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestAgentsScientistDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestKBRAGDetailed::test_import - ...
+FAILED tests/test_phaseC_part3_detailed.py::TestWorkflowEngineDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestWorkflowPresetsDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestPipelinesReviewGeneratorDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestRuntimeTelemetryDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestVisualizationChartsDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestSubmissionFormatterDetailed::test_import
+FAILED tests/test_phaseC_part4_functions.py::TestCareerPlannerFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestEducationFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestFailureSimulatorFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestFeasibilityFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestGapAnalysisFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestGrantOptimizerFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestHeatmapFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestJournalTargetingFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestLabCultureFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestLambdaModulesFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestParadigmFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestPISuccessionFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestPISupportFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestRehearsalFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestReproducibilityCertFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestROIEngineFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestSigmaModulesFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestStudentPortfolioFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestCareerEnginesFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part5_deep.py::TestIngestionPipelineDeep::test_text_chunker_with_overlap
+FAILED tests/test_phaseC_part5_deep.py::TestEvidenceGraderDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestCitationAnalyzerDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestEmbeddingsEmbedderDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestLLMAdapterDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestAgentsRegistryDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestAnalysisImpactDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestAnalysisNetworkDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestAnalysisTrendsDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestMetadataExtractorDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestMetadataNormalizerDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestNetworkCollaborationDeep::test_import_all_classes
+FAILED tests/test_phaseC_part6_submodules.py::TestCacheDiskCacheDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestCacheRedisAdapterDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestArtifactsAnalyzerDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestArtifactsExporterDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestDevtoolsProfilerDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestFinanceOptimizerDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestKBNeo4jAdapterDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestKnowledgeGraphDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestKPITrackerDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestLabExperimentsDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestObsDashboardDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestObsExporterDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestOpsConfigDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestPoliciesRetryDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestProvenanceTrackerDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestProvidersLLMDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestRankingScorerDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestRenderersHTMLDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestRenderersLatexDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestRenderersPDFDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestRepairPolicyDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestReplayRecorderDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestReportTemplatesDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestReportingSummaryDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestRetrievalRetrieverDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestRuntimeRateLimiterDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestSchedulerSchedulerDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestScoringScorerDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestSubmissionJournalCheckerDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestSubmissionValidatorDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestTelemetryExporterDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestVisualizationTimelineVizDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestWritingGeneratorDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestAlignmentDeep::test_import - Imp...
+FAILED tests/test_phaseC_part7_final.py::TestBibliographyDeep::test_import - ...
+FAILED tests/test_phaseC_part7_final.py::TestBudgetPolicyDeep::test_import - ...
+FAILED tests/test_phaseC_part7_final.py::TestCalendarBuilderDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestChangelogGeneratorDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestContextPackagerDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestDayInLifeDeep::test_import - Imp...
+FAILED tests/test_phaseC_part7_final.py::TestDiffEngineDeep::test_import - Im...
+FAILED tests/test_phaseC_part7_final.py::TestDraftGeneratorDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestEmailGeneratorDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestEnforceDeep::test_import - Impor...
+FAILED tests/test_phaseC_part7_final.py::TestEnforcementDeep::test_import - I...
+FAILED tests/test_phaseC_part7_final.py::TestExecutionEngineDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestFailurePredictorDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestFigureTableRegistryDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestFundingCliffDeep::test_import - ...
+FAILED tests/test_phaseC_part7_final.py::TestGoldsetDeep::test_import - Impor...
+FAILED tests/test_phaseC_part7_final.py::TestHITLDeep::test_import - ImportEr...
+FAILED tests/test_phaseC_part7_final.py::TestLabToStartupDeep::test_import - ...
+FAILED tests/test_phaseC_part7_final.py::TestPackageBuilderDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestPositioningDeep::test_import - I...
+FAILED tests/test_phaseC_part7_final.py::TestPretrainCitationReconstructionDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestPretrainMetaCoreDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestQualityGateDeep::test_import - I...
+FAILED tests/test_phaseC_part7_final.py::TestRemediationDeep::test_import - I...
+FAILED tests/test_phaseC_part7_final.py::TestSchedulerEngineDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestScientificLinterDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestSpecLintDeep::test_import - Impo...
+FAILED tests/test_phaseC_part7_final.py::TestTaskModelDeep::test_import - Imp...
+FAILED tests/test_phaseC_part7_final.py::TestTrendWatcherDeep::test_import - ...
+FAILED tests/test_phaseC_part7_final.py::TestWeeklyPackDeep::test_import - Im...
+FAILED tests/test_phaseC_part7_final.py::TestWorkflowRunnerDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestWorkflowTunerDeep::test_import
+FAILED tests/test_phaseE2_high_miss.py::TestZoteroIntegrationDetailed::test_zotero_client_class
+FAILED tests/test_phaseE2_high_miss.py::TestActiveLearningEngineDetailed::test_import_module
+FAILED tests/test_phaseE2_high_miss.py::TestActiveLearningEngineDetailed::test_get_all_classes
+FAILED tests/test_phaseE4_root_modules.py::TestCareerPlannerComplete::test_import
+FAILED tests/test_phaseE4_root_modules.py::TestCareerPlannerComplete::test_classes
+FAILED tests/test_phaseE4_root_modules.py::TestFailurePredictorComplete::test_import
+FAILED tests/test_phaseE4_root_modules.py::TestFailurePredictorComplete::test_classes
+FAILED tests/test_phaseE4_root_modules.py::TestFailureSimulatorComplete::test_import
+FAILED tests/test_phaseE4_root_modules.py::TestFailureSimulatorComplete::test_classes
+FAILED tests/test_phaseE4_root_modules.py::TestParadigmComplete::test_import
+FAILED tests/test_phaseE4_root_modules.py::TestParadigmComplete::test_classes
+FAILED tests/test_phaseE4_root_modules.py::TestCompetingHypothesisComplete::test_import
+FAILED tests/test_phaseE4_root_modules.py::TestCompetingHypothesisComplete::test_classes
+FAILED tests/test_phaseE4_root_modules.py::TestLabCultureComplete::test_import
+FAILED tests/test_phaseE4_root_modules.py::TestLabCultureComplete::test_classes
+FAILED tests/test_phaseE4_root_modules.py::TestSigmaModulesComplete::test_import
+FAILED tests/test_phaseE4_root_modules.py::TestSigmaModulesComplete::test_classes
+FAILED tests/test_phaseE4_root_modules.py::TestHeatmapComplete::test_import
+FAILED tests/test_phaseE4_root_modules.py::TestHeatmapComplete::test_classes
+FAILED tests/test_phaseF1_massive.py::TestEmbeddingsEmbedderDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestEvidenceGraderDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestEvidenceMapperDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestCitationAnalyzerDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestCitationGeneratorDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestCitationNetworkDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestCitationRelevanceDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestContradictionResolverDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestAgentsBaseDetailed::test_import - I...
+FAILED tests/test_phaseF1_massive.py::TestAgentsRegistryDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestAgentsScientistDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestKBRAGDetailed::test_import - Imp...
+FAILED tests/test_phaseF2_additional.py::TestKBNeo4jAdapterDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestWorkflowEngineDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestWorkflowPresetsDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestPipelinesReviewGeneratorDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestRuntimeTelemetryDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestRuntimeRateLimiterDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestMetadataExtractorDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestMetadataNormalizerDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestNetworkCollaborationDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestProvenanceTrackerDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestAnalysisImpactDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestAnalysisNetworkDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestAnalysisTrendsDetailed::test_import
+FAILED tests/test_phaseG10_kb_retrieval.py::TestKBRAGComplete::test_import_and_classes
+FAILED tests/test_phaseG10_kb_retrieval.py::TestReportTemplatesComplete::test_import_and_classes
+FAILED tests/test_phaseG10_kb_retrieval.py::TestReportingSummaryComplete::test_import_and_classes
+FAILED tests/test_phaseG11_remaining.py::TestAnalysisModulesComplete::test_impact
+FAILED tests/test_phaseG11_remaining.py::TestAnalysisModulesComplete::test_network
+FAILED tests/test_phaseG11_remaining.py::TestAnalysisModulesComplete::test_trends
+FAILED tests/test_phaseG11_remaining.py::TestMetadataModulesComplete::test_extractor
+FAILED tests/test_phaseG11_remaining.py::TestMetadataModulesComplete::test_normalizer
+FAILED tests/test_phaseG11_remaining.py::TestNetworkModulesComplete::test_collaboration
+FAILED tests/test_phaseG11_remaining.py::TestProvenanceModulesComplete::test_tracker
+FAILED tests/test_phaseG11_remaining.py::TestFinanceModulesComplete::test_optimizer
+FAILED tests/test_phaseG11_remaining.py::TestOpsModulesComplete::test_config
+FAILED tests/test_phaseG11_remaining.py::TestReplayModulesComplete::test_recorder
+FAILED tests/test_phaseG11_remaining.py::TestRepairModulesComplete::test_policy
+FAILED tests/test_phaseG12_root_modules.py::TestCareerPlannerComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestCompetingHypothesisComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestEducationComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestFailureSimulatorComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestFeasibilityComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestGapAnalysisComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestGrantOptimizerComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestHeatmapComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestJournalTargetingComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestLabCultureComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestLambdaModulesComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestParadigmComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestPiSuccessionComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestPiSupportComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestRehearsalComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestReproducibilityCertComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestRoiEngineComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestSigmaModulesComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestStudentPortfolioComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestCareerEnginesComplete::test_classes
+FAILED tests/test_phaseG1_ultra_detailed.py::TestActiveLearningEngineAllBranches::test_import_and_classes
+FAILED tests/test_phaseG3_lab_complete.py::TestLabAutomationExperimentClasses::test_experiment_scheduler_conflicts
+FAILED tests/test_phaseG4_ingestion_complete.py::TestIngestionPipelineComplete::test_text_chunker_all_methods
+FAILED tests/test_phaseG4_ingestion_complete.py::TestIngestionPipelineComplete::test_text_chunker_various_sizes
+FAILED tests/test_phaseG4_ingestion_complete.py::TestIngestionPipelineDataclasses::test_paper_dataclass
+FAILED tests/test_phaseG4_ingestion_complete.py::TestIngestionPipelineDataclasses::test_chunk_dataclass
+FAILED tests/test_phaseG5_evidence_citation.py::TestEvidenceGraderComplete::test_import_and_classes
+FAILED tests/test_phaseG5_evidence_citation.py::TestEvidenceMapperComplete::test_import_and_classes
+FAILED tests/test_phaseG5_evidence_citation.py::TestCitationAnalyzerComplete::test_import_and_classes
+FAILED tests/test_phaseG5_evidence_citation.py::TestCitationGeneratorComplete::test_import_and_classes
+FAILED tests/test_phaseG5_evidence_citation.py::TestCitationNetworkComplete::test_import_and_classes
+FAILED tests/test_phaseG5_evidence_citation.py::TestCitationRelevanceComplete::test_import_and_classes
+FAILED tests/test_phaseG5_evidence_citation.py::TestContradictionModulesComplete::test_resolver
+FAILED tests/test_phaseG6_llm_embeddings.py::TestLLMAdapterComplete::test_with_mock_api
+FAILED tests/test_phaseG6_llm_embeddings.py::TestEmbeddingsEmbedderComplete::test_import_and_classes
+FAILED tests/test_phaseG7_sources_api.py::TestAPISemanticScholarComplete::test_import_and_classes
+FAILED tests/test_phaseG8_agents_workflow.py::TestAgentsBaseComplete::test_import_and_classes
+FAILED tests/test_phaseG8_agents_workflow.py::TestAgentsRegistryComplete::test_import_and_classes
+FAILED tests/test_phaseG8_agents_workflow.py::TestAgentsScientistComplete::test_import_and_classes
+FAILED tests/test_phaseG8_agents_workflow.py::TestWorkflowEngineComplete::test_import_and_classes
+FAILED tests/test_phaseG8_agents_workflow.py::TestWorkflowPresetsComplete::test_import_and_classes
+FAILED tests/test_phaseG9_pipelines_runtime.py::TestPipelinesReviewGeneratorComplete::test_import_and_classes
+FAILED tests/test_phaseG9_pipelines_runtime.py::TestRuntimeTelemetryComplete::test_import_and_classes
+FAILED tests/test_phaseG9_pipelines_runtime.py::TestRuntimeRateLimiterComplete::test_import_and_classes
+FAILED tests/test_phaseH10_lab_branches.py::TestExperimentLoggerAllBranches::test_log_event
+FAILED tests/test_phaseH10_lab_branches.py::TestExperimentLoggerAllBranches::test_get_logs
+FAILED tests/test_phaseH10_lab_branches.py::TestAnomalyDetectorAllBranches::test_detect_no_data
+FAILED tests/test_phaseH10_lab_branches.py::TestAnomalyDetectorAllBranches::test_detect_normal_data
+FAILED tests/test_phaseH10_lab_branches.py::TestAnomalyDetectorAllBranches::test_detect_with_anomalies
+FAILED tests/test_phaseH10_lab_branches.py::TestRealTimeDataAnalyzerAllBranches::test_analyze_stream
+FAILED tests/test_phaseH10_lab_branches.py::TestRealTimeDataAnalyzerAllBranches::test_analyze_empty
+FAILED tests/test_phaseH10_lab_branches.py::TestBayesianOptimizerAllBranches::test_suggest_initial
+FAILED tests/test_phaseH10_lab_branches.py::TestBayesianOptimizerAllBranches::test_suggest_with_history
+FAILED tests/test_phaseH10_lab_branches.py::TestLabEquipmentControllerAllBranches::test_connect_disconnect
+FAILED tests/test_phaseH10_lab_branches.py::TestLabEquipmentControllerAllBranches::test_send_command
+FAILED tests/test_phaseH10_lab_branches.py::TestLabEquipmentControllerAllBranches::test_get_status
+FAILED tests/test_phaseH11_stages_branches.py::TestStagesGenerateReportBranches::test_format_authors_many
+FAILED tests/test_phaseH11_stages_branches.py::TestStagesGenerateReportBranches::test_format_authors_few
+FAILED tests/test_phaseH11_stages_branches.py::TestStagesGenerateReportBranches::test_format_authors_single
+FAILED tests/test_phaseH11_stages_branches.py::TestStagesGenerateReportBranches::test_format_authors_empty
+FAILED tests/test_phaseH11_stages_branches.py::TestStagesGenerateReportBranches::test_calculate_overall_confidence_all_levels
+FAILED tests/test_phaseH11_stages_branches.py::TestStagesGenerateReportBranches::test_build_reference_list_various_papers
+FAILED tests/test_phaseH11_stages_branches.py::TestStagesGenerateReportBranches::test_create_claim_section_all_types
+FAILED tests/test_phaseH12_eval_branches.py::TestEvalBenchmarkBranches::test_deep
+FAILED tests/test_phaseH12_eval_branches.py::TestEvalAubucBranches::test_deep
+FAILED tests/test_phaseH13_active_kpi.py::TestActiveLearningEngineBranches::test_deep
+FAILED tests/test_phaseH13_active_kpi.py::TestActiveLearningCliBranches::test_deep
+FAILED tests/test_phaseH13_active_kpi.py::TestActiveLearningStrategiesBranches::test_deep
+FAILED tests/test_phaseH13_active_kpi.py::TestKPIReporterBranches::test_deep
+FAILED tests/test_phaseH14_plugins_integrations.py::TestPluginsBaseBranches::test_deep
+FAILED tests/test_phaseH15_multimodal_notes.py::TestMultimodalFigureExtractorBranches::test_deep
+FAILED tests/test_phaseH15_multimodal_notes.py::TestMultimodalTableUnderstanderBranches::test_deep
+FAILED tests/test_phaseH15_multimodal_notes.py::TestNotesFormatterBranches::test_deep
+FAILED tests/test_phaseH16_20_massive.py::TestExtractionTableExtractorBranches::test_deep
+FAILED tests/test_phaseH16_20_massive.py::TestExtractionStructuredBranches::test_deep
+FAILED tests/test_phaseH16_20_massive.py::TestIntelligenceInsightsBranches::test_deep
+FAILED tests/test_phaseH16_20_massive.py::TestSchedulerSchedulerBranches::test_deep
+FAILED tests/test_phaseH16_20_massive.py::TestProvidersOpenAIBranches::test_deep
+FAILED tests/test_phaseH16_20_massive.py::TestProvidersAnthropicBranches::test_deep
+FAILED tests/test_phaseH16_20_massive.py::TestPoliciesRetryPolicyBranches::test_deep
+FAILED tests/test_phaseH1_deep_analysis.py::TestActiveLearningEngineDeep::test_all_classes_with_methods
+FAILED tests/test_phaseH21_25_more.py::TestObsCollectorBranches::test_deep - ...
+FAILED tests/test_phaseH21_25_more.py::TestRepairPolicyBranches::test_deep - ...
+FAILED tests/test_phaseH21_25_more.py::TestSubmissionFormatterBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestSubmissionJournalCheckerBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestSubmissionValidatorBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestVisualizationChartsBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestWritingGeneratorBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestRenderersHTMLBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestRenderersMarkdownBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestTelemetryExporterBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestRuntimeRateLimiterBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestDevtoolsBenchmarkBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestDevtoolsDebugBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestCacheBackendBranches::test_deep - ...
+FAILED tests/test_phaseH21_25_more.py::TestCachePolicyBranches::test_deep - I...
+FAILED tests/test_phaseH26_30_final.py::TestKnowledgeGraphBranches::test_deep
+FAILED tests/test_phaseH26_30_final.py::TestNetworkCollaborationBranches::test_deep
+FAILED tests/test_phaseH26_30_final.py::TestProvenanceTrackerBranches::test_deep
+FAILED tests/test_phaseH26_30_final.py::TestFinanceOptimizerBranches::test_deep
+FAILED tests/test_phaseH26_30_final.py::TestOpsConfigBranches::test_deep - Im...
+FAILED tests/test_phaseH26_30_final.py::TestReplayRecorderBranches::test_deep
+FAILED tests/test_phaseH26_30_final.py::TestScoringScorerBranches::test_deep
+FAILED tests/test_phaseH26_30_final.py::TestRankingScorerBranches::test_deep
+FAILED tests/test_phaseH26_30_final.py::TestAPISemanticScholarBranches::test_deep
+FAILED tests/test_phaseH4_deep_subpackages.py::TestReportTemplatesDeep::test_deep
+FAILED tests/test_phaseH4_deep_subpackages.py::TestReportingSummaryDeep::test_deep
+FAILED tests/test_phaseH4_deep_subpackages.py::TestReplayRecorderDeep::test_deep
+FAILED tests/test_phaseH4_deep_subpackages.py::TestOpsConfigDeep::test_deep
+FAILED tests/test_phaseH4_deep_subpackages.py::TestFinanceOptimizerDeep::test_deep
+FAILED tests/test_phaseH4_deep_subpackages.py::TestKnowledgeGraphDeep::test_deep
+FAILED tests/test_phaseH4_deep_subpackages.py::TestRankingScorerDeep::test_deep
+FAILED tests/test_phaseH5_deep_root.py::TestCareerPlannerDeep::test_deep - Im...
+FAILED tests/test_phaseH5_deep_root.py::TestEducationDeep::test_deep - Import...
+FAILED tests/test_phaseH5_deep_root.py::TestFailureSimulatorDeep::test_deep
+FAILED tests/test_phaseH5_deep_root.py::TestFeasibilityDeep::test_deep - Impo...
+FAILED tests/test_phaseH5_deep_root.py::TestGrantOptimizerDeep::test_deep - I...
+FAILED tests/test_phaseH5_deep_root.py::TestLabCultureDeep::test_deep - Impor...
+FAILED tests/test_phaseH5_deep_root.py::TestParadigmDeep::test_deep - ImportE...
+FAILED tests/test_phaseH5_deep_root.py::TestRehearsalDeep::test_deep - Import...
+FAILED tests/test_phaseH5_deep_root.py::TestSigmaModulesDeep::test_deep - Imp...
+FAILED tests/test_phaseH6_additional_deep.py::TestCacheBackendDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestCachePolicyDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestDevtoolsBenchmarkDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestDevtoolsDebugDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestEvaluationEvaluatorDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestEvaluationMetricsDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestExtractionTableExtractorDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestExtractionStructuredDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestRenderersHTMLDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestRenderersMarkdownDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestScoringScorerDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestSchedulerSchedulerDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestTelemetryExporterDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestVisualizationChartsDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestVisualizationTimelineVizDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestWritingGeneratorDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestAlignmentDeep::test_deep - ...
+FAILED tests/test_phaseH7_additional_deep.py::TestBibliographyDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestBudgetPolicyDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestCalendarBuilderDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestChangelogGeneratorDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestContextPackagerDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestDayInLifeDeep::test_deep - ...
+FAILED tests/test_phaseH7_additional_deep.py::TestDiffEngineDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestDraftGeneratorDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestEmailGeneratorDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestEnforceDeep::test_deep - Im...
+FAILED tests/test_phaseH7_additional_deep.py::TestEnforcementDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestExecutionEngineDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestFailurePredictorDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestFigureTableRegistryDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestFundingCliffDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestGoldsetDeep::test_deep - Im...
+FAILED tests/test_phaseH7_additional_deep.py::TestHitlDeep::test_deep - Impor...
+FAILED tests/test_phaseH7_additional_deep.py::TestLabToStartupDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestPackageBuilderDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestPositioningDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestPretrainCitationReconstructionDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestPretrainMetaCoreDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestQualityGateDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestRemediationDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestSchedulerEngineDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestScientificLinterDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestSpecLintDeep::test_deep - I...
+FAILED tests/test_phaseH7_additional_deep.py::TestTaskModelDeep::test_deep - ...
+FAILED tests/test_phaseH7_additional_deep.py::TestTrendWatcherDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestWeeklyPackDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestWorkflowRunnerDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestWorkflowTunerDeep::test_deep
+FAILED tests/test_phaseH8_ingestion_branches.py::TestTextChunkerBranches::test_chunk_empty_text
+FAILED tests/test_phaseH8_ingestion_branches.py::TestTextChunkerBranches::test_chunk_small_text
+FAILED tests/test_phaseH8_ingestion_branches.py::TestTextChunkerBranches::test_chunk_large_text_with_overlap
+FAILED tests/test_phaseH8_ingestion_branches.py::TestTextChunkerBranches::test_chunk_no_overlap
+FAILED tests/test_phaseI1_parametrized.py::TestIngestionPipelineParametrized::test_text_chunker_various_params[50-0]
+FAILED tests/test_phaseI1_parametrized.py::TestIngestionPipelineParametrized::test_text_chunker_various_params[50-10]
+FAILED tests/test_phaseI1_parametrized.py::TestIngestionPipelineParametrized::test_text_chunker_various_params[100-20]
+FAILED tests/test_phaseI1_parametrized.py::TestIngestionPipelineParametrized::test_text_chunker_various_params[200-50]
+FAILED tests/test_phaseI1_parametrized.py::TestIngestionPipelineParametrized::test_text_chunker_various_params[500-100]
+FAILED tests/test_phaseI2_error_paths.py::TestErrorPathsAdvanced::test_meta_analysis_invalid_studies
+FAILED tests/test_phaseI2_error_paths.py::TestErrorPathsLab::test_anomaly_detector_edge_cases
+FAILED tests/test_phaseI3_edge_cases.py::TestEdgeCasesIngestion::test_text_chunker_edge_cases
+FAILED tests/test_phaseI3_edge_cases.py::TestEdgeCasesStages::test_format_authors_edge_cases
+FAILED tests/test_phaseI4_integration.py::TestIntegrationGenerateReport::test_full_report_generation_workflow
+FAILED tests/test_phaseI4_integration.py::TestIntegrationIngestionPipeline::test_full_ingestion_workflow
+FAILED tests/test_phaseI4_integration.py::TestIntegrationLabAutomation::test_full_experiment_workflow
+FAILED tests/test_phaseI5_remaining_root.py::TestCompetingHypothesisDeep::test_deep
+FAILED tests/test_phaseI5_remaining_root.py::TestGapAnalysisDeep::test_deep
+FAILED tests/test_phaseI5_remaining_root.py::TestHeatmapDeep::test_deep - Imp...
+FAILED tests/test_phaseI5_remaining_root.py::TestJournalTargetingDeep::test_deep
+FAILED tests/test_phaseI5_remaining_root.py::TestPiSuccessionDeep::test_deep
+FAILED tests/test_phaseI5_remaining_root.py::TestPiSupportDeep::test_deep - I...
+FAILED tests/test_phaseI5_remaining_root.py::TestReproducibilityCertDeep::test_deep
+FAILED tests/test_phaseI5_remaining_root.py::TestRoiEngineDeep::test_deep - I...
+FAILED tests/test_phaseI5_remaining_root.py::TestStudentPortfolioDeep::test_deep
+FAILED tests/test_phaseI5_remaining_root.py::TestCareerEnginesDeep::test_deep
+FAILED tests/test_phaseI5_remaining_root.py::TestFailurePredictorDeep::test_deep
+FAILED tests/test_phaseI5_remaining_root.py::TestNegativeResultsDeep::test_deep
+FAILED tests/test_phaseJ1_advanced_phase6.py::TestSystematicReviewAgentComplete::test_exclude_paper
+FAILED tests/test_phaseJ1_advanced_phase6.py::TestSurvivalAnalysisBotComplete::test_kaplan_meier_normal
+FAILED tests/test_phaseJ1_advanced_phase6.py::TestPowerAnalysisCalculatorComplete::test_calculate_sample_size_normal
+FAILED tests/test_phaseJ1_advanced_phase6.py::TestPhase6RemainingClasses::test_effect_size_calculator
+FAILED tests/test_phaseJ1_advanced_phase6.py::TestPhase6RemainingClasses::test_heterogeneity_analyzer
+FAILED tests/test_phaseJ1_advanced_phase6.py::TestPhase6RemainingClasses::test_publication_bias_detector
+FAILED tests/test_phaseJ1_advanced_phase6.py::TestPhase6RemainingClasses::test_sensitivity_analyzer
+FAILED tests/test_phaseJ1_advanced_phase6.py::TestPhase6RemainingClasses::test_subgroup_analyzer
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestOntologyBuilderComplete::test_add_concept
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestOntologyBuilderComplete::test_get_hierarchy
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestConceptMapperComplete::test_map_concepts
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestKnowledgeGraphBuilderComplete::test_add_entity
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestKnowledgeGraphBuilderComplete::test_add_relation
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestKnowledgeGraphBuilderComplete::test_export_graph
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestSemanticSearchEngineComplete::test_index_documents
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestSemanticSearchEngineComplete::test_search
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestEntityLinkerComplete::test_link_entities
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestFactVerifierComplete::test_verify_fact
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestArgumentMinerComplete::test_extract_arguments
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestClaimDetectorComplete::test_detect_claims
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestStanceClassifierComplete::test_classify_stance
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestEvidenceExtractorComplete::test_extract_evidence
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestCollaborationNetworkComplete::test_add_collaborator
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestCollaborationNetworkComplete::test_add_collaboration
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestCollaborationNetworkComplete::test_get_network_metrics
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestTeamFormationOptimizerComplete::test_optimize_team
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestConflictResolverComplete::test_detect_conflicts
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestPeerReviewMatcherComplete::test_match_reviewers
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestCitationRecommenderComplete::test_recommend_citations
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestImpactPredictorComplete::test_predict_impact
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestTrendAnalyzerComplete::test_analyze_trends
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestResearchGapFinderComplete::test_find_gaps
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestNoveltyAssessorComplete::test_assess_novelty
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestReproducibilityCheckerComplete::test_check_reproducibility
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestWorkflowEngineComplete::test_add_step
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestWorkflowEngineComplete::test_run_workflow
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestPipelineBuilderComplete::test_add_component
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestPipelineBuilderComplete::test_build_and_run
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestSchedulerComplete::test_schedule_task
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestSchedulerComplete::test_get_pending_tasks
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestNotificationManagerComplete::test_add_subscriber
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestNotificationManagerComplete::test_notify
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestReportGeneratorComplete::test_add_section
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestReportGeneratorComplete::test_generate_report
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestDashboardBuilderComplete::test_add_widget
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestDashboardBuilderComplete::test_render
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestAlertSystemComplete::test_add_rule
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestAlertSystemComplete::test_check_alerts
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestCacheManagerComplete::test_set_get
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestAPIClientComplete::test_get
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestDataExporterComplete::test_export_json
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestDataExporterComplete::test_export_csv
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestDataImporterComplete::test_import_json
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestConfigManagerComplete::test_set_get_config
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestConfigManagerComplete::test_load_defaults
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestLoggerComplete::test_log_levels
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestMetricsCollectorComplete::test_record_metric
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestHealthCheckerComplete::test_add_check
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestHealthCheckerComplete::test_run_checks
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestFeatureFlagManagerComplete::test_set_flag
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestFeatureFlagManagerComplete::test_disabled_flag
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestVersionManagerComplete::test_get_version
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestVersionManagerComplete::test_compare_versions
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestPluginManagerComplete::test_register_plugin
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestPluginManagerComplete::test_run_plugin
+FAILED tests/test_phaseK1_stages_complete.py::TestGenerateReportComplete::test_format_authors_all_cases
+FAILED tests/test_phaseK1_stages_complete.py::TestGenerateReportComplete::test_calculate_overall_confidence
+FAILED tests/test_phaseK1_stages_complete.py::TestGenerateReportComplete::test_build_reference_list
+FAILED tests/test_phaseK2_lab_complete.py::TestExperimentSchedulerComplete::test_add_experiment_and_check_conflicts
+FAILED tests/test_phaseK2_lab_complete.py::TestExperimentLoggerComplete::test_log_and_get_events
+FAILED tests/test_phaseK2_lab_complete.py::TestAnomalyDetectorComplete::test_detect_anomalies
+FAILED tests/test_phaseK2_lab_complete.py::TestSampleTrackerComplete::test_add_get_update_sample
+FAILED tests/test_phaseK3_ingestion_retrieval.py::TestTextChunkerComplete::test_chunk_various_sizes
+FAILED tests/test_phaseK3_ingestion_retrieval.py::TestTextChunkerComplete::test_chunk_edge_cases
+FAILED tests/test_phaseL2_lab_branches.py::TestExperimentSchedulerBranches::test_check_conflicts_no_overlap
+FAILED tests/test_phaseL2_lab_branches.py::TestAnomalyDetectorBranches::test_detect_no_anomalies
+FAILED tests/test_phaseL2_lab_branches.py::TestAnomalyDetectorBranches::test_detect_with_anomalies
+FAILED tests/test_phaseL2_lab_branches.py::TestAnomalyDetectorBranches::test_detect_empty_data
+FAILED tests/test_phaseL2_lab_branches.py::TestAnomalyDetectorBranches::test_detect_single_value
+FAILED tests/test_phaseL2_lab_branches.py::TestSampleTrackerBranches::test_get_sample_exists
+FAILED tests/test_phaseL2_lab_branches.py::TestSampleTrackerBranches::test_update_sample_exists
+FAILED tests/test_phaseL2_lab_branches.py::TestSampleTrackerBranches::test_update_sample_not_exists
+FAILED tests/test_phaseL2_lab_branches.py::TestRealTimeDataAnalyzerBranches::test_get_stats_empty
+FAILED tests/test_phaseL2_lab_branches.py::TestRealTimeDataAnalyzerBranches::test_get_stats_with_data
+FAILED tests/test_phaseL2_lab_branches.py::TestBayesianOptimizerBranches::test_suggest_no_history
+FAILED tests/test_phaseL2_lab_branches.py::TestBayesianOptimizerBranches::test_suggest_with_history
+FAILED tests/test_phaseL3_advanced_branches.py::TestMetaAnalysisBotBranches::test_run_meta_analysis_empty
+FAILED tests/test_phaseL3_advanced_branches.py::TestMetaAnalysisBotBranches::test_run_meta_analysis_single
+FAILED tests/test_phaseL3_advanced_branches.py::TestMetaAnalysisBotBranches::test_run_meta_analysis_multiple
+FAILED tests/test_phaseL3_advanced_branches.py::TestSystematicReviewAgentBranches::test_exclude_paper_existing
+FAILED tests/test_phaseL3_advanced_branches.py::TestSurvivalAnalysisBotBranches::test_kaplan_meier_all_events
+FAILED tests/test_phaseL3_advanced_branches.py::TestPowerAnalysisCalculatorBranches::test_calculate_sample_size_two_sample
+FAILED tests/test_phaseL3_advanced_branches.py::TestPowerAnalysisCalculatorBranches::test_calculate_sample_size_various_effect_sizes
+FAILED tests/test_phaseM10_final_modules.py::TestSchedulerModule::test_scheduler
+FAILED tests/test_phaseM10_final_modules.py::TestProvidersModules::test_openai_provider
+FAILED tests/test_phaseM10_final_modules.py::TestProvidersModules::test_anthropic_provider
+FAILED tests/test_phaseM10_final_modules.py::TestPoliciesModules::test_retry_policy
+FAILED tests/test_phaseM10_final_modules.py::TestFinalRootModules::test_pi_support
+FAILED tests/test_phaseM10_final_modules.py::TestFinalRootModules::test_reproducibility_cert
+FAILED tests/test_phaseM10_final_modules.py::TestFinalRootModules::test_roi_engine
+FAILED tests/test_phaseM10_final_modules.py::TestFinalRootModules::test_career_engines
+FAILED tests/test_phaseM10_final_modules.py::TestFinalRootModules::test_negative_results
+FAILED tests/test_phaseM10_final_modules.py::TestFinalRootModules::test_competing_hypothesis
+FAILED tests/test_phaseM1_massive_mocks.py::TestPDFExtractorComplete::test_all_classes_with_mock
+FAILED tests/test_phaseM1_massive_mocks.py::TestContradictionDetectorComplete::test_all_classes_with_mock
+FAILED tests/test_phaseM2_massive_mocks.py::TestProvidersFactoryComplete::test_all_classes_with_mock
+FAILED tests/test_phaseM2_massive_mocks.py::TestSpecter2Complete::test_all_classes_with_mock
+FAILED tests/test_phaseM3_massive_mocks.py::TestLLMEnsembleComplete::test_all_classes_with_mock
+FAILED tests/test_phaseM4_massive_mocks.py::TestReportTemplatesComplete::test_all_classes
+FAILED tests/test_phaseM4_massive_mocks.py::TestReportingSummaryComplete::test_all_classes
+FAILED tests/test_phaseM4_massive_mocks.py::TestReplayRecorderComplete::test_all_classes
+FAILED tests/test_phaseM4_massive_mocks.py::TestOpsConfigComplete::test_all_classes
+FAILED tests/test_phaseM4_massive_mocks.py::TestFinanceOptimizerComplete::test_all_classes
+FAILED tests/test_phaseM5_massive_mocks.py::TestRankingScorerComplete::test_all_classes
+FAILED tests/test_phaseM5_massive_mocks.py::TestRootModulesComplete::test_heatmap
+FAILED tests/test_phaseM5_massive_mocks.py::TestRootModulesComplete::test_journal_targeting
+FAILED tests/test_phaseM5_massive_mocks.py::TestRootModulesComplete::test_pi_succession
+FAILED tests/test_phaseM5_massive_mocks.py::TestRootModulesComplete::test_student_portfolio
+FAILED tests/test_phaseM5_massive_mocks.py::TestRootModulesComplete::test_lab_to_startup
+FAILED tests/test_phaseM5_massive_mocks.py::TestRootModulesComplete::test_package_builder
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules1::test_alignment
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules1::test_bibliography
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules1::test_budget_policy
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules1::test_calendar_builder
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules1::test_changelog_generator
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules1::test_context_packager
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules1::test_day_in_life
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules1::test_diff_engine
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_draft_generator
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_email_generator
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_enforce
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_enforcement
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_execution_engine
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_failure_predictor
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_figure_table_registry
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_funding_cliff
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_goldset
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_hitl - ...
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules1::test_positioning
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules1::test_pretrain_citation_reconstruction
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules1::test_pretrain_meta_core
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules1::test_quality_gate
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules1::test_remediation
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules1::test_scheduler_engine
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules1::test_scientific_linter
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules2::test_spec_lint
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules2::test_task_model
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules2::test_trend_watcher
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules2::test_weekly_pack
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules2::test_workflow_runner
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules2::test_workflow_tuner
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules2::test_gap_analysis
+FAILED tests/test_phaseM8_subpackages.py::TestSubmissionModules::test_formatter
+FAILED tests/test_phaseM8_subpackages.py::TestSubmissionModules::test_journal_checker
+FAILED tests/test_phaseM8_subpackages.py::TestSubmissionModules::test_validator
+FAILED tests/test_phaseM8_subpackages.py::TestVisualizationModules::test_charts
+FAILED tests/test_phaseM8_subpackages.py::TestVisualizationModules::test_timeline_viz
+FAILED tests/test_phaseM8_subpackages.py::TestWritingModules::test_generator
+FAILED tests/test_phaseM8_subpackages.py::TestRenderersModules::test_html - I...
+FAILED tests/test_phaseM8_subpackages.py::TestRenderersModules::test_markdown
+FAILED tests/test_phaseM8_subpackages.py::TestTelemetryModules::test_exporter
+FAILED tests/test_phaseM8_subpackages.py::TestRuntimeModules::test_rate_limiter
+FAILED tests/test_phaseM9_more_subpackages.py::TestNetworkModules::test_collaboration
+FAILED tests/test_phaseM9_more_subpackages.py::TestScoringModules::test_scorer
+FAILED tests/test_phaseM9_more_subpackages.py::TestEvaluationModules::test_evaluator
+FAILED tests/test_phaseM9_more_subpackages.py::TestEvaluationModules::test_metrics
+FAILED tests/test_phaseM9_more_subpackages.py::TestCacheModules::test_backend
+FAILED tests/test_phaseM9_more_subpackages.py::TestCacheModules::test_policy
+FAILED tests/test_phaseM9_more_subpackages.py::TestDevtoolsModules::test_benchmark
+FAILED tests/test_phaseM9_more_subpackages.py::TestDevtoolsModules::test_debug
+FAILED tests/test_phase_omega.py::TestLivingReview::test_generates_review - M...
+FAILED tests/test_phase_omega.py::TestLivingReview::test_update_review - Modu...
+FAILED tests/test_phase_omega.py::TestPISupport::test_generates_summary - Ass...
+FAILED tests/test_quality_gate.py::TestQualityGateEmptyAnswer::test_empty_answer_returns_fail
+FAILED tests/test_quality_gate.py::TestQualityGateEmptyAnswer::test_whitespace_only_answer_returns_fail
+FAILED tests/test_quality_gate.py::TestAgentStatusOverride::test_agent_fail_with_valid_output_becomes_partial
+FAILED tests/test_sudo_approval.py::test_execute_command_blocks_without_approval
+FAILED tests/test_terminal_security.py::test_execute_command_runs_when_allowed
+FAILED tests/test_user_open_files.py::TestFeasibilityModule::test_import_feasibility
+FAILED tests/test_user_open_files.py::TestJournalTargetingModule::test_import_journal_targeting
+FAILED tests/test_user_open_files.py::TestROIEngineModule::test_import_roi_engine
+FAILED tests/test_user_open_files.py::TestReproducibilityCertModule::test_import_reproducibility_cert
+FAILED tests/test_user_open_files.py::TestStudentPortfolioModule::test_import_student_portfolio
+FAILED tests/test_user_open_files.py::TestPISuccessionModule::test_import_pi_succession
+FAILED tests/web/test_routes_feature_flags.py::test_finance_route_flag_on - M...
+= 674 failed, 5095 passed, 533 skipped, 206 warnings, 1 error in 279.04s (0:04:39) =

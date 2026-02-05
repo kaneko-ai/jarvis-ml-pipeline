@@ -1,0 +1,63 @@
+# .antigravity/config.yaml
+agent:
+  name: "JARVIS-Builder"
+  model: "claude-opus-4.5"
+  temperature: 0.1
+  max_tokens: 200000
+  
+  capabilities:
+    - code_execution
+    - file_operations
+    - git_operations
+    - test_execution
+    - autonomous_decision_making
+  
+  workflow:
+    mode: "autonomous"
+    auto_commit: true
+    auto_push: false
+    test_before_commit: true
+    lint_before_commit: true
+  
+  context:
+    max_files: 20
+    max_lines_per_file: 2000
+    priority_files:
+      - ".antigravity/rules.md"
+      - "ANTIGRAVITY_MISSION.md"
+      - "docs/ROADMAP.md"
+      - "pyproject.toml"
+  
+  safety:
+    require_approval_for:
+      - architecture_changes
+      - dependency_updates
+      - ci_config_changes
+    
+    auto_approve:
+      - test_fixes
+      - bug_fixes
+      - documentation_updates
+      - code_formatting
+  
+  reporting:
+    frequency: "every_10_tasks"
+    daily_summary: true
+    weekly_summary: true
+
+git:
+  branch_strategy: "feature_branch"
+  branch_prefix: "antigravity/"
+  commit_format: "conventional"
+  auto_create_pr: false
+
+execution:
+  working_hours: "24/7"
+  parallel_tasks: false
+  retry_on_failure: 3
+  timeout_per_task: 3600
+
+monitoring:
+  log_file: ".antigravity/execution.log"
+  progress_file: "ANTIGRAVITY_PROGRESS.md"
+  metrics_file: ".antigravity/metrics.json"
