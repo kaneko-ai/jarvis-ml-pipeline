@@ -1,0 +1,290 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+plugins: anyio-4.12.0, asyncio-1.3.0, base-url-2.1.0, cov-7.0.0, playwright-0.7.2, xdist-3.8.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 6303 items
+
+tests/auth/test_rate_limiting.py::test_sliding_window_rate_limiting PASSED [  0%]
+tests/auth/test_rate_limiting.py::test_bucket_accumulation PASSED        [  0%]
+tests/cache/test_incremental_update.py::test_pipeline_cache_hit_miss PASSED [  0%]
+tests/cache/test_incremental_update.py::test_file_hash_integration PASSED [  0%]
+tests/chunking/test_chunk_id_deterministic.py::test_chunk_id_deterministic PASSED [  0%]
+tests/chunking/test_chunk_id_deterministic.py::test_chunker_deduplication PASSED [  0%]
+tests/chunking/test_chunk_id_deterministic.py::test_sectionizer_basic PASSED [  0%]
+tests/citation/test_influence.py::test_influence_score_calculation PASSED [  0%]
+tests/citation/test_influence.py::test_rank_papers_by_influence PASSED   [  0%]
+tests/citation/test_influence.py::test_empty_citations PASSED            [  0%]
+tests/cli/test_offline_flag.py::test_offline_flag_sets_degradation_level PASSED [  0%]
+tests/cli/test_offline_flag.py::test_offline_env_var_sets_degradation_level PASSED [  0%]
+tests/cli/test_offline_flag.py::test_no_offline_flag PASSED              [  0%]
+tests/compliance/test_license_filter.py::test_license_parsing PASSED     [  0%]
+tests/compliance/test_license_filter.py::test_license_filtering PASSED   [  0%]
+tests/compliance/test_license_filter.py::test_custom_allowlist PASSED    [  0%]
+tests/contradiction/test_detector_smoke.py::test_contradiction_smoke PASSED [  0%]
+tests/contradiction/test_detector_smoke.py::test_no_contradiction PASSED [  0%]
+tests/contradiction/test_resolution.py::test_resolution_strategy_enum PASSED [  0%]
+tests/contradiction/test_resolution.py::test_rule_based_returns_suggestion PASSED [  0%]
+tests/contradiction/test_resolution.py::test_rule_based_with_numeric_difference PASSED [  0%]
+tests/contradiction/test_resolution.py::test_unknown_strategy PASSED     [  0%]
+tests/contradiction/test_resolution.py::test_suggestion_has_recommended_action PASSED [  0%]
+tests/core/test_additional_basic.py::TestZoteroClient::test_get_items SKIPPED [  0%]
+tests/core/test_additional_basic.py::TestZoteroClient::test_add_item SKIPPED [  0%]
+tests/core/test_additional_basic.py::TestGoogleDriveExporter::test_export_papers SKIPPED [  0%]
+tests/core/test_additional_basic.py::TestDiscordBot::test_send_message PASSED [  0%]
+tests/core/test_additional_basic.py::TestObsidianExporter::test_paper_to_markdown PASSED [  0%]
+tests/core/test_additional_basic.py::TestDashboardManager::test_widgets PASSED [  0%]
+tests/core/test_additional_basic.py::TestAnnotationManager::test_annotation PASSED [  0%]
+tests/core/test_additional_basic.py::test_split_view_manager PASSED      [  0%]
+tests/core/test_additional_basic.py::test_fullscreen_manager PASSED      [  0%]
+tests/core/test_additional_basic.py::test_3d_animation_config PASSED     [  0%]
+tests/core/test_drift_basic.py::test_entity_distribution PASSED          [  0%]
+tests/core/test_drift_basic.py::test_kl_divergence PASSED                [  0%]
+tests/core/test_drift_basic.py::test_js_divergence PASSED                [  0%]
+tests/core/test_drift_basic.py::test_detect_drift PASSED                 [  0%]
+tests/core/test_drift_basic.py::test_format_drift_report PASSED          [  0%]
+tests/core/test_golden_path_advanced.py::test_feasibility_scoring PASSED [  0%]
+tests/core/test_golden_path_advanced.py::test_ranking_explanation PASSED [  0%]
+tests/core/test_golden_path_advanced.py::test_subscore_validation PASSED [  0%]
+tests/core/test_golden_path_advanced.py::test_failure_signal PASSED      [  0%]
+tests/core/test_golden_path_cache_and_store.py::test_cache_basic_ops PASSED [  0%]
+tests/core/test_golden_path_cache_and_store.py::test_cache_ttl PASSED    [  0%]
+tests/core/test_golden_path_cache_and_store.py::test_cache_clear PASSED  [  0%]
+tests/core/test_golden_path_cache_and_store.py::test_cache_eviction PASSED [  0%]
+tests/core/test_golden_path_cache_and_store.py::test_cache_stats PASSED  [  0%]
+tests/core/test_golden_path_cache_and_store.py::test_cache_serialization PASSED [  0%]
+tests/core/test_golden_path_ingestion.py::test_text_chunker PASSED       [  0%]
+tests/core/test_golden_path_ingestion.py::test_bibtex_parser PASSED      [  0%]
+tests/core/test_golden_path_ingestion.py::test_pdf_extractor PASSED      [  0%]
+tests/core/test_golden_path_ingestion.py::test_ingestion_pipeline_batch PASSED [  0%]
+tests/core/test_golden_path_ingestion.py::test_ingestion_abstract_extraction PASSED [  0%]
+tests/core/test_golden_path_ingestion.py::test_ingestion_year_extraction PASSED [  0%]
+tests/core/test_golden_path_reporting.py::test_report_generator PASSED   [  0%]
+tests/core/test_golden_path_reporting.py::test_generate_report_with_evidence_convenience PASSED [  0%]
+tests/core/test_golden_path_reporting.py::test_report_renderer_claimset PASSED [  0%]
+tests/core/test_golden_path_reporting.py::test_report_renderer_comparison PASSED [  0%]
+tests/core/test_golden_path_stages.py::test_retrieval_stages PASSED      [  0%]
+tests/core/test_golden_path_stages.py::test_screening_stages PASSED      [  0%]
+tests/core/test_golden_path_stages.py::test_extraction_stages PASSED     [  0%]
+tests/core/test_judge_v2_basic.py::TestFormJudge::test_judge_pass PASSED [  0%]
+tests/core/test_judge_v2_basic.py::TestFormJudge::test_judge_fail_no_citations PASSED [  0%]
+tests/core/test_judge_v2_basic.py::TestFormJudge::test_judge_fail_missing_fields PASSED [  1%]
+tests/core/test_judge_v2_basic.py::TestFormJudge::test_judge_fail_empty_answer PASSED [  1%]
+tests/core/test_judge_v2_basic.py::TestSemanticJudge::test_judge_pass PASSED [  1%]
+tests/core/test_judge_v2_basic.py::TestSemanticJudge::test_judge_fail_relevance PASSED [  1%]
+tests/core/test_judge_v2_basic.py::TestSemanticJudge::test_judge_with_claims PASSED [  1%]
+tests/core/test_judge_v2_basic.py::TestSemanticJudge::test_judge_fail_length PASSED [  1%]
+tests/core/test_judge_v2_basic.py::TestIntegratedJudge::test_integrated_judge PASSED [  1%]
+tests/core/test_judge_v2_basic.py::TestIntegratedJudge::test_overall_fail PASSED [  1%]
+tests/core/test_package_builder_basic.py::TestPackageBuilderInternal::test_resolve_run_dir PASSED [  1%]
+tests/core/test_package_builder_basic.py::TestPackageBuilderInternal::test_discover_artifacts PASSED [  1%]
+tests/core/test_package_builder_basic.py::TestPackageBuilderInternal::test_apply_naming_rules PASSED [  1%]
+tests/core/test_package_builder_basic.py::TestPackageBuilderInternal::test_ensure_structure PASSED [  1%]
+tests/core/test_package_builder_basic.py::TestPackageBuilderInternal::test_write_submission_manifest PASSED [  1%]
+tests/core/test_package_builder_basic.py::TestPackageBuilderInternal::test_run_checklist PASSED [  1%]
+tests/core/test_package_builder_basic.py::TestPackageBuilderInternal::test_run_checklist_blocking PASSED [  1%]
+tests/core/test_package_builder_basic.py::test_submission_result_dataclass PASSED [  1%]
+tests/core/test_quality_enhancer_basic.py::TestClaimQualityEnhancer::test_enhance_basic PASSED [  1%]
+tests/core/test_quality_enhancer_basic.py::TestClaimQualityEnhancer::test_deduplication PASSED [  1%]
+tests/core/test_quality_enhancer_basic.py::TestClaimQualityEnhancer::test_low_quality_filtering PASSED [  1%]
+tests/core/test_quality_enhancer_basic.py::TestClaimQualityEnhancer::test_specificity_scoring PASSED [  1%]
+tests/core/test_quality_enhancer_basic.py::TestClaimQualityEnhancer::test_verifiability_scoring PASSED [  1%]
+tests/core/test_quality_enhancer_basic.py::TestClaimQualityEnhancer::test_uniqueness_scoring PASSED [  1%]
+tests/core/test_quality_enhancer_basic.py::TestClaimQualityEnhancer::test_completeness_scoring PASSED [  1%]
+tests/core/test_quality_enhancer_basic.py::TestEvidenceQualityEnhancer::test_enhance_basic PASSED [  1%]
+tests/core/test_quality_enhancer_basic.py::TestEvidenceQualityEnhancer::test_quality_with_locator PASSED [  1%]
+tests/core/test_quality_enhancer_basic.py::test_convenience_functions PASSED [  1%]
+tests/core/test_quality_enhancer_basic.py::test_quality_score_to_dict PASSED [  1%]
+tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_extract_fallback PASSED [  1%]
+tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_extract_all_fail PASSED [  1%]
+tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_extraction_result_to_dict PASSED [  1%]
+tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_convenience_function PASSED [  1%]
+tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_resolve_run_dir_none PASSED [  1%]
+tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_extract_pymupdf PASSED [  1%]
+tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_extract_pdfplumber PASSED [  1%]
+tests/core/test_robust_extractor_basic.py::TestRobustPDFExtractor::test_extract_pypdf PASSED [  1%]
+tests/core/test_robust_extractor_basic.py::test_extraction_result_defaults PASSED [  1%]
+tests/core/test_scientific_basic.py::TestFormulaCalculator::test_evaluate_basic PASSED [  1%]
+tests/core/test_scientific_basic.py::TestFormulaCalculator::test_evaluate_variables PASSED [  1%]
+tests/core/test_scientific_basic.py::TestFormulaCalculator::test_evaluate_unary PASSED [  1%]
+tests/core/test_scientific_basic.py::TestFormulaCalculator::test_evaluate_errors PASSED [  1%]
+tests/core/test_scientific_basic.py::TestFormulaCalculator::test_parse_latex PASSED [  1%]
+tests/core/test_scientific_basic.py::TestTableExtractor::test_extract_table PASSED [  1%]
+tests/core/test_scientific_basic.py::TestTableExtractor::test_compare_tables PASSED [  1%]
+tests/core/test_scientific_basic.py::TestChemicalStructureAnalyzer::test_parse_smiles PASSED [  1%]
+tests/core/test_scientific_basic.py::TestChemicalStructureAnalyzer::test_similarity PASSED [  1%]
+tests/core/test_scientific_basic.py::TestStatisticalResultParser::test_parse_p_value PASSED [  1%]
+tests/core/test_scientific_basic.py::TestStatisticalResultParser::test_parse_ci PASSED [  1%]
+tests/core/test_scientific_basic.py::TestCodeRepositoryLinker::test_find_github PASSED [  1%]
+tests/core/test_scientific_basic.py::test_protein_viewer PASSED          [  1%]
+tests/core/test_scientific_basic.py::test_protocol_extractor PASSED      [  1%]
+tests/core/test_scientific_basic.py::test_medical_image_analyzer PASSED  [  1%]
+tests/core/test_scientific_basic.py::test_figure_analyzer PASSED         [  1%]
+tests/core/test_settings_required.py::test_settings_validation_prod_missing_key PASSED [  1%]
+tests/core/test_settings_required.py::test_settings_validation_dev_missing_key PASSED [  1%]
+tests/core/test_settings_required.py::test_settings_validation_prod_with_key PASSED [  1%]
+tests/e2e/test_dashboard_real_api.py::test_dashboard_real_api_integration[chromium] PASSED [  1%]
+tests/e2e/test_e2e_offline.py::TestOfflineCorpus::test_corpus_exists PASSED [  1%]
+tests/e2e/test_e2e_offline.py::TestOfflineCorpus::test_corpus_structure PASSED [  1%]
+tests/e2e/test_e2e_offline.py::TestOfflineCorpus::test_corpus_has_sections PASSED [  1%]
+tests/e2e/test_e2e_offline.py::TestOfflinePipeline::test_offline_pipeline_exists PASSED [  1%]
+tests/e2e/test_e2e_offline.py::TestOfflinePipeline::test_offline_pipeline_structure PASSED [  1%]
+tests/e2e/test_e2e_offline.py::TestBundleContract::test_bundle_contract_defined PASSED [  1%]
+tests/e2e/test_e2e_offline.py::TestBundleContract::test_failure_contract_defined PASSED [  1%]
+tests/e2e/test_e2e_offline.py::TestE2EOfflineSmoke::test_offline_e2e_produces_bundle SKIPPED [  2%]
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_oa_corpus_has_10_pmids PASSED [  2%]
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_pipeline_stages_registered PASSED [  2%]
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_pipeline_config_valid PASSED [  2%]
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_executor_can_be_created PASSED [  2%]
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_pipeline_runs_with_mock_data SKIPPED [  2%]
+tests/e2e/test_retry_resilience.py::test_llm_retry_resilience PASSED     [  2%]
+tests/e2e/test_retry_resilience.py::test_llm_retry_exhaustion PASSED     [  2%]
+tests/e2e/test_systematic_review_e2e.py::test_systematic_review_e2e PASSED [  2%]
+tests/embeddings/test_chroma_store.py::test_chroma_vector_store_add PASSED [  2%]
+tests/embeddings/test_chroma_store.py::test_chroma_vector_store_search PASSED [  2%]
+tests/embeddings/test_chroma_store.py::test_chroma_vector_store_count PASSED [  2%]
+tests/embeddings/test_determinism.py::test_input_normalization PASSED    [  2%]
+tests/embeddings/test_determinism.py::test_caching_mechanism PASSED      [  2%]
+tests/embeddings/test_determinism.py::test_unicode_normalization PASSED  [  2%]
+tests/embeddings/test_specter2.py::test_specter2_dimension PASSED        [  2%]
+tests/embeddings/test_specter2.py::test_specter2_embed_paper_format PASSED [  2%]
+tests/embeddings/test_specter2.py::test_get_embedding_model_scientific PASSED [  2%]
+tests/embeddings/test_specter2.py::test_get_embedding_model_general PASSED [  2%]
+tests/embeddings/test_vector_abstraction.py::test_vector_store_add_search[faiss] PASSED [  2%]
+tests/embeddings/test_vector_abstraction.py::test_vector_store_add_search[chroma] PASSED [  2%]
+tests/embeddings/test_vector_abstraction.py::test_save_load_interface PASSED [  2%]
+tests/embeddings/test_vector_store.py::test_faiss_vector_store_build PASSED [  2%]
+tests/embeddings/test_vector_store.py::test_faiss_vector_store_search PASSED [  2%]
+tests/embeddings/test_vector_store.py::test_faiss_normalize PASSED       [  2%]
+tests/evidence/test_evidence_min_fields.py::test_evidence_report_validation PASSED [  2%]
+tests/evidence/test_evidence_min_fields.py::test_evidence_report_rejection PASSED [  2%]
+tests/evidence/test_visualizer.py::test_generate_confidence_chart PASSED [  2%]
+tests/evidence/test_visualizer.py::test_generate_summary_table PASSED    [  2%]
+tests/feedback/test_store.py::test_log_and_load PASSED                   [  2%]
+tests/feedback/test_store.py::test_persistence PASSED                    [  2%]
+tests/feedback/test_store.py::test_empty_load PASSED                     [  2%]
+tests/ingestion/test_modalities.py::test_table_artifact PASSED           [  2%]
+tests/ingestion/test_modalities.py::test_figure_artifact PASSED          [  2%]
+tests/ingestion/test_pdf_limits.py::test_pdf_extractor_limits PASSED     [  2%]
+tests/ingestion/test_pdf_limits.py::test_pdf_extractor_non_existent PASSED [  2%]
+tests/ingestion/test_pdf_limits.py::test_pdf_extractor_missing_backend PASSED [  2%]
+tests/integration/test_browser_integration.py::test_browser_url_allow_deny PASSED [  2%]
+tests/integration/test_browser_integration.py::test_browser_navigation_and_screenshot FAILED [  2%]
+
+================================== FAILURES ===================================
+___________________ test_browser_navigation_and_screenshot ____________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000184EF524620>
+
+    @pytest.mark.integration
+    def test_browser_navigation_and_screenshot(monkeypatch):
+        agent = BrowserSubagent(security_policy=SecurityPolicy(url_allow_list=["example.com"]))
+        agent.session = SimpleNamespace(page=_FakePage())
+    
+        async def no_init():
+            return None
+    
+        monkeypatch.setattr(agent, "_ensure_initialized", no_init)
+    
+>       nav_result = asyncio.run(agent.navigate("https://example.com"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_browser_integration.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+main = <coroutine object BrowserSubagent.navigate at 0x00000184EE606240>
+
+    def run(main, *, debug=None, loop_factory=None):
+        """Execute the coroutine and return the result.
+    
+        This function runs the passed coroutine, taking care of
+        managing the asyncio event loop, finalizing asynchronous
+        generators and closing the default executor.
+    
+        This function cannot be called when another asyncio event loop is
+        running in the same thread.
+    
+        If debug is True, the event loop will be run in debug mode.
+    
+        This function always creates a new event loop and closes it at the end.
+        It should be used as a main entry point for asyncio programs, and should
+        ideally only be called once.
+    
+        The executor is given a timeout duration of 5 minutes to shutdown.
+        If the executor hasn't finished within that duration, a warning is
+        emitted and the executor is closed.
+    
+        Example:
+    
+            async def main():
+                await asyncio.sleep(1)
+                print('hello')
+    
+            asyncio.run(main())
+        """
+        if events._get_running_loop() is not None:
+            # fail fast with short traceback
+>           raise RuntimeError(
+                "asyncio.run() cannot be called from a running event loop")
+E           RuntimeError: asyncio.run() cannot be called from a running event loop
+
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:190: RuntimeError
+============================== warnings summary ===============================
+jarvis_core\scheduler\schema.py:21
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\scheduler\schema.py:21: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    @validator("oa_policy")
+
+tests/core/test_golden_path_stages.py::test_retrieval_stages
+tests/core/test_golden_path_stages.py::test_screening_stages
+tests/core/test_golden_path_stages.py::test_extraction_stages
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\contracts\types.py:90: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+
+tests/core/test_golden_path_stages.py::test_retrieval_stages
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\ops\audit.py:48: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    self.run_id = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+
+tests/core/test_golden_path_stages.py: 20 warnings
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\ops\audit.py:61: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow().isoformat(),
+
+tests/core/test_scientific_basic.py: 33 warnings
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\multimodal\scientific.py:461: DeprecationWarning: ast.Num is deprecated and will be removed in Python 3.14; use ast.Constant instead
+    if isinstance(node, ast.Num):  # <3.8
+
+tests/core/test_scientific_basic.py: 14 warnings
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\multimodal\scientific.py:462: DeprecationWarning: Attribute n is deprecated and will be removed in Python 3.14; use value instead
+    return node.n
+
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_executor_can_be_created
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\supervisor\lyra.py:165: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow().isoformat()
+
+tests/embeddings/test_determinism.py::test_caching_mechanism
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\.venv\Lib\site-packages\huggingface_hub\file_download.py:143: UserWarning: `huggingface_hub` cache-system uses symlinks by default to efficiently store duplicated files but your machine does not support them in C:\Users\Public\Documents\Wondershare\CreatorTemp\pytest-of-kaneko yu\pytest-386\test_caching_mechanism0\cache\models--sentence-transformers--all-MiniLM-L6-v2. Caching files will still work but in a degraded version that might require more space on your disk. This warning can be disabled by setting the `HF_HUB_DISABLE_SYMLINKS_WARNING` environment variable. For more details, see https://huggingface.co/docs/huggingface_hub/how-to-cache#limitations.
+  To support symlinks on Windows, you either need to activate Developer Mode or to run Python as an administrator. In order to activate developer mode, see this article: https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development
+    warnings.warn(message)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration/test_browser_integration.py::test_browser_navigation_and_screenshot
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+=========== 1 failed, 159 passed, 5 skipped, 74 warnings in 57.91s ============
+uv : sys:1: RuntimeWarning: coroutine
+ 'BrowserSubagent.navigate' was never
+ awaited
+発生場所 行:1 文字:1
++ uv run pytest tests/ -x --tb=long 2
+>&1 | Out-File -FilePath "first_fa ..
+.
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~
+    + CategoryInfo          : NotSpe 
+   cified: (sys:1: RuntimeW...s nev  
+  er awaited:String) [], RemoteExc   
+ eption
+    + FullyQualifiedErrorId : Native 
+   CommandError
+ 

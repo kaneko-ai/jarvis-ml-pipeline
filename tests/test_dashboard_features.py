@@ -10,18 +10,20 @@ pytestmark = pytest.mark.core
 class TestAPIKeyManager:
     """Tests for API Key Authentication."""
 
+    TEST_SECRET = "test_secret_for_api_key_testing"
+
     def test_manager_init(self):
         """Test manager initialization."""
         from jarvis_core.auth.api_key import APIKeyManager
 
-        manager = APIKeyManager()
+        manager = APIKeyManager(secret=self.TEST_SECRET)
         assert manager is not None
 
     def test_generate_key(self):
         """Test generating an API key."""
         from jarvis_core.auth.api_key import APIKeyManager
 
-        manager = APIKeyManager()
+        manager = APIKeyManager(secret=self.TEST_SECRET)
         key = manager.generate_key("Test Key")
 
         assert key is not None
@@ -31,7 +33,7 @@ class TestAPIKeyManager:
         """Test validating an API key."""
         from jarvis_core.auth.api_key import APIKeyManager
 
-        manager = APIKeyManager()
+        manager = APIKeyManager(secret=self.TEST_SECRET)
         key = manager.generate_key("Test Key")
 
         result = manager.validate(key)
@@ -43,7 +45,7 @@ class TestAPIKeyManager:
         """Test validating an invalid key."""
         from jarvis_core.auth.api_key import APIKeyManager
 
-        manager = APIKeyManager()
+        manager = APIKeyManager(secret=self.TEST_SECRET)
 
         result = manager.validate("invalid.key")
 
@@ -54,7 +56,7 @@ class TestAPIKeyManager:
         """Test scope-based validation."""
         from jarvis_core.auth.api_key import APIKeyManager
 
-        manager = APIKeyManager()
+        manager = APIKeyManager(secret=self.TEST_SECRET)
         key = manager.generate_key("Read Only", scopes={"read"})
 
         # Should fail for write scope
@@ -70,7 +72,7 @@ class TestAPIKeyManager:
         """Test revoking an API key."""
         from jarvis_core.auth.api_key import APIKeyManager
 
-        manager = APIKeyManager()
+        manager = APIKeyManager(secret=self.TEST_SECRET)
         key = manager.generate_key("Test Key")
         key_id = key.split(".")[0]
 
@@ -86,7 +88,7 @@ class TestAPIKeyManager:
         """Test listing API keys."""
         from jarvis_core.auth.api_key import APIKeyManager
 
-        manager = APIKeyManager()
+        manager = APIKeyManager(secret=self.TEST_SECRET)
         manager.generate_key("Key 1")
         manager.generate_key("Key 2")
 
@@ -97,7 +99,7 @@ class TestAPIKeyManager:
         """Test key expiration."""
         from jarvis_core.auth.api_key import APIKeyManager
 
-        manager = APIKeyManager()
+        manager = APIKeyManager(secret=self.TEST_SECRET)
         key = manager.generate_key("Short Lived", expires_days=0)  # Expires immediately
 
         # Manually set expiration to past

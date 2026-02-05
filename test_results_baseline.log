@@ -1,0 +1,1512 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+plugins: anyio-4.12.0, asyncio-1.3.0, base-url-2.1.0, cov-7.0.0, playwright-0.7.2, xdist-3.8.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 6303 items
+
+tests\auth\test_rate_limiting.py ..                                      [  0%]
+tests\cache\test_incremental_update.py ..                                [  0%]
+tests\chunking\test_chunk_id_deterministic.py ...                        [  0%]
+tests\citation\test_influence.py ...                                     [  0%]
+tests\cli\test_offline_flag.py ...                                       [  0%]
+tests\compliance\test_license_filter.py ...                              [  0%]
+tests\contradiction\test_detector_smoke.py ..                            [  0%]
+tests\contradiction\test_resolution.py .....                             [  0%]
+tests\core\test_additional_basic.py sss.......                           [  0%]
+tests\core\test_drift_basic.py .....                                     [  0%]
+tests\core\test_golden_path_advanced.py ....                             [  0%]
+tests\core\test_golden_path_cache_and_store.py ......                    [  0%]
+tests\core\test_golden_path_ingestion.py ......                          [  0%]
+tests\core\test_golden_path_reporting.py ....                            [  0%]
+tests\core\test_golden_path_stages.py ...                                [  0%]
+tests\core\test_judge_v2_basic.py ..........                             [  1%]
+tests\core\test_package_builder_basic.py ........                        [  1%]
+tests\core\test_quality_enhancer_basic.py ...........                    [  1%]
+tests\core\test_robust_extractor_basic.py .........                      [  1%]
+tests\core\test_scientific_basic.py ................                     [  1%]
+tests\core\test_settings_required.py ...                                 [  1%]
+tests\e2e\test_dashboard_real_api.py .                                   [  1%]
+tests\e2e\test_e2e_offline.py .......s                                   [  2%]
+tests\e2e\test_e2e_pipeline.py ....s                                     [  2%]
+tests\e2e\test_retry_resilience.py ..                                    [  2%]
+tests\e2e\test_systematic_review_e2e.py .                                [  2%]
+tests\embeddings\test_chroma_store.py ...                                [  2%]
+tests\embeddings\test_determinism.py ...                                 [  2%]
+tests\embeddings\test_specter2.py ....                                   [  2%]
+tests\embeddings\test_vector_abstraction.py ...                          [  2%]
+tests\embeddings\test_vector_store.py ...                                [  2%]
+tests\evidence\test_evidence_min_fields.py ..                            [  2%]
+tests\evidence\test_visualizer.py ..                                     [  2%]
+tests\feedback\test_store.py ...                                         [  2%]
+tests\ingestion\test_modalities.py ..                                    [  2%]
+tests\ingestion\test_pdf_limits.py ...                                   [  2%]
+tests\integration\test_browser_integration.py .FF                        [  2%]
+tests\integration\test_full_integration.py F                             [  2%]
+tests\integration\test_mcp_integration.py FFFF                           [  2%]
+tests\integration\test_orchestrator_integration.py FF                    [  2%]
+tests\integrations\test_mendeley.py ...                                  [  2%]
+tests\integrations\test_zotero.py .....                                  [  2%]
+tests\network\test_api_wrapper.py ssss                                   [  2%]
+tests\network\test_degradation.py ssss                                   [  2%]
+tests\ops\test_metrics.py ...                                            [  3%]
+tests\ops\test_recovery.py ....                                          [  3%]
+tests\quality\test_arch_gate.py ..                                       [  3%]
+tests\quality\test_garbage_detector.py .F...                             [  3%]
+tests\ranking\test_feature_schema.py ...                                 [  3%]
+tests\report\test_citation_audit.py ...                                  [  3%]
+tests\retrieval\test_expansion.py ...                                    [  3%]
+tests\retrieval\test_hybrid_recall_smoke.py .                            [  3%]
+tests\runs\test_schema_roundtrip.py ...                                  [  3%]
+tests\runtime\test_resume_logic.py ..                                    [  3%]
+tests\security\test_fs_safety.py ...                                     [  3%]
+tests\security\test_log_redaction.py ...                                 [  3%]
+tests\security\test_logging_redaction.py ..                              [  3%]
+tests\security\test_path_validator.py ...s.                              [  3%]
+tests\summarization\test_refinement.py ...                               [  3%]
+tests\sync\test_auto_sync.py ...                                         [  3%]
+tests\sync\test_queue.py ....                                            [  3%]
+tests\test_100_steps.py ............                                     [  4%]
+tests\test_active_learning.py FFFFFFFFFFFFFFFFFFFFFFFFFFFF               [  4%]
+tests\test_active_learning_coverage.py ..                                [  4%]
+tests\test_additional_integrations.py ......................             [  4%]
+tests\test_additional_zero_coverage.py ......................            [  5%]
+tests\test_agent_registry.py ..                                          [  5%]
+tests\test_agents_coverage.py ...........                                [  5%]
+tests\test_agents_full.py ......                                         [  5%]
+tests\test_agents_massive.py ss......                                    [  5%]
+tests\test_agents_ultra.py ss........                                    [  5%]
+tests\test_ai_features.py .........................                      [  6%]
+tests\test_alignment.py ................                                 [  6%]
+tests\test_analysis_coverage.py .................                        [  6%]
+tests\test_analysis_giga.py sss......                                    [  6%]
+tests\test_analysis_mega.py sss....                                      [  6%]
+tests\test_anonymizer.py ..                                              [  6%]
+tests\test_api_coverage.py sF...                                         [  7%]
+tests\test_api_giga.py ssssssssss....................                    [  7%]
+tests\test_api_map_vs_capabilities.py F                                  [  7%]
+tests\test_api_mega.py ssssssssss................                        [  7%]
+tests\test_artifacts_coverage.py ...                                     [  8%]
+tests\test_artifacts_giga.py sss.                                        [  8%]
+tests\test_artifacts_massive.py s.                                       [  8%]
+tests\test_artifacts_mega.py sss.                                        [  8%]
+tests\test_artifacts_ultra.py s.                                         [  8%]
+tests\test_arxiv_coverage.py ssssF..                                     [  8%]
+tests\test_arxiv_massive.py ss.                                          [  8%]
+tests\test_arxiv_source.py .....                                         [  8%]
+tests\test_arxiv_ultra.py ss.                                            [  8%]
+tests\test_automation.py ..................                              [  8%]
+tests\test_bibliography.py ...........                                   [  8%]
+tests\test_bibtex_coverage.py ...                                        [  8%]
+tests\test_bibtex_massive.py s...                                        [  9%]
+tests\test_bibtex_mega.py ss.                                            [  9%]
+tests\test_bibtex_ultra.py s.                                            [  9%]
+tests\test_budget_policy.py ...........                                  [  9%]
+tests\test_bundle_contract_validator.py ....                             [  9%]
+tests\test_bundle_export.py .............                                [  9%]
+tests\test_cache_coverage.py ...............                             [  9%]
+tests\test_cache_massive.py s.                                           [  9%]
+tests\test_cache_offline.py ..................                           [ 10%]
+tests\test_cache_ultra.py s.                                             [ 10%]
+tests\test_calendar_builder.py ......                                    [ 10%]
+tests\test_changelog_generator.py ........                               [ 10%]
+tests\test_checklists.py ........                                        [ 10%]
+tests\test_citation_analysis.py ...................                      [ 10%]
+tests\test_citation_network_coverage.py .................                [ 11%]
+tests\test_citation_network_massive.py ss.                               [ 11%]
+tests\test_citation_network_ultra.py ss.                                 [ 11%]
+tests\test_citation_relevance.py ......                                  [ 11%]
+tests\test_claim.py ...........                                          [ 11%]
+tests\test_claim_export.py .............                                 [ 11%]
+tests\test_claim_fact.py ............                                    [ 11%]
+tests\test_claim_set_full.py .F...                                       [ 11%]
+tests\test_cli.py .                                                      [ 11%]
+tests\test_cli_v4_coverage.py ......                                     [ 12%]
+tests\test_cli_v4_full.py ..                                             [ 12%]
+tests\test_cli_v4_massive.py s.                                          [ 12%]
+tests\test_cli_v4_ultra.py s.                                            [ 12%]
+tests\test_comparison_massive.py s.                                      [ 12%]
+tests\test_comparison_ultra.py s.                                        [ 12%]
+tests\test_confidence.py ....................                            [ 12%]
+tests\test_config_utils_coverage.py ..                                   [ 12%]
+tests\test_config_utils_full.py ..                                       [ 12%]
+tests\test_config_utils_massive.py s.                                    [ 12%]
+tests\test_config_utils_ultra.py s.                                      [ 12%]
+tests\test_context_packager.py ............                              [ 12%]
+tests\test_contradiction.py .............                                [ 13%]
+tests\test_contradiction_coverage.py ..                                  [ 13%]
+tests\test_contradiction_detector_coverage.py ..                         [ 13%]
+tests\test_contradiction_detector_full.py ...                            [ 13%]
+tests\test_contradiction_detector_massive.py ss..FF...                   [ 13%]
+tests\test_contradiction_detector_ultra.py ss......                      [ 13%]
+tests\test_contradiction_full.py ...                                     [ 13%]
+tests\test_contradiction_giga.py sss.                                    [ 13%]
+tests\test_contradiction_massive.py s.                                   [ 13%]
+tests\test_contradiction_mega.py ss.                                     [ 13%]
+tests\test_contradiction_normalizer_full.py ...                          [ 13%]
+tests\test_contradiction_ultra.py s.                                     [ 13%]
+tests\test_conversation.py .                                             [ 13%]
+tests\test_core_giga.py ssssssssss.........................              [ 14%]
+tests\test_core_mega.py ssssssssss..........................             [ 14%]
+tests\test_cross_field_full.py ....                                      [ 14%]
+tests\test_dashboard_features.py FFFFFFFF......                          [ 15%]
+tests\test_dashboard_ultimate.py ssssssssss...............               [ 15%]
+tests\test_decision_mega.py ssssssssss.                                  [ 15%]
+tests\test_decision_modules.py ......................................... [ 16%]
+..                                                                       [ 16%]
+tests\test_decision_planner_full.py ..                                   [ 16%]
+tests\test_degradation_extended.py ..................                    [ 16%]
+tests\test_detailed_logic.py ........................ssss..F....         [ 17%]
+tests\test_diff_engine.py ..............                                 [ 17%]
+tests\test_draft_generator.py .......                                    [ 17%]
+tests\test_email_generator.py ......                                     [ 17%]
+tests\test_embeddings_coverage.py ..                                     [ 17%]
+tests\test_embeddings_giga.py sss.                                       [ 17%]
+tests\test_embeddings_massive.py s.                                      [ 17%]
+tests\test_embeddings_mega.py ss.                                        [ 17%]
+tests\test_embeddings_module.py ..................                       [ 18%]
+tests\test_embeddings_ultra.py s.                                        [ 18%]
+tests\test_enforce.py .....                                              [ 18%]
+tests\test_enforcement.py .............                                  [ 18%]
+tests\test_eval_modules_full.py .......................................  [ 19%]
+tests\test_evidence_grading.py ...................                       [ 19%]
+tests\test_evidence_mapper_coverage.py ...                               [ 19%]
+tests\test_evidence_mapper_full.py .....                                 [ 19%]
+tests\test_evidence_mapper_massive.py s.......                           [ 19%]
+tests\test_evidence_mapper_ultra.py ss.....                              [ 19%]
+tests\test_evidence_qa_integration.py ..........                         [ 19%]
+tests\test_evidence_store.py ........                                    [ 20%]
+tests\test_evidence_validator.py .....                                   [ 20%]
+tests\test_execution_engine_retry.py .F.                                 [ 20%]
+tests\test_executor.py .                                                 [ 20%]
+tests\test_external_api_mocks.py ssssssssFssF                            [ 20%]
+tests\test_external_integrations.py .............                        [ 20%]
+tests\test_extraction_modules.py ....                                    [ 20%]
+tests\test_failure_signal_normalization.py ....                          [ 20%]
+tests\test_feature_alignment.py ..                                       [ 20%]
+tests\test_features_300.py ............................................. [ 21%]
+.....                                                                    [ 21%]
+tests\test_figure_extractor.py F                                         [ 21%]
+tests\test_figure_table_registry.py .........                            [ 21%]
+tests\test_free_api_sources.py .................                         [ 21%]
+tests\test_front_adapter_contract.py F                                   [ 21%]
+tests\test_golden_path.py .............ss                                [ 22%]
+tests\test_golden_path_e2e.py .....                                      [ 22%]
+tests\test_goldset_regression.py .                                       [ 22%]
+tests\test_grader_coverage.py FF                                         [ 22%]
+tests\test_grader_mega.py ss.                                            [ 22%]
+tests\test_grader_ultra.py sF                                            [ 22%]
+tests\test_hashing.py ................                                   [ 22%]
+tests\test_hipaa.py .                                                    [ 22%]
+tests\test_hitl_integration.py ...........                               [ 22%]
+tests\test_html_extractor.py ...............                             [ 23%]
+tests\test_hybrid_ranking.py .                                           [ 23%]
+tests\test_hybrid_search.py ................s...                         [ 23%]
+tests\test_hyper_01.py ..............................                    [ 23%]
+tests\test_hyper_02.py ..............................                    [ 24%]
+tests\test_hyper_03.py ..............................                    [ 24%]
+tests\test_hyper_04.py ..............................                    [ 25%]
+tests\test_hyper_05.py ..............................                    [ 25%]
+tests\test_hyper_06.py ..............................                    [ 26%]
+tests\test_hyper_07.py ..............................                    [ 26%]
+tests\test_hyper_08.py ..............................                    [ 27%]
+tests\test_hyper_09.py ..............................                    [ 27%]
+tests\test_hyper_10.py ..............................                    [ 28%]
+tests\test_hyper_11.py ..............................                    [ 28%]
+tests\test_hyper_12.py ..............................                    [ 29%]
+tests\test_hyper_13.py ..............................                    [ 29%]
+tests\test_hyper_14.py ..............................                    [ 30%]
+tests\test_hyper_15_20.py ..............................                 [ 30%]
+tests\test_hyper_21_30.py ...............                                [ 30%]
+tests\test_idempotency_and_lock.py ..                                    [ 30%]
+tests\test_index_incremental.py .                                        [ 30%]
+tests\test_ingestion_pipeline.py ....                                    [ 30%]
+tests\test_integrations.py ...........                                   [ 31%]
+tests\test_integrations_coverage.py ...                                  [ 31%]
+tests\test_intelligence.py ..........                                    [ 31%]
+tests\test_io_schema.py ....                                             [ 31%]
+tests\test_kb_indexer.py .                                               [ 31%]
+tests\test_knowledge_graph_coverage.py ...                               [ 31%]
+tests\test_knowledge_graph_full.py ..                                    [ 31%]
+tests\test_knowledge_graph_massive.py ss..                               [ 31%]
+tests\test_knowledge_graph_ultra.py sss.                                 [ 31%]
+tests\test_language_lint.py FFFF                                         [ 31%]
+tests\test_llamacpp_adapter.py .........                                 [ 31%]
+tests\test_llm_client_coverage.py ..                                     [ 31%]
+tests\test_llm_mega.py ss.                                               [ 31%]
+tests\test_llm_provider.py sss.......                                    [ 32%]
+tests\test_llm_ultra.py s.                                               [ 32%]
+tests\test_local_embed.py ..............                                 [ 32%]
+tests\test_local_llm.py ssssss..........                                 [ 32%]
+tests\test_locator_verifier.py ...                                       [ 32%]
+tests\test_mcp_chain.py FF                                               [ 32%]
+tests\test_mcp_hub.py FF                                                 [ 32%]
+tests\test_mcp_pubmed.py .                                               [ 32%]
+tests\test_meta_typed_extraction.py ...............                      [ 32%]
+tests\test_mobile_performance.py ...........................             [ 33%]
+tests\test_model_router.py ...............                               [ 33%]
+tests\test_multimodal_modules.py ....                                    [ 33%]
+tests\test_network_detection.py ............................             [ 34%]
+tests\test_network_giga.py ssssssssss....................                [ 34%]
+tests\test_network_massive.py s....                                      [ 34%]
+tests\test_network_mega.py ssssssssss................                    [ 35%]
+tests\test_network_offline.py .......................                    [ 35%]
+tests\test_network_ultra.py s.....                                       [ 35%]
+tests\test_obs_alerts.py .                                               [ 35%]
+tests\test_obs_api.py s                                                  [ 35%]
+tests\test_ollama_adapter.py ssssssssssss..                              [ 35%]
+tests\test_ops.py ...........                                            [ 35%]
+tests\test_ops_dashboard.py F                                            [ 35%]
+tests\test_orchestrator.py FF                                            [ 35%]
+tests\test_package_builder.py ............                               [ 36%]
+tests\test_package_builder_full.py ..................................... [ 36%]
+....                                                                     [ 36%]
+tests\test_paper_scoring.py ..............                               [ 37%]
+tests\test_paper_vector.py ...................                           [ 37%]
+tests\test_pdf_extractor.py ..............                               [ 37%]
+tests\test_pdf_extractor_coverage.py ..                                  [ 37%]
+tests\test_pdf_parser.py .                                               [ 37%]
+tests\test_phase10_high_impact.py FFF................................... [ 38%]
+.........                                                                [ 38%]
+tests\test_phase12_deep.py ............................................. [ 39%]
+.........................                                                [ 39%]
+tests\test_phase13_maximum.py .......................................... [ 40%]
+........F......................                                          [ 40%]
+tests\test_phase14_functional.py ....................................    [ 41%]
+tests\test_phase15_high_lines.py ....................................... [ 41%]
+...                                                                      [ 41%]
+tests\test_phase16_low_coverage.py .............F.................FFF    [ 42%]
+tests\test_phase17_more_low_coverage.py ........F......................  [ 42%]
+tests\test_phase17_zero_to_hero.py ...s...s.sssssss.s..s.ss.....s.ss.ss. [ 43%]
+sss..s..F..FFFFFF..FFFFF....F                                            [ 43%]
+tests\test_phase18_continued.py ........................                 [ 44%]
+tests\test_phase18_ingestion_complete.py ........F...................... [ 44%]
+.....                                                                    [ 44%]
+tests\test_phase19_edge_cases.py ......F.......s.................        [ 45%]
+tests\test_phase2.py ....                                                [ 45%]
+tests\test_phase2_features.py ..................                         [ 45%]
+tests\test_phase2_integration.py ...........                             [ 45%]
+tests\test_phase3_complete.py ...............                            [ 46%]
+tests\test_phase4_additional.py ......................                   [ 46%]
+tests\test_phase4_high_priority.py ..................................... [ 47%]
+                                                                         [ 47%]
+tests\test_phase5_additional.py .....F..............................     [ 47%]
+tests\test_phase5_medium_priority.py F.....F.......................      [ 48%]
+tests\test_phase6_coverage.py ...................................F.      [ 48%]
+tests\test_phase7_functional.py ........................................ [ 49%]
+........                                                                 [ 49%]
+tests\test_phase8_deep.py FFFFFF..F.F................................... [ 50%]
+.....                                                                    [ 50%]
+tests\test_phaseA_additional.py ....F................................... [ 50%]
+........                                                                 [ 51%]
+tests\test_phaseA_lab_automation.py .........................            [ 51%]
+tests\test_phaseA_v2_direct_coverage.py .............................F.. [ 51%]
+...........                                                              [ 52%]
+tests\test_phaseB_high_miss.py ...F.......FFFFFss........                [ 52%]
+tests\test_phaseB_massive_coverage.py ssssssssssssssssssssssssssssssssss [ 53%]
+sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss...s.ss.sss [ 54%]
+sss..s...s.s.......s.s....s.............sss..s.ss...ss...s....ss.s....ss [ 55%]
+..s..s.ssss.ss..s.s.....s...ss.s.s..............sss..s..s.ssss.          [ 56%]
+tests\test_phaseC_part1_detailed.py ..........................FF.....    [ 56%]
+tests\test_phaseC_part2_detailed.py ..........FFFF..........             [ 57%]
+tests\test_phaseC_part3_detailed.py ............FFFFF.FF...FFFF.F.FF     [ 57%]
+tests\test_phaseC_part4_functions.py ...F....FFFFFF.F..F.F.....F.FF.FF.F [ 58%]
+FF..F                                                                    [ 58%]
+tests\test_phaseC_part5_deep.py F..FF........FFF....FFFFFF.              [ 58%]
+tests\test_phaseC_part6_submodules.py FFFF..F....F.....FFFF.....FFF..FF. [ 59%]
+FFFFF.FFFF                                                               [ 59%]
+tests\test_phaseC_part7_final.py .F..FFF...FFF..FF.F..FFFF.FFFFFFFFFFFFF [ 60%]
+FF...FFF.FFFFFF.F.FFF                                                    [ 60%]
+tests\test_phaseD1_advanced_features.py ................                 [ 60%]
+tests\test_phaseE1_generate_report.py ......................             [ 61%]
+tests\test_phaseE2_high_miss.py ...F....FF........                       [ 61%]
+tests\test_phaseE3_advanced_complete.py ....................             [ 61%]
+tests\test_phaseE4_root_modules.py FFFFFFFFFFFFFFFF........              [ 62%]
+tests\test_phaseF1_massive.py ss..F......FF.FFFF..FFFF                   [ 62%]
+tests\test_phaseF2_additional.py .FFFFF..FF..FFF..F....FFF...            [ 62%]
+tests\test_phaseF3_remaining.py .s.ss.s.s.s..s.s.s...s...ssss..s.ss.     [ 63%]
+tests\test_phaseG10_kb_retrieval.py .F....F.F                            [ 63%]
+tests\test_phaseG11_remaining.py FFFFFF.......FF.F.F..F                  [ 63%]
+tests\test_phaseG12_root_modules.py E...F...F.FFFFFF.F..F.F.....F.FF.FF. [ 64%]
+FFF..F.                                                                  [ 64%]
+tests\test_phaseG1_ultra_detailed.py ssssss.F.....                       [ 64%]
+tests\test_phaseG2_advanced_complete.py ............                     [ 65%]
+tests\test_phaseG3_lab_complete.py ...................F...               [ 65%]
+tests\test_phaseG4_ingestion_complete.py .FF..FF.                        [ 65%]
+tests\test_phaseG5_evidence_citation.py FF.FFFF..F                       [ 65%]
+tests\test_phaseG6_llm_embeddings.py F...F..                             [ 65%]
+tests\test_phaseG7_sources_api.py sss...F                                [ 65%]
+tests\test_phaseG8_agents_workflow.py FFFFF..                            [ 66%]
+tests\test_phaseG9_pipelines_runtime.py F..FF..                          [ 66%]
+tests\test_phaseH10_lab_branches.py ..FFFFFFFFFFFF                       [ 66%]
+tests\test_phaseH11_stages_branches.py ....FFFFF.FF                      [ 66%]
+tests\test_phaseH12_eval_branches.py ....FF                              [ 66%]
+tests\test_phaseH13_active_kpi.py FFF.F                                  [ 66%]
+tests\test_phaseH14_plugins_integrations.py .F....                       [ 66%]
+tests\test_phaseH15_multimodal_notes.py .FF.F                            [ 66%]
+tests\test_phaseH16_20_massive.py sFF.....F...F...FF.F                   [ 67%]
+tests\test_phaseH1_deep_analysis.py ....F.......                         [ 67%]
+tests\test_phaseH21_25_more.py .F.FFFFF.F.FFF..F.FFFF                    [ 67%]
+tests\test_phaseH26_30_final.py F.F....FF.F.F..F.F..F                    [ 68%]
+tests\test_phaseH2_deep_analysis.py ..........                           [ 68%]
+tests\test_phaseH3_deep_analysis.py ..........                           [ 68%]
+tests\test_phaseH4_deep_subpackages.py .F.FF.F.F.F....F                  [ 68%]
+tests\test_phaseH5_deep_root.py ..FFFFF..F....F.F.F..                    [ 68%]
+tests\test_phaseH6_additional_deep.py FF..FFFFFFFF.F.FF..F.FF.           [ 69%]
+tests\test_phaseH7_additional_deep.py F.FFFF.FFFFFFFFFFFFFFF...FFF.FFFFF [ 69%]
+F.F.FFF                                                                  [ 70%]
+tests\test_phaseH8_ingestion_branches.py FFFF.........                   [ 70%]
+tests\test_phaseH9_advanced_branches.py ........                         [ 70%]
+tests\test_phaseI1_parametrized.py ..................................... [ 70%]
+......FFFFF.....                                                         [ 71%]
+tests\test_phaseI2_error_paths.py F...F.ssss.                            [ 71%]
+tests\test_phaseI3_edge_cases.py .....F.F...                             [ 71%]
+tests\test_phaseI4_integration.py FFF                                    [ 71%]
+tests\test_phaseI5_remaining_root.py .F.FFF....FFFFFF...FF               [ 71%]
+tests\test_phaseJ1_advanced_phase6.py ....F.............F.....F..FFFFF   [ 72%]
+tests\test_phaseJ2_advanced_phase78.py FFFFFFFFFFFFFFFFFFFFFFFFFF        [ 72%]
+tests\test_phaseJ3_advanced_phase910.py FFFFFFFFFFFFFFFssssFFFFFFFFFFFFF [ 73%]
+FFF                                                                      [ 73%]
+tests\test_phaseK1_stages_complete.py ....F.FF.....                      [ 73%]
+tests\test_phaseK2_lab_complete.py ...................F...FFF            [ 74%]
+tests\test_phaseK3_ingestion_retrieval.py FF...........                  [ 74%]
+tests\test_phaseL1_generate_report_branches.py ......................... [ 74%]
+...                                                                      [ 74%]
+tests\test_phaseL2_lab_branches.py ...F.........FFFFF.FF......FFFF       [ 75%]
+tests\test_phaseL3_advanced_branches.py FFF..F................F......F.. [ 75%]
+F                                                                        [ 75%]
+tests\test_phaseM10_final_modules.py .FFFF.FFFF..F.F                     [ 75%]
+tests\test_phaseM1_massive_mocks.py sssss.FssF                           [ 76%]
+tests\test_phaseM2_massive_mocks.py s...ss.F.F                           [ 76%]
+tests\test_phaseM3_massive_mocks.py sFssss....                           [ 76%]
+tests\test_phaseM4_massive_mocks.py sF.FF.F.F.                           [ 76%]
+tests\test_phaseM5_massive_mocks.py ssss.FFF...FFFF.                     [ 76%]
+tests\test_phaseM6_root_modules.py F.FFFF.FFFFFFFFFFFFF                  [ 77%]
+tests\test_phaseM7_root_modules.py ..FFF.FFFFFF.F.FFF.F                  [ 77%]
+tests\test_phaseM8_subpackages.py FFFF.FF.FFF...F.                       [ 77%]
+tests\test_phaseM9_more_subpackages.py F....FFFFFFF..                    [ 77%]
+tests\test_phaseN1_precise_branches.py .........................         [ 78%]
+tests\test_phase_alpha_gamma.py ................................         [ 78%]
+tests\test_phase_lambda.py ..............................                [ 79%]
+tests\test_phase_omega.py ssss.....FF.........F                          [ 79%]
+tests\test_phase_psi.py ................................                 [ 80%]
+tests\test_phase_sigma.py ..............................                 [ 80%]
+tests\test_pii_detector.py .                                             [ 80%]
+tests\test_planner.py ..                                                 [ 80%]
+tests\test_planner_coverage.py ..                                        [ 80%]
+tests\test_plugins.py ....................                               [ 81%]
+tests\test_pmc_connector_full.py ...                                     [ 81%]
+tests\test_pmc_mega.py ssssssssss.                                       [ 81%]
+tests\test_pmc_ultra.py ss......                                         [ 81%]
+tests\test_positioning.py ...........                                    [ 81%]
+tests\test_pretrain_citation_reconstruction.py ...........               [ 81%]
+tests\test_pretrain_meta_core.py .......                                 [ 81%]
+tests\test_prisma.py ...................                                 [ 82%]
+tests\test_prisma_active.py ....................                         [ 82%]
+tests\test_prisma_coverage.py ....                                       [ 82%]
+tests\test_pubmed_api.py ............                                    [ 82%]
+tests\test_pubmed_api_coverage.py ss..                                   [ 82%]
+tests\test_pubmed_api_full.py ssss...                                    [ 82%]
+tests\test_pubmed_client.py ...................                          [ 83%]
+tests\test_pubmed_massive.py s.                                          [ 83%]
+tests\test_pubmed_source.py ......                                       [ 83%]
+tests\test_pubmed_ultra.py s.                                            [ 83%]
+tests\test_quality_gate.py FF.....F                                      [ 83%]
+tests\test_ranking.py .....                                              [ 83%]
+tests\test_ranking_storage.py .........                                  [ 83%]
+tests\test_rate_limit.py .                                               [ 83%]
+tests\test_reference.py ..............                                   [ 83%]
+tests\test_regression_runner_full.py ..                                  [ 83%]
+tests\test_regression_runner_smoke.py ....                               [ 84%]
+tests\test_relevance.py ...............                                  [ 84%]
+tests\test_reliability_security.py ..........                            [ 84%]
+tests\test_remediation_catalog.py .....                                  [ 84%]
+tests\test_repair_loop_stops_correctly.py ...                            [ 84%]
+tests\test_repair_planner_priority.py ....                               [ 84%]
+tests\test_repair_policy_schema.py ........                              [ 84%]
+tests\test_repeated_sampling.py .........                                [ 84%]
+tests\test_report_builder.py .........                                   [ 85%]
+tests\test_report_generation.py ................                         [ 85%]
+tests\test_reproducibility.py ........                                   [ 85%]
+tests\test_reproducibility_snapshot.py ...........                       [ 85%]
+tests\test_research_os.py ...........                                    [ 85%]
+tests\test_resolvers.py ss.........                                      [ 85%]
+tests\test_retraction_watch.py s                                         [ 85%]
+tests\test_retrieval_advanced.py .......                                 [ 86%]
+tests\test_retriever.py .............                                    [ 86%]
+tests\test_retriever_coverage.py ..                                      [ 86%]
+tests\test_retry_policy.py ..                                            [ 86%]
+tests\test_review_generator_coverage.py ........                         [ 86%]
+tests\test_review_generator_full.py ........                             [ 86%]
+tests\test_review_generator_massive.py ss........                        [ 86%]
+tests\test_review_generator_ultra.py ss.....                             [ 86%]
+tests\test_router_basic.py ..                                            [ 86%]
+tests\test_router_coverage.py ..                                         [ 86%]
+tests\test_rp24_27.py ..........                                         [ 87%]
+tests\test_rp29_37.py .....................                              [ 87%]
+tests\test_rp300_retrieval.py .........                                  [ 87%]
+tests\test_rp305_extra.py .......                                        [ 87%]
+tests\test_rp320_kg.py ..                                                [ 87%]
+tests\test_rp355_llm.py ..                                               [ 87%]
+tests\test_rp370_eval.py ...                                             [ 87%]
+tests\test_rp400_scale.py ......                                         [ 87%]
+tests\test_rp500_infra.py ..........                                     [ 88%]
+tests\test_rp510_deploy.py .......................                       [ 88%]
+tests\test_rp520_cloud.py ................                               [ 88%]
+tests\test_rp533_integrations.py ......................                  [ 88%]
+tests\test_run_api_coverage.py ..                                        [ 89%]
+tests\test_run_api_full.py ..                                            [ 89%]
+tests\test_run_jarvis_integration.py ......                              [ 89%]
+tests\test_runtime_modules.py ..........                                 [ 89%]
+tests\test_scheduler_coverage.py ..                                      [ 89%]
+tests\test_scheduler_engine.py .                                         [ 89%]
+tests\test_scientific_linter.py .......                                  [ 89%]
+tests\test_scientific_validity.py ............                           [ 89%]
+tests\test_search_v2_contract.py s                                       [ 89%]
+tests\test_smoke_schedules_api.py .                                      [ 89%]
+tests\test_source_chunking.py ......                                     [ 89%]
+tests\test_sources.py ............                                       [ 89%]
+tests\test_sources_clients.py ...                                        [ 90%]
+tests\test_sources_coverage.py ...                                       [ 90%]
+tests\test_sources_massive.py ss...                                      [ 90%]
+tests\test_sources_mega.py ssssssssss.                                   [ 90%]
+tests\test_sources_ultra.py s......                                      [ 90%]
+tests\test_spec_lint.py .......                                          [ 90%]
+tests\test_stages_detailed.py .........                                  [ 90%]
+tests\test_stages_functional.py ......................                   [ 91%]
+tests\test_submission_coverage.py ..........                             [ 91%]
+tests\test_submission_format.py .....                                    [ 91%]
+tests\test_submission_giga.py sss.                                       [ 91%]
+tests\test_submission_massive.py s.                                      [ 91%]
+tests\test_submission_mega.py sss.                                       [ 91%]
+tests\test_submission_ultra.py s.                                        [ 91%]
+tests\test_sudo_approval.py .F                                           [ 91%]
+tests\test_summarizers.py ........                                       [ 91%]
+tests\test_sync_coverage.py .........                                    [ 91%]
+tests\test_sync_handlers.py ..                                           [ 91%]
+tests\test_sync_massive.py ss..                                          [ 91%]
+tests\test_sync_mega.py ssssssssss......                                 [ 92%]
+tests\test_sync_progress.py .....                                        [ 92%]
+tests\test_sync_storage.py ........                                      [ 92%]
+tests\test_sync_ultra.py s.....                                          [ 92%]
+tests\test_table_extractor.py s                                          [ 92%]
+tests\test_task_model.py .....                                           [ 92%]
+tests\test_telemetry_analyze.py .........                                [ 92%]
+tests\test_telemetry_contract_v2.py ....                                 [ 92%]
+tests\test_telemetry_coverage.py ..                                      [ 92%]
+tests\test_telemetry_logger.py ......                                    [ 92%]
+tests\test_telemetry_redact.py ..........                                [ 93%]
+tests\test_telemetry_required.py ...                                     [ 93%]
+tests\test_telemetry_smoke.py .......                                    [ 93%]
+tests\test_telemetry_summarize.py ...                                    [ 93%]
+tests\test_term_normalizer.py ...........                                [ 93%]
+tests\test_terminal_security.py ...F                                     [ 93%]
+tests\test_thinking_engines.py ........                                  [ 93%]
+tests\test_time_schema.py ..........                                     [ 93%]
+tests\test_timeline.py ........                                          [ 93%]
+tests\test_trace.py ..........                                           [ 94%]
+tests\test_trace_context.py ..............                               [ 94%]
+tests\test_trace_coverage.py ..                                          [ 94%]
+tests\test_trend_watcher.py .......                                      [ 94%]
+tests\test_trick_sets.py ......sss                                       [ 94%]
+tests\test_uncertainty.py ........                                       [ 94%]
+tests\test_user_open_files.py ....FFF.FFF                                [ 94%]
+tests\test_utils_performance.py ..................                       [ 95%]
+tests\test_v41_sprint1.py ...................                            [ 95%]
+tests\test_v42_sprint23.py ..................                            [ 95%]
+tests\test_v4_integration.py .........................                   [ 96%]
+tests\test_v4_roads.py ......................                            [ 96%]
+tests\test_validation.py ..............                                  [ 96%]
+tests\test_validation_coverage.py ..                                     [ 96%]
+tests\test_vector_index.py ..............                                [ 96%]
+tests\test_visualization.py ...............                              [ 97%]
+tests\test_visualization_advanced.py ................                    [ 97%]
+tests\test_web_fetcher.py sssssssssss....                                [ 97%]
+tests\test_web_fetcher_coverage.py ..                                    [ 97%]
+tests\test_weekly_pack.py .                                              [ 97%]
+tests\test_workflow.py ............                                      [ 97%]
+tests\test_workflow_automation.py .....................                  [ 98%]
+tests\test_workflow_coverage.py .........                                [ 98%]
+tests\test_workflow_massive.py s...                                      [ 98%]
+tests\test_workflow_mega.py ssssssssss.                                  [ 98%]
+tests\test_workflow_runner.py .........                                  [ 98%]
+tests\test_workflow_tuner.py ......                                      [ 98%]
+tests\test_workflow_ultra.py s......                                     [ 98%]
+tests\test_workflows_presets.py ........                                 [ 99%]
+tests\test_writing_coverage.py .....                                     [ 99%]
+tests\test_writing_module.py .....................................       [ 99%]
+tests\test_zotero_integration_v2.py ..............                       [ 99%]
+tests\web\test_routes_feature_flags.py .F                                [100%]
+
+============================== warnings summary ===============================
+jarvis_core\scheduler\schema.py:21
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\scheduler\schema.py:21: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    @validator("oa_policy")
+
+tests/core/test_golden_path_stages.py: 3 warnings
+tests/test_phaseH11_stages_branches.py: 1 warning
+tests/test_phaseN1_precise_branches.py: 25 warnings
+tests/test_pretrain_citation_reconstruction.py: 9 warnings
+tests/test_pretrain_meta_core.py: 5 warnings
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\contracts\types.py:90: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+
+tests/core/test_golden_path_stages.py::test_retrieval_stages
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\ops\audit.py:48: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    self.run_id = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+
+tests/core/test_golden_path_stages.py: 20 warnings
+tests/test_pretrain_citation_reconstruction.py: 9 warnings
+tests/test_pretrain_meta_core.py: 5 warnings
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\ops\audit.py:61: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow().isoformat(),
+
+tests/core/test_scientific_basic.py: 33 warnings
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\multimodal\scientific.py:461: DeprecationWarning: ast.Num is deprecated and will be removed in Python 3.14; use ast.Constant instead
+    if isinstance(node, ast.Num):  # <3.8
+
+tests/core/test_scientific_basic.py: 14 warnings
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\multimodal\scientific.py:462: DeprecationWarning: Attribute n is deprecated and will be removed in Python 3.14; use value instead
+    return node.n
+
+tests/e2e/test_e2e_pipeline.py::TestE2EPipeline::test_e2e_executor_can_be_created
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\supervisor\lyra.py:165: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow().isoformat()
+
+tests/embeddings/test_determinism.py::test_caching_mechanism
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\.venv\Lib\site-packages\huggingface_hub\file_download.py:143: UserWarning: `huggingface_hub` cache-system uses symlinks by default to efficiently store duplicated files but your machine does not support them in C:\Users\Public\Documents\Wondershare\CreatorTemp\pytest-of-kaneko yu\pytest-383\test_caching_mechanism0\cache\models--sentence-transformers--all-MiniLM-L6-v2. Caching files will still work but in a degraded version that might require more space on your disk. This warning can be disabled by setting the `HF_HUB_DISABLE_SYMLINKS_WARNING` environment variable. For more details, see https://huggingface.co/docs/huggingface_hub/how-to-cache#limitations.
+  To support symlinks on Windows, you either need to activate Developer Mode or to run Python as an administrator. In order to activate developer mode, see this article: https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development
+    warnings.warn(message)
+
+tests/integration/test_full_integration.py::test_full_integration_flow
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\.venv\Lib\site-packages\_pytest\_code\code.py:196: RuntimeWarning: coroutine 'BrowserSubagent.navigate' was never awaited
+    def __init__(
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_full_integration.py::test_full_integration_flow
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\.venv\Lib\site-packages\_pytest\_code\code.py:196: RuntimeWarning: coroutine 'BrowserSubagent.extract_text' was never awaited
+    def __init__(
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_mcp_integration.py::test_mcp_rate_limiting
+  <frozen os>:707: RuntimeWarning: coroutine 'MCPHub.discover_tools' was never awaited
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/integration/test_mcp_integration.py::test_mcp_rate_limiting
+  <frozen os>:707: RuntimeWarning: coroutine 'MCPHub.invoke_tool' was never awaited
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/network/test_api_wrapper.py::test_degradation_aware_offline_no_cache
+  C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:141: RuntimeWarning: coroutine 'ToolChain.execute' was never awaited
+    def __exit__(self, typ, value, traceback):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/network/test_api_wrapper.py::test_degradation_aware_offline_no_cache
+  C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:141: RuntimeWarning: coroutine 'test_multi_agent_parallel_and_conversation.<locals>.run_case' was never awaited
+    def __exit__(self, typ, value, traceback):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/network/test_api_wrapper.py::test_degradation_aware_offline_no_cache
+  C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:141: RuntimeWarning: coroutine 'test_multi_agent_approval_and_callbacks.<locals>.run_case' was never awaited
+    def __exit__(self, typ, value, traceback):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/sync/test_auto_sync.py::test_on_network_restored_online_with_pending
+  C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:2188: RuntimeWarning: coroutine 'MCPHub.discover_tools' was never awaited
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/sync/test_auto_sync.py::test_on_network_restored_online_with_pending
+  C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:2188: RuntimeWarning: coroutine 'MCPHub.invoke_tool' was never awaited
+    def __init__(self, name, parent):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_conversation.py::test_conversation_management_flow
+  <string>:9: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+
+tests/test_conversation.py::test_conversation_management_flow
+  <string>:10: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+
+tests/test_conversation.py::test_conversation_management_flow
+  <string>:7: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+
+tests/test_conversation.py::test_conversation_management_flow
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\orchestrator\multi_agent.py:151: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    conversation.updated_at = datetime.utcnow()
+
+tests/test_decision_modules.py::TestRationaleValue::test_valid_rationale_value
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\decision\schema.py:18: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    @validator("rationale")
+
+tests/test_decision_modules.py::TestValidatePayload::test_validate_payload_valid
+tests/test_decision_modules.py::TestValidatePayload::test_validate_payload_invalid
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\decision\elicitation.py:83: PydanticDeprecatedSince20: The `parse_obj` method is deprecated; use `model_validate` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    parsed = DecisionInput.parse_obj(payload)
+
+tests/test_mcp_chain.py::test_tool_chain_executes_steps
+tests/test_mcp_chain.py::test_tool_chain_continue_on_error
+tests/test_mcp_hub.py::test_discover_and_invoke_tools
+tests/test_mcp_hub.py::test_rate_limit_exceeded
+tests/test_orchestrator.py::test_orchestrator_executes_agent
+tests/test_sudo_approval.py::test_execute_command_blocks_without_approval
+tests/test_terminal_security.py::test_execute_command_runs_when_allowed
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\.venv\Lib\site-packages\pytest_asyncio\plugin.py:819: RuntimeWarning: An exception occurred during teardown of an asyncio.Runner. The reason is likely that you closed the underlying event loop in a test, which prevents the cleanup of asynchronous generators by the runner.
+  This warning will become an error in future versions of pytest-asyncio. Please ensure that your tests don't close the event loop. Here is the traceback of the exception triggered during teardown:
+  Traceback (most recent call last):
+    File "C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\.venv\Lib\site-packages\pytest_asyncio\plugin.py", line 817, in _scoped_runner
+      runner.__exit__(None, None, None)
+    File "C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py", line 62, in __exit__
+      self.close()
+    File "C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py", line 71, in close
+      loop.run_until_complete(loop.shutdown_asyncgens())
+    File "C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 663, in run_until_complete
+      self._check_running()
+    File "C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 624, in _check_running
+      raise RuntimeError(
+  RuntimeError: Cannot run the event loop while another loop is running
+  
+  
+    warnings.warn(
+
+tests/test_mcp_chain.py::test_tool_chain_continue_on_error
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\.venv\Lib\site-packages\pluggy\_callers.py:163: RuntimeWarning: coroutine 'test_tool_chain_executes_steps' was never awaited
+    continue
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_meta_typed_extraction.py::TestPICOGate::test_gate_fails_on_strict_partial
+  <string>:2: RuntimeWarning: coroutine 'test_discover_and_invoke_tools' was never awaited
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_meta_typed_extraction.py::TestPICOGate::test_gate_fails_on_strict_partial
+  <string>:2: RuntimeWarning: coroutine 'test_rate_limit_exceeded' was never awaited
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_network_detection.py::TestNetworkDetector::test_check_endpoint_os_error
+  C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:132: RuntimeWarning: coroutine 'test_tool_chain_continue_on_error' was never awaited
+    def __enter__(self):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_orchestrator.py::test_orchestrator_lists_agents
+  <string>:8: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+
+tests/test_package_builder_full.py::TestBuildAttachmentList::test_builds_list
+  C:\Users\kaneko yu\AppData\Local\Programs\Python\Python312\Lib\inspect.py:2417: RuntimeWarning: coroutine 'MultiAgentOrchestrator.spawn_agent' was never awaited
+    for offset, name in enumerate(positional[non_default_count:]):
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_pdf_parser.py::test_pdf_parser
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\.venv\Lib\site-packages\pymupdf\mupdf.py:45325: RuntimeWarning: coroutine 'test_orchestrator_executes_agent' was never awaited
+    return _mupdf.fz_encode_character(font, unicode)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_phaseM9_more_subpackages.py::TestSyncModules::test_storage
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\tests\test_phaseM9_more_subpackages.py:69: DeprecationWarning: support for supplying more than one argument to pathlib.PurePath.is_relative_to() is deprecated and scheduled for removal in Python 3.14
+    getattr(instance, method)("key", "value")
+
+tests/test_phaseM9_more_subpackages.py::TestSyncModules::test_storage
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\tests\test_phaseM9_more_subpackages.py:69: DeprecationWarning: support for supplying more than one positional argument to pathlib.PurePath.relative_to() is deprecated and scheduled for removal in Python 3.14
+    getattr(instance, method)("key", "value")
+
+tests/test_pubmed_client.py::TestPubMedClient::test_fetch_success
+tests/test_pubmed_client.py::TestPubMedClient::test_search_and_fetch
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_no_abstract
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_multiple_authors
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\sources\pubmed_client.py:187: DeprecationWarning: Testing an element's truth value will raise an exception in future versions.  Use specific 'len(elem)' or 'elem is not None' test instead.
+    pmid_elem = medline.find("PMID") if medline else None
+
+tests/test_pubmed_client.py::TestPubMedClient::test_fetch_success
+tests/test_pubmed_client.py::TestPubMedClient::test_search_and_fetch
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_no_abstract
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_multiple_authors
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\sources\pubmed_client.py:191: DeprecationWarning: Testing an element's truth value will raise an exception in future versions.  Use specific 'len(elem)' or 'elem is not None' test instead.
+    title_elem = article.find("ArticleTitle") if article else None
+
+tests/test_pubmed_client.py::TestPubMedClient::test_fetch_success
+tests/test_pubmed_client.py::TestPubMedClient::test_search_and_fetch
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_no_abstract
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_multiple_authors
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\sources\pubmed_client.py:196: DeprecationWarning: Testing an element's truth value will raise an exception in future versions.  Use specific 'len(elem)' or 'elem is not None' test instead.
+    if article:
+
+tests/test_pubmed_client.py::TestPubMedClient::test_fetch_success
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\sources\pubmed_client.py:198: DeprecationWarning: Testing an element's truth value will raise an exception in future versions.  Use specific 'len(elem)' or 'elem is not None' test instead.
+    if abstract_elem:
+
+tests/test_pubmed_client.py::TestPubMedClient::test_fetch_success
+tests/test_pubmed_client.py::TestPubMedClient::test_search_and_fetch
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_no_abstract
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_multiple_authors
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\sources\pubmed_client.py:210: DeprecationWarning: Testing an element's truth value will raise an exception in future versions.  Use specific 'len(elem)' or 'elem is not None' test instead.
+    if article:
+
+tests/test_pubmed_client.py::TestPubMedClient::test_fetch_success
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_multiple_authors
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\sources\pubmed_client.py:212: DeprecationWarning: Testing an element's truth value will raise an exception in future versions.  Use specific 'len(elem)' or 'elem is not None' test instead.
+    if author_list:
+
+tests/test_pubmed_client.py::TestPubMedClient::test_fetch_success
+tests/test_pubmed_client.py::TestPubMedClient::test_search_and_fetch
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_no_abstract
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_multiple_authors
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\sources\pubmed_client.py:224: DeprecationWarning: Testing an element's truth value will raise an exception in future versions.  Use specific 'len(elem)' or 'elem is not None' test instead.
+    if article:
+
+tests/test_pubmed_client.py::TestPubMedClient::test_fetch_success
+tests/test_pubmed_client.py::TestPubMedClient::test_search_and_fetch
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_no_abstract
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_multiple_authors
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\sources\pubmed_client.py:231: DeprecationWarning: Testing an element's truth value will raise an exception in future versions.  Use specific 'len(elem)' or 'elem is not None' test instead.
+    if article:
+
+tests/test_pubmed_client.py::TestPubMedClient::test_fetch_success
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\sources\pubmed_client.py:233: DeprecationWarning: Testing an element's truth value will raise an exception in future versions.  Use specific 'len(elem)' or 'elem is not None' test instead.
+    if date_elem:
+
+tests/test_pubmed_client.py::TestPubMedClient::test_fetch_success
+tests/test_pubmed_client.py::TestPubMedClient::test_search_and_fetch
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_no_abstract
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_multiple_authors
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\sources\pubmed_client.py:243: DeprecationWarning: Testing an element's truth value will raise an exception in future versions.  Use specific 'len(elem)' or 'elem is not None' test instead.
+    if article:
+
+tests/test_pubmed_client.py::TestPubMedClient::test_fetch_success
+tests/test_pubmed_client.py::TestPubMedClient::test_search_and_fetch
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_no_abstract
+tests/test_pubmed_client.py::TestPubMedClientEdgeCases::test_article_with_multiple_authors
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\sources\pubmed_client.py:251: DeprecationWarning: Testing an element's truth value will raise an exception in future versions.  Use specific 'len(elem)' or 'elem is not None' test instead.
+    if medline:
+
+tests/test_regression_runner_smoke.py::TestRegressionRunnerSmoke::test_compute_summary
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\scripts\run_regression.py:76: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "timestamp": datetime.utcnow().isoformat() + "Z",
+
+tests/test_rp305_extra.py::TestDashboardAPI::test_get_stats
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_web\dashboard.py:86: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    last_updated=datetime.utcnow().isoformat() + "Z",
+
+tests/test_rp305_extra.py::TestObservability::test_logger
+tests/test_rp305_extra.py::TestObservability::test_logger
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\observability\stack.py:313: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "timestamp": datetime.utcnow().isoformat() + "Z",
+
+tests/test_rp370_eval.py::TestABTesting::test_create_experiment
+tests/test_rp370_eval.py::TestABTesting::test_deterministic_assignment
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\eval\ab_testing.py:88: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    start_date=datetime.utcnow().isoformat() + "Z",
+
+tests/test_rp500_infra.py::TestHealthCheck::test_liveness
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\reliability\health.py:101: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow().isoformat() + "Z",
+
+tests/test_rp500_infra.py::TestHealthCheck::test_readiness_with_checks
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\reliability\health.py:146: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow().isoformat() + "Z",
+
+tests/test_smoke_schedules_api.py::test_schedules_api_smoke
+  C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline\jarvis_core\scheduler\schema.py:111: PydanticDeprecatedSince20: The `dict` method is deprecated; use `model_dump` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    return model.dict()
+
+tests/test_sync_coverage.py::TestSyncSchema::test_queue_item_status_enum
+  <frozen os>:707: RuntimeWarning: coroutine 'test_execute_command_blocks_without_approval' was never awaited
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_thinking_engines.py::TestAnalyzeCounterfactual::test_empty_vectors
+  <frozen os>:707: RuntimeWarning: coroutine 'test_execute_command_runs_when_allowed' was never awaited
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration/test_browser_integration.py::test_browser_navigation_and_screenshot
+FAILED tests/integration/test_browser_integration.py::test_browser_text_extraction
+FAILED tests/integration/test_full_integration.py::test_full_integration_flow
+FAILED tests/integration/test_mcp_integration.py::test_mcp_server_registration_and_discovery
+FAILED tests/integration/test_mcp_integration.py::test_mcp_tool_invoke_and_error
+FAILED tests/integration/test_mcp_integration.py::test_mcp_rate_limiting - Ru...
+FAILED tests/integration/test_mcp_integration.py::test_mcp_tool_chain - Runti...
+FAILED tests/integration/test_orchestrator_integration.py::test_multi_agent_parallel_and_conversation
+FAILED tests/integration/test_orchestrator_integration.py::test_multi_agent_approval_and_callbacks
+FAILED tests/quality/test_garbage_detector.py::test_detect_return_none - asse...
+FAILED tests/test_active_learning.py::TestALConfig::test_config_default_values
+FAILED tests/test_active_learning.py::TestALConfig::test_config_custom_values
+FAILED tests/test_active_learning.py::TestALConfig::test_config_target_recall
+FAILED tests/test_active_learning.py::TestALState::test_state_values - Module...
+FAILED tests/test_active_learning.py::TestALState::test_state_comparison - Mo...
+FAILED tests/test_active_learning.py::TestALStats::test_stats_creation - Modu...
+FAILED tests/test_active_learning.py::TestALStats::test_stats_to_dict - Modul...
+FAILED tests/test_active_learning.py::TestQueryStrategy::test_uncertainty_sampling_init
+FAILED tests/test_active_learning.py::TestQueryStrategy::test_uncertainty_sampling_select
+FAILED tests/test_active_learning.py::TestQueryStrategy::test_uncertainty_sampling_empty
+FAILED tests/test_active_learning.py::TestQueryStrategy::test_diversity_sampling_init
+FAILED tests/test_active_learning.py::TestQueryStrategy::test_diversity_sampling_select
+FAILED tests/test_active_learning.py::TestStoppingCriteria::test_recall_stopping_init
+FAILED tests/test_active_learning.py::TestStoppingCriteria::test_recall_stopping_not_met
+FAILED tests/test_active_learning.py::TestStoppingCriteria::test_recall_stopping_met
+FAILED tests/test_active_learning.py::TestStoppingCriteria::test_budget_stopping_not_met
+FAILED tests/test_active_learning.py::TestStoppingCriteria::test_budget_stopping_met
+FAILED tests/test_active_learning.py::TestStoppingCriteria::test_composite_stopping_any
+FAILED tests/test_active_learning.py::TestActiveLearningEngine::test_engine_initialization
+FAILED tests/test_active_learning.py::TestActiveLearningEngine::test_engine_initialize_with_data
+FAILED tests/test_active_learning.py::TestActiveLearningEngine::test_engine_get_next_query
+FAILED tests/test_active_learning.py::TestActiveLearningEngine::test_engine_update_single
+FAILED tests/test_active_learning.py::TestActiveLearningEngine::test_engine_update_batch
+FAILED tests/test_active_learning.py::TestActiveLearningEngine::test_engine_get_stats
+FAILED tests/test_active_learning.py::TestActiveLearningEngine::test_engine_state_property
+FAILED tests/test_active_learning.py::TestActiveLearningCLI::test_cli_entry_point_exists
+FAILED tests/test_active_learning.py::TestActiveLearningCLI::test_cli_help - ...
+FAILED tests/test_active_learning.py::TestModuleImports::test_main_imports - ...
+FAILED tests/test_api_coverage.py::TestArxivAPI::test_search - AttributeError...
+FAILED tests/test_api_map_vs_capabilities.py::test_api_map_vs_capabilities - ...
+FAILED tests/test_arxiv_coverage.py::TestArxivClient::test_get_paper - Attrib...
+FAILED tests/test_claim_set_full.py::TestClaim::test_claim_creation - TypeErr...
+FAILED tests/test_contradiction_detector_massive.py::TestDetection::test_detect_pair
+FAILED tests/test_contradiction_detector_massive.py::TestDetection::test_detect_many
+FAILED tests/test_dashboard_features.py::TestAPIKeyManager::test_manager_init
+FAILED tests/test_dashboard_features.py::TestAPIKeyManager::test_generate_key
+FAILED tests/test_dashboard_features.py::TestAPIKeyManager::test_validate_key
+FAILED tests/test_dashboard_features.py::TestAPIKeyManager::test_validate_invalid_key
+FAILED tests/test_dashboard_features.py::TestAPIKeyManager::test_scope_validation
+FAILED tests/test_dashboard_features.py::TestAPIKeyManager::test_revoke_key
+FAILED tests/test_dashboard_features.py::TestAPIKeyManager::test_list_keys - ...
+FAILED tests/test_dashboard_features.py::TestAPIKeyManager::test_key_expiration
+FAILED tests/test_detailed_logic.py::TestUnpaywallClient::test_import_and_init
+FAILED tests/test_execution_engine_retry.py::test_execution_engine_stops_after_max_attempts
+FAILED tests/test_external_api_mocks.py::TestUnpaywallClientMocked::test_find_open_access_not_oa
+FAILED tests/test_external_api_mocks.py::TestWebFetcherMocked::test_fetch_url
+FAILED tests/test_figure_extractor.py::test_figure_extractor - pymupdf.mupdf....
+FAILED tests/test_front_adapter_contract.py::test_adapter_manifest_matches_api_map
+FAILED tests/test_grader_coverage.py::TestGraderModule::test_grader_package_import
+FAILED tests/test_grader_coverage.py::TestModuleImports::test_imports - Modul...
+FAILED tests/test_grader_ultra.py::TestModule::test_grader_module - ModuleNot...
+FAILED tests/test_language_lint.py::test_check_no_violations - UnicodeDecodeE...
+FAILED tests/test_language_lint.py::test_check_detects_english_pattern - Unic...
+FAILED tests/test_language_lint.py::test_check_detects_japanese_pattern - Uni...
+FAILED tests/test_language_lint.py::test_line_numbers - UnicodeDecodeError: '...
+FAILED tests/test_mcp_chain.py::test_tool_chain_executes_steps - RuntimeError...
+FAILED tests/test_mcp_chain.py::test_tool_chain_continue_on_error - RuntimeEr...
+FAILED tests/test_mcp_hub.py::test_discover_and_invoke_tools - RuntimeError: ...
+FAILED tests/test_mcp_hub.py::test_rate_limit_exceeded - RuntimeError: Runner...
+FAILED tests/test_ops_dashboard.py::test_ops_dashboard_renders - playwright._...
+FAILED tests/test_orchestrator.py::test_orchestrator_executes_agent - Runtime...
+FAILED tests/test_orchestrator.py::test_orchestrator_lists_agents - RuntimeEr...
+FAILED tests/test_phase10_high_impact.py::TestEducationModule::test_import - ...
+FAILED tests/test_phase10_high_impact.py::TestEducationModule::test_module_functions
+FAILED tests/test_phase10_high_impact.py::TestRehearsalModule::test_import - ...
+FAILED tests/test_phase13_maximum.py::TestActiveLearningCLI::test_import - Mo...
+FAILED tests/test_phase16_low_coverage.py::TestTextChunker::test_detect_sections_no_headers
+FAILED tests/test_phase16_low_coverage.py::TestFundingCliff::test_import - Im...
+FAILED tests/test_phase16_low_coverage.py::TestHeatmap::test_import - ImportE...
+FAILED tests/test_phase16_low_coverage.py::TestCareerPlanner::test_import - I...
+FAILED tests/test_phase17_more_low_coverage.py::TestActiveLearningCLI::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestCareerPlannerComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestGapAnalysisComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestPISuccessionComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestStudentPortfolioComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestReproducibilityCertComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestROIEngineComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestPISupportComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestSigmaModulesComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestFailureSimulatorComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestParadigmComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestCompetingHypothesisComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestLabCultureComplete::test_import
+FAILED tests/test_phase17_zero_to_hero.py::TestGrantOptimizerComplete::test_import
+FAILED tests/test_phase18_ingestion_complete.py::TestTextChunkerComplete::test_detect_sections_no_headers
+FAILED tests/test_phase19_edge_cases.py::TestEdgeCasesLarge::test_chunk_large_text
+FAILED tests/test_phase5_additional.py::TestConstraints::test_import - Module...
+FAILED tests/test_phase5_medium_priority.py::TestActiveLearningCLI::test_import
+FAILED tests/test_phase5_medium_priority.py::TestOptimizationReport::test_import
+FAILED tests/test_phase6_coverage.py::TestOptimizationSolver::test_import - M...
+FAILED tests/test_phase8_deep.py::TestGapAnalysis::test_import_gap_analysis
+FAILED tests/test_phase8_deep.py::TestGapAnalysis::test_module_has_functions
+FAILED tests/test_phase8_deep.py::TestPISuccession::test_import - ImportError...
+FAILED tests/test_phase8_deep.py::TestStudentPortfolio::test_import - ImportE...
+FAILED tests/test_phase8_deep.py::TestReproducibilityCert::test_import - Impo...
+FAILED tests/test_phase8_deep.py::TestROIEngine::test_import - ImportError: c...
+FAILED tests/test_phase8_deep.py::TestLambdaModules::test_import - ImportErro...
+FAILED tests/test_phase8_deep.py::TestLabToStartup::test_import - ImportError...
+FAILED tests/test_phaseA_additional.py::TestActiveLearningEngine::test_import
+FAILED tests/test_phaseA_v2_direct_coverage.py::TestAnomalyDetectorPaths::test_detect_anomaly_medium_line431_438
+FAILED tests/test_phaseB_high_miss.py::TestActiveLearningEngineComplete::test_import
+FAILED tests/test_phaseB_high_miss.py::TestEducationModule::test_import - Imp...
+FAILED tests/test_phaseB_high_miss.py::TestEducationModule::test_translate_for_level_function
+FAILED tests/test_phaseB_high_miss.py::TestRehearsalModule::test_import - Imp...
+FAILED tests/test_phaseB_high_miss.py::TestCareerPlannerModule::test_import
+FAILED tests/test_phaseB_high_miss.py::TestFailurePredictorModule::test_import
+FAILED tests/test_phaseC_part1_detailed.py::TestActiveLearningEngineDetailed::test_import
+FAILED tests/test_phaseC_part1_detailed.py::TestActiveLearningEngineDetailed::test_module_classes
+FAILED tests/test_phaseC_part2_detailed.py::TestCompetingHypothesis::test_import
+FAILED tests/test_phaseC_part2_detailed.py::TestCompetingHypothesis::test_module_functions
+FAILED tests/test_phaseC_part2_detailed.py::TestLabCulture::test_import - Imp...
+FAILED tests/test_phaseC_part2_detailed.py::TestFeasibility::test_import - Im...
+FAILED tests/test_phaseC_part3_detailed.py::TestCitationAnalyzerDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestCitationGeneratorDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestCitationNetworkDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestEvidenceGraderDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestEvidenceMapperDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestAgentsBaseDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestAgentsScientistDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestKBRAGDetailed::test_import - ...
+FAILED tests/test_phaseC_part3_detailed.py::TestWorkflowEngineDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestWorkflowPresetsDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestPipelinesReviewGeneratorDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestRuntimeTelemetryDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestVisualizationChartsDetailed::test_import
+FAILED tests/test_phaseC_part3_detailed.py::TestSubmissionFormatterDetailed::test_import
+FAILED tests/test_phaseC_part4_functions.py::TestCareerPlannerFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestEducationFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestFailureSimulatorFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestFeasibilityFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestGapAnalysisFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestGrantOptimizerFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestHeatmapFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestJournalTargetingFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestLabCultureFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestLambdaModulesFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestParadigmFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestPISuccessionFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestPISupportFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestRehearsalFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestReproducibilityCertFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestROIEngineFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestSigmaModulesFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestStudentPortfolioFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part4_functions.py::TestCareerEnginesFunctions::test_import_and_attrs
+FAILED tests/test_phaseC_part5_deep.py::TestIngestionPipelineDeep::test_text_chunker_with_overlap
+FAILED tests/test_phaseC_part5_deep.py::TestEvidenceGraderDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestCitationAnalyzerDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestEmbeddingsEmbedderDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestLLMAdapterDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestAgentsRegistryDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestAnalysisImpactDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestAnalysisNetworkDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestAnalysisTrendsDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestMetadataExtractorDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestMetadataNormalizerDeep::test_import_all_classes
+FAILED tests/test_phaseC_part5_deep.py::TestNetworkCollaborationDeep::test_import_all_classes
+FAILED tests/test_phaseC_part6_submodules.py::TestCacheDiskCacheDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestCacheRedisAdapterDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestArtifactsAnalyzerDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestArtifactsExporterDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestDevtoolsProfilerDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestFinanceOptimizerDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestKBNeo4jAdapterDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestKnowledgeGraphDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestKPITrackerDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestLabExperimentsDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestObsDashboardDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestObsExporterDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestOpsConfigDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestPoliciesRetryDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestProvenanceTrackerDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestProvidersLLMDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestRankingScorerDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestRenderersHTMLDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestRenderersLatexDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestRenderersPDFDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestRepairPolicyDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestReplayRecorderDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestReportTemplatesDeep::test_import
+FAILED tests/test_phaseC_part6_submodules.py::TestReportingSummaryDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestRetrievalRetrieverDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestRuntimeRateLimiterDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestSchedulerSchedulerDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestScoringScorerDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestSubmissionJournalCheckerDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestSubmissionValidatorDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestTelemetryExporterDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestVisualizationTimelineVizDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestWritingGeneratorDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestAlignmentDeep::test_import - Imp...
+FAILED tests/test_phaseC_part7_final.py::TestBibliographyDeep::test_import - ...
+FAILED tests/test_phaseC_part7_final.py::TestBudgetPolicyDeep::test_import - ...
+FAILED tests/test_phaseC_part7_final.py::TestCalendarBuilderDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestChangelogGeneratorDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestContextPackagerDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestDayInLifeDeep::test_import - Imp...
+FAILED tests/test_phaseC_part7_final.py::TestDiffEngineDeep::test_import - Im...
+FAILED tests/test_phaseC_part7_final.py::TestDraftGeneratorDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestEmailGeneratorDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestEnforceDeep::test_import - Impor...
+FAILED tests/test_phaseC_part7_final.py::TestEnforcementDeep::test_import - I...
+FAILED tests/test_phaseC_part7_final.py::TestExecutionEngineDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestFailurePredictorDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestFigureTableRegistryDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestFundingCliffDeep::test_import - ...
+FAILED tests/test_phaseC_part7_final.py::TestGoldsetDeep::test_import - Impor...
+FAILED tests/test_phaseC_part7_final.py::TestHITLDeep::test_import - ImportEr...
+FAILED tests/test_phaseC_part7_final.py::TestLabToStartupDeep::test_import - ...
+FAILED tests/test_phaseC_part7_final.py::TestPackageBuilderDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestPositioningDeep::test_import - I...
+FAILED tests/test_phaseC_part7_final.py::TestPretrainCitationReconstructionDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestPretrainMetaCoreDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestQualityGateDeep::test_import - I...
+FAILED tests/test_phaseC_part7_final.py::TestRemediationDeep::test_import - I...
+FAILED tests/test_phaseC_part7_final.py::TestSchedulerEngineDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestScientificLinterDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestSpecLintDeep::test_import - Impo...
+FAILED tests/test_phaseC_part7_final.py::TestTaskModelDeep::test_import - Imp...
+FAILED tests/test_phaseC_part7_final.py::TestTrendWatcherDeep::test_import - ...
+FAILED tests/test_phaseC_part7_final.py::TestWeeklyPackDeep::test_import - Im...
+FAILED tests/test_phaseC_part7_final.py::TestWorkflowRunnerDeep::test_import
+FAILED tests/test_phaseC_part7_final.py::TestWorkflowTunerDeep::test_import
+FAILED tests/test_phaseE2_high_miss.py::TestZoteroIntegrationDetailed::test_zotero_client_class
+FAILED tests/test_phaseE2_high_miss.py::TestActiveLearningEngineDetailed::test_import_module
+FAILED tests/test_phaseE2_high_miss.py::TestActiveLearningEngineDetailed::test_get_all_classes
+FAILED tests/test_phaseE4_root_modules.py::TestCareerPlannerComplete::test_import
+FAILED tests/test_phaseE4_root_modules.py::TestCareerPlannerComplete::test_classes
+FAILED tests/test_phaseE4_root_modules.py::TestFailurePredictorComplete::test_import
+FAILED tests/test_phaseE4_root_modules.py::TestFailurePredictorComplete::test_classes
+FAILED tests/test_phaseE4_root_modules.py::TestFailureSimulatorComplete::test_import
+FAILED tests/test_phaseE4_root_modules.py::TestFailureSimulatorComplete::test_classes
+FAILED tests/test_phaseE4_root_modules.py::TestParadigmComplete::test_import
+FAILED tests/test_phaseE4_root_modules.py::TestParadigmComplete::test_classes
+FAILED tests/test_phaseE4_root_modules.py::TestCompetingHypothesisComplete::test_import
+FAILED tests/test_phaseE4_root_modules.py::TestCompetingHypothesisComplete::test_classes
+FAILED tests/test_phaseE4_root_modules.py::TestLabCultureComplete::test_import
+FAILED tests/test_phaseE4_root_modules.py::TestLabCultureComplete::test_classes
+FAILED tests/test_phaseE4_root_modules.py::TestSigmaModulesComplete::test_import
+FAILED tests/test_phaseE4_root_modules.py::TestSigmaModulesComplete::test_classes
+FAILED tests/test_phaseE4_root_modules.py::TestHeatmapComplete::test_import
+FAILED tests/test_phaseE4_root_modules.py::TestHeatmapComplete::test_classes
+FAILED tests/test_phaseF1_massive.py::TestEmbeddingsEmbedderDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestEvidenceGraderDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestEvidenceMapperDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestCitationAnalyzerDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestCitationGeneratorDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestCitationNetworkDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestCitationRelevanceDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestContradictionResolverDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestAgentsBaseDetailed::test_import - I...
+FAILED tests/test_phaseF1_massive.py::TestAgentsRegistryDetailed::test_import
+FAILED tests/test_phaseF1_massive.py::TestAgentsScientistDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestKBRAGDetailed::test_import - Imp...
+FAILED tests/test_phaseF2_additional.py::TestKBNeo4jAdapterDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestWorkflowEngineDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestWorkflowPresetsDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestPipelinesReviewGeneratorDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestRuntimeTelemetryDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestRuntimeRateLimiterDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestMetadataExtractorDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestMetadataNormalizerDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestNetworkCollaborationDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestProvenanceTrackerDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestAnalysisImpactDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestAnalysisNetworkDetailed::test_import
+FAILED tests/test_phaseF2_additional.py::TestAnalysisTrendsDetailed::test_import
+FAILED tests/test_phaseG10_kb_retrieval.py::TestKBRAGComplete::test_import_and_classes
+FAILED tests/test_phaseG10_kb_retrieval.py::TestReportTemplatesComplete::test_import_and_classes
+FAILED tests/test_phaseG10_kb_retrieval.py::TestReportingSummaryComplete::test_import_and_classes
+FAILED tests/test_phaseG11_remaining.py::TestAnalysisModulesComplete::test_impact
+FAILED tests/test_phaseG11_remaining.py::TestAnalysisModulesComplete::test_network
+FAILED tests/test_phaseG11_remaining.py::TestAnalysisModulesComplete::test_trends
+FAILED tests/test_phaseG11_remaining.py::TestMetadataModulesComplete::test_extractor
+FAILED tests/test_phaseG11_remaining.py::TestMetadataModulesComplete::test_normalizer
+FAILED tests/test_phaseG11_remaining.py::TestNetworkModulesComplete::test_collaboration
+FAILED tests/test_phaseG11_remaining.py::TestProvenanceModulesComplete::test_tracker
+FAILED tests/test_phaseG11_remaining.py::TestFinanceModulesComplete::test_optimizer
+FAILED tests/test_phaseG11_remaining.py::TestOpsModulesComplete::test_config
+FAILED tests/test_phaseG11_remaining.py::TestReplayModulesComplete::test_recorder
+FAILED tests/test_phaseG11_remaining.py::TestRepairModulesComplete::test_policy
+FAILED tests/test_phaseG12_root_modules.py::TestCareerPlannerComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestCompetingHypothesisComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestEducationComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestFailureSimulatorComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestFeasibilityComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestGapAnalysisComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestGrantOptimizerComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestHeatmapComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestJournalTargetingComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestLabCultureComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestLambdaModulesComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestParadigmComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestPiSuccessionComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestPiSupportComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestRehearsalComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestReproducibilityCertComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestRoiEngineComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestSigmaModulesComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestStudentPortfolioComplete::test_classes
+FAILED tests/test_phaseG12_root_modules.py::TestCareerEnginesComplete::test_classes
+FAILED tests/test_phaseG1_ultra_detailed.py::TestActiveLearningEngineAllBranches::test_import_and_classes
+FAILED tests/test_phaseG3_lab_complete.py::TestLabAutomationExperimentClasses::test_experiment_scheduler_conflicts
+FAILED tests/test_phaseG4_ingestion_complete.py::TestIngestionPipelineComplete::test_text_chunker_all_methods
+FAILED tests/test_phaseG4_ingestion_complete.py::TestIngestionPipelineComplete::test_text_chunker_various_sizes
+FAILED tests/test_phaseG4_ingestion_complete.py::TestIngestionPipelineDataclasses::test_paper_dataclass
+FAILED tests/test_phaseG4_ingestion_complete.py::TestIngestionPipelineDataclasses::test_chunk_dataclass
+FAILED tests/test_phaseG5_evidence_citation.py::TestEvidenceGraderComplete::test_import_and_classes
+FAILED tests/test_phaseG5_evidence_citation.py::TestEvidenceMapperComplete::test_import_and_classes
+FAILED tests/test_phaseG5_evidence_citation.py::TestCitationAnalyzerComplete::test_import_and_classes
+FAILED tests/test_phaseG5_evidence_citation.py::TestCitationGeneratorComplete::test_import_and_classes
+FAILED tests/test_phaseG5_evidence_citation.py::TestCitationNetworkComplete::test_import_and_classes
+FAILED tests/test_phaseG5_evidence_citation.py::TestCitationRelevanceComplete::test_import_and_classes
+FAILED tests/test_phaseG5_evidence_citation.py::TestContradictionModulesComplete::test_resolver
+FAILED tests/test_phaseG6_llm_embeddings.py::TestLLMAdapterComplete::test_with_mock_api
+FAILED tests/test_phaseG6_llm_embeddings.py::TestEmbeddingsEmbedderComplete::test_import_and_classes
+FAILED tests/test_phaseG7_sources_api.py::TestAPISemanticScholarComplete::test_import_and_classes
+FAILED tests/test_phaseG8_agents_workflow.py::TestAgentsBaseComplete::test_import_and_classes
+FAILED tests/test_phaseG8_agents_workflow.py::TestAgentsRegistryComplete::test_import_and_classes
+FAILED tests/test_phaseG8_agents_workflow.py::TestAgentsScientistComplete::test_import_and_classes
+FAILED tests/test_phaseG8_agents_workflow.py::TestWorkflowEngineComplete::test_import_and_classes
+FAILED tests/test_phaseG8_agents_workflow.py::TestWorkflowPresetsComplete::test_import_and_classes
+FAILED tests/test_phaseG9_pipelines_runtime.py::TestPipelinesReviewGeneratorComplete::test_import_and_classes
+FAILED tests/test_phaseG9_pipelines_runtime.py::TestRuntimeTelemetryComplete::test_import_and_classes
+FAILED tests/test_phaseG9_pipelines_runtime.py::TestRuntimeRateLimiterComplete::test_import_and_classes
+FAILED tests/test_phaseH10_lab_branches.py::TestExperimentLoggerAllBranches::test_log_event
+FAILED tests/test_phaseH10_lab_branches.py::TestExperimentLoggerAllBranches::test_get_logs
+FAILED tests/test_phaseH10_lab_branches.py::TestAnomalyDetectorAllBranches::test_detect_no_data
+FAILED tests/test_phaseH10_lab_branches.py::TestAnomalyDetectorAllBranches::test_detect_normal_data
+FAILED tests/test_phaseH10_lab_branches.py::TestAnomalyDetectorAllBranches::test_detect_with_anomalies
+FAILED tests/test_phaseH10_lab_branches.py::TestRealTimeDataAnalyzerAllBranches::test_analyze_stream
+FAILED tests/test_phaseH10_lab_branches.py::TestRealTimeDataAnalyzerAllBranches::test_analyze_empty
+FAILED tests/test_phaseH10_lab_branches.py::TestBayesianOptimizerAllBranches::test_suggest_initial
+FAILED tests/test_phaseH10_lab_branches.py::TestBayesianOptimizerAllBranches::test_suggest_with_history
+FAILED tests/test_phaseH10_lab_branches.py::TestLabEquipmentControllerAllBranches::test_connect_disconnect
+FAILED tests/test_phaseH10_lab_branches.py::TestLabEquipmentControllerAllBranches::test_send_command
+FAILED tests/test_phaseH10_lab_branches.py::TestLabEquipmentControllerAllBranches::test_get_status
+FAILED tests/test_phaseH11_stages_branches.py::TestStagesGenerateReportBranches::test_format_authors_many
+FAILED tests/test_phaseH11_stages_branches.py::TestStagesGenerateReportBranches::test_format_authors_few
+FAILED tests/test_phaseH11_stages_branches.py::TestStagesGenerateReportBranches::test_format_authors_single
+FAILED tests/test_phaseH11_stages_branches.py::TestStagesGenerateReportBranches::test_format_authors_empty
+FAILED tests/test_phaseH11_stages_branches.py::TestStagesGenerateReportBranches::test_calculate_overall_confidence_all_levels
+FAILED tests/test_phaseH11_stages_branches.py::TestStagesGenerateReportBranches::test_build_reference_list_various_papers
+FAILED tests/test_phaseH11_stages_branches.py::TestStagesGenerateReportBranches::test_create_claim_section_all_types
+FAILED tests/test_phaseH12_eval_branches.py::TestEvalBenchmarkBranches::test_deep
+FAILED tests/test_phaseH12_eval_branches.py::TestEvalAubucBranches::test_deep
+FAILED tests/test_phaseH13_active_kpi.py::TestActiveLearningEngineBranches::test_deep
+FAILED tests/test_phaseH13_active_kpi.py::TestActiveLearningCliBranches::test_deep
+FAILED tests/test_phaseH13_active_kpi.py::TestActiveLearningStrategiesBranches::test_deep
+FAILED tests/test_phaseH13_active_kpi.py::TestKPIReporterBranches::test_deep
+FAILED tests/test_phaseH14_plugins_integrations.py::TestPluginsBaseBranches::test_deep
+FAILED tests/test_phaseH15_multimodal_notes.py::TestMultimodalFigureExtractorBranches::test_deep
+FAILED tests/test_phaseH15_multimodal_notes.py::TestMultimodalTableUnderstanderBranches::test_deep
+FAILED tests/test_phaseH15_multimodal_notes.py::TestNotesFormatterBranches::test_deep
+FAILED tests/test_phaseH16_20_massive.py::TestExtractionTableExtractorBranches::test_deep
+FAILED tests/test_phaseH16_20_massive.py::TestExtractionStructuredBranches::test_deep
+FAILED tests/test_phaseH16_20_massive.py::TestIntelligenceInsightsBranches::test_deep
+FAILED tests/test_phaseH16_20_massive.py::TestSchedulerSchedulerBranches::test_deep
+FAILED tests/test_phaseH16_20_massive.py::TestProvidersOpenAIBranches::test_deep
+FAILED tests/test_phaseH16_20_massive.py::TestProvidersAnthropicBranches::test_deep
+FAILED tests/test_phaseH16_20_massive.py::TestPoliciesRetryPolicyBranches::test_deep
+FAILED tests/test_phaseH1_deep_analysis.py::TestActiveLearningEngineDeep::test_all_classes_with_methods
+FAILED tests/test_phaseH21_25_more.py::TestObsCollectorBranches::test_deep - ...
+FAILED tests/test_phaseH21_25_more.py::TestRepairPolicyBranches::test_deep - ...
+FAILED tests/test_phaseH21_25_more.py::TestSubmissionFormatterBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestSubmissionJournalCheckerBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestSubmissionValidatorBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestVisualizationChartsBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestWritingGeneratorBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestRenderersHTMLBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestRenderersMarkdownBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestTelemetryExporterBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestRuntimeRateLimiterBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestDevtoolsBenchmarkBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestDevtoolsDebugBranches::test_deep
+FAILED tests/test_phaseH21_25_more.py::TestCacheBackendBranches::test_deep - ...
+FAILED tests/test_phaseH21_25_more.py::TestCachePolicyBranches::test_deep - I...
+FAILED tests/test_phaseH26_30_final.py::TestKnowledgeGraphBranches::test_deep
+FAILED tests/test_phaseH26_30_final.py::TestNetworkCollaborationBranches::test_deep
+FAILED tests/test_phaseH26_30_final.py::TestProvenanceTrackerBranches::test_deep
+FAILED tests/test_phaseH26_30_final.py::TestFinanceOptimizerBranches::test_deep
+FAILED tests/test_phaseH26_30_final.py::TestOpsConfigBranches::test_deep - Im...
+FAILED tests/test_phaseH26_30_final.py::TestReplayRecorderBranches::test_deep
+FAILED tests/test_phaseH26_30_final.py::TestScoringScorerBranches::test_deep
+FAILED tests/test_phaseH26_30_final.py::TestRankingScorerBranches::test_deep
+FAILED tests/test_phaseH26_30_final.py::TestAPISemanticScholarBranches::test_deep
+FAILED tests/test_phaseH4_deep_subpackages.py::TestReportTemplatesDeep::test_deep
+FAILED tests/test_phaseH4_deep_subpackages.py::TestReportingSummaryDeep::test_deep
+FAILED tests/test_phaseH4_deep_subpackages.py::TestReplayRecorderDeep::test_deep
+FAILED tests/test_phaseH4_deep_subpackages.py::TestOpsConfigDeep::test_deep
+FAILED tests/test_phaseH4_deep_subpackages.py::TestFinanceOptimizerDeep::test_deep
+FAILED tests/test_phaseH4_deep_subpackages.py::TestKnowledgeGraphDeep::test_deep
+FAILED tests/test_phaseH4_deep_subpackages.py::TestRankingScorerDeep::test_deep
+FAILED tests/test_phaseH5_deep_root.py::TestCareerPlannerDeep::test_deep - Im...
+FAILED tests/test_phaseH5_deep_root.py::TestEducationDeep::test_deep - Import...
+FAILED tests/test_phaseH5_deep_root.py::TestFailureSimulatorDeep::test_deep
+FAILED tests/test_phaseH5_deep_root.py::TestFeasibilityDeep::test_deep - Impo...
+FAILED tests/test_phaseH5_deep_root.py::TestGrantOptimizerDeep::test_deep - I...
+FAILED tests/test_phaseH5_deep_root.py::TestLabCultureDeep::test_deep - Impor...
+FAILED tests/test_phaseH5_deep_root.py::TestParadigmDeep::test_deep - ImportE...
+FAILED tests/test_phaseH5_deep_root.py::TestRehearsalDeep::test_deep - Import...
+FAILED tests/test_phaseH5_deep_root.py::TestSigmaModulesDeep::test_deep - Imp...
+FAILED tests/test_phaseH6_additional_deep.py::TestCacheBackendDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestCachePolicyDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestDevtoolsBenchmarkDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestDevtoolsDebugDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestEvaluationEvaluatorDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestEvaluationMetricsDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestExtractionTableExtractorDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestExtractionStructuredDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestRenderersHTMLDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestRenderersMarkdownDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestScoringScorerDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestSchedulerSchedulerDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestTelemetryExporterDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestVisualizationChartsDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestVisualizationTimelineVizDeep::test_deep
+FAILED tests/test_phaseH6_additional_deep.py::TestWritingGeneratorDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestAlignmentDeep::test_deep - ...
+FAILED tests/test_phaseH7_additional_deep.py::TestBibliographyDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestBudgetPolicyDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestCalendarBuilderDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestChangelogGeneratorDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestContextPackagerDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestDayInLifeDeep::test_deep - ...
+FAILED tests/test_phaseH7_additional_deep.py::TestDiffEngineDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestDraftGeneratorDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestEmailGeneratorDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestEnforceDeep::test_deep - Im...
+FAILED tests/test_phaseH7_additional_deep.py::TestEnforcementDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestExecutionEngineDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestFailurePredictorDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestFigureTableRegistryDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestFundingCliffDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestGoldsetDeep::test_deep - Im...
+FAILED tests/test_phaseH7_additional_deep.py::TestHitlDeep::test_deep - Impor...
+FAILED tests/test_phaseH7_additional_deep.py::TestLabToStartupDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestPackageBuilderDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestPositioningDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestPretrainCitationReconstructionDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestPretrainMetaCoreDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestQualityGateDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestRemediationDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestSchedulerEngineDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestScientificLinterDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestSpecLintDeep::test_deep - I...
+FAILED tests/test_phaseH7_additional_deep.py::TestTaskModelDeep::test_deep - ...
+FAILED tests/test_phaseH7_additional_deep.py::TestTrendWatcherDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestWeeklyPackDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestWorkflowRunnerDeep::test_deep
+FAILED tests/test_phaseH7_additional_deep.py::TestWorkflowTunerDeep::test_deep
+FAILED tests/test_phaseH8_ingestion_branches.py::TestTextChunkerBranches::test_chunk_empty_text
+FAILED tests/test_phaseH8_ingestion_branches.py::TestTextChunkerBranches::test_chunk_small_text
+FAILED tests/test_phaseH8_ingestion_branches.py::TestTextChunkerBranches::test_chunk_large_text_with_overlap
+FAILED tests/test_phaseH8_ingestion_branches.py::TestTextChunkerBranches::test_chunk_no_overlap
+FAILED tests/test_phaseI1_parametrized.py::TestIngestionPipelineParametrized::test_text_chunker_various_params[50-0]
+FAILED tests/test_phaseI1_parametrized.py::TestIngestionPipelineParametrized::test_text_chunker_various_params[50-10]
+FAILED tests/test_phaseI1_parametrized.py::TestIngestionPipelineParametrized::test_text_chunker_various_params[100-20]
+FAILED tests/test_phaseI1_parametrized.py::TestIngestionPipelineParametrized::test_text_chunker_various_params[200-50]
+FAILED tests/test_phaseI1_parametrized.py::TestIngestionPipelineParametrized::test_text_chunker_various_params[500-100]
+FAILED tests/test_phaseI2_error_paths.py::TestErrorPathsAdvanced::test_meta_analysis_invalid_studies
+FAILED tests/test_phaseI2_error_paths.py::TestErrorPathsLab::test_anomaly_detector_edge_cases
+FAILED tests/test_phaseI3_edge_cases.py::TestEdgeCasesIngestion::test_text_chunker_edge_cases
+FAILED tests/test_phaseI3_edge_cases.py::TestEdgeCasesStages::test_format_authors_edge_cases
+FAILED tests/test_phaseI4_integration.py::TestIntegrationGenerateReport::test_full_report_generation_workflow
+FAILED tests/test_phaseI4_integration.py::TestIntegrationIngestionPipeline::test_full_ingestion_workflow
+FAILED tests/test_phaseI4_integration.py::TestIntegrationLabAutomation::test_full_experiment_workflow
+FAILED tests/test_phaseI5_remaining_root.py::TestCompetingHypothesisDeep::test_deep
+FAILED tests/test_phaseI5_remaining_root.py::TestGapAnalysisDeep::test_deep
+FAILED tests/test_phaseI5_remaining_root.py::TestHeatmapDeep::test_deep - Imp...
+FAILED tests/test_phaseI5_remaining_root.py::TestJournalTargetingDeep::test_deep
+FAILED tests/test_phaseI5_remaining_root.py::TestPiSuccessionDeep::test_deep
+FAILED tests/test_phaseI5_remaining_root.py::TestPiSupportDeep::test_deep - I...
+FAILED tests/test_phaseI5_remaining_root.py::TestReproducibilityCertDeep::test_deep
+FAILED tests/test_phaseI5_remaining_root.py::TestRoiEngineDeep::test_deep - I...
+FAILED tests/test_phaseI5_remaining_root.py::TestStudentPortfolioDeep::test_deep
+FAILED tests/test_phaseI5_remaining_root.py::TestCareerEnginesDeep::test_deep
+FAILED tests/test_phaseI5_remaining_root.py::TestFailurePredictorDeep::test_deep
+FAILED tests/test_phaseI5_remaining_root.py::TestNegativeResultsDeep::test_deep
+FAILED tests/test_phaseJ1_advanced_phase6.py::TestSystematicReviewAgentComplete::test_exclude_paper
+FAILED tests/test_phaseJ1_advanced_phase6.py::TestSurvivalAnalysisBotComplete::test_kaplan_meier_normal
+FAILED tests/test_phaseJ1_advanced_phase6.py::TestPowerAnalysisCalculatorComplete::test_calculate_sample_size_normal
+FAILED tests/test_phaseJ1_advanced_phase6.py::TestPhase6RemainingClasses::test_effect_size_calculator
+FAILED tests/test_phaseJ1_advanced_phase6.py::TestPhase6RemainingClasses::test_heterogeneity_analyzer
+FAILED tests/test_phaseJ1_advanced_phase6.py::TestPhase6RemainingClasses::test_publication_bias_detector
+FAILED tests/test_phaseJ1_advanced_phase6.py::TestPhase6RemainingClasses::test_sensitivity_analyzer
+FAILED tests/test_phaseJ1_advanced_phase6.py::TestPhase6RemainingClasses::test_subgroup_analyzer
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestOntologyBuilderComplete::test_add_concept
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestOntologyBuilderComplete::test_get_hierarchy
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestConceptMapperComplete::test_map_concepts
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestKnowledgeGraphBuilderComplete::test_add_entity
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestKnowledgeGraphBuilderComplete::test_add_relation
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestKnowledgeGraphBuilderComplete::test_export_graph
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestSemanticSearchEngineComplete::test_index_documents
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestSemanticSearchEngineComplete::test_search
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestEntityLinkerComplete::test_link_entities
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestFactVerifierComplete::test_verify_fact
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestArgumentMinerComplete::test_extract_arguments
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestClaimDetectorComplete::test_detect_claims
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestStanceClassifierComplete::test_classify_stance
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestEvidenceExtractorComplete::test_extract_evidence
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestCollaborationNetworkComplete::test_add_collaborator
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestCollaborationNetworkComplete::test_add_collaboration
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestCollaborationNetworkComplete::test_get_network_metrics
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestTeamFormationOptimizerComplete::test_optimize_team
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestConflictResolverComplete::test_detect_conflicts
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestPeerReviewMatcherComplete::test_match_reviewers
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestCitationRecommenderComplete::test_recommend_citations
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestImpactPredictorComplete::test_predict_impact
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestTrendAnalyzerComplete::test_analyze_trends
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestResearchGapFinderComplete::test_find_gaps
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestNoveltyAssessorComplete::test_assess_novelty
+FAILED tests/test_phaseJ2_advanced_phase78.py::TestReproducibilityCheckerComplete::test_check_reproducibility
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestWorkflowEngineComplete::test_add_step
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestWorkflowEngineComplete::test_run_workflow
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestPipelineBuilderComplete::test_add_component
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestPipelineBuilderComplete::test_build_and_run
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestSchedulerComplete::test_schedule_task
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestSchedulerComplete::test_get_pending_tasks
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestNotificationManagerComplete::test_add_subscriber
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestNotificationManagerComplete::test_notify
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestReportGeneratorComplete::test_add_section
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestReportGeneratorComplete::test_generate_report
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestDashboardBuilderComplete::test_add_widget
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestDashboardBuilderComplete::test_render
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestAlertSystemComplete::test_add_rule
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestAlertSystemComplete::test_check_alerts
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestCacheManagerComplete::test_set_get
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestAPIClientComplete::test_get
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestDataExporterComplete::test_export_json
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestDataExporterComplete::test_export_csv
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestDataImporterComplete::test_import_json
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestConfigManagerComplete::test_set_get_config
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestConfigManagerComplete::test_load_defaults
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestLoggerComplete::test_log_levels
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestMetricsCollectorComplete::test_record_metric
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestHealthCheckerComplete::test_add_check
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestHealthCheckerComplete::test_run_checks
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestFeatureFlagManagerComplete::test_set_flag
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestFeatureFlagManagerComplete::test_disabled_flag
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestVersionManagerComplete::test_get_version
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestVersionManagerComplete::test_compare_versions
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestPluginManagerComplete::test_register_plugin
+FAILED tests/test_phaseJ3_advanced_phase910.py::TestPluginManagerComplete::test_run_plugin
+FAILED tests/test_phaseK1_stages_complete.py::TestGenerateReportComplete::test_format_authors_all_cases
+FAILED tests/test_phaseK1_stages_complete.py::TestGenerateReportComplete::test_calculate_overall_confidence
+FAILED tests/test_phaseK1_stages_complete.py::TestGenerateReportComplete::test_build_reference_list
+FAILED tests/test_phaseK2_lab_complete.py::TestExperimentSchedulerComplete::test_add_experiment_and_check_conflicts
+FAILED tests/test_phaseK2_lab_complete.py::TestExperimentLoggerComplete::test_log_and_get_events
+FAILED tests/test_phaseK2_lab_complete.py::TestAnomalyDetectorComplete::test_detect_anomalies
+FAILED tests/test_phaseK2_lab_complete.py::TestSampleTrackerComplete::test_add_get_update_sample
+FAILED tests/test_phaseK3_ingestion_retrieval.py::TestTextChunkerComplete::test_chunk_various_sizes
+FAILED tests/test_phaseK3_ingestion_retrieval.py::TestTextChunkerComplete::test_chunk_edge_cases
+FAILED tests/test_phaseL2_lab_branches.py::TestExperimentSchedulerBranches::test_check_conflicts_no_overlap
+FAILED tests/test_phaseL2_lab_branches.py::TestAnomalyDetectorBranches::test_detect_no_anomalies
+FAILED tests/test_phaseL2_lab_branches.py::TestAnomalyDetectorBranches::test_detect_with_anomalies
+FAILED tests/test_phaseL2_lab_branches.py::TestAnomalyDetectorBranches::test_detect_empty_data
+FAILED tests/test_phaseL2_lab_branches.py::TestAnomalyDetectorBranches::test_detect_single_value
+FAILED tests/test_phaseL2_lab_branches.py::TestSampleTrackerBranches::test_get_sample_exists
+FAILED tests/test_phaseL2_lab_branches.py::TestSampleTrackerBranches::test_update_sample_exists
+FAILED tests/test_phaseL2_lab_branches.py::TestSampleTrackerBranches::test_update_sample_not_exists
+FAILED tests/test_phaseL2_lab_branches.py::TestRealTimeDataAnalyzerBranches::test_get_stats_empty
+FAILED tests/test_phaseL2_lab_branches.py::TestRealTimeDataAnalyzerBranches::test_get_stats_with_data
+FAILED tests/test_phaseL2_lab_branches.py::TestBayesianOptimizerBranches::test_suggest_no_history
+FAILED tests/test_phaseL2_lab_branches.py::TestBayesianOptimizerBranches::test_suggest_with_history
+FAILED tests/test_phaseL3_advanced_branches.py::TestMetaAnalysisBotBranches::test_run_meta_analysis_empty
+FAILED tests/test_phaseL3_advanced_branches.py::TestMetaAnalysisBotBranches::test_run_meta_analysis_single
+FAILED tests/test_phaseL3_advanced_branches.py::TestMetaAnalysisBotBranches::test_run_meta_analysis_multiple
+FAILED tests/test_phaseL3_advanced_branches.py::TestSystematicReviewAgentBranches::test_exclude_paper_existing
+FAILED tests/test_phaseL3_advanced_branches.py::TestSurvivalAnalysisBotBranches::test_kaplan_meier_all_events
+FAILED tests/test_phaseL3_advanced_branches.py::TestPowerAnalysisCalculatorBranches::test_calculate_sample_size_two_sample
+FAILED tests/test_phaseL3_advanced_branches.py::TestPowerAnalysisCalculatorBranches::test_calculate_sample_size_various_effect_sizes
+FAILED tests/test_phaseM10_final_modules.py::TestSchedulerModule::test_scheduler
+FAILED tests/test_phaseM10_final_modules.py::TestProvidersModules::test_openai_provider
+FAILED tests/test_phaseM10_final_modules.py::TestProvidersModules::test_anthropic_provider
+FAILED tests/test_phaseM10_final_modules.py::TestPoliciesModules::test_retry_policy
+FAILED tests/test_phaseM10_final_modules.py::TestFinalRootModules::test_pi_support
+FAILED tests/test_phaseM10_final_modules.py::TestFinalRootModules::test_reproducibility_cert
+FAILED tests/test_phaseM10_final_modules.py::TestFinalRootModules::test_roi_engine
+FAILED tests/test_phaseM10_final_modules.py::TestFinalRootModules::test_career_engines
+FAILED tests/test_phaseM10_final_modules.py::TestFinalRootModules::test_negative_results
+FAILED tests/test_phaseM10_final_modules.py::TestFinalRootModules::test_competing_hypothesis
+FAILED tests/test_phaseM1_massive_mocks.py::TestPDFExtractorComplete::test_all_classes_with_mock
+FAILED tests/test_phaseM1_massive_mocks.py::TestContradictionDetectorComplete::test_all_classes_with_mock
+FAILED tests/test_phaseM2_massive_mocks.py::TestProvidersFactoryComplete::test_all_classes_with_mock
+FAILED tests/test_phaseM2_massive_mocks.py::TestSpecter2Complete::test_all_classes_with_mock
+FAILED tests/test_phaseM3_massive_mocks.py::TestLLMEnsembleComplete::test_all_classes_with_mock
+FAILED tests/test_phaseM4_massive_mocks.py::TestReportTemplatesComplete::test_all_classes
+FAILED tests/test_phaseM4_massive_mocks.py::TestReportingSummaryComplete::test_all_classes
+FAILED tests/test_phaseM4_massive_mocks.py::TestReplayRecorderComplete::test_all_classes
+FAILED tests/test_phaseM4_massive_mocks.py::TestOpsConfigComplete::test_all_classes
+FAILED tests/test_phaseM4_massive_mocks.py::TestFinanceOptimizerComplete::test_all_classes
+FAILED tests/test_phaseM5_massive_mocks.py::TestRankingScorerComplete::test_all_classes
+FAILED tests/test_phaseM5_massive_mocks.py::TestRootModulesComplete::test_heatmap
+FAILED tests/test_phaseM5_massive_mocks.py::TestRootModulesComplete::test_journal_targeting
+FAILED tests/test_phaseM5_massive_mocks.py::TestRootModulesComplete::test_pi_succession
+FAILED tests/test_phaseM5_massive_mocks.py::TestRootModulesComplete::test_student_portfolio
+FAILED tests/test_phaseM5_massive_mocks.py::TestRootModulesComplete::test_lab_to_startup
+FAILED tests/test_phaseM5_massive_mocks.py::TestRootModulesComplete::test_package_builder
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules1::test_alignment
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules1::test_bibliography
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules1::test_budget_policy
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules1::test_calendar_builder
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules1::test_changelog_generator
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules1::test_context_packager
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules1::test_day_in_life
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules1::test_diff_engine
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_draft_generator
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_email_generator
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_enforce
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_enforcement
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_execution_engine
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_failure_predictor
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_figure_table_registry
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_funding_cliff
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_goldset
+FAILED tests/test_phaseM6_root_modules.py::TestMoreRootModules2::test_hitl - ...
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules1::test_positioning
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules1::test_pretrain_citation_reconstruction
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules1::test_pretrain_meta_core
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules1::test_quality_gate
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules1::test_remediation
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules1::test_scheduler_engine
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules1::test_scientific_linter
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules2::test_spec_lint
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules2::test_task_model
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules2::test_trend_watcher
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules2::test_weekly_pack
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules2::test_workflow_runner
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules2::test_workflow_tuner
+FAILED tests/test_phaseM7_root_modules.py::TestEvenMoreRootModules2::test_gap_analysis
+FAILED tests/test_phaseM8_subpackages.py::TestSubmissionModules::test_formatter
+FAILED tests/test_phaseM8_subpackages.py::TestSubmissionModules::test_journal_checker
+FAILED tests/test_phaseM8_subpackages.py::TestSubmissionModules::test_validator
+FAILED tests/test_phaseM8_subpackages.py::TestVisualizationModules::test_charts
+FAILED tests/test_phaseM8_subpackages.py::TestVisualizationModules::test_timeline_viz
+FAILED tests/test_phaseM8_subpackages.py::TestWritingModules::test_generator
+FAILED tests/test_phaseM8_subpackages.py::TestRenderersModules::test_html - I...
+FAILED tests/test_phaseM8_subpackages.py::TestRenderersModules::test_markdown
+FAILED tests/test_phaseM8_subpackages.py::TestTelemetryModules::test_exporter
+FAILED tests/test_phaseM8_subpackages.py::TestRuntimeModules::test_rate_limiter
+FAILED tests/test_phaseM9_more_subpackages.py::TestNetworkModules::test_collaboration
+FAILED tests/test_phaseM9_more_subpackages.py::TestScoringModules::test_scorer
+FAILED tests/test_phaseM9_more_subpackages.py::TestEvaluationModules::test_evaluator
+FAILED tests/test_phaseM9_more_subpackages.py::TestEvaluationModules::test_metrics
+FAILED tests/test_phaseM9_more_subpackages.py::TestCacheModules::test_backend
+FAILED tests/test_phaseM9_more_subpackages.py::TestCacheModules::test_policy
+FAILED tests/test_phaseM9_more_subpackages.py::TestDevtoolsModules::test_benchmark
+FAILED tests/test_phaseM9_more_subpackages.py::TestDevtoolsModules::test_debug
+FAILED tests/test_phase_omega.py::TestLivingReview::test_generates_review - M...
+FAILED tests/test_phase_omega.py::TestLivingReview::test_update_review - Modu...
+FAILED tests/test_phase_omega.py::TestPISupport::test_generates_summary - Ass...
+FAILED tests/test_quality_gate.py::TestQualityGateEmptyAnswer::test_empty_answer_returns_fail
+FAILED tests/test_quality_gate.py::TestQualityGateEmptyAnswer::test_whitespace_only_answer_returns_fail
+FAILED tests/test_quality_gate.py::TestAgentStatusOverride::test_agent_fail_with_valid_output_becomes_partial
+FAILED tests/test_sudo_approval.py::test_execute_command_blocks_without_approval
+FAILED tests/test_terminal_security.py::test_execute_command_runs_when_allowed
+FAILED tests/test_user_open_files.py::TestFeasibilityModule::test_import_feasibility
+FAILED tests/test_user_open_files.py::TestJournalTargetingModule::test_import_journal_targeting
+FAILED tests/test_user_open_files.py::TestROIEngineModule::test_import_roi_engine
+FAILED tests/test_user_open_files.py::TestReproducibilityCertModule::test_import_reproducibility_cert
+FAILED tests/test_user_open_files.py::TestStudentPortfolioModule::test_import_student_portfolio
+FAILED tests/test_user_open_files.py::TestPISuccessionModule::test_import_pi_succession
+FAILED tests/web/test_routes_feature_flags.py::test_finance_route_flag_on - M...
+ERROR tests/test_phaseG12_root_modules.py::test_module_classes
+= 674 failed, 5095 passed, 533 skipped, 207 warnings, 1 error in 358.94s (0:05:58) =
