@@ -96,6 +96,80 @@ def select_best_evidence(evidence_list: list[dict], max_count: int = 3) -> list[
     return sorted_ev[:max_count]
 
 
+def format_authors(authors: list[str]) -> str:
+    """Format author list for references."""
+    if not authors:
+        return ""
+    if len(authors) == 1:
+        return authors[0]
+    if len(authors) == 2:
+        return f"{authors[0]} & {authors[1]}"
+    if len(authors) == 3:
+        return ", ".join(authors)
+    return f"{authors[0]} et al."
+
+
+def calculate_overall_confidence(evidence_list: list[dict]) -> float:
+    """Calculate overall confidence score from evidence strengths."""
+    if not evidence_list:
+        return 0.0
+    strength_score = {"Strong": 1.0, "Medium": 0.6, "Weak": 0.3, "None": 0.0}
+    scores = [
+        strength_score.get(evidence.get("evidence_strength", "None"), 0.0)
+        for evidence in evidence_list
+    ]
+    return round(sum(scores) / len(scores), 2)
+
+
+def build_reference_list(papers: list[dict]) -> list[str]:
+    """Build a formatted reference list from paper metadata."""
+    references: list[str] = []
+    for paper in papers:
+        authors = format_authors(paper.get("authors", []))
+        title = paper.get("title", "Untitled")
+        year = paper.get("year", "")
+        doi = paper.get("doi")
+        url = paper.get("url")
+        tail = ""
+        if doi:
+            tail = f" DOI:{doi}"
+        elif url:
+            tail = f" {url}"
+        reference = f"{authors} ({year}). {title}.{tail}".strip()
+        references.append(reference)
+    return references
+
+
+def create_claim_section(
+    claim: dict,
+    evidence_list: list[dict],
+    paper_map: dict[str, dict],
+) -> str:
+    """Create a markdown section for a claim with selected evidence."""
+    claim_id = claim.get("claim_id", "")
+    claim_text = claim.get("claim_text", "")
+    support_level = determine_support_level(evidence_list)
+    confidence = calculate_overall_confidence(evidence_list)
+
+    title = f"## Claim {claim_id}" if claim_id else "## Claim"
+    lines = [title, claim_text, ""]
+    lines.append(f"- Support: {support_level}")
+    lines.append(f"- Confidence: {confidence}")
+
+    if evidence_list:
+        lines.append("- Evidence:")
+        for evidence in select_best_evidence(evidence_list):
+            evidence_id = evidence.get("evidence_id", "")
+            paper_title = ""
+            paper_id = evidence.get("paper_id")
+            if paper_id and paper_id in paper_map:
+                paper_title = paper_map[paper_id].get("title", "")
+            detail = f" {paper_title}" if paper_title else ""
+            lines.append(f"  - {evidence_id}{detail}".rstrip())
+
+    return "\n".join(lines).strip()
+
+
 def determine_support_level(evidence_list: list[dict]) -> str:
     """Determine overall support level from evidence.
 

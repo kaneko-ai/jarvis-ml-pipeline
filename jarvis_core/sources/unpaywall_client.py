@@ -145,6 +145,17 @@ class UnpaywallClient:
             logger.error(f"Unpaywall API request failed for {doi}: {e}")
             return None
 
+    def find_open_access(self, doi: str) -> UnpaywallResult | None:
+        """Find open access information for a DOI.
+
+        Args:
+            doi: DOI to look up.
+
+        Returns:
+            UnpaywallResult or None if not found.
+        """
+        return self.get_oa_status(doi)
+
     def get_oa_status_batch(self, dois: list[str]) -> dict[str, UnpaywallResult]:
         """Get open access status for multiple DOIs.
 

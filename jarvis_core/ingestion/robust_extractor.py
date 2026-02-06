@@ -9,11 +9,35 @@
 from __future__ import annotations
 
 import logging
+import sys
+import types
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
+
+
+def _ensure_fitz_stub() -> None:
+    """Ensure a stub fitz module exists when PyMuPDF is unavailable."""
+    try:
+        import fitz  # type: ignore  # noqa: F401
+    except ModuleNotFoundError:
+        if "fitz" in sys.modules:
+            return
+        stub = types.ModuleType("fitz")
+        stub.__jarvis_stub__ = True  # type: ignore[attr-defined]
+
+        def _missing(*_args: object, **_kwargs: object) -> None:
+            raise ImportError(
+                "PyMuPDF is required for PDF extraction. Install with: pip install pymupdf"
+            )
+
+        stub.open = _missing  # type: ignore[attr-defined]
+        sys.modules["fitz"] = stub
+
+
+_ensure_fitz_stub()
 
 
 @dataclass
@@ -59,6 +83,8 @@ class RobustPDFExtractor:
         try:
             import fitz  # PyMuPDF
 
+            if getattr(fitz, "__jarvis_stub__", False):
+                raise ImportError("PyMuPDF stub")
             backends.append("pymupdf")
         except ImportError as e:
             logger.debug(f"PyMuPDF not available: {e}")

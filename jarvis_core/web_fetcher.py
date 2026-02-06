@@ -47,6 +47,25 @@ class FetchError(Exception):
         self.status_code = status_code
 
 
+@dataclass
+class WebFetcher:
+    """Convenience wrapper around fetch_url for dependency injection."""
+
+    timeout_sec: int = 15
+    user_agent: str = DEFAULT_USER_AGENT
+
+    def fetch(self, url: str) -> tuple[str, FetchMeta]:
+        """Fetch a URL and return HTML with metadata.
+
+        Args:
+            url: URL to fetch.
+
+        Returns:
+            Tuple of HTML content and FetchMeta.
+        """
+        return fetch_url(url, timeout_sec=self.timeout_sec, user_agent=self.user_agent)
+
+
 def fetch_url(
     url: str,
     timeout_sec: int = 15,

@@ -11,6 +11,7 @@ from jarvis_core.embeddings.sentence_transformer import (
     get_default_embedding_model,
 )
 from jarvis_core.embeddings.specter2 import SPECTER2Embedding
+from jarvis_core.embeddings import embedder
 
 
 def get_embedding_model(model_type: str = "general"):
@@ -35,4 +36,5 @@ __all__ = [
     "HybridSearch",
     "FusionMethod",
     "SPECTER2Embedding",
+    "embedder",
 ]

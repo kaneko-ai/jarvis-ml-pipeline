@@ -8,6 +8,7 @@ Local-First LLM infrastructure with Ollama, llama.cpp, and cloud fallback.
 
 from jarvis_core.llm_utils import LLMClient, Message
 
+from . import adapter
 from .ensemble import EnsembleResult, EnsembleStrategy, MultiModelEnsemble
 from .llamacpp_adapter import LlamaCppAdapter, LlamaCppConfig, get_llamacpp_adapter
 from .model_router import ModelProvider, ModelRouter, TaskType, get_router, route_task
@@ -17,6 +18,7 @@ __all__ = [
     # Legacy
     "LLMClient",
     "Message",
+    "adapter",
     # Router
     "ModelRouter",
     "get_router",

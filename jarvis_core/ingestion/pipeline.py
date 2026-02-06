@@ -21,6 +21,33 @@ from jarvis_core.security.path_validator import PathValidator
 
 
 @dataclass
+class Paper:
+    """Lightweight paper record for ingestion pipeline compatibility."""
+
+    paper_id: str
+    title: str
+    authors: list[str]
+    year: int
+    abstract: str = ""
+    doi: str = ""
+    pmid: str = ""
+    source: str = "local"
+    filepath: str = ""
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class Chunk:
+    """Lightweight text chunk for ingestion pipeline compatibility."""
+
+    chunk_id: str
+    paper_id: str
+    content: str
+    start_idx: int
+    end_idx: int
+
+
+@dataclass
 class TextChunk:
     """テキストチャンク."""
 
