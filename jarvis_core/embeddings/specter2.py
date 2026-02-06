@@ -10,6 +10,37 @@ import logging
 
 import numpy as np
 
+try:
+    import transformers as transformers
+except Exception:  # pragma: no cover - compatibility for tests patching module attr
+
+    class _TransformersShim:
+        class _UnavailableTokenizer:
+            """Fallback tokenizer placeholder for environments without transformers."""
+
+            def __init__(self, model_name: str = "") -> None:
+                self.model_name = model_name
+
+        class _UnavailableModel:
+            """Fallback model placeholder for environments without transformers."""
+
+            def __init__(self, model_name: str = "") -> None:
+                self.model_name = model_name
+
+        class AutoTokenizer:
+            @staticmethod
+            def from_pretrained(*args, **kwargs):
+                model_name = str(args[0]) if args else str(kwargs.get("model_name", ""))
+                return _TransformersShim._UnavailableTokenizer(model_name=model_name)
+
+        class AutoModel:
+            @staticmethod
+            def from_pretrained(*args, **kwargs):
+                model_name = str(args[0]) if args else str(kwargs.get("model_name", ""))
+                return _TransformersShim._UnavailableModel(model_name=model_name)
+
+    transformers = _TransformersShim()
+
 logger = logging.getLogger(__name__)
 
 

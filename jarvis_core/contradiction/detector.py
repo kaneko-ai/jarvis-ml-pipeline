@@ -9,6 +9,25 @@ import logging
 from typing import List
 from dataclasses import dataclass
 
+try:
+    import transformers as transformers
+except Exception:  # pragma: no cover - compatibility for tests patching module attr
+
+    class _TransformersShim:
+        class _UnavailableSequenceModel:
+            """Fallback object used when transformers is unavailable."""
+
+            def __init__(self, model_name: str = "") -> None:
+                self.model_name = model_name
+
+        class AutoModelForSequenceClassification:
+            @staticmethod
+            def from_pretrained(*args, **kwargs):
+                model_name = str(args[0]) if args else str(kwargs.get("model_name", ""))
+                return _TransformersShim._UnavailableSequenceModel(model_name=model_name)
+
+    transformers = _TransformersShim()
+
 logger = logging.getLogger(__name__)
 
 
@@ -25,7 +44,8 @@ class Contradiction:
 class ContradictionDetector:
     """Detects contradictions using heuristics or models."""
 
-    def __init__(self):
+    def __init__(self, config: dict | None = None):
+        self.config = config or {}
         # Simple heuristic antonym pairs for smoke testing
         self.antonyms = [
             ("increase", "decrease"),
@@ -33,9 +53,10 @@ class ContradictionDetector:
             ("effective", "ineffective"),
             ("safe", "dangerous"),
             ("significant", "insignificant"),
+            ("true", "false"),
         ]
 
-    def detect(self, claims: List[str]) -> List[Contradiction]:
+    def detect(self, claims: List[str | dict]) -> List[Contradiction]:
         """Detect contradictions within a list of claims."""
         contradictions = []
 
@@ -44,18 +65,31 @@ class ContradictionDetector:
                 if i >= j:
                     continue
 
-                score = self._check_pair(claim_a, claim_b)
+                text_a = self._extract_text(claim_a)
+                text_b = self._extract_text(claim_b)
+                score = self._check_pair(text_a, text_b)
                 if score > 0.5:
                     contradictions.append(
                         Contradiction(
-                            statement_a=claim_a,
-                            statement_b=claim_b,
+                            statement_a=text_a,
+                            statement_b=text_b,
                             confidence=score,
                             reason="Heuristic antonym match",
                         )
                     )
 
         return contradictions
+
+    def _extract_text(self, claim: str | dict) -> str:
+        """Extract canonical text from claim-like objects."""
+        if isinstance(claim, str):
+            return claim
+        if isinstance(claim, dict):
+            text = claim.get("text")
+            if isinstance(text, str):
+                return text
+            return str(text) if text is not None else ""
+        return str(claim)
 
     def _check_pair(self, text_a: str, text_b: str) -> float:
         """Check a pair of texts for contradiction."""
