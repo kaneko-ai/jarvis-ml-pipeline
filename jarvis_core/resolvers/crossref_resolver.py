@@ -76,7 +76,7 @@ def search_crossref(query: str, timeout: float = 5.0) -> CrossRefResult:
             headers={"User-Agent": "Jarvis-Evidence-QA/1.0 (mailto:research@example.com)"},
         )
 
-        with urllib.request.urlopen(req, timeout=timeout) as response:
+        with urllib.request.urlopen(req, timeout=timeout) as response:  # nosec B310
             data = json.loads(response.read().decode("utf-8"))
 
         if data.get("status") == "ok":

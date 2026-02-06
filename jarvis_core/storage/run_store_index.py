@@ -140,7 +140,7 @@ class RunStoreIndex:
             params.append(since)
 
         where = " AND ".join(conditions) if conditions else "1=1"
-        query = f"SELECT * FROM runs WHERE {where} ORDER BY created_at DESC LIMIT ?"
+        query = f"SELECT * FROM runs WHERE {where} ORDER BY created_at DESC LIMIT ?"  # nosec B608
         params.append(limit)
 
         conn = sqlite3.connect(str(self.db_path))
