@@ -68,4 +68,13 @@ def __getattr__(name: str):
 
         return importlib.import_module(f".experimental.{name}", __name__)
 
+    try:
+        import importlib
+
+        return importlib.import_module(f".experimental.{name}", __name__)
+    except ModuleNotFoundError as e:
+        if e.name == f"{__name__}.experimental.{name}":
+            raise AttributeError(name) from e
+        raise
+
     raise AttributeError(name)

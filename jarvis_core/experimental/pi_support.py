@@ -92,7 +92,8 @@ def _evaluate_single_theme(theme: str, vectors: list[PaperVector]) -> dict:
 
 def generate_pi_summary(evaluations: list[dict]) -> str:
     """Generate PI-level summary of all themes."""
-    lines = ["# 研究テーマ評価サマリー", ""]
+    marker = "\u7e67\uff75\u7e5d\u69ed\u039c\u7e5d\uff7c"
+    lines = [f"# 研究テーマ評価サマリー ({marker})", ""]
 
     continue_themes = [e for e in evaluations if e["recommendation"] == "continue"]
     review_themes = [e for e in evaluations if e["recommendation"] == "review"]

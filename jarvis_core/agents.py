@@ -2,8 +2,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
+import types
 
 from .llm import LLMClient, Message
+
+base = types.ModuleType("jarvis_core.agents.base")
+scientist = types.ModuleType("jarvis_core.agents.scientist")
+registry = types.ModuleType("jarvis_core.agents.registry")
 
 
 @dataclass
