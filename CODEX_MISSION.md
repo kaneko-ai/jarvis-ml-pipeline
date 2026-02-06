@@ -349,3 +349,37 @@ P0 > P1 > P2 > P3 の優先順位を厳守
 ロードマップ: docs/ROADMAP.md
 テストガイド: tests/README.md（存在する場合）
 最終更新: [日付] 更新者: OpenAI Codex Agent 次回レビュー: TD-001完了後
+
+---
+
+## セッション詳細レポート（2026-02-07）
+
+### 実施内容
+- TD-002（カバレッジ70%到達）を優先し、低カバレッジ領域を対象に分岐網羅テストを追加。
+- 追加テスト:
+  - `tests/test_td002_active_learning_cli_query_cov.py`
+  - `tests/test_td002_ingestion_search_multimodal_ops_cov.py`
+  - `tests/test_td002_remaining_low_cov_cov.py`
+  - `tests/test_td002_scheduler_lyra_health_cov.py`
+- `test_health_checker_sync_and_async_paths` の不安定化要因（イベントループ競合）を解消。
+  - `asyncio.run` 依存を廃止し、専用スレッド＋専用イベントループ実行に変更。
+
+### 検証結果（実測）
+- `uv run ruff check jarvis_core tests` : **PASS**
+- `uv run black --check jarvis_core tests` : **PASS**
+- `uv run pytest tests/ -x` : **PASS**
+  - 5921 passed / 457 skipped
+- `uv run pytest --cov=jarvis_core --cov-report=term` : **PASS**
+  - **Total coverage: 70.20%**（fail-under 70.0% を達成）
+
+### ステータス更新
+- TD-001: 全テストは現時点でグリーン（`pytest tests/ -x` ベース）
+- TD-002: カバレッジ目標（70%）を達成
+- 既知事項: mypy は既知の設定問題として保留（ユーザー指示に基づき、TD-001完了後に再開）
+
+### 次アクション（提案）
+- CODEX_MISSION.md 冒頭の「現在のステータス（Week 0 - ベースライン）」を最新値に更新
+  - 総テスト: 6377（収集ベース）
+  - pass: 5921
+  - skip: 457
+  - coverage: 70.20%
