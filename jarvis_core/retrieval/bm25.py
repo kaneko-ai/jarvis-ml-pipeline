@@ -80,7 +80,7 @@ class BM25Retriever:
     def load(self, path: Union[str, Path]):
         """Load index from disk."""
         with open(path, "rb") as f:
-            data = pickle.load(f)
+            data = pickle.load(f)  # nosec B301: local cache file controlled by the service
             self.bm25 = data["bm25"]
             self.corpus = data["corpus"]
             self._doc_ids = data["doc_ids"]

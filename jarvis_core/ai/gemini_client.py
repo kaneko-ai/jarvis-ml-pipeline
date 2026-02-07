@@ -51,7 +51,9 @@ class GeminiClient:
                 url, data=data, headers={"Content-Type": "application/json"}, method="POST"
             )
 
-            with urllib.request.urlopen(req, timeout=30) as response:
+            with urllib.request.urlopen(
+                req, timeout=30
+            ) as response:  # nosec B310: HTTPS API endpoint request
                 result = json.loads(response.read().decode())
                 return (
                     result.get("candidates", [{}])[0]

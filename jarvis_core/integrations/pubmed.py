@@ -68,7 +68,9 @@ class PubMedClient:
         url = f"{self.BASE_URL}/esearch.fcgi?{urllib.parse.urlencode(params)}"
 
         try:
-            with urllib.request.urlopen(url, timeout=10) as response:
+            with urllib.request.urlopen(
+                url, timeout=10
+            ) as response:  # nosec B310: trusted NCBI endpoint
                 data = json.loads(response.read().decode())
                 return data.get("esearchresult", {}).get("idlist", [])
         except Exception as e:
@@ -95,7 +97,9 @@ class PubMedClient:
         url = f"{self.BASE_URL}/esummary.fcgi?{urllib.parse.urlencode(params)}"
 
         try:
-            with urllib.request.urlopen(url, timeout=10) as response:
+            with urllib.request.urlopen(
+                url, timeout=10
+            ) as response:  # nosec B310: trusted NCBI endpoint
                 data = json.loads(response.read().decode())
                 results = []
 

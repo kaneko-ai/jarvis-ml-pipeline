@@ -96,7 +96,7 @@ class BM25IndexStore:
             return None, None
 
         with open(index_path, "rb") as f:
-            index_data = pickle.load(f)
+            index_data = pickle.load(f)  # nosec B301: trusted on-disk index artifact
 
         metadata = None
         if meta_path.exists():

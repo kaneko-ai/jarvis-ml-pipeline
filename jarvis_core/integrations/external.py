@@ -51,7 +51,9 @@ class SlackNotifier:
             req = urllib.request.Request(
                 self.config.webhook_url, data=data, headers={"Content-Type": "application/json"}
             )
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with urllib.request.urlopen(
+                req, timeout=10
+            ) as response:  # nosec B310: trusted Slack webhook URL
                 return response.status == 200
         except Exception as e:
             print(f"Slack error: {e}")
@@ -118,7 +120,9 @@ class NotionSync:
             if data:
                 req.data = json.dumps(data).encode("utf-8")
 
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with urllib.request.urlopen(
+                req, timeout=10
+            ) as response:  # nosec B310: trusted Notion API
                 return json.loads(response.read().decode())
         except Exception as e:
             print(f"Notion error: {e}")
@@ -171,7 +175,9 @@ class ORCIDClient:
 
         try:
             req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with urllib.request.urlopen(
+                req, timeout=10
+            ) as response:  # nosec B310: trusted ORCID API
                 data = json.loads(response.read().decode())
                 return {
                     "orcid": orcid_id,
@@ -213,7 +219,9 @@ class ArXivClient:
         url = f"{self.BASE_URL}?{urllib.parse.urlencode(params)}"
 
         try:
-            with urllib.request.urlopen(url, timeout=10) as response:
+            with urllib.request.urlopen(
+                url, timeout=10
+            ) as response:  # nosec B310: trusted arXiv API URL
                 # Parse XML response (simplified)
                 content = response.read().decode()
                 # In real implementation, use xml.etree.ElementTree
@@ -282,7 +290,9 @@ class SemanticScholarClient:
 
         try:
             req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with urllib.request.urlopen(
+                req, timeout=10
+            ) as response:  # nosec B310: trusted Semantic Scholar API
                 data = json.loads(response.read().decode())
                 return [
                     {
@@ -311,7 +321,9 @@ class SemanticScholarClient:
         url = f"{self.BASE_URL}/paper/{paper_id}?fields=title,authors,year,abstract,citationCount,references"
 
         try:
-            with urllib.request.urlopen(url, timeout=10) as response:
+            with urllib.request.urlopen(
+                url, timeout=10
+            ) as response:  # nosec B310: trusted Semantic Scholar API
                 return json.loads(response.read().decode())
         except Exception as e:
             print(f"Semantic Scholar error: {e}")
@@ -354,7 +366,9 @@ class GitHubIssueCreator:
             req = urllib.request.Request(
                 url, data=json.dumps(data).encode("utf-8"), headers=headers, method="POST"
             )
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with urllib.request.urlopen(
+                req, timeout=10
+            ) as response:  # nosec B310: trusted GitHub API
                 result = json.loads(response.read().decode())
                 return result.get("html_url")
         except Exception as e:

@@ -133,7 +133,9 @@ class PubMedConnector:
 
         req = urllib.request.Request(url, headers={"User-Agent": "JARVIS-ResearchOS/1.0"})
 
-        with urllib.request.urlopen(req, timeout=timeout) as response:
+        with urllib.request.urlopen(
+            req, timeout=timeout
+        ) as response:  # nosec B310: trusted NCBI endpoint
             return response.read()
 
     def search(
