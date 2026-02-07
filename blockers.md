@@ -60,3 +60,37 @@ GitHub CLI が実行環境に未インストールのため、PR #85/#90/#96 へ
 gh を導入して gh auth login 後にコメント投稿を再実行する。
 
 **Status**: BLOCKED
+
+### Blocker #2 - 2026-02-07
+
+**Task**: TD-029 mypy core modules
+**Category**: Type Checking
+**Priority**: P1
+
+**Error Message**:
+uv run mypy --explicit-package-bases --follow-imports=skip ... -> Found 48 errors in 20 files
+
+**Hypothesis**:
+コア4モジュールに未注釈関数・Optional未処理・型不整合が広く残っている。
+
+**Recommendation**:
+モジュール単位（evidence/contradiction/citation/sources）で段階修正し、最後に || true を除去する。
+
+**Status**: BLOCKED
+
+### Blocker #3 - 2026-02-07
+
+**Task**: TD-026 bandit gate
+**Category**: Security
+**Priority**: P1
+
+**Error Message**:
+uv run bandit -r jarvis_core -ll -> Medium 33件
+
+**Hypothesis**:
+既存コードに urllib.request.urlopen / pickle.load / timeout未指定 requests が多く残存。
+
+**Recommendation**:
+高頻出パターンから順次修正し、必要箇所のみ # nosec に理由を添えて限定適用する。
+
+**Status**: BLOCKED

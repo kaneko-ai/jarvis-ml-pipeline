@@ -76,3 +76,8 @@ Days Remaining: 168 (24 weeks)
 - ✅ sources: 5テスト追加（PASS）
 - ⚠️ 回帰実行では既存失敗 166 failed / 1 error を確認（新規テスト由来ではない）
 - 備考: TD-006 の前提基盤として新規 *_td028.py のみ追加
+
+### 2026-02-07 - TD-029: mypy コアモジュール対応（進行中）
+- ✅ 実測: mypy --explicit-package-bases --follow-imports=skip で 48 errors / 20 files
+- ⚠️ blockers.md に型エラー/bandit のブロッカーを登録
+- 継続方針: evidence/contradiction を優先して0化し、最後に CI の || true を除去
