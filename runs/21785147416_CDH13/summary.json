@@ -1,0 +1,27 @@
+{
+  "run_id": "21785147416_CDH13",
+  "query": "(CDH13[Title/Abstract] OR T-cadherin[Title/Abstract]) AND free full text[filter]",
+  "status": "failed",
+  "timestamp": "2026-02-07T18:58:24.537269+00:00",
+  "papers": 50,
+  "claims": 0,
+  "evidence": 0,
+  "gate_passed": false,
+  "contract_valid": true,
+  "metrics": {
+    "evidence_coverage": 1.0,
+    "paper_count": 50,
+    "claim_count": 0,
+    "pmcids": 42,
+    "pdf_ok": 9,
+    "chunks": 485
+  },
+  "index_version": "21785147416_CDH13",
+  "started_at": "2026-02-07T18:53:43.345077+00:00",
+  "finished_at": "2026-02-07T18:58:24.537269+00:00",
+  "artifacts": {
+    "report_md": "runs/21785147416_CDH13/report.md",
+    "meta_json": "runs/21785147416_CDH13/raw/pubmed_metadata.json",
+    "stats_json": "runs/21785147416_CDH13/stats.json"
+  }
+}
