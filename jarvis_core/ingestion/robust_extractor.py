@@ -9,8 +9,6 @@
 from __future__ import annotations
 
 import logging
-import sys
-import types
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -19,22 +17,13 @@ logger = logging.getLogger(__name__)
 
 
 def _ensure_fitz_stub() -> None:
-    """Ensure a stub fitz module exists when PyMuPDF is unavailable."""
+    """Eagerly probe PyMuPDF availability without modifying import state."""
     try:
         import fitz  # type: ignore  # noqa: F401
     except ModuleNotFoundError:
-        if "fitz" in sys.modules:
-            return
-        stub = types.ModuleType("fitz")
-        stub.__jarvis_stub__ = True  # type: ignore[attr-defined]
-
-        def _missing(*_args: object, **_kwargs: object) -> None:
-            raise ImportError(
-                "PyMuPDF is required for PDF extraction. Install with: pip install pymupdf"
-            )
-
-        stub.open = _missing  # type: ignore[attr-defined]
-        sys.modules["fitz"] = stub
+        # Do not inject a stub into sys.modules. Tests use pytest.importorskip("fitz")
+        # and should skip cleanly when PyMuPDF is not installed.
+        return
 
 
 _ensure_fitz_stub()

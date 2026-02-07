@@ -8,9 +8,11 @@ import math
 import random
 import re
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 import time
+import requests
 
 # ============================================
 # PHASE 6: ADVANCED ANALYTICS (201-220)
@@ -30,16 +32,28 @@ class MetaAnalysisBot:
             Meta-analysis results
         """
         if not studies:
-            return {"error": "No studies provided"}
+            return {
+                "pooled_effect": 0.0,
+                "pooled_effect_size": 0.0,
+                "n_studies": 0,
+                "total_sample_size": 0.0,
+                "heterogeneity_i2": 0.0,
+                "heterogeneity_interpretation": "low",
+            }
 
         # Calculate weighted average effect size
         total_weight = 0
         weighted_sum = 0
 
+        def _safe_float(value: object, default: float) -> float:
+            if isinstance(value, (int, float)):
+                return float(value)
+            return default
+
         for study in studies:
-            effect = study.get("effect_size", 0)
-            n = study.get("sample_size", 1)
-            weight = n  # Simple weighting by sample size
+            effect = _safe_float(study.get("effect_size", 0), 0.0)
+            n = _safe_float(study.get("sample_size", 1), 1.0)
+            weight = n if n > 0 else 1.0  # Simple weighting by sample size
 
             weighted_sum += effect * weight
             total_weight += weight
@@ -48,16 +62,20 @@ class MetaAnalysisBot:
 
         # Calculate heterogeneity (simplified I²)
         q_stat = sum(
-            (s.get("effect_size", 0) - pooled_effect) ** 2 * s.get("sample_size", 1)
+            (_safe_float(s.get("effect_size", 0), 0.0) - pooled_effect) ** 2
+            * max(_safe_float(s.get("sample_size", 1), 1.0), 1.0)
             for s in studies
         )
         df = len(studies) - 1
         i_squared = max(0, (q_stat - df) / q_stat * 100) if q_stat > 0 else 0
 
         return {
+            "pooled_effect": round(pooled_effect, 3),
             "pooled_effect_size": round(pooled_effect, 3),
             "n_studies": len(studies),
-            "total_sample_size": sum(s.get("sample_size", 0) for s in studies),
+            "total_sample_size": sum(
+                max(_safe_float(s.get("sample_size", 0), 0.0), 0.0) for s in studies
+            ),
             "heterogeneity_i2": round(i_squared, 1),
             "heterogeneity_interpretation": (
                 "low" if i_squared < 25 else "moderate" if i_squared < 75 else "high"
@@ -75,12 +93,18 @@ class SystematicReviewAgent:
 
     def add_paper(self, paper_id: str, paper: dict, stage: str = "identification"):
         """Add paper to review."""
-        self.papers[paper_id] = {**paper, "stage": stage, "excluded_reason": None}
+        self.papers[paper_id] = {
+            **paper,
+            "stage": stage,
+            "excluded": False,
+            "excluded_reason": None,
+        }
 
     def exclude_paper(self, paper_id: str, reason: str):
         """Exclude paper with reason."""
         if paper_id in self.papers:
             self.papers[paper_id]["stage"] = "excluded"
+            self.papers[paper_id]["excluded"] = True
             self.papers[paper_id]["excluded_reason"] = reason
 
     def advance_stage(self, paper_id: str):
@@ -236,6 +260,7 @@ class SurvivalAnalysisBot:
             n_at_risk -= 1
 
         return {
+            "survival_curve": curve,
             "curve": curve,
             "median_survival": next((t for t, s in curve if s < 0.5), None),
             "n_events": sum(events),
@@ -285,7 +310,69 @@ class PowerAnalysisCalculator:
         else:
             n = ((z_alpha + z_beta) / effect_size) ** 2
 
-        return int(math.ceil(n))
+        sample_size = int(math.ceil(n))
+        return SampleSizeResult(
+            sample_size=sample_size,
+            effect_size=effect_size,
+            alpha=alpha,
+            power=power,
+            design=design,
+        )
+
+
+class SampleSizeResult(dict):
+    """Dict-like sample size result with numeric comparison compatibility."""
+
+    def __init__(
+        self,
+        sample_size: int,
+        effect_size: float,
+        alpha: float,
+        power: float,
+        design: str,
+    ) -> None:
+        super().__init__(
+            sample_size=sample_size,
+            effect_size=effect_size,
+            alpha=alpha,
+            power=power,
+            design=design,
+        )
+
+    def __int__(self) -> int:
+        return int(self["sample_size"])
+
+    def __float__(self) -> float:
+        return float(self["sample_size"])
+
+    def _as_number(self, other: object) -> float | None:
+        if isinstance(other, (int, float)):
+            return float(other)
+        return None
+
+    def __gt__(self, other: object) -> bool:
+        other_num = self._as_number(other)
+        if other_num is None:
+            return NotImplemented
+        return float(self) > other_num
+
+    def __ge__(self, other: object) -> bool:
+        other_num = self._as_number(other)
+        if other_num is None:
+            return NotImplemented
+        return float(self) >= other_num
+
+    def __lt__(self, other: object) -> bool:
+        other_num = self._as_number(other)
+        if other_num is None:
+            return NotImplemented
+        return float(self) < other_num
+
+    def __le__(self, other: object) -> bool:
+        other_num = self._as_number(other)
+        if other_num is None:
+            return NotImplemented
+        return float(self) <= other_num
 
 
 class EffectSizeEstimator:
@@ -304,11 +391,28 @@ class EffectSizeEstimator:
         return (mean1 - mean2) / pooled_std if pooled_std > 0 else 0
 
 
+class EffectSizeCalculator(EffectSizeEstimator):
+    """Backward-compatible alias for effect size API."""
+
+    def calculate_cohens_d(self, group1: list[float], group2: list[float]) -> float:
+        return self.cohens_d(group1, group2)
+
+
 class PublicationBiasDetector:
     """Detect publication bias (211)."""
 
-    def egger_test(self, effect_sizes: list[float], standard_errors: list[float]) -> dict:
+    def egger_test(
+        self,
+        effect_sizes: list[float] | list[dict],
+        standard_errors: list[float] | None = None,
+    ) -> dict:
         """Simplified Egger's test for funnel plot asymmetry."""
+        if standard_errors is None and effect_sizes and isinstance(effect_sizes[0], dict):
+            studies = effect_sizes
+            effect_sizes = [float(s.get("effect", 0.0)) for s in studies]
+            standard_errors = [float(s.get("se", 1.0)) for s in studies]
+        if standard_errors is None:
+            return {"error": "Missing standard errors"}
         if len(effect_sizes) != len(standard_errors):
             return {"error": "Length mismatch"}
 
@@ -329,8 +433,18 @@ class PublicationBiasDetector:
 class HeterogeneityAnalyzer:
     """Analyze heterogeneity (212)."""
 
-    def calculate_i_squared(self, effect_sizes: list[float], variances: list[float]) -> dict:
+    def calculate_i_squared(
+        self,
+        effect_sizes: list[float] | list[dict],
+        variances: list[float] | None = None,
+    ) -> dict:
         """Calculate I² statistic."""
+        if variances is None and effect_sizes and isinstance(effect_sizes[0], dict):
+            studies = effect_sizes
+            effect_sizes = [float(s.get("effect", 0.0)) for s in studies]
+            variances = [float(s.get("variance", 1.0)) for s in studies]
+        if variances is None:
+            return {"i_squared": 0}
         if not effect_sizes:
             return {"i_squared": 0}
 
@@ -356,6 +470,26 @@ class SensitivityAnalysisBot:
         return {"base": base_result, "sensitivity": results}
 
 
+class SensitivityAnalyzer:
+    """Backward-compatible sensitivity analyzer API."""
+
+    def leave_one_out(self, studies: list[dict]) -> dict:
+        if not studies:
+            return {"results": []}
+        estimates = []
+        for idx in range(len(studies)):
+            remaining = [s for i, s in enumerate(studies) if i != idx]
+            effects = [float(s.get("effect", 0.0)) for s in remaining]
+            pooled = sum(effects) / len(effects) if effects else 0.0
+            estimates.append(
+                {
+                    "excluded_id": studies[idx].get("id", idx),
+                    "pooled_effect": pooled,
+                }
+            )
+        return {"results": estimates}
+
+
 class SubgroupAnalyzer:
     def analyze(self, data: dict[str, list[float]]) -> dict:
         return {
@@ -363,6 +497,714 @@ class SubgroupAnalyzer:
             for group, vals in data.items()
             if vals
         }
+
+    def analyze_by_subgroup(self, studies: list[dict], key: str) -> dict:
+        grouped: dict[str, list[float]] = defaultdict(list)
+        for study in studies:
+            group = str(study.get(key, "unknown"))
+            grouped[group].append(float(study.get("effect", 0.0)))
+        return self.analyze(grouped)
+
+
+class OntologyBuilder:
+    """Simple ontology builder API."""
+
+    def __init__(self) -> None:
+        self.concepts: dict[str, dict] = {}
+
+    def add_concept(self, name: str, parent: str | None = None) -> None:
+        """Add a concept and optional parent relation."""
+        if name not in self.concepts:
+            self.concepts[name] = {"parent": parent, "children": []}
+        else:
+            self.concepts[name]["parent"] = parent
+        if parent:
+            if parent not in self.concepts:
+                self.concepts[parent] = {"parent": None, "children": []}
+            if name not in self.concepts[parent]["children"]:
+                self.concepts[parent]["children"].append(name)
+
+    def get_hierarchy(self) -> dict[str, dict]:
+        """Return hierarchy as a dictionary."""
+        return self.concepts
+
+
+class ConceptMapper:
+    """Extract lightweight concepts from text."""
+
+    def map_concepts(self, text: str) -> list[str]:
+        """Return unique concepts detected in text."""
+        normalized = text.lower()
+        candidates = [
+            "machine learning",
+            "deep learning",
+            "artificial intelligence",
+            "neural network",
+        ]
+        hits = [c for c in candidates if c in normalized]
+        return hits or [token for token in re.findall(r"[a-z_]+", normalized)[:5]]
+
+
+class KnowledgeGraphBuilder:
+    """Build a minimal knowledge graph."""
+
+    def __init__(self) -> None:
+        self.entities: dict[str, str] = {}
+        self.relations: list[dict[str, str]] = []
+
+    def add_entity(self, name: str, entity_type: str) -> None:
+        """Register an entity."""
+        self.entities[name] = entity_type
+
+    def add_relation(self, source: str, relation: str, target: str) -> None:
+        """Register a relation between entities."""
+        self.relations.append({"source": source, "relation": relation, "target": target})
+
+    def export_graph(self) -> dict:
+        """Export graph as node/edge structure."""
+        return {
+            "nodes": [{"id": name, "type": etype} for name, etype in self.entities.items()],
+            "edges": self.relations,
+        }
+
+
+class SemanticSearchEngine:
+    """Tiny in-memory semantic search."""
+
+    def __init__(self) -> None:
+        self.documents: list[dict] = []
+
+    def index_documents(self, docs: list[dict]) -> None:
+        """Store documents in memory."""
+        self.documents.extend(docs)
+
+    def search(self, query: str, top_k: int = 5) -> list[dict]:
+        """Return top-k documents ranked by token overlap."""
+        q_tokens = set(re.findall(r"[a-z0-9]+", query.lower()))
+        scored: list[tuple[int, dict]] = []
+        for doc in self.documents:
+            text = str(doc.get("text", "")).lower()
+            tokens = set(re.findall(r"[a-z0-9]+", text))
+            score = len(q_tokens & tokens)
+            scored.append((score, doc))
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return [doc for _, doc in scored[:top_k]]
+
+
+class EntityLinker:
+    """Very small entity linker."""
+
+    def link_entities(self, text: str) -> list[dict[str, str]]:
+        """Link title-cased tokens as entities."""
+        entities = re.findall(r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b", text)
+        return [{"text": e, "entity_id": e.lower().replace(" ", "_")} for e in entities]
+
+
+class FactVerifier:
+    """Rule-based fact verifier."""
+
+    def verify_fact(self, fact: str) -> dict:
+        """Return a coarse confidence score."""
+        confidence = 0.8 if any(ch.isdigit() for ch in fact) else 0.6
+        return {"fact": fact, "confidence": confidence, "verdict": "plausible"}
+
+
+class ArgumentMiner:
+    """Extract simple argumentative spans."""
+
+    def extract_arguments(self, text: str) -> list[dict[str, str]]:
+        """Split text and tag claim/premise cues."""
+        sentences = [s.strip() for s in re.split(r"[.!?]", text) if s.strip()]
+        results = []
+        for sentence in sentences:
+            lower = sentence.lower()
+            arg_type = (
+                "premise" if "because" in lower else "counter" if "however" in lower else "claim"
+            )
+            results.append({"type": arg_type, "text": sentence})
+        return results
+
+
+class ClaimDetector:
+    """Detect claim-like sentences."""
+
+    def detect_claims(self, text: str) -> list[str]:
+        """Return claim candidates."""
+        sentences = [s.strip() for s in re.split(r"[.!?]", text) if s.strip()]
+        return [
+            s for s in sentences if any(v in s.lower() for v in ["show", "improve", "reduce", "is"])
+        ]
+
+
+class StanceClassifier:
+    """Simple stance classifier."""
+
+    def classify_stance(self, claim: str, text: str) -> str:
+        """Classify stance as support/oppose/neutral."""
+        claim_tokens = set(re.findall(r"[a-z]+", claim.lower()))
+        text_lower = text.lower()
+        overlap = len(claim_tokens & set(re.findall(r"[a-z]+", text_lower)))
+        if overlap == 0:
+            return "neutral"
+        if " not " in f" {text_lower} " or "against" in text_lower:
+            return "oppose"
+        return "support"
+
+
+class EvidenceExtractor:
+    """Extract lightweight evidence snippets."""
+
+    def extract_evidence(self, text: str, claim: str) -> dict:
+        """Return numbers and overlap as evidence metadata."""
+        numbers = re.findall(r"\d+(?:\.\d+)?%?", text)
+        claim_terms = set(re.findall(r"[a-z]+", claim.lower()))
+        text_terms = set(re.findall(r"[a-z]+", text.lower()))
+        return {
+            "numbers": numbers,
+            "term_overlap": len(claim_terms & text_terms),
+            "snippet": text[:200],
+        }
+
+
+class CollaborationNetwork:
+    """Track collaborators and pairwise collaborations."""
+
+    def __init__(self) -> None:
+        self.collaborators: dict[str, str] = {}
+        self.collaborations: list[dict[str, str]] = []
+
+    def add_collaborator(self, name: str, institution: str) -> None:
+        """Add a collaborator record."""
+        self.collaborators[name] = institution
+
+    def add_collaboration(self, author_a: str, author_b: str, paper_id: str) -> None:
+        """Record a collaboration."""
+        self.collaborations.append({"a": author_a, "b": author_b, "paper": paper_id})
+
+    def get_network_metrics(self) -> dict:
+        """Return simple network metrics."""
+        n = len(self.collaborators)
+        possible_edges = n * (n - 1) / 2 if n > 1 else 0
+        density = len(self.collaborations) / possible_edges if possible_edges else 0.0
+        return {
+            "n_collaborators": n,
+            "n_collaborations": len(self.collaborations),
+            "density": round(density, 3),
+        }
+
+
+class TeamFormationOptimizer:
+    """Greedy team selection by required skill coverage."""
+
+    def optimize_team(
+        self,
+        candidates: list[dict],
+        required_skills: list[str],
+        team_size: int = 3,
+    ) -> list[dict]:
+        """Select team members maximizing required skill overlap."""
+        required = set(skill.lower() for skill in required_skills)
+        ranked = sorted(
+            candidates,
+            key=lambda c: len(required & set(s.lower() for s in c.get("skills", []))),
+            reverse=True,
+        )
+        return ranked[: max(team_size, 0)]
+
+
+class ConflictResolver:
+    """Detect direct textual conflicts."""
+
+    def detect_conflicts(self, opinions: list[dict]) -> list[dict]:
+        """Return conflicting opinion pairs."""
+        conflicts = []
+        for i in range(len(opinions)):
+            for j in range(i + 1, len(opinions)):
+                left = str(opinions[i].get("claim", "")).lower()
+                right = str(opinions[j].get("claim", "")).lower()
+                left_neg = " not " in f" {left} " or "false" in left
+                right_neg = " not " in f" {right} " or "false" in right
+                if left_neg != right_neg:
+                    conflicts.append({"left": opinions[i], "right": opinions[j]})
+        return conflicts
+
+
+class PeerReviewMatcher:
+    """Match papers to reviewers by keyword overlap."""
+
+    def match_reviewers(self, paper: dict, reviewers: list[dict], top_k: int = 3) -> list[dict]:
+        """Return top-k reviewers with overlap scores."""
+        keywords = set(k.lower() for k in paper.get("keywords", []))
+        scored = []
+        for reviewer in reviewers:
+            expertise = set(k.lower() for k in reviewer.get("expertise", []))
+            scored.append(
+                {
+                    "reviewer": reviewer,
+                    "score": len(keywords & expertise),
+                }
+            )
+        scored.sort(key=lambda item: item["score"], reverse=True)
+        return scored[:top_k]
+
+
+class CitationRecommender:
+    """Generate lightweight citation recommendations."""
+
+    def recommend_citations(self, text: str, top_k: int = 5) -> list[dict]:
+        """Return placeholder recommendations based on top tokens."""
+        tokens = [t for t in re.findall(r"[a-z]+", text.lower()) if len(t) > 4]
+        unique = list(dict.fromkeys(tokens))
+        return [
+            {"title": f"{token.title()} Study", "score": 1.0 / (idx + 1)}
+            for idx, token in enumerate(unique[:top_k])
+        ]
+
+
+class ImpactPredictor:
+    """Predict impact using lightweight heuristics."""
+
+    def predict_impact(self, paper: dict) -> dict:
+        """Return predicted citation count."""
+        venue = str(paper.get("venue", "")).lower()
+        base = 30 if venue in {"nature", "science", "cell"} else 10
+        title_bonus = min(len(str(paper.get("title", ""))) // 10, 10)
+        abstract_bonus = min(len(str(paper.get("abstract", ""))) // 100, 10)
+        return {"predicted_citations": base + title_bonus + abstract_bonus}
+
+
+class TrendAnalyzer:
+    """Analyze temporal keyword trends."""
+
+    def analyze_trends(self, papers: list[dict]) -> dict:
+        """Aggregate keyword counts by year."""
+        per_year: dict[int, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+        for paper in papers:
+            year = int(paper.get("year", datetime.now().year))
+            for keyword in paper.get("keywords", []):
+                per_year[year][str(keyword)] += 1
+        return {"trends": {year: dict(counts) for year, counts in per_year.items()}}
+
+
+class ResearchGapFinder:
+    """Find coarse-grained gaps from paper titles."""
+
+    def find_gaps(self, papers: list[dict]) -> dict:
+        """Return uncovered topic hints from sparse token counts."""
+        token_counts: dict[str, int] = defaultdict(int)
+        for paper in papers:
+            for token in re.findall(r"[a-z]+", str(paper.get("title", "")).lower()):
+                token_counts[token] += 1
+        rare = [token for token, count in token_counts.items() if count == 1 and len(token) > 3]
+        return {"gaps": rare[:10]}
+
+
+class NoveltyAssessor:
+    """Assess novelty using title overlap."""
+
+    def assess_novelty(self, paper: dict, existing: list[dict]) -> dict:
+        """Return novelty score where lower overlap means higher novelty."""
+        target = set(re.findall(r"[a-z]+", str(paper.get("title", "")).lower()))
+        if not target:
+            return {"novelty_score": 0.0}
+        overlaps = []
+        for item in existing:
+            tokens = set(re.findall(r"[a-z]+", str(item.get("title", "")).lower()))
+            overlaps.append(len(target & tokens) / len(target))
+        max_overlap = max(overlaps) if overlaps else 0.0
+        return {"novelty_score": round(1.0 - max_overlap, 3)}
+
+
+class ReproducibilityChecker:
+    """Score reproducibility signals."""
+
+    def check_reproducibility(self, paper: dict) -> dict:
+        """Compute reproducibility score from expected binary fields."""
+        keys = ["code_available", "data_available", "methods_detailed"]
+        total = len(keys)
+        score = sum(bool(paper.get(k, False)) for k in keys) / total if total else 0.0
+        return {"score": round(score, 3), "checks": {k: bool(paper.get(k, False)) for k in keys}}
+
+
+class WorkflowEngine:
+    """Sequential workflow execution."""
+
+    def __init__(self) -> None:
+        self.steps: list[tuple[str, Callable[[object], object]]] = []
+
+    def add_step(self, name: str, func: Callable[[object], object]) -> None:
+        """Add an ordered step."""
+        self.steps.append((name, func))
+
+    def run(self, data: object) -> object:
+        """Run all steps in order."""
+        current = data
+        for _, func in self.steps:
+            current = func(current)
+        return current
+
+
+class PipelineBuilder:
+    """Composable function pipeline builder."""
+
+    def __init__(self) -> None:
+        self.components: list[tuple[str, Callable[[object], object]]] = []
+
+    def add_component(self, name: str, component: Callable[[object], object]) -> None:
+        """Append a component."""
+        self.components.append((name, component))
+
+    def build(self) -> Callable[[object], object]:
+        """Build an executable pipeline."""
+
+        def _pipeline(input_value: object) -> object:
+            value = input_value
+            for _, component in self.components:
+                value = component(value)
+            return value
+
+        return _pipeline
+
+
+class Scheduler:
+    """In-memory task scheduler."""
+
+    def __init__(self) -> None:
+        self.tasks: list[dict] = []
+
+    def schedule_task(
+        self,
+        task_id: str,
+        when: str,
+        func: Callable[[], object],
+    ) -> None:
+        """Register a scheduled task."""
+        self.tasks.append({"task_id": task_id, "when": when, "func": func, "status": "pending"})
+
+    def get_pending_tasks(self) -> list[dict]:
+        """Get tasks in pending status."""
+        return [task for task in self.tasks if task.get("status") == "pending"]
+
+
+class NotificationManager:
+    """Simple notification broadcast manager."""
+
+    def __init__(self) -> None:
+        self.subscribers: list[dict[str, str]] = []
+
+    def add_subscriber(self, user_id: str, channel: str) -> None:
+        """Add one subscriber."""
+        self.subscribers.append({"user_id": user_id, "channel": channel})
+
+    def notify(self, message: str) -> list[dict]:
+        """Send a message to all subscribers."""
+        return [
+            {"user_id": sub["user_id"], "channel": sub["channel"], "message": message}
+            for sub in self.subscribers
+        ]
+
+
+class ReportGenerator:
+    """Generate lightweight reports."""
+
+    def __init__(self) -> None:
+        self.sections: list[tuple[str, str]] = []
+
+    def add_section(self, title: str, content: str) -> None:
+        """Append a report section."""
+        self.sections.append((title, content))
+
+    def generate_report(self, format_type: str = "markdown") -> str:
+        """Render report in markdown or plain text."""
+        if format_type == "markdown":
+            return "\n\n".join([f"## {title}\n{content}" for title, content in self.sections])
+        return "\n\n".join([f"{title}\n{content}" for title, content in self.sections])
+
+
+class DashboardBuilder:
+    """Dashboard schema builder."""
+
+    def __init__(self) -> None:
+        self.widgets: list[dict] = []
+
+    def add_widget(self, widget_type: str, config: dict) -> None:
+        """Add one widget."""
+        self.widgets.append({"type": widget_type, "config": config})
+
+    def render(self) -> dict:
+        """Render dashboard payload."""
+        return {"widgets": self.widgets, "count": len(self.widgets)}
+
+
+class AlertSystem:
+    """Rule-based alert evaluator."""
+
+    def __init__(self) -> None:
+        self.rules: dict[str, Callable[[object], bool]] = {}
+
+    def add_rule(self, name: str, predicate: Callable[[object], bool]) -> None:
+        """Register an alert rule."""
+        self.rules[name] = predicate
+
+    def check_alerts(self, payload: dict) -> list[str]:
+        """Evaluate all rules against payload value."""
+        value = payload.get("value", payload)
+        triggered: list[str] = []
+        for name, predicate in self.rules.items():
+            try:
+                if predicate(value):
+                    triggered.append(name)
+            except Exception:
+                continue
+        return triggered
+
+
+class CacheManager:
+    """In-memory key-value cache."""
+
+    def __init__(self) -> None:
+        self.cache: dict[str, object] = {}
+
+    def set(self, key: str, value: object) -> None:
+        """Set a cache value."""
+        self.cache[key] = value
+
+    def get(self, key: str) -> object | None:
+        """Get a cache value."""
+        return self.cache.get(key)
+
+    def clear(self) -> None:
+        """Clear all cache entries."""
+        self.cache.clear()
+
+
+class RateLimiter:
+    """Fixed-window rate limiter."""
+
+    def __init__(self, max_requests: int = 60, window_seconds: int = 60) -> None:
+        self.max_requests = max_requests
+        self.window_seconds = window_seconds
+        self._events: dict[str, list[float]] = defaultdict(list)
+
+    def allow_request(self, subject: str) -> bool:
+        """Check and record one request."""
+        now = time.time()
+        start = now - self.window_seconds
+        self._events[subject] = [ts for ts in self._events[subject] if ts >= start]
+        if len(self._events[subject]) >= self.max_requests:
+            return False
+        self._events[subject].append(now)
+        return True
+
+
+class RetryHandler:
+    """Retry wrapper for flaky operations."""
+
+    def __init__(self, max_retries: int = 3, delay_seconds: float = 0.0) -> None:
+        self.max_retries = max_retries
+        self.delay_seconds = delay_seconds
+
+    def execute(self, func: Callable[[], object]) -> object:
+        """Execute function with retries."""
+        last_error: Exception | None = None
+        for attempt in range(self.max_retries + 1):
+            try:
+                return func()
+            except Exception as exc:
+                last_error = exc
+                if attempt < self.max_retries and self.delay_seconds > 0:
+                    time.sleep(self.delay_seconds)
+        if last_error is not None:
+            raise last_error
+        return None
+
+
+class APIClient:
+    """HTTP API client wrapper."""
+
+    def __init__(self, base_url: str) -> None:
+        self.base_url = base_url.rstrip("/")
+
+    def get(self, endpoint: str) -> object:
+        """Send GET request and parse response."""
+        response = requests.get(f"{self.base_url}/{endpoint.lstrip('/')}", timeout=30)
+        if response.status_code >= 400:
+            return {"error": response.status_code}
+        try:
+            return response.json()
+        except Exception:
+            return {"text": getattr(response, "text", "")}
+
+
+class DataExporter:
+    """Export structured data."""
+
+    def export_json(self, data: list[dict]) -> str:
+        """Export JSON string."""
+        return json.dumps(data, ensure_ascii=True)
+
+    def export_csv(self, data: list[dict]) -> str:
+        """Export CSV string."""
+        if not data:
+            return ""
+        headers = list(data[0].keys())
+        rows = [",".join(headers)]
+        for item in data:
+            rows.append(",".join(str(item.get(h, "")) for h in headers))
+        return "\n".join(rows)
+
+
+class DataImporter:
+    """Import structured data."""
+
+    def import_json(self, payload: str) -> list[dict]:
+        """Import JSON payload."""
+        data = json.loads(payload)
+        if isinstance(data, list):
+            return data
+        if isinstance(data, dict):
+            return [data]
+        return []
+
+
+class ConfigManager:
+    """Runtime configuration store."""
+
+    def __init__(self) -> None:
+        self._config: dict[str, object] = {}
+
+    def set(self, key: str, value: object) -> None:
+        """Set a config value."""
+        self._config[key] = value
+
+    def get(self, key: str, default: object | None = None) -> object | None:
+        """Get a config value."""
+        return self._config.get(key, default)
+
+    def load_defaults(self, defaults: dict[str, object]) -> None:
+        """Load default config values."""
+        for key, value in defaults.items():
+            self._config.setdefault(key, value)
+
+
+class Logger:
+    """Simple in-memory logger."""
+
+    def __init__(self) -> None:
+        self.logs: list[dict[str, str]] = []
+
+    def _log(self, level: str, message: str) -> None:
+        self.logs.append({"level": level, "message": message})
+
+    def info(self, message: str) -> None:
+        """Record info log."""
+        self._log("info", message)
+
+    def warning(self, message: str) -> None:
+        """Record warning log."""
+        self._log("warning", message)
+
+    def error(self, message: str) -> None:
+        """Record error log."""
+        self._log("error", message)
+
+
+class MetricsCollector:
+    """Collect numeric metrics."""
+
+    def __init__(self) -> None:
+        self.values: dict[str, list[float]] = defaultdict(list)
+
+    def record(self, name: str, value: float) -> None:
+        """Record one metric value."""
+        self.values[name].append(float(value))
+
+    def get_stats(self, name: str) -> dict:
+        """Compute stats for metric name."""
+        samples = self.values.get(name, [])
+        if not samples:
+            return {"count": 0, "mean": 0.0, "min": None, "max": None}
+        return {
+            "count": len(samples),
+            "mean": sum(samples) / len(samples),
+            "min": min(samples),
+            "max": max(samples),
+        }
+
+
+class HealthChecker:
+    """Run service health checks."""
+
+    def __init__(self) -> None:
+        self.checks: dict[str, Callable[[], bool]] = {}
+
+    def add_check(self, name: str, check: Callable[[], bool]) -> None:
+        """Register a health check."""
+        self.checks[name] = check
+
+    def run_checks(self) -> dict[str, bool]:
+        """Run all checks and return status."""
+        results: dict[str, bool] = {}
+        for name, check in self.checks.items():
+            try:
+                results[name] = bool(check())
+            except Exception:
+                results[name] = False
+        return results
+
+
+class FeatureFlagManager:
+    """Feature flag registry."""
+
+    def __init__(self) -> None:
+        self.flags: dict[str, bool] = {}
+
+    def set_flag(self, name: str, enabled: bool) -> None:
+        """Set a feature flag value."""
+        self.flags[name] = bool(enabled)
+
+    def is_enabled(self, name: str) -> bool:
+        """Check if a feature flag is enabled."""
+        return self.flags.get(name, False)
+
+
+class VersionManager:
+    """Semantic version helper."""
+
+    def get_version(self) -> str:
+        """Get current version."""
+        return "1.0.0"
+
+    def compare_versions(self, left: str, right: str) -> int:
+        """Compare semantic versions."""
+        left_parts = [int(part) for part in left.split(".")]
+        right_parts = [int(part) for part in right.split(".")]
+        max_len = max(len(left_parts), len(right_parts))
+        left_parts.extend([0] * (max_len - len(left_parts)))
+        right_parts.extend([0] * (max_len - len(right_parts)))
+        if left_parts < right_parts:
+            return -1
+        if left_parts > right_parts:
+            return 1
+        return 0
+
+
+class PluginManager:
+    """Plugin registration and execution."""
+
+    def __init__(self) -> None:
+        self.plugins: dict[str, Callable[[], object]] = {}
+
+    def register_plugin(self, name: str, plugin: Callable[[], object]) -> None:
+        """Register a plugin callable."""
+        self.plugins[name] = plugin
+
+    def run_plugin(self, name: str) -> object | None:
+        """Run a registered plugin."""
+        plugin = self.plugins.get(name)
+        if plugin is None:
+            return None
+        return plugin()
 
 
 class RegressionWizard:

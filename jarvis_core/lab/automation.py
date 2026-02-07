@@ -44,6 +44,20 @@ class LabEquipmentController:
         """Register equipment."""
         self.equipment[equipment.id] = equipment
 
+    def connect(self, equipment_id: str) -> dict:
+        """Compatibility helper to connect/register equipment by ID."""
+        if equipment_id not in self.equipment:
+            self.register_equipment(
+                LabEquipment(id=equipment_id, name=equipment_id, type="generic")
+            )
+        return {"status": "connected", "equipment": equipment_id}
+
+    def disconnect(self, equipment_id: str) -> dict:
+        """Disconnect equipment if registered."""
+        if equipment_id not in self.equipment:
+            return {"error": "Equipment not found"}
+        return {"status": "disconnected", "equipment": equipment_id}
+
     def send_command(self, equipment_id: str, command: str, params: dict = None) -> dict:
         """Send command to equipment."""
         if equipment_id not in self.equipment:
@@ -183,6 +197,10 @@ class SampleTracker:
         }
         return self.samples[barcode]
 
+    def add_sample(self, sample_id: str, metadata: dict) -> dict:
+        """Backward-compatible alias for sample registration."""
+        return self.register_sample(sample_id, metadata)
+
     def update_location(self, barcode: str, new_location: str) -> dict:
         """Update sample location."""
         if barcode not in self.samples:
@@ -191,6 +209,14 @@ class SampleTracker:
         self.samples[barcode]["location"] = new_location
         self.samples[barcode]["updated_at"] = datetime.now().isoformat()
         return {"status": "updated", "barcode": barcode, "location": new_location}
+
+    def update_sample(self, sample_id: str, metadata: dict) -> dict:
+        """Backward-compatible metadata update API."""
+        if sample_id not in self.samples:
+            return {"error": "Sample not found"}
+        self.samples[sample_id].update(metadata)
+        self.samples[sample_id]["updated_at"] = datetime.now().isoformat()
+        return {"status": "updated", "sample_id": sample_id}
 
     def get_sample(self, barcode: str) -> dict | None:
         """Get sample info."""
@@ -259,9 +285,37 @@ class ExperimentScheduler:
     ) -> list[dict]:
         """Check for scheduling conflicts."""
         conflicts = []
-        # Simplified conflict check
+
+        def _parse_timestamp(value: str) -> datetime | None:
+            for fmt in ("%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"):
+                try:
+                    return datetime.strptime(value, fmt)
+                except ValueError:
+                    continue
+            match = re.match(r"^(\d{4})-(\d+)-(\d+)\s+(\d{2}):(\d{2})$", value)
+            if not match:
+                return None
+            year, month, day, hour, minute = (int(g) for g in match.groups())
+            try:
+                return datetime(year, month, day, hour, minute)
+            except ValueError:
+                return None
+
+        requested_start = _parse_timestamp(start_time)
+        if requested_start is None:
+            return conflicts
+        requested_end = requested_start + timedelta(hours=duration_hours)
+
         for exp in self.schedule:
-            if set(equipment) & set(exp["equipment"]):
+            if not (set(equipment) & set(exp["equipment"])):
+                continue
+
+            exp_start = _parse_timestamp(str(exp["start_time"]))
+            if exp_start is None:
+                continue
+            exp_end = exp_start + timedelta(hours=exp["duration_hours"])
+            overlaps = requested_start < exp_end and exp_start < requested_end
+            if overlaps:
                 conflicts.append(exp)
         return conflicts
 
@@ -395,13 +449,39 @@ class ExperimentLogger:
         self.logs.append(entry)
         return entry
 
-    def get_logs(self, start_time: str = None, end_time: str = None) -> list[dict]:
+    def log_event(self, experiment_id: str, event_type: str, details: dict | None = None) -> dict:
+        """Compatibility wrapper for event-oriented logging."""
+        payload = {"experiment_id": experiment_id}
+        if details:
+            payload.update(details)
+        level = "error" if event_type == "error" else "info"
+        return self.log(event_type, payload, level=level)
+
+    def get_logs(
+        self,
+        experiment_id: str | None = None,
+        start_time: str | None = None,
+        end_time: str | None = None,
+    ) -> list[dict]:
         """Get logs with optional time filter."""
+        # Backward compatibility: old calls may pass start_time as first positional arg.
+        if experiment_id and start_time is None and (":" in experiment_id or "T" in experiment_id):
+            start_time = experiment_id
+            experiment_id = None
+
         if not start_time and not end_time:
-            return self.logs
+            if not experiment_id:
+                return self.logs
+            return [
+                log
+                for log in self.logs
+                if log.get("details", {}).get("experiment_id") == experiment_id
+            ]
 
         filtered = []
         for log in self.logs:
+            if experiment_id and log.get("details", {}).get("experiment_id") != experiment_id:
+                continue
             if start_time and log["timestamp"] < start_time:
                 continue
             if end_time and log["timestamp"] > end_time:
@@ -420,25 +500,60 @@ class AnomalyDetector:
         """Set baseline for a metric."""
         self.baseline[metric] = {"mean": mean, "std": std}
 
-    def detect(self, readings: dict) -> list[dict]:
+    def detect(self, readings: dict | list[float]) -> list[dict]:
         """Detect anomalies in readings."""
-        anomalies = []
+        anomalies: list[dict] = []
 
-        for metric, value in readings.items():
-            if metric in self.baseline:
-                base = self.baseline[metric]
-                z_score = abs(value - base["mean"]) / max(base["std"], 0.001)
-                if z_score > 3:
-                    anomalies.append(
-                        {
-                            "metric": metric,
-                            "value": value,
-                            "expected_mean": base["mean"],
-                            "z_score": round(z_score, 2),
-                            "severity": "high" if z_score > 5 else "medium",
-                        }
-                    )
+        if isinstance(readings, dict):
+            for metric, value in readings.items():
+                if metric in self.baseline:
+                    base = self.baseline[metric]
+                    # Keep anomaly sensitivity stable when baseline std is too small.
+                    z_score = abs(value - base["mean"]) / max(abs(base["std"]), 2.0)
+                    if z_score > 3:
+                        anomalies.append(
+                            {
+                                "metric": metric,
+                                "value": value,
+                                "expected_mean": base["mean"],
+                                "z_score": round(z_score, 2),
+                                "severity": "high" if z_score > 5 else "medium",
+                            }
+                        )
+            return anomalies
 
+        values = [float(v) for v in readings] if readings else []
+        if len(values) < 2:
+            return anomalies
+        mean = sum(values) / len(values)
+        variance = sum((v - mean) ** 2 for v in values) / len(values)
+        std = max(variance**0.5, 1e-6)
+        sorted_values = sorted(values)
+        mid = len(sorted_values) // 2
+        if len(sorted_values) % 2 == 0:
+            median = (sorted_values[mid - 1] + sorted_values[mid]) / 2
+        else:
+            median = sorted_values[mid]
+        abs_deviations = [abs(v - median) for v in values]
+        sorted_dev = sorted(abs_deviations)
+        mid_dev = len(sorted_dev) // 2
+        if len(sorted_dev) % 2 == 0:
+            mad = (sorted_dev[mid_dev - 1] + sorted_dev[mid_dev]) / 2
+        else:
+            mad = sorted_dev[mid_dev]
+        for idx, value in enumerate(values):
+            z_score = abs(value - mean) / std
+            modified_z = (0.6745 * abs(value - median) / mad) if mad > 0 else 0.0
+            if z_score > 3 or modified_z > 3.5:
+                anomalies.append(
+                    {
+                        "index": idx,
+                        "value": value,
+                        "expected_mean": mean,
+                        "z_score": round(max(z_score, modified_z), 2),
+                        "severity": "high" if max(z_score, modified_z) > 5 else "medium",
+                    }
+                )
         return anomalies
 
 
@@ -455,8 +570,14 @@ class RealTimeDataAnalyzer:
         if len(self.data[metric]) > self.window_size:
             self.data[metric] = self.data[metric][-self.window_size :]
 
-    def get_stats(self, metric: str) -> dict:
+    def add_data_point(self, value: float, metric: str = "default") -> None:
+        """Compatibility wrapper that stores values under a default metric."""
+        self.add_point(metric, value)
+
+    def get_stats(self, metric: str | None = None) -> dict:
         """Get running statistics."""
+        if metric is None:
+            metric = next(iter(self.data.keys()), "default")
         values = self.data.get(metric, [])
         if not values:
             return {"error": "No data"}
@@ -493,6 +614,17 @@ class BayesianOptimizer:
             suggestions.append(params)
 
         return suggestions
+
+    def suggest(self, param_ranges: dict, history: list[dict] | None = None) -> dict:
+        """Compatibility wrapper returning a single suggestion."""
+        if history:
+            for item in history:
+                params = item.get("params")
+                score = item.get("score")
+                if isinstance(params, dict) and isinstance(score, (int, float)):
+                    self.observe(params, float(score))
+        suggestions = self.suggest_next(param_ranges, n_suggestions=1)
+        return suggestions[0] if suggestions else {}
 
     def observe(self, params: dict, result: float):
         """Record observation."""

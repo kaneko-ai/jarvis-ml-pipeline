@@ -132,8 +132,18 @@ class TerminalSecurityManager:
         if request.environment:
             env.update(request.environment)
 
+        command_to_run = request.command
+        if os.name == "nt":
+            normalized = request.command.strip()
+            if normalized == "pwd":
+                command_to_run = "cd"
+            elif normalized == "ls":
+                command_to_run = "dir"
+            elif normalized.startswith("cat "):
+                command_to_run = f"type {normalized[4:]}"
+
         process = await asyncio.create_subprocess_shell(
-            request.command,
+            command_to_run,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=request.working_dir,

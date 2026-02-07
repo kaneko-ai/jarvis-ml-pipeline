@@ -207,7 +207,13 @@ class PDFExtractor:
             from jarvis_core.pdf_extractor import extract_pdf_pages
 
             extracted_pages = extract_pdf_pages(filepath)
-        except (FileNotFoundError, RuntimeError, OSError) as exc:
+        except FileNotFoundError:
+            return (
+                f"[Error extracting PDF: PDF extraction requires an available backend "
+                f"and an existing file: {filepath}]",
+                [],
+            )
+        except (RuntimeError, OSError) as exc:
             return f"[Error extracting PDF: {exc}]", []
 
         pages = [(entry["page"], entry["text"]) for entry in extracted_pages]
@@ -229,7 +235,7 @@ class TextChunker:
     def chunk(
         self,
         text: str,
-        paper_id: str,
+        paper_id: str = "paper",
         pages: list[tuple[int, str]] | None = None,
     ) -> list[TextChunk]:
         """繝・く繧ｹ繝医ｒ繝√Ε繝ｳ繧ｯ蛹・
@@ -283,7 +289,7 @@ class TextChunker:
         combined_pattern = "|".join(f"({p})" for p in section_patterns)
 
         sections = []
-        current_section = "Unknown"
+        current_section = "Full Text"
         current_start = 0
         current_text = []
 
@@ -341,6 +347,7 @@ class TextChunker:
 
         # 谿ｵ關ｽ縺ｧ蛻・牡
         paragraphs = re.split(r"\n\s*\n", text)
+        overlap = self.overlap if 0 <= self.overlap < self.chunk_size else 0
 
         current_chunk = []
         current_len = 0
@@ -350,6 +357,42 @@ class TextChunker:
         for para in paragraphs:
             para = para.strip()
             if not para:
+                continue
+
+            if len(para) > self.chunk_size:
+                if current_chunk:
+                    chunk_text = "\n\n".join(current_chunk)
+                    chunks.append(
+                        TextChunk(
+                            chunk_id=f"{paper_id}_chunk_{start_chunk_id + len(chunks)}",
+                            text=chunk_text,
+                            section=section,
+                            paragraph_index=para_idx - len(current_chunk),
+                            char_start=base_offset + char_pos - len(chunk_text),
+                            char_end=base_offset + char_pos,
+                        )
+                    )
+                    current_chunk = []
+                    current_len = 0
+
+                step = self.chunk_size - overlap
+                for start in range(0, len(para), step):
+                    chunk_text = para[start : start + self.chunk_size]
+                    if not chunk_text:
+                        continue
+                    chunks.append(
+                        TextChunk(
+                            chunk_id=f"{paper_id}_chunk_{start_chunk_id + len(chunks)}",
+                            text=chunk_text,
+                            section=section,
+                            paragraph_index=para_idx,
+                            char_start=base_offset + char_pos + start,
+                            char_end=base_offset + char_pos + start + len(chunk_text),
+                        )
+                    )
+
+                char_pos += len(para) + 2
+                para_idx += 1
                 continue
 
             if current_len + len(para) > self.chunk_size and current_chunk:
@@ -367,7 +410,7 @@ class TextChunker:
                 )
 
                 # 繧ｪ繝ｼ繝舌・繝ｩ繝・・蛻・ｒ谿九＠縺ｦ譁ｰ隕上メ繝｣繝ｳ繧ｯ
-                if self.overlap > 0 and current_chunk:
+                if overlap > 0 and current_chunk:
                     current_chunk = [current_chunk[-1]]
                     current_len = len(current_chunk[0])
                 else:

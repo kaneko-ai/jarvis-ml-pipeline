@@ -14,7 +14,7 @@ class ClaimType(Enum):
     INFERENCE = "inference"
 
 
-@dataclass
+@dataclass(init=False)
 class Claim:
     """A single claim with citations."""
 
@@ -23,6 +23,27 @@ class Claim:
     claim_type: ClaimType
     citations: list[str]  # chunk_ids
     confidence: float = 1.0
+
+    def __init__(
+        self,
+        claim_id: str | None = None,
+        text: str = "",
+        claim_type: ClaimType = ClaimType.FACT,
+        citations: list[str] | None = None,
+        confidence: float = 1.0,
+        source: str | None = None,
+    ) -> None:
+        """Initialize Claim with backward compatibility for legacy `source` arg."""
+        self.claim_id = claim_id or "c0"
+        self.text = text
+        self.claim_type = claim_type
+        if citations is not None:
+            self.citations = citations
+        elif source is not None:
+            self.citations = [source]
+        else:
+            self.citations = []
+        self.confidence = confidence
 
     def to_dict(self) -> dict:
         d = asdict(self)

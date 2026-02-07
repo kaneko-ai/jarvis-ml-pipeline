@@ -4,6 +4,7 @@ import os
 import sys
 import tempfile
 import json
+import types
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 from typing import Generator
@@ -79,6 +80,12 @@ def data_dir(tmp_dir: Path) -> Path:
     data = tmp_dir / "data"
     data.mkdir(parents=True, exist_ok=True)
     return data
+
+
+@pytest.fixture
+def module() -> types.SimpleNamespace:
+    """Compatibility fixture for helper tests that expect a `module` argument."""
+    return types.SimpleNamespace()
 
 
 @pytest.fixture

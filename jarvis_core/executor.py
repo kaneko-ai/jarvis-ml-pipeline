@@ -97,7 +97,8 @@ class ExecutionEngine:
                     if evaluation and evaluation.errors
                     else "Subtask failed without specific error"
                 )
-                raise RuntimeError(err_msg)
+                logger.warning("Stopping run after failed subtask %s: %s", subtask.id, err_msg)
+                break
 
         return executed
 

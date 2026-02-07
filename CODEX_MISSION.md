@@ -411,3 +411,28 @@ P0 > P1 > P2 > P3 の優先順位を厳守
 - 検証で生成される `.coverage*` / `coverage.xml` / `htmlcov/` / `artifacts/audit/` / `experiments/` はコミット対象外とする。
 - 品質タスク（TD-025〜029）のコミットでは、実装・テスト・CI設定・進捗ドキュメントのみをステージする。
 - 追跡済み生成物（例: egg-info 変動）がある場合は、意図した変更でない限りコミットに含めない。
+
+## セッション詳細レポート（2026-02-07 追加追記）
+
+### 実施内容
+- TD-025 最終残件を解消: `jarvis_core/lab/automation.py` の `except ValueError: pass` を `continue` に修正。
+- TD-025〜TD-029 の最終検証コマンドを一式再実行し、品質ゲートの通過を再確認。
+
+### 検証結果（再実行）
+- `uv run python scripts/detect_garbage_code.py` : PASS（ゴミコードなし）
+- `uv run ruff check jarvis_core tests` : PASS
+- `uv run black --check jarvis_core tests` : PASS
+- `uv run pytest tests/ --ignore=tests/e2e --ignore=tests/integration -q --tb=short -x` : PASS
+  - 5925 passed / 452 skipped
+- `uv run pytest tests/ --cov=jarvis_core --cov-fail-under=70 --ignore=tests/e2e --ignore=tests/integration -q --tb=no` : PASS
+  - Total coverage: 70.11%
+- `uv run bandit -r jarvis_core -ll` : PASS（No issues identified）
+- `uv run mypy --explicit-package-bases --follow-imports=skip jarvis_core/evidence/ jarvis_core/contradiction/ jarvis_core/citation/ jarvis_core/sources/ --ignore-missing-imports` : PASS
+  - Success: no issues found in 43 source files
+
+### 現在の判定
+- TD-025: 完了（ゴミコード検出 0 件）
+- TD-026: 完了（CIゲート対象コマンドをローカル再検証で通過）
+- TD-027: 完了（PRコメント方針反映済み、stale workflow 追加済み）
+- TD-028: 完了（追加品質テスト導入済み）
+- TD-029: 完了（core 4モジュール mypy 0 errors）

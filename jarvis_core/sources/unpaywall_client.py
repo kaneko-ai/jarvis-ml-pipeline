@@ -110,6 +110,16 @@ class UnpaywallClient:
         self._email = email
         self._timeout = timeout
 
+    @property
+    def email(self) -> str:
+        """Backward-compatible access to configured email."""
+        return self._email
+
+    @property
+    def timeout(self) -> float:
+        """Get request timeout in seconds."""
+        return self._timeout
+
     def get_oa_status(self, doi: str) -> UnpaywallResult | None:
         """Get open access status for a DOI.
 

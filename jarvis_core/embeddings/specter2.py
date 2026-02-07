@@ -12,6 +12,14 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+try:
+    import transformers as _transformers
+except ImportError:
+    _transformers = None
+
+# Exposed for tests that monkeypatch backend libraries.
+transformers = _transformers
+
 
 class SPECTER2Embedding:
     """AllenAI SPECTER2 for scientific document embedding."""

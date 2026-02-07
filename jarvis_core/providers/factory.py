@@ -11,6 +11,16 @@ from pathlib import Path
 
 import yaml
 
+try:
+    import openai as _openai
+except ImportError:
+    _openai = None
+
+try:
+    import anthropic as _anthropic
+except ImportError:
+    _anthropic = None
+
 from .api_embed import APIEmbedProvider
 from .api_llm import APILLMProvider
 from .base import EmbedProvider, LLMProvider, ProviderConfig, ProviderType
@@ -18,6 +28,10 @@ from .local_embed import LocalEmbedProvider
 from .local_llm import LocalLLMProvider
 
 logger = logging.getLogger(__name__)
+
+# Exposed for tests that monkeypatch external SDK modules.
+openai = _openai
+anthropic = _anthropic
 
 
 def load_runtime_config(config_path: str = "config.yaml") -> dict:

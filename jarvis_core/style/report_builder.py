@@ -23,11 +23,18 @@ STYLE_GUIDE_PATH = Path(__file__).with_name("lab_style_guide.yaml")
 DOCX_AVAILABLE = importlib.util.find_spec("docx") is not None
 PPTX_AVAILABLE = importlib.util.find_spec("pptx") is not None
 
+docx = None
+pptx = None
+
 if DOCX_AVAILABLE:
-    import docx
+    import docx as _docx
+
+    docx = _docx
 
 if PPTX_AVAILABLE:
-    import pptx
+    import pptx as _pptx
+
+    pptx = _pptx
 
 
 def load_style_guide(path: Path = STYLE_GUIDE_PATH) -> dict[str, object]:

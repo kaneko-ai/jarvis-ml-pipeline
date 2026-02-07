@@ -14,6 +14,14 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+try:
+    import fitz as _fitz_module
+except ImportError:
+    _fitz_module = None
+
+# Expose module-level fitz for tests that patch this symbol.
+fitz = _fitz_module
+
 
 @dataclass
 class PDFSection:
@@ -88,13 +96,9 @@ class PDFExtractor:
     def _get_fitz(self):
         """PyMuPDFを遅延ロード."""
         if self._fitz is None:
-            try:
-                import fitz
-
-                self._fitz = fitz
-            except ImportError:
+            self._fitz = fitz
+            if self._fitz is None:
                 logger.warning("PyMuPDF not installed. Install with: pip install pymupdf")
-                self._fitz = None
         return self._fitz
 
     def extract(self, pdf_path: str) -> PDFDocument:

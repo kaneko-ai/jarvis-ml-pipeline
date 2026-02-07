@@ -6,10 +6,18 @@ Detects logical contradictions between claims.
 from __future__ import annotations
 
 import logging
-from typing import List
+from typing import Any, List
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
+
+try:
+    import transformers as _transformers
+except ImportError:
+    _transformers = None
+
+# Exposed for tests that monkeypatch model backends.
+transformers = _transformers
 
 
 @dataclass
@@ -44,18 +52,30 @@ class ContradictionDetector:
                 if i >= j:
                     continue
 
-                score = self._check_pair(claim_a, claim_b)
+                text_a = self._extract_text(claim_a)
+                text_b = self._extract_text(claim_b)
+                score = self._check_pair(text_a, text_b)
                 if score > 0.5:
                     contradictions.append(
                         Contradiction(
-                            statement_a=claim_a,
-                            statement_b=claim_b,
+                            statement_a=text_a,
+                            statement_b=text_b,
                             confidence=score,
                             reason="Heuristic antonym match",
                         )
                     )
 
         return contradictions
+
+    def _extract_text(self, claim: Any) -> str:
+        """Extract text from string/dict/object claim payloads."""
+        if isinstance(claim, str):
+            return claim
+        if isinstance(claim, dict):
+            value = claim.get("text", "")
+            return value if isinstance(value, str) else str(value)
+        value = getattr(claim, "text", "")
+        return value if isinstance(value, str) else str(value)
 
     def _check_pair(self, text_a: str, text_b: str) -> float:
         """Check a pair of texts for contradiction."""

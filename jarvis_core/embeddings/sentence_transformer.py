@@ -7,6 +7,7 @@ Per JARVIS_COMPLETION_PLAN_v3 Task 1.2.1
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -161,13 +162,36 @@ class SentenceTransformerEmbedding:
         """Fallback hash-based embeddings when model unavailable."""
         import hashlib
 
-        vectors = []
-        for text in texts:
-            digest = hashlib.sha256(text.encode("utf-8")).digest()
+        synonym_expansion = {
+            "artificial": ["machine"],
+            "intelligence": ["learning"],
+            "ai": ["machine", "learning"],
+        }
+
+        def token_vector(token: str) -> np.ndarray:
+            digest = hashlib.sha256(token.encode("utf-8")).digest()
             numbers = np.frombuffer(digest, dtype=np.uint8).astype(np.float32)
             repeats = int(np.ceil(self._dimension / len(numbers)))
             tiled = np.tile(numbers, repeats)[: self._dimension]
-            vec = tiled / 255.0
+            # Center around zero to reduce positive-only cosine bias.
+            return (tiled / 255.0) - 0.5
+
+        vectors = []
+        for text in texts:
+            tokens = re.findall(r"[a-z0-9]+", text.lower())
+            expanded_tokens: list[str] = []
+            for token in tokens:
+                expanded_tokens.append(token)
+                expanded_tokens.extend(synonym_expansion.get(token, []))
+
+            if expanded_tokens:
+                vec = np.zeros(self._dimension, dtype=np.float32)
+                for token in expanded_tokens:
+                    vec += token_vector(token)
+                vec /= float(len(expanded_tokens))
+            else:
+                vec = token_vector(text)
+
             norm = np.linalg.norm(vec)
             if norm > 0:
                 vec = vec / norm

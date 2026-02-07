@@ -10,6 +10,19 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+try:
+    import openai as _openai
+except ImportError:
+    _openai = None
+
+try:
+    import anthropic as _anthropic
+except ImportError:
+    _anthropic = None
+
+openai = _openai
+anthropic = _anthropic
+
 
 class EnsembleStrategy(Enum):
     """Ensemble combination strategies."""
