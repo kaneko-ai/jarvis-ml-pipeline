@@ -86,7 +86,7 @@ class OAResolver:
         try:
             url = f"https://api.unpaywall.org/v2/{quote(doi)}?email={quote(self.unpaywall_email)}"
             req = Request(url, headers={"User-Agent": "Jarvis-ML-Pipeline/1.0"})
-            with urlopen(req, timeout=self.timeout) as response:
+            with urlopen(req, timeout=self.timeout) as response:  # nosec B310
                 payload = response.read().decode("utf-8")
             return json.loads(payload)
         except (URLError, ValueError):

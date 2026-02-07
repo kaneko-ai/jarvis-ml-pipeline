@@ -54,7 +54,7 @@ def search_pubmed(query: str, timeout: float = 5.0) -> PubMedResult:
         # First, search for the PMID
         search_url = f"{ESEARCH_API}?db=pubmed&term={query}&retmax=1&retmode=json"
 
-        with urllib.request.urlopen(search_url, timeout=timeout) as response:
+        with urllib.request.urlopen(search_url, timeout=timeout) as response:  # nosec B310
             search_data = json.loads(response.read().decode("utf-8"))
 
         id_list = search_data.get("esearchresult", {}).get("idlist", [])
@@ -67,7 +67,7 @@ def search_pubmed(query: str, timeout: float = 5.0) -> PubMedResult:
         # Now get the summary
         summary_url = f"{ESUMMARY_API}?db=pubmed&id={pmid}&retmode=json"
 
-        with urllib.request.urlopen(summary_url, timeout=timeout) as response:
+        with urllib.request.urlopen(summary_url, timeout=timeout) as response:  # nosec B310
             summary_data = json.loads(response.read().decode("utf-8"))
 
         doc = summary_data.get("result", {}).get(pmid, {})

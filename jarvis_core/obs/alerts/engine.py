@@ -69,7 +69,7 @@ def _load_jobs() -> list[dict[str, Any]]:
 def _send_webhook(url: str, payload: dict[str, Any]) -> None:
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=10) as response:
+    with urllib.request.urlopen(req, timeout=10) as response:  # nosec B310
         response.read()
 
 

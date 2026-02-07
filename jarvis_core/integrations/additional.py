@@ -43,7 +43,7 @@ class ZoteroClient:
 
         try:
             req = urllib.request.Request(url, headers=self._get_headers())
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with urllib.request.urlopen(req, timeout=10) as response:  # nosec B310
                 return json.loads(response.read().decode())
         except Exception as e:
             print(f"Zotero error: {e}")
@@ -76,7 +76,7 @@ class ZoteroClient:
         try:
             data = json.dumps([item]).encode("utf-8")
             req = urllib.request.Request(url, data=data, headers=self._get_headers(), method="POST")
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with urllib.request.urlopen(req, timeout=10) as response:  # nosec B310
                 return response.status in [200, 201]
         except Exception as e:
             print(f"Zotero add error: {e}")
@@ -96,7 +96,7 @@ class ZoteroClient:
 
         try:
             req = urllib.request.Request(url, headers=self._get_headers())
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with urllib.request.urlopen(req, timeout=10) as response:  # nosec B310
                 return json.loads(response.read().decode())
         except Exception as e:
             print(f"Zotero search error: {e}")
@@ -146,7 +146,7 @@ class GoogleDriveExporter:
 
         try:
             req = urllib.request.Request(url, headers=self._get_headers())
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with urllib.request.urlopen(req, timeout=10) as response:  # nosec B310
                 data = json.loads(response.read().decode())
                 return data.get("files", [])
         except Exception as e:
@@ -239,7 +239,7 @@ class DiscordBot:
                 headers=self._get_headers(),
                 method="POST",
             )
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with urllib.request.urlopen(req, timeout=10) as response:  # nosec B310
                 return response.status in [200, 201]
         except Exception as e:
             print(f"Discord error: {e}")

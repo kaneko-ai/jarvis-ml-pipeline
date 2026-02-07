@@ -11,6 +11,30 @@ from pathlib import Path
 
 import yaml
 
+try:
+    import openai as openai
+except Exception:  # pragma: no cover - compatibility for tests patching module attr
+
+    class _OpenAIShim:
+        class OpenAI:
+            def __init__(self, *args, **kwargs):
+                self.args = args
+                self.kwargs = kwargs
+
+    openai = _OpenAIShim()
+
+try:
+    import anthropic as anthropic
+except Exception:  # pragma: no cover - compatibility for tests patching module attr
+
+    class _AnthropicShim:
+        class Anthropic:
+            def __init__(self, *args, **kwargs):
+                self.args = args
+                self.kwargs = kwargs
+
+    anthropic = _AnthropicShim()
+
 from .api_embed import APIEmbedProvider
 from .api_llm import APILLMProvider
 from .base import EmbedProvider, LLMProvider, ProviderConfig, ProviderType
