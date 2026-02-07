@@ -11,6 +11,7 @@ PDF documents (papers) into EvidenceStore.
 from __future__ import annotations
 
 import base64
+import binascii
 import logging
 import re
 import zlib
@@ -64,13 +65,13 @@ def _decode_stream(raw: bytes) -> bytes | None:
     try:
         decoded = base64.a85decode(raw, adobe=True)
         return zlib.decompress(decoded)
-    except Exception:
-        pass
+    except (ValueError, binascii.Error, zlib.error) as exc:
+        logger.debug("ASCII85+Flate decode failed: %s", exc)
     # Try Flate only
     try:
         return zlib.decompress(raw)
-    except Exception:
-        pass
+    except zlib.error as exc:
+        logger.debug("Flate decode failed: %s", exc)
     # Try ASCII85 only
     try:
         return base64.a85decode(raw, adobe=True)

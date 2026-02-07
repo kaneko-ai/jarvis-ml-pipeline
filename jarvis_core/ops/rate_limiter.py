@@ -83,7 +83,12 @@ class RateLimiter:
         """
         self.config = config or RateLimitConfig()
         self.state = RateLimitState()
-        self._lock = asyncio.Lock() if asyncio.get_event_loop().is_running() else None
+        try:
+            asyncio.get_running_loop()
+            self._lock = asyncio.Lock()
+        except RuntimeError:
+            # No active event loop in this thread (common for sync callers).
+            self._lock = None
 
     def _calculate_delay(self) -> float:
         """次のリクエストまでの待機時間を計算."""

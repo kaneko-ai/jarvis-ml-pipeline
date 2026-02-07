@@ -1,0 +1,18 @@
+name: Close Stale Paper Alerts
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+
+jobs:
+  close-stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          stale-issue-message: "Auto-closing paper alert after 14 days. Reopen if review needed."
+          close-issue-message: "Closed automatically."
+          days-before-stale: 14
+          days-before-close: 1
+          only-labels: "paper-alert,automated"
+          operations-per-run: 30

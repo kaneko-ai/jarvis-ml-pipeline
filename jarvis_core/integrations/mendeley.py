@@ -61,7 +61,7 @@ class MendeleyClient:
         if folder_id:
             params["folder_id"] = folder_id
 
-        response = requests.get(url, headers=self._headers, params=params)
+        response = requests.get(url, headers=self._headers, params=params, timeout=30)
         response.raise_for_status()
         return response.json()
 
@@ -80,7 +80,7 @@ class MendeleyClient:
             raise ImportError("requests is required for Mendeley integration")
 
         url = f"{self.BASE_URL}/documents"
-        response = requests.post(url, headers=self._headers, json=document)
+        response = requests.post(url, headers=self._headers, json=document, timeout=30)
         response.raise_for_status()
         return response.json()
 
@@ -101,7 +101,7 @@ class MendeleyClient:
 
         url = f"{self.BASE_URL}/search/catalog"
         params = {"query": query, "limit": limit}
-        response = requests.get(url, headers=self._headers, params=params)
+        response = requests.get(url, headers=self._headers, params=params, timeout=30)
         response.raise_for_status()
         return response.json()
 

@@ -10,6 +10,30 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+try:
+    import openai as openai
+except Exception:  # pragma: no cover - compatibility for tests patching module attr
+
+    class _OpenAIShim:
+        class OpenAI:
+            def __init__(self, *args, **kwargs):
+                self.args = args
+                self.kwargs = kwargs
+
+    openai = _OpenAIShim()
+
+try:
+    import anthropic as anthropic
+except Exception:  # pragma: no cover - compatibility for tests patching module attr
+
+    class _AnthropicShim:
+        class Anthropic:
+            def __init__(self, *args, **kwargs):
+                self.args = args
+                self.kwargs = kwargs
+
+    anthropic = _AnthropicShim()
+
 
 class EnsembleStrategy(Enum):
     """Ensemble combination strategies."""

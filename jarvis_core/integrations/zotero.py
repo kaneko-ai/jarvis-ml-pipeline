@@ -69,7 +69,7 @@ class ZoteroClient:
         if collection_key:
             params["collection"] = collection_key
 
-        response = requests.get(url, headers=self._headers, params=params)
+        response = requests.get(url, headers=self._headers, params=params, timeout=30)
         response.raise_for_status()
         return response.json()
 
@@ -88,7 +88,7 @@ class ZoteroClient:
             raise ImportError("requests is required for Zotero integration")
 
         url = f"{self._get_library_url()}/items"
-        response = requests.post(url, headers=self._headers, json=[item_data])
+        response = requests.post(url, headers=self._headers, json=[item_data], timeout=30)
         response.raise_for_status()
         return response.json()
 
@@ -100,7 +100,7 @@ class ZoteroClient:
             raise ImportError("requests is required for Zotero integration")
 
         url = f"{self._get_library_url()}/collections"
-        response = requests.get(url, headers=self._headers)
+        response = requests.get(url, headers=self._headers, timeout=30)
         response.raise_for_status()
         return response.json()
 
@@ -121,7 +121,7 @@ class ZoteroClient:
 
         url = f"{self._get_library_url()}/items"
         params = {"q": query, "limit": limit, "format": "json"}
-        response = requests.get(url, headers=self._headers, params=params)
+        response = requests.get(url, headers=self._headers, params=params, timeout=30)
         response.raise_for_status()
         return response.json()
 

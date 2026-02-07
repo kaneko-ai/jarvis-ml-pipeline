@@ -1,7 +1,7 @@
 """
 JARVIS PDF Extractor
 
-1. PDF全文抽出: 論文PDFから構造化テキストを抽出
+1. PDF蜈ｨ譁・歓蜃ｺ: 隲匁枚PDF縺九ｉ讒矩蛹悶ユ繧ｭ繧ｹ繝医ｒ謚ｽ蜃ｺ
 """
 
 from __future__ import annotations
@@ -12,12 +12,17 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+try:
+    import fitz as fitz
+except Exception:  # pragma: no cover - optional dependency
+    fitz = None
+
 logger = logging.getLogger(__name__)
 
 
 @dataclass
 class PDFSection:
-    """PDFセクション."""
+    """PDF繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ."""
 
     title: str
     content: str
@@ -35,7 +40,7 @@ class PDFSection:
 
 @dataclass
 class PDFDocument:
-    """抽出済みPDFドキュメント."""
+    """謚ｽ蜃ｺ貂医∩PDF繝峨く繝･繝｡繝ｳ繝・"""
 
     path: str
     title: str
@@ -59,7 +64,7 @@ class PDFDocument:
         }
 
     def get_full_text(self) -> str:
-        """全文を取得."""
+        """蜈ｨ譁・ｒ蜿門ｾ・"""
         parts = [self.abstract]
         for section in self.sections:
             parts.append(f"\n## {section.title}\n{section.content}")
@@ -67,9 +72,9 @@ class PDFDocument:
 
 
 class PDFExtractor:
-    """PDF抽出器.
+    """PDF謚ｽ蜃ｺ蝎ｨ.
 
-    PyMuPDF (fitz) を使用してPDFからテキストを抽出
+    PyMuPDF (fitz) 繧剃ｽｿ逕ｨ縺励※PDF縺九ｉ繝・く繧ｹ繝医ｒ謚ｽ蜃ｺ
     """
 
     SECTION_PATTERNS = {
@@ -82,29 +87,32 @@ class PDFExtractor:
     }
 
     def __init__(self):
-        """初期化."""
+        """蛻晄悄蛹・"""
         self._fitz = None
 
     def _get_fitz(self):
-        """PyMuPDFを遅延ロード."""
+        """PyMuPDF繧帝≦蟒ｶ繝ｭ繝ｼ繝・"""
         if self._fitz is None:
-            try:
-                import fitz
-
+            if fitz is not None:
                 self._fitz = fitz
-            except ImportError:
-                logger.warning("PyMuPDF not installed. Install with: pip install pymupdf")
-                self._fitz = None
+            else:
+                try:
+                    import fitz as fitz_runtime
+
+                    self._fitz = fitz_runtime
+                except ImportError:
+                    logger.warning("PyMuPDF not installed. Install with: pip install pymupdf")
+                    self._fitz = None
         return self._fitz
 
     def extract(self, pdf_path: str) -> PDFDocument:
-        """PDFからテキストを抽出.
+        """PDF縺九ｉ繝・く繧ｹ繝医ｒ謚ｽ蜃ｺ.
 
         Args:
-            pdf_path: PDFファイルパス
+            pdf_path: PDF繝輔ぃ繧､繝ｫ繝代せ
 
         Returns:
-            抽出済みドキュメント
+            謚ｽ蜃ｺ貂医∩繝峨く繝･繝｡繝ｳ繝・
         """
         path = Path(pdf_path)
         if not path.exists():
@@ -113,21 +121,21 @@ class PDFExtractor:
         fitz = self._get_fitz()
 
         if fitz is None:
-            # Fallback: 基本的なテキスト抽出
+            # Fallback: 蝓ｺ譛ｬ逧・↑繝・く繧ｹ繝域歓蜃ｺ
             return self._extract_fallback(pdf_path)
 
         return self._extract_with_fitz(pdf_path, fitz)
 
     def _extract_with_fitz(self, pdf_path: str, fitz) -> PDFDocument:
-        """PyMuPDFで抽出."""
+        """PyMuPDF縺ｧ謚ｽ蜃ｺ."""
         doc = fitz.open(pdf_path)
 
-        # メタデータ
+        # 繝｡繧ｿ繝・・繧ｿ
         metadata = doc.metadata
         title = metadata.get("title", "") or Path(pdf_path).stem
         authors = metadata.get("author", "").split(",")
 
-        # 全ページのテキスト
+        # 蜈ｨ繝壹・繧ｸ縺ｮ繝・く繧ｹ繝・
         full_text = ""
         page_texts = []
         for page_num, page in enumerate(doc):
@@ -137,17 +145,17 @@ class PDFExtractor:
 
         doc.close()
 
-        # セクション分割
+        # 繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ蛻・牡
         sections = self._parse_sections(page_texts)
 
-        # Abstract抽出
+        # Abstract謚ｽ蜃ｺ
         abstract = ""
         for section in sections:
             if section.section_type == "abstract":
                 abstract = section.content
                 break
 
-        # 参考文献抽出
+        # 蜿り・枚迪ｮ謚ｽ蜃ｺ
         references = self._extract_references(full_text)
 
         return PDFDocument(
@@ -160,7 +168,7 @@ class PDFExtractor:
         )
 
     def _extract_fallback(self, pdf_path: str) -> PDFDocument:
-        """フォールバック抽出（PyMuPDFなし）."""
+        """繝輔か繝ｼ繝ｫ繝舌ャ繧ｯ謚ｽ蜃ｺ・・yMuPDF縺ｪ縺暦ｼ・"""
         logger.warning("Using fallback extraction (limited functionality)")
 
         return PDFDocument(
@@ -173,7 +181,7 @@ class PDFExtractor:
         )
 
     def _parse_sections(self, page_texts: list[tuple]) -> list[PDFSection]:
-        """セクションを分割."""
+        """繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ繧貞・蜑ｲ."""
         sections = []
         current_section = None
         current_content = []
@@ -187,11 +195,11 @@ class PDFExtractor:
                 if not line:
                     continue
 
-                # セクションヘッダーを検出
+                # 繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ繝倥ャ繝繝ｼ繧呈､懷・
                 section_type = self._detect_section_type(line)
 
                 if section_type:
-                    # 前のセクションを保存
+                    # 蜑阪・繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ繧剃ｿ晏ｭ・
                     if current_section:
                         sections.append(
                             PDFSection(
@@ -208,7 +216,7 @@ class PDFExtractor:
                 else:
                     current_content.append(line)
 
-        # 最後のセクション
+        # 譛蠕後・繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ
         if current_section:
             sections.append(
                 PDFSection(
@@ -222,28 +230,28 @@ class PDFExtractor:
         return sections
 
     def _detect_section_type(self, line: str) -> str | None:
-        """セクションタイプを検出."""
+        """繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ繧ｿ繧､繝励ｒ讀懷・."""
         for section_type, pattern in self.SECTION_PATTERNS.items():
             if re.match(pattern, line):
                 return section_type
         return None
 
     def _get_section_type(self, title: str) -> str:
-        """タイトルからセクションタイプを取得."""
+        """繧ｿ繧､繝医Ν縺九ｉ繧ｻ繧ｯ繧ｷ繝ｧ繝ｳ繧ｿ繧､繝励ｒ蜿門ｾ・"""
         for section_type, pattern in self.SECTION_PATTERNS.items():
             if re.match(pattern, title):
                 return section_type
         return "other"
 
     def _extract_references(self, text: str) -> list[str]:
-        """参考文献を抽出."""
+        """蜿り・枚迪ｮ繧呈歓蜃ｺ."""
         references = []
 
-        # DOIパターン
+        # DOI繝代ち繝ｼ繝ｳ
         dois = re.findall(r"10\.\d{4,}/[^\s]+", text)
         references.extend([f"DOI: {doi}" for doi in dois[:20]])
 
-        # PMIDパターン
+        # PMID繝代ち繝ｼ繝ｳ
         pmids = re.findall(r"PMID[:\s]*(\d+)", text, re.IGNORECASE)
         references.extend([f"PMID: {pmid}" for pmid in pmids[:20]])
 
