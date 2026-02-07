@@ -383,3 +383,26 @@ P0 > P1 > P2 > P3 の優先順位を厳守
   - pass: 5921
   - skip: 457
   - coverage: 70.20%
+
+---
+
+## セッション詳細レポート（2026-02-07 追記）
+
+### 完了した作業
+- TD-029: core 4モジュール（evidence/contradiction/citation/sources）の mypy エラーを 0 件化。
+- TD-026: bandit medium 指摘を 33 件から 0 件に解消。
+- TD-027: PR #85 / #90 / #96 に TD-027確認コメントを投稿し、方針を記録。
+- feature ブランチの未push 3コミットを origin へ反映済み。
+
+### 実測結果
+- mypy（core）: Success: no issues found in 43 source files
+- bandit: No issues identified（-ll）
+- 対象テスト: 26 passed（evidence/contradiction/citation/sources の重点テスト）
+- PRコメントURL:
+  - https://github.com/kaneko-ai/jarvis-ml-pipeline/pull/85#issuecomment-3863903126
+  - https://github.com/kaneko-ai/jarvis-ml-pipeline/pull/90#issuecomment-3863903145
+  - https://github.com/kaneko-ai/jarvis-ml-pipeline/pull/96#issuecomment-3863903127
+
+### 残タスク
+- TD-025〜TD-029 の最終検証コマンド一式を再実行し、結果を PR 本文チェックリストへ反映。
+- 作業ツリーに残る生成物（.coverage, jarvis_research_os.egg-info/*, rtifacts/audit/*, experiments/*）の扱い方針を決定。

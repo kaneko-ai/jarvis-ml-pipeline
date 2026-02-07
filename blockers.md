@@ -99,3 +99,11 @@ uv run bandit -r jarvis_core -ll -> Medium 33件
 - Task: TD-029 mypy core modules
 - Result: mypy --explicit-package-bases --follow-imports=skip ... 0 errors
 - Action: CI の mypy ステップから || true を除去済み
+
+### Resolved - Blocker #1 (2026-02-07)
+- Task: TD-027 PRコメント投稿
+- Result: GitHub CLI導入後、既存Git認証情報で gh を利用してコメント投稿完了
+
+### Resolved - Blocker #3 (2026-02-07)
+- Task: TD-026 bandit gate
+- Result: medium 33件を解消し、andit -r jarvis_core -ll で 0 件を確認

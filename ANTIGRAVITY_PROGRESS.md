@@ -87,3 +87,8 @@ Days Remaining: 168 (24 weeks)
 - ✅ CI の mypy ステップから || true を除去
 - ✅ contradiction/evidence/citation/sources の型注釈・型整合を修正
 - 備考: --explicit-package-bases --follow-imports=skip をCI実行オプションとして維持
+
+### 2026-02-07 - TD-027: PRコメント投稿まで完了
+- ✅ gh 導入完了（v2.86.0）
+- ✅ PR #85 / #90 / #96 に TD-027 方針コメントを投稿
+- ✅ feature/td025-029-quality-hardening-v2 へ最新コミットを push
