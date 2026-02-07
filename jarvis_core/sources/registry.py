@@ -6,7 +6,7 @@ Manages available data sources.
 from __future__ import annotations
 
 import logging
-from typing import Dict, Type
+from typing import Callable, Dict, Type
 from jarvis_core.sources.base import SourceAdapter
 
 logger = logging.getLogger(__name__)
@@ -19,10 +19,10 @@ class SourceRegistry:
     _instances: Dict[str, SourceAdapter] = {}
 
     @classmethod
-    def register(cls, name: str):
+    def register(cls, name: str) -> Callable[[Type[SourceAdapter]], Type[SourceAdapter]]:
         """Decorator to register a source adapter."""
 
-        def wrapper(adapter_cls: Type[SourceAdapter]):
+        def wrapper(adapter_cls: Type[SourceAdapter]) -> Type[SourceAdapter]:
             cls._adapters[name] = adapter_cls
             return adapter_cls
 

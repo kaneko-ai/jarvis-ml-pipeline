@@ -1,4 +1,4 @@
-"""Contradiction Detector (Phase 28).
+﻿"""Contradiction Detector (Phase 28).
 
 Detects logical contradictions between claims.
 """
@@ -6,6 +6,7 @@ Detects logical contradictions between claims.
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping, Sequence
 from typing import List
 from dataclasses import dataclass
 
@@ -22,7 +23,9 @@ except Exception:  # pragma: no cover - compatibility for tests patching module 
 
         class AutoModelForSequenceClassification:
             @staticmethod
-            def from_pretrained(*args, **kwargs):
+            def from_pretrained(
+                *args: object, **kwargs: object
+            ) -> "_TransformersShim._UnavailableSequenceModel":
                 model_name = str(args[0]) if args else str(kwargs.get("model_name", ""))
                 return _TransformersShim._UnavailableSequenceModel(model_name=model_name)
 
@@ -44,8 +47,8 @@ class Contradiction:
 class ContradictionDetector:
     """Detects contradictions using heuristics or models."""
 
-    def __init__(self, config: dict | None = None):
-        self.config = config or {}
+    def __init__(self, config: dict[str, object] | None = None) -> None:
+        self.config: dict[str, object] = config or {}
         # Simple heuristic antonym pairs for smoke testing
         self.antonyms = [
             ("increase", "decrease"),
@@ -56,7 +59,7 @@ class ContradictionDetector:
             ("true", "false"),
         ]
 
-    def detect(self, claims: List[str | dict]) -> List[Contradiction]:
+    def detect(self, claims: Sequence[str | Mapping[str, object]]) -> List[Contradiction]:
         """Detect contradictions within a list of claims."""
         contradictions = []
 
@@ -80,11 +83,11 @@ class ContradictionDetector:
 
         return contradictions
 
-    def _extract_text(self, claim: str | dict) -> str:
+    def _extract_text(self, claim: str | Mapping[str, object]) -> str:
         """Extract canonical text from claim-like objects."""
         if isinstance(claim, str):
             return claim
-        if isinstance(claim, dict):
+        if isinstance(claim, Mapping):
             text = claim.get("text")
             if isinstance(text, str):
                 return text
@@ -121,7 +124,7 @@ class ContradictionDetector:
         return 0.0
 
 
-def detect_contradiction(claims: List[str]) -> List[Contradiction]:
+def detect_contradiction(claims: Sequence[str]) -> List[Contradiction]:
     """Convenience function to detect contradictions."""
     detector = ContradictionDetector()
     return detector.detect(claims)

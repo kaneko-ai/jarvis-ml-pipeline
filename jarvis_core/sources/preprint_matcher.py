@@ -1,10 +1,10 @@
-"""Match preprints to published versions via Crossref."""
+﻿"""Match preprints to published versions via Crossref."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-import requests
+import requests  # type: ignore[import-untyped]
 
 
 @dataclass

@@ -1,6 +1,6 @@
-"""Semantic Scholar Client for JARVIS.
+﻿"""Semantic Scholar Client for JARVIS.
 
-Per JARVIS_LOCALFIRST_ROADMAP Task 1.4: 無料API統合
+Per JARVIS_LOCALFIRST_ROADMAP Task 1.4: 辟｡譁僊PI邨ｱ蜷・
 Uses Semantic Scholar Academic Graph API (free tier: 100 requests/5 min).
 """
 
@@ -11,7 +11,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
-import requests
+import requests  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 
