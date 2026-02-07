@@ -64,17 +64,18 @@ def _decode_stream(raw: bytes) -> bytes | None:
     try:
         decoded = base64.a85decode(raw, adobe=True)
         return zlib.decompress(decoded)
-    except Exception:
-        pass
+    except (ValueError, zlib.error, TypeError) as exc:
+        logger.debug("ASCII85+Flate decode failed: %s", exc)
     # Try Flate only
     try:
         return zlib.decompress(raw)
-    except Exception:
-        pass
+    except zlib.error as exc:
+        logger.debug("Flate decode failed: %s", exc)
     # Try ASCII85 only
     try:
         return base64.a85decode(raw, adobe=True)
-    except Exception:
+    except (ValueError, TypeError) as exc:
+        logger.debug("ASCII85 decode failed: %s", exc)
         return None
 
 
