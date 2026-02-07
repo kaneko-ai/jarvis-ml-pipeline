@@ -7,6 +7,7 @@ Per JARVIS_COMPLETION_INSTRUCTION Task 2.2.2
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from jarvis_core.citation.stance_classifier import CitationStance
 
@@ -23,7 +24,7 @@ class InfluenceScore:
     influence_score: float
     controversy_score: float
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, float | int | str]:
         return {
             "paper_id": self.paper_id,
             "total_citations": self.total_citations,
@@ -38,7 +39,7 @@ class InfluenceScore:
 class InfluenceCalculator:
     """Calculates paper influence based on citation stances."""
 
-    def __init__(self, citation_graph=None):
+    def __init__(self, citation_graph: Any | None = None) -> None:
         """Initialize calculator.
 
         Args:
@@ -49,7 +50,7 @@ class InfluenceCalculator:
     def calculate(
         self,
         paper_id: str,
-        citations: list | None = None,
+        citations: list[Any] | None = None,
     ) -> InfluenceScore:
         """Calculate influence score for a paper.
 
@@ -102,7 +103,10 @@ class InfluenceCalculator:
         )
 
     def rank_papers(
-        self, paper_ids: list[str], citations_map: dict = None, by: str = "influence"
+        self,
+        paper_ids: list[str],
+        citations_map: dict[str, list[Any]] | None = None,
+        by: str = "influence",
     ) -> list[InfluenceScore]:
         """Rank papers by influence or controversy.
 

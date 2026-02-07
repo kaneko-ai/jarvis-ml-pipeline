@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import logging
 from dataclasses import dataclass
+from typing import Any
 
 from jarvis_core.evidence.schema import (
     EvidenceGrade,
@@ -102,7 +103,7 @@ class LLMBasedClassifier:
             config: LLM configuration
         """
         self._config = config or LLMConfig()
-        self._llm = None
+        self._llm: Any | None = None
         self._initialized = False
 
     def _initialize(self) -> bool:
@@ -163,6 +164,8 @@ class LLMBasedClassifier:
         )
 
         try:
+            if self._llm is None:
+                raise RuntimeError("LLM backend not initialized")
             # Call LLM
             response = self._llm.generate(
                 prompt,
@@ -298,6 +301,8 @@ class LLMBasedClassifier:
         prompt = PICO_EXTRACTION_PROMPT.format(abstract=abstract)
 
         try:
+            if self._llm is None:
+                raise RuntimeError("LLM backend not initialized")
             response = self._llm.generate(
                 prompt,
                 temperature=0.1,

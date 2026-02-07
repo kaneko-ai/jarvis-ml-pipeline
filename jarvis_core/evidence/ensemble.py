@@ -175,10 +175,28 @@ class EnsembleClassifier:
             raw_scores={
                 "rule_confidence": rule_grade.confidence,
                 "llm_confidence": llm_grade.confidence,
-                "rule_level": rule_grade.level.value,
-                "llm_level": llm_grade.level.value,
+                "rule_level_score": self._level_score(rule_grade.level),
+                "llm_level_score": self._level_score(llm_grade.level),
             },
         )
+
+    @staticmethod
+    def _level_score(level: EvidenceLevel) -> float:
+        """Convert evidence level enum to numeric score for logging."""
+        level_scores: dict[EvidenceLevel, float] = {
+            EvidenceLevel.LEVEL_1A: 1.0,
+            EvidenceLevel.LEVEL_1B: 1.1,
+            EvidenceLevel.LEVEL_1C: 1.2,
+            EvidenceLevel.LEVEL_2A: 2.0,
+            EvidenceLevel.LEVEL_2B: 2.1,
+            EvidenceLevel.LEVEL_2C: 2.2,
+            EvidenceLevel.LEVEL_3A: 3.0,
+            EvidenceLevel.LEVEL_3B: 3.1,
+            EvidenceLevel.LEVEL_4: 4.0,
+            EvidenceLevel.LEVEL_5: 5.0,
+            EvidenceLevel.UNKNOWN: 99.0,
+        }
+        return level_scores[level]
 
     def _voting(
         self,

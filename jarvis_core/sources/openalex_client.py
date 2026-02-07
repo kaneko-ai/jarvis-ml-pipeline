@@ -1,6 +1,6 @@
-"""OpenAlex Client for JARVIS.
+﻿"""OpenAlex Client for JARVIS.
 
-Per JARVIS_LOCALFIRST_ROADMAP Task 1.4: 無料API統合
+Per JARVIS_LOCALFIRST_ROADMAP Task 1.4: 辟｡譁僊PI邨ｱ蜷・
 Uses OpenAlex API (completely free, 100k requests/day).
 """
 
@@ -11,7 +11,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
-import requests
+import requests  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +79,7 @@ class OpenAlexClient:
             time.sleep(self.rate_limit - elapsed)
         self._last_request_time = time.time()
 
-    def _build_params(self, **kwargs) -> dict[str, Any]:
+    def _build_params(self, **kwargs: Any) -> dict[str, Any]:
         """Build request parameters."""
         params = {k: v for k, v in kwargs.items() if v is not None}
         if self.email:

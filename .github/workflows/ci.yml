@@ -1,4 +1,4 @@
-name: CI
+﻿name: CI
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
     branches: [main]
 
 jobs:
-  # ===== 必須ジョブ =====
+  # ===== 蠢・医ず繝ｧ繝・=====
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -24,7 +24,7 @@ jobs:
         run: uv run black --check jarvis_core tests
       - name: Run mypy (core modules)
         run: |
-          # TODO(td029): 型エラー解消後に || true を除去する
+          # TODO(td029): 蝙九お繝ｩ繝ｼ隗｣豸亥ｾ後↓ || true 繧帝勁蜴ｻ縺吶ｋ
           uv run mypy \
             --explicit-package-bases \
             --follow-imports=skip \
@@ -32,7 +32,7 @@ jobs:
             jarvis_core/contradiction/ \
             jarvis_core/citation/ \
             jarvis_core/sources/ \
-            --ignore-missing-imports || true
+            --ignore-missing-imports
 
   garbage_check:
     runs-on: ubuntu-latest
@@ -48,7 +48,7 @@ jobs:
       - name: Run garbage collector check
         run: uv run python scripts/detect_garbage_code.py
 
-  # テストジョブ - 情報収集目的、常に成功
+  # 繝・せ繝医ず繝ｧ繝・- 諠・ｱ蜿朱寔逶ｮ逧・∝ｸｸ縺ｫ謌仙粥
   test:
     runs-on: ubuntu-latest
     strategy:
@@ -100,7 +100,7 @@ jobs:
             --no-header \
             --collect-only -q 2>/dev/null || true
           
-          # フォールバック: 直接 coverage コマンド
+          # 繝輔か繝ｼ繝ｫ繝舌ャ繧ｯ: 逶ｴ謗･ coverage 繧ｳ繝槭Φ繝・
           if [ ! -f coverage.xml ]; then
             uv run coverage run --source=jarvis_core -m pytest tests/ \
               --ignore=tests/e2e \
@@ -138,7 +138,7 @@ jobs:
           path: coverage.xml
           if-no-files-found: ignore
       
-      # 常に成功で終了
+      # 蟶ｸ縺ｫ謌仙粥縺ｧ邨ゆｺ・
   security:
     runs-on: ubuntu-latest
     steps:
@@ -173,9 +173,9 @@ jobs:
           name: dist
           path: dist/
 
-  # ===== オプショナルジョブ（continue-on-error: true） =====
+  # ===== 繧ｪ繝励す繝ｧ繝翫Ν繧ｸ繝ｧ繝厄ｼ・ontinue-on-error: true・・=====
   
-  # カバレッジ閾値チェック - 任意ジョブとして分離
+  # 繧ｫ繝舌Ξ繝・ず髢ｾ蛟､繝√ぉ繝・け - 莉ｻ諢上ず繝ｧ繝悶→縺励※蛻・屬
   coverage_gate:
     runs-on: ubuntu-latest
     needs: [test]
