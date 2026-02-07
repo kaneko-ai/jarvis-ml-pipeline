@@ -81,3 +81,9 @@ Days Remaining: 168 (24 weeks)
 - ✅ 実測: mypy --explicit-package-bases --follow-imports=skip で 48 errors / 20 files
 - ⚠️ blockers.md に型エラー/bandit のブロッカーを登録
 - 継続方針: evidence/contradiction を優先して0化し、最後に CI の || true を除去
+
+### 2026-02-07 - TD-029: mypy コアモジュール対応（完了）
+- ✅ mypy(core): Success: no issues found in 43 source files
+- ✅ CI の mypy ステップから || true を除去
+- ✅ contradiction/evidence/citation/sources の型注釈・型整合を修正
+- 備考: --explicit-package-bases --follow-imports=skip をCI実行オプションとして維持

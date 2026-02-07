@@ -94,3 +94,8 @@ uv run bandit -r jarvis_core -ll -> Medium 33件
 高頻出パターンから順次修正し、必要箇所のみ # nosec に理由を添えて限定適用する。
 
 **Status**: BLOCKED
+
+### Resolved - Blocker #2 (2026-02-07)
+- Task: TD-029 mypy core modules
+- Result: mypy --explicit-package-bases --follow-imports=skip ... 0 errors
+- Action: CI の mypy ステップから || true を除去済み
