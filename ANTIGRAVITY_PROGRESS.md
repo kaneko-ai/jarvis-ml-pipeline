@@ -69,3 +69,10 @@ Days Remaining: 168 (24 weeks)
 - ✅ PR #85 ローカル検証: 収集中に3 errors（starlette.testclient / python-multipart）
 - ✅ .github/workflows/close-stale-alerts.yml を追加
 - ⚠️ gh 未導入のためPRコメント投稿は blockers.md に記録
+
+### 2026-02-07 - TD-028: コアモジュール品質テスト追加
+- ✅ evidence: 10テスト追加（PASS）
+- ✅ contradiction: 8テスト追加（PASS）
+- ✅ sources: 5テスト追加（PASS）
+- ⚠️ 回帰実行では既存失敗 166 failed / 1 error を確認（新規テスト由来ではない）
+- 備考: TD-006 の前提基盤として新規 *_td028.py のみ追加
