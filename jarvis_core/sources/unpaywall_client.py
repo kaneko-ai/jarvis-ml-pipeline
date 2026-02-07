@@ -1,4 +1,4 @@
-﻿"""Unpaywall API Client.
+"""Unpaywall API Client.
 
 Free API client for finding open access versions of papers.
 Per JARVIS_COMPLETION_PLAN_v3 Task 1.4.5

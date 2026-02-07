@@ -1,4 +1,4 @@
-﻿"""Retraction Watch integration."""
+"""Retraction Watch integration."""
 
 from __future__ import annotations
 

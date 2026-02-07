@@ -1,4 +1,4 @@
-﻿"""Semantic Scholar Client for JARVIS.
+"""Semantic Scholar Client for JARVIS.
 
 Per JARVIS_LOCALFIRST_ROADMAP Task 1.4: 辟｡譁僊PI邨ｱ蜷・
 Uses Semantic Scholar Academic Graph API (free tier: 100 requests/5 min).

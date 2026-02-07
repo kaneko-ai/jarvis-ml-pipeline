@@ -1,4 +1,4 @@
-﻿"""Ingestion Pipeline (AG-08).
+"""Ingestion Pipeline (AG-08).
 
 PDF/BibTeX/ZIP縺九ｉpapers.jsonl繧堤函謌舌☆繧句叙繧願ｾｼ縺ｿ繝代う繝励Λ繧､繝ｳ縲・
 - PDF竊偵ユ繧ｭ繧ｹ繝域歓蜃ｺ

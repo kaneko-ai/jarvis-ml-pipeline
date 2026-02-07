@@ -406,3 +406,8 @@ P0 > P1 > P2 > P3 の優先順位を厳守
 ### 残タスク
 - TD-025〜TD-029 の最終検証コマンド一式を再実行し、結果を PR 本文チェックリストへ反映。
 - 作業ツリーに残る生成物（.coverage, jarvis_research_os.egg-info/*, rtifacts/audit/*, experiments/*）の扱い方針を決定。
+
+### 2026-02-07 生成物運用方針（固定）
+- 検証で生成される `.coverage*` / `coverage.xml` / `htmlcov/` / `artifacts/audit/` / `experiments/` はコミット対象外とする。
+- 品質タスク（TD-025〜029）のコミットでは、実装・テスト・CI設定・進捗ドキュメントのみをステージする。
+- 追跡済み生成物（例: egg-info 変動）がある場合は、意図した変更でない限りコミットに含めない。

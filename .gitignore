@@ -20,3 +20,10 @@ outputs/
 
 test_experiments/
 pdf_fail_*.txt
+
+# Local verification artifacts
+.coverage*
+coverage.xml
+htmlcov/
+artifacts/audit/
+experiments/
