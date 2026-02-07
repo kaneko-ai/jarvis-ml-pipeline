@@ -22,8 +22,17 @@ jobs:
         run: uv run ruff check jarvis_core tests
       - name: Run black check
         run: uv run black --check jarvis_core tests
-      - name: Run mypy
-        run: uv run mypy jarvis_core || true
+      - name: Run mypy (core modules)
+        run: |
+          # TODO(td029): 型エラー解消後に `|| true` を除去する
+          uv run mypy \
+            --explicit-package-bases \
+            --follow-imports=skip \
+            jarvis_core/evidence/ \
+            jarvis_core/contradiction/ \
+            jarvis_core/citation/ \
+            jarvis_core/sources/ \
+            --ignore-missing-imports || true
 
   garbage_check:
     runs-on: ubuntu-latest
@@ -72,7 +81,7 @@ jobs:
             -q \
             --tb=line \
             --no-header \
-            -x || echo "TESTS_FAILED=true" >> $GITHUB_ENV
+            -x
       
       - name: Collect coverage
         if: always()
@@ -130,10 +139,6 @@ jobs:
           if-no-files-found: ignore
       
       # 常に成功で終了
-      - name: Mark as success
-        if: always()
-        run: echo "Test job completed (informational only)"
-
   security:
     runs-on: ubuntu-latest
     steps:
@@ -144,7 +149,7 @@ jobs:
       - name: Install security tools
         run: pip install bandit safety pip-audit
       - name: Run bandit
-        run: bandit -r jarvis_core -ll || true
+        run: bandit -r jarvis_core -ll
       - name: Run pip-audit
         run: pip-audit || true
 
@@ -192,11 +197,14 @@ jobs:
         continue-on-error: true
       - name: Check coverage threshold
         run: |
-          if [ -f coverage.xml ]; then
-            uv run coverage report --fail-under=70 || echo "Coverage below 70%"
-          else
-            echo "No coverage data available"
-          fi
+          uv run pytest tests/ \
+            --cov=jarvis_core \
+            --cov-fail-under=70 \
+            --ignore=tests/e2e \
+            --ignore=tests/integration \
+            -p no:randomly \
+            -p no:xdist \
+            -q --tb=no --no-header
 
   contract_and_unit:
     runs-on: ubuntu-latest
@@ -215,7 +223,7 @@ jobs:
       - name: Generate api map
         run: make api-map || echo "Skipped"
       - name: Contract tests
-        run: uv run pytest -q tests/test_api_map_vs_capabilities.py tests/test_front_adapter_contract.py || echo "Tests failed"
+        run: uv run pytest -q tests/test_api_map_vs_capabilities.py tests/test_front_adapter_contract.py
 
   api_smoke:
     runs-on: ubuntu-latest
@@ -236,7 +244,7 @@ jobs:
       - name: API smoke tests
         env:
           API_BASE: http://localhost:8000
-        run: uv run pytest -q tests/smoke_api_v1.py || echo "Smoke tests failed"
+        run: uv run pytest -q tests/smoke_api_v1.py
 
   dashboard_e2e_mock:
     runs-on: ubuntu-latest
