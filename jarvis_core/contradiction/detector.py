@@ -25,7 +25,7 @@ class Contradiction:
 class ContradictionDetector:
     """Detects contradictions using heuristics or models."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Simple heuristic antonym pairs for smoke testing
         self.antonyms = [
             ("increase", "decrease"),

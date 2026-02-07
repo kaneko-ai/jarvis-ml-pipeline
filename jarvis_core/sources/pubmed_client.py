@@ -1,6 +1,6 @@
-"""NCBI PubMed Client for JARVIS.
+﻿"""NCBI PubMed Client for JARVIS.
 
-Per JARVIS_LOCALFIRST_ROADMAP Task 1.4: 無料API統合
+Per JARVIS_LOCALFIRST_ROADMAP Task 1.4: 辟｡譁僊PI邨ｱ蜷・
 Uses NCBI E-utilities API (free, no API key required for low volume).
 """
 
@@ -12,7 +12,7 @@ import defusedxml.ElementTree as ET
 from dataclasses import dataclass, field
 from typing import Any
 
-import requests
+import requests  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +80,7 @@ class PubMedClient:
             time.sleep(self.rate_limit - elapsed)
         self._last_request_time = time.time()
 
-    def _build_params(self, **kwargs) -> dict[str, str]:
+    def _build_params(self, **kwargs: str) -> dict[str, str]:
         """Build request parameters with common fields."""
         params = {
             "tool": self.tool_name,
@@ -122,8 +122,8 @@ class PubMedClient:
             response = self._session.get(ESEARCH_URL, params=params, timeout=30)
             response.raise_for_status()
             data = response.json()
-
-            id_list = data.get("esearchresult", {}).get("idlist", [])
+            id_list_raw = data.get("esearchresult", {}).get("idlist", [])
+            id_list = [str(pmid) for pmid in id_list_raw if isinstance(pmid, (str, int))]
             logger.info(f"PubMed search '{query[:50]}...' returned {len(id_list)} results")
             return id_list
 

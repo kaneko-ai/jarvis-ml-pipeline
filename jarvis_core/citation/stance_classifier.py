@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
@@ -35,9 +35,9 @@ class StanceResult:
     stance: CitationStance
     confidence: float
     evidence: str = ""  # Key phrases that led to the classification
-    scores: dict[str, float] = None  # Raw scores for all stances
+    scores: dict[str, float] = field(default_factory=dict)  # Raw scores for all stances
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.scores is None:
             self.scores = {}
 
@@ -101,7 +101,7 @@ class StanceClassifier:
         CitationStance.SUPPORT
     """
 
-    def __init__(self, use_llm: bool = False):
+    def __init__(self, use_llm: bool = False) -> None:
         """Initialize the classifier.
 
         Args:
@@ -181,7 +181,7 @@ class StanceClassifier:
             )
 
         # Get stance with highest score
-        best_stance = max(scores, key=scores.get)
+        best_stance = max(scores, key=lambda stance: scores[stance])
         best_score = scores[best_stance]
 
         # Calculate confidence (normalize by total)

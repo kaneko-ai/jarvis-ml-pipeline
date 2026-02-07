@@ -84,7 +84,7 @@ class CitationGraph:
         ['paper_B', 'paper_C']
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the citation graph."""
         self._nodes: dict[str, PaperNode] = {}
         self._edges: dict[tuple[str, str], CitationEdge] = {}

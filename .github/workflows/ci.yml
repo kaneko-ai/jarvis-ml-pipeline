@@ -24,7 +24,6 @@ jobs:
         run: uv run black --check jarvis_core tests
       - name: Run mypy (core modules)
         run: |
-          # TODO(td029): 型エラー解消後に `|| true` を除去する
           uv run mypy \
             --explicit-package-bases \
             --follow-imports=skip \
@@ -32,7 +31,7 @@ jobs:
             jarvis_core/contradiction/ \
             jarvis_core/citation/ \
             jarvis_core/sources/ \
-            --ignore-missing-imports || true
+            --ignore-missing-imports
 
   garbage_check:
     runs-on: ubuntu-latest

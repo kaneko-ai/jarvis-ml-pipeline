@@ -47,7 +47,7 @@ class RuleBasedClassifier:
         EvidenceLevel.LEVEL_1B
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the classifier with patterns."""
         self._patterns = self._build_patterns()
         self._sample_size_pattern = re.compile(
