@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from urllib.parse import quote_plus
 
-import requests
+import requests  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 

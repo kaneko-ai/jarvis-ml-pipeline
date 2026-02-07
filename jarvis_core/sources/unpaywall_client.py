@@ -1,4 +1,4 @@
-"""Unpaywall API Client.
+﻿"""Unpaywall API Client.
 
 Free API client for finding open access versions of papers.
 Per JARVIS_COMPLETION_PLAN_v3 Task 1.4.5
@@ -10,7 +10,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any
 
-import requests
+import requests  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 

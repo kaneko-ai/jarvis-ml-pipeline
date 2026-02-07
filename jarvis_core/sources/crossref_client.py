@@ -1,4 +1,4 @@
-"""Crossref API Client.
+﻿"""Crossref API Client.
 
 Free API client for Crossref metadata retrieval.
 Per JARVIS_COMPLETION_PLAN_v3 Task 1.4.5
@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-import requests
+import requests  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 

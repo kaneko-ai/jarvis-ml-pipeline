@@ -6,11 +6,13 @@ Uses embedding similarity for advanced contradiction detection.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 
 from jarvis_core.contradiction.schema import (
     Claim,
+    ClaimPair,
     ContradictionResult,
     ContradictionType,
 )
@@ -35,12 +37,12 @@ class SemanticContradictionDetector:
     3. Analyzing predicate-argument structure
     """
 
-    def __init__(self, config: SemanticConfig | None = None):
+    def __init__(self, config: SemanticConfig | None = None) -> None:
         self.config = config or SemanticConfig()
-        self._embedder = None
+        self._embedder: Any | None = None
 
     @property
-    def embedder(self):
+    def embedder(self) -> Any:
         if self._embedder is None:
             try:
                 from jarvis_core.embeddings import SentenceTransformerEmbedding
@@ -53,6 +55,8 @@ class SemanticContradictionDetector:
 
     def detect(self, claim_a: Claim, claim_b: Claim) -> ContradictionResult:
         """Detect contradiction between two claims using semantic analysis."""
+        claim_pair = ClaimPair(claim_a=claim_a, claim_b=claim_b)
+
         # Get embeddings
         emb_a = self.embedder.embed(claim_a.text)
         emb_b = self.embedder.embed(claim_b.text)
@@ -63,9 +67,7 @@ class SemanticContradictionDetector:
         # Check if claims are about the same topic (high similarity)
         if similarity < self.config.similarity_threshold:
             return ContradictionResult(
-                claim_a=claim_a,
-                claim_b=claim_b,
-                is_contradictory=False,
+                claim_pair=claim_pair,
                 contradiction_type=ContradictionType.NONE,
                 confidence=1 - similarity,
                 scores={"semantic_similarity": similarity},
@@ -79,9 +81,7 @@ class SemanticContradictionDetector:
 
             if neg_similarity > self.config.similarity_threshold:
                 return ContradictionResult(
-                    claim_a=claim_a,
-                    claim_b=claim_b,
-                    is_contradictory=True,
+                    claim_pair=claim_pair,
                     contradiction_type=ContradictionType.DIRECT,
                     confidence=neg_similarity,
                     scores={
@@ -95,9 +95,7 @@ class SemanticContradictionDetector:
 
         if partial_score > self.config.contradiction_threshold:
             return ContradictionResult(
-                claim_a=claim_a,
-                claim_b=claim_b,
-                is_contradictory=True,
+                claim_pair=claim_pair,
                 contradiction_type=ContradictionType.PARTIAL,
                 confidence=partial_score,
                 scores={
@@ -107,9 +105,7 @@ class SemanticContradictionDetector:
             )
 
         return ContradictionResult(
-            claim_a=claim_a,
-            claim_b=claim_b,
-            is_contradictory=False,
+            claim_pair=claim_pair,
             contradiction_type=ContradictionType.NONE,
             confidence=1 - similarity,
             scores={"semantic_similarity": similarity},
@@ -198,7 +194,7 @@ class SemanticContradictionDetector:
 class SimpleEmbedder:
     """Simple fallback embedder using bag-of-words."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._vocab: dict[str, int] = {}
         self._idf: dict[str, float] = {}
 

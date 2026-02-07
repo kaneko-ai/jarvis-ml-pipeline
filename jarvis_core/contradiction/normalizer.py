@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from jarvis_core.contradiction.schema import Claim
 
@@ -56,9 +56,9 @@ class NormalizationResult:
     object: str | None = None
     qualifier: str | None = None
     is_negated: bool = False
-    quantities: list[tuple[float, str]] = None
+    quantities: list[tuple[float, str]] = field(default_factory=list)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.quantities is None:
             self.quantities = []
 
@@ -76,7 +76,7 @@ class ClaimNormalizer:
         'increases'
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the normalizer."""
         self._effect_patterns = EFFECT_PATTERNS
         self._negation_patterns = NEGATION_PATTERNS

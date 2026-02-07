@@ -1,4 +1,4 @@
-"""Contradiction Detector (Phase 28).
+﻿"""Contradiction Detector (Phase 28).
 
 Detects logical contradictions between claims.
 """
@@ -44,8 +44,8 @@ class Contradiction:
 class ContradictionDetector:
     """Detects contradictions using heuristics or models."""
 
-    def __init__(self, config: dict | None = None):
-        self.config = config or {}
+    def __init__(self, config: dict | None = None) -> None:
+        self.config: dict = config or {}
         # Simple heuristic antonym pairs for smoke testing
         self.antonyms = [
             ("increase", "decrease"),

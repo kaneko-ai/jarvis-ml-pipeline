@@ -14,7 +14,7 @@ EvidenceStore with real content.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Literal, cast
 
 from jarvis_core.evidence import EvidenceStore
 
@@ -232,11 +232,14 @@ class ExecutionContext:
         # Avoid circular import by importing here
         from jarvis_core.retriever import get_relevant_chunks as retrieve
 
-        return retrieve(
-            query=query,
-            chunks=self.available_chunks,
-            store=self.evidence_store,
-            k=k,
+        return cast(
+            list[ChunkResult],
+            retrieve(
+                query=query,
+                chunks=self.available_chunks,
+                store=self.evidence_store,
+                k=k,
+            ),
         )
 
     def get_relevant_chunks_preview(
@@ -285,8 +288,11 @@ class ExecutionContext:
         if not self.available_chunks:
             return []
 
-        return get_relevant_chunks_vector(
-            self.available_chunks,
-            query,
-            k=k,
+        return cast(
+            list[ChunkResult],
+            get_relevant_chunks_vector(
+                self.available_chunks,
+                query,
+                k=k,
+            ),
         )

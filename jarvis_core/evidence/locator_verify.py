@@ -59,7 +59,10 @@ def levenshtein_ratio(s1: str, s2: str) -> float:
 
 
 def extract_text_from_pdf(
-    pdf_path: Path, page: int, paragraph: int = None, sentence: int = None
+    pdf_path: Path,
+    page: int,
+    paragraph: int | None = None,
+    sentence: int | None = None,
 ) -> str:
     """Extract text from specific location in PDF.
 
