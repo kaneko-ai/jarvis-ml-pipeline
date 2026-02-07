@@ -43,3 +43,20 @@
 (Will be moved here when resolved)
 
 ---
+
+### Blocker #1 - 2026-02-07
+
+**Task**: TD-027 PRコメント投稿
+**Category**: Tooling / Environment
+**Priority**: P1
+
+**Error Message**:
+gh : The term 'gh' is not recognized
+
+**Hypothesis**:
+GitHub CLI が実行環境に未インストールのため、PR #85/#90/#96 へのコメント投稿を自動実行できない。
+
+**Recommendation**:
+gh を導入して gh auth login 後にコメント投稿を再実行する。
+
+**Status**: BLOCKED
