@@ -9,6 +9,8 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
+import requests  # noqa: F401  # Legacy tests patch jarvis_core.api.arxiv.requests.get
+
 from jarvis_core.sources.arxiv_client import ArxivClient as CoreArxivClient
 from jarvis_core.sources.arxiv_client import ArxivPaper as CoreArxivPaper
 
