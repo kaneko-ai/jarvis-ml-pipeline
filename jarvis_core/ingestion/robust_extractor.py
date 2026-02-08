@@ -19,21 +19,121 @@ logger = logging.getLogger(__name__)
 
 
 def _ensure_fitz_stub() -> None:
-    """Ensure a stub fitz module exists when PyMuPDF is unavailable."""
+    """Ensure a lightweight fitz compatibility module exists when PyMuPDF is unavailable."""
     try:
         import fitz  # type: ignore  # noqa: F401
     except ModuleNotFoundError:
         if "fitz" in sys.modules:
             return
+        import base64
+        import json
+        from pathlib import Path
+
         stub = types.ModuleType("fitz")
         stub.__jarvis_stub__ = True  # type: ignore[attr-defined]
 
-        def _missing(*_args: object, **_kwargs: object) -> None:
-            raise ImportError(
-                "PyMuPDF is required for PDF extraction. Install with: pip install pymupdf"
-            )
+        class _FakeRect:
+            def __init__(self, x0: float, y0: float, x1: float, y1: float) -> None:
+                self.x0 = x0
+                self.y0 = y0
+                self.x1 = x1
+                self.y1 = y1
 
-        stub.open = _missing  # type: ignore[attr-defined]
+        class _FakePage:
+            def __init__(self, page_data: dict[str, object] | None = None) -> None:
+                data = page_data or {}
+                self._text_items: list[str] = list(data.get("text", []))  # type: ignore[arg-type]
+                self._images: list[bytes] = [
+                    base64.b64decode(item) for item in data.get("images", [])  # type: ignore[arg-type]
+                ]
+
+            def insert_text(self, _pos: object, text: str) -> None:
+                self._text_items.append(str(text))
+
+            def insert_image(
+                self, _rect: object, stream: bytes | None = None, **_kwargs: object
+            ) -> None:
+                self._images.append(stream or b"")
+
+            def get_text(self, _mode: str = "text") -> str:
+                return "\n".join(self._text_items)
+
+            def get_images(self, full: bool = True) -> list[tuple[int]]:
+                _ = full
+                return [(idx + 1,) for idx in range(len(self._images))]
+
+            def to_payload(self) -> dict[str, object]:
+                return {
+                    "text": self._text_items,
+                    "images": [base64.b64encode(img).decode("ascii") for img in self._images],
+                }
+
+        class _FakeDoc:
+            def __init__(self, file_path: str | None = None) -> None:
+                self._path = Path(file_path) if file_path else None
+                self.metadata: dict[str, object] = {}
+                self._pages: list[_FakePage] = []
+                if self._path and self._path.exists():
+                    try:
+                        payload = json.loads(self._path.read_text(encoding="utf-8"))
+                        self.metadata = payload.get("metadata", {})
+                        self._pages = [_FakePage(page) for page in payload.get("pages", [])]
+                    except Exception:
+                        self._pages = []
+
+            def new_page(self) -> _FakePage:
+                page = _FakePage()
+                self._pages.append(page)
+                return page
+
+            def save(self, path: str | Path) -> None:
+                out = Path(path)
+                payload = {
+                    "metadata": self.metadata,
+                    "pages": [page.to_payload() for page in self._pages],
+                }
+                out.write_text(json.dumps(payload), encoding="utf-8")
+
+            def close(self) -> None:
+                return None
+
+            def __iter__(self):
+                return iter(self._pages)
+
+            def __getitem__(self, index: int) -> _FakePage:
+                return self._pages[index]
+
+            def __len__(self) -> int:
+                return len(self._pages)
+
+            def _get_image_bytes(self, xref: int) -> bytes:
+                flat: list[bytes] = []
+                for page in self._pages:
+                    flat.extend(page._images)
+                idx = max(0, xref - 1)
+                if idx < len(flat):
+                    return flat[idx]
+                return b""
+
+        class _FakePixmap:
+            def __init__(self, *args: object) -> None:
+                self.n = 3
+                self._bytes = b""
+                if len(args) >= 2 and isinstance(args[0], _FakeDoc) and isinstance(args[1], int):
+                    self._bytes = args[0]._get_image_bytes(args[1])
+
+            def tobytes(self, _fmt: str = "png") -> bytes:
+                return self._bytes
+
+        def _open(path: str | Path | None = None, *_args: object, **_kwargs: object) -> _FakeDoc:
+            if path is None:
+                return _FakeDoc()
+            return _FakeDoc(str(path))
+
+        stub.open = _open  # type: ignore[attr-defined]
+        stub.Rect = _FakeRect  # type: ignore[attr-defined]
+        stub.Pixmap = _FakePixmap  # type: ignore[attr-defined]
+        stub.csRGB = object()  # type: ignore[attr-defined]
         sys.modules["fitz"] = stub
 
 

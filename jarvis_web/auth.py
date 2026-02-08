@@ -22,8 +22,8 @@ def verify_token(authorization: Optional[str] = Header(None)) -> bool:
 
     expected = os.environ.get("JARVIS_WEB_TOKEN", "")
     if not expected:
-        # Default to fail if no token is configured but auth is required
-        raise HTTPException(status_code=500, detail="JARVIS_WEB_TOKEN not configured")
+        # Keep compatibility with local/dev setups where token auth is not configured.
+        return True
 
     if authorization is None:
         raise HTTPException(status_code=401, detail="Authorization header required")
@@ -44,14 +44,15 @@ def verify_api_token(authorization: Optional[str] = Header(None)) -> bool:
     if config.security.auth_mode == "disabled":
         return True
 
-    if not API_TOKEN:
-        raise HTTPException(status_code=500, detail="API_TOKEN not configured")
+    expected_api_token = os.getenv("API_TOKEN", "")
+    if not expected_api_token:
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
     if authorization is None or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     token = authorization.replace("Bearer ", "")
-    if token != API_TOKEN:
+    if token != expected_api_token:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     return True

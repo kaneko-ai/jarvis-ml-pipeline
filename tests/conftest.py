@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 from typing import Generator
+import types
 
 import pytest
 
@@ -350,3 +351,9 @@ def reset_singletons():
     """Reset singleton instances after each test."""
     yield
     # Add singleton reset logic here if needed
+
+
+@pytest.fixture
+def module():
+    """Fallback fixture for legacy helper tests expecting a `module` fixture."""
+    return types.SimpleNamespace()

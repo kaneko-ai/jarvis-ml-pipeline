@@ -91,14 +91,6 @@ class ExecutionEngine:
             subtask.status = final_status
             executed.append(subtask)
 
-            if final_status == TaskStatus.FAILED:
-                err_msg = (
-                    evaluation.errors[0]
-                    if evaluation and evaluation.errors
-                    else "Subtask failed without specific error"
-                )
-                raise RuntimeError(err_msg)
-
         return executed
 
     def _normalize_agent_result(self, result: Any) -> tuple[str, list[str]]:

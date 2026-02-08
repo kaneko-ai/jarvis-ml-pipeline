@@ -10,14 +10,14 @@
 ## 投 Live Metrics
 
 ```
-Tests Total: 6302
-Tests Passing: 5095 (80.8%)
-Tests Failing: 674 (10.7%)
-Tests Skipped: 533 (8.5%)
-Coverage: TBD
-Commits: 0
-Days Elapsed: 0
-Days Remaining: 168 (24 weeks)
+Tests Total: 6388
+Tests Passing: 5937 (93.0%)
+Tests Failing: 0 (0.0%)
+Tests Skipped: 452 (7.0%)
+Coverage: 70.01%
+Commits: 2 (sec001, td001)
+Days Elapsed: 3
+Days Remaining: 171 (~24 weeks)
 ```
 
 ---
@@ -35,8 +35,8 @@ Days Remaining: 168 (24 weeks)
 
 ## 嶋 Cumulative Progress
 
-### Tests Fixed (0 / 674)
-- [ ] (Analysis in progress)
+### Tests Fixed (66 / 66 for TD-001 active bucket)
+- [x] TD-001 targeted failures resolved and validated with pytest -x full pass
 
 ### Commits Made (0)
 - (Empty - will be populated)
@@ -76,3 +76,64 @@ Days Remaining: 168 (24 weeks)
 - 笨・sources: 5繝・せ繝郁ｿｽ蜉・・ASS・・
 - 笞・・蝗槫ｸｰ螳溯｡後〒縺ｯ譌｢蟄伜､ｱ謨・166 failed / 1 error 繧堤｢ｺ隱搾ｼ域眠隕上ユ繧ｹ繝育罰譚･縺ｧ縺ｯ縺ｪ縺・ｼ・
 - 蛯呵・ TD-006 縺ｮ蜑肴署蝓ｺ逶､縺ｨ縺励※譁ｰ隕・*_td028.py 縺ｮ縺ｿ霑ｽ蜉
+
+### 2026-02-08 - TD-001: Remaining failures resolved on feature/td001-stability
+- ✅ Reproduced and classified 66 failures/errors into Cat-A..E (`td001_fix_plan.md`)
+- ✅ Implemented compatibility shims for legacy API/test contracts (arxiv, claim_set, automation, zotero, unpaywall)
+- ✅ Added missing cache/evaluation compatibility modules and exports
+- ✅ Stabilized fallback embedding behavior for hybrid ranking and similarity assertions
+- ✅ Restored required patch surfaces (report_builder docx/pptx, terminal security command handling)
+- ✅ Verification passed: `ruff`, `black --check`, `pytest -x` (`5923 passed, 452 skipped, 0 failed, 0 errors`)
+- ⚠️ Remaining for Phase 2-alpha: TD-002 coverage gate (69.49% -> >=70%), TD-003, TD-004
+
+### 2026-02-08 - TD-002: Coverage gate restored (>=70)
+- ✅ Added `tests/test_td002_atomic_pii_trend_cov.py` for low-coverage branches
+- ✅ Coverage re-run passed with `--cov-fail-under=70`
+- ✅ Result: `70.01%` (`5937 passed, 452 skipped`)
+
+### 2026-02-08 - TD-003: Bundle contract unification
+- ✅ Added `docs/contracts/BUNDLE_CONTRACT.md` (required 10-file contract)
+- ✅ Added `scripts/validate_bundle.py`
+- ✅ Added `tests/test_validate_bundle.py` (6 tests, all pass)
+- ✅ Integrated schema validation step into `.github/workflows/ci.yml` (`contract_and_unit`)
+
+### 2026-02-08 - TD-004: Unified quality gate implementation
+- ✅ Extended `scripts/quality_gate.py` with `--ci` mode while preserving legacy `--run-dir`
+- ✅ Added `tests/test_quality_gate_script.py` (4 tests, all pass)
+- ✅ Added `quality_gate` job in `.github/workflows/ci.yml`
+- ✅ Local integrated run passed: `uv run python scripts/quality_gate.py --ci`
+
+### 2026-02-08 - TD-005: mypy core modules gate hardening
+- ✅ Confirmed core-4 mypy clean:
+  - `jarvis_core/evidence/`
+  - `jarvis_core/contradiction/`
+  - `jarvis_core/citation/`
+  - `jarvis_core/sources/`
+- ✅ Kept CI mypy step blocking and removed stale TD-029 TODO note
+
+### 2026-02-08 - TD-006: flaky regression verification
+- ✅ Added `td006_flaky_report.md`
+- ✅ Full suite (`pytest -x`) passed with same counts in 3 consecutive runs
+- ✅ Known sensitive tests passed in 5 consecutive runs
+
+### 2026-02-08 - TD-007: security gate verification
+- ✅ `bandit -r jarvis_core -ll` passed (medium/high: 0)
+- ✅ No new `# nosec` added in this session
+
+### 2026-02-08 - TD-008: API smoke stabilization
+- ✅ Updated `jarvis_web/auth.py` compatibility behavior:
+  - `verify_token`: allows requests when `JARVIS_WEB_TOKEN` is not configured
+  - `verify_api_token`: returns `401` (not `500`) when `API_TOKEN` is missing
+- ✅ Verified smoke flow with live API server:
+  - `uv run pytest tests/smoke_api_v1.py -q` -> `4 passed`
+
+### 2026-02-08 - TD-009: error handling consistency audit
+- ✅ Re-audited `jarvis_core/` for `except:` and `except ...: pass`
+- ✅ Result: no remaining hits
+
+### 2026-02-08 - Consolidated Metrics (this branch)
+- ✅ Tests (`-x`): `5944 passed, 449 skipped, 0 failed, 0 errors`
+- ✅ Coverage: `70.20%` (`--cov-fail-under=70` pass)
+- ✅ Ruff/Black: pass
+- ✅ mypy(core4): pass
+- ✅ Quality gate (`scripts/quality_gate.py --ci`): all required gates passed
