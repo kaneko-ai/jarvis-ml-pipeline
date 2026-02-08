@@ -407,3 +407,65 @@ P0 > P1 > P2 > P3 の優先順位を厳守
 
 ### 備考
 - TD-010 の「main で CI 10 回連続グリーン」は GitHub Actions の継続観測が必要（ローカル単独では完了判定不可）。
+
+## Session Update - 2026-02-08 (TD-011 to TD-013)
+
+### 実施内容
+- TD-011: MCP CLI (`mcp list` / `mcp invoke`) の回帰テストを追加
+- TD-012: BrowserSubagent に action timeout を追加し、headless/timeout/security のテストを追加
+- TD-013: Skills CLI (`skills list` / `skills show`) の回帰テストを追加
+
+### 追加・変更ファイル
+- tests/cli/test_mcp_skills_cli.py
+- tests/test_browser_subagent_td012.py
+- jarvis_core/browser/subagent.py
+
+### 検証結果
+- ruff: PASS
+- black --check: PASS
+- pytest -x (ignore e2e/integration): 5952 passed / 449 skipped / 0 failed / 0 errors
+- coverage (`--cov-fail-under=70`): 70.44%
+- mypy core4: PASS
+- bandit -ll: PASS
+
+## Session Update - 2026-02-08 (TD-014 to TD-017 verification)
+
+### 検証対象
+- TD-014: Multi-Agent Orchestrator
+- TD-015: Plugin System
+- TD-016: Zotero Integration
+- TD-017: Export formats (RIS/BibTeX/Markdown related)
+
+### 実行コマンド
+- uv run pytest tests/test_orchestrator.py tests/integration/test_orchestrator_integration.py tests/test_plugins.py tests/test_phaseH14_plugins_integrations.py tests/integrations/test_zotero.py tests/test_zotero_integration_v2.py tests/test_bibliography.py tests/test_bundle_export.py tests/test_claim_export.py -q
+
+### 結果
+- 86 passed / 0 failed
+- 既存実装で TD-014〜TD-017 の主要回帰シナリオがグリーン
+
+## Session Update - 2026-02-08 (TD-019 smoke test hardening)
+
+### 変更
+- tests/smoke_api_v1.py を改善し、API未起動時はテスト側で一時的にローカルAPIサーバーを起動するように変更
+- これによりローカル実行でも `tests/smoke_api_v1.py` が skip ではなく pass 可能
+
+### 検証
+- uv run pytest tests/smoke_api_v1.py -v -> 4 passed
+- uv run ruff check jarvis_core tests -> PASS
+- uv run black --check jarvis_core tests -> PASS
+- uv run pytest tests/ -x --ignore=tests/e2e --ignore=tests/integration -q -> PASS
+
+## Session Note - 2026-02-08 (TD-020 blocker)
+- `docker` command is not available in the current environment.
+- Added blocker entry in `blockers.md` for TD-020 execution dependency.
+
+## Session Update - 2026-02-08 (TD-022 preflight)
+
+### 実行
+- uv run --with build --with twine python -m build
+- uv run --with twine python -m twine check dist/*
+
+### 結果
+- sdist / wheel 生成成功
+- twine check PASS
+- 注記: システムグローバルには `build`/`twine` が未導入だが、`uv run --with ...` で再現可能
