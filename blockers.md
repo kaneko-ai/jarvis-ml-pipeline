@@ -4,7 +4,7 @@
 
 ---
 
-## Active Blockers (5)
+## Active Blockers (4)
 
 ---
 
@@ -36,7 +36,7 @@
 
 ---
 
-## Resolved Blockers (0)
+## Resolved Blockers (1)
 
 (Will be moved here when resolved)
 
@@ -103,9 +103,9 @@
 **Category**: Release tooling dependency
 **Priority**: P1
 
-**Status**: PENDING MANUAL RELEASE CREATION
+**Status**: RESOLVED (2026-02-09)
 
 **Detail**:
-- `v1.0.0` git tag has been pushed to `origin`.
-- `gh` CLI is not installed on this environment, and `GITHUB_TOKEN` is not configured.
-- Create GitHub Release manually on the repository releases page (or install/auth `gh` and run scripted release creation).
+- GitHub Release `v1.0.0` was published manually.
+- Release URL: https://github.com/kaneko-ai/jarvis-ml-pipeline/releases/tag/v1.0.0
+- Remaining dependency is only PyPI publish credentials (tracked in TD-022 blocker).
