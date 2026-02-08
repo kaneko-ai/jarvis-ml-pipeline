@@ -1,4 +1,6 @@
-﻿# Bundle Contract v1
+﻿> Authority: SPEC (Level 1, Binding)
+
+# Bundle Contract v1
 
 This contract defines the required files for a JARVIS run bundle.
 
@@ -26,3 +28,5 @@ This contract defines the required files for a JARVIS run bundle.
 
 - This file is the canonical contract for `scripts/validate_bundle.py`.
 - Contract checks in CI should fail on missing or invalid required files.
+
+
