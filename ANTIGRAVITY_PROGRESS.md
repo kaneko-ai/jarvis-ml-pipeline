@@ -157,3 +157,8 @@ Days Remaining: 171 (~24 weeks)
 - ✅ TD-016 (Zotero Integration): zotero suites passed
 - ✅ TD-017 (Export): bibliography/claim/bundle export suites passed
 - ✅ Combined verification: `86 passed, 0 failed`
+
+### 2026-02-08 - TD-019 prep: API smoke test hardening
+- ✅ Updated `tests/smoke_api_v1.py` to auto-start local API server when `API_BASE` is not provided and API is down
+- ✅ `uv run pytest tests/smoke_api_v1.py -v` now passes with 4 tests
+- ✅ Regression gate remained green (`ruff`, `black --check`, `pytest -x`)

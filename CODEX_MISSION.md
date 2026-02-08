@@ -442,3 +442,15 @@ P0 > P1 > P2 > P3 の優先順位を厳守
 ### 結果
 - 86 passed / 0 failed
 - 既存実装で TD-014〜TD-017 の主要回帰シナリオがグリーン
+
+## Session Update - 2026-02-08 (TD-019 smoke test hardening)
+
+### 変更
+- tests/smoke_api_v1.py を改善し、API未起動時はテスト側で一時的にローカルAPIサーバーを起動するように変更
+- これによりローカル実行でも `tests/smoke_api_v1.py` が skip ではなく pass 可能
+
+### 検証
+- uv run pytest tests/smoke_api_v1.py -v -> 4 passed
+- uv run ruff check jarvis_core tests -> PASS
+- uv run black --check jarvis_core tests -> PASS
+- uv run pytest tests/ -x --ignore=tests/e2e --ignore=tests/integration -q -> PASS
