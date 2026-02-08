@@ -10,7 +10,7 @@ import time
 import argparse
 from pathlib import Path
 from typing import Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 def run_benchmark(
@@ -28,14 +28,22 @@ def run_benchmark(
     Returns:
         Benchmark results.
     """
-    # Load cases
+    # Load cases from JSONL or JSON array for compatibility.
     path = Path(cases_path)
     cases = []
     if path.exists():
-        with open(path, "r", encoding="utf-8") as f:
-            for line in f:
-                if line.strip():
-                    cases.append(json.loads(line))
+        raw = path.read_text(encoding="utf-8").strip()
+        if raw:
+            try:
+                payload = json.loads(raw)
+                if isinstance(payload, list):
+                    cases = payload
+                elif isinstance(payload, dict):
+                    cases = [payload]
+            except json.JSONDecodeError:
+                for line in raw.splitlines():
+                    if line.strip():
+                        cases.append(json.loads(line))
 
     results = []
 
@@ -53,7 +61,7 @@ def run_benchmark(
 
         results.append(
             {
-                "case_id": case.get("id", "unknown"),
+                "case_id": case.get("id") or case.get("paper_id", "unknown"),
                 "iterations": iterations,
                 "times": case_times,
                 "avg": sum(case_times) / len(case_times),
@@ -69,7 +77,7 @@ def run_benchmark(
     # Aggregate
     all_avgs = [r["avg"] for r in results]
     summary = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "cases": len(cases),
         "iterations": iterations,
         "overall_avg": sum(all_avgs) / len(all_avgs) if all_avgs else 0,

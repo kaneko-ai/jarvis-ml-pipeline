@@ -24,7 +24,6 @@ jobs:
           pip install -r requirements.lock
 
       - name: Run Benchmark
-        continue-on-error: true
         run: |
           python scripts/bench.py --cases evals/benchmarks/realistic_mix_v1.jsonl --output results/bench/latest
 

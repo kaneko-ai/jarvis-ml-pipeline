@@ -2,6 +2,8 @@
 
 > Authority: REFERENCE (Level 2, Non-binding)
 
+> Target Version: 1.0.0
+
 
 > AI駆動の体系的文献レビュー支援システム
 

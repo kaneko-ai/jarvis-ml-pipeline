@@ -23,7 +23,7 @@
 | Item | Status |
 |------|--------|
 | **CI/CD** | ✅ All checks passing |
-| **Version** | 5.3.0 |
+| **Version** | 1.0.0 |
 | **Python** | 3.10, 3.11, 3.12 |
 | **Phase 1** | ✅ Complete |
 | **Phase 2** | 🔄 In Progress |

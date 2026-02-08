@@ -1,5 +1,7 @@
 # Migration Guide
 
+Target migration: `v5.x -> v1.0.0`
+
 JARVIS Research OS スキーマ・API変更時の移行手順
 
 ---
