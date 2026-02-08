@@ -15,11 +15,18 @@ All notable changes to JARVIS will be documented in this file.
 - **Language lint**: Forbidden causal terms, hedging requirements
 - **uv + lock**: Docker-free reproducibility with `uv.lock` (62 packages)
 - **RUNBOOK.md**: Operational procedures and troubleshooting guide
+- **TD-002 tests**: Added `tests/test_td002_atomic_pii_trend_cov.py` to recover low-coverage branches
+- **Bundle contract validator**: Added `scripts/validate_bundle.py` and `tests/test_validate_bundle.py`
+- **Bundle contract doc**: Added canonical `docs/contracts/BUNDLE_CONTRACT.md`
+- **Unified quality gate tests**: Added `tests/test_quality_gate_script.py` for CI/legacy script paths
 
 ### Changed
 - CI migrated from `pip install` to `uv sync --frozen` for reproducibility
 - Report generation now requires evidence IDs (no bypass allowed)
 - Quality gates enforce 90% support rate minimum
+- `scripts/quality_gate.py` now supports both legacy `--run-dir` and integrated `--ci` mode
+- CI `contract_and_unit` now runs bundle contract schema validation
+- CI adds `quality_gate` job for unified required/optional checks
 
 ### Fixed
 - Phase 2 stage imports (removed TaskContext/Artifacts dependencies)

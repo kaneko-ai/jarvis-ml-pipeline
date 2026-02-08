@@ -10,12 +10,12 @@
 ## 投 Live Metrics
 
 ```
-Tests Total: 6374
-Tests Passing: 5923 (92.9%)
+Tests Total: 6388
+Tests Passing: 5937 (93.0%)
 Tests Failing: 0 (0.0%)
-Tests Skipped: 452 (7.1%)
-Coverage: 69.49%
-Commits: 1 (sec001)
+Tests Skipped: 452 (7.0%)
+Coverage: 70.01%
+Commits: 2 (sec001, td001)
 Days Elapsed: 3
 Days Remaining: 171 (~24 weeks)
 ```
@@ -85,3 +85,20 @@ Days Remaining: 171 (~24 weeks)
 - ✅ Restored required patch surfaces (report_builder docx/pptx, terminal security command handling)
 - ✅ Verification passed: `ruff`, `black --check`, `pytest -x` (`5923 passed, 452 skipped, 0 failed, 0 errors`)
 - ⚠️ Remaining for Phase 2-alpha: TD-002 coverage gate (69.49% -> >=70%), TD-003, TD-004
+
+### 2026-02-08 - TD-002: Coverage gate restored (>=70)
+- ✅ Added `tests/test_td002_atomic_pii_trend_cov.py` for low-coverage branches
+- ✅ Coverage re-run passed with `--cov-fail-under=70`
+- ✅ Result: `70.01%` (`5937 passed, 452 skipped`)
+
+### 2026-02-08 - TD-003: Bundle contract unification
+- ✅ Added `docs/contracts/BUNDLE_CONTRACT.md` (required 10-file contract)
+- ✅ Added `scripts/validate_bundle.py`
+- ✅ Added `tests/test_validate_bundle.py` (6 tests, all pass)
+- ✅ Integrated schema validation step into `.github/workflows/ci.yml` (`contract_and_unit`)
+
+### 2026-02-08 - TD-004: Unified quality gate implementation
+- ✅ Extended `scripts/quality_gate.py` with `--ci` mode while preserving legacy `--run-dir`
+- ✅ Added `tests/test_quality_gate_script.py` (4 tests, all pass)
+- ✅ Added `quality_gate` job in `.github/workflows/ci.yml`
+- ✅ Local integrated run passed: `uv run python scripts/quality_gate.py --ci`

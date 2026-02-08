@@ -16,9 +16,9 @@
 - **リリース日**: 2026-07-31
 
 ### テスト状況
-- **パス**: 5923 / 6374（スキップ 452）
+- **パス**: 5937 / 6388（スキップ 452）
 - **失敗**: 0（Failed 0 / Errors 0）
-- **カバレッジ**: 69.49%（最新計測）
+- **カバレッジ**: 70.01%（最新計測）
 - **目標カバレッジ**: ≥ 70%
 - **TD-001進捗（td001_fix_plan）**: 66 / 66（残り0）
 
@@ -249,7 +249,7 @@ TD-001 成功条件
 完了日: [記入予定]
 
 TD-002: 70%テストカバレッジ達成
-優先度: 🔴 P0 クリティカル ステータス: ⏳ ブロック中（TD-001完了待ち）
+優先度: 🔴 P0 クリティカル ステータス: ✅ 完了（70.01%）
 
 前提条件:
 
@@ -269,10 +269,11 @@ tests/test_module.py にテスト追加
 テスト実行 → パス
 カバレッジ増加を確認
 コミット
-開始日: [TD-001完了後]
+開始日: 2026-02-08
+完了日: 2026-02-08
 
 TD-003: Bundle契約の統一
-優先度: 🔴 P0 クリティカル ステータス: ⏳ キュー
+優先度: 🔴 P0 クリティカル ステータス: ✅ 完了
 
 確認すべきファイル:
 
@@ -281,19 +282,19 @@ scripts/ci_run.py - 全10ファイル生成を検証
 jarvis_core/storage/ - ストレージロジック確認
 実装:
 
-scripts/validate_bundle.py に検証関数追加
-CIから呼び出し: .github/workflows/ci.yml
-モック実行でテスト
+scripts/validate_bundle.py を新規追加
+docs/contracts/BUNDLE_CONTRACT.md を新規追加
+tests/test_validate_bundle.py を追加
+CI呼び出し追加: .github/workflows/ci.yml (contract_and_unit)
 TD-004: Quality Gate実装
-優先度: 🔴 P0 クリティカル ステータス: ⏳ キュー
+優先度: 🔴 P0 クリティカル ステータス: ✅ 完了
 
 実装:
 
-scripts/quality_gate.py を作成:
-check_gate_passed() → bool
-ルール: gate_passed == false → status = "failed"
-scripts/ci_run.py に統合
-.github/workflows/ci.yml にCIチェック追加
+scripts/quality_gate.py を後方互換のまま拡張
+--run-dir モード維持 + --ci 統合ゲートモード追加
+tests/test_quality_gate_script.py を追加
+.github/workflows/ci.yml に quality_gate ジョブ追加
 🔄 Phase 2-β: 品質と安定性（Week 5-10）
 ステータス: ⏳ 計画中
 
