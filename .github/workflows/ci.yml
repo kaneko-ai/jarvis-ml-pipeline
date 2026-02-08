@@ -24,7 +24,6 @@ jobs:
         run: uv run black --check jarvis_core tests
       - name: Run mypy (core modules)
         run: |
-          # TODO(td029): 蝙九お繝ｩ繝ｼ隗｣豸亥ｾ後↓ || true 繧帝勁蜴ｻ縺吶ｋ
           uv run mypy \
             --explicit-package-bases \
             --follow-imports=skip \

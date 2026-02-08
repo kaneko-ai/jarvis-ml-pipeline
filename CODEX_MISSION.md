@@ -384,3 +384,26 @@ P0 > P1 > P2 > P3 の優先順位を厳守
   - pass: 5921
   - skip: 457
   - coverage: 70.20%
+
+---
+
+## Session Update - 2026-02-08 (TD-005 to TD-009)
+
+### 実測ステータス
+- Tests (`pytest -x`, ignore e2e/integration): `5944 passed / 449 skipped / 0 failed / 0 errors`
+- Coverage (`--cov-fail-under=70`): `70.20%`
+- Ruff: PASS
+- Black (`--check`): PASS
+- mypy (core 4 modules): PASS
+- Bandit (`-ll`): PASS (medium/high 0)
+- Quality Gate (`scripts/quality_gate.py --ci`): ALL REQUIRED GATES PASSED
+
+### このセッションで完了した項目
+- TD-005: mypy core-4 維持（0 errors）と CI mypy ステップの不要 TODO コメント除去
+- TD-006: `td006_flaky_report.md` 作成、3連続フルラン + 5連続重点テストで再現性確認
+- TD-007: bandit 監査通過を再確認（medium/high 0）
+- TD-008: `jarvis_web/auth.py` のトークン未設定時挙動を調整し、API smoke 実サーバ実行で `4 passed`
+- TD-009: `jarvis_core/` の `except:` / `except ...: pass` 残存なしを再監査
+
+### 備考
+- TD-010 の「main で CI 10 回連続グリーン」は GitHub Actions の継続観測が必要（ローカル単独では完了判定不可）。

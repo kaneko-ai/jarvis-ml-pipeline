@@ -19,6 +19,8 @@ All notable changes to JARVIS will be documented in this file.
 - **Bundle contract validator**: Added `scripts/validate_bundle.py` and `tests/test_validate_bundle.py`
 - **Bundle contract doc**: Added canonical `docs/contracts/BUNDLE_CONTRACT.md`
 - **Unified quality gate tests**: Added `tests/test_quality_gate_script.py` for CI/legacy script paths
+- **TD-006 report**: Added `td006_flaky_report.md` with consecutive-run reproducibility records
+- **Coverage test expansion**: Added `tests/test_td002_skills_engine_cov.py` for `jarvis_core.skills`
 
 ### Changed
 - CI migrated from `pip install` to `uv sync --frozen` for reproducibility
@@ -27,6 +29,8 @@ All notable changes to JARVIS will be documented in this file.
 - `scripts/quality_gate.py` now supports both legacy `--run-dir` and integrated `--ci` mode
 - CI `contract_and_unit` now runs bundle contract schema validation
 - CI adds `quality_gate` job for unified required/optional checks
+- CI lint workflow no longer carries stale TD-029 TODO note in mypy step
+- Auth compatibility updated for smoke/contract behavior when token env vars are missing
 
 ### Fixed
 - Phase 2 stage imports (removed TaskContext/Artifacts dependencies)
@@ -35,6 +39,8 @@ All notable changes to JARVIS will be documented in this file.
 - Hybrid fallback embedding behavior tuned to satisfy ranking and similarity invariants in non-ML environments
 - Added missing compatibility modules for `jarvis_core.cache` and `jarvis_core.evaluation` import contracts
 - Windows command compatibility in terminal security execution (`pwd` alias handling)
+- `tests/test_figure_extractor.py` now uses a stable PNG payload compatible with current PyMuPDF
+- API contract/smoke regression: `/api/capabilities` restored to unauthenticated behavior when no web token is configured
 
 ---
 

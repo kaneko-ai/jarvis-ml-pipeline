@@ -102,3 +102,38 @@ Days Remaining: 171 (~24 weeks)
 - ✅ Added `tests/test_quality_gate_script.py` (4 tests, all pass)
 - ✅ Added `quality_gate` job in `.github/workflows/ci.yml`
 - ✅ Local integrated run passed: `uv run python scripts/quality_gate.py --ci`
+
+### 2026-02-08 - TD-005: mypy core modules gate hardening
+- ✅ Confirmed core-4 mypy clean:
+  - `jarvis_core/evidence/`
+  - `jarvis_core/contradiction/`
+  - `jarvis_core/citation/`
+  - `jarvis_core/sources/`
+- ✅ Kept CI mypy step blocking and removed stale TD-029 TODO note
+
+### 2026-02-08 - TD-006: flaky regression verification
+- ✅ Added `td006_flaky_report.md`
+- ✅ Full suite (`pytest -x`) passed with same counts in 3 consecutive runs
+- ✅ Known sensitive tests passed in 5 consecutive runs
+
+### 2026-02-08 - TD-007: security gate verification
+- ✅ `bandit -r jarvis_core -ll` passed (medium/high: 0)
+- ✅ No new `# nosec` added in this session
+
+### 2026-02-08 - TD-008: API smoke stabilization
+- ✅ Updated `jarvis_web/auth.py` compatibility behavior:
+  - `verify_token`: allows requests when `JARVIS_WEB_TOKEN` is not configured
+  - `verify_api_token`: returns `401` (not `500`) when `API_TOKEN` is missing
+- ✅ Verified smoke flow with live API server:
+  - `uv run pytest tests/smoke_api_v1.py -q` -> `4 passed`
+
+### 2026-02-08 - TD-009: error handling consistency audit
+- ✅ Re-audited `jarvis_core/` for `except:` and `except ...: pass`
+- ✅ Result: no remaining hits
+
+### 2026-02-08 - Consolidated Metrics (this branch)
+- ✅ Tests (`-x`): `5944 passed, 449 skipped, 0 failed, 0 errors`
+- ✅ Coverage: `70.20%` (`--cov-fail-under=70` pass)
+- ✅ Ruff/Black: pass
+- ✅ mypy(core4): pass
+- ✅ Quality gate (`scripts/quality_gate.py --ci`): all required gates passed
