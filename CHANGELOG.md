@@ -137,3 +137,4 @@ All notable changes to JARVIS will be documented in this file.
 - Added CLI regression tests for MCP and Skills commands (`tests/cli/test_mcp_skills_cli.py`).
 - Added TD-012 browser behavior tests (`tests/test_browser_subagent_td012.py`).
 - BrowserSubagent now supports bounded action execution via `action_timeout_s` and returns explicit timeout errors.
+- Verified TD-014..TD-017 suites on current implementation (orchestrator/plugins/zotero/export): all green.

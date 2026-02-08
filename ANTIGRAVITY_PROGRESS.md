@@ -150,3 +150,10 @@ Days Remaining: 171 (~24 weeks)
   - `uv run pytest tests/ --cov=jarvis_core --cov-fail-under=70 --ignore=tests/e2e --ignore=tests/integration -q --tb=no`
   - `uv run mypy --explicit-package-bases --follow-imports=skip --ignore-missing-imports jarvis_core/evidence/ jarvis_core/contradiction/ jarvis_core/citation/ jarvis_core/sources/`
   - `bandit -r jarvis_core -ll`
+
+### 2026-02-08 - TD-014/TD-015/TD-016/TD-017: verification on existing implementation
+- ✅ TD-014 (Multi-Agent Orchestrator): orchestrator unit/integration suites passed
+- ✅ TD-015 (Plugin System): plugin system suites passed
+- ✅ TD-016 (Zotero Integration): zotero suites passed
+- ✅ TD-017 (Export): bibliography/claim/bundle export suites passed
+- ✅ Combined verification: `86 passed, 0 failed`

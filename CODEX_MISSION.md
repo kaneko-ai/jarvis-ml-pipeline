@@ -427,3 +427,18 @@ P0 > P1 > P2 > P3 の優先順位を厳守
 - coverage (`--cov-fail-under=70`): 70.44%
 - mypy core4: PASS
 - bandit -ll: PASS
+
+## Session Update - 2026-02-08 (TD-014 to TD-017 verification)
+
+### 検証対象
+- TD-014: Multi-Agent Orchestrator
+- TD-015: Plugin System
+- TD-016: Zotero Integration
+- TD-017: Export formats (RIS/BibTeX/Markdown related)
+
+### 実行コマンド
+- uv run pytest tests/test_orchestrator.py tests/integration/test_orchestrator_integration.py tests/test_plugins.py tests/test_phaseH14_plugins_integrations.py tests/integrations/test_zotero.py tests/test_zotero_integration_v2.py tests/test_bibliography.py tests/test_bundle_export.py tests/test_claim_export.py -q
+
+### 結果
+- 86 passed / 0 failed
+- 既存実装で TD-014〜TD-017 の主要回帰シナリオがグリーン
