@@ -239,3 +239,9 @@ Days Remaining: 171 (~24 weeks)
 - ✅ Pushed release tag: `v1.0.0`
 - ✅ Published GitHub Release: https://github.com/kaneko-ai/jarvis-ml-pipeline/releases/tag/v1.0.0
 - ⚠️ External blockers retained in `blockers.md`: SEC-001, TD-010, TD-020, TD-022
+
+### 2026-02-09 - TD-010 remote verification attempt
+- ✅ Re-checked `main` CI history via GitHub API (latest 10 commits)
+- ⚠️ Latest commit `086cfdc7` still has in-progress workflow runs
+- ⚠️ Recent commits include failed workflow runs; consecutive green commits from latest: `0`
+- ⚠️ TD-010 remains open until 10 consecutive successful completed CI runs are observed

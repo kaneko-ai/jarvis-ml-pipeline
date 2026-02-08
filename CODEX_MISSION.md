@@ -559,4 +559,4 @@ P0 > P1 > P2 > P3 の優先順位を厳守
 - Published GitHub Release: https://github.com/kaneko-ai/jarvis-ml-pipeline/releases/tag/v1.0.0
 
 ### Pending (external/tooling)
-- TD-010 CI 10-consecutive verification remains open; latest remote snapshot showed one workflow still in progress and `4` consecutive successful completed runs.
+- TD-010 CI 10-consecutive verification remains open; latest remote snapshot (2026-02-09) shows in-progress workflows on `086cfdc7` and `0` consecutive green commits from latest.

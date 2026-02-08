@@ -66,9 +66,9 @@
 **Detail**:
 - Local quality gates are currently passing.
 - Completion criterion requires observing 10 consecutive successful CI executions on `main`.
-- Remote check snapshot on 2026-02-08 (GitHub API):
-  - latest run set includes one `in_progress` workflow on `main` (`560e381d`)
-  - consecutive successful runs from latest completed entry: `4`
+- Remote check snapshot on 2026-02-09 (GitHub API):
+  - latest commit `086cfdc7` has workflow runs in progress
+  - recent commits include failed workflow runs; current consecutive green commits from latest: `0`
 - Keep this blocker open until 10 consecutive successful completed runs are observed.
 
 ### Blocker #TD-020 - 2026-02-08
