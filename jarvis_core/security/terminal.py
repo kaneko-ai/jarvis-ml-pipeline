@@ -132,8 +132,13 @@ class TerminalSecurityManager:
         if request.environment:
             env.update(request.environment)
 
+        command_to_run = request.command
+        if os.name == "nt" and request.command.strip() == "pwd":
+            # `pwd` is POSIX-only in cmd.exe; map to equivalent command on Windows.
+            command_to_run = "cd"
+
         process = await asyncio.create_subprocess_shell(
-            request.command,
+            command_to_run,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=request.working_dir,

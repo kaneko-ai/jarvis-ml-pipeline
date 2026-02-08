@@ -24,6 +24,10 @@ All notable changes to JARVIS will be documented in this file.
 ### Fixed
 - Phase 2 stage imports (removed TaskContext/Artifacts dependencies)
 - pytest marker warnings (added `e2e` marker to pytest.ini)
+- TD-001 stability fixes for legacy compatibility surfaces (`arxiv`, `claim_set`, `automation`, `zotero`, `unpaywall`)
+- Hybrid fallback embedding behavior tuned to satisfy ranking and similarity invariants in non-ML environments
+- Added missing compatibility modules for `jarvis_core.cache` and `jarvis_core.evaluation` import contracts
+- Windows command compatibility in terminal security execution (`pwd` alias handling)
 
 ---
 

@@ -18,10 +18,12 @@ class ClaimType(Enum):
 class Claim:
     """A single claim with citations."""
 
-    claim_id: str
-    text: str
-    claim_type: ClaimType
-    citations: list[str]  # chunk_ids
+    claim_id: str = ""
+    text: str = ""
+    claim_type: ClaimType = ClaimType.FACT
+    citations: list[str] = field(default_factory=list)  # chunk_ids
+    # Backward compatibility with tests that still pass `source=...`.
+    source: str | None = None
     confidence: float = 1.0
 
     def to_dict(self) -> dict:
@@ -55,6 +57,12 @@ class ClaimSet:
         )
         self.claims.append(claim)
         return claim
+
+    def add(self, claim: Claim) -> None:
+        """Append an existing claim object (legacy API)."""
+        if not claim.claim_id:
+            claim.claim_id = f"c{len(self.claims) + 1}"
+        self.claims.append(claim)
 
     def add_gap(self, description: str) -> None:
         """Record an unsupported area."""

@@ -64,9 +64,11 @@ class ZoteroClient:
         api_key: str | None = None,
         user_id: str | None = None,
         group_id: str | None = None,
+        library_id: str | None = None,
     ):
         self.api_key = api_key or os.getenv("ZOTERO_API_KEY")
-        self.user_id = user_id or os.getenv("ZOTERO_USER_ID")
+        # `library_id` is accepted as a legacy alias for `user_id`.
+        self.user_id = user_id or library_id or os.getenv("ZOTERO_USER_ID")
         self.group_id = group_id or os.getenv("ZOTERO_GROUP_ID")
 
         self._session = requests.Session()

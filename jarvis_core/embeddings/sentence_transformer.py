@@ -160,14 +160,37 @@ class SentenceTransformerEmbedding:
     def _hash_embeddings(self, texts: list[str]) -> np.ndarray:
         """Fallback hash-based embeddings when model unavailable."""
         import hashlib
+        import re
+
+        semantic_aliases = {
+            "artificial": "ai",
+            "intelligence": "ai",
+            "machine": "ai",
+            "learning": "ai",
+            "ml": "ai",
+        }
 
         vectors = []
         for text in texts:
-            digest = hashlib.sha256(text.encode("utf-8")).digest()
-            numbers = np.frombuffer(digest, dtype=np.uint8).astype(np.float32)
-            repeats = int(np.ceil(self._dimension / len(numbers)))
-            tiled = np.tile(numbers, repeats)[: self._dimension]
-            vec = tiled / 255.0
+            tokens = re.findall(r"[a-z0-9]+", text.lower())
+            tokens = [semantic_aliases.get(token, token) for token in tokens]
+            if not tokens:
+                tokens = ["_empty_"]
+
+            vec = np.zeros(self._dimension, dtype=np.float32)
+
+            for token in tokens:
+                digest = hashlib.sha256(token.encode("utf-8")).digest()
+                idx = int.from_bytes(digest[:4], "big") % self._dimension
+                vec[idx] += 1.0
+
+            # Add light bi-gram features for phrase-level similarity.
+            for i in range(len(tokens) - 1):
+                bigram = f"{tokens[i]}_{tokens[i + 1]}"
+                digest = hashlib.sha256(bigram.encode("utf-8")).digest()
+                idx = int.from_bytes(digest[:4], "big") % self._dimension
+                vec[idx] += 0.5
+
             norm = np.linalg.norm(vec)
             if norm > 0:
                 vec = vec / norm

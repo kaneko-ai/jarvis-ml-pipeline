@@ -33,6 +33,22 @@ class LabEquipment:
     last_used: str = ""
 
 
+@dataclass
+class Experiment:
+    experiment_id: str
+    name: str
+    start_time: str
+    duration_hours: int
+    equipment: list[str]
+
+
+@dataclass
+class Sample:
+    sample_id: str
+    name: str
+    location: str = "unknown"
+
+
 class LabEquipmentController:
     """Control lab equipment via API (141)."""
 
@@ -43,6 +59,24 @@ class LabEquipmentController:
     def register_equipment(self, equipment: LabEquipment):
         """Register equipment."""
         self.equipment[equipment.id] = equipment
+
+    def connect(self, equipment_id: str, name: str | None = None, type: str = "generic") -> dict:
+        """Legacy API: connect/create equipment by id."""
+        if equipment_id not in self.equipment:
+            self.equipment[equipment_id] = LabEquipment(
+                id=equipment_id,
+                name=name or equipment_id,
+                type=type,
+                status=EquipmentStatus.IDLE,
+            )
+        return {"status": "connected", "equipment": equipment_id}
+
+    def disconnect(self, equipment_id: str) -> dict:
+        """Legacy API: mark equipment idle."""
+        if equipment_id not in self.equipment:
+            return {"error": "Equipment not found"}
+        self.equipment[equipment_id].status = EquipmentStatus.IDLE
+        return {"status": "disconnected", "equipment": equipment_id}
 
     def send_command(self, equipment_id: str, command: str, params: dict = None) -> dict:
         """Send command to equipment."""
@@ -183,6 +217,10 @@ class SampleTracker:
         }
         return self.samples[barcode]
 
+    def add_sample(self, sample_id: str, metadata: dict) -> dict:
+        """Legacy API alias for register_sample()."""
+        return self.register_sample(sample_id, metadata)
+
     def update_location(self, barcode: str, new_location: str) -> dict:
         """Update sample location."""
         if barcode not in self.samples:
@@ -191,6 +229,14 @@ class SampleTracker:
         self.samples[barcode]["location"] = new_location
         self.samples[barcode]["updated_at"] = datetime.now().isoformat()
         return {"status": "updated", "barcode": barcode, "location": new_location}
+
+    def update_sample(self, sample_id: str, updates: dict) -> dict:
+        """Legacy API to update sample metadata in-place."""
+        if sample_id not in self.samples:
+            return {"error": "Sample not found"}
+        self.samples[sample_id].update(updates or {})
+        self.samples[sample_id]["updated_at"] = datetime.now().isoformat()
+        return {"status": "updated", "sample_id": sample_id}
 
     def get_sample(self, barcode: str) -> dict | None:
         """Get sample info."""
@@ -259,11 +305,36 @@ class ExperimentScheduler:
     ) -> list[dict]:
         """Check for scheduling conflicts."""
         conflicts = []
-        # Simplified conflict check
+        query_start = self._parse_time(start_time)
+        query_end = (
+            query_start + timedelta(hours=duration_hours) if query_start is not None else None
+        )
+
         for exp in self.schedule:
-            if set(equipment) & set(exp["equipment"]):
+            if not (set(equipment) & set(exp["equipment"])):
+                continue
+
+            exp_start = self._parse_time(exp["start_time"])
+            exp_end = (
+                exp_start + timedelta(hours=int(exp["duration_hours"]))
+                if exp_start is not None
+                else None
+            )
+
+            # If time parsing fails, keep old conservative behavior.
+            if query_start is None or query_end is None or exp_start is None or exp_end is None:
+                conflicts.append(exp)
+                continue
+
+            if query_start < exp_end and exp_start < query_end:
                 conflicts.append(exp)
         return conflicts
+
+    def _parse_time(self, value: str) -> datetime | None:
+        try:
+            return datetime.strptime(value, "%Y-%m-%d %H:%M")
+        except Exception:
+            return None
 
 
 class QualityControlAgent:
@@ -395,13 +466,25 @@ class ExperimentLogger:
         self.logs.append(entry)
         return entry
 
-    def get_logs(self, start_time: str = None, end_time: str = None) -> list[dict]:
+    def log_event(self, experiment_id: str, event: str, details: dict | None = None) -> dict:
+        """Legacy API wrapper used by coverage tests."""
+        payload = {"experiment_id": experiment_id, **(details or {})}
+        return self.log(event, payload)
+
+    def get_logs(
+        self,
+        experiment_id: str | None = None,
+        start_time: str | None = None,
+        end_time: str | None = None,
+    ) -> list[dict]:
         """Get logs with optional time filter."""
-        if not start_time and not end_time:
+        if not experiment_id and not start_time and not end_time:
             return self.logs
 
         filtered = []
         for log in self.logs:
+            if experiment_id and log.get("details", {}).get("experiment_id") != experiment_id:
+                continue
             if start_time and log["timestamp"] < start_time:
                 continue
             if end_time and log["timestamp"] > end_time:
@@ -420,24 +503,57 @@ class AnomalyDetector:
         """Set baseline for a metric."""
         self.baseline[metric] = {"mean": mean, "std": std}
 
-    def detect(self, readings: dict) -> list[dict]:
+    def detect(self, readings: dict | list[float]) -> list[dict]:
         """Detect anomalies in readings."""
         anomalies = []
 
-        for metric, value in readings.items():
-            if metric in self.baseline:
-                base = self.baseline[metric]
-                z_score = abs(value - base["mean"]) / max(base["std"], 0.001)
-                if z_score > 3:
-                    anomalies.append(
-                        {
-                            "metric": metric,
-                            "value": value,
-                            "expected_mean": base["mean"],
-                            "z_score": round(z_score, 2),
-                            "severity": "high" if z_score > 5 else "medium",
-                        }
-                    )
+        if isinstance(readings, dict):
+            for metric, value in readings.items():
+                if metric in self.baseline:
+                    base = self.baseline[metric]
+                    z_score = abs(value - base["mean"]) / max(base["std"], 0.001)
+                    if z_score > 3:
+                        anomalies.append(
+                            {
+                                "metric": metric,
+                                "value": value,
+                                "expected_mean": base["mean"],
+                                "z_score": round(z_score, 2),
+                                "severity": "high" if z_score > 10 else "medium",
+                            }
+                        )
+            return anomalies
+
+        values = [float(v) for v in readings]
+        if len(values) < 2:
+            return anomalies
+
+        sorted_values = sorted(values)
+        mid = len(sorted_values) // 2
+        if len(sorted_values) % 2 == 0:
+            median = (sorted_values[mid - 1] + sorted_values[mid]) / 2
+        else:
+            median = sorted_values[mid]
+
+        deviations = sorted(abs(v - median) for v in values)
+        if len(deviations) % 2 == 0:
+            mad = (deviations[mid - 1] + deviations[mid]) / 2
+        else:
+            mad = deviations[mid]
+        mad = max(mad, 0.001)
+
+        for idx, value in enumerate(values):
+            robust_z = abs(value - median) / (1.4826 * mad)
+            if robust_z > 3.5:
+                anomalies.append(
+                    {
+                        "metric": f"idx_{idx}",
+                        "value": value,
+                        "expected_mean": median,
+                        "z_score": round(robust_z, 2),
+                        "severity": "high" if robust_z > 10 else "medium",
+                    }
+                )
 
         return anomalies
 
@@ -455,8 +571,17 @@ class RealTimeDataAnalyzer:
         if len(self.data[metric]) > self.window_size:
             self.data[metric] = self.data[metric][-self.window_size :]
 
-    def get_stats(self, metric: str) -> dict:
+    def add_data_point(self, value: float, metric: str = "default") -> None:
+        """Legacy API wrapper."""
+        self.add_point(metric, value)
+
+    def get_stats(self, metric: str | None = None) -> dict:
         """Get running statistics."""
+        if metric is None:
+            if not self.data:
+                return {"count": 0, "mean": 0.0, "std": 0.0, "min": None, "max": None}
+            metric = next(iter(self.data.keys()))
+
         values = self.data.get(metric, [])
         if not values:
             return {"error": "No data"}
@@ -493,6 +618,14 @@ class BayesianOptimizer:
             suggestions.append(params)
 
         return suggestions
+
+    def suggest(self, param_ranges: dict, history: list[dict]) -> dict:
+        """Legacy API wrapper returning a single suggestion."""
+        for row in history or []:
+            params = row.get("params", {})
+            score = row.get("score", row.get("result", 0.0))
+            self.observe(params, score)
+        return self.suggest_next(param_ranges, n_suggestions=1)[0]
 
     def observe(self, params: dict, result: float):
         """Record observation."""

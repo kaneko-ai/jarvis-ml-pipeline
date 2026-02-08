@@ -10,14 +10,14 @@
 ## 投 Live Metrics
 
 ```
-Tests Total: 6302
-Tests Passing: 5095 (80.8%)
-Tests Failing: 674 (10.7%)
-Tests Skipped: 533 (8.5%)
-Coverage: TBD
-Commits: 0
-Days Elapsed: 0
-Days Remaining: 168 (24 weeks)
+Tests Total: 6374
+Tests Passing: 5923 (92.9%)
+Tests Failing: 0 (0.0%)
+Tests Skipped: 452 (7.1%)
+Coverage: 69.49%
+Commits: 1 (sec001)
+Days Elapsed: 3
+Days Remaining: 171 (~24 weeks)
 ```
 
 ---
@@ -35,8 +35,8 @@ Days Remaining: 168 (24 weeks)
 
 ## 嶋 Cumulative Progress
 
-### Tests Fixed (0 / 674)
-- [ ] (Analysis in progress)
+### Tests Fixed (66 / 66 for TD-001 active bucket)
+- [x] TD-001 targeted failures resolved and validated with pytest -x full pass
 
 ### Commits Made (0)
 - (Empty - will be populated)
@@ -76,3 +76,12 @@ Days Remaining: 168 (24 weeks)
 - 笨・sources: 5繝・せ繝郁ｿｽ蜉・・ASS・・
 - 笞・・蝗槫ｸｰ螳溯｡後〒縺ｯ譌｢蟄伜､ｱ謨・166 failed / 1 error 繧堤｢ｺ隱搾ｼ域眠隕上ユ繧ｹ繝育罰譚･縺ｧ縺ｯ縺ｪ縺・ｼ・
 - 蛯呵・ TD-006 縺ｮ蜑肴署蝓ｺ逶､縺ｨ縺励※譁ｰ隕・*_td028.py 縺ｮ縺ｿ霑ｽ蜉
+
+### 2026-02-08 - TD-001: Remaining failures resolved on feature/td001-stability
+- ✅ Reproduced and classified 66 failures/errors into Cat-A..E (`td001_fix_plan.md`)
+- ✅ Implemented compatibility shims for legacy API/test contracts (arxiv, claim_set, automation, zotero, unpaywall)
+- ✅ Added missing cache/evaluation compatibility modules and exports
+- ✅ Stabilized fallback embedding behavior for hybrid ranking and similarity assertions
+- ✅ Restored required patch surfaces (report_builder docx/pptx, terminal security command handling)
+- ✅ Verification passed: `ruff`, `black --check`, `pytest -x` (`5923 passed, 452 skipped, 0 failed, 0 errors`)
+- ⚠️ Remaining for Phase 2-alpha: TD-002 coverage gate (69.49% -> >=70%), TD-003, TD-004
