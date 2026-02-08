@@ -166,3 +166,8 @@ Days Remaining: 171 (~24 weeks)
 ### 2026-02-08 - TD-020 blocker recorded
 - ⚠️ Docker is not installed (`docker` command not found)
 - ⚠️ Added blocker entry in `blockers.md`; defer TD-020 until environment setup
+
+### 2026-02-08 - TD-022 preflight passed
+- ✅ Packaging preflight passed with `uv run --with build --with twine ...`
+- ✅ `python -m build` and `twine check dist/*` equivalent flow verified
+- ℹ️ Global `build`/`twine` binaries are not required when using `uv --with`

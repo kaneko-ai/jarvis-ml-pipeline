@@ -458,3 +458,14 @@ P0 > P1 > P2 > P3 の優先順位を厳守
 ## Session Note - 2026-02-08 (TD-020 blocker)
 - `docker` command is not available in the current environment.
 - Added blocker entry in `blockers.md` for TD-020 execution dependency.
+
+## Session Update - 2026-02-08 (TD-022 preflight)
+
+### 実行
+- uv run --with build --with twine python -m build
+- uv run --with twine python -m twine check dist/*
+
+### 結果
+- sdist / wheel 生成成功
+- twine check PASS
+- 注記: システムグローバルには `build`/`twine` が未導入だが、`uv run --with ...` で再現可能
