@@ -137,3 +137,37 @@ Days Remaining: 171 (~24 weeks)
 - ✅ Ruff/Black: pass
 - ✅ mypy(core4): pass
 - ✅ Quality gate (`scripts/quality_gate.py --ci`): all required gates passed
+
+### 2026-02-08 - TD-011/TD-012/TD-013: Ecosystem CLI and Browser hardening
+- ✅ Added CLI regression tests for MCP commands: `list`, `invoke`
+- ✅ Added CLI regression tests for Skills commands: `list`, `show`
+- ✅ Added BrowserSubagent timeout handling (`action_timeout_s`) to avoid hanging actions
+- ✅ Added TD-012 tests: allow-list, block unlisted URL, headless launch, timeout error path
+- ✅ Verification passed:
+  - `uv run ruff check jarvis_core tests`
+  - `uv run black --check jarvis_core tests`
+  - `uv run pytest tests/ -x --ignore=tests/e2e --ignore=tests/integration -q`
+  - `uv run pytest tests/ --cov=jarvis_core --cov-fail-under=70 --ignore=tests/e2e --ignore=tests/integration -q --tb=no`
+  - `uv run mypy --explicit-package-bases --follow-imports=skip --ignore-missing-imports jarvis_core/evidence/ jarvis_core/contradiction/ jarvis_core/citation/ jarvis_core/sources/`
+  - `bandit -r jarvis_core -ll`
+
+### 2026-02-08 - TD-014/TD-015/TD-016/TD-017: verification on existing implementation
+- ✅ TD-014 (Multi-Agent Orchestrator): orchestrator unit/integration suites passed
+- ✅ TD-015 (Plugin System): plugin system suites passed
+- ✅ TD-016 (Zotero Integration): zotero suites passed
+- ✅ TD-017 (Export): bibliography/claim/bundle export suites passed
+- ✅ Combined verification: `86 passed, 0 failed`
+
+### 2026-02-08 - TD-019 prep: API smoke test hardening
+- ✅ Updated `tests/smoke_api_v1.py` to auto-start local API server when `API_BASE` is not provided and API is down
+- ✅ `uv run pytest tests/smoke_api_v1.py -v` now passes with 4 tests
+- ✅ Regression gate remained green (`ruff`, `black --check`, `pytest -x`)
+
+### 2026-02-08 - TD-020 blocker recorded
+- ⚠️ Docker is not installed (`docker` command not found)
+- ⚠️ Added blocker entry in `blockers.md`; defer TD-020 until environment setup
+
+### 2026-02-08 - TD-022 preflight passed
+- ✅ Packaging preflight passed with `uv run --with build --with twine ...`
+- ✅ `python -m build` and `twine check dist/*` equivalent flow verified
+- ℹ️ Global `build`/`twine` binaries are not required when using `uv --with`

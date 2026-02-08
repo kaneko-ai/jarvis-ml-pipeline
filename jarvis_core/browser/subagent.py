@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import importlib
 import importlib.util
 import time
+from collections.abc import Awaitable
 from dataclasses import dataclass
 from typing import Any
 
@@ -33,9 +35,11 @@ class BrowserSubagent:
         self,
         security_policy: SecurityPolicy | None = None,
         headless: bool = True,
+        action_timeout_s: float = 30.0,
     ) -> None:
         self.security_manager = BrowserSecurityManager(policy=security_policy or SecurityPolicy())
         self.headless = headless
+        self.action_timeout_s = action_timeout_s
         self.session: _PlaywrightSession | None = None
         self.state = BrowserState()
         self.recorder: BrowserRecorder | None = None
@@ -56,20 +60,38 @@ class BrowserSubagent:
                 error=f"URL not allowed by security policy: {url}",
                 duration_ms=self._elapsed_ms(start),
             )
-        await self._ensure_initialized()
-        await self.session.page.goto(url)
-        await self._refresh_state()
-        await self._capture_recording_frame()
+        try:
+            await self._ensure_initialized()
+            assert self.session is not None
+            await self._run_with_timeout(self.session.page.goto(url))
+            await self._refresh_state()
+            await self._capture_recording_frame()
+        except asyncio.TimeoutError:
+            return self._result(
+                BrowserAction.NAVIGATE,
+                False,
+                error=self._timeout_message(),
+                duration_ms=self._elapsed_ms(start),
+            )
         return self._result(
             BrowserAction.NAVIGATE, True, data={"url": url}, duration_ms=self._elapsed_ms(start)
         )
 
     async def click(self, selector: str) -> BrowserActionResult:
         start = time.perf_counter()
-        await self._ensure_initialized()
-        await self.session.page.click(selector)
-        await self._refresh_state()
-        await self._capture_recording_frame()
+        try:
+            await self._ensure_initialized()
+            assert self.session is not None
+            await self._run_with_timeout(self.session.page.click(selector))
+            await self._refresh_state()
+            await self._capture_recording_frame()
+        except asyncio.TimeoutError:
+            return self._result(
+                BrowserAction.CLICK,
+                False,
+                error=self._timeout_message(),
+                duration_ms=self._elapsed_ms(start),
+            )
         return self._result(
             BrowserAction.CLICK,
             True,
@@ -79,10 +101,19 @@ class BrowserSubagent:
 
     async def type_text(self, selector: str, text: str) -> BrowserActionResult:
         start = time.perf_counter()
-        await self._ensure_initialized()
-        await self.session.page.fill(selector, text)
-        await self._refresh_state()
-        await self._capture_recording_frame()
+        try:
+            await self._ensure_initialized()
+            assert self.session is not None
+            await self._run_with_timeout(self.session.page.fill(selector, text))
+            await self._refresh_state()
+            await self._capture_recording_frame()
+        except asyncio.TimeoutError:
+            return self._result(
+                BrowserAction.TYPE,
+                False,
+                error=self._timeout_message(),
+                duration_ms=self._elapsed_ms(start),
+            )
         return self._result(
             BrowserAction.TYPE,
             True,
@@ -92,8 +123,19 @@ class BrowserSubagent:
 
     async def screenshot(self, full_page: bool = False) -> BrowserActionResult:
         start = time.perf_counter()
-        await self._ensure_initialized()
-        image_bytes = await self.session.page.screenshot(full_page=full_page)
+        try:
+            await self._ensure_initialized()
+            assert self.session is not None
+            image_bytes = await self._run_with_timeout(
+                self.session.page.screenshot(full_page=full_page)
+            )
+        except asyncio.TimeoutError:
+            return self._result(
+                BrowserAction.SCREENSHOT,
+                False,
+                error=self._timeout_message(),
+                duration_ms=self._elapsed_ms(start),
+            )
         encoded = base64.b64encode(image_bytes).decode("utf-8")
         await self._capture_recording_frame(image_bytes)
         return self._result(
@@ -106,11 +148,20 @@ class BrowserSubagent:
 
     async def extract_text(self, selector: str) -> BrowserActionResult:
         start = time.perf_counter()
-        await self._ensure_initialized()
-        element = await self.session.page.query_selector(selector)
-        text = None
-        if element is not None:
-            text = await element.inner_text()
+        try:
+            await self._ensure_initialized()
+            assert self.session is not None
+            element = await self._run_with_timeout(self.session.page.query_selector(selector))
+            text = None
+            if element is not None:
+                text = await self._run_with_timeout(element.inner_text())
+        except asyncio.TimeoutError:
+            return self._result(
+                BrowserAction.EXTRACT_TEXT,
+                False,
+                error=self._timeout_message(),
+                duration_ms=self._elapsed_ms(start),
+            )
         await self._refresh_state()
         return self._result(
             BrowserAction.EXTRACT_TEXT,
@@ -151,9 +202,16 @@ class BrowserSubagent:
     async def _capture_recording_frame(self, image_bytes: bytes | None = None) -> None:
         if self.recorder is None or not self.recorder.active:
             return
+        assert self.session is not None
         if image_bytes is None:
             image_bytes = await self.session.page.screenshot(full_page=False)
         self.recorder.capture_frame(image_bytes)
+
+    async def _run_with_timeout(self, operation: Awaitable[Any]) -> Any:
+        return await asyncio.wait_for(operation, timeout=self.action_timeout_s)
+
+    def _timeout_message(self) -> str:
+        return f"Action timed out after {self.action_timeout_s:.1f}s"
 
     def _result(
         self,

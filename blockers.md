@@ -69,3 +69,16 @@
 - Local quality gates are currently passing.
 - Completion criterion requires observing 10 consecutive successful CI executions on `main`.
 - This cannot be finalized from local-only execution; needs GitHub Actions history confirmation after merges.
+
+### Blocker #TD-020 - 2026-02-08
+
+**Task**: TD-020 (Docker full validation)
+**Category**: Environment dependency
+**Priority**: P1
+
+**Status**: PENDING ENVIRONMENT SETUP
+
+**Detail**:
+- `docker --version` returned command-not-found on this machine.
+- `docker build -t jarvis-test .` and containerized validation are currently not executable.
+- Continue with non-Docker tasks first; complete TD-020 after Docker installation.
