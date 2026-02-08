@@ -47,7 +47,7 @@ jobs:
       - name: Run garbage collector check
         run: uv run python scripts/detect_garbage_code.py
 
-  # 繝・せ繝医ず繝ｧ繝・- 諠・ｱ蜿朱寔逶ｮ逧・∝ｸｸ縺ｫ謌仙粥
+  # Test job (runs across supported Python versions)
   test:
     runs-on: ubuntu-latest
     strategy:
