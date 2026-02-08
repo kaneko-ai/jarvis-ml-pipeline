@@ -10,7 +10,24 @@ const app = (() => {
 
   const isAbsoluteUrl = (value) => /^https?:\/\//i.test(value || "");
 
-  const getApiMap = () => window.api_map_v1 || {};
+  const DEFAULT_API_MAP = {
+    capabilities: "/api/capabilities",
+    runs_list: "/api/runs",
+    runs_detail: "/api/runs/:runId",
+    research_rank: "/api/research/rank",
+    research_paper: "/api/research/paper/:paperId",
+    qa_report: "/api/qa/report",
+    submission_build: "/api/submission/build",
+    submission_latest: "/api/submission/latest/:runId",
+    submission_email: "/api/submission/email/:runId",
+    submission_changelog: "/api/submission/changelog/:runId",
+    schedules_list: "/api/schedules",
+    schedules_create: "/api/schedules",
+    schedules_update: "/api/schedules/:scheduleId",
+    schedules_run: "/api/schedules/:scheduleId/run",
+  };
+
+  const getApiMap = () => window.api_map_v1 || DEFAULT_API_MAP;
 
   const getPath = (key) => {
     const entry = getApiMap()[key];

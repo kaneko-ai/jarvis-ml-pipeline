@@ -30,6 +30,7 @@ All notable changes to JARVIS will be documented in this file.
 - CI `contract_and_unit` now runs bundle contract schema validation
 - CI adds `quality_gate` job for unified required/optional checks
 - CI lint workflow no longer carries stale TD-029 TODO note in mypy step
+- Dashboard E2E jobs (`dashboard_e2e_mock`, `dashboard_e2e_real`) are now blocking in CI (removed `continue-on-error` and `|| true`)
 - Auth compatibility updated for smoke/contract behavior when token env vars are missing
 
 ### Fixed
@@ -41,6 +42,11 @@ All notable changes to JARVIS will be documented in this file.
 - Windows command compatibility in terminal security execution (`pwd` alias handling)
 - `tests/test_figure_extractor.py` now uses a stable PNG payload compatible with current PyMuPDF
 - API contract/smoke regression: `/api/capabilities` restored to unauthenticated behavior when no web token is configured
+- Dashboard mock API + UI integration regressions fixed for Playwright:
+  - `tests/mock_server/app.py` now handles `/api/capabilities` query params and CORS correctly
+  - `dashboard/runs.html` now uses safe API response handling for `/api/runs`
+  - `dashboard/assets/app.js` now includes default API map fallback when `window.api_map_v1` is absent
+  - E2E specs updated to current dashboard DOM (`tests/e2e/dashboard.spec.ts`, `tests/e2e/public-dashboard.spec.ts`)
 
 ---
 

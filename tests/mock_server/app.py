@@ -4,12 +4,20 @@ import json
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
 FILES_DIR = FIXTURES_DIR / "files"
 
 app = FastAPI(title="JARVIS Mock API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 def load_json(name: str) -> Any:
@@ -23,7 +31,7 @@ async def health():
 
 
 @app.get("/api/capabilities")
-async def capabilities(**overrides: str):
+async def capabilities(request: Request):
     features = {
         "health": True,
         "capabilities": True,
@@ -36,7 +44,7 @@ async def capabilities(**overrides: str):
         "submission_decision": False,
         "finance_forecast": False,
     }
-    for key, value in overrides.items():
+    for key, value in request.query_params.items():
         if key in features:
             features[key] = value.lower() != "false"
     return {"version": "v1", "features": features}
