@@ -1,38 +1,38 @@
 import { expect, test } from '@playwright/test';
 
+const mockBase = process.env.MOCK_API_BASE || 'http://localhost:4010';
+
 test.describe('public dashboard e2e', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/index.html');
+    await page.evaluate(([base, token]) => {
+      localStorage.setItem('JAVIS_API_BASE', base);
+      localStorage.setItem('JAVIS_API_TOKEN', token);
+    }, [mockBase, 'test-token']);
+  });
+
   test('index.html loads', async ({ page }) => {
     await page.goto('/index.html');
-    await expect(page.getByRole('heading', { name: /JARVIS Research OS/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Research OS Dashboard' })).toBeVisible();
   });
 
-  test('runs list renders fixture run', async ({ page }) => {
-    await page.goto('/index.html');
-    await page.getByText('📋 実行履歴').click();
-    await expect(page.locator('#runs-table-container')).toContainText('fixture_run_001');
+  test('runs list renders mock run', async ({ page }) => {
+    await page.goto('/runs.html');
+    await expect(page.locator('#runs-table tbody tr').first()).toBeVisible();
+    await expect(page.locator('#runs-table')).toContainText('RUN_MOCK_001');
   });
 
-  test('run detail shows manifest report', async ({ page }) => {
-    await page.goto('/index.html');
-    await page.getByText('📋 実行履歴').click();
-    await page.locator('#runs-table-container tr', { hasText: 'fixture_run_001' }).first().click();
-    await expect(page.locator('#run-modal')).toBeVisible();
-    await expect(page.locator('#modal-body')).toContainText('Fixture Run Report');
-    await expect(page.locator('#modal-body')).toContainText('fixture report for the public dashboard E2E test');
+  test('run detail renders rank panel', async ({ page }) => {
+    await page.goto('/run.html?id=RUN_MOCK_001');
+    await page.click('[data-testid="tab-rank"]');
+    await expect(page.locator('#rank-content')).toContainText('Mock Paper');
   });
 
-  test('search loads index and renders results', async ({ page }) => {
-    await page.goto('/index.html');
-    await page.getByText('📑 検索').click();
-    await page.fill('#search-input', 'biology');
-    await page.getByRole('button', { name: '検索' }).click();
-    await expect(page.locator('.search-result-title')).toContainText('Fixture Paper on Biology');
-  });
-
-  test('search index is readable', async ({ request }) => {
-    const response = await request.get('/search/index.json');
-    expect(response.ok()).toBeTruthy();
-    const data = await response.json();
-    expect(Array.isArray(data)).toBeTruthy();
+  test('search page can save query locally', async ({ page }) => {
+    await page.goto('/search.html');
+    await page.fill('#savedQueryName', 'fixture');
+    await page.fill('#savedQueryText', 'biology');
+    await page.click('form#savedQueryForm button[type="submit"]');
+    await expect(page.locator('#savedQueriesList')).toContainText('biology');
   });
 });

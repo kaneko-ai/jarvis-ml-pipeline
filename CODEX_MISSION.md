@@ -469,3 +469,26 @@ P0 > P1 > P2 > P3 の優先順位を厳守
 - sdist / wheel 生成成功
 - twine check PASS
 - 注記: システムグローバルには `build`/`twine` が未導入だが、`uv run --with ...` で再現可能
+
+## Session Update - 2026-02-08 (TD-018 dashboard e2e hardening)
+
+### 実施内容
+- Playwright設定を修正し、mock API + dashboard静的配信を自己起動できるように変更
+- dashboard E2Eテストを現行UIに合わせて更新（`dashboard.spec.ts`, `public-dashboard.spec.ts`）
+- mock APIサーバーを修正:
+  - CORS許可を追加
+  - `/api/capabilities` のクエリ処理を修正（422回避）
+- dashboard実装の不整合を修正:
+  - `dashboard/runs.html`: `app.listRuns()` -> `app.apiFetchSafe("/api/runs")`
+  - `dashboard/assets/app.js`: `window.api_map_v1` 未注入時のデフォルトAPIマップを追加
+- CIをブロッキング化:
+  - `.github/workflows/ci.yml` の `dashboard_e2e_mock` / `dashboard_e2e_real` から
+    `continue-on-error` と `|| true` を除去
+
+### 検証結果
+- `npx playwright test -c tests/e2e/playwright.config.ts` -> 6 passed
+- `uv run pytest tests/e2e/test_dashboard_real_api.py -q` -> 1 passed
+- `uv run ruff check jarvis_core tests` -> PASS
+- `uv run black --check jarvis_core tests` -> PASS
+- `uv run pytest tests/ -x --ignore=tests/e2e --ignore=tests/integration -q` ->
+  5952 passed / 449 skipped / 0 failed / 0 errors

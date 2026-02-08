@@ -171,3 +171,16 @@ Days Remaining: 171 (~24 weeks)
 - ✅ Packaging preflight passed with `uv run --with build --with twine ...`
 - ✅ `python -m build` and `twine check dist/*` equivalent flow verified
 - ℹ️ Global `build`/`twine` binaries are not required when using `uv --with`
+
+### 2026-02-08 - TD-018: dashboard_e2e gate hardening
+- ✅ Fixed Playwright web server config to auto-start mock API + static dashboard locally
+- ✅ Updated dashboard E2E specs to match current dashboard DOM and flows
+- ✅ Added CORS support and capabilities query parsing in `tests/mock_server/app.py`
+- ✅ Fixed dashboard runtime regressions:
+  - `dashboard/runs.html`: use `app.apiFetchSafe("/api/runs")`
+  - `dashboard/assets/app.js`: add default API map fallback when `window.api_map_v1` is absent
+- ✅ Local verification:
+  - `npx playwright test -c tests/e2e/playwright.config.ts` -> 6 passed
+  - `uv run pytest tests/e2e/test_dashboard_real_api.py -q` -> 1 passed
+  - `uv run pytest tests/ -x --ignore=tests/e2e --ignore=tests/integration -q` -> 5952 passed / 449 skipped
+- ✅ CI updated: removed `continue-on-error` and `|| true` from `dashboard_e2e_mock` and `dashboard_e2e_real`

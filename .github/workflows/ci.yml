@@ -267,7 +267,6 @@ jobs:
   dashboard_e2e_mock:
     runs-on: ubuntu-latest
     needs: [lint]
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -281,9 +280,9 @@ jobs:
       - name: Install python dependencies
         run: uv sync --all-extras --dev
       - name: Install node dependencies
-        run: npm install || true
+        run: npm install
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps || true
+        run: npx playwright install --with-deps
       - name: Start servers
         run: |
           uv run python -m uvicorn tests.mock_server.app:app --port 4010 --log-level warning &
@@ -293,7 +292,7 @@ jobs:
         env:
           MOCK_API_BASE: http://localhost:4010
           DASHBOARD_BASE_URL: http://localhost:4173
-        run: npx playwright test -c tests/e2e/playwright.config.ts || true
+        run: npx playwright test -c tests/e2e/playwright.config.ts
       - name: Upload Playwright artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -305,7 +304,6 @@ jobs:
   dashboard_e2e_real:
     runs-on: ubuntu-latest
     needs: [lint]
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -316,9 +314,9 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-extras --dev
       - name: Install Playwright browsers
-        run: uv run playwright install chromium --with-deps || true
+        run: uv run playwright install chromium --with-deps
       - name: Dashboard E2E (real API)
-        run: uv run pytest tests/e2e/test_dashboard_real_api.py -v || true
+        run: uv run pytest tests/e2e/test_dashboard_real_api.py -v
       - name: Upload Playwright artifacts
         if: always()
         uses: actions/upload-artifact@v4
