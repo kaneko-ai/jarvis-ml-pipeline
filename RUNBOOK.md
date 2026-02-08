@@ -1,4 +1,6 @@
-# JARVIS運用Runbook
+﻿# JARVIS運用Runbook
+
+Target release: `v1.0.0`
 
 JARVIS Research OS (Phase 2-ΩΩ) の運用手順・障害対応ガイド
 

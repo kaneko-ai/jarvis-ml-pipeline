@@ -492,3 +492,61 @@ P0 > P1 > P2 > P3 の優先順位を厳守
 - `uv run black --check jarvis_core tests` -> PASS
 - `uv run pytest tests/ -x --ignore=tests/e2e --ignore=tests/integration -q` ->
   5952 passed / 449 skipped / 0 failed / 0 errors
+
+## Session Update - 2026-02-08 (TD-019 strict API contract)
+
+### Completed
+- Added `tests/test_api_endpoints.py` (contract tests)
+- Added `tests/test_api_websocket_runs.py` (run websocket tests)
+- Added `/ws/runs/{run_id}` in `jarvis_web/api/ws.py`
+- Standardized API envelope (`status`, `data`, `errors`) while keeping legacy top-level keys
+
+### Validation
+- `uv run pytest tests/test_api_endpoints.py tests/test_api_websocket_runs.py tests/smoke_api_v1.py -q` -> 14 passed
+
+## Session Update - 2026-02-08 (TD-021/TD-022/TD-023)
+
+### TD-021: Version and docs alignment
+- Version unified to `1.0.0`:
+  - `pyproject.toml`
+  - `__init__.py`
+  - `jarvis_core/__init__.py`
+- Release documentation refreshed for `v1.0.0`:
+  - `README.md`
+  - `docs/README.md`
+  - `docs/api/README.md`
+  - `docs/user_guide.md`
+  - `docs/JARVIS_ARCHITECTURE.md`
+  - `CONTRIBUTING.md`
+  - `MIGRATION.md`
+  - `RUNBOOK.md`
+  - `CHANGELOG.md`
+
+### TD-022: Packaging preflight
+- `uv run --with build --with twine python -m build` -> PASS
+- `uv run --with twine python -m twine check dist/*` -> PASS
+- PyPI token dependency remains tracked in `blockers.md`
+
+### TD-023: Benchmark and regression
+- `uv run pytest tests/test_goldset_regression.py -v` -> PASS
+- `scripts/bench.py` updated to support JSONL + JSON-array benchmark inputs
+- `uv run python scripts/bench.py --cases evals/benchmarks/realistic_mix_v1.jsonl --output results/bench/latest` -> PASS
+- `.github/workflows/benchmark.yml`: removed `continue-on-error`
+
+## Latest Consolidated Metrics (2026-02-08)
+
+- Tests (`pytest -x`, ignore e2e/integration): `5962 passed, 449 skipped, 0 failed, 0 errors`
+- Coverage (`--cov-fail-under=70`): `70.44%`
+- Ruff: PASS
+- Black: PASS
+- Mypy (core4): PASS
+- Bandit (`-ll`): PASS
+- Bundle validator: PASS
+- Quality gate (`scripts/quality_gate.py --ci`): PASS
+
+## Remaining External Blockers
+
+- SEC-001 history purge (force-push + coordination required)
+- TD-010 remote proof of 10 consecutive green CI runs on `main`
+- TD-020 Docker validation (`docker` not installed in current environment)
+- TD-022 final PyPI publish (repository secret/token setup required)

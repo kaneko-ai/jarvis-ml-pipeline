@@ -1,6 +1,24 @@
-# Changelog
+﻿# Changelog
 
 All notable changes to JARVIS will be documented in this file.
+
+## [v1.0.0] - 2026-02-08
+
+### Added
+- TD-019 API contract tests (`tests/test_api_endpoints.py`) and run websocket tests (`tests/test_api_websocket_runs.py`).
+- `/ws/runs/{run_id}` WebSocket endpoint for run progress handshake and ping/pong.
+
+### Changed
+- Unified API envelope for core endpoints with `status/data/errors` while preserving legacy keys.
+- Version metadata aligned to `1.0.0` (`pyproject.toml`, package `__version__`, FastAPI app metadata).
+- Documentation baseline updated for `v1.0.0` release readiness.
+- Benchmark runner now accepts both JSONL and JSON-array case files.
+- Benchmark CI workflow now fails on benchmark errors (removed `continue-on-error`).
+
+### Verified
+- API smoke tests and new TD-019 tests pass.
+- Build preflight (`python -m build`, `twine check`) remains available via `uv run --with ...`.
+- Goldset regression test and benchmark execution pass.
 
 ## [Unreleased] - Phase 2-ΩΩ (2025-12-28)
 
@@ -147,3 +165,5 @@ All notable changes to JARVIS will be documented in this file.
 - Hardened API smoke tests to self-host local API when unavailable, reducing skip-only outcomes (`tests/smoke_api_v1.py`).
 
 - Verified packaging preflight via `uv --with build --with twine` (sdist/wheel build + twine check).
+
+

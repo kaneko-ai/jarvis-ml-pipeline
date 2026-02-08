@@ -3,7 +3,10 @@
 from .registry import AgentRegistry
 from .task import Task, TaskCategory, TaskPriority, TaskStatus
 
+__version__ = "1.0.0"
+
 __all__ = [
+    "__version__",
     "run_jarvis",
     "Task",
     "TaskCategory",

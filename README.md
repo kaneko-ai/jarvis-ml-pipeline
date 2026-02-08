@@ -8,6 +8,10 @@
 
 JARVIS Research OS is a local-first, AI-powered research assistant that helps researchers conduct systematic literature reviews with evidence grading, citation analysis, and contradiction detection.
 
+## Release Status
+
+- Current release target: `v1.0.0`
+
 ## ✨ Features
 
 ### Phase 1: Local-First Foundation

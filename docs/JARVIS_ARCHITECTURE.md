@@ -1,10 +1,10 @@
-# JARVIS Research OS v4.3 アーキテクチャ分析
+﻿# JARVIS Research OS v1.0.0 アーキテクチャ分析
 
 > Authority: REFERENCE (Level 2, Non-binding)
 
 
-**生成日時**: 2024-12-22  
-**バージョン**: v4.3  
+**生成日時**: 2026-02-08  
+**バージョン**: v1.0.0  
 **テスト状況**: Core Tests 127件全パス ✅
 
 ---
@@ -307,3 +307,4 @@ gantt
 | [REPAIR_POLICY.md](./docs/REPAIR_POLICY.md) | 修復ポリシー |
 | [FETCH_POLICY.md](./docs/FETCH_POLICY.md) | 取得ポリシー |
 | [RELEASE_NOTES_v4.3.md](./docs/RELEASE_NOTES_v4.3.md) | リリースノート |
+

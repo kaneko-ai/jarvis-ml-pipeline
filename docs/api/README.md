@@ -215,8 +215,12 @@ GET /api/health
 Response:
 ```json
 {
-  "status": "healthy",
-  "version": "5.2.0"
+  "status": "ok",
+  "data": {
+    "version": "1.0.0"
+  },
+  "errors": [],
+  "version": "1.0.0"
 }
 ```
 
@@ -345,9 +349,7 @@ All responses follow this structure:
 
 ## Versioning
 
-API version is included in the path: `/api/v1/...`
-
-Current version: `v1`
+Current API contract version: `1.0.0`
 
 ## SDK Examples
 

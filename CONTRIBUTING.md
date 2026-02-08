@@ -201,7 +201,7 @@ Please include:
 ## Environment
 - OS: Windows 11
 - Python: 3.11.5
-- JARVIS version: 5.2.0
+- JARVIS version: 1.0.0
 ```
 
 ## Feature Requests

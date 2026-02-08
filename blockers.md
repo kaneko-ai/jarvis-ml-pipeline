@@ -4,9 +4,7 @@
 
 ---
 
-## Active Blockers (0)
-
-(Empty - will be populated when blockers are encountered)
+## Active Blockers (4)
 
 ---
 
@@ -82,3 +80,16 @@
 - `docker --version` returned command-not-found on this machine.
 - `docker build -t jarvis-test .` and containerized validation are currently not executable.
 - Continue with non-Docker tasks first; complete TD-020 after Docker installation.
+
+### Blocker #TD-022 - 2026-02-08
+
+**Task**: TD-022 (PyPI publish workflow)
+**Category**: Deployment credential dependency
+**Priority**: P1
+
+**Status**: PENDING REPOSITORY SECRET SETUP
+
+**Detail**:
+- Local package preflight passed (`python -m build`, `twine check dist/*` via `uv run --with ...`).
+- Production publish requires repository secret for PyPI token in GitHub Actions.
+- Keep release tag/release note process unblocked; execute PyPI publish after token registration.

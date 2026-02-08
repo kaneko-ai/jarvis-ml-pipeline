@@ -184,3 +184,52 @@ Days Remaining: 171 (~24 weeks)
   - `uv run pytest tests/e2e/test_dashboard_real_api.py -q` -> 1 passed
   - `uv run pytest tests/ -x --ignore=tests/e2e --ignore=tests/integration -q` -> 5952 passed / 449 skipped
 - ✅ CI updated: removed `continue-on-error` and `|| true` from `dashboard_e2e_mock` and `dashboard_e2e_real`
+
+### 2026-02-08 - TD-019: strict API contract + run websocket
+- ✅ Added strict API contract tests:
+  - `tests/test_api_endpoints.py`
+  - `tests/test_api_websocket_runs.py`
+- ✅ Implemented `/ws/runs/{run_id}` endpoint with connect/keepalive/close behavior
+- ✅ Unified envelope (`status/data/errors`) on:
+  - `/api/health`
+  - `/api/runs`
+  - `/api/runs/{run_id}`
+  - `/api/search`
+  - `/api/upload/pdf`
+  - `/api/kpi`
+- ✅ Backward compatibility kept for legacy top-level keys
+- ✅ Verification passed:
+  - `uv run pytest tests/test_api_endpoints.py tests/test_api_websocket_runs.py tests/smoke_api_v1.py -q`
+
+### 2026-02-08 - TD-021: version and docs alignment to v1.0.0
+- ✅ Version set to `1.0.0` in `pyproject.toml`
+- ✅ Added `__version__ = "1.0.0"` in root and `jarvis_core` package init files
+- ✅ Updated release-facing docs for v1.0.0 consistency:
+  - `README.md`
+  - `docs/README.md`
+  - `docs/api/README.md`
+  - `docs/user_guide.md`
+  - `docs/JARVIS_ARCHITECTURE.md`
+  - `CONTRIBUTING.md`
+  - `MIGRATION.md`
+  - `RUNBOOK.md`
+  - `CHANGELOG.md`
+
+### 2026-02-08 - TD-023: benchmark hardening
+- ✅ Goldset regression passed:
+  - `uv run pytest tests/test_goldset_regression.py -v`
+- ✅ `scripts/bench.py` now supports both JSONL and JSON-array case files
+- ✅ Benchmark workflow updated to fail loudly (removed `continue-on-error`)
+- ✅ Benchmark run succeeded:
+  - `uv run python scripts/bench.py --cases evals/benchmarks/realistic_mix_v1.jsonl --output results/bench/latest`
+  - `Benchmark completed: 5 cases`
+
+### 2026-02-08 - Final gate snapshot (feature/td019-024-finalization)
+- ✅ `ruff`: pass
+- ✅ `black --check`: pass
+- ✅ `pytest -x`: `5962 passed, 449 skipped, 0 failed, 0 errors`
+- ✅ `coverage --cov-fail-under=70`: `70.44%`
+- ✅ `mypy(core4)`: pass
+- ✅ `bandit -ll`: pass
+- ✅ `scripts/validate_bundle.py`: pass
+- ✅ `scripts/quality_gate.py --ci`: all required gates passed

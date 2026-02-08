@@ -15,7 +15,7 @@ import re
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from jarvis_core.security.fs_safety import resolve_under, safe_extract_zip, sanitize_filename
 from jarvis_core.security.atomic_io import atomic_write_json
@@ -25,7 +25,7 @@ try:
     from fastapi import FastAPI, HTTPException, Depends, UploadFile, File
     from fastapi.responses import FileResponse, JSONResponse
     from fastapi.middleware.cors import CORSMiddleware
-    from pydantic import BaseModel
+    from pydantic import BaseModel, Field
 
     FASTAPI_AVAILABLE = True
 except ImportError:
@@ -71,7 +71,7 @@ if FASTAPI_AVAILABLE:
     app = FastAPI(
         title="JARVIS Research OS",
         description="API for paper survey and knowledge synthesis",
-        version="5.2.0",
+        version="1.0.0",
         docs_url="/api/docs",
         redoc_url="/api/redoc",
         openapi_url="/api/openapi.json",
@@ -153,6 +153,9 @@ class UploadResponse(BaseModel):
     rejected: int
     duplicates: int
     files: List[dict]
+    status: str = "ok"
+    data: dict = Field(default_factory=dict)
+    errors: List[dict] = Field(default_factory=list)
 
 
 # Authentication (RP-168) moved to jarvis_web.auth
@@ -171,6 +174,33 @@ def _compiled_path_patterns(paths: List[str]) -> List[str]:
         pattern = "^" + path.replace("{", "(?P<").replace("}", ">[^/]+)") + "$"
         patterns.append(pattern)
     return patterns
+
+
+def _api_success(data: Any, legacy: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+    """Build API response envelope while keeping legacy payload keys."""
+    payload: dict[str, Any] = {"status": "ok", "data": data, "errors": []}
+    if legacy:
+        payload.update(legacy)
+    return payload
+
+
+def _api_error(
+    message: str,
+    status_code: int,
+    legacy: Optional[dict[str, Any]] = None,
+) -> JSONResponse:
+    """Build error envelope for API contract responses."""
+    payload: dict[str, Any] = {"status": "error", "data": None, "errors": [{"message": message}]}
+    if legacy:
+        payload.update(legacy)
+    return JSONResponse(status_code=status_code, content=payload)
+
+
+def _model_dump(model: BaseModel) -> dict[str, Any]:
+    """Pydantic v1/v2 compatible model dump."""
+    if hasattr(model, "model_dump"):
+        return model.model_dump()  # type: ignore[attr-defined]
+    return model.dict()
 
 
 def get_file_hash(filepath: Path) -> str:
@@ -398,7 +428,17 @@ if FASTAPI_AVAILABLE:
     @app.get("/health")
     async def health():
         """Health check endpoint."""
-        return {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat()}
+        timestamp = datetime.now(timezone.utc).isoformat()
+        return _api_success(
+            {
+                "timestamp": timestamp,
+                "version": "1.0.0",
+            },
+            legacy={
+                "timestamp": timestamp,
+                "version": "1.0.0",
+            },
+        )
 
     @app.get("/api/map/v1")
     async def get_api_map():
@@ -438,13 +478,17 @@ if FASTAPI_AVAILABLE:
         run_dirs = _iter_run_dirs()
         run_dirs.sort(key=lambda p: p.stat().st_mtime, reverse=True)
         runs = [_build_run_response(run_dir, include_files=False) for run_dir in run_dirs[:limit]]
-        return {"runs": runs, "total": len(run_dirs)}
+        return _api_success({"runs": runs, "total": len(run_dirs)}, legacy={"runs": runs, "total": len(run_dirs)})
 
     @app.get("/api/runs/{run_id}")
     async def get_run(run_id: str, _: bool = Depends(verify_token)):
         """Get run details."""
-        run_dir = _resolve_run_dir(run_id)
-        return _build_run_response(run_dir, include_files=True)
+        try:
+            run_dir = _resolve_run_dir(run_id)
+        except HTTPException as exc:
+            return _api_error(str(exc.detail), status_code=exc.status_code)
+        result = _build_run_response(run_dir, include_files=True)
+        return _api_success(result, legacy=result)
 
     @app.get("/api/runs/{run_id}/files")
     async def list_run_files(run_id: str, _: bool = Depends(verify_token)):
@@ -556,7 +600,18 @@ if FASTAPI_AVAILABLE:
         _: bool = Depends(verify_token),
     ):
         """Upload PDF files (max 100)."""
-        return await _handle_upload(files, "pdf")
+        result = await _handle_upload(files, "pdf")
+        if result.accepted == 0 and result.rejected > 0:
+            legacy = _model_dump(result)
+            legacy.pop("status", None)
+            legacy.pop("data", None)
+            legacy.pop("errors", None)
+            return _api_error(
+                "No valid PDF files uploaded",
+                status_code=400,
+                legacy=legacy,
+            )
+        return result
 
     @app.post("/api/upload/bibtex", response_model=UploadResponse)
     async def upload_bibtex(
@@ -641,6 +696,14 @@ if FASTAPI_AVAILABLE:
             rejected=rejected,
             duplicates=duplicates,
             files=file_info,
+            status="ok",
+            data={
+                "batch_id": batch_id,
+                "accepted": accepted,
+                "rejected": rejected,
+                "duplicates": duplicates,
+                "files": file_info,
+            },
         )
 
 
@@ -691,6 +754,9 @@ async def _handle_upload(files: List[UploadFile], file_type: str) -> UploadRespo
 
             # Save file
             orig_name = upload_file.filename or f"file_{accepted}.{file_type}"
+            if file_type == "pdf" and not orig_name.lower().endswith(".pdf"):
+                rejected += 1
+                continue
             safe_name = sanitize_filename(orig_name)
             filepath = resolve_under(batch_dir, batch_dir / safe_name)
             with open(filepath, "wb") as f:
@@ -720,6 +786,14 @@ async def _handle_upload(files: List[UploadFile], file_type: str) -> UploadRespo
         rejected=rejected,
         duplicates=duplicates,
         files=file_info,
+        status="ok",
+        data={
+            "batch_id": batch_id,
+            "accepted": accepted,
+            "rejected": rejected,
+            "duplicates": duplicates,
+            "files": file_info,
+        },
     )
 
 
@@ -741,6 +815,8 @@ if FASTAPI_AVAILABLE:
         _: bool = Depends(verify_token),
     ):
         """Search the corpus using BM25."""
+        if not q.strip():
+            return _api_error("Query must not be empty", status_code=400)
         try:
             from jarvis_core.search import get_search_engine
 
@@ -753,10 +829,14 @@ if FASTAPI_AVAILABLE:
 
             filters = {"paper_id": paper_id} if paper_id else None
             results = engine.search(q, top_k=top_k, filters=filters)
-
-            return results.to_dict()
+            result_dict = results.to_dict()
+            return _api_success(result_dict, legacy=result_dict)
         except Exception as e:
-            return {"results": [], "total": 0, "query": q, "error": str(e)}
+            return _api_error(
+                str(e),
+                status_code=500,
+                legacy={"results": [], "total": 0, "query": q, "error": str(e)},
+            )
 
 
 # === Collect API (S-01/AG-10) ===
@@ -937,11 +1017,12 @@ if FASTAPI_AVAILABLE:
                 1 for r in runs if r.get("gate_passed", False)
             ) / len(runs)
 
-        return {
+        result = {
             "definitions": kpi_definitions,
             "current_values": current_values,
             "sample_size": len(runs),
         }
+        return _api_success(result, legacy=result)
 
     @app.middleware("http")
     async def map_unimplemented_endpoints(request, call_next):
