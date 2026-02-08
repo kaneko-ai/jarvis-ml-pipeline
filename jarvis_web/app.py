@@ -33,6 +33,9 @@ except ImportError:
     FastAPI = None
     HTTPException = None
     BaseModel = object
+    # Keep schema class definitions import-safe when FastAPI/Pydantic are unavailable.
+    def Field(default: Any = None, *args: Any, **kwargs: Any) -> Any:  # type: ignore[override]
+        return default
 
 if FASTAPI_AVAILABLE:
     from jarvis_web.routes.submission import router as submission_router
