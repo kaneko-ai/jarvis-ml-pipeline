@@ -454,3 +454,7 @@ P0 > P1 > P2 > P3 の優先順位を厳守
 - uv run ruff check jarvis_core tests -> PASS
 - uv run black --check jarvis_core tests -> PASS
 - uv run pytest tests/ -x --ignore=tests/e2e --ignore=tests/integration -q -> PASS
+
+## Session Note - 2026-02-08 (TD-020 blocker)
+- `docker` command is not available in the current environment.
+- Added blocker entry in `blockers.md` for TD-020 execution dependency.

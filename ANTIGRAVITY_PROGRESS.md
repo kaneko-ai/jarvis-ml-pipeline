@@ -162,3 +162,7 @@ Days Remaining: 171 (~24 weeks)
 - ✅ Updated `tests/smoke_api_v1.py` to auto-start local API server when `API_BASE` is not provided and API is down
 - ✅ `uv run pytest tests/smoke_api_v1.py -v` now passes with 4 tests
 - ✅ Regression gate remained green (`ruff`, `black --check`, `pytest -x`)
+
+### 2026-02-08 - TD-020 blocker recorded
+- ⚠️ Docker is not installed (`docker` command not found)
+- ⚠️ Added blocker entry in `blockers.md`; defer TD-020 until environment setup
