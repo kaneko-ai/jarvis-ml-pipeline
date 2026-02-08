@@ -9,6 +9,8 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
+import requests  # type: ignore[import-untyped]  # noqa: F401
+
 from jarvis_core.sources.arxiv_client import ArxivClient as CoreArxivClient
 from jarvis_core.sources.arxiv_client import ArxivPaper as CoreArxivPaper
 
@@ -83,3 +85,14 @@ class ArxivClient:
 
         core_papers = self._core_client.search(full_query, max_results=max_results)
         return [ArxivPaper.from_core(p) for p in core_papers]
+
+    def get_paper(self, arxiv_id: str) -> ArxivPaper | None:
+        """Get paper details by arXiv ID (legacy name)."""
+        core_paper = self._core_client.get_paper(arxiv_id)
+        if core_paper is None:
+            return None
+        return ArxivPaper.from_core(core_paper)
+
+    def fetch(self, arxiv_id: str) -> ArxivPaper | None:
+        """Backward-compatible alias for get_paper()."""
+        return self.get_paper(arxiv_id)

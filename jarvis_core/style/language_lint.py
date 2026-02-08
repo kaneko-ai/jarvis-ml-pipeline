@@ -30,7 +30,13 @@ class LanguageLinter:
 
     @staticmethod
     def _load_rules(path: Path) -> dict[str, Any]:
-        with open(path, encoding="utf-8") as handle:
+        for encoding in ("utf-8", "utf-8-sig", "cp932"):
+            try:
+                with open(path, encoding=encoding) as handle:
+                    return yaml.safe_load(handle) or {}
+            except UnicodeDecodeError:
+                continue
+        with open(path, encoding="utf-8", errors="replace") as handle:
             return yaml.safe_load(handle) or {}
 
     def check(self, text: str) -> list[LintViolation]:

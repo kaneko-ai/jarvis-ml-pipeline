@@ -10,7 +10,7 @@ def test_figure_extractor(tmp_path):
     from jarvis_core.ingestion.figure_extractor import extract_figures
 
     png_bytes = base64.b64decode(
-        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIW2P4//8/AwAI/AL+Qe5nAAAAAElFTkSuQmCC"
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+yv8cAAAAASUVORK5CYII="
     )
 
     pdf_path = Path(tmp_path) / "figures.pdf"
