@@ -1,4 +1,4 @@
-﻿# Python
+# Python
 .venv/
 __pycache__/
 *.pyc
@@ -6,6 +6,10 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .ipynb_checkpoints/
+.coverage*
+coverage.xml
+htmlcov/
+.env
 
 # OS/Editor
 .DS_Store
@@ -17,6 +21,8 @@ data/
 runs/
 !public/runs/
 outputs/
+artifacts/audit/
+experiments/
 
 test_experiments/
 pdf_fail_*.txt

@@ -43,3 +43,16 @@
 (Will be moved here when resolved)
 
 ---
+
+### Blocker #SEC-001 - 2026-02-08
+
+**Task**: SEC-001 (.env history purge)
+**Category**: Security / Repository history rewrite
+**Priority**: P0
+
+**Status**: PENDING HUMAN APPROVAL
+
+**Detail**:
+- Removed `.env` from git tracking and added `.env` to `.gitignore`.
+- Full history purge requires force-push and coordination for all collaborators.
+- Deferred for manual execution after explicit approval.
