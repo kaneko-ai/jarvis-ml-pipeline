@@ -407,3 +407,23 @@ P0 > P1 > P2 > P3 の優先順位を厳守
 
 ### 備考
 - TD-010 の「main で CI 10 回連続グリーン」は GitHub Actions の継続観測が必要（ローカル単独では完了判定不可）。
+
+## Session Update - 2026-02-08 (TD-011 to TD-013)
+
+### 実施内容
+- TD-011: MCP CLI (`mcp list` / `mcp invoke`) の回帰テストを追加
+- TD-012: BrowserSubagent に action timeout を追加し、headless/timeout/security のテストを追加
+- TD-013: Skills CLI (`skills list` / `skills show`) の回帰テストを追加
+
+### 追加・変更ファイル
+- tests/cli/test_mcp_skills_cli.py
+- tests/test_browser_subagent_td012.py
+- jarvis_core/browser/subagent.py
+
+### 検証結果
+- ruff: PASS
+- black --check: PASS
+- pytest -x (ignore e2e/integration): 5952 passed / 449 skipped / 0 failed / 0 errors
+- coverage (`--cov-fail-under=70`): 70.44%
+- mypy core4: PASS
+- bandit -ll: PASS

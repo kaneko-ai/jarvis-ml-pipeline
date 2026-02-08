@@ -137,3 +137,16 @@ Days Remaining: 171 (~24 weeks)
 - ✅ Ruff/Black: pass
 - ✅ mypy(core4): pass
 - ✅ Quality gate (`scripts/quality_gate.py --ci`): all required gates passed
+
+### 2026-02-08 - TD-011/TD-012/TD-013: Ecosystem CLI and Browser hardening
+- ✅ Added CLI regression tests for MCP commands: `list`, `invoke`
+- ✅ Added CLI regression tests for Skills commands: `list`, `show`
+- ✅ Added BrowserSubagent timeout handling (`action_timeout_s`) to avoid hanging actions
+- ✅ Added TD-012 tests: allow-list, block unlisted URL, headless launch, timeout error path
+- ✅ Verification passed:
+  - `uv run ruff check jarvis_core tests`
+  - `uv run black --check jarvis_core tests`
+  - `uv run pytest tests/ -x --ignore=tests/e2e --ignore=tests/integration -q`
+  - `uv run pytest tests/ --cov=jarvis_core --cov-fail-under=70 --ignore=tests/e2e --ignore=tests/integration -q --tb=no`
+  - `uv run mypy --explicit-package-bases --follow-imports=skip --ignore-missing-imports jarvis_core/evidence/ jarvis_core/contradiction/ jarvis_core/citation/ jarvis_core/sources/`
+  - `bandit -r jarvis_core -ll`
