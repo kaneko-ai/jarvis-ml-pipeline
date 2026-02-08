@@ -19,6 +19,7 @@ All notable changes to JARVIS will be documented in this file.
 - API smoke tests and new TD-019 tests pass.
 - Build preflight (`python -m build`, `twine check`) remains available via `uv run --with ...`.
 - Goldset regression test and benchmark execution pass.
+- `v1.0.0` git tag pushed to `origin`.
 
 ## [Unreleased] - Phase 2-ΩΩ (2025-12-28)
 

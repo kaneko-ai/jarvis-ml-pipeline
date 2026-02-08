@@ -233,3 +233,9 @@ Days Remaining: 171 (~24 weeks)
 - ✅ `bandit -ll`: pass
 - ✅ `scripts/validate_bundle.py`: pass
 - ✅ `scripts/quality_gate.py --ci`: all required gates passed
+
+### 2026-02-08 - TD-024 release execution (partial close)
+- ✅ Merged `feature/td019-024-finalization` into `main` (fast-forward)
+- ✅ Pushed release tag: `v1.0.0`
+- ⚠️ GitHub Release creation is still pending (tooling/auth blocker)
+- ⚠️ External blockers retained in `blockers.md`: SEC-001, TD-010, TD-020, TD-022, TD-024

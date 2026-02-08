@@ -4,7 +4,7 @@
 
 ---
 
-## Active Blockers (4)
+## Active Blockers (5)
 
 ---
 
@@ -66,7 +66,10 @@
 **Detail**:
 - Local quality gates are currently passing.
 - Completion criterion requires observing 10 consecutive successful CI executions on `main`.
-- This cannot be finalized from local-only execution; needs GitHub Actions history confirmation after merges.
+- Remote check snapshot on 2026-02-08 (GitHub API):
+  - latest run set includes one `in_progress` workflow on `main` (`560e381d`)
+  - consecutive successful runs from latest completed entry: `4`
+- Keep this blocker open until 10 consecutive successful completed runs are observed.
 
 ### Blocker #TD-020 - 2026-02-08
 
@@ -93,3 +96,16 @@
 - Local package preflight passed (`python -m build`, `twine check dist/*` via `uv run --with ...`).
 - Production publish requires repository secret for PyPI token in GitHub Actions.
 - Keep release tag/release note process unblocked; execute PyPI publish after token registration.
+
+### Blocker #TD-024 - 2026-02-08
+
+**Task**: TD-024 (GitHub Release publication)
+**Category**: Release tooling dependency
+**Priority**: P1
+
+**Status**: PENDING MANUAL RELEASE CREATION
+
+**Detail**:
+- `v1.0.0` git tag has been pushed to `origin`.
+- `gh` CLI is not installed on this environment, and `GITHUB_TOKEN` is not configured.
+- Create GitHub Release manually on the repository releases page (or install/auth `gh` and run scripted release creation).

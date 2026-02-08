@@ -550,3 +550,13 @@ P0 > P1 > P2 > P3 の優先順位を厳守
 - TD-010 remote proof of 10 consecutive green CI runs on `main`
 - TD-020 Docker validation (`docker` not installed in current environment)
 - TD-022 final PyPI publish (repository secret/token setup required)
+
+## Session Update - 2026-02-08 (TD-024 release execution)
+
+### Completed
+- Merged `feature/td019-024-finalization` into `main` via fast-forward.
+- Pushed annotated release tag `v1.0.0` to origin.
+
+### Pending (external/tooling)
+- GitHub Release publication is pending (`gh` CLI not installed and no `GITHUB_TOKEN` in this environment).
+- TD-010 CI 10-consecutive verification remains open; latest remote snapshot showed one workflow still in progress and `4` consecutive successful completed runs.
