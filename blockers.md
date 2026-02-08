@@ -56,3 +56,16 @@
 - Removed `.env` from git tracking and added `.env` to `.gitignore`.
 - Full history purge requires force-push and coordination for all collaborators.
 - Deferred for manual execution after explicit approval.
+
+### Blocker #TD-010 - 2026-02-08
+
+**Task**: TD-010 (10 consecutive green CI runs on `main`)
+**Category**: CI verification window / requires remote history
+**Priority**: P1
+
+**Status**: PENDING REMOTE VERIFICATION
+
+**Detail**:
+- Local quality gates are currently passing.
+- Completion criterion requires observing 10 consecutive successful CI executions on `main`.
+- This cannot be finalized from local-only execution; needs GitHub Actions history confirmation after merges.
