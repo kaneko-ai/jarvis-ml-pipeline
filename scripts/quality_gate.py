@@ -10,8 +10,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
+import tempfile
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -103,8 +105,16 @@ def evaluate_quality_gate(run_dir: Path) -> dict[str, Any]:
     }
 
 
-def run_command(command: list[str], timeout: int = 900) -> tuple[int, str]:
+def run_command(
+    command: list[str],
+    timeout: int = 900,
+    env: dict[str, str] | None = None,
+) -> tuple[int, str]:
     """Run command and return returncode/output pair."""
+    merged_env = os.environ.copy()
+    if env:
+        merged_env.update(env)
+
     try:
         completed = subprocess.run(
             command,
@@ -112,6 +122,7 @@ def run_command(command: list[str], timeout: int = 900) -> tuple[int, str]:
             text=True,
             timeout=timeout,
             check=False,
+            env=merged_env,
         )
         output = (completed.stdout + completed.stderr).strip()
         return completed.returncode, output
@@ -157,6 +168,15 @@ def check_pytest() -> GateResult:
 
 
 def check_coverage() -> GateResult:
+    coverage_dir = Path(tempfile.gettempdir()) / "jarvis_quality_gate_coverage"
+    coverage_dir.mkdir(parents=True, exist_ok=True)
+    for coverage_file in coverage_dir.glob(".coverage*"):
+        try:
+            coverage_file.unlink()
+        except OSError:
+            # Cleanup failures are non-fatal; pytest-cov will create a new DB file.
+            continue
+
     code, output = run_command(
         [
             "uv",
@@ -171,6 +191,7 @@ def check_coverage() -> GateResult:
             "--tb=no",
         ],
         timeout=1800,
+        env={"COVERAGE_FILE": str(coverage_dir / ".coverage")},
     )
     return GateResult("coverage>=70", code == 0, _tail(output))
 

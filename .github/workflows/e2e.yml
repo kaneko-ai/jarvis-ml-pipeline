@@ -40,6 +40,7 @@ jobs:
 
       - name: Upload test results
         if: steps.check_tests.outputs.has_tests == 'true'
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: e2e-results
