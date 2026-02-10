@@ -112,6 +112,7 @@ jobs:
       
       - name: Ensure coverage.xml exists
         if: always()
+        continue-on-error: true
         run: |
           if [ ! -s coverage.xml ]; then
             printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' '<coverage version="1.0"><packages></packages></coverage>' > coverage.xml
