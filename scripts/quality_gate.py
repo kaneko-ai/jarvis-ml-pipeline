@@ -273,6 +273,15 @@ def check_bandit() -> GateResult:
 
 def collect_ci_gates() -> list[GateResult]:
     """Collect all CI gate execution results."""
+    mode = os.getenv("QUALITY_GATE_MODE", "full").strip().lower()
+    if mode == "fast":
+        return [
+            check_ruff(),
+            check_black(),
+            check_mypy(),
+            check_bandit(),
+        ]
+
     return [
         check_ruff(),
         check_black(),
