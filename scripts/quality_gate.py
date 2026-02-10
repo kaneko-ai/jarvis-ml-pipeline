@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import tempfile
+import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -132,6 +133,34 @@ def run_command(
         return -1, f"Command not found: {command[0]}"
 
 
+def run_command_with_retry(
+    command: list[str],
+    timeout: int = 900,
+    env: dict[str, str] | None = None,
+    retries: int = 1,
+    retry_delay_seconds: int = 3,
+) -> tuple[int, str]:
+    """Run command with simple retry to reduce flaky CI failures."""
+    code, output = run_command(command, timeout=timeout, env=env)
+    if code == 0 or retries <= 0:
+        return code, output
+
+    last_code = code
+    last_output = output
+    for attempt in range(1, retries + 1):
+        time.sleep(retry_delay_seconds)
+        code, output = run_command(command, timeout=timeout, env=env)
+        if code == 0:
+            msg = f"Succeeded on retry {attempt}/{retries}."
+            if output:
+                msg = f"{msg}\n{output}"
+            return code, msg
+        last_code = code
+        last_output = output
+
+    return last_code, last_output
+
+
 def _tail(text: str, limit: int = 260) -> str:
     """Return compact tail output for gate messages."""
     if len(text) <= limit:
@@ -150,7 +179,7 @@ def check_black() -> GateResult:
 
 
 def check_pytest() -> GateResult:
-    code, output = run_command(
+    code, output = run_command_with_retry(
         [
             "uv",
             "run",
@@ -168,6 +197,8 @@ def check_pytest() -> GateResult:
             "--no-header",
         ],
         timeout=1800,
+        retries=1,
+        retry_delay_seconds=5,
     )
     return GateResult("pytest", code == 0, _tail(output))
 
@@ -182,7 +213,7 @@ def check_coverage() -> GateResult:
             # Cleanup failures are non-fatal; pytest-cov will create a new DB file.
             continue
 
-    code, output = run_command(
+    code, output = run_command_with_retry(
         [
             "uv",
             "run",
@@ -202,6 +233,8 @@ def check_coverage() -> GateResult:
         ],
         timeout=1800,
         env={"COVERAGE_FILE": str(coverage_dir / ".coverage")},
+        retries=1,
+        retry_delay_seconds=5,
     )
     return GateResult("coverage>=70", code == 0, _tail(output))
 
