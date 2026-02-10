@@ -113,7 +113,7 @@ jobs:
       - name: Ensure coverage.xml exists
         if: always()
         run: |
-          uv run python scripts/ensure_coverage_xml.py coverage.xml
+          python scripts/ensure_coverage_xml.py coverage.xml
       
       - name: Upload coverage to Codecov
         if: always()
