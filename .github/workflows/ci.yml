@@ -113,18 +113,7 @@ jobs:
       - name: Ensure coverage.xml exists
         if: always()
         run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          coverage = Path("coverage.xml")
-          if (not coverage.exists()) or coverage.stat().st_size == 0:
-              coverage.write_text(
-                  '<?xml version="1.0" encoding="UTF-8"?>\n'
-                  '<coverage version="1.0"><packages></packages></coverage>\n',
-                  encoding="utf-8",
-              )
-          print(f"coverage.xml size: {coverage.stat().st_size} bytes")
-          PY
+          python -c "from pathlib import Path; p=Path('coverage.xml'); p.write_text('<?xml version=\"1.0\" encoding=\"UTF-8\"?>\\n<coverage version=\"1.0\"><packages></packages></coverage>\\n', encoding='utf-8') if ((not p.exists()) or p.stat().st_size == 0) else None; print(f'coverage.xml size: {p.stat().st_size} bytes')"
       
       - name: Upload coverage to Codecov
         if: always()
