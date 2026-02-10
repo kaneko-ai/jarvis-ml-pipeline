@@ -212,6 +212,8 @@ def check_bundle_contract() -> GateResult:
 
 
 def check_mypy() -> GateResult:
+    mypy_cache_dir = Path(tempfile.gettempdir()) / "jarvis_quality_gate_mypy_cache"
+    mypy_cache_dir.mkdir(parents=True, exist_ok=True)
     code, output = run_command(
         [
             "uv",
@@ -226,6 +228,7 @@ def check_mypy() -> GateResult:
             "jarvis_core/sources/",
         ],
         timeout=1200,
+        env={"MYPY_CACHE_DIR": str(mypy_cache_dir)},
     )
     return GateResult("mypy-core", code == 0, _tail(output), required=False)
 
@@ -252,9 +255,13 @@ def evaluate_ci_gates(gates: list[GateResult]) -> dict[str, Any]:
     """Evaluate gate outcomes and aggregate pass/fail counts."""
     required_failures = sum(1 for gate in gates if gate.required and not gate.passed)
     optional_failures = sum(1 for gate in gates if not gate.required and not gate.passed)
+    required_failure_names = [gate.name for gate in gates if gate.required and not gate.passed]
+    optional_failure_names = [gate.name for gate in gates if not gate.required and not gate.passed]
     return {
         "required_failures": required_failures,
         "optional_failures": optional_failures,
+        "required_failure_names": required_failure_names,
+        "optional_failure_names": optional_failure_names,
         "all_required_passed": required_failures == 0,
         "gates": [asdict(gate) for gate in gates],
     }
@@ -282,6 +289,8 @@ def print_ci_report(summary: dict[str, Any]) -> None:
         print("ALL REQUIRED GATES PASSED")
     else:
         print(f"REQUIRED GATE FAILURES: {summary['required_failures']}")
+        if summary["required_failure_names"]:
+            print("FAILED REQUIRED GATES: " + ", ".join(summary["required_failure_names"]))
 
 
 def run_ci_quality_gate(as_json: bool) -> int:
