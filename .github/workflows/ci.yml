@@ -179,13 +179,13 @@ jobs:
         run: pip install uv
       - name: Install dependencies
         run: uv sync --dev
-      - name: Download coverage artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: coverage-*
-          merge-multiple: true
-        continue-on-error: true
+      - name: Prepare coverage workspace
+        run: |
+          mkdir -p "$RUNNER_TEMP/coverage_gate"
+          rm -f "$RUNNER_TEMP/coverage_gate"/.coverage*
       - name: Check coverage threshold
+        env:
+          COVERAGE_FILE: ${{ runner.temp }}/coverage_gate/.coverage
         run: |
           uv run pytest tests/ \
             --cov=jarvis_core \
