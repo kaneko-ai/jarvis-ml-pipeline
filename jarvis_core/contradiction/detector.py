@@ -1,4 +1,4 @@
-﻿"""Contradiction Detector (Phase 28).
+"""Contradiction Detector (Phase 28).
 
 Detects logical contradictions between claims.
 """

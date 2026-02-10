@@ -1,4 +1,4 @@
-﻿"""OpenAlex Client for JARVIS.
+"""OpenAlex Client for JARVIS.
 
 Per JARVIS_LOCALFIRST_ROADMAP Task 1.4: 辟｡譁僊PI邨ｱ蜷・
 Uses OpenAlex API (completely free, 100k requests/day).

@@ -1,4 +1,4 @@
-﻿"""NCBI PubMed Client for JARVIS.
+"""NCBI PubMed Client for JARVIS.
 
 Per JARVIS_LOCALFIRST_ROADMAP Task 1.4: 辟｡譁僊PI邨ｱ蜷・
 Uses NCBI E-utilities API (free, no API key required for low volume).

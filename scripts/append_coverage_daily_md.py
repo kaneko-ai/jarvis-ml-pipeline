@@ -169,12 +169,16 @@ def main() -> int:
 
     ensure_header(md_path)
 
+    report_text = report_path.read_text(encoding="utf-8")
+    notes = args.notes
     try:
-        report_text = report_path.read_text(encoding="utf-8")
         total_pct = parse_total_percent(report_text)
     except ValueError as e:
-        print(f"ERROR: {e}", file=sys.stderr)
-        return 1
+        # Keep the snapshot workflow resilient when coverage output shape changes.
+        total_pct = "N/A"
+        parse_note = f"coverage parse failed: {str(e).splitlines()[0]}"
+        notes = f"{notes}; {parse_note}" if notes else parse_note
+        print(f"WARNING: {parse_note}", file=sys.stderr)
 
     jst = ZoneInfo("Asia/Tokyo")
     date_jst = datetime.now(tz=jst).strftime("%Y-%m-%d")
@@ -196,7 +200,7 @@ def main() -> int:
         total_pct=total_pct,
         commit_sha=commit_sha,
         run_url=run_url,
-        notes=args.notes,
+        notes=notes,
     )
 
     append_entry(md_path, snap, delta)

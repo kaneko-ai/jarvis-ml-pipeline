@@ -95,7 +95,9 @@ def _ensure_fitz_stub() -> None:
                 out.write_text(json.dumps(payload), encoding="utf-8")
 
             def close(self) -> None:
-                return None
+                # Keep parity with fitz.Document.close() and release in-memory state.
+                self._pages = []
+                self.metadata = {}
 
             def __iter__(self):
                 return iter(self._pages)

@@ -1,4 +1,4 @@
-﻿"""Match preprints to published versions via Crossref."""
+"""Match preprints to published versions via Crossref."""
 
 from __future__ import annotations
 
