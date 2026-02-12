@@ -924,6 +924,7 @@ jarvis_web/middleware/request_id.py
 jarvis_web/routes/__init__.py
 jarvis_web/routes/cron.py
 jarvis_web/routes/decision.py
+jarvis_web/routes/demo.py
 jarvis_web/routes/export.py
 jarvis_web/routes/feedback.py
 jarvis_web/routes/finance.py
@@ -1073,6 +1074,7 @@ tests/test_decision_mega.py
 tests/test_decision_modules.py
 tests/test_decision_planner_full.py
 tests/test_degradation_extended.py
+tests/test_demo_api.py
 tests/test_detailed_logic.py
 tests/test_diff_engine.py
 tests/test_draft_generator.py

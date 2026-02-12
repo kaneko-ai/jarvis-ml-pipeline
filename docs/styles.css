@@ -664,6 +664,94 @@ body {
     margin: 0 auto;
 }
 
+.api-config-panel {
+    max-width: 1000px;
+    margin: 0 auto var(--space-2xl);
+    padding: var(--space-lg);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-md);
+}
+
+.api-config-row {
+    display: grid;
+    grid-template-columns: 140px 1fr auto auto;
+    gap: var(--space-sm);
+    align-items: center;
+}
+
+.api-config-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.api-config-input {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+}
+
+.api-config-input:focus {
+    outline: none;
+    border-color: var(--primary-600);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.api-config-btn {
+    white-space: nowrap;
+}
+
+.api-config-help {
+    margin: var(--space-sm) 0 0;
+    font-size: 0.813rem;
+    color: var(--text-tertiary);
+}
+
+.api-connection-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: var(--space-sm);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.813rem;
+    font-weight: 600;
+}
+
+.api-connection-status::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.api-connection-status--online {
+    color: var(--success);
+    background: rgba(16, 185, 129, 0.15);
+}
+
+.api-connection-status--testing {
+    color: var(--primary-500);
+    background: rgba(99, 102, 241, 0.18);
+}
+
+.api-connection-status--offline {
+    color: var(--error);
+    background: rgba(239, 68, 68, 0.16);
+}
+
+.api-connection-status--mock {
+    color: var(--warning);
+    background: rgba(245, 158, 11, 0.16);
+}
+
 .demo-tabs {
     display: flex;
     justify-content: center;
@@ -826,6 +914,16 @@ body {
 .output-status.complete {
     background: rgba(16, 185, 129, 0.2);
     color: var(--success);
+}
+
+.output-status.fallback {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--warning);
+}
+
+.output-status.error {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--error);
 }
 
 .output-content {
@@ -1962,6 +2060,18 @@ body {
 }
 
 @media (max-width: 768px) {
+    .api-config-row {
+        grid-template-columns: 1fr;
+    }
+
+    .api-config-label {
+        margin-bottom: 4px;
+    }
+
+    .api-config-btn {
+        width: 100%;
+    }
+
     .stat-number {
         font-size: 3rem;
     }

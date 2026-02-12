@@ -240,3 +240,14 @@ window.hj   // → function であればOK
 3. Network タブでリソース読み込みエラーを確認
 
 **成功を祈っています!** 🚀
+
+
+## API-separated demo mode (2026-02-13)
+
+1. Deploy backend API (`jarvis_web.app`) on a public URL.
+2. Open landing page and set `API Base URL` in Demo section.
+3. Click `Save` and `Test`.
+4. Demo panels run with API data when connection is available.
+5. If connection is unavailable, browser fallback logic remains active.
+
+Details: `docs/LANDING_PAGE_API_INTEGRATION_2026-02-13.md`
