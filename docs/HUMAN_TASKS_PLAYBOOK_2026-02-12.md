@@ -147,6 +147,14 @@ uv run python scripts/scan_secrets.py
 - TD-020 Docker validation: COMPLETED (done in another chat)
 - TD-022 PyPI publish setup: COMPLETED (done in another chat)
 - Verification executed in this session:
-  - `uv run python -m pytest -q` -> `6392 passed, 465 skipped`
-  - `uv run python -m build` -> success (`sdist` and `wheel` created)
+  - `uv run pytest -q` -> `6392 passed, 468 skipped`
+  - `uv build` -> success (`sdist` and `wheel` created)
 - Remaining human tasks in this playbook: none
+
+
+---
+
+## 2026-02-13 Update (Landing Page API)
+- ランディングページのデモをバックエンドAPI呼び出し対応へ拡張
+- API到達不可時は既存ブラウザロジックへ自動フォールバック
+- 実装詳細: `docs/LANDING_PAGE_API_INTEGRATION_2026-02-13.md`

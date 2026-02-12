@@ -146,10 +146,203 @@ tabButtons.forEach(button => {
 });
 
 // ==========================================================================
+// Demo API Connectivity
+// ==========================================================================
+
+const API_STORAGE_KEY = 'jarvis_api_base_url';
+const API_DEFAULT_TIMEOUT_MS = (window.JARVIS_SITE_CONFIG && window.JARVIS_SITE_CONFIG.requestTimeoutMs) || 12000;
+
+function normalizeApiBaseUrl(value) {
+    const trimmed = (value || '').trim();
+    if (!trimmed) return '';
+    return trimmed.replace(/\/+$/, '');
+}
+
+function resolveApiBaseUrl() {
+    const stored = normalizeApiBaseUrl(localStorage.getItem(API_STORAGE_KEY));
+    if (stored) return stored;
+
+    const configValue = normalizeApiBaseUrl(
+        window.JARVIS_SITE_CONFIG && window.JARVIS_SITE_CONFIG.apiBaseUrl
+    );
+    if (configValue) return configValue;
+
+    return '';
+}
+
+let currentApiBaseUrl = resolveApiBaseUrl();
+
+function isGitHubPagesHost() {
+    return window.location.hostname.endsWith('github.io');
+}
+
+function getApiUrl(path) {
+    if (currentApiBaseUrl) {
+        return `${currentApiBaseUrl}${path}`;
+    }
+    return path;
+}
+
+function setApiStatus(mode, message) {
+    const statusEl = document.getElementById('api-status');
+    if (!statusEl) return;
+
+    statusEl.className = 'api-connection-status';
+    if (mode === 'online') statusEl.classList.add('api-connection-status--online');
+    if (mode === 'testing') statusEl.classList.add('api-connection-status--testing');
+    if (mode === 'offline') statusEl.classList.add('api-connection-status--offline');
+    if (mode === 'mock') statusEl.classList.add('api-connection-status--mock');
+    statusEl.textContent = message;
+}
+
+async function fetchJsonWithTimeout(url, options = {}, timeoutMs = API_DEFAULT_TIMEOUT_MS) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+        const response = await fetch(url, {
+            ...options,
+            signal: controller.signal
+        });
+        const body = await response.json().catch(() => null);
+        if (!response.ok) {
+            const detail = body && body.detail ? body.detail : `HTTP ${response.status}`;
+            throw new Error(detail);
+        }
+        return body;
+    } finally {
+        clearTimeout(timeoutId);
+    }
+}
+
+async function pingApi() {
+    if (!currentApiBaseUrl && isGitHubPagesHost()) {
+        setApiStatus('mock', 'Mock mode (API URLを設定すると本番解析が動作します)');
+        return false;
+    }
+
+    setApiStatus('testing', 'Checking API connection...');
+    try {
+        await fetchJsonWithTimeout(getApiUrl('/api/health'), { method: 'GET' }, 6000);
+        setApiStatus('online', `Connected: ${currentApiBaseUrl || 'same-origin'}`);
+        return true;
+    } catch (error) {
+        setApiStatus('offline', `API unavailable: ${error.message}`);
+        return false;
+    }
+}
+
+function initializeApiConfigControls() {
+    const inputEl = document.getElementById('api-base-url');
+    const saveButton = document.getElementById('api-save-btn');
+    const testButton = document.getElementById('api-test-btn');
+    if (!inputEl || !saveButton || !testButton) return;
+
+    inputEl.value = currentApiBaseUrl;
+
+    saveButton.addEventListener('click', async () => {
+        currentApiBaseUrl = normalizeApiBaseUrl(inputEl.value);
+        if (currentApiBaseUrl) {
+            localStorage.setItem(API_STORAGE_KEY, currentApiBaseUrl);
+        } else {
+            localStorage.removeItem(API_STORAGE_KEY);
+        }
+        await pingApi();
+    });
+
+    testButton.addEventListener('click', async () => {
+        const candidate = normalizeApiBaseUrl(inputEl.value);
+        if (candidate !== currentApiBaseUrl) {
+            currentApiBaseUrl = candidate;
+        }
+        await pingApi();
+    });
+
+    pingApi();
+}
+
+function mapQualityRating(level) {
+    if (['1a', '1b', '1c'].includes(level)) return 'High';
+    if (['2a', '2b', '2c'].includes(level)) return 'Moderate';
+    return 'Low';
+}
+
+async function requestEvidenceFromApi(title, abstract) {
+    try {
+        const payload = await fetchJsonWithTimeout(
+            getApiUrl('/api/demo/evidence/grade'),
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, abstract })
+            }
+        );
+        const data = payload && payload.data ? payload.data : payload;
+        if (!data || !data.level) return null;
+        return {
+            level: data.level,
+            description: data.description || 'Evidence grading result from API',
+            confidence: Number(data.confidence),
+            qualityRating: data.quality_rating || mapQualityRating(data.level),
+            source: 'api'
+        };
+    } catch {
+        return null;
+    }
+}
+
+async function requestCitationFromApi(text) {
+    try {
+        const payload = await fetchJsonWithTimeout(
+            getApiUrl('/api/demo/citation/analyze'),
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            }
+        );
+        const data = payload && payload.data ? payload.data : payload;
+        if (!data || !Array.isArray(data.citations)) return null;
+        return {
+            citations: data.citations,
+            source: 'api'
+        };
+    } catch {
+        return null;
+    }
+}
+
+async function requestContradictionFromApi(claimA, claimB) {
+    try {
+        const payload = await fetchJsonWithTimeout(
+            getApiUrl('/api/demo/contradiction/detect'),
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ claim_a: claimA, claim_b: claimB })
+            }
+        );
+        const data = payload && payload.data ? payload.data : payload;
+        if (!data || typeof data.isContradictory === 'undefined') return null;
+        return {
+            isContradictory: Boolean(data.isContradictory),
+            confidence: Number(data.confidence),
+            contradictionType: data.contradictionType || 'Unknown',
+            explanation: data.explanation || 'No explanation from API',
+            claimA: data.claimA || claimA,
+            claimB: data.claimB || claimB,
+            source: 'api'
+        };
+    } catch {
+        return null;
+    }
+}
+
+// ==========================================================================
 // Evidence Grading Demo
 // ==========================================================================
 
-function runEvidenceGrading() {
+async function runEvidenceGrading() {
     const title = document.getElementById('evidence-title').value;
     const abstract = document.getElementById('evidence-abstract').value;
     const outputElement = document.getElementById('evidence-output');
@@ -173,15 +366,22 @@ function runEvidenceGrading() {
             <p>Analyzing evidence level...</p>
         </div>
     `;
-    
-    // Simulate API call with realistic delay
-    setTimeout(() => {
-        const result = analyzeEvidence(title, abstract);
-        displayEvidenceResult(result);
-        
-        statusElement.textContent = 'Complete';
+
+    const apiResult = await requestEvidenceFromApi(title, abstract);
+    if (apiResult) {
+        displayEvidenceResult(apiResult);
+        statusElement.textContent = 'Complete (API)';
         statusElement.className = 'output-status complete';
-    }, 2000);
+        setApiStatus('online', `Connected: ${currentApiBaseUrl || 'same-origin'}`);
+        return;
+    }
+
+    const fallbackResult = analyzeEvidence(title, abstract);
+    fallbackResult.source = 'mock';
+    displayEvidenceResult(fallbackResult);
+    statusElement.textContent = 'Complete (Fallback)';
+    statusElement.className = 'output-status fallback';
+    setApiStatus('mock', 'Mock mode (API呼び出しに失敗したためローカル処理を実行)');
 }
 
 function analyzeEvidence(title, abstract) {
@@ -223,7 +423,13 @@ function analyzeEvidence(title, abstract) {
         confidence = 70.0;
     }
     
-    return { level, description, confidence };
+    return {
+        level,
+        description,
+        confidence,
+        qualityRating: mapQualityRating(level),
+        source: 'mock'
+    };
 }
 
 function displayEvidenceResult(result) {
@@ -251,7 +457,7 @@ function displayEvidenceResult(result) {
                     
                     <div class="metric-item">
                         <span class="metric-label">Quality Rating</span>
-                        <span class="metric-value">${result.level === '1a' || result.level === '1b' ? 'High' : result.level === '2b' ? 'Moderate' : 'Low'}</span>
+                        <span class="metric-value">${result.qualityRating || mapQualityRating(result.level)}</span>
                         <div class="progress-bar">
                             <div class="progress-fill" style="width: ${result.level === '1a' || result.level === '1b' ? 90 : result.level === '2b' ? 70 : 50}%"></div>
                         </div>
@@ -270,6 +476,9 @@ function displayEvidenceResult(result) {
                         ? 'This represents moderate quality evidence with some risk of bias.' 
                         : 'Consider supplementing with higher quality studies.'}
                 </p>
+                <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-top: 10px;">
+                    Source: ${result.source === 'api' ? 'Backend API' : 'Browser fallback logic'}
+                </p>
             </div>
         </div>
     `;
@@ -279,7 +488,7 @@ function displayEvidenceResult(result) {
 // Citation Analysis Demo
 // ==========================================================================
 
-function runCitationAnalysis() {
+async function runCitationAnalysis() {
     const text = document.getElementById('citation-text').value;
     const outputElement = document.getElementById('citation-output');
     const statusElement = document.getElementById('citation-status');
@@ -300,14 +509,21 @@ function runCitationAnalysis() {
             <p>Extracting citation contexts...</p>
         </div>
     `;
-    
-    setTimeout(() => {
-        const citations = extractCitations(text);
-        displayCitationResult(citations);
-        
-        statusElement.textContent = 'Complete';
+
+    const apiResult = await requestCitationFromApi(text);
+    if (apiResult) {
+        displayCitationResult(apiResult.citations, 'api');
+        statusElement.textContent = 'Complete (API)';
         statusElement.className = 'output-status complete';
-    }, 2000);
+        setApiStatus('online', `Connected: ${currentApiBaseUrl || 'same-origin'}`);
+        return;
+    }
+
+    const citations = extractCitations(text);
+    displayCitationResult(citations, 'mock');
+    statusElement.textContent = 'Complete (Fallback)';
+    statusElement.className = 'output-status fallback';
+    setApiStatus('mock', 'Mock mode (API呼び出しに失敗したためローカル処理を実行)');
 }
 
 function extractCitations(text) {
@@ -343,7 +559,7 @@ function extractCitations(text) {
     return citations;
 }
 
-function displayCitationResult(citations) {
+function displayCitationResult(citations, source = 'mock') {
     const outputElement = document.getElementById('citation-output');
     
     if (citations.length === 0) {
@@ -398,6 +614,9 @@ function displayCitationResult(citations) {
                 <p style="font-size: 0.875rem; color: var(--text-secondary);">
                     Detected ${citations.length} citation(s) with stance classification
                 </p>
+                <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-top: 8px;">
+                    Source: ${source === 'api' ? 'Backend API' : 'Browser fallback logic'}
+                </p>
             </div>
             
             <div style="margin-top: 16px;">
@@ -412,7 +631,7 @@ function displayCitationResult(citations) {
 // Contradiction Detection Demo
 // ==========================================================================
 
-function runContradictionDetection() {
+async function runContradictionDetection() {
     const claimA = document.getElementById('claim-a').value;
     const claimB = document.getElementById('claim-b').value;
     const outputElement = document.getElementById('contradiction-output');
@@ -434,14 +653,22 @@ function runContradictionDetection() {
             <p>Detecting contradictions...</p>
         </div>
     `;
-    
-    setTimeout(() => {
-        const result = detectContradiction(claimA, claimB);
-        displayContradictionResult(result);
-        
-        statusElement.textContent = 'Complete';
+
+    const apiResult = await requestContradictionFromApi(claimA, claimB);
+    if (apiResult) {
+        displayContradictionResult(apiResult);
+        statusElement.textContent = 'Complete (API)';
         statusElement.className = 'output-status complete';
-    }, 2000);
+        setApiStatus('online', `Connected: ${currentApiBaseUrl || 'same-origin'}`);
+        return;
+    }
+
+    const fallbackResult = detectContradiction(claimA, claimB);
+    fallbackResult.source = 'mock';
+    displayContradictionResult(fallbackResult);
+    statusElement.textContent = 'Complete (Fallback)';
+    statusElement.className = 'output-status fallback';
+    setApiStatus('mock', 'Mock mode (API呼び出しに失敗したためローカル処理を実行)');
 }
 
 function detectContradiction(claimA, claimB) {
@@ -499,7 +726,8 @@ function detectContradiction(claimA, claimB) {
         contradictionType,
         explanation,
         claimA,
-        claimB
+        claimB,
+        source: 'mock'
     };
 }
 
@@ -545,6 +773,9 @@ function displayContradictionResult(result) {
                 <h4 style="margin-bottom: 12px; font-size: 0.938rem;">Analysis Explanation</h4>
                 <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
                     ${result.explanation}
+                </p>
+                <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 12px;">
+                    Source: ${result.source === 'api' ? 'Backend API' : 'Browser fallback logic'}
                 </p>
                 
                 <div style="background: rgba(255, 255, 255, 0.03); padding: 12px; border-radius: 8px; margin-bottom: 8px;">
@@ -1037,6 +1268,7 @@ document.addEventListener('DOMContentLoaded', () => {
     new SmoothScroll();
     new LazyLoad();
     new PerformanceMonitor();
+    initializeApiConfigControls();
     
     // Add loaded class to body for CSS hooks
     document.body.classList.add('loaded');
