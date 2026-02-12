@@ -1,0 +1,9 @@
+{
+  "total": 30,
+  "success": 30,
+  "failed": 0,
+  "success_rate": 1.0,
+  "avg_claim_precision": 0.7,
+  "avg_citation_precision": 0.8,
+  "timestamp": "2026-02-11T17:44:29.977144Z"
+}

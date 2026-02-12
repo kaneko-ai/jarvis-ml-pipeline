@@ -1,5 +1,6 @@
 import pytest
 
+from async_test_utils import sync_async_test
 from jarvis_core.mcp.chain import ToolChain
 from jarvis_core.mcp.schema import MCPToolResult
 
@@ -14,7 +15,7 @@ class DummyHub:
         return self._results.pop(0)
 
 
-@pytest.mark.asyncio
+@sync_async_test
 async def test_tool_chain_executes_steps():
     results = [
         MCPToolResult(
@@ -44,7 +45,7 @@ async def test_tool_chain_executes_steps():
     ]
 
 
-@pytest.mark.asyncio
+@sync_async_test
 async def test_tool_chain_continue_on_error():
     results = [
         MCPToolResult(

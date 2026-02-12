@@ -4,7 +4,7 @@
 
 ---
 
-## Active Blockers (4)
+## Active Blockers (3)
 
 ---
 
@@ -36,24 +36,11 @@
 
 ---
 
-## Resolved Blockers (1)
+## Resolved Blockers (2)
 
 (Will be moved here when resolved)
 
 ---
-
-### Blocker #SEC-001 - 2026-02-08
-
-**Task**: SEC-001 (.env history purge)
-**Category**: Security / Repository history rewrite
-**Priority**: P0
-
-**Status**: PENDING HUMAN APPROVAL
-
-**Detail**:
-- Removed `.env` from git tracking and added `.env` to `.gitignore`.
-- Full history purge requires force-push and coordination for all collaborators.
-- Deferred for manual execution after explicit approval.
 
 ### Blocker #TD-010 - 2026-02-08
 
@@ -109,3 +96,18 @@
 - GitHub Release `v1.0.0` was published manually.
 - Release URL: https://github.com/kaneko-ai/jarvis-ml-pipeline/releases/tag/v1.0.0
 - Remaining dependency is only PyPI publish credentials (tracked in TD-022 blocker).
+
+### Blocker #SEC-001 - 2026-02-08
+
+**Task**: SEC-001 (.env history purge)
+**Category**: Security / Repository history rewrite
+**Priority**: P0
+
+**Status**: RESOLVED (2026-02-12)
+
+**Detail**:
+- History rewrite executed with `git filter-repo` and force-push to `main`.
+- LFS broken reference (`tests/fixtures/sample.pdf`) was also removed from history to satisfy GitHub pre-receive checks.
+- Verification on remote:
+  - `git log origin/main -- .env --oneline` => empty
+  - `git log origin/main -- tests/fixtures/sample.pdf --oneline` => empty

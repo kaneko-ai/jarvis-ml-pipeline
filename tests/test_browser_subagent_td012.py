@@ -5,6 +5,9 @@ from __future__ import annotations
 import asyncio
 from types import SimpleNamespace
 
+import pytest
+
+from async_test_utils import run_async
 from jarvis_core.browser.schema import SecurityPolicy
 from jarvis_core.browser.security import BrowserSecurityManager
 from jarvis_core.browser.subagent import BrowserSubagent
@@ -58,9 +61,9 @@ def test_browser_subagent_uses_headless_setting(monkeypatch):
     )
 
     agent = BrowserSubagent(headless=False)
-    asyncio.run(agent.initialize())
+    run_async(agent.initialize())
     assert launch_calls == [False]
-    asyncio.run(agent.close())
+    run_async(agent.close())
 
 
 def test_browser_subagent_timeout_returns_error(monkeypatch):
@@ -78,6 +81,6 @@ def test_browser_subagent_timeout_returns_error(monkeypatch):
         return None
 
     monkeypatch.setattr(agent, "_ensure_initialized", no_init)
-    result = asyncio.run(agent.navigate("https://example.com"))
+    result = run_async(agent.navigate("https://example.com"))
     assert result.success is False
     assert "timed out" in (result.error or "").lower()

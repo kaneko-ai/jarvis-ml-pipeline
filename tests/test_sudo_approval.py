@@ -1,5 +1,6 @@
 import pytest
 
+from async_test_utils import sync_async_test
 from jarvis_core.security.terminal import TerminalSecurityManager
 from jarvis_core.security.terminal_schema import CommandExecutionRequest
 
@@ -12,7 +13,7 @@ def test_sudo_requires_approval():
     assert result.allowed is True
 
 
-@pytest.mark.asyncio
+@sync_async_test
 async def test_execute_command_blocks_without_approval():
     manager = TerminalSecurityManager()
     request = CommandExecutionRequest(command="sudo ls")

@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: jarvis-research-os
-Version: 5.3.0
+Version: 1.0.0
 Summary: JARVIS Research OS - AI-Powered Systematic Literature Review Assistant
 Author-email: JARVIS Team <jarvis@kaneko-ai.dev>
 License: MIT
@@ -74,6 +74,10 @@ Requires-Dist: jarvis-research-os[browser,embedding,llm,mcp,ml,pdf,web]; extra =
 **AI-Powered Research Operating System for Systematic Literature Reviews**
 
 JARVIS Research OS is a local-first, AI-powered research assistant that helps researchers conduct systematic literature reviews with evidence grading, citation analysis, and contradiction detection.
+
+## Release Status
+
+- Current release target: `v1.0.0`
 
 ## ✨ Features
 
