@@ -57,14 +57,20 @@ class TestProvenanceLinker:
 
     def test_find_evidence_match(self) -> None:
         linker = ProvenanceLinker()
-        linker.register_chunk("d1", "Methods", "ch1", "randomized controlled trial was conducted for cancer treatment")
-        evidence = linker.find_evidence("randomized controlled trial was conducted for cancer treatment")
+        linker.register_chunk(
+            "d1", "Methods", "ch1", "randomized controlled trial was conducted for cancer treatment"
+        )
+        evidence = linker.find_evidence(
+            "randomized controlled trial was conducted for cancer treatment"
+        )
         assert len(evidence) >= 1
         assert evidence[0].confidence > 0
 
     def test_find_evidence_no_match(self) -> None:
         linker = ProvenanceLinker()
-        linker.register_chunk("d1", "Methods", "ch1", "completely different topic about physics quarks")
+        linker.register_chunk(
+            "d1", "Methods", "ch1", "completely different topic about physics quarks"
+        )
         evidence = linker.find_evidence("machine learning neural networks deep")
         assert len(evidence) == 0
 
@@ -88,7 +94,9 @@ class TestProvenanceLinker:
 
     def test_find_span_partial_match(self) -> None:
         linker = ProvenanceLinker()
-        start, end = linker._find_span("hello world. another sentence.", "prefix hello world suffix")
+        start, end = linker._find_span(
+            "hello world. another sentence.", "prefix hello world suffix"
+        )
         assert start >= 0
 
     def test_find_span_no_match(self) -> None:
@@ -99,8 +107,12 @@ class TestProvenanceLinker:
 
     def test_create_claim_auto_link(self) -> None:
         linker = ProvenanceLinker()
-        linker.register_chunk("d1", "M", "ch1", "cancer treatment showed improvement in patients overall")
-        claim = linker.create_claim("c1", "cancer treatment showed improvement in patients overall", "fact")
+        linker.register_chunk(
+            "d1", "M", "ch1", "cancer treatment showed improvement in patients overall"
+        )
+        claim = linker.create_claim(
+            "c1", "cancer treatment showed improvement in patients overall", "fact"
+        )
         assert claim.claim_id == "c1"
         assert len(claim.evidence) >= 1
 

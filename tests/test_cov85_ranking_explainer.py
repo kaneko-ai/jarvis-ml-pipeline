@@ -14,7 +14,9 @@ from jarvis_core.ranking.explainer import (
 class TestRankingExplanation:
     def test_to_dict(self) -> None:
         exp = RankingExplanation(
-            item_id="p1", rank=1, score=95.0,
+            item_id="p1",
+            rank=1,
+            score=95.0,
             factors={"relevance": 0.9, "evidence": 0.8},
             explanation_text="Top paper",
             contributing_factors=["relevance: 0.90"],
@@ -91,14 +93,34 @@ class TestExplainableRanker:
     def test_generate_summary_normal(self) -> None:
         ranker = ExplainableRanker()
         exps = [
-            RankingExplanation(item_id="p1", rank=1, score=90, factors={"relevance": 0.9, "evidence": 0.8},
-                              explanation_text="Top"),
-            RankingExplanation(item_id="p2", rank=2, score=80, factors={"relevance": 0.7, "evidence": 0.6},
-                              explanation_text="Second"),
-            RankingExplanation(item_id="p3", rank=3, score=70, factors={"relevance": 0.5, "evidence": 0.4},
-                              explanation_text="Third"),
-            RankingExplanation(item_id="p4", rank=4, score=60, factors={"relevance": 0.3},
-                              explanation_text="Fourth"),
+            RankingExplanation(
+                item_id="p1",
+                rank=1,
+                score=90,
+                factors={"relevance": 0.9, "evidence": 0.8},
+                explanation_text="Top",
+            ),
+            RankingExplanation(
+                item_id="p2",
+                rank=2,
+                score=80,
+                factors={"relevance": 0.7, "evidence": 0.6},
+                explanation_text="Second",
+            ),
+            RankingExplanation(
+                item_id="p3",
+                rank=3,
+                score=70,
+                factors={"relevance": 0.5, "evidence": 0.4},
+                explanation_text="Third",
+            ),
+            RankingExplanation(
+                item_id="p4",
+                rank=4,
+                score=60,
+                factors={"relevance": 0.3},
+                explanation_text="Fourth",
+            ),
         ]
         summary = ranker.generate_summary(exps)
         assert "ランキングサマリー" in summary

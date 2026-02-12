@@ -24,13 +24,17 @@ def _make_claim(claim_id="c1", claim_type="fact", has_ev=True):
 
 class TestQualityGateResult:
     def test_basic(self) -> None:
-        r = QualityGateResult(gate_name="test", passed=True, threshold=0.9, actual=1.0, message="ok")
+        r = QualityGateResult(
+            gate_name="test", passed=True, threshold=0.9, actual=1.0, message="ok"
+        )
         assert r.passed is True
 
 
 class TestQualityReport:
     def test_to_dict(self) -> None:
-        gate = QualityGateResult(gate_name="g1", passed=True, threshold=0.9, actual=0.95, message="ok")
+        gate = QualityGateResult(
+            gate_name="g1", passed=True, threshold=0.9, actual=0.95, message="ok"
+        )
         report = QualityReport(
             overall_passed=True,
             gates=[gate],
@@ -236,7 +240,9 @@ class TestQualityGates:
 
         with patch(
             "jarvis_core.evaluation.evidence_validator.get_evidence_validator",
-            return_value=MagicMock(validate_all_claims=MagicMock(return_value={"rate": 0, "valid": 0, "total": 0})),
+            return_value=MagicMock(
+                validate_all_claims=MagicMock(return_value={"rate": 0, "valid": 0, "total": 0})
+            ),
         ):
             report = gates.run_all(claims, validate_evidence_spans=False)
         assert report.overall_passed is False

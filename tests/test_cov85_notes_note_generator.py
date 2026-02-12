@@ -104,7 +104,9 @@ class TestHelperFunctions:
     def test_format_locator(self) -> None:
         from jarvis_core.notes.note_generator import _format_locator
 
-        result = _format_locator({"section": "Intro", "paragraph_index": 0, "sentence_index": 1, "chunk_id": "c0"})
+        result = _format_locator(
+            {"section": "Intro", "paragraph_index": 0, "sentence_index": 1, "chunk_id": "c0"}
+        )
         assert "Evidence:" in result
         assert "Intro" in result
 
@@ -140,7 +142,11 @@ class TestHelperFunctions:
         from jarvis_core.notes.note_generator import _build_tldr
 
         paper = {"title": "My Paper"}
-        claims = [{"claim_text": "Finding A"}, {"claim_text": "Finding B"}, {"claim_text": "Finding C"}]
+        claims = [
+            {"claim_text": "Finding A"},
+            {"claim_text": "Finding B"},
+            {"claim_text": "Finding C"},
+        ]
         result = _build_tldr(paper, claims)
         assert "My Paper" in result
         assert len(result) >= 200
@@ -338,10 +344,19 @@ class TestGenerateNotes:
         run_dir.mkdir(parents=True)
 
         papers = [
-            {"paper_id": "p1", "title": "Paper One", "year": 2024, "journal": "J1",
-             "doi": "10.1/test", "oa_status": "gold", "keywords": ["ml"],
-             "methods": "Method A", "results": "Result A", "limitations": "Small N",
-             "domain": "AI"},
+            {
+                "paper_id": "p1",
+                "title": "Paper One",
+                "year": 2024,
+                "journal": "J1",
+                "doi": "10.1/test",
+                "oa_status": "gold",
+                "keywords": ["ml"],
+                "methods": "Method A",
+                "results": "Result A",
+                "limitations": "Small N",
+                "domain": "AI",
+            },
             {"paper_id": "p2", "title": "Paper Two", "year": 2023},
         ]
         claims = [
@@ -349,8 +364,16 @@ class TestGenerateNotes:
             {"claim_id": "c2", "paper_id": "p2", "claim_text": "Finding two"},
         ]
         evidence = [
-            {"claim_id": "c1", "evidence_text": "Evidence text one",
-             "locator": {"section": "Methods", "paragraph_index": 0, "sentence_index": 1, "chunk_id": "ch1"}},
+            {
+                "claim_id": "c1",
+                "evidence_text": "Evidence text one",
+                "locator": {
+                    "section": "Methods",
+                    "paragraph_index": 0,
+                    "sentence_index": 1,
+                    "chunk_id": "ch1",
+                },
+            },
         ]
         scores = {"rankings": [{"paper_id": "p1", "score": 10.0}, {"paper_id": "p2", "score": 5.0}]}
         input_data = {"query": "test query", "constraints": {"year": ">2020"}}
@@ -364,7 +387,9 @@ class TestGenerateNotes:
         _write_jsonl(run_dir / "warnings.jsonl", warnings_data)
 
         output_dir = tmp_path / "output"
-        result = generate_notes(run_id, source_runs_dir=tmp_path / "runs", output_base_dir=output_dir)
+        result = generate_notes(
+            run_id, source_runs_dir=tmp_path / "runs", output_base_dir=output_dir
+        )
 
         assert result["papers_count"] == 2
         assert result["claims_count"] == 2
@@ -389,5 +414,7 @@ class TestGenerateNotes:
         _write_jsonl(run_dir / "warnings.jsonl", [])
 
         output_dir = tmp_path / "output"
-        result = generate_notes(run_id, source_runs_dir=tmp_path / "runs", output_base_dir=output_dir)
+        result = generate_notes(
+            run_id, source_runs_dir=tmp_path / "runs", output_base_dir=output_dir
+        )
         assert result["papers_count"] == 0

@@ -1,3 +1,5 @@
+> Authority: GUIDE (Level 3, Non-binding)
+
 # 🚀 JARVIS Research OS - デプロイメントガイド
 
 ## 📋 デプロイ前チェックリスト

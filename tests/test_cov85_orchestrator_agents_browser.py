@@ -72,7 +72,9 @@ class TestBrowserAgentExecute:
 
         mock_subagent.recorder = None
 
-        with patch("jarvis_core.orchestrator.agents.browser.BrowserSubagent", return_value=mock_subagent):
+        with patch(
+            "jarvis_core.orchestrator.agents.browser.BrowserSubagent", return_value=mock_subagent
+        ):
             with patch("jarvis_core.orchestrator.agents.browser.ArtifactStore") as MockStore:
                 MockStore.return_value.save.return_value = "/tmp/file"
                 await agent.execute(task, orch)
@@ -103,7 +105,9 @@ class TestBrowserAgentExecute:
 
         mock_subagent.recorder = None
 
-        with patch("jarvis_core.orchestrator.agents.browser.BrowserSubagent", return_value=mock_subagent):
+        with patch(
+            "jarvis_core.orchestrator.agents.browser.BrowserSubagent", return_value=mock_subagent
+        ):
             with patch("jarvis_core.orchestrator.agents.browser.ArtifactStore") as MockStore:
                 MockStore.return_value.save.return_value = "/tmp/file"
                 await agent.execute(task, orch)
@@ -134,7 +138,9 @@ class TestBrowserAgentExecute:
         mock_subagent.recorder = MagicMock()
         mock_subagent.recorder.list_frames.return_value = [frame_path, frame_path]
 
-        with patch("jarvis_core.orchestrator.agents.browser.BrowserSubagent", return_value=mock_subagent):
+        with patch(
+            "jarvis_core.orchestrator.agents.browser.BrowserSubagent", return_value=mock_subagent
+        ):
             with patch("jarvis_core.orchestrator.agents.browser.ArtifactStore") as MockStore:
                 MockStore.return_value.save.return_value = "/tmp/file"
                 await agent.execute(task, orch)

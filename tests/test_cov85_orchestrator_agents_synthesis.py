@@ -50,8 +50,12 @@ class TestSynthesizeAgent:
         mock_grade.level.value = 1
         mock_grade.confidence = 0.9
 
-        with patch("jarvis_core.orchestrator.agents.synthesis.grade_evidence", return_value=mock_grade):
-            with patch("jarvis_core.orchestrator.agents.synthesis.ContradictionDetector") as MockDetector:
+        with patch(
+            "jarvis_core.orchestrator.agents.synthesis.grade_evidence", return_value=mock_grade
+        ):
+            with patch(
+                "jarvis_core.orchestrator.agents.synthesis.ContradictionDetector"
+            ) as MockDetector:
                 MockDetector.return_value.detect.return_value = []
                 paper = Paper(title="RCT Study", abstract="Methods", full_text="Full text")
                 report = await agent.synthesize([paper], "Effect of X")
@@ -67,8 +71,12 @@ class TestSynthesizeAgent:
         mock_grade.level.value = 4
         mock_grade.confidence = 0.5
 
-        with patch("jarvis_core.orchestrator.agents.synthesis.grade_evidence", return_value=mock_grade):
-            with patch("jarvis_core.orchestrator.agents.synthesis.ContradictionDetector") as MockDetector:
+        with patch(
+            "jarvis_core.orchestrator.agents.synthesis.grade_evidence", return_value=mock_grade
+        ):
+            with patch(
+                "jarvis_core.orchestrator.agents.synthesis.ContradictionDetector"
+            ) as MockDetector:
                 MockDetector.return_value.detect.return_value = []
                 papers = [Paper(title=f"Paper {i}") for i in range(4)]
                 report = await agent.synthesize(papers, "Low evidence Q")
@@ -83,8 +91,12 @@ class TestSynthesizeAgent:
         mock_grade.level.value = 2
         mock_grade.confidence = 0.7
 
-        with patch("jarvis_core.orchestrator.agents.synthesis.grade_evidence", return_value=mock_grade):
-            with patch("jarvis_core.orchestrator.agents.synthesis.ContradictionDetector") as MockDetector:
+        with patch(
+            "jarvis_core.orchestrator.agents.synthesis.grade_evidence", return_value=mock_grade
+        ):
+            with patch(
+                "jarvis_core.orchestrator.agents.synthesis.ContradictionDetector"
+            ) as MockDetector:
                 MockDetector.return_value.detect.return_value = []
                 papers = [Paper(title=f"Paper {i}") for i in range(3)]
                 report = await agent.synthesize(papers, "Moderate Q")
@@ -104,8 +116,12 @@ class TestSynthesizeAgent:
         mock_contradiction.confidence = 0.8
         mock_contradiction.reason = "Opposing conclusions"
 
-        with patch("jarvis_core.orchestrator.agents.synthesis.grade_evidence", return_value=mock_grade):
-            with patch("jarvis_core.orchestrator.agents.synthesis.ContradictionDetector") as MockDetector:
+        with patch(
+            "jarvis_core.orchestrator.agents.synthesis.grade_evidence", return_value=mock_grade
+        ):
+            with patch(
+                "jarvis_core.orchestrator.agents.synthesis.ContradictionDetector"
+            ) as MockDetector:
                 MockDetector.return_value.detect.return_value = [mock_contradiction]
                 papers = [Paper(title=f"P{i}") for i in range(3)]
                 report = await agent.synthesize(papers, "Q?")
@@ -120,8 +136,12 @@ class TestSynthesizeAgent:
         mock_grade.level.value = 3
         mock_grade.confidence = 0.6
 
-        with patch("jarvis_core.orchestrator.agents.synthesis.grade_evidence", return_value=mock_grade):
-            with patch("jarvis_core.orchestrator.agents.synthesis.ContradictionDetector") as MockDetector:
+        with patch(
+            "jarvis_core.orchestrator.agents.synthesis.grade_evidence", return_value=mock_grade
+        ):
+            with patch(
+                "jarvis_core.orchestrator.agents.synthesis.ContradictionDetector"
+            ) as MockDetector:
                 MockDetector.return_value.detect.return_value = []
                 papers = [Paper(title="Only one")]
                 report = await agent.synthesize(papers, "Q?")
@@ -136,10 +156,16 @@ class TestSynthesizeAgent:
         mock_grade.level.value = 4
         mock_grade.confidence = 0.4
 
-        with patch("jarvis_core.orchestrator.agents.synthesis.grade_evidence", return_value=mock_grade):
-            with patch("jarvis_core.orchestrator.agents.synthesis.ContradictionDetector") as MockDetector:
+        with patch(
+            "jarvis_core.orchestrator.agents.synthesis.grade_evidence", return_value=mock_grade
+        ):
+            with patch(
+                "jarvis_core.orchestrator.agents.synthesis.ContradictionDetector"
+            ) as MockDetector:
                 MockDetector.return_value.detect.return_value = []
                 papers = [Paper(title=f"P{i}") for i in range(5)]
                 report = await agent.synthesize(papers, "Q?")
 
-        assert any("high-level" in g.lower() or "RCT" in g or "Systematic" in g for g in report.gaps)
+        assert any(
+            "high-level" in g.lower() or "RCT" in g or "Systematic" in g for g in report.gaps
+        )

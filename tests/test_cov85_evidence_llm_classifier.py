@@ -159,12 +159,14 @@ class TestLLMBasedClassifier:
 
     def test_extract_pico_with_llm(self) -> None:
         mock_llm = MagicMock()
-        mock_llm.generate.return_value = json.dumps({
-            "population": "Adults with diabetes",
-            "intervention": "Drug X",
-            "comparator": "Placebo",
-            "outcome": "HbA1c reduction",
-        })
+        mock_llm.generate.return_value = json.dumps(
+            {
+                "population": "Adults with diabetes",
+                "intervention": "Drug X",
+                "comparator": "Placebo",
+                "outcome": "HbA1c reduction",
+            }
+        )
         cls = _make_classifier(llm_mock=mock_llm)
         with patch.object(cls, "_initialize", return_value=True):
             pico = cls.extract_pico("200 adults with diabetes received Drug X versus placebo")
@@ -203,8 +205,8 @@ class TestLLMBasedClassifier:
 
     def test_extract_json_block(self) -> None:
         cls = _make_classifier()
-        text = "```json\n{\"level\": \"1a\"}\n```"
-        assert cls._extract_json(text) == "{\"level\": \"1a\"}"
+        text = '```json\n{"level": "1a"}\n```'
+        assert cls._extract_json(text) == '{"level": "1a"}'
 
     def test_classify_runtime_error(self) -> None:
         cls = _make_classifier(llm_mock=None)
@@ -230,4 +232,3 @@ class TestLLMBasedClassifier:
         cls = LLMBasedClassifier(config=config)
         with patch("jarvis_core.llm.ollama_adapter.OllamaAdapter", side_effect=Exception()):
             assert cls._initialize() is False
-

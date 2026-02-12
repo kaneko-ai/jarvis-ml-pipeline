@@ -25,12 +25,16 @@ class TestBuildIndex:
     def test_pubmed_no_query(self, tmp_path: Path) -> None:
         """source=pubmed but no query => no papers fetched."""
         papers_mod = _setup_jarvis_tools_mock()
-        with patch.dict(sys.modules, {"jarvis_tools": ModuleType("jarvis_tools"), "jarvis_tools.papers": papers_mod}):
+        with patch.dict(
+            sys.modules,
+            {"jarvis_tools": ModuleType("jarvis_tools"), "jarvis_tools.papers": papers_mod},
+        ):
             with patch("jarvis_core.index_builder.init_logger") as mock_logger:
                 mock_logger.return_value = MagicMock()
                 with patch("jarvis_core.index_builder.IndexRegistry") as MockReg:
                     MockReg.return_value = MagicMock()
                     from jarvis_core.index_builder import build_index
+
                     result = build_index(
                         query=None,
                         source="pubmed",
@@ -51,12 +55,16 @@ class TestBuildIndex:
         papers_mod.pubmed_esearch.return_value = ["123"]
         papers_mod.pubmed_esummary.return_value = [mock_paper]
 
-        with patch.dict(sys.modules, {"jarvis_tools": ModuleType("jarvis_tools"), "jarvis_tools.papers": papers_mod}):
+        with patch.dict(
+            sys.modules,
+            {"jarvis_tools": ModuleType("jarvis_tools"), "jarvis_tools.papers": papers_mod},
+        ):
             with patch("jarvis_core.index_builder.init_logger") as mock_logger:
                 mock_logger.return_value = MagicMock()
                 with patch("jarvis_core.index_builder.IndexRegistry") as MockReg:
                     MockReg.return_value = MagicMock()
                     from jarvis_core.index_builder import build_index
+
                     result = build_index(
                         query="cancer",
                         source="pubmed",
@@ -86,12 +94,16 @@ class TestBuildIndex:
         papers_mod.extract_text_from_pdf.return_value = ["page1"]
         papers_mod.split_pages_into_chunks.return_value = [mock_chunk]
 
-        with patch.dict(sys.modules, {"jarvis_tools": ModuleType("jarvis_tools"), "jarvis_tools.papers": papers_mod}):
+        with patch.dict(
+            sys.modules,
+            {"jarvis_tools": ModuleType("jarvis_tools"), "jarvis_tools.papers": papers_mod},
+        ):
             with patch("jarvis_core.index_builder.init_logger") as mock_logger:
                 mock_logger.return_value = MagicMock()
                 with patch("jarvis_core.index_builder.IndexRegistry") as MockReg:
                     MockReg.return_value = MagicMock()
                     from jarvis_core.index_builder import build_index
+
                     result = build_index(
                         source="local",
                         local_pdf_dir=str(pdf_dir),
@@ -102,12 +114,16 @@ class TestBuildIndex:
     def test_local_pdf_nonexistent_dir(self, tmp_path: Path) -> None:
         """source=local with nonexistent dir."""
         papers_mod = _setup_jarvis_tools_mock()
-        with patch.dict(sys.modules, {"jarvis_tools": ModuleType("jarvis_tools"), "jarvis_tools.papers": papers_mod}):
+        with patch.dict(
+            sys.modules,
+            {"jarvis_tools": ModuleType("jarvis_tools"), "jarvis_tools.papers": papers_mod},
+        ):
             with patch("jarvis_core.index_builder.init_logger") as mock_logger:
                 mock_logger.return_value = MagicMock()
                 with patch("jarvis_core.index_builder.IndexRegistry") as MockReg:
                     MockReg.return_value = MagicMock()
                     from jarvis_core.index_builder import build_index
+
                     result = build_index(
                         source="local",
                         local_pdf_dir=str(tmp_path / "nonexistent"),
@@ -120,10 +136,14 @@ class TestBuildIndex:
         """Top-level exception => success=False."""
         papers_mod = _setup_jarvis_tools_mock()
         papers_mod.pubmed_esearch.side_effect = RuntimeError("network")
-        with patch.dict(sys.modules, {"jarvis_tools": ModuleType("jarvis_tools"), "jarvis_tools.papers": papers_mod}):
+        with patch.dict(
+            sys.modules,
+            {"jarvis_tools": ModuleType("jarvis_tools"), "jarvis_tools.papers": papers_mod},
+        ):
             with patch("jarvis_core.index_builder.init_logger") as mock_logger:
                 mock_logger.return_value = MagicMock()
                 from jarvis_core.index_builder import build_index
+
                 result = build_index(
                     query="test",
                     source="pubmed",

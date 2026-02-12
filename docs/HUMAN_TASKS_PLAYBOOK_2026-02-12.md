@@ -1,3 +1,5 @@
+> Authority: ROADMAP (Level 5, Non-binding)
+
 # Human Tasks Playbook (2026-02-12)
 
 ## 前提

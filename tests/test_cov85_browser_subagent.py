@@ -9,11 +9,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from async_test_utils import sync_async_test
-from jarvis_core.browser.schema import BrowserAction, BrowserActionResult, BrowserState, SecurityPolicy
+from jarvis_core.browser.schema import (
+    BrowserAction,
+    BrowserActionResult,
+    BrowserState,
+    SecurityPolicy,
+)
 from jarvis_core.browser.subagent import BrowserSubagent, _PlaywrightSession
-
-
-
 
 
 class TestBrowserSubagentInit:
@@ -50,7 +52,9 @@ class TestNavigate:
         mock_page.url = "http://example.com"
         mock_page.title.return_value = "Example"
         mock_page.screenshot.return_value = b"image"
-        agent.session = _PlaywrightSession(playwright=MagicMock(), browser=MagicMock(), page=mock_page)
+        agent.session = _PlaywrightSession(
+            playwright=MagicMock(), browser=MagicMock(), page=mock_page
+        )
         result = await agent.navigate("http://example.com")
         assert result.success is True
         assert result.data["url"] == "http://example.com"
@@ -62,7 +66,9 @@ class TestNavigate:
         agent.security_manager.check_url.return_value = True
         mock_page = AsyncMock()
         mock_page.goto.side_effect = asyncio.TimeoutError()
-        agent.session = _PlaywrightSession(playwright=MagicMock(), browser=MagicMock(), page=mock_page)
+        agent.session = _PlaywrightSession(
+            playwright=MagicMock(), browser=MagicMock(), page=mock_page
+        )
         result = await agent.navigate("http://example.com")
         assert result.success is False
         assert "timed out" in result.error
@@ -76,7 +82,9 @@ class TestClick:
         mock_page.url = "http://example.com"
         mock_page.title.return_value = "Example"
         mock_page.screenshot.return_value = b"img"
-        agent.session = _PlaywrightSession(playwright=MagicMock(), browser=MagicMock(), page=mock_page)
+        agent.session = _PlaywrightSession(
+            playwright=MagicMock(), browser=MagicMock(), page=mock_page
+        )
         result = await agent.click("#btn")
         assert result.success is True
 
@@ -85,7 +93,9 @@ class TestClick:
         agent = BrowserSubagent()
         mock_page = AsyncMock()
         mock_page.click.side_effect = asyncio.TimeoutError()
-        agent.session = _PlaywrightSession(playwright=MagicMock(), browser=MagicMock(), page=mock_page)
+        agent.session = _PlaywrightSession(
+            playwright=MagicMock(), browser=MagicMock(), page=mock_page
+        )
         result = await agent.click("#btn")
         assert result.success is False
 
@@ -98,7 +108,9 @@ class TestTypeText:
         mock_page.url = "http://example.com"
         mock_page.title.return_value = "Example"
         mock_page.screenshot.return_value = b"img"
-        agent.session = _PlaywrightSession(playwright=MagicMock(), browser=MagicMock(), page=mock_page)
+        agent.session = _PlaywrightSession(
+            playwright=MagicMock(), browser=MagicMock(), page=mock_page
+        )
         result = await agent.type_text("#input", "hello")
         assert result.success is True
 
@@ -107,7 +119,9 @@ class TestTypeText:
         agent = BrowserSubagent()
         mock_page = AsyncMock()
         mock_page.fill.side_effect = asyncio.TimeoutError()
-        agent.session = _PlaywrightSession(playwright=MagicMock(), browser=MagicMock(), page=mock_page)
+        agent.session = _PlaywrightSession(
+            playwright=MagicMock(), browser=MagicMock(), page=mock_page
+        )
         result = await agent.type_text("#input", "hello")
         assert result.success is False
 
@@ -118,7 +132,9 @@ class TestScreenshot:
         agent = BrowserSubagent()
         mock_page = AsyncMock()
         mock_page.screenshot.return_value = b"image_bytes"
-        agent.session = _PlaywrightSession(playwright=MagicMock(), browser=MagicMock(), page=mock_page)
+        agent.session = _PlaywrightSession(
+            playwright=MagicMock(), browser=MagicMock(), page=mock_page
+        )
         result = await agent.screenshot()
         assert result.success is True
         assert result.screenshot == "aW1hZ2VfYnl0ZXM="
@@ -128,7 +144,9 @@ class TestScreenshot:
         agent = BrowserSubagent()
         mock_page = AsyncMock()
         mock_page.screenshot.side_effect = asyncio.TimeoutError()
-        agent.session = _PlaywrightSession(playwright=MagicMock(), browser=MagicMock(), page=mock_page)
+        agent.session = _PlaywrightSession(
+            playwright=MagicMock(), browser=MagicMock(), page=mock_page
+        )
         result = await agent.screenshot()
         assert result.success is False
 
@@ -143,7 +161,9 @@ class TestExtractText:
         mock_page.query_selector.return_value = mock_element
         mock_page.url = "http://example.com"
         mock_page.title.return_value = "Example"
-        agent.session = _PlaywrightSession(playwright=MagicMock(), browser=MagicMock(), page=mock_page)
+        agent.session = _PlaywrightSession(
+            playwright=MagicMock(), browser=MagicMock(), page=mock_page
+        )
         result = await agent.extract_text("body")
         assert result.success is True
         assert result.data["text"] == "Hello World"
@@ -155,7 +175,9 @@ class TestExtractText:
         mock_page.query_selector.return_value = None
         mock_page.url = "http://example.com"
         mock_page.title.return_value = "Example"
-        agent.session = _PlaywrightSession(playwright=MagicMock(), browser=MagicMock(), page=mock_page)
+        agent.session = _PlaywrightSession(
+            playwright=MagicMock(), browser=MagicMock(), page=mock_page
+        )
         result = await agent.extract_text("#nonexistent")
         assert result.success is True
         assert result.data["text"] is None
@@ -165,7 +187,9 @@ class TestExtractText:
         agent = BrowserSubagent()
         mock_page = AsyncMock()
         mock_page.query_selector.side_effect = asyncio.TimeoutError()
-        agent.session = _PlaywrightSession(playwright=MagicMock(), browser=MagicMock(), page=mock_page)
+        agent.session = _PlaywrightSession(
+            playwright=MagicMock(), browser=MagicMock(), page=mock_page
+        )
         result = await agent.extract_text("body")
         assert result.success is False
 
@@ -182,7 +206,9 @@ class TestCloseAndRecording:
         mock_page = AsyncMock()
         mock_browser = AsyncMock()
         mock_playwright = AsyncMock()
-        agent.session = _PlaywrightSession(playwright=mock_playwright, browser=mock_browser, page=mock_page)
+        agent.session = _PlaywrightSession(
+            playwright=mock_playwright, browser=mock_browser, page=mock_page
+        )
         await agent.close()
         assert agent.session is None
         mock_page.close.assert_awaited_once()
@@ -225,7 +251,9 @@ class TestEnsureInitialized:
     @sync_async_test
     async def test_passes_when_initialized(self) -> None:
         agent = BrowserSubagent()
-        agent.session = _PlaywrightSession(playwright=MagicMock(), browser=MagicMock(), page=MagicMock())
+        agent.session = _PlaywrightSession(
+            playwright=MagicMock(), browser=MagicMock(), page=MagicMock()
+        )
         await agent._ensure_initialized()  # Should not raise
 
 
@@ -249,7 +277,9 @@ class TestCaptureRecordingFrame:
         agent.recorder.active = True
         mock_page = AsyncMock()
         mock_page.screenshot.return_value = b"frame"
-        agent.session = _PlaywrightSession(playwright=MagicMock(), browser=MagicMock(), page=mock_page)
+        agent.session = _PlaywrightSession(
+            playwright=MagicMock(), browser=MagicMock(), page=mock_page
+        )
         await agent._capture_recording_frame()
         agent.recorder.capture_frame.assert_called_once()
 

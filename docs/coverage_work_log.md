@@ -1,3 +1,5 @@
+> Authority: ROADMAP (Level 5, Non-binding)
+
 # Coverage 85% Mission Work Log
 
 ## Mission

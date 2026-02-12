@@ -15,6 +15,7 @@ from jarvis_core.evidence.schema import EvidenceGrade, EvidenceLevel, StudyType
 class TestClassificationPattern:
     def test_fields(self) -> None:
         import re
+
         pat = ClassificationPattern(
             study_type=StudyType.RCT,
             patterns=[re.compile(r"randomized")],
@@ -193,4 +194,3 @@ class TestRuleBasedClassifier:
         text = "main outcome measure was blood pressure"
         pico = cls.extract_pico(text)
         assert pico.outcome == "blood pressure"
-

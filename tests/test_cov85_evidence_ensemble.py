@@ -194,9 +194,9 @@ class TestLLMFirst:
 
 class TestLevelScore:
     def test_all_levels(self) -> None:
-        assert EnsembleClassifier._level_score(EvidenceLevel.LEVEL_1A) < EnsembleClassifier._level_score(
-            EvidenceLevel.LEVEL_5
-        )
+        assert EnsembleClassifier._level_score(
+            EvidenceLevel.LEVEL_1A
+        ) < EnsembleClassifier._level_score(EvidenceLevel.LEVEL_5)
         assert EnsembleClassifier._level_score(EvidenceLevel.UNKNOWN) == 99.0
 
 

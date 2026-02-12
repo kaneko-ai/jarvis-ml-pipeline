@@ -54,7 +54,6 @@ def test_hypothesis_generator_returns_ranked_records_with_expected_keys() -> Non
         assert 0.5 <= item["testability_score"] <= 1.0
 
 
-
 def test_hypothesis_generator_entity_extraction_and_support_fallback() -> None:
     gen = HypothesisGenerator()
     entities = gen._extract_entities("")
@@ -69,7 +68,6 @@ def test_hypothesis_generator_entity_extraction_and_support_fallback() -> None:
     assert gen._find_support("topic") == ["unknown"]
 
 
-
 def test_question_decomposer_pattern_and_default_paths() -> None:
     dec = ResearchQuestionDecomposer()
 
@@ -82,7 +80,6 @@ def test_question_decomposer_pattern_and_default_paths() -> None:
     assert generic["total"] == 3
     assert generic["estimated_time_months"] == 18
     assert generic["sub_questions"][2]["dependencies"] == ["SQ1", "SQ2"]
-
 
 
 def test_literature_gap_analyzer_outputs_structured_gaps_and_landscape() -> None:
@@ -109,10 +106,11 @@ def test_literature_gap_analyzer_outputs_structured_gaps_and_landscape() -> None
     assert set(landscape.keys()) == {"hot_topics", "emerging_topics", "cold_spots", "total_papers"}
 
 
-
 def test_experiment_designer_computes_sample_size_timeline_and_budget() -> None:
     designer = ExperimentDesignerPro()
-    result = designer.design_experiment("Drug X reduces tumor", variables={"expected_effect_size": 0.5})
+    result = designer.design_experiment(
+        "Drug X reduces tumor", variables={"expected_effect_size": 0.5}
+    )
 
     assert result["design"]["total_n"] == 126
     assert result["power_analysis"]["sample_size_per_group"] == 63
@@ -122,7 +120,6 @@ def test_experiment_designer_computes_sample_size_timeline_and_budget() -> None:
 
     low_effect = designer.design_experiment("Drug Y", variables={"expected_effect_size": 0.2})
     assert low_effect["statistical_analysis"]["primary"] == "anova"
-
 
 
 def test_debate_system_generates_log_and_recommendation() -> None:
@@ -138,7 +135,6 @@ def test_debate_system_generates_log_and_recommendation() -> None:
     assert result["debate_log"][2]["agent"] == "Moderator"
 
 
-
 def test_research_roadmap_and_funding_outputs() -> None:
     roadmap = ResearchRoadmapGenerator().generate("Cure cancer", years=2)
     assert roadmap["duration_years"] == 2
@@ -149,7 +145,6 @@ def test_research_roadmap_and_funding_outputs() -> None:
     assert len(funding) == 3
     assert funding[0]["source"] == "NIH Reporter"
     assert all("url" in item for item in funding)
-
 
 
 def test_collaboration_and_impact_and_novelty() -> None:
@@ -170,7 +165,6 @@ def test_collaboration_and_impact_and_novelty() -> None:
     assert "quantum" in scored["existing_concepts"]
 
 
-
 def test_feasibility_ethics_and_irb_document() -> None:
     feasibility = FeasibilityAnalyzer().analyze({"title": "Any"})
     assert feasibility["overall_score"] == 0.74
@@ -186,7 +180,6 @@ def test_feasibility_ethics_and_irb_document() -> None:
     assert "# IRB Application" in irb
     assert "Clinical Trial" in irb
     assert "120" in irb
-
 
 
 def test_timeline_optimizer_and_resource_allocator() -> None:
@@ -207,7 +200,6 @@ def test_timeline_optimizer_and_resource_allocator() -> None:
     assert allocated["allocations"][0]["equipment_hours"] == 100
     assert allocated["allocations"][0]["personnel_hours"] == 200
     assert allocated["utilization"] == 0.85
-
 
 
 def test_repro_prereg_negative_pivot_and_mentor_matcher() -> None:
@@ -234,13 +226,11 @@ def test_repro_prereg_negative_pivot_and_mentor_matcher() -> None:
     assert len(pivot["pivot_options"]) == 3
 
     mentors = [
-        {"name": f"m{i}", "expertise": ["ai", "bio"] if i % 2 == 0 else ["chem"]}
-        for i in range(7)
+        {"name": f"m{i}", "expertise": ["ai", "bio"] if i % 2 == 0 else ["chem"]} for i in range(7)
     ]
     matches = MentorMatcher().match({"interests": ["ai", "bio"]}, mentors)
     assert len(matches) == 4
     assert matches == sorted(matches, key=lambda item: item["match_score"], reverse=True)
-
 
 
 def test_factory_functions_return_expected_instances() -> None:

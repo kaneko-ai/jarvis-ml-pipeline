@@ -31,6 +31,7 @@ def test_orchestrator_executes_agent():
     assert status is not None
     assert status["status"] == "completed"
 
+
 def test_orchestrator_lists_agents():
     async def run_case():
         orchestrator = MultiAgentOrchestrator(

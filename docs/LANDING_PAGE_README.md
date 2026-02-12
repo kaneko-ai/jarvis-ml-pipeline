@@ -1,3 +1,5 @@
+> Authority: GUIDE (Level 3, Non-binding)
+
 # 🚀 JARVIS Research OS - Complete Landing Page with SEO & Analytics
 
 **完全版ランディングページ - SEO最適化 & アナリティクス統合済み**
