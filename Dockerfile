@@ -16,8 +16,8 @@ RUN pip install uv
 # Copy dependency files
 COPY pyproject.toml uv.lock* ./
 
-# Install dependencies
-RUN uv sync --no-dev --frozen || uv sync --no-dev
+# Install runtime dependencies + web extras (fastapi/uvicorn)
+RUN uv sync --no-dev --extra web --frozen || uv sync --no-dev --extra web
 
 # ===== Runtime Stage =====
 FROM python:3.11-slim as runtime
@@ -34,6 +34,9 @@ COPY --from=builder /app/.venv /app/.venv
 COPY jarvis_core/ ./jarvis_core/
 COPY jarvis_web/ ./jarvis_web/
 COPY jarvis_cli.py ./
+
+# Prepare writable runtime directories for non-root process
+RUN mkdir -p /app/data/locks && chown -R jarvis:jarvis /app/data
 
 # Set environment variables
 ENV PATH="/app/.venv/bin:$PATH"
