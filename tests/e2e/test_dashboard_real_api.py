@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import os
 import subprocess
 import sys
@@ -13,6 +14,9 @@ from playwright.sync_api import Page, expect
 @pytest.fixture(scope="module")
 def api_server() -> str:
     """Start a real API server for dashboard integration checks."""
+    if importlib.util.find_spec("uvicorn") is None:
+        pytest.skip("uvicorn is not installed; install the 'web' extra to run this e2e test")
+
     env = os.environ.copy()
     env["AUTH_MODE"] = "disabled"
     env["JARVIS_ENV"] = "development"
@@ -94,7 +98,7 @@ def dashboard_server() -> str:
     process.terminate()
 
 
-def test_dashboard_real_api_integration(page: Page, api_server: str, dashboard_server: str) -> None:
+def test_dashboard_real_api_integration(api_server: str, dashboard_server: str, page: Page) -> None:
     """Verify dashboard behavior against a real local API server."""
     page.goto(f"{dashboard_server}/settings.html")
     page.fill('[data-testid="api-base"]', api_server)

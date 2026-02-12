@@ -1,8 +1,8 @@
-import asyncio
 from types import SimpleNamespace
 
 import pytest
 
+from async_test_utils import run_async
 from jarvis_core.browser.schema import SecurityPolicy
 from jarvis_core.browser.security import BrowserSecurityManager
 from jarvis_core.browser.subagent import BrowserSubagent
@@ -53,8 +53,8 @@ def test_browser_navigation_and_screenshot(monkeypatch):
 
     monkeypatch.setattr(agent, "_ensure_initialized", no_init)
 
-    nav_result = asyncio.run(agent.navigate("https://example.com"))
-    shot_result = asyncio.run(agent.screenshot(full_page=True))
+    nav_result = run_async(agent.navigate("https://example.com"))
+    shot_result = run_async(agent.screenshot(full_page=True))
 
     assert nav_result.success is True
     assert nav_result.data["url"] == "https://example.com"
@@ -71,5 +71,5 @@ def test_browser_text_extraction(monkeypatch):
 
     monkeypatch.setattr(agent, "_ensure_initialized", no_init)
 
-    result = asyncio.run(agent.extract_text("#content"))
+    result = run_async(agent.extract_text("#content"))
     assert result.data["text"] == "Hello world"

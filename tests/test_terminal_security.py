@@ -1,5 +1,6 @@
 import pytest
 
+from async_test_utils import sync_async_test
 from jarvis_core.security.terminal import TerminalSecurityManager
 from jarvis_core.security.terminal_schema import (
     CommandExecutionRequest,
@@ -33,7 +34,7 @@ def test_terminal_security_off_policy_blocks():
     assert result.blocked_reason == "Execution policy is OFF"
 
 
-@pytest.mark.asyncio
+@sync_async_test
 async def test_execute_command_runs_when_allowed(tmp_path):
     manager = TerminalSecurityManager()
     request = CommandExecutionRequest(command="pwd", working_dir=str(tmp_path))

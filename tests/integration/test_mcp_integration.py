@@ -1,9 +1,9 @@
-import asyncio
 from dataclasses import dataclass
 
 import pytest
 import requests
 
+from async_test_utils import run_async
 from jarvis_core.mcp.chain import ToolChain
 from jarvis_core.mcp.hub import MCPHub
 from jarvis_core.mcp.schema import MCPServer, MCPServerStatus, MCPTool
@@ -40,7 +40,7 @@ def test_mcp_server_registration_and_discovery(monkeypatch):
         return _FakeResponse(payload={"tools": [{"name": "search", "description": "Search"}]})
 
     monkeypatch.setattr(requests, "request", fake_request)
-    tools = asyncio.run(hub.discover_tools("mock"))
+    tools = run_async(hub.discover_tools("mock"))
 
     assert tools[0].name == "search"
     assert server.status == MCPServerStatus.CONNECTED
@@ -68,7 +68,7 @@ def test_mcp_tool_invoke_and_error(monkeypatch):
         return _FakeResponse(payload={"items": ["ok"]})
 
     monkeypatch.setattr(requests, "request", fake_success)
-    result = asyncio.run(hub.invoke_tool("search", {"query": "ok"}))
+    result = run_async(hub.invoke_tool("search", {"query": "ok"}))
     assert result.success is True
     assert result.data == {"items": ["ok"]}
 
@@ -76,7 +76,7 @@ def test_mcp_tool_invoke_and_error(monkeypatch):
         raise requests.RequestException("boom")
 
     monkeypatch.setattr(requests, "request", fake_fail)
-    result = asyncio.run(hub.invoke_tool("search", {"query": "fail"}))
+    result = run_async(hub.invoke_tool("search", {"query": "fail"}))
     assert result.success is False
     assert result.error is not None
 
@@ -103,8 +103,8 @@ def test_mcp_rate_limiting(monkeypatch):
         return _FakeResponse(payload={"items": ["ok"]})
 
     monkeypatch.setattr(requests, "request", fake_success)
-    first = asyncio.run(hub.invoke_tool("search", {"query": "one"}))
-    second = asyncio.run(hub.invoke_tool("search", {"query": "two"}))
+    first = run_async(hub.invoke_tool("search", {"query": "one"}))
+    second = run_async(hub.invoke_tool("search", {"query": "two"}))
 
     assert first.success is True
     assert second.success is False
@@ -143,5 +143,5 @@ def test_mcp_tool_chain(monkeypatch):
     chain.add_step("step_one", lambda initial, results: {"query": initial["query"]})
     chain.add_step("step_two", lambda _initial, results: {"value": results[-1].data["value"]})
 
-    results = asyncio.run(chain.execute({"query": "start"}))
+    results = run_async(chain.execute({"query": "start"}))
     assert results[-1].data["value"] == 2

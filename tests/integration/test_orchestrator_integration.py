@@ -1,7 +1,6 @@
-import asyncio
-
 import pytest
 
+from async_test_utils import run_async
 from jarvis_core.orchestrator.multi_agent import MultiAgentOrchestrator
 from jarvis_core.orchestrator.schema import AgentMode, AgentTask
 
@@ -32,7 +31,7 @@ def test_multi_agent_parallel_and_conversation():
         await orchestrator.stop()
         return status_a, status_b, message_id, inbox
 
-    status_a, status_b, message_id, inbox = asyncio.run(run_case())
+    status_a, status_b, message_id, inbox = run_async(run_case())
 
     assert status_a["status"] == "completed"
     assert status_b["status"] == "completed"
@@ -70,7 +69,7 @@ def test_multi_agent_approval_and_callbacks():
 
         return status_events, approval_events
 
-    status_events, approval_events = asyncio.run(run_case())
+    status_events, approval_events = run_async(run_case())
 
     assert any(event["status"] == "waiting_approval" for event in status_events)
     assert approval_events

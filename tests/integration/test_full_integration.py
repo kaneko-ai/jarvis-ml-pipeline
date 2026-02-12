@@ -1,9 +1,9 @@
-import asyncio
 from types import SimpleNamespace
 
 import pytest
 import requests
 
+from async_test_utils import run_async
 from jarvis_core.browser.schema import SecurityPolicy
 from jarvis_core.browser.subagent import BrowserSubagent
 from jarvis_core.evidence.ensemble import grade_evidence
@@ -85,8 +85,8 @@ def test_full_integration_flow(tmp_path, monkeypatch):
         return _FakeResponse({"papers": [{"title": "Paper A", "abstract": "RCT"}]})
 
     monkeypatch.setattr(requests, "request", fake_request)
-    asyncio.run(hub.discover_tools("mock"))
-    search_result = asyncio.run(hub.invoke_tool("search", {"query": query}))
+    run_async(hub.discover_tools("mock"))
+    search_result = run_async(hub.invoke_tool("search", {"query": query}))
     assert search_result.success
 
     # 4. Browser Agent fetch
@@ -97,7 +97,7 @@ def test_full_integration_flow(tmp_path, monkeypatch):
         return None
 
     monkeypatch.setattr(agent, "_ensure_initialized", no_init)
-    nav_result = asyncio.run(agent.navigate("https://example.com"))
+    nav_result = run_async(agent.navigate("https://example.com"))
     assert nav_result.success
 
     # 5. Evidence grading

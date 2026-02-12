@@ -1,5 +1,6 @@
 import pytest
 
+from async_test_utils import sync_async_test
 from jarvis_core.mcp.hub import MCPHub
 from jarvis_core.mcp.schema import MCPServer, MCPServerStatus, MCPTool
 
@@ -17,7 +18,7 @@ class DummyResponse:
         return self._payload
 
 
-@pytest.mark.asyncio
+@sync_async_test
 async def test_discover_and_invoke_tools(monkeypatch):
     hub = MCPHub()
     server = MCPServer(
@@ -70,7 +71,7 @@ async def test_discover_and_invoke_tools(monkeypatch):
     ]
 
 
-@pytest.mark.asyncio
+@sync_async_test
 async def test_rate_limit_exceeded(monkeypatch):
     hub = MCPHub()
     server = MCPServer(
