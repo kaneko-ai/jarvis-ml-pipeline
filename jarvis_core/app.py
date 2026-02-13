@@ -12,6 +12,7 @@ import time
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from .run_config import RunConfig
@@ -99,6 +100,163 @@ class AppResult:
     eval_result: dict | None = None
 
 
+def _is_ops_extract_mode(task_dict: dict[str, Any], config: RunConfig) -> bool:
+    if str(task_dict.get("mode", "")).lower() == "ops_extract":
+        return True
+    extra = config.extra if isinstance(config.extra, dict) else {}
+    ops_extract_cfg = extra.get("ops_extract") if isinstance(extra, dict) else None
+    if isinstance(ops_extract_cfg, dict) and bool(ops_extract_cfg.get("enabled", False)):
+        return True
+    return False
+
+
+def _collect_ops_extract_input_paths(task_dict: dict[str, Any]) -> list[Path]:
+    inputs = task_dict.get("inputs", {})
+    paths: list[str] = []
+
+    def _extend(value: Any) -> None:
+        if isinstance(value, str) and value.strip():
+            paths.append(value.strip())
+        elif isinstance(value, (list, tuple)):
+            for item in value:
+                if isinstance(item, str) and item.strip():
+                    paths.append(item.strip())
+
+    if isinstance(inputs, dict):
+        for key in ("pdf_paths", "files", "filepaths", "input_files"):
+            _extend(inputs.get(key))
+    else:
+        _extend(inputs)
+
+    for key in ("pdf_paths", "input_files", "files"):
+        _extend(task_dict.get(key))
+
+    seen: set[str] = set()
+    result: list[Path] = []
+    for value in paths:
+        p = Path(value).expanduser()
+        norm = str(p)
+        if norm in seen:
+            continue
+        seen.add(norm)
+        result.append(p)
+    return result
+
+
+def _run_task_ops_extract_mode(
+    *,
+    task_dict: dict[str, Any],
+    config: RunConfig,
+    store: Any,
+    logger: Any,
+    cost_tracker: Any,
+    run_id: str,
+    task_id: str,
+    goal: str,
+    task: Task,
+    log_dir: Path,
+) -> AppResult:
+    from .bundle import BundleAssembler
+    from .ops_extract import OpsExtractOrchestrator, build_ops_extract_config
+
+    extra = config.extra if isinstance(config.extra, dict) else {}
+    ops_extract_raw = extra.get("ops_extract", {}) if isinstance(extra, dict) else {}
+    ops_cfg = build_ops_extract_config(ops_extract_raw)
+
+    input_paths = _collect_ops_extract_input_paths(task_dict)
+    project = str(task_dict.get("project", "default"))
+    orchestrator = OpsExtractOrchestrator(store.run_dir, ops_cfg)
+    outcome = orchestrator.run(
+        run_id=run_id,
+        project=project,
+        input_paths=input_paths,
+    )
+
+    if outcome.status == "success":
+        logger.log_event(
+            event="RUN_END",
+            event_type="ACTION",
+            trace_id=run_id,
+            task_id=task_id,
+            payload={"execution": "ops_extract_complete"},
+        )
+    else:
+        logger.log_event(
+            event="RUN_ERROR",
+            event_type="ACTION",
+            trace_id=run_id,
+            task_id=task_id,
+            level="ERROR",
+            payload={
+                "error": outcome.error or "ops_extract_failed",
+                "error_type": "OpsExtractError",
+            },
+        )
+
+    assembler = BundleAssembler(store.run_dir)
+    context = {
+        "run_id": run_id,
+        "task_id": task_id,
+        "goal": goal,
+        "query": task.inputs.get("query", goal) if hasattr(task, "inputs") else goal,
+        "pipeline": "ops_extract",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "seed": config.seed,
+        "model": config.model,
+    }
+
+    warning_records = outcome.warning_records or []
+    warning_messages = outcome.warning_messages or []
+    if outcome.status == "failed":
+        assembler.build_failure(
+            context=context,
+            error=outcome.error or "Ops extract failed",
+            partial_artifacts={"warnings": list(warning_messages)},
+            fail_reasons=[{"code": "OPS_EXTRACT_FAILED", "msg": outcome.error or "unknown"}],
+        )
+    else:
+        artifacts = {
+            "papers": outcome.papers,
+            "claims": [],
+            "evidence": [],
+            "answer": outcome.answer,
+            "citations": [],
+            "warnings": warning_records,
+            "scores": {},
+            "feedback_risk": None,
+        }
+        assembler.build(
+            context,
+            artifacts,
+            quality_report={"gate_passed": True, "fail_reasons": []},
+        )
+
+    # tracking placeholder
+    cost_tracker.track_stage(stage_name="ops_extract", tokens=0, time_ms=0, api_calls=0)
+    store.save_cost_report(cost_tracker.get_report())
+
+    # Hard gates remain the same
+    events_file = store.events_file
+    if not events_file.exists() or events_file.stat().st_size == 0:
+        raise TelemetryMissingError(
+            f"Telemetry hard gate failed: events.jsonl not generated at {events_file}"
+        )
+    missing = store.validate_contract(is_failure=outcome.status == "failed")
+    if missing:
+        raise ContractViolationError(f"Artifact contract violated: missing files {missing}")
+
+    return AppResult(
+        run_id=run_id,
+        log_dir=str(log_dir),
+        status=outcome.status,
+        answer=outcome.answer,
+        citations=[],
+        warnings=warning_messages,
+        gate_passed=outcome.status == "success",
+        eval_result=store.load_eval() or {},
+    )
+
+
 def run_task(
     task_dict: dict[str, Any],
     run_config_dict: dict[str, Any] | None = None,
@@ -136,7 +294,7 @@ def run_task(
     from .telemetry.cost_tracker import CostTracker
 
     # Generate run_id
-    run_id = str(uuid.uuid4())
+    run_id = str(task_dict.get("run_id") or uuid.uuid4())
 
     # Initialize config
     config = RunConfig.from_dict(run_config_dict) if run_config_dict else RunConfig()
@@ -191,6 +349,20 @@ def run_task(
         task_id=task_id,
         payload={"goal": goal, "category": category},
     )
+
+    if _is_ops_extract_mode(task_dict, config):
+        return _run_task_ops_extract_mode(
+            task_dict=task_dict,
+            config=config,
+            store=store,
+            logger=logger,
+            cost_tracker=cost_tracker,
+            run_id=run_id,
+            task_id=task_id,
+            goal=goal,
+            task=task,
+            log_dir=log_dir,
+        )
 
     # Initialize engine
     llm = LLMClient(model=config.model, provider=config.provider)

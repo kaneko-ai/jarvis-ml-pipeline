@@ -259,6 +259,24 @@ class RobustPDFExtractor:
             warnings=["All extraction methods failed"],
         )
 
+    def extract_with_diagnostics(self, filepath: Path) -> tuple[ExtractionResult, dict[str, Any]]:
+        """Extract text and return lightweight diagnostics used by ops_extract mode."""
+        result = self.extract(filepath)
+        page_lengths = [len((page_text or "").strip()) for _, page_text in (result.pages or [])]
+        page_count = len(page_lengths)
+        total_chars = sum(page_lengths)
+        empty_pages = sum(1 for x in page_lengths if x == 0)
+        diagnostics = {
+            "method": result.method,
+            "success": result.success,
+            "page_count": page_count,
+            "total_chars_extracted": total_chars,
+            "chars_per_page_mean": (total_chars / page_count) if page_count else 0.0,
+            "empty_page_ratio": (empty_pages / page_count) if page_count else 1.0,
+            "warning_count": len(result.warnings),
+        }
+        return result, diagnostics
+
     def _extract_with_backend(self, filepath: Path, backend: str) -> ExtractionResult:
         """特定のバックエンドで抽出."""
         if backend == "pymupdf":
