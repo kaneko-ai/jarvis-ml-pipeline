@@ -1,0 +1,2 @@
+# path_glob|code|line|reason
+# line: "*" means all lines

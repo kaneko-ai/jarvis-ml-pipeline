@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ops_extract metrics",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "ops",
+    "extract",
+    "run_duration_sec",
+    "sync_state",
+    "text_source",
+    "ocr_used"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ops": {
+      "type": "object",
+      "required": [
+        "run_duration_sec",
+        "resume_count",
+        "retry_count",
+        "sync_state",
+        "manifest_committed_local",
+        "manifest_committed_drive",
+        "required_outputs_present"
+      ],
+      "properties": {
+        "run_duration_sec": {
+          "type": "number"
+        },
+        "resume_count": {
+          "type": "integer"
+        },
+        "retry_count": {
+          "type": "integer"
+        },
+        "sync_state": {
+          "type": "string"
+        },
+        "manifest_committed_local": {
+          "type": "boolean"
+        },
+        "manifest_committed_drive": {
+          "type": "boolean"
+        },
+        "required_outputs_present": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "extract": {
+      "type": "object",
+      "required": [
+        "text_source",
+        "total_chars",
+        "chars_per_page_mean",
+        "empty_page_ratio",
+        "encoding_warnings_count",
+        "figure_count",
+        "table_count",
+        "ocr_used",
+        "needs_ocr_reason",
+        "raw_text_sha256",
+        "normalized_text_sha256"
+      ],
+      "properties": {
+        "text_source": {
+          "type": "string"
+        },
+        "total_chars": {
+          "type": "integer"
+        },
+        "chars_per_page_mean": {
+          "type": "number"
+        },
+        "empty_page_ratio": {
+          "type": "number"
+        },
+        "encoding_warnings_count": {
+          "type": "integer"
+        },
+        "figure_count": {
+          "type": "integer"
+        },
+        "table_count": {
+          "type": "integer"
+        },
+        "ocr_used": {
+          "type": "boolean"
+        },
+        "needs_ocr_reason": {
+          "type": "string"
+        },
+        "raw_text_sha256": {
+          "type": "string"
+        },
+        "normalized_text_sha256": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "run_duration_sec": {
+      "type": "number"
+    },
+    "sync_state": {
+      "type": "string"
+    },
+    "text_source": {
+      "type": "string"
+    },
+    "ocr_used": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": true
+}

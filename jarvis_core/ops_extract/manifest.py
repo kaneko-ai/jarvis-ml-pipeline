@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Any, Iterable
 
-from .contracts import OPS_EXTRACT_VERSION
+from .contracts import OPS_EXTRACT_SCHEMA_VERSION, OPS_EXTRACT_VERSION
 
 
 def _sha256(path: Path) -> str:
@@ -79,8 +79,12 @@ def create_manifest_payload(
     extract: dict[str, Any],
     ops: dict[str, Any],
     committed: bool = True,
+    committed_local: bool = True,
+    committed_drive: bool = False,
+    schema_version: str = OPS_EXTRACT_SCHEMA_VERSION,
 ) -> dict[str, Any]:
     return {
+        "schema_version": schema_version,
         "run_id": run_id,
         "project": project,
         "created_at": created_at,
@@ -91,6 +95,8 @@ def create_manifest_payload(
         "extract": extract,
         "ops": ops,
         "committed": committed,
+        "committed_local": committed_local,
+        "committed_drive": committed_drive,
         "version": OPS_EXTRACT_VERSION,
     }
 

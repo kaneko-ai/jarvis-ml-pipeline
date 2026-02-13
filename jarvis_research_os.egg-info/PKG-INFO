@@ -26,6 +26,7 @@ Requires-Dist: requests>=2.28.0
 Requires-Dist: pyyaml>=6.0
 Requires-Dist: pandas>=2.0.0
 Requires-Dist: pydantic>=2.0.0
+Requires-Dist: jsonschema>=4.23.0
 Requires-Dist: rank-bm25>=0.2.2
 Requires-Dist: defusedxml>=0.7.1
 Provides-Extra: ml
@@ -217,8 +218,9 @@ uv run pytest --cov=jarvis_core
 
 ## 📖 Documentation
 
-- [API Reference](docs/api/README.md)
-- [User Guide](docs/user_guide.md)
+- [Docs Hub](docs/README.md)
+- [API Reference](docs/API_REFERENCE.md)
+- [Quickstart](docs/QUICKSTART.md)
 - [Contributing](CONTRIBUTING.md)
 
 ## 🔧 Configuration

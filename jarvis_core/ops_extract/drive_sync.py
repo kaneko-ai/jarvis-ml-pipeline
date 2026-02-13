@@ -2,17 +2,19 @@
 
 from __future__ import annotations
 
-import base64
 import json
+import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from jarvis_core.integrations.additional import GoogleDriveConfig, GoogleDriveExporter
+from .contracts import OPS_EXTRACT_SCHEMA_VERSION, OPS_EXTRACT_SYNC_STATE_VERSION
+from .drive_client import DriveResumableClient, DriveUploadError
+from .security import redact_sensitive_text
 
-SYNC_STATE_VERSION = "ops_extract_sync_v1"
+SYNC_STATE_VERSION = OPS_EXTRACT_SYNC_STATE_VERSION
 
 
 def _sha256_bytes(raw: bytes) -> str:
@@ -32,6 +34,9 @@ def _sha256(path: Path) -> str:
 
 
 def _now() -> str:
+    fixed = os.getenv("JARVIS_OPS_EXTRACT_FIXED_TIME")
+    if fixed:
+        return fixed
     return datetime.now(timezone.utc).isoformat()
 
 
@@ -70,7 +75,10 @@ def _target_files_from_manifest(run_dir: Path) -> list[Path]:
         "metrics.json",
         "warnings.json",
         "failure_analysis.json",
+        "trace.jsonl",
+        "stage_cache.json",
         "ingestion/text.md",
+        "ingestion/pdf_diagnosis.json",
         "ingestion/text_source.json",
         "ocr/ocr_meta.json",
         "events.jsonl",
@@ -88,6 +96,9 @@ def _build_manifest_override(path: Path, committed: bool) -> bytes:
     if not isinstance(payload, dict):
         raise RuntimeError("manifest_payload_invalid")
     payload["committed"] = bool(committed)
+    payload["committed_local"] = bool(payload.get("committed_local", True))
+    payload["committed_drive"] = bool(committed)
+    payload["schema_version"] = str(payload.get("schema_version", OPS_EXTRACT_SCHEMA_VERSION))
     return json.dumps(payload, ensure_ascii=False, indent=2).encode("utf-8")
 
 
@@ -96,7 +107,11 @@ def _upload_raw_json_payload(
     rel_path: str,
     raw: bytes,
     dry_run: bool,
-    exporter: GoogleDriveExporter | None,
+    client: DriveResumableClient | None,
+    folder_id: str | None,
+    chunk_bytes: int,
+    resume_token: str | None,
+    session_uri: str | None = None,
 ) -> dict[str, Any]:
     expected_sha = _sha256_bytes(raw)
     meta = {
@@ -104,23 +119,28 @@ def _upload_raw_json_payload(
         "size": len(raw),
         "sha256": expected_sha,
         "uploaded_at": _now(),
+        "verified": True,
+        "attempts": 1,
     }
     if dry_run:
         meta["file_id"] = f"dryrun_{rel_path.replace('/', '_')}"
+        meta["session_uri"] = ""
         return meta
 
-    if exporter is None:
-        raise RuntimeError("Drive exporter unavailable")
+    if client is None:
+        raise RuntimeError("Drive client unavailable")
 
-    payload = {
-        "path": rel_path,
-        "encoding": "base64",
-        "content_base64": base64.b64encode(raw).decode("ascii"),
-    }
-    file_id = exporter.export_json(filename=rel_path.replace("/", "__"), data=payload)
-    if not file_id:
-        raise RuntimeError(f"Drive upload failed: {rel_path}")
-    meta["file_id"] = file_id
+    upload_meta = client.upload_bytes(
+        filename=rel_path.replace("/", "__"),
+        raw=raw,
+        folder_id=folder_id,
+        chunk_bytes=chunk_bytes,
+        resume_token=resume_token,
+        session_uri=session_uri,
+    )
+    meta["file_id"] = str(upload_meta.get("file_id", ""))
+    meta["session_uri"] = str(upload_meta.get("session_uri", ""))
+    meta["attempts"] = int(upload_meta.get("attempts", 1))
     return meta
 
 
@@ -129,7 +149,11 @@ def _upload_single_file(
     path: Path,
     run_dir: Path,
     dry_run: bool,
-    exporter: GoogleDriveExporter | None,
+    client: DriveResumableClient | None,
+    folder_id: str | None,
+    chunk_bytes: int,
+    resume_token: str | None,
+    session_uri: str | None = None,
 ) -> dict[str, Any]:
     rel = path.relative_to(run_dir).as_posix()
     raw = path.read_bytes()
@@ -137,7 +161,11 @@ def _upload_single_file(
         rel_path=rel,
         raw=raw,
         dry_run=dry_run,
-        exporter=exporter,
+        client=client,
+        folder_id=folder_id,
+        chunk_bytes=chunk_bytes,
+        resume_token=resume_token,
+        session_uri=session_uri,
     )
 
 
@@ -146,24 +174,39 @@ def _upload_with_retry(
     path: Path,
     run_dir: Path,
     dry_run: bool,
-    exporter: GoogleDriveExporter | None,
+    client: DriveResumableClient | None,
+    folder_id: str | None,
+    chunk_bytes: int,
+    resume_token: str | None,
+    session_uri: str | None,
     verify_sha256: bool,
     max_retries: int,
     retry_backoff_sec: float,
 ) -> dict[str, Any]:
     expected_sha = _sha256(path)
+    latest_session_uri = session_uri
     for attempt in range(max(0, max_retries) + 1):
         try:
             result = _upload_single_file(
                 path=path,
                 run_dir=run_dir,
                 dry_run=dry_run,
-                exporter=exporter,
+                client=client,
+                folder_id=folder_id,
+                chunk_bytes=chunk_bytes,
+                resume_token=resume_token,
+                session_uri=latest_session_uri,
             )
             if verify_sha256 and str(result.get("sha256")) != expected_sha:
                 raise RuntimeError(f"sha256_mismatch:{path.name}")
+            result["verified"] = True
+            result["attempts"] = max(int(result.get("attempts", 1)), attempt + 1)
             return result
-        except Exception:
+        except Exception as exc:
+            if isinstance(exc, DriveUploadError):
+                message = str(exc).lower()
+                if "missing_session_uri" in message:
+                    latest_session_uri = None
             if attempt >= max_retries:
                 raise
             time.sleep(float(retry_backoff_sec) * (2**attempt))
@@ -178,6 +221,15 @@ def _normalize_uploaded_entries(entries: list[dict[str, Any]] | None) -> dict[st
             continue
         normalized[path] = item
     return normalized
+
+
+def _normalize_uploaded_entry(item: dict[str, Any]) -> dict[str, Any]:
+    row = dict(item)
+    row["file_id"] = str(row.get("file_id", ""))
+    row["session_uri"] = str(row.get("session_uri", ""))
+    row["verified"] = bool(row.get("verified", False))
+    row["attempts"] = int(row.get("attempts", 1))
+    return row
 
 
 def _build_target_meta(files: list[Path], run_dir: Path) -> dict[str, dict[str, Any]]:
@@ -200,6 +252,10 @@ def sync_run_to_drive(
     upload_workers: int,
     access_token: str | None = None,
     folder_id: str | None = None,
+    api_base_url: str | None = None,
+    upload_base_url: str | None = None,
+    chunk_bytes: int = 8 * 1024 * 1024,
+    resume_token: str | None = None,
     retries: int = 0,
     max_retries: int = 3,
     retry_backoff_sec: float = 2.0,
@@ -209,6 +265,7 @@ def sync_run_to_drive(
 
     if not enabled:
         payload = {
+            "schema_version": OPS_EXTRACT_SCHEMA_VERSION,
             "version": SYNC_STATE_VERSION,
             "state": "not_started",
             "uploaded_files": [],
@@ -248,14 +305,15 @@ def sync_run_to_drive(
 
     pending = [rel for rel in target_meta if rel not in uploaded_map]
     if previous_failed:
-        narrowed = [rel for rel in pending if rel in previous_failed]
-        if narrowed:
-            pending = narrowed
+        failed_first = [rel for rel in pending if rel in previous_failed]
+        non_failed = [rel for rel in pending if rel not in previous_failed]
+        pending = failed_first + non_failed
 
     state = {
+        "schema_version": OPS_EXTRACT_SCHEMA_VERSION,
         "version": SYNC_STATE_VERSION,
         "state": "pending",
-        "uploaded_files": list(uploaded_map.values()),
+        "uploaded_files": [_normalize_uploaded_entry(v) for v in uploaded_map.values()],
         "pending_files": [{"path": rel} for rel in pending],
         "failed_files": [],
         "retries": int(previous.get("retries", retries)),
@@ -276,12 +334,14 @@ def sync_run_to_drive(
     _write_sync_state(sync_state_path, state)
 
     try:
-        exporter = None
+        client = None
         if not dry_run:
             if not access_token:
                 raise RuntimeError("Drive access token missing")
-            exporter = GoogleDriveExporter(
-                GoogleDriveConfig(access_token=access_token, folder_id=folder_id)
+            client = DriveResumableClient(
+                access_token=access_token,
+                api_base_url=api_base_url,
+                upload_base_url=upload_base_url,
             )
 
         manifest_rel = "manifest.json"
@@ -297,7 +357,12 @@ def sync_run_to_drive(
                     path=run_dir / rel,
                     run_dir=run_dir,
                     dry_run=dry_run,
-                    exporter=exporter,
+                    client=client,
+                    folder_id=folder_id,
+                    chunk_bytes=chunk_bytes,
+                    resume_token=resume_token,
+                    session_uri=str(previous_uploaded.get(rel, {}).get("session_uri", "")).strip()
+                    or None,
                     verify_sha256=verify_sha256,
                     max_retries=max_retries,
                     retry_backoff_sec=retry_backoff_sec,
@@ -314,7 +379,10 @@ def sync_run_to_drive(
                     uploaded_map[rel] = result
 
         state["state"] = "verifying"
-        state["uploaded_files"] = sorted(uploaded_map.values(), key=lambda x: x.get("path", ""))
+        state["uploaded_files"] = sorted(
+            [_normalize_uploaded_entry(v) for v in uploaded_map.values()],
+            key=lambda x: x.get("path", ""),
+        )
         state["pending_files"] = [{"path": rel} for rel in target_meta if rel not in uploaded_map]
         _write_sync_state(sync_state_path, state)
 
@@ -330,7 +398,14 @@ def sync_run_to_drive(
                 rel_path=manifest_rel,
                 raw=manifest_raw_draft,
                 dry_run=dry_run,
-                exporter=exporter,
+                client=client,
+                folder_id=folder_id,
+                chunk_bytes=chunk_bytes,
+                resume_token=resume_token,
+                session_uri=str(
+                    previous_uploaded.get(manifest_rel, {}).get("session_uri", "")
+                ).strip()
+                or None,
             )
             if verify_sha256 and manifest_meta_draft.get("sha256") != _sha256_bytes(
                 manifest_raw_draft
@@ -342,7 +417,11 @@ def sync_run_to_drive(
                 rel_path=manifest_rel,
                 raw=manifest_raw_final,
                 dry_run=dry_run,
-                exporter=exporter,
+                client=client,
+                folder_id=folder_id,
+                chunk_bytes=chunk_bytes,
+                resume_token=resume_token,
+                session_uri=str(manifest_meta_draft.get("session_uri", "")).strip() or None,
             )
             if verify_sha256 and manifest_meta_final.get("sha256") != _sha256_bytes(
                 manifest_raw_final
@@ -351,7 +430,10 @@ def sync_run_to_drive(
             uploaded_map[manifest_rel] = manifest_meta_final
 
         state["state"] = "committed"
-        state["uploaded_files"] = sorted(uploaded_map.values(), key=lambda x: x.get("path", ""))
+        state["uploaded_files"] = sorted(
+            [_normalize_uploaded_entry(v) for v in uploaded_map.values()],
+            key=lambda x: x.get("path", ""),
+        )
         state["pending_files"] = []
         state["failed_files"] = []
         state["manifest_committed_drive"] = True
@@ -361,7 +443,7 @@ def sync_run_to_drive(
         return state
     except Exception as exc:
         failed_rel = ""
-        message = str(exc)
+        message = redact_sensitive_text(str(exc))
         if ":" in message and not message.startswith("verification_failed"):
             failed_rel = message.split(":", 1)[0].strip()
 
@@ -369,7 +451,10 @@ def sync_run_to_drive(
         state["state"] = "failed"
         state["last_error"] = message
         state["retries"] = int(previous.get("retries", retries)) + 1
-        state["uploaded_files"] = sorted(uploaded_map.values(), key=lambda x: x.get("path", ""))
+        state["uploaded_files"] = sorted(
+            [_normalize_uploaded_entry(v) for v in uploaded_map.values()],
+            key=lambda x: x.get("path", ""),
+        )
         state["pending_files"] = [{"path": rel} for rel in remaining]
         state["failed_files"] = (
             [{"path": failed_rel, "error": message}]
