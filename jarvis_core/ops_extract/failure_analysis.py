@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import os
 from datetime import datetime, timezone
+
+from .contracts import OPS_EXTRACT_SCHEMA_VERSION
 
 
 def classify_failure_category(error_message: str | None) -> str:
@@ -30,10 +33,11 @@ def build_failure_analysis(
     status: str,
 ) -> dict:
     category = classify_failure_category(error_message)
-    now = datetime.now(timezone.utc).isoformat()
+    now = os.getenv("JARVIS_OPS_EXTRACT_FIXED_TIME") or datetime.now(timezone.utc).isoformat()
 
     if category == "none":
         return {
+            "schema_version": OPS_EXTRACT_SCHEMA_VERSION,
             "status": status,
             "category": "none",
             "root_cause_guess": "",
@@ -62,6 +66,7 @@ def build_failure_analysis(
     }
 
     return {
+        "schema_version": OPS_EXTRACT_SCHEMA_VERSION,
         "status": status,
         "category": category,
         "root_cause_guess": (error_message or "").strip(),

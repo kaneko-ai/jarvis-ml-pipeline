@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ops_extract manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "project",
+    "created_at",
+    "finished_at",
+    "status",
+    "inputs",
+    "outputs",
+    "extract",
+    "ops",
+    "committed",
+    "committed_local",
+    "committed_drive",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "project": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "finished_at": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "size",
+          "sha256",
+          "source",
+          "exists"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "size": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "sha256": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source": {
+            "type": "string"
+          },
+          "exists": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "size",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "sha256": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "extract": {
+      "type": "object",
+      "required": [
+        "method",
+        "needs_ocr",
+        "needs_ocr_reason",
+        "total_chars",
+        "chars_per_page_mean",
+        "empty_page_ratio"
+      ],
+      "properties": {
+        "method": {
+          "type": "string"
+        },
+        "needs_ocr": {
+          "type": "boolean"
+        },
+        "needs_ocr_reason": {
+          "type": "string"
+        },
+        "total_chars": {
+          "type": "integer"
+        },
+        "chars_per_page_mean": {
+          "type": "number"
+        },
+        "empty_page_ratio": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": true
+    },
+    "ops": {
+      "type": "object",
+      "required": [
+        "retries",
+        "resume_count",
+        "sync_state"
+      ],
+      "properties": {
+        "retries": {
+          "type": "integer"
+        },
+        "resume_count": {
+          "type": "integer"
+        },
+        "sync_state": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "committed": {
+      "type": "boolean"
+    },
+    "committed_local": {
+      "type": "boolean"
+    },
+    "committed_drive": {
+      "type": "boolean"
+    },
+    "version": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

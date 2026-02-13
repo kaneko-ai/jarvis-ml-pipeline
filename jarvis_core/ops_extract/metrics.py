@@ -5,6 +5,8 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from .contracts import OPS_EXTRACT_SCHEMA_VERSION
+
 
 def build_text_quality_warnings(text: str) -> list[dict[str, Any]]:
     """Detect basic text quality issues for extraction audit."""
@@ -74,6 +76,9 @@ def build_metrics(
     manifest_committed_local: bool = True,
     manifest_committed_drive: bool = False,
     required_outputs_present: bool = True,
+    raw_text_sha256: str = "",
+    normalized_text_sha256: str = "",
+    schema_version: str = OPS_EXTRACT_SCHEMA_VERSION,
 ) -> dict[str, Any]:
     """Build metrics.json payload."""
     ops = {
@@ -95,8 +100,11 @@ def build_metrics(
         "table_count": int(table_count),
         "ocr_used": bool(ocr_used),
         "needs_ocr_reason": str(needs_ocr_reason),
+        "raw_text_sha256": str(raw_text_sha256),
+        "normalized_text_sha256": str(normalized_text_sha256),
     }
     return {
+        "schema_version": schema_version,
         "ops": ops,
         "extract": extract,
         "run_duration_sec": ops["run_duration_sec"],
