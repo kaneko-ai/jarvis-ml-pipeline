@@ -272,7 +272,7 @@
     - 失敗ファイル優先の再開ロジックを「優先順のみ」に修正（他pendingも取りこぼさない）
   - `orchestrator.py` から新引数を接続（config経由）
   - `tests/ops_extract/test_drive_resumable_emulator.py` を追加（途中失敗→再開→`committed_drive=true`）
-  - `tests/ops_extract/test_drive_real_smoke.py` を追加（`@pytest.mark.network`、env必須で任意実行）
+  - `tests/ops_extract/test_drive_real_smoke.py` を追加（`@pytest.mark.network`、env設定時に任意実行）
 - 実行コマンド
   - `uv run pytest -q tests/ops_extract/test_drive_resumable_emulator.py`
   - `uv run pytest -q tests/ops_extract/test_sync_resume_commit.py tests/ops_extract/test_preflight_learning_sync_retention.py tests/ops_extract/test_drive_real_smoke.py`
@@ -307,7 +307,7 @@
 - 結果（成功/失敗、件数）
   - 成功: `5 passed`
 - 学習・再発防止
-  - run_metadataへconfigをそのまま書くと秘密情報が残るため、保存時の一律redactionが必須
+  - run_metadataへconfigをそのまま書くと秘密情報が残るため、保存時の一律redactionを適用
   - migrationは「既存ファイルの部分補完」にすると再実行しても壊れない（idempotent）
 - 次段の着手条件
   - 最終受け入れ用 `tests/e2e/test_ops_extract_proof_driven.py` を追加し、text/ocr/drive-resume の3経路を固定化して全体ゲートを実行
