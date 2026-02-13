@@ -26,11 +26,11 @@ def generate_release_bundle(
 
     # Copy docs
     docs_to_copy = [
-        "docs/RELEASE_NOTES_v4.3.md",
-        "docs/QUALITY_BAR.md",
-        "docs/INSTALL.md",
-        "docs/REPAIR_POLICY.md",
-        "docs/REPAIR_ACTIONS.md",
+        "docs/README.md",
+        "docs/QUICKSTART.md",
+        "docs/API_REFERENCE.md",
+        "docs/MASTER_SPEC.md",
+        "docs/HUMAN_TASKS_PLAYBOOK_2026-02-12.md",
     ]
 
     for doc in docs_to_copy:

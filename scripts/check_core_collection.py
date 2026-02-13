@@ -11,12 +11,12 @@ import re
 from pathlib import Path
 
 
-BASELINE_FILE = Path("docs/STATE_BASELINE.md")
+BASELINE_FILE = Path("docs/README.md")
 EXPECTED_KEY = "core_test_collected"
 
 
 def get_baseline_count() -> int:
-    """Get expected count from STATE_BASELINE.md."""
+    """Get expected count from consolidated docs hub."""
     if not BASELINE_FILE.exists():
         return -1
 
@@ -58,11 +58,11 @@ def main():
         sys.exit(0)  # Don't fail on first run
 
     if actual != baseline:
-        print(f"\n❌ FAILED: Expected {baseline} core tests, found {actual}")
+        print(f"\n[FAIL] Expected {baseline} core tests, found {actual}")
         print(f"   If this is intentional, update {BASELINE_FILE}")
         sys.exit(1)
 
-    print("\n✓ Core test count matches baseline")
+    print("\n[PASS] Core test count matches baseline")
     sys.exit(0)
 
 

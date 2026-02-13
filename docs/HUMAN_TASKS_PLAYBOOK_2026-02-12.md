@@ -1,152 +1,107 @@
-> Authority: ROADMAP (Level 5, Non-binding)
+﻿> Authority: ROADMAP (Level 5, Non-binding)
 
-# Human Tasks Playbook (2026-02-12)
+# Human Tasks Playbook (2026-02-13)
 
-## 前提
-- このドキュメントは「Codex が実行できない操作」を人手で完了するための手順書です。
-- 現在日時の実測基準: 2026-02-12 JST（= 2026-02-11 UTC）。
+## 目的
+- Ops+Extract の実装状況を 2026-02-13 時点で整理する。
+- docs 配下の md を 5 ファイル構成で維持する。
 
-## 現在地と目標の差分
+## 進捗サマリー
+- ランディングページ刷新、SEO、OGP/Favicon 整備は別ブランチで進行済み。
+- Ops+Extract は段階実装A/Bに続き、段階実装Cまで反映済み。
 
-| 項目 | 現在地（実測） | 目標 | 差分 |
-|---|---:|---:|---:|
-| jarvis_core カバレッジ | 75.99% | 85% | -9.01pt |
-| CI連続グリーン（workflow `CI`） | 10回（最新 run: `21946264034`） | 10回 | 0回 |
-| CI連続グリーン（workflow `CI Matrix`） | 100回以上（直近100件成功, 最新 run: `21946264057`） | 10回 | 達成 |
-| Docker 検証 | 完了（2026-02-12, 別チャット実施） | 完了 | 達成 |
-| PyPI公開 | 完了（2026-02-12, 別チャット実施） | 本番公開完了 | 達成 |
-| `.env`履歴パージ | 履歴除去済み（2026-02-12） | 履歴完全除去 | 達成 |
+## 段階実装A（反映済み）
+- needs_ocr 判定
+- YomiToku CLI 経路
+- `manifest.json` / `metrics.json` / `failure_analysis.json` 出力
+- `run_task` の `ops_extract` 経路分岐（LLM初期化スキップ）
 
----
+## 段階実装B（反映済み）
+- preflight チェック（入力存在、ディスク空き、Drive認証、lessons ルール反映）
+- failure learning（`knowledge/failures/lessons_learned.md` 追記 + ロック制御）
+- Drive 同期雛形（`sync_state.json`）
+- retention（`_trash_candidates` への移動と期限削除）
 
-## 1. SEC-001 `.env` 履歴パージ（最優先）
+## 段階実装C（今回反映）
 
-### 状態
-- ✅ 完了（2026-02-12）
-- 実施内容:
-  - `.env` 履歴削除
-  - LFS欠損参照 `tests/fixtures/sample.pdf` も履歴から削除
-  - `main` / tags force-push 反映
-  - `origin/main` で `.env` と `tests/fixtures/sample.pdf` の履歴が空であることを確認
+### C1: Drive同期の commit 方式
+- `manifest.json` を Drive 同期の最終ステップとして扱う構成へ更新。
+- 同期時に draft (`committed=false`) と final (`committed=true`) を分けて処理。
+- `metrics.ops.manifest_committed_drive` と `manifest.ops.sync_state` を同期結果で更新。
 
-### Codexが実行できない理由（実施時）
-- `main` への force push は本番運用影響があり、最終承認が必要だった。
+### C2: retry / resume 強化
+- `sync_state.json` を拡張。
+  - `version`, `state`, `uploaded_files`, `pending_files`, `failed_files`, `retries`, `resume_count`, `last_error`, `manifest_committed_drive`, `last_attempt_at`, `committed_at`
+- 既存 `sync_state.json` を読み込んで再開し、`path + size + sha256` 一致ファイルは再送対象から除外。
+- `failed_files` がある場合は失敗対象を優先して再送。
+- 指数バックオフ付き再試行（`retry_backoff_sec * 2^n`）を反映。
 
-### あなたの作業（PowerShell）
-1. **新規クリーンクローンを作る**（既存作業ツリーを壊さないため）
-```powershell
-cd $HOME\Documents
-git clone https://github.com/kaneko-ai/jarvis-ml-pipeline.git jarvis-ml-pipeline-secfix
-cd jarvis-ml-pipeline-secfix
-```
-2. **履歴から `.env` を除去**
-```powershell
-# 未導入なら: pip install git-filter-repo
-git filter-repo --path .env --invert-paths --force
-```
-3. **残存確認**
-```powershell
-git log --all --full-history -- .env
-# 何も出なければOK
-```
-4. **remote再設定（filter-repo後に消えるため）**
-```powershell
-git remote add origin https://github.com/kaneko-ai/jarvis-ml-pipeline.git
-```
-5. **force push（main + tags）**
-```powershell
-git push origin main --force
-git push origin --tags --force
-```
-6. **秘密情報ローテーション**
-- 実キーを一度でも `.env` に置いた場合は、全キー再発行。
+### C3: parse / ocr / upload 並列化
+- parse を `parse_workers` で並列化。
+- OCR を `ocr_workers` で並列化。
+- upload は `upload_workers` を維持して Drive 側で並列処理。
+- 入力順保持のため `doc_index` で最終整列。
+- ワーカースレッド内で `RobustPDFExtractor` / `TextNormalizer` を都度生成。
 
----
+### C4: lessons / preflight ルール粒度調整
+- lessons の `block_rule` を `hard:<rule>` / `warn:<rule>` 形式で解釈可能に拡張。
+- 既存形式（prefixなし）は `hard` として扱う。
+- `preflight.rule_mode=warn` で hard 失敗を warning 側へ降格。
+- OCR要件判定後に `check_yomitoku_available` を再評価する二段チェックを追加。
+- preflight 詳細（checks/errors/warnings）を `run_metadata.json.preflight` に保存。
 
-## 2. TD-020 Docker検証
+### C5: retention 調整
+- `max_delete_per_run` を追加。
+- `dry_run` 時は移動/削除を行わず、差分のみ返す。
+- `pinned=true` run を保持対象として扱う。
 
-### 状態
-- ✅ 完了（2026-02-12、別チャットで実施済み）
-- 実施内容: Docker build / コンテナ内テストまで完了
+## 設定キー（run_config.extra.ops_extract）
+- 既存キー
+  - `enabled`, `parse_workers`, `ocr_workers`, `upload_workers`
+  - `thresholds.min_total_chars`, `thresholds.min_chars_per_page`, `thresholds.empty_page_ratio_threshold`
+  - `yomitoku.mode`, `yomitoku.figure`
+  - `sync.enabled`, `sync.dry_run`
+  - `drive.access_token`, `drive.folder_id`
+  - `lessons_path`, `stop_on_preflight_failure`, `min_disk_free_gb`
+- 段階実装Cで追加
+  - `sync.max_retries`, `sync.retry_backoff_sec`, `sync.verify_sha256`
+  - `preflight.rule_mode` (`strict` or `warn`)
+  - `retention.failed_days`, `retention.success_days`, `retention.trash_days`, `retention.max_delete_per_run`, `retention.dry_run`
 
-### 参考（再実施が必要な場合）
-1. Docker Desktop をインストール
-2. 動作確認
-```powershell
-docker --version
-docker run hello-world
-```
-3. リポジトリでビルド
-```powershell
-cd C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline
-docker build -t jarvis-test .
-```
-4. コンテナ内テスト
-```powershell
-docker run --rm jarvis-test python -m pytest tests/ --ignore=tests/e2e --ignore=tests/integration -q -x
-```
+## 成果物（ops_extract）
 
----
+### 既存契約
+- 既存 10 ファイル契約は維持。
+- `warnings.jsonl` は継続利用。
 
-## 3. TD-022 PyPI公開
+### 追加成果物
+- `manifest.json`
+- `run_metadata.json`
+- `metrics.json`
+- `warnings.json`
+- `failure_analysis.json`
+- `sync_state.json`
+- `ingestion/text.md`
+- `ingestion/text_source.json`
+- `ocr/ocr_meta.json`（OCR 経路時）
 
-### 状態
-- ✅ 完了（2026-02-12、別チャットで実施済み）
-- 実施内容: Secrets / Environments 設定、および `Publish to PyPI` 実行まで完了
+## テスト結果（2026-02-13）
+- `uv run pytest -q tests/ops_extract tests/test_run_task_ops_extract_mode.py tests/sync/test_queue.py tests/sync/test_auto_sync.py tests/test_validate_bundle.py`
+  - 47 passed
+- `uv run pytest -q`
+  - 6426 passed, 468 skipped, 1 skipped(collection)
 
-### Codex側で完了済み
-- `uv run python -m build` 成功
-- `uv run --with twine twine check dist/*.whl dist/*.tar.gz` 成功
+## 静的チェック・ビルド（2026-02-13）
+- `uv run ruff check jarvis_core tests` pass
+- `uv run black --check jarvis_core tests` pass
+- `uv run mypy --explicit-package-bases --follow-imports=skip jarvis_core/evidence/ jarvis_core/contradiction/ jarvis_core/citation/ jarvis_core/sources/ --ignore-missing-imports` pass
+- `python tools/spec_lint.py` pass
+- `uv build` pass
 
-### 参考（再実施が必要な場合）
-1. PyPIでAPIトークン発行
-2. GitHub Secrets登録
-  - `PYPI_API_TOKEN`
-  - `TEST_PYPI_API_TOKEN`（任意だが推奨）
-3. GitHub Environments作成
-  - `pypi`
-  - `test-pypi`
-4. `Publish to PyPI` workflow 実行
+## 次段候補
+- Drive 側 file_id 管理を強化して差分同期を細分化する。
+- preflight と lessons の運用ルールを実運用データで調整する。
+- retention の運用値を run 数に合わせて再調整する。
 
----
-
-## 4. TD-010 CI 10回連続グリーン
-
-### 現在値（実測: 2026-02-12 JST）
-- ✅ `CI` workflow: 10回連続成功（最新 run: `21946264034`）
-- ✅ `CI Matrix` workflow: 100回以上連続成功（直近100件、最新 run: `21946264057`）
-
-### あなたの作業
-1. ✅ GitHub Actions で `main` の `CI` 実行履歴を確認
-2. ✅ 赤が出たらログ原因修正
-3. ✅ 10回連続成功まで観測（達成）
-
----
-
-## 5. 補足（品質指標）
-
-- `scripts/run_regression.py` は現状プレースホルダ実装（固定値ベース）です。
-- 2026-02-12 実行値:
-  - `success_rate`: 1.0
-  - `claim_precision`: 0.7
-  - `citation_precision`: 0.8
-- `check_quality_bar.py` は `entity_hit_rate` 未供給のため現状Fail。
-
-### Windows 文字コード注意
-- 一部スクリプトは記号文字出力で `cp932` エラーになる場合があります。
-- その場合は UTF-8 モードで実行してください。
-```powershell
-$env:PYTHONUTF8='1'
-uv run python scripts/check_quality_bar.py --metrics reports/eval/latest/metrics.json
-uv run python scripts/scan_secrets.py
-```
-
----
-
-## 6. Update (2026-02-12)
-- TD-020 Docker validation: COMPLETED (done in another chat)
-- TD-022 PyPI publish setup: COMPLETED (done in another chat)
-- Verification executed in this session:
-  - `uv run python -m pytest -q` -> `6392 passed, 465 skipped`
-  - `uv run python -m build` -> success (`sdist` and `wheel` created)
-- Remaining human tasks in this playbook: none
+## 補足
+- ファイル名 `docs/HUMAN_TASKS_PLAYBOOK_2026-02-12.md` は既存スクリプト参照のため継続。

@@ -278,6 +278,30 @@
                 <h2 class="section-title">See JARVIS in Action</h2>
                 <p class="section-description">Try our AI-powered research tools right in your browser</p>
             </div>
+
+            <div class="api-config-panel" data-aos="fade-up" data-aos-delay="50">
+                <div class="api-config-row">
+                    <label for="api-base-url" class="api-config-label">API Base URL</label>
+                    <input
+                        id="api-base-url"
+                        class="api-config-input"
+                        type="url"
+                        placeholder="https://your-jarvis-api.example.com"
+                    />
+                    <button type="button" class="btn btn-secondary api-config-btn" id="api-save-btn">
+                        Save
+                    </button>
+                    <button type="button" class="btn btn-primary api-config-btn" id="api-test-btn">
+                        Test
+                    </button>
+                </div>
+                <p class="api-config-help">
+                    Empty value uses same-origin API. GitHub Pages??????????URL??????????
+                </p>
+                <div class="api-connection-status api-connection-status--mock" id="api-status">
+                    Mock mode (API???)
+                </div>
+            </div>
             
             <div class="demo-tabs" data-aos="fade-up" data-aos-delay="100">
                 <button class="tab-btn active" data-tab="evidence">
@@ -1126,6 +1150,7 @@ ws.onmessage = (event) => {
     </button>
 
     <!-- Scripts -->
+    <script src="config.js"></script>
     <script src="script.js"></script>
     <!-- Analytics Integration -->
     <script src="analytics.js"></script>

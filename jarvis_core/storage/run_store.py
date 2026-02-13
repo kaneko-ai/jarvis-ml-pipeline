@@ -97,6 +97,35 @@ class RunStore:
     def report_file(self) -> Path:
         return self.run_dir / "report.md"
 
+    # Optional ops_extract artifacts
+    @property
+    def manifest_file(self) -> Path:
+        return self.run_dir / "manifest.json"
+
+    @property
+    def run_metadata_file(self) -> Path:
+        return self.run_dir / "run_metadata.json"
+
+    @property
+    def metrics_file(self) -> Path:
+        return self.run_dir / "metrics.json"
+
+    @property
+    def warnings_json_file(self) -> Path:
+        return self.run_dir / "warnings.json"
+
+    @property
+    def failure_analysis_file(self) -> Path:
+        return self.run_dir / "failure_analysis.json"
+
+    @property
+    def ingestion_text_file(self) -> Path:
+        return self.run_dir / "ingestion" / "text.md"
+
+    @property
+    def ingestion_text_source_file(self) -> Path:
+        return self.run_dir / "ingestion" / "text_source.json"
+
     # Optional files (Phase 2+)
     @property
     def cost_report_file(self) -> Path:
@@ -233,6 +262,42 @@ class RunStore:
         """Load cost report (Phase 2 optional)."""
         if self.cost_report_file.exists():
             with open(self.cost_report_file, encoding="utf-8") as f:
+                return json.load(f)
+        return None
+
+    def load_manifest(self) -> dict | None:
+        if self.manifest_file.exists():
+            with open(self.manifest_file, encoding="utf-8") as f:
+                return json.load(f)
+        return None
+
+    def load_run_metadata(self) -> dict | None:
+        if self.run_metadata_file.exists():
+            with open(self.run_metadata_file, encoding="utf-8") as f:
+                return json.load(f)
+        return None
+
+    def load_metrics(self) -> dict | None:
+        if self.metrics_file.exists():
+            with open(self.metrics_file, encoding="utf-8") as f:
+                return json.load(f)
+        return None
+
+    def load_warnings_json(self) -> dict | None:
+        if self.warnings_json_file.exists():
+            with open(self.warnings_json_file, encoding="utf-8") as f:
+                return json.load(f)
+        return None
+
+    def load_failure_analysis(self) -> dict | None:
+        if self.failure_analysis_file.exists():
+            with open(self.failure_analysis_file, encoding="utf-8") as f:
+                return json.load(f)
+        return None
+
+    def load_ingestion_text_source(self) -> dict | None:
+        if self.ingestion_text_source_file.exists():
+            with open(self.ingestion_text_source_file, encoding="utf-8") as f:
                 return json.load(f)
         return None
 

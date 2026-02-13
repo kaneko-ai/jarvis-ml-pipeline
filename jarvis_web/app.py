@@ -33,9 +33,11 @@ except ImportError:
     FastAPI = None
     HTTPException = None
     BaseModel = object
+
     # Keep schema class definitions import-safe when FastAPI/Pydantic are unavailable.
     def Field(default: Any = None, *args: Any, **kwargs: Any) -> Any:  # type: ignore[override]
         return default
+
 
 if FASTAPI_AVAILABLE:
     from jarvis_web.routes.submission import router as submission_router
@@ -55,6 +57,7 @@ API_MAP_PATH = Path("jarvis_web/contracts/api_map_v1.json")
 # Create app if FastAPI available
 if FASTAPI_AVAILABLE:
     from jarvis_web.auth import verify_api_token, verify_token
+    from jarvis_web.routes.demo import router as demo_router
     from jarvis_web.api.mcp import router as mcp_router
     from jarvis_web.api.inbox import router as inbox_router
     from jarvis_web.api.orchestrator import router as orchestrator_router
@@ -96,6 +99,7 @@ if FASTAPI_AVAILABLE:
     )
 
     app.include_router(research_router)
+    app.include_router(demo_router)
 
     # Feature Flagged Router: Finance
     if os.environ.get("JARVIS_ENABLE_FINANCE") == "1":
@@ -481,7 +485,9 @@ if FASTAPI_AVAILABLE:
         run_dirs = _iter_run_dirs()
         run_dirs.sort(key=lambda p: p.stat().st_mtime, reverse=True)
         runs = [_build_run_response(run_dir, include_files=False) for run_dir in run_dirs[:limit]]
-        return _api_success({"runs": runs, "total": len(run_dirs)}, legacy={"runs": runs, "total": len(run_dirs)})
+        return _api_success(
+            {"runs": runs, "total": len(run_dirs)}, legacy={"runs": runs, "total": len(run_dirs)}
+        )
 
     @app.get("/api/runs/{run_id}")
     async def get_run(run_id: str, _: bool = Depends(verify_token)):

@@ -2,33 +2,46 @@
 
 # JARVIS Research OS Documentation
 
-> AI-Powered Research Operating System for Systematic Literature Reviews
+このリポジトリのドキュメントは、運用しやすさを優先して以下の 5 ファイルに集約しています。
 
-## 📚 Quick Navigation
+## Canonical Docs (5 files)
 
-| Document | Description |
-|----------|-------------|
-| [INSTALL.md](INSTALL.md) | Installation guide |
-| [FEATURES.md](FEATURES.md) | Feature list (50+ features) |
-| [API_REFERENCE.md](API_REFERENCE.md) | API documentation |
-| [ARCHITECTURE.md](JARVIS_ARCHITECTURE.md) | System architecture |
-| [ROADMAP.md](ROADMAP.md) | Development roadmap |
-| [DoD.md](DoD.md) | Definition of Done |
-| [CI_CD.md](CI_CD.md) | CI/CD guide |
-| [DECISIONS.md](DECISIONS.md) | Decision log |
-| [CONTRIBUTING.md](../CONTRIBUTING.md) | Contribution guide |
+1. `docs/README.md` (このファイル): 全体ガイド/運用メモ/評価仕様の要点
+2. `docs/QUICKSTART.md`: セットアップと最短実行手順
+3. `docs/API_REFERENCE.md`: CLI/SDK/Web API の参照
+4. `docs/MASTER_SPEC.md`: 実装拘束の最上位仕様（Binding）
+5. `docs/HUMAN_TASKS_PLAYBOOK_2026-02-12.md`: 人手タスクと実行履歴
 
-## 📊 Current Status
+## Landing Page & Demo API
 
-| Item | Status |
-|------|--------|
-| **CI/CD** | ✅ All checks passing |
-| **Version** | 1.0.0 |
-| **Python** | 3.10, 3.11, 3.12 |
-| **Phase 1** | ✅ Complete |
-| **Phase 2** | 🔄 In Progress |
-| **Phase 3** | ❌ Planned |
+- ランディングページ (`docs/index.html`) は静的ホスト前提
+- Demo セクションは `API Base URL` を設定するとバックエンドAPI連携で動作
+- API未接続時はブラウザ内 fallback ロジックで継続動作
+- バックエンド想定エンドポイント:
+  - `GET /api/demo/health`
+  - `POST /api/demo/evidence/grade`
+  - `POST /api/demo/citation/analyze`
+  - `POST /api/demo/contradiction/detect`
 
-## 🗂️ Archive
+## Evaluation Metrics Spec (condensed)
 
-Historical planning documents are available in [archive/](archive/).
+最低限の評価軸（契約チェック用の簡易版）:
+
+- `evidence_coverage`
+- `locator_rate`
+- `provenance_rate`
+- `citation_precision`
+- `contract_compliance`
+- `gate_pass_rate`
+
+## State Baseline (condensed)
+
+```yaml
+core_test_collected: 6859
+baseline_date: 2026-02-13
+```
+
+## Notes
+
+- 詳細は上記 Canonical Docs の各ファイルを参照
+- 追加ドキュメントを作る場合は、原則としてこの5ファイルへ統合して拡張する

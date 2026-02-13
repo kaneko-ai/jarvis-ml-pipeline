@@ -172,4 +172,4 @@ jarvis workflows list
 ## 次のステップ
 
 - [API リファレンス](API_REFERENCE.md) - 詳細なAPI仕様
-- [ロードマップ](JARVIS_LOCALFIRST_ROADMAP.md) - 開発計画
+- [ドキュメントハブ](README.md) - 運用方針と最新の実装ノート
