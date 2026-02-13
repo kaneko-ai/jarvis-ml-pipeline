@@ -25,5 +25,13 @@ repos:
         pass_filenames: false
         files: ^jarvis_core/
 
+  - repo: local
+    hooks:
+      - id: no-stub-gate
+        name: no-stub-gate
+        entry: python scripts/no_stub_gate.py --paths jarvis_core/ops_extract
+        language: system
+        pass_filenames: false
+
 # Install: pre-commit install
 # Run: pre-commit run --all-files

@@ -45,7 +45,8 @@ def test_sync_resume_uploads_failed_only(tmp_path: Path, monkeypatch):
     result_path = run_dir / "result.json"
     metrics_path = run_dir / "metrics.json"
     previous_state = {
-        "version": "ops_extract_sync_v1",
+        "schema_version": "ops_extract_contract_v2",
+        "version": "ops_extract_sync_v2",
         "state": "failed",
         "uploaded_files": [
             {
@@ -54,6 +55,8 @@ def test_sync_resume_uploads_failed_only(tmp_path: Path, monkeypatch):
                 "sha256": __import__("hashlib").sha256(result_path.read_bytes()).hexdigest(),
                 "uploaded_at": "2026-02-13T00:00:00+00:00",
                 "file_id": "dummy_result",
+                "verified": True,
+                "attempts": 1,
             },
             {
                 "path": "metrics.json",
@@ -61,6 +64,8 @@ def test_sync_resume_uploads_failed_only(tmp_path: Path, monkeypatch):
                 "sha256": __import__("hashlib").sha256(metrics_path.read_bytes()).hexdigest(),
                 "uploaded_at": "2026-02-13T00:00:00+00:00",
                 "file_id": "dummy_metrics",
+                "verified": True,
+                "attempts": 1,
             },
         ],
         "pending_files": [{"path": "scores.json"}],

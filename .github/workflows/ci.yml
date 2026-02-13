@@ -18,10 +18,14 @@ jobs:
         run: pip install uv
       - name: Install dependencies
         run: uv sync --dev
+      - name: Verify lockfile consistency
+        run: uv lock --check
       - name: Run ruff
         run: uv run ruff check jarvis_core tests
       - name: Run black check
         run: uv run black --check jarvis_core tests
+      - name: Run no-stub gate (ops_extract)
+        run: uv run python scripts/no_stub_gate.py --paths jarvis_core/ops_extract
       - name: Run mypy (core modules)
         run: |
           uv run mypy \
@@ -136,12 +140,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Install uv
+        run: pip install uv
+      - name: Verify lockfile consistency
+        run: uv lock --check
+      - name: Install dependencies
+        run: uv sync --dev
       - name: Install security tools
-        run: pip install bandit safety pip-audit
+        run: pip install bandit pip-audit
       - name: Run bandit
         run: bandit -r jarvis_core -ll
       - name: Run pip-audit
-        run: pip-audit || true
+        run: pip-audit
 
   build:
     runs-on: ubuntu-latest
