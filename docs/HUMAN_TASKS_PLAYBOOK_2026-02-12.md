@@ -157,4 +157,4 @@ uv run python scripts/scan_secrets.py
 ## 2026-02-13 Update (Landing Page API)
 - ランディングページのデモをバックエンドAPI呼び出し対応へ拡張
 - API到達不可時は既存ブラウザロジックへ自動フォールバック
-- 実装詳細: `docs/LANDING_PAGE_API_INTEGRATION_2026-02-13.md`
+- 実装詳細は `docs/README.md` の `Landing Page & Demo API` セクションに統合

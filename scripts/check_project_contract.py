@@ -6,6 +6,7 @@ Per RP-177, ensures project meets evaluation requirements.
 from __future__ import annotations
 
 import sys
+import re
 from pathlib import Path
 from dataclasses import dataclass
 from typing import List
@@ -21,14 +22,22 @@ class ContractCheck:
 
 
 def check_eval_schema() -> ContractCheck:
-    """Check that eval schema exists."""
-    path = Path("docs/evals/metrics_spec.md")
+    """Check that condensed evaluation spec exists in docs hub."""
+    path = Path("docs/README.md")
     exists = path.exists()
+    has_spec = False
+    if exists:
+        content = path.read_text(encoding="utf-8")
+        has_spec = "Evaluation Metrics Spec" in content
 
     return ContractCheck(
         name="Eval Schema",
-        passed=exists,
-        message="metrics_spec.md found" if exists else "Missing docs/evals/metrics_spec.md",
+        passed=exists and has_spec,
+        message=(
+            "Evaluation Metrics Spec section found"
+            if exists and has_spec
+            else "Missing Evaluation Metrics Spec section in docs/README.md"
+        ),
     )
 
 
@@ -65,14 +74,22 @@ def check_core_tests() -> ContractCheck:
 
 
 def check_state_baseline() -> ContractCheck:
-    """Check state baseline exists."""
-    path = Path("docs/STATE_BASELINE.md")
+    """Check condensed state baseline exists in docs hub."""
+    path = Path("docs/README.md")
     exists = path.exists()
+    has_baseline = False
+    if exists:
+        content = path.read_text(encoding="utf-8")
+        has_baseline = re.search(r"core_test_collected:\s*\d+", content) is not None
 
     return ContractCheck(
         name="State Baseline",
-        passed=exists,
-        message="STATE_BASELINE.md found" if exists else "Missing docs/STATE_BASELINE.md",
+        passed=exists and has_baseline,
+        message=(
+            "State Baseline values found"
+            if exists and has_baseline
+            else "Missing core_test_collected baseline in docs/README.md"
+        ),
     )
 
 
@@ -91,7 +108,7 @@ def format_report(checks: List[ContractCheck]) -> str:
     lines = ["Project Contract Check", "=" * 40, ""]
 
     for check in checks:
-        status = "✓" if check.passed else "✗"
+        status = "[PASS]" if check.passed else "[FAIL]"
         lines.append(f"{status} {check.name}: {check.message}")
 
     passed = sum(1 for c in checks if c.passed)
@@ -108,10 +125,10 @@ def main():
     print(format_report(checks))
 
     if all(c.passed for c in checks):
-        print("\n✓ Project meets contract requirements")
+        print("\n[PASS] Project meets contract requirements")
         sys.exit(0)
     else:
-        print("\n✗ Project contract violations found")
+        print("\n[FAIL] Project contract violations found")
         sys.exit(1)
 
 

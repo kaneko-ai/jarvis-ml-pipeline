@@ -150,8 +150,9 @@ uv run pytest --cov=jarvis_core
 
 ## 📖 Documentation
 
-- [API Reference](docs/api/README.md)
-- [User Guide](docs/user_guide.md)
+- [Docs Hub](docs/README.md)
+- [API Reference](docs/API_REFERENCE.md)
+- [Quickstart](docs/QUICKSTART.md)
 - [Contributing](CONTRIBUTING.md)
 
 ## 🔧 Configuration
