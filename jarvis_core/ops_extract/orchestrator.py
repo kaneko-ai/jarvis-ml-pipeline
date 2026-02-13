@@ -1,4 +1,4 @@
-﻿"""Orchestrator for ops_extract mode."""
+"""Orchestrator for ops_extract mode."""
 
 from __future__ import annotations
 

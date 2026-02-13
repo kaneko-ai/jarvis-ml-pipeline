@@ -1,4 +1,4 @@
-﻿"""Rule-based failure analyzer for ops_extract mode."""
+"""Rule-based failure analyzer for ops_extract mode."""
 
 from __future__ import annotations
 

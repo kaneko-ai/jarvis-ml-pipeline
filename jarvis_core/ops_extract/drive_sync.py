@@ -1,4 +1,4 @@
-﻿"""Post-run Drive sync (Tier0/Tier1, resumable state)."""
+"""Post-run Drive sync (Tier0/Tier1, resumable state)."""
 
 from __future__ import annotations
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import re
 import time
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterator
@@ -30,14 +30,10 @@ def _file_lock(lock_path: Path, timeout_sec: float = 10.0) -> Iterator[None]:
     try:
         yield
     finally:
-        try:
+        with suppress(OSError):
             os.close(fd)
-        except Exception:
-            pass
-        try:
+        with suppress(OSError):
             lock_path.unlink(missing_ok=True)
-        except Exception:
-            pass
 
 
 def resolve_lessons_path(path: Path | None = None) -> Path:
