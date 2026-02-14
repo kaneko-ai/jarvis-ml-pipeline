@@ -1,0 +1,88 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Claim Unit Schema",
+    "description": "検証可能な最小の主張単位 (Phase 2 Intelligence)",
+    "type": "object",
+    "required": [
+        "claim_id",
+        "claim_text",
+        "claim_type",
+        "source_paper_id",
+        "entity",
+        "confidence_self"
+    ],
+    "properties": {
+        "claim_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the claim"
+        },
+        "claim_text": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Single atomic assertion (1 sentence)"
+        },
+        "claim_type": {
+            "type": "string",
+            "enum": [
+                "Mechanism",
+                "Efficacy",
+                "Biomarker",
+                "Safety",
+                "Method",
+                "Background",
+                "Unknown"
+            ],
+            "description": "Type of scientific claim"
+        },
+        "entity": {
+            "type": "string",
+            "description": "Primary subject entity (e.g., CD73, Adenosine)"
+        },
+        "scope": {
+            "type": "string",
+            "enum": [
+                "in_vitro",
+                "in_vivo",
+                "patient",
+                "meta",
+                "unknown"
+            ],
+            "default": "unknown"
+        },
+        "polarity": {
+            "type": "string",
+            "enum": [
+                "supports",
+                "refutes",
+                "neutral"
+            ],
+            "default": "neutral",
+            "description": "Relation to the topic/hypothesis"
+        },
+        "source_paper_id": {
+            "type": "string",
+            "description": "PMID or internal paper ID"
+        },
+        "source_locator": {
+            "type": "object",
+            "properties": {
+                "section": {
+                    "type": "string"
+                },
+                "paragraph_index": {
+                    "type": "integer"
+                },
+                "sentence_index": {
+                    "type": "integer"
+                }
+            }
+        },
+        "confidence_self": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "Model's confidence in extraction accuracy"
+        }
+    }
+}

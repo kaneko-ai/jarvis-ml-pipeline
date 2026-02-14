@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS Research Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a1a;
+            --bg2: #12122a;
+            --card: rgba(26, 26, 62, 0.8);
+            --glass: rgba(255, 255, 255, 0.05);
+            --txt: #fff;
+            --txt2: #a0a0c0;
+            --pink: #f472b6;
+            --blue: #60a5fa;
+            --green: #4ade80;
+            --yellow: #fbbf24;
+            --purple: #a78bfa;
+            --cyan: #22d3ee;
+            --red: #f87171;
+            --border: rgba(255, 255, 255, 0.1);
+            --blur: blur(20px)
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--txt);
+            min-height: 100vh;
+            line-height: 1.6
+        }
+
+        .bg {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 20% 20%, rgba(167, 139, 250, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(244, 114, 182, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(96, 165, 250, 0.1) 0%, transparent 60%);
+            z-index: -1
+        }
+
+        .header {
+            background: var(--glass);
+            backdrop-filter: var(--blur);
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.4rem;
+            font-weight: 700
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem
+        }
+
+        .nav {
+            display: flex;
+            gap: 0.5rem
+        }
+
+        .nav-btn {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            color: var(--txt);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+            text-decoration: none
+        }
+
+        .nav-btn:hover,
+        .nav-btn.active {
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            border-color: transparent
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1.5rem
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem
+        }
+
+        .c4 {
+            grid-column: span 4
+        }
+
+        .c6 {
+            grid-column: span 6
+        }
+
+        .c12 {
+            grid-column: span 12
+        }
+
+        @media(max-width:1200px) {
+            .c4 {
+                grid-column: span 6
+            }
+
+            .c6 {
+                grid-column: span 12
+            }
+        }
+
+        @media(max-width:768px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+
+            [class*="c"] {
+                grid-column: span 1 !important
+            }
+        }
+
+        .card {
+            background: var(--card);
+            backdrop-filter: var(--blur);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            transition: all 0.4s
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--purple);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 40px rgba(167, 139, 250, 0.15)
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            border: none;
+            color: white;
+            padding: 0.875rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s
+        }
+
+        .btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 25px rgba(244, 114, 182, 0.5)
+        }
+
+        .input {
+            width: 100%;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            color: var(--txt);
+            padding: 0.875rem;
+            border-radius: 12px;
+            font-size: 1rem
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--purple)
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--txt2);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem
+        }
+
+        .footer a {
+            color: var(--blue);
+            text-decoration: none
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg"></div>
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">🔬</div>JARVIS Research Tools
+        </div>
+        <nav class="nav">
+            <a href="index.html" class="nav-btn">📊 Dashboard</a>
+            <a href="research.html" class="nav-btn active">🔬 Research</a>
+            <a href="api.html" class="nav-btn">📡 API</a>
+        </nav>
+    </header>
+    <div class="container">
+        <div class="grid">
+            <!-- Word Cloud -->
+            <div class="card c6">
+                <div class="card-header">
+                    <h3 class="card-title">☁️ Word Cloud</h3>
+                </div>
+                <div id="word-cloud"
+                    style="min-height:180px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:0.5rem;padding:1rem">
+                    <span style="font-size:2em;color:#f472b6;cursor:pointer" onclick="alert('COVID-19')">COVID-19</span>
+                    <span style="font-size:1.5em;color:#60a5fa;cursor:pointer">AI</span>
+                    <span style="font-size:1.8em;color:#4ade80;cursor:pointer">cancer</span>
+                    <span style="font-size:1.3em;color:#a78bfa;cursor:pointer">treatment</span>
+                    <span style="font-size:1.6em;color:#22d3ee;cursor:pointer">machine learning</span>
+                    <span style="font-size:1.4em;color:#fbbf24;cursor:pointer">genomics</span>
+                    <span style="font-size:1.2em;color:#f472b6;cursor:pointer">healthcare</span>
+                    <span style="font-size:1.5em;color:#60a5fa;cursor:pointer">drug discovery</span>
+                    <span style="font-size:1.1em;color:#4ade80;cursor:pointer">immunotherapy</span>
+                    <span style="font-size:1.3em;color:#a78bfa;cursor:pointer">diabetes</span>
+                </div>
+            </div>
+            <!-- Activity Heatmap -->
+            <div class="card c6">
+                <div class="card-header">
+                    <h3 class="card-title">🔥 Activity Heatmap (5 weeks)</h3>
+                </div>
+                <div id="heatmap" style="padding:1rem;display:flex;justify-content:center">
+                    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px" id="heatmap-grid"></div>
+                </div>
+            </div>
+            <!-- Radar Chart -->
+            <div class="card c4">
+                <div class="card-header">
+                    <h3 class="card-title">🎯 Paper Score Analysis</h3>
+                </div>
+                <div style="height:250px"><canvas id="radar-chart"></canvas></div>
+            </div>
+            <!-- Pie Chart -->
+            <div class="card c4">
+                <div class="card-header">
+                    <h3 class="card-title">📊 Category Distribution</h3>
+                </div>
+                <div style="height:250px"><canvas id="pie-chart"></canvas></div>
+            </div>
+            <!-- Gauge Chart -->
+            <div class="card c4">
+                <div class="card-header">
+                    <h3 class="card-title">📈 Daily Progress</h3>
+                </div>
+                <div style="display:flex;justify-content:center;padding:1rem">
+                    <div style="position:relative;width:180px;height:100px">
+                        <svg viewBox="0 0 100 55" style="width:100%">
+                            <path d="M10,50 A40,40 0 0,1 90,50" fill="none" stroke="rgba(255,255,255,0.1)"
+                                stroke-width="10" stroke-linecap="round" />
+                            <path d="M10,50 A40,40 0 0,1 90,50" fill="none" stroke="#4ade80" stroke-width="10"
+                                stroke-dasharray="75 126" stroke-linecap="round" />
+                        </svg>
+                        <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);text-align:center">
+                            <div style="font-size:2.5rem;font-weight:800;color:#4ade80">60%</div>
+                            <div style="font-size:0.8rem;color:#a0a0c0">of daily goal</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Citation Generator -->
+            <div class="card c6">
+                <div class="card-header">
+                    <h3 class="card-title">📚 Citation Generator</h3>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:1rem">
+                    <select id="cite-format" class="input">
+                        <option value="apa">APA</option>
+                        <option value="mla">MLA</option>
+                        <option value="bibtex">BibTeX</option>
+                        <option value="chicago">Chicago</option>
+                    </select>
+                    <div id="cite-output"
+                        style="background:var(--glass);padding:1rem;border-radius:10px;font-family:monospace;font-size:0.85rem;min-height:80px">
+                        Smith, J., Johnson, A., & Williams, B. (2024). Novel approaches to COVID-19 treatment using
+                        machine learning. <i>Nature Medicine</i>, 30(4), 123-145. https://doi.org/10.1000/example
+                    </div>
+                    <button class="btn"
+                        onclick="navigator.clipboard.writeText(document.getElementById('cite-output').innerText);alert('Copied!')"
+                        style="background:linear-gradient(135deg,var(--green),var(--cyan))">📋 Copy Citation</button>
+                </div>
+            </div>
+            <!-- AI Summary -->
+            <div class="card c6">
+                <div class="card-header">
+                    <h3 class="card-title">🤖 AI Paper Summary</h3>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:1rem">
+                    <input type="text" id="pmid-input" class="input" placeholder="Enter PMID (e.g., 39123456)">
+                    <button class="btn" onclick="generateSummary()">🔬 Generate Summary</button>
+                    <div id="summary-output"
+                        style="background:var(--glass);padding:1rem;border-radius:10px;min-height:100px;color:var(--txt2)">
+                        Enter a PubMed ID and click Generate to get an AI-powered summary of the paper...
+                    </div>
+                </div>
+            </div>
+            <!-- Keywords -->
+            <div class="card c4">
+                <div class="card-header">
+                    <h3 class="card-title">🏷️ Trending Keywords</h3>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:0.5rem">
+                    <span
+                        style="padding:0.5rem 1rem;background:rgba(167,139,250,0.2);border-radius:20px;font-size:0.85rem">🔥
+                        COVID-19</span>
+                    <span
+                        style="padding:0.5rem 1rem;background:rgba(96,165,250,0.2);border-radius:20px;font-size:0.85rem">📈
+                        AI/ML</span>
+                    <span
+                        style="padding:0.5rem 1rem;background:rgba(74,222,128,0.2);border-radius:20px;font-size:0.85rem">🧬
+                        CRISPR</span>
+                    <span
+                        style="padding:0.5rem 1rem;background:rgba(244,114,182,0.2);border-radius:20px;font-size:0.85rem">💊
+                        Drug Discovery</span>
+                    <span
+                        style="padding:0.5rem 1rem;background:rgba(251,191,36,0.2);border-radius:20px;font-size:0.85rem">🧠
+                        Neuroscience</span>
+                </div>
+            </div>
+            <!-- Author Network -->
+            <div class="card c4">
+                <div class="card-header">
+                    <h3 class="card-title">👥 Top Authors</h3>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:0.5rem">
+                    <div
+                        style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem;background:var(--glass);border-radius:10px">
+                        <div
+                            style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--purple));display:flex;align-items:center;justify-content:center">
+                            JS</div>
+                        <div><strong>J. Smith</strong><br><span style="font-size:0.75rem;color:var(--txt2)">142
+                                papers</span></div>
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem;background:var(--glass);border-radius:10px">
+                        <div
+                            style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--cyan));display:flex;align-items:center;justify-content:center">
+                            AJ</div>
+                        <div><strong>A. Johnson</strong><br><span style="font-size:0.75rem;color:var(--txt2)">98
+                                papers</span></div>
+                    </div>
+                </div>
+            </div>
+            <!-- External Links -->
+            <div class="card c4">
+                <div class="card-header">
+                    <h3 class="card-title">🔗 Quick Links</h3>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:0.5rem">
+                    <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" class="nav-btn"
+                        style="text-align:center">📚 PubMed</a>
+                    <a href="https://arxiv.org/" target="_blank" class="nav-btn" style="text-align:center">📄 arXiv</a>
+                    <a href="https://scholar.google.com/" target="_blank" class="nav-btn" style="text-align:center">🎓
+                        Google Scholar</a>
+                    <a href="https://www.semanticscholar.org/" target="_blank" class="nav-btn"
+                        style="text-align:center">🔍 Semantic Scholar</a>
+                </div>
+            </div>
+            <!-- Tools -->
+            <div class="card c12">
+                <div class="card-header">
+                    <h3 class="card-title">🛠️ Research Tools</h3>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:1rem">
+                    <button class="btn" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)">🎤 Voice
+                        Search</button>
+                    <button class="btn" style="background:linear-gradient(135deg,#14b8a6,#06b6d4)">⛶ Fullscreen</button>
+                    <button class="btn" style="background:linear-gradient(135deg,#ec4899,#f472b6)">📤 Share</button>
+                    <button class="btn" style="background:linear-gradient(135deg,#4ade80,#22c55e)">📱 Slack</button>
+                    <button class="btn" onclick="window.print()" style="background:#4b5563">🖨️ Print</button>
+                    <button class="btn" onclick="exportPDF()" style="background:#4b5563">📥 Export PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <p>JARVIS Research Tools v4.4.0 | <a href="index.html">Dashboard</a> | <a href="api.html">API</a></p>
+        <p>© 2024 kaneko-ai | Built with 💜</p>
+    </footer>
+    <script>
+        // Heatmap
+        const heatmapGrid = document.getElementById('heatmap-grid');
+        for (let i = 0; i < 35; i++) {
+            const intensity = Math.random();
+            const color = intensity < 0.3 ? 'rgba(255,255,255,0.05)' : intensity < 0.6 ? 'rgba(74,222,128,0.3)' : intensity < 0.8 ? 'rgba(74,222,128,0.6)' : 'rgba(74,222,128,0.9)';
+            heatmapGrid.innerHTML += `<div style="width:20px;height:20px;background:${color};border-radius:4px" title="Day ${i + 1}"></div>`;
+        }
+
+        // Radar Chart
+        const radarCtx = document.getElementById('radar-chart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Relevance', 'Citations', 'Recency', 'Impact Factor', 'Novelty'],
+                datasets: [{
+                    label: 'Paper Score',
+                    data: [85, 72, 90, 65, 78],
+                    backgroundColor: 'rgba(167,139,250,0.2)',
+                    borderColor: '#a78bfa',
+                    pointBackgroundColor: '#a78bfa',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { stepSize: 20, color: '#a0a0c0', backdropColor: 'transparent' },
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        pointLabels: { color: '#fff', font: { size: 11 } }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Pie Chart
+        const pieCtx = document.getElementById('pie-chart').getContext('2d');
+        new Chart(pieCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['AI/ML', 'Healthcare', 'Genomics', 'Neuroscience', 'Other'],
+                datasets: [{
+                    data: [35, 25, 20, 12, 8],
+                    backgroundColor: ['#a78bfa', '#4ade80', '#60a5fa', '#f472b6', '#fbbf24'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { color: '#fff', padding: 12, font: { size: 11 } }
+                    }
+                }
+            }
+        });
+
+        // AI Summary
+        async function generateSummary() {
+            const output = document.getElementById('summary-output');
+            const pmid = document.getElementById('pmid-input').value || '39123456';
+            output.innerHTML = '<div style="display:flex;align-items:center;gap:0.5rem"><div style="width:20px;height:20px;border:2px solid var(--purple);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite"></div>Generating AI summary for PMID: ' + pmid + '...</div>';
+            await new Promise(r => setTimeout(r, 2000));
+            output.innerHTML = `<strong>📄 Summary for PMID ${pmid}:</strong><br><br>This study presents novel findings demonstrating significant improvements over existing methods in the field. The authors propose an innovative approach that addresses key limitations in current research methodologies.<br><br><strong>Key Findings:</strong><ul style="margin-top:0.5rem;padding-left:1.5rem"><li>Improved accuracy by 23% compared to baseline</li><li>Reduced computational costs by 40%</li><li>Novel application to clinical settings</li></ul>`;
+        }
+
+        function exportPDF() {
+            alert('PDF export functionality - Coming soon!');
+        }
+    </script>
+    <style>
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+    </style>
+</body>
+
+</html>

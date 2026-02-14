@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS API Reference</title>
+    <style>
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-card: #16213e;
+            --text-primary: #eee;
+            --accent-blue: #60a5fa;
+            --accent-green: #4ade80;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1 {
+            color: #f472b6;
+        }
+
+        h2 {
+            color: var(--accent-blue);
+            margin-top: 2rem;
+        }
+
+        .endpoint {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--accent-green);
+        }
+
+        .method {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .method.get {
+            background: var(--accent-blue);
+        }
+
+        .method.post {
+            background: var(--accent-green);
+            color: #000;
+        }
+
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        a {
+            color: var(--accent-blue);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>📡 JARVIS API Reference</h1>
+    <p>REST API for JARVIS Research OS. All endpoints return JSON.</p>
+    <p><a href="index.html">← Back to Dashboard</a></p>
+
+    <h2>Base URL</h2>
+    <pre>https://kaneko-ai.github.io/jarvis-ml-pipeline/api/</pre>
+
+    <h2>Endpoints</h2>
+
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <code>/metrics.json</code>
+        <p>Get system metrics and statistics.</p>
+        <h4>Response</h4>
+        <pre>{
+  "generated_at": "2024-12-23T00:00:00Z",
+  "version": "4.4.0",
+  "stats": {
+    "total_prs_implemented": 384,
+    "test_files": 50,
+    "tests_passed": 222,
+    "packages": 15
+  }
+}</pre>
+    </div>
+
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <code>/health.json</code>
+        <p>Check system health status.</p>
+        <h4>Response</h4>
+        <pre>{
+  "status": "healthy",
+  "uptime": "99.9%",
+  "last_check": "2024-12-23T00:00:00Z",
+  "services": {
+    "api": "up",
+    "database": "up",
+    "cache": "up"
+  }
+}</pre>
+    </div>
+
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <code>/searches.json</code>
+        <p>Get recent search history (from localStorage).</p>
+        <h4>Response</h4>
+        <pre>{
+  "searches": [
+    {
+      "query": "COVID-19 treatment",
+      "date": "2024-12-23T12:00:00Z",
+      "results_count": 42
+    }
+  ]
+}</pre>
+    </div>
+
+    <div class="endpoint">
+        <span class="method post">POST</span>
+        <code>/search</code>
+        <p>Search for papers (requires GitHub Actions dispatch).</p>
+        <h4>Request</h4>
+        <pre>{
+  "query": "machine learning healthcare",
+  "max_results": 50,
+  "date_from": "2023-01-01"
+}</pre>
+        <h4>Response</h4>
+        <pre>{
+  "job_id": "12345",
+  "status": "queued",
+  "estimated_time": "2 minutes"
+}</pre>
+    </div>
+
+    <h2>Authentication</h2>
+    <p>API Key authentication is required for POST endpoints:</p>
+    <pre>Authorization: Bearer YOUR_API_KEY</pre>
+    <p>Generate API keys in <a href="https://github.com/settings/tokens">GitHub Settings</a>.</p>
+
+    <h2>Rate Limits</h2>
+    <table style="width:100%; border-collapse: collapse;">
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <th style="text-align:left; padding:0.5rem;">Endpoint</th>
+            <th style="text-align:left; padding:0.5rem;">Limit</th>
+        </tr>
+        <tr>
+            <td style="padding:0.5rem;">GET /metrics.json</td>
+            <td style="padding:0.5rem;">1000/hour</td>
+        </tr>
+        <tr>
+            <td style="padding:0.5rem;">POST /search</td>
+            <td style="padding:0.5rem;">100/hour</td>
+        </tr>
+    </table>
+
+    <h2>OpenAPI Spec</h2>
+    <p>Download: <a href="openapi.yaml">openapi.yaml</a></p>
+</body>
+
+</html>

@@ -1,0 +1,10 @@
+{"task_id": "immuno_s1_01", "category": "paper_survey", "query": "CD73 immunotherapy cancer", "expected_entities": ["CD73", "NT5E", "adenosine"], "min_citations": 2, "notes": "S1: CD73/腫瘍微小環境"}
+{"task_id": "immuno_s1_02", "category": "paper_survey", "query": "CD73 inhibitor clinical trial", "expected_entities": ["CD73", "AMP", "adenosine"], "min_citations": 2, "notes": "S1: CD73/阻害剤"}
+{"task_id": "immuno_s2_01", "category": "paper_survey", "query": "PD-1 checkpoint immunotherapy", "expected_entities": ["PDCD1", "CD274", "PD-L1"], "min_citations": 2, "notes": "S2: PD-1/免疫チェックポイント"}
+{"task_id": "immuno_s2_02", "category": "paper_survey", "query": "CTLA-4 ipilimumab melanoma", "expected_entities": ["CTLA4", "ipilimumab"], "min_citations": 2, "notes": "S2: CTLA-4/メラノーマ"}
+{"task_id": "immuno_s3_01", "category": "paper_survey", "query": "CAR-T cell therapy solid tumor", "expected_entities": ["CAR-T", "CD19"], "min_citations": 2, "notes": "S3: CAR-T/固形腫瘍"}
+{"task_id": "immuno_s3_02", "category": "paper_survey", "query": "tumor infiltrating lymphocytes TIL", "expected_entities": ["TIL", "lymphocyte"], "min_citations": 2, "notes": "S3: TIL療法"}
+{"task_id": "immuno_s4_01", "category": "paper_survey", "query": "cytokine storm immunotherapy side effect", "expected_entities": ["cytokine", "IL-6"], "min_citations": 2, "notes": "S4: 副作用/サイトカインストーム"}
+{"task_id": "immuno_s4_02", "category": "paper_survey", "query": "immune related adverse events biomarker", "expected_entities": ["irAE", "biomarker"], "min_citations": 2, "notes": "S4: irAE/バイオマーカー"}
+{"task_id": "immuno_s5_01", "category": "paper_survey", "query": "tumor microenvironment hypoxia immune", "expected_entities": ["TME", "hypoxia"], "min_citations": 2, "notes": "S5: TME/低酸素"}
+{"task_id": "immuno_s5_02", "category": "paper_survey", "query": "myeloid derived suppressor cells MDSC", "expected_entities": ["MDSC", "myeloid"], "min_citations": 2, "notes": "S5: MDSC"}

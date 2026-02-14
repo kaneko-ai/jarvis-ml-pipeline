@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS Kanban Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a1a;
+            --card: rgba(26, 26, 62, 0.8);
+            --glass: rgba(255, 255, 255, 0.05);
+            --txt: #fff;
+            --txt2: #a0a0c0;
+            --pink: #f472b6;
+            --blue: #60a5fa;
+            --green: #4ade80;
+            --yellow: #fbbf24;
+            --purple: #a78bfa;
+            --border: rgba(255, 255, 255, 0.1);
+            --blur: blur(20px)
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--txt);
+            min-height: 100vh;
+            padding: 1.5rem
+        }
+
+        .bg {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 20% 20%, rgba(167, 139, 250, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(244, 114, 182, 0.15) 0%, transparent 50%);
+            z-index: -1
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 2rem
+        }
+
+        .kanban {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding: 1rem 0
+        }
+
+        .column {
+            flex: 1;
+            min-width: 300px;
+            background: var(--card);
+            backdrop-filter: var(--blur);
+            border-radius: 16px;
+            padding: 1rem;
+            border: 1px solid var(--border)
+        }
+
+        .column-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .column-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem
+        }
+
+        .column-count {
+            background: var(--glass);
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.75rem
+        }
+
+        .cards {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            min-height: 200px
+        }
+
+        .paper-card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: grab;
+            transition: all 0.2s
+        }
+
+        .paper-card:hover {
+            border-color: var(--purple);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(167, 139, 250, 0.2)
+        }
+
+        .paper-card.dragging {
+            opacity: 0.5;
+            cursor: grabbing
+        }
+
+        .paper-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.4
+        }
+
+        .paper-meta {
+            font-size: 0.75rem;
+            color: var(--txt2);
+            margin-bottom: 0.5rem
+        }
+
+        .paper-tags {
+            display: flex;
+            gap: 0.3rem;
+            flex-wrap: wrap
+        }
+
+        .tag {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            background: var(--glass);
+            border: 1px solid var(--border)
+        }
+
+        .tag.ai {
+            background: rgba(167, 139, 250, 0.2);
+            border-color: var(--purple)
+        }
+
+        .tag.health {
+            background: rgba(74, 222, 128, 0.2);
+            border-color: var(--green)
+        }
+
+        .tag.urgent {
+            background: rgba(248, 113, 113, 0.2);
+            border-color: #f87171
+        }
+
+        .add-btn {
+            width: 100%;
+            background: var(--glass);
+            border: 1px dashed var(--border);
+            color: var(--txt2);
+            padding: 0.75rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.75rem
+        }
+
+        .add-btn:hover {
+            background: var(--purple);
+            color: white;
+            border-style: solid
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--txt2);
+            font-size: 0.85rem
+        }
+
+        .footer a {
+            color: var(--blue);
+            text-decoration: none
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg"></div>
+    <h1>📋 JARVIS Kanban Board</h1>
+    <div class="kanban">
+        <div class="column" id="col-todo" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div class="column-header">
+                <span class="column-title">📥 To Read</span>
+                <span class="column-count" id="count-todo">3</span>
+            </div>
+            <div class="cards" id="cards-todo">
+                <div class="paper-card" draggable="true" ondragstart="drag(event)" id="paper-1">
+                    <div class="paper-title">Novel approaches to COVID-19 treatment using machine learning</div>
+                    <div class="paper-meta">Smith J, et al. • Nature Med • 2024</div>
+                    <div class="paper-tags"><span class="tag ai">AI</span><span class="tag health">Health</span></div>
+                </div>
+                <div class="paper-card" draggable="true" ondragstart="drag(event)" id="paper-2">
+                    <div class="paper-title">Deep learning for drug discovery: Recent advances</div>
+                    <div class="paper-meta">Johnson A, et al. • Science • 2024</div>
+                    <div class="paper-tags"><span class="tag ai">AI</span><span class="tag urgent">Urgent</span></div>
+                </div>
+                <div class="paper-card" draggable="true" ondragstart="drag(event)" id="paper-3">
+                    <div class="paper-title">CRISPR-Cas9 applications in cancer therapy</div>
+                    <div class="paper-meta">Williams B, et al. • Cell • 2024</div>
+                    <div class="paper-tags"><span class="tag health">Health</span></div>
+                </div>
+            </div>
+            <button class="add-btn" onclick="addPaper('todo')">+ Add Paper</button>
+        </div>
+        <div class="column" id="col-reading" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div class="column-header">
+                <span class="column-title">📖 Reading</span>
+                <span class="column-count" id="count-reading">2</span>
+            </div>
+            <div class="cards" id="cards-reading">
+                <div class="paper-card" draggable="true" ondragstart="drag(event)" id="paper-4">
+                    <div class="paper-title">Transformer models for protein structure prediction</div>
+                    <div class="paper-meta">Brown C, et al. • Nature • 2024</div>
+                    <div class="paper-tags"><span class="tag ai">AI</span></div>
+                </div>
+                <div class="paper-card" draggable="true" ondragstart="drag(event)" id="paper-5">
+                    <div class="paper-title">Immunotherapy breakthroughs in solid tumors</div>
+                    <div class="paper-meta">Davis D, et al. • NEJM • 2024</div>
+                    <div class="paper-tags"><span class="tag health">Health</span></div>
+                </div>
+            </div>
+            <button class="add-btn" onclick="addPaper('reading')">+ Add Paper</button>
+        </div>
+        <div class="column" id="col-notes" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div class="column-header">
+                <span class="column-title">📝 Taking Notes</span>
+                <span class="column-count" id="count-notes">1</span>
+            </div>
+            <div class="cards" id="cards-notes">
+                <div class="paper-card" draggable="true" ondragstart="drag(event)" id="paper-6">
+                    <div class="paper-title">AI-assisted diagnosis in radiology: A meta-analysis</div>
+                    <div class="paper-meta">Miller E, et al. • Radiology • 2024</div>
+                    <div class="paper-tags"><span class="tag ai">AI</span><span class="tag health">Health</span></div>
+                </div>
+            </div>
+            <button class="add-btn" onclick="addPaper('notes')">+ Add Paper</button>
+        </div>
+        <div class="column" id="col-done" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div class="column-header">
+                <span class="column-title">✅ Completed</span>
+                <span class="column-count" id="count-done">2</span>
+            </div>
+            <div class="cards" id="cards-done">
+                <div class="paper-card" draggable="true" ondragstart="drag(event)" id="paper-7">
+                    <div class="paper-title">Machine learning in clinical trials</div>
+                    <div class="paper-meta">Wilson F, et al. • JAMA • 2024</div>
+                    <div class="paper-tags"><span class="tag ai">AI</span></div>
+                </div>
+                <div class="paper-card" draggable="true" ondragstart="drag(event)" id="paper-8">
+                    <div class="paper-title">Genomics and personalized medicine</div>
+                    <div class="paper-meta">Moore G, et al. • Genome Med • 2024</div>
+                    <div class="paper-tags"><span class="tag health">Health</span></div>
+                </div>
+            </div>
+            <button class="add-btn" onclick="addPaper('done')">+ Add Paper</button>
+        </div>
+    </div>
+    <div class="footer">
+        <p><a href="index.html">← Back to Dashboard</a> | <a href="research.html">Research Tools</a></p>
+    </div>
+    <script>
+        let draggedElement = null;
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            draggedElement = ev.target;
+            ev.target.classList.add('dragging');
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            if (draggedElement) {
+                const column = ev.target.closest('.column');
+                if (column) {
+                    const cardsContainer = column.querySelector('.cards');
+                    cardsContainer.appendChild(draggedElement);
+                    draggedElement.classList.remove('dragging');
+                    updateCounts();
+                    saveBoardState();
+                }
+            }
+        }
+
+        function updateCounts() {
+            ['todo', 'reading', 'notes', 'done'].forEach(col => {
+                const count = document.getElementById('cards-' + col).children.length;
+                document.getElementById('count-' + col).textContent = count;
+            });
+        }
+
+        function addPaper(column) {
+            const title = prompt('Enter paper title:');
+            if (!title) return;
+
+            const id = 'paper-' + Date.now();
+            const card = document.createElement('div');
+            card.className = 'paper-card';
+            card.draggable = true;
+            card.ondragstart = drag;
+            card.id = id;
+            card.innerHTML = `
+        <div class="paper-title">${title}</div>
+        <div class="paper-meta">Added by you • ${new Date().toLocaleDateString()}</div>
+        <div class="paper-tags"><span class="tag">New</span></div>
+    `;
+
+            document.getElementById('cards-' + column).appendChild(card);
+            updateCounts();
+            saveBoardState();
+        }
+
+        function saveBoardState() {
+            const state = {};
+            ['todo', 'reading', 'notes', 'done'].forEach(col => {
+                state[col] = Array.from(document.getElementById('cards-' + col).children)
+                    .map(card => card.id);
+            });
+            localStorage.setItem('kanban-state', JSON.stringify(state));
+        }
+
+        function loadBoardState() {
+            const saved = localStorage.getItem('kanban-state');
+            if (saved) {
+                try {
+                    const state = JSON.parse(saved);
+                    // Restore order
+                    ['todo', 'reading', 'notes', 'done'].forEach(col => {
+                        const container = document.getElementById('cards-' + col);
+                        const ids = state[col] || [];
+                        ids.forEach(id => {
+                            const card = document.getElementById(id);
+                            if (card) container.appendChild(card);
+                        });
+                    });
+                    updateCounts();
+                } catch (e) {
+                    console.error('Failed to load board state:', e);
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadBoardState);
+    </script>
+</body>
+
+</html>

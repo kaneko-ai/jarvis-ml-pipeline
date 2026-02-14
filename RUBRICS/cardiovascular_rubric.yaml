@@ -1,0 +1,81 @@
+# Cardiovascular Disease Rubric v1
+
+rubric:
+  name: cardiovascular_v1
+  version: 1
+  description: 心血管疾患領域の論文評価軸
+  
+  dimensions:
+    # 1. エビデンスレベル（臨床階層）
+    evidence_level:
+      levels:
+        - expert_opinion    # 専門家意見
+        - case_series       # 症例シリーズ
+        - cohort            # コホート研究
+        - case_control      # 症例対照研究
+        - rct               # ランダム化比較試験
+        - meta_analysis     # メタアナリシス
+      weight: 0.30
+      description: 臨床エビデンスの階層
+    
+    # 2. エンドポイントの重要性
+    endpoint_type:
+      levels:
+        - surrogate         # 代替エンドポイント（血圧、LDL等）
+        - composite         # 複合エンドポイント
+        - hard_endpoint     # ハードエンドポイント（死亡、MI等）
+      weight: 0.25
+      description: 臨床的意義の強さ
+    
+    # 3. 患者対象の代表性
+    population_relevance:
+      levels:
+        - selected          # 選択された集団（若年、健常等）
+        - typical           # 典型的な患者集団
+        - real_world        # Real-world（高齢、併存疾患あり）
+      weight: 0.20
+      description: 実臨床への適用可能性
+    
+    # 4. 介入の実現可能性
+    intervention_feasibility:
+      levels:
+        - experimental      # 実験的（未承認、高コスト等）
+        - limited           # 限定的（専門施設のみ等）
+        - widely_available  # 広く利用可能
+      weight: 0.15
+      description: 実臨床での実現性
+    
+    # 5. フォローアップ期間
+    follow_up_duration:
+      levels:
+        - short             # <1年
+        - medium            # 1-3年
+        - long              # >3年
+      weight: 0.10
+      description: 長期予後データの有無
+
+  # スコアリング規約
+  scoring:
+    aggregation: weighted_average
+    
+  # 使用例
+  examples:
+    - paper_id: "PMID:example_cv1"
+      title: "SGLT2 inhibitors and cardiovascular outcomes"
+      scores:
+        evidence_level: rct              # 1.0
+        endpoint_type: hard_endpoint     # 1.0
+        population_relevance: typical    # 0.5
+        intervention_feasibility: widely_available # 1.0
+        follow_up_duration: medium       # 0.5
+      total_score: 0.85
+      
+    - paper_id: "PMID:example_cv_low"
+      title: "Blood pressure reduction in young healthy adults"
+      scores:
+        evidence_level: cohort           # 0.4
+        endpoint_type: surrogate         # 0.0
+        population_relevance: selected   # 0.0
+        intervention_feasibility: experimental # 0.0
+        follow_up_duration: short        # 0.0
+      total_score: 0.12

@@ -1,0 +1,176 @@
+openapi: 3.0.3
+info:
+  title: JARVIS Research OS API
+  description: REST API for JARVIS paper search and research management
+  version: 4.4.0
+  contact:
+    name: kaneko-ai
+    url: https://github.com/kaneko-ai/jarvis-ml-pipeline
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://kaneko-ai.github.io/jarvis-ml-pipeline/api
+    description: Production (GitHub Pages)
+
+paths:
+  /metrics.json:
+    get:
+      summary: Get system metrics
+      operationId: getMetrics
+      tags: [Metrics]
+      responses:
+        '200':
+          description: System metrics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metrics'
+
+  /health.json:
+    get:
+      summary: Health check
+      operationId: getHealth
+      tags: [Health]
+      responses:
+        '200':
+          description: Health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+
+  /searches.json:
+    get:
+      summary: Get recent searches
+      operationId: getSearches
+      tags: [Search]
+      responses:
+        '200':
+          description: Search history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchHistory'
+
+  /search:
+    post:
+      summary: Submit a paper search
+      operationId: submitSearch
+      tags: [Search]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '202':
+          description: Search queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchJob'
+        '401':
+          description: Unauthorized
+        '429':
+          description: Rate limit exceeded
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Metrics:
+      type: object
+      properties:
+        generated_at:
+          type: string
+          format: date-time
+        version:
+          type: string
+        stats:
+          type: object
+          properties:
+            total_prs_implemented:
+              type: integer
+            test_files:
+              type: integer
+            tests_passed:
+              type: integer
+            packages:
+              type: integer
+
+    Health:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        uptime:
+          type: string
+        last_check:
+          type: string
+          format: date-time
+        services:
+          type: object
+          additionalProperties:
+            type: string
+
+    SearchHistory:
+      type: object
+      properties:
+        searches:
+          type: array
+          items:
+            type: object
+            properties:
+              query:
+                type: string
+              date:
+                type: string
+                format: date-time
+              results_count:
+                type: integer
+
+    SearchRequest:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+          description: Search query
+        max_results:
+          type: integer
+          default: 50
+        date_from:
+          type: string
+          format: date
+        date_to:
+          type: string
+          format: date
+
+    SearchJob:
+      type: object
+      properties:
+        job_id:
+          type: string
+        status:
+          type: string
+          enum: [queued, running, completed, failed]
+        estimated_time:
+          type: string
+
+tags:
+  - name: Metrics
+    description: System metrics and statistics
+  - name: Health
+    description: Health checks
+  - name: Search
+    description: Paper search operations

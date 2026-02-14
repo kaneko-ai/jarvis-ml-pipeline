@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://example.com/jarvis/API_REFERENCE/</loc>
+         <lastmod>2026-02-14</lastmod>
+    </url>
+    <url>
+         <loc>https://example.com/jarvis/DEVELOPMENT_PLAN/</loc>
+         <lastmod>2026-02-14</lastmod>
+    </url>
+    <url>
+         <loc>https://example.com/jarvis/HUMAN_TASKS_PLAYBOOK_2026-02-12/</loc>
+         <lastmod>2026-02-14</lastmod>
+    </url>
+    <url>
+         <loc>https://example.com/jarvis/MASTER_SPEC/</loc>
+         <lastmod>2026-02-14</lastmod>
+    </url>
+    <url>
+         <loc>https://example.com/jarvis/QUICKSTART/</loc>
+         <lastmod>2026-02-14</lastmod>
+    </url>
+    <url>
+         <loc>https://example.com/jarvis/PLANS/JAVIS_OPS_EXTRACT_PROOF_DRIVEN_PLAN_V2/</loc>
+         <lastmod>2026-02-14</lastmod>
+    </url>
+    <url>
+         <loc>https://example.com/jarvis/PLANS/QUALITY_HARDENING_FINAL_2026-02-14/</loc>
+         <lastmod>2026-02-14</lastmod>
+    </url>
+    <url>
+         <loc>https://example.com/jarvis/PLANS/VMASTER_DELTA2_IMPLEMENTATION_RESULT_2026-02-15/</loc>
+         <lastmod>2026-02-14</lastmod>
+    </url>
+</urlset>

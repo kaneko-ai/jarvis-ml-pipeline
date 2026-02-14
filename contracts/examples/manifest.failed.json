@@ -1,0 +1,25 @@
+{
+  "run_id": "run_20250215_002",
+  "created_at": "2025-02-15T13:45:10Z",
+  "mode": "local",
+  "query": "ketogenic diet migraine randomized trials",
+  "pipeline_version": "v1.4.2",
+  "status": "failed",
+  "artifacts": {
+    "summary_json": "file:///runs/run_20250215_002/summary.json",
+    "report_md": "file:///runs/run_20250215_002/report.md",
+    "stats_json": "file:///runs/run_20250215_002/stats.json",
+    "meta_json": "file:///runs/run_20250215_002/meta.json",
+    "logs_jsonl": "file:///runs/run_20250215_002/logs.jsonl"
+  },
+  "quality": {
+    "papers_found": 3,
+    "papers_processed": 0,
+    "citations_attached": false,
+    "gate_passed": false,
+    "gate_reason": "Insufficient papers processed"
+  },
+  "repro": {
+    "query_hash": "0a6bde6d4c1c9b20ac8c4c1f7b7b34d89432a9a8b6111d12b9a1f0d551f6a53a"
+  }
+}

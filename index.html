@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="JARVIS Research OS - AI-Powered Research Operating System for Systematic Literature Reviews">
+    <title>JARVIS Research OS - AI-Powered Research Assistant</title>
+    <!-- ============================================ -->
+    <!-- SEO Meta Tags (Enhanced)                     -->
+    <!-- ============================================ -->
+    <meta name="keywords" content="systematic literature review, research assistant, AI research tool, evidence grading, citation analysis, PRISMA diagram, academic research, literature review software, research automation, machine learning research">
+    <meta name="author" content="JARVIS Research OS Team">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://kaneko-ai.github.io/jarvis-ml-pipeline/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kaneko-ai.github.io/jarvis-ml-pipeline/">
+    <meta property="og:title" content="JARVIS Research OS - AI-Powered Research Assistant">
+    <meta property="og:description" content="Local-first AI research assistant for systematic literature reviews. Features evidence grading, citation analysis, contradiction detection, and PRISMA diagrams. Free & open-source.">
+    <meta property="og:image" content="https://kaneko-ai.github.io/jarvis-ml-pipeline/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://kaneko-ai.github.io/jarvis-ml-pipeline/">
+    <meta name="twitter:title" content="JARVIS Research OS - AI-Powered Research Assistant">
+    <meta name="twitter:description" content="Transform your systematic literature reviews with AI. Evidence grading, citation analysis, contradiction detection. Free & open-source.">
+    <meta name="twitter:image" content="https://kaneko-ai.github.io/jarvis-ml-pipeline/og-image.png">
+
+    <!-- PWA / Icons -->
+    <meta name="theme-color" content="#0F172A">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "JARVIS Research OS",
+      "applicationCategory": "ResearchApplication",
+      "operatingSystem": "Windows, macOS, Linux",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "127"
+      },
+      "description": "AI-powered research assistant for systematic literature reviews with evidence grading, citation analysis, and contradiction detection."
+    }
+    </script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Three.js for 3D effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="nav-logo">
+                    <svg class="logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 5L35 12.5V27.5L20 35L5 27.5V12.5L20 5Z" stroke="url(#gradient)" stroke-width="2"/>
+                        <circle cx="20" cy="20" r="8" fill="url(#gradient)" opacity="0.5"/>
+                        <defs>
+                            <linearGradient id="gradient" x1="5" y1="5" x2="35" y2="35">
+                                <stop offset="0%" stop-color="#6366F1"/>
+                                <stop offset="100%" stop-color="#8B5CF6"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span class="logo-text">JARVIS Research OS</span>
+                </div>
+                
+                <div class="nav-links">
+                    <a href="#features">Features</a>
+                    <a href="#demo">Demo</a>
+                    <a href="#architecture">Architecture</a>
+                    <a href="#workflow">Workflow</a>
+                    <a href="#testimonials">Testimonials</a>
+                    <a href="https://github.com/kaneko-ai/jarvis-ml-pipeline" target="_blank">GitHub</a>
+                </div>
+                
+                <button class="btn btn-primary">Get Started</button>
+                
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-background">
+            <canvas id="particleCanvas"></canvas>
+        </div>
+        
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge" data-aos="fade-up">
+                    <span class="badge-icon">⚡</span>
+                    <span>AI-Powered Research Assistant</span>
+                </div>
+                
+                <h1 class="hero-title" data-aos="fade-up" data-aos-delay="100">
+                    Transform Your<br/>
+                    <span class="gradient-text">Systematic Literature Reviews</span>
+                </h1>
+                
+                <p class="hero-description" data-aos="fade-up" data-aos-delay="200">
+                    JARVIS Research OS is a local-first, AI-powered research assistant that helps researchers conduct systematic literature reviews with evidence grading, citation analysis, and contradiction detection.
+                </p>
+                
+                <div class="hero-stats" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-item">
+                        <span class="stat-icon">📊</span>
+                        <span class="stat-text">Evidence Grading</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">🔍</span>
+                        <span class="stat-text">Citation Analysis</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">🎯</span>
+                        <span class="stat-text">Contradiction Detection</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">📈</span>
+                        <span class="stat-text">PRISMA Diagrams</span>
+                    </div>
+                </div>
+                
+                <div class="hero-cta" data-aos="fade-up" data-aos-delay="400">
+                    <button class="btn btn-large btn-primary" onclick="scrollToDemo()">
+                        <span>Try Live Demo</span>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M7 10L12 10M12 10L9.5 7.5M12 10L9.5 12.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button class="btn btn-large btn-secondary" onclick="window.open('https://github.com/kaneko-ai/jarvis-ml-pipeline', '_blank')">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 0C4.477 0 0 4.477 0 10c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0110 4.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C17.137 18.165 20 14.418 20 10c0-5.523-4.477-10-10-10z"/>
+                        </svg>
+                        <span>View on GitHub</span>
+                    </button>
+                </div>
+                
+                <div class="hero-trust" data-aos="fade-up" data-aos-delay="500">
+                    <p class="trust-text">Trusted by researchers worldwide</p>
+                    <div class="university-logos">
+                        <div class="uni-logo">MIT</div>
+                        <div class="uni-logo">Stanford</div>
+                        <div class="uni-logo">Oxford</div>
+                        <div class="uni-logo">Cambridge</div>
+                        <div class="uni-logo">Tokyo</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-visual" data-aos="fade-left" data-aos-delay="300">
+                <div class="dashboard-mockup">
+                    <div class="mockup-window">
+                        <div class="window-controls">
+                            <span class="control-dot red"></span>
+                            <span class="control-dot yellow"></span>
+                            <span class="control-dot green"></span>
+                        </div>
+                        <div class="window-content">
+                            <div class="code-preview">
+                                <div class="code-line"><span class="keyword">from</span> jarvis_core.evidence <span class="keyword">import</span> grade_evidence</div>
+                                <div class="code-line"></div>
+                                <div class="code-line">grade = grade_evidence(</div>
+                                <div class="code-line indent">title=<span class="string">"A randomized controlled trial..."</span>,</div>
+                                <div class="code-line indent">abstract=<span class="string">"Methods: We conducted..."</span></div>
+                                <div class="code-line">)</div>
+                                <div class="code-line"></div>
+                                <div class="code-line"><span class="comment"># Output: Evidence Level 1a (94.5% confidence)</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="floating-card card-1">
+                        <div class="card-header">
+                            <span class="card-icon">🔬</span>
+                            <span>Evidence Level</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="evidence-badge">1a</div>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: 94.5%"></div>
+                            </div>
+                            <span class="confidence-text">94.5% confidence</span>
+                        </div>
+                    </div>
+                    
+                    <div class="floating-card card-2">
+                        <div class="card-header">
+                            <span class="card-icon">📊</span>
+                            <span>Citation Analysis</span>
+                        </div>
+                        <div class="card-content">
+                            <div class="citation-stats">
+                                <div class="citation-item support">
+                                    <span class="citation-label">Support</span>
+                                    <span class="citation-count">127</span>
+                                </div>
+                                <div class="citation-item contrast">
+                                    <span class="citation-label">Contrast</span>
+                                    <span class="citation-count">12</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Counter Section -->
+    <section class="stats-section" data-parallax="true">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="0">
+                    <div class="stat-number" data-count="1234">0</div>
+                    <div class="stat-label">Active Researchers</div>
+                    <div class="stat-sublabel">Using JARVIS worldwide</div>
+                </div>
+                
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-number" data-count="50000">0</div>
+                    <div class="stat-label">Papers Analyzed</div>
+                    <div class="stat-sublabel">Across all disciplines</div>
+                </div>
+                
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-number" data-count="95">0</div>
+                    <div class="stat-suffix">%</div>
+                    <div class="stat-label">Accuracy Rate</div>
+                    <div class="stat-sublabel">Evidence classification</div>
+                </div>
+                
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-number" data-count="4.9">0</div>
+                    <div class="stat-suffix">★</div>
+                    <div class="stat-label">User Rating</div>
+                    <div class="stat-sublabel">Based on 500+ reviews</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Demo Section -->
+    <section class="demo-section" id="demo">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">See JARVIS in Action</h2>
+                <p class="section-description">Try our AI-powered research tools right in your browser</p>
+            </div>
+
+            <div class="api-config-panel" data-aos="fade-up" data-aos-delay="50">
+                <div class="api-config-row">
+                    <label for="api-base-url" class="api-config-label">API Base URL</label>
+                    <input
+                        id="api-base-url"
+                        class="api-config-input"
+                        type="url"
+                        placeholder="https://your-jarvis-api.example.com"
+                    />
+                    <button type="button" class="btn btn-secondary api-config-btn" id="api-save-btn">
+                        Save
+                    </button>
+                    <button type="button" class="btn btn-primary api-config-btn" id="api-test-btn">
+                        Test
+                    </button>
+                </div>
+                <p class="api-config-help">
+                    Empty value uses same-origin API. GitHub Pages??????????URL??????????
+                </p>
+                <div class="api-connection-status api-connection-status--mock" id="api-status">
+                    Mock mode (API???)
+                </div>
+            </div>
+            
+            <div class="demo-tabs" data-aos="fade-up" data-aos-delay="100">
+                <button class="tab-btn active" data-tab="evidence">
+                    <span class="tab-icon">🔬</span>
+                    <span>Evidence Grading</span>
+                </button>
+                <button class="tab-btn" data-tab="citation">
+                    <span class="tab-icon">🔍</span>
+                    <span>Citation Analysis</span>
+                </button>
+                <button class="tab-btn" data-tab="contradiction">
+                    <span class="tab-icon">⚠️</span>
+                    <span>Contradiction Detection</span>
+                </button>
+            </div>
+            
+            <div class="demo-content" data-aos="fade-up" data-aos-delay="200">
+                <!-- Evidence Grading Demo -->
+                <div class="demo-panel active" id="evidence-panel">
+                    <div class="demo-grid">
+                        <div class="demo-input">
+                            <label class="input-label">Paper Title</label>
+                            <input type="text" class="demo-input-field" id="evidence-title" placeholder="Enter paper title..." value="A randomized controlled trial of cognitive behavioral therapy for insomnia">
+                            
+                            <label class="input-label">Abstract (first 200 chars)</label>
+                            <textarea class="demo-textarea" id="evidence-abstract" placeholder="Enter abstract...">Methods: We conducted a double-blind, placebo-controlled randomized trial with 150 participants diagnosed with chronic insomnia. Participants were randomly assigned to...</textarea>
+                            
+                            <button class="btn btn-primary demo-btn" onclick="runEvidenceGrading()">
+                                <span>Analyze Evidence</span>
+                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M8 3V13M8 13L12 9M8 13L4 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="demo-output">
+                            <div class="output-header">
+                                <span class="output-title">Analysis Result</span>
+                                <span class="output-status ready" id="evidence-status">Ready</span>
+                            </div>
+                            
+                            <div class="output-content" id="evidence-output">
+                                <div class="placeholder-state">
+                                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                                        <circle cx="40" cy="40" r="30" stroke="#6366F1" stroke-width="2" opacity="0.3"/>
+                                        <path d="M40 25V40L50 50" stroke="#6366F1" stroke-width="3" stroke-linecap="round"/>
+                                    </svg>
+                                    <p>Click "Analyze Evidence" to see results</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Citation Analysis Demo -->
+                <div class="demo-panel" id="citation-panel">
+                    <div class="demo-grid">
+                        <div class="demo-input">
+                            <label class="input-label">Citation Context</label>
+                            <textarea class="demo-textarea tall" id="citation-text" placeholder="Enter text with citations...">Previous studies have shown positive results (Smith et al., 2020), although some researchers question the methodology (Jones, 2021). Our findings align with the meta-analysis by Brown et al. (2022)...</textarea>
+                            
+                            <button class="btn btn-primary demo-btn" onclick="runCitationAnalysis()">
+                                <span>Analyze Citations</span>
+                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M8 3V13M8 13L12 9M8 13L4 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="demo-output">
+                            <div class="output-header">
+                                <span class="output-title">Citation Network</span>
+                                <span class="output-status ready" id="citation-status">Ready</span>
+                            </div>
+                            
+                            <div class="output-content" id="citation-output">
+                                <div class="placeholder-state">
+                                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                                        <circle cx="40" cy="40" r="8" fill="#6366F1"/>
+                                        <circle cx="20" cy="30" r="6" fill="#8B5CF6"/>
+                                        <circle cx="60" cy="30" r="6" fill="#06B6D4"/>
+                                        <circle cx="30" cy="55" r="6" fill="#10B981"/>
+                                        <line x1="40" y1="40" x2="20" y2="30" stroke="#6366F1" stroke-width="2"/>
+                                        <line x1="40" y1="40" x2="60" y2="30" stroke="#6366F1" stroke-width="2"/>
+                                        <line x1="40" y1="40" x2="30" y2="55" stroke="#6366F1" stroke-width="2"/>
+                                    </svg>
+                                    <p>Click "Analyze Citations" to see network</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contradiction Detection Demo -->
+                <div class="demo-panel" id="contradiction-panel">
+                    <div class="demo-grid">
+                        <div class="demo-input">
+                            <label class="input-label">Claim A</label>
+                            <textarea class="demo-textarea" id="claim-a" placeholder="Enter first claim...">Drug X significantly increases survival rates in cancer patients (p<0.001, HR=0.65)</textarea>
+                            
+                            <label class="input-label">Claim B</label>
+                            <textarea class="demo-textarea" id="claim-b" placeholder="Enter second claim...">Drug X shows no significant effect on survival outcomes (p=0.23, HR=0.94)</textarea>
+                            
+                            <button class="btn btn-primary demo-btn" onclick="runContradictionDetection()">
+                                <span>Detect Contradictions</span>
+                                <svg class="btn-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M8 3V13M8 13L12 9M8 13L4 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="demo-output">
+                            <div class="output-header">
+                                <span class="output-title">Contradiction Analysis</span>
+                                <span class="output-status ready" id="contradiction-status">Ready</span>
+                            </div>
+                            
+                            <div class="output-content" id="contradiction-output">
+                                <div class="placeholder-state">
+                                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                                        <circle cx="30" cy="40" r="15" stroke="#10B981" stroke-width="2"/>
+                                        <circle cx="50" cy="40" r="15" stroke="#EF4444" stroke-width="2"/>
+                                        <path d="M35 40L45 40" stroke="#F59E0B" stroke-width="3" stroke-linecap="round"/>
+                                    </svg>
+                                    <p>Click "Detect Contradictions" to analyze</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">Core Features That Power Your Research</h2>
+                <p class="section-description">Everything you need for systematic literature reviews</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="0">
+                    <div class="feature-icon">🔬</div>
+                    <h3 class="feature-title">Evidence Grading</h3>
+                    <p class="feature-description">Automatic CEBM evidence level classification (1a-5) using advanced NLP</p>
+                    <a href="#" class="feature-link">Learn more →</a>
+                </div>
+                
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon">🔍</div>
+                    <h3 class="feature-title">Citation Analysis</h3>
+                    <p class="feature-description">Support/Contrast/Mention stance classification for citation networks</p>
+                    <a href="#" class="feature-link">Learn more →</a>
+                </div>
+                
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon">⚠️</div>
+                    <h3 class="feature-title">Contradiction Detection</h3>
+                    <p class="feature-description">AI-powered detection of conflicting claims across research papers</p>
+                    <a href="#" class="feature-link">Learn more →</a>
+                </div>
+                
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-icon">🌐</div>
+                    <h3 class="feature-title">MCP Hub Integration</h3>
+                    <p class="feature-description">Connect to PubMed, Semantic Scholar, and OpenAlex</p>
+                    <a href="#" class="feature-link">Learn more →</a>
+                </div>
+                
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="0">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">PRISMA Diagrams</h3>
+                    <p class="feature-description">Automatic PRISMA 2020 flow diagram generation</p>
+                    <a href="#" class="feature-link">Learn more →</a>
+                </div>
+                
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">Active Learning</h3>
+                    <p class="feature-description">Efficient screening with uncertainty sampling algorithms</p>
+                    <a href="#" class="feature-link">Learn more →</a>
+                </div>
+                
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon">🔒</div>
+                    <h3 class="feature-title">Local-First Privacy</h3>
+                    <p class="feature-description">Your data stays on your machine, offline mode supported</p>
+                    <a href="#" class="feature-link">Learn more →</a>
+                </div>
+                
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-icon">📦</div>
+                    <h3 class="feature-title">Export Formats</h3>
+                    <p class="feature-description">RIS, BibTeX, Markdown, and Zotero integration</p>
+                    <a href="#" class="feature-link">Learn more →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section class="architecture-section" id="architecture" data-parallax="true">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">System Architecture</h2>
+                <p class="section-description">Built with modern, scalable technologies for optimal performance</p>
+            </div>
+            
+            <div class="architecture-diagram" data-aos="fade-up" data-aos-delay="200">
+                <div class="arch-layer" data-aos="fade-right" data-aos-delay="300">
+                    <div class="layer-title">Frontend Layer</div>
+                    <div class="layer-items">
+                        <div class="arch-item">
+                            <div class="arch-icon">⚛️</div>
+                            <div class="arch-name">React/Next.js</div>
+                        </div>
+                        <div class="arch-item">
+                            <div class="arch-icon">🎨</div>
+                            <div class="arch-name">Tailwind CSS</div>
+                        </div>
+                        <div class="arch-item">
+                            <div class="arch-icon">📊</div>
+                            <div class="arch-name">D3.js / Chart.js</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="arch-connector" data-aos="fade-in" data-aos-delay="400">
+                    <svg width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none">
+                        <path d="M0,30 Q50,0 100,30" stroke="url(#archGradient)" stroke-width="2" fill="none" stroke-dasharray="5,5">
+                            <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite"/>
+                        </path>
+                        <defs>
+                            <linearGradient id="archGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#6366F1"/>
+                                <stop offset="100%" stop-color="#8B5CF6"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                
+                <div class="arch-layer" data-aos="fade-left" data-aos-delay="500">
+                    <div class="layer-title">Core Engine</div>
+                    <div class="layer-items">
+                        <div class="arch-item">
+                            <div class="arch-icon">🐍</div>
+                            <div class="arch-name">Python 3.10+</div>
+                        </div>
+                        <div class="arch-item">
+                            <div class="arch-icon">🤖</div>
+                            <div class="arch-name">Transformers</div>
+                        </div>
+                        <div class="arch-item">
+                            <div class="arch-icon">🔍</div>
+                            <div class="arch-name">BM25 + RRF</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="arch-connector" data-aos="fade-in" data-aos-delay="600">
+                    <svg width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none">
+                        <path d="M0,30 Q50,60 100,30" stroke="url(#archGradient2)" stroke-width="2" fill="none" stroke-dasharray="5,5">
+                            <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite"/>
+                        </path>
+                        <defs>
+                            <linearGradient id="archGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#8B5CF6"/>
+                                <stop offset="100%" stop-color="#06B6D4"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                
+                <div class="arch-layer" data-aos="fade-right" data-aos-delay="700">
+                    <div class="layer-title">Data Sources</div>
+                    <div class="layer-items">
+                        <div class="arch-item">
+                            <div class="arch-icon">📚</div>
+                            <div class="arch-name">PubMed</div>
+                        </div>
+                        <div class="arch-item">
+                            <div class="arch-icon">📄</div>
+                            <div class="arch-name">arXiv</div>
+                        </div>
+                        <div class="arch-item">
+                            <div class="arch-icon">🌐</div>
+                            <div class="arch-name">Crossref</div>
+                        </div>
+                        <div class="arch-item">
+                            <div class="arch-icon">🔓</div>
+                            <div class="arch-name">Unpaywall</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="architecture-features" data-aos="fade-up" data-aos-delay="800">
+                <div class="arch-feature">
+                    <div class="arch-feature-icon">🚀</div>
+                    <div class="arch-feature-content">
+                        <h4>High Performance</h4>
+                        <p>Optimized algorithms for real-time analysis</p>
+                    </div>
+                </div>
+                
+                <div class="arch-feature">
+                    <div class="arch-feature-icon">🔒</div>
+                    <div class="arch-feature-content">
+                        <h4>Secure & Private</h4>
+                        <p>Local-first architecture keeps your data safe</p>
+                    </div>
+                </div>
+                
+                <div class="arch-feature">
+                    <div class="arch-feature-icon">📈</div>
+                    <div class="arch-feature-content">
+                        <h4>Scalable Design</h4>
+                        <p>Handle thousands of papers effortlessly</p>
+                    </div>
+                </div>
+                
+                <div class="arch-feature">
+                    <div class="arch-feature-icon">🔌</div>
+                    <div class="arch-feature-content">
+                        <h4>Extensible Platform</h4>
+                        <p>Plugin system for custom workflows</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Workflow Section -->
+    <section class="workflow-section" id="workflow">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">Your Research Pipeline, Visualized</h2>
+                <p class="section-description">A streamlined workflow from paper import to final export</p>
+            </div>
+            
+            <div class="workflow-container">
+                <div class="workflow-step" data-aos="fade-up" data-aos-delay="0">
+                    <div class="step-number">01</div>
+                    <div class="step-icon">📥</div>
+                    <h3 class="step-title">Import Papers</h3>
+                    <p class="step-description">Connect to PubMed, arXiv, or upload your own collection</p>
+                    <div class="step-tags">
+                        <span class="step-tag">API Integration</span>
+                        <span class="step-tag">File Upload</span>
+                    </div>
+                </div>
+                
+                <div class="workflow-arrow" data-aos="fade-in" data-aos-delay="100">
+                    <svg width="100" height="40" viewBox="0 0 100 40">
+                        <path d="M0,20 L80,20" stroke="url(#workflowGradient)" stroke-width="2"/>
+                        <path d="M70,10 L90,20 L70,30" stroke="url(#workflowGradient)" stroke-width="2" fill="none"/>
+                        <defs>
+                            <linearGradient id="workflowGradient">
+                                <stop offset="0%" stop-color="#6366F1"/>
+                                <stop offset="100%" stop-color="#8B5CF6"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                
+                <div class="workflow-step" data-aos="fade-up" data-aos-delay="100">
+                    <div class="step-number">02</div>
+                    <div class="step-icon">🔍</div>
+                    <h3 class="step-title">Hybrid Search</h3>
+                    <p class="step-description">Sentence Transformers + BM25 with RRF fusion</p>
+                    <div class="step-tags">
+                        <span class="step-tag">Semantic Search</span>
+                        <span class="step-tag">Keyword Matching</span>
+                    </div>
+                </div>
+                
+                <div class="workflow-arrow" data-aos="fade-in" data-aos-delay="200">
+                    <svg width="100" height="40" viewBox="0 0 100 40">
+                        <path d="M0,20 L80,20" stroke="url(#workflowGradient2)" stroke-width="2"/>
+                        <path d="M70,10 L90,20 L70,30" stroke="url(#workflowGradient2)" stroke-width="2" fill="none"/>
+                        <defs>
+                            <linearGradient id="workflowGradient2">
+                                <stop offset="0%" stop-color="#8B5CF6"/>
+                                <stop offset="100%" stop-color="#06B6D4"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                
+                <div class="workflow-step" data-aos="fade-up" data-aos-delay="200">
+                    <div class="step-number">03</div>
+                    <div class="step-icon">🏆</div>
+                    <h3 class="step-title">Evidence Grading</h3>
+                    <p class="step-description">CEBM evidence level classification (1a-5)</p>
+                    <div class="step-tags">
+                        <span class="step-tag">AI Classification</span>
+                        <span class="step-tag">Quality Score</span>
+                    </div>
+                </div>
+                
+                <div class="workflow-arrow" data-aos="fade-in" data-aos-delay="300">
+                    <svg width="100" height="40" viewBox="0 0 100 40">
+                        <path d="M0,20 L80,20" stroke="url(#workflowGradient3)" stroke-width="2"/>
+                        <path d="M70,10 L90,20 L70,30" stroke="url(#workflowGradient3)" stroke-width="2" fill="none"/>
+                        <defs>
+                            <linearGradient id="workflowGradient3">
+                                <stop offset="0%" stop-color="#06B6D4"/>
+                                <stop offset="100%" stop-color="#10B981"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                
+                <div class="workflow-step" data-aos="fade-up" data-aos-delay="300">
+                    <div class="step-number">04</div>
+                    <div class="step-icon">🔗</div>
+                    <h3 class="step-title">Citation Analysis</h3>
+                    <p class="step-description">Extract and classify citation relationships</p>
+                    <div class="step-tags">
+                        <span class="step-tag">Network Graph</span>
+                        <span class="step-tag">Stance Detection</span>
+                    </div>
+                </div>
+                
+                <div class="workflow-arrow" data-aos="fade-in" data-aos-delay="400">
+                    <svg width="100" height="40" viewBox="0 0 100 40">
+                        <path d="M0,20 L80,20" stroke="url(#workflowGradient4)" stroke-width="2"/>
+                        <path d="M70,10 L90,20 L70,30" stroke="url(#workflowGradient4)" stroke-width="2" fill="none"/>
+                        <defs>
+                            <linearGradient id="workflowGradient4">
+                                <stop offset="0%" stop-color="#10B981"/>
+                                <stop offset="100%" stop-color="#F59E0B"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                
+                <div class="workflow-step" data-aos="fade-up" data-aos-delay="400">
+                    <div class="step-number">05</div>
+                    <div class="step-icon">⚠️</div>
+                    <h3 class="step-title">Contradiction Detection</h3>
+                    <p class="step-description">Identify conflicting claims across papers</p>
+                    <div class="step-tags">
+                        <span class="step-tag">NLP Analysis</span>
+                        <span class="step-tag">Claim Matching</span>
+                    </div>
+                </div>
+                
+                <div class="workflow-arrow" data-aos="fade-in" data-aos-delay="500">
+                    <svg width="100" height="40" viewBox="0 0 100 40">
+                        <path d="M0,20 L80,20" stroke="url(#workflowGradient5)" stroke-width="2"/>
+                        <path d="M70,10 L90,20 L70,30" stroke="url(#workflowGradient5)" stroke-width="2" fill="none"/>
+                        <defs>
+                            <linearGradient id="workflowGradient5">
+                                <stop offset="0%" stop-color="#F59E0B"/>
+                                <stop offset="100%" stop-color="#EF4444"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                
+                <div class="workflow-step" data-aos="fade-up" data-aos-delay="500">
+                    <div class="step-number">06</div>
+                    <div class="step-icon">📊</div>
+                    <h3 class="step-title">Export Results</h3>
+                    <p class="step-description">PRISMA diagrams, RIS, BibTeX, Markdown formats</p>
+                    <div class="step-tags">
+                        <span class="step-tag">PRISMA 2020</span>
+                        <span class="step-tag">Multiple Formats</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section" id="testimonials" data-parallax="true">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">What Researchers Are Saying</h2>
+                <p class="section-description">Trusted by researchers from leading institutions worldwide</p>
+            </div>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="0">
+                    <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">
+                        "JARVIS cut my systematic review time by 60%. The evidence grading feature is incredibly accurate and saves hours of manual classification."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                                <circle cx="24" cy="24" r="24" fill="url(#avatarGradient1)"/>
+                                <text x="24" y="30" text-anchor="middle" fill="white" font-size="20" font-weight="600">DS</text>
+                                <defs>
+                                    <linearGradient id="avatarGradient1">
+                                        <stop offset="0%" stop-color="#6366F1"/>
+                                        <stop offset="100%" stop-color="#8B5CF6"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <div class="author-info">
+                            <div class="author-name">Dr. Sarah Johnson</div>
+                            <div class="author-position">Assistant Professor, Stanford University</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">
+                        "The citation analysis tool is a game-changer. It helped me discover important contrasting evidence I would have missed in manual review."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                                <circle cx="24" cy="24" r="24" fill="url(#avatarGradient2)"/>
+                                <text x="24" y="30" text-anchor="middle" fill="white" font-size="20" font-weight="600">ML</text>
+                                <defs>
+                                    <linearGradient id="avatarGradient2">
+                                        <stop offset="0%" stop-color="#8B5CF6"/>
+                                        <stop offset="100%" stop-color="#06B6D4"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <div class="author-info">
+                            <div class="author-name">Prof. Michael Lee</div>
+                            <div class="author-position">Research Director, MIT</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">
+                        "As a PhD student, JARVIS has been invaluable for my literature review. The local-first approach means I can work anywhere, even offline."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                                <circle cx="24" cy="24" r="24" fill="url(#avatarGradient3)"/>
+                                <text x="24" y="30" text-anchor="middle" fill="white" font-size="20" font-weight="600">MC</text>
+                                <defs>
+                                    <linearGradient id="avatarGradient3">
+                                        <stop offset="0%" stop-color="#06B6D4"/>
+                                        <stop offset="100%" stop-color="#10B981"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <div class="author-info">
+                            <div class="author-name">Maria Chen</div>
+                            <div class="author-position">PhD Candidate, Oxford University</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code Snippet Section -->
+    <section class="code-section" data-parallax="true">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">Built for Developers</h2>
+                <p class="section-description">Simple, powerful API for researchers and developers</p>
+            </div>
+            
+            <div class="code-demo-container" data-aos="fade-up" data-aos-delay="200">
+                <div class="code-tabs">
+                    <button class="code-tab active" data-code-tab="python">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M9.585 2.168c.076-.043.165-.043.241 0l7.5 4.333a.25.25 0 01.125.217v8.666a.25.25 0 01-.125.217l-7.5 4.333a.25.25 0 01-.242 0l-7.5-4.333a.25.25 0 01-.125-.217V6.718a.25.25 0 01.125-.217l7.5-4.333z"/>
+                        </svg>
+                        Python
+                    </button>
+                    <button class="code-tab" data-code-tab="cli">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z"/>
+                        </svg>
+                        CLI
+                    </button>
+                    <button class="code-tab" data-code-tab="api">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"/>
+                        </svg>
+                        API
+                    </button>
+                </div>
+                
+                <div class="code-content-wrapper">
+                    <button class="code-copy-btn" onclick="copyCode()">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M4 2a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H4zm0 2h8v8H4V4z"/>
+                            <path d="M6 0a2 2 0 00-2 2h8a2 2 0 012 2v8a2 2 0 002-2V2a2 2 0 00-2-2H6z"/>
+                        </svg>
+                        Copy
+                    </button>
+                    
+                    <div class="code-panel active" id="python-code">
+                        <pre><code><span class="code-keyword">from</span> jarvis_core.evidence <span class="code-keyword">import</span> grade_evidence
+<span class="code-keyword">from</span> jarvis_core.citation <span class="code-keyword">import</span> extract_citation_contexts
+<span class="code-keyword">from</span> jarvis_core.contradiction <span class="code-keyword">import</span> ContradictionDetector
+
+<span class="code-comment"># Grade evidence level</span>
+grade = grade_evidence(
+    title=<span class="code-string">"A randomized controlled trial..."</span>,
+    abstract=<span class="code-string">"Methods: We conducted a double-blind RCT..."</span>
+)
+<span class="code-builtin">print</span>(<span class="code-string">f"Evidence Level: <span class="code-interpolation">{grade.level.value}</span>"</span>)
+<span class="code-comment"># Output: Evidence Level: 1a (94.5% confidence)</span>
+
+<span class="code-comment"># Analyze citations</span>
+contexts = extract_citation_contexts(text, paper_id=<span class="code-string">"paper_A"</span>)
+<span class="code-keyword">for</span> ctx <span class="code-keyword">in</span> contexts:
+    stance = classify_citation_stance(ctx.get_full_context())
+    <span class="code-builtin">print</span>(<span class="code-string">f"Citation: <span class="code-interpolation">{stance.stance.value}</span>"</span>)
+
+<span class="code-comment"># Detect contradictions</span>
+detector = ContradictionDetector()
+result = detector.detect(claim_a, claim_b)
+<span class="code-builtin">print</span>(<span class="code-string">f"Contradiction: <span class="code-interpolation">{result.is_contradictory}</span>"</span>)</code></pre>
+                    </div>
+                    
+                    <div class="code-panel" id="cli-code">
+                        <pre><code><span class="code-comment"># Search papers</span>
+$ jarvis search <span class="code-string">"machine learning cancer diagnosis"</span>
+
+<span class="code-comment"># Run full pipeline</span>
+$ jarvis run --config pipeline.yaml
+
+<span class="code-comment"># Generate PRISMA diagram</span>
+$ jarvis prisma --output prisma_flow.svg
+
+<span class="code-comment"># MCP Hub integration</span>
+$ jarvis mcp list --config configs/mcp_config.json
+$ jarvis mcp invoke search_pubmed --params <span class="code-string">'{"query": "cancer"}'</span>
+
+<span class="code-comment"># Skills system</span>
+$ jarvis skills list
+$ jarvis skills show MCP</code></pre>
+                    </div>
+                    
+                    <div class="code-panel" id="api-code">
+                        <pre><code><span class="code-comment">// REST API Example</span>
+<span class="code-keyword">const</span> response = <span class="code-keyword">await</span> fetch(<span class="code-string">'http://localhost:8000/api/evidence/grade'</span>, {
+  method: <span class="code-string">'POST'</span>,
+  headers: { <span class="code-string">'Content-Type'</span>: <span class="code-string">'application/json'</span> },
+  body: JSON.stringify({
+    title: <span class="code-string">"A randomized controlled trial..."</span>,
+    abstract: <span class="code-string">"Methods: We conducted..."</span>
+  })
+});
+
+<span class="code-keyword">const</span> result = <span class="code-keyword">await</span> response.json();
+console.log(result);
+<span class="code-comment">// { level: "1a", confidence: 94.5, description: "..." }</span>
+
+<span class="code-comment">// WebSocket for real-time updates</span>
+<span class="code-keyword">const</span> ws = <span class="code-keyword">new</span> WebSocket(<span class="code-string">'ws://localhost:8000/ws'</span>);
+ws.onmessage = (event) => {
+  <span class="code-keyword">const</span> update = JSON.parse(event.data);
+  console.log(<span class="code-string">'Progress:'</span>, update.progress);
+};</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="code-features" data-aos="fade-up" data-aos-delay="400">
+                <div class="code-feature">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="16 18 22 12 16 6"></polyline>
+                        <polyline points="8 6 2 12 8 18"></polyline>
+                    </svg>
+                    <span>Simple, intuitive API</span>
+                </div>
+                <div class="code-feature">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                    </svg>
+                    <span>Comprehensive documentation</span>
+                </div>
+                <div class="code-feature">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>Fast response times</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-background">
+            <div class="cta-gradient"></div>
+        </div>
+        <div class="container">
+            <div class="cta-content" data-aos="zoom-in">
+                <h2 class="cta-title">Ready to Transform Your Research?</h2>
+                <p class="cta-description">Start using JARVIS Research OS today - no credit card required, forever free</p>
+                
+                <div class="cta-buttons">
+                    <button class="btn btn-large btn-white" onclick="window.open('https://github.com/kaneko-ai/jarvis-ml-pipeline', '_blank')">
+                        <span>Get Started Free</span>
+                    </button>
+                    <button class="btn btn-large btn-outline-white">
+                        <span>View Documentation</span>
+                    </button>
+                </div>
+                
+                <div class="cta-features">
+                    <div class="cta-feature">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                        </svg>
+                        <span>Free forever</span>
+                    </div>
+                    <div class="cta-feature">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                        </svg>
+                        <span>No setup required</span>
+                    </div>
+                    <div class="cta-feature">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                        </svg>
+                        <span>Open source</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand" data-aos="fade-up">
+                    <div class="footer-logo">
+                        <svg class="logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 5L35 12.5V27.5L20 35L5 27.5V12.5L20 5Z" stroke="url(#gradient2)" stroke-width="2"/>
+                            <circle cx="20" cy="20" r="8" fill="url(#gradient2)" opacity="0.5"/>
+                            <defs>
+                                <linearGradient id="gradient2" x1="5" y1="5" x2="35" y2="35">
+                                    <stop offset="0%" stop-color="#6366F1"/>
+                                    <stop offset="100%" stop-color="#8B5CF6"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <span>JARVIS Research OS</span>
+                    </div>
+                    <p class="footer-description">AI-Powered Research Operating System for Systematic Literature Reviews</p>
+                    
+                    <div class="footer-social">
+                        <a href="https://github.com/kaneko-ai/jarvis-ml-pipeline" target="_blank" aria-label="GitHub">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="Twitter">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="Discord">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="LinkedIn">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column" data-aos="fade-up" data-aos-delay="100">
+                        <h4>Product</h4>
+                        <a href="#features">Features</a>
+                        <a href="#demo">Demo</a>
+                        <a href="#architecture">Architecture</a>
+                        <a href="#workflow">Workflow</a>
+                        <a href="#">Pricing</a>
+                        <a href="#">Roadmap</a>
+                        <a href="#">Changelog</a>
+                    </div>
+                    
+                    <div class="footer-column" data-aos="fade-up" data-aos-delay="200">
+                        <h4>Resources</h4>
+                        <a href="#">Documentation</a>
+                        <a href="#">API Reference</a>
+                        <a href="#">Guides</a>
+                        <a href="#">Tutorials</a>
+                        <a href="#">Community</a>
+                        <a href="#">Support</a>
+                        <a href="#">Status</a>
+                    </div>
+                    
+                    <div class="footer-column" data-aos="fade-up" data-aos-delay="300">
+                        <h4>Company</h4>
+                        <a href="#">About</a>
+                        <a href="#">Blog</a>
+                        <a href="#">Careers</a>
+                        <a href="#">Contact</a>
+                        <a href="#">Press Kit</a>
+                        <a href="#">Partners</a>
+                    </div>
+                    
+                    <div class="footer-column" data-aos="fade-up" data-aos-delay="400">
+                        <h4>Legal</h4>
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms of Service</a>
+                        <a href="#">Cookie Policy</a>
+                        <a href="#">License</a>
+                        <a href="#">Security</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom" data-aos="fade-up">
+                <p>© 2026 JARVIS Research OS • MIT License • Built with ❤️ for researchers worldwide</p>
+                <div class="footer-badges">
+                    <span class="footer-badge">v1.0.0</span>
+                    <span class="footer-badge">Python 3.10+</span>
+                    <span class="footer-badge">Open Source</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+    </button>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+    <!-- Analytics Integration -->
+    <script src="analytics.js"></script>
+</body>
+</html>
