@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 """Detect placeholder or garbage code patterns."""
 
 from __future__ import annotations

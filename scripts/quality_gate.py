@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 """Quality gate utilities.
 
 This script supports two modes:
