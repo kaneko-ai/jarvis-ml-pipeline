@@ -184,18 +184,18 @@ class PubMedClient:
         article = medline.find("Article") if medline is not None else None
 
         # PMID
-        pmid_elem = medline.find("PMID") if medline else None
+        pmid_elem = medline.find("PMID") if medline is not None else None
         pmid = pmid_elem.text if pmid_elem is not None else ""
 
         # Title
-        title_elem = article.find("ArticleTitle") if article else None
+        title_elem = article.find("ArticleTitle") if article is not None else None
         title = title_elem.text if title_elem is not None else ""
 
         # Abstract
         abstract_parts = []
-        if article:
+        if article is not None:
             abstract_elem = article.find("Abstract")
-            if abstract_elem:
+            if abstract_elem is not None:
                 for text in abstract_elem.findall("AbstractText"):
                     label = text.get("Label", "")
                     content = text.text or ""
@@ -207,9 +207,9 @@ class PubMedClient:
 
         # Authors
         authors = []
-        if article:
+        if article is not None:
             author_list = article.find("AuthorList")
-            if author_list:
+            if author_list is not None:
                 for author in author_list.findall("Author"):
                     last = author.find("LastName")
                     first = author.find("ForeName")
@@ -221,16 +221,16 @@ class PubMedClient:
 
         # Journal
         journal = ""
-        if article:
+        if article is not None:
             journal_elem = article.find("Journal/Title")
             if journal_elem is not None:
                 journal = journal_elem.text or ""
 
         # Date
         pub_date = ""
-        if article:
+        if article is not None:
             date_elem = article.find("Journal/JournalIssue/PubDate")
-            if date_elem:
+            if date_elem is not None:
                 year = date_elem.find("Year")
                 month = date_elem.find("Month")
                 if year is not None:
@@ -240,7 +240,7 @@ class PubMedClient:
 
         # DOI
         doi = None
-        if article:
+        if article is not None:
             for id_elem in article.findall("ELocationID"):
                 if id_elem.get("EIdType") == "doi":
                     doi = id_elem.text
@@ -248,9 +248,9 @@ class PubMedClient:
 
         # MeSH terms
         mesh_terms = []
-        if medline:
+        if medline is not None:
             mesh_list = medline.find("MeshHeadingList")
-            if mesh_list:
+            if mesh_list is not None:
                 for mesh in mesh_list.findall("MeshHeading/DescriptorName"):
                     if mesh.text:
                         mesh_terms.append(mesh.text)

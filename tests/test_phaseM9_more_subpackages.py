@@ -66,7 +66,7 @@ class TestSyncModules:
                     for method in dir(instance):
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
-                                getattr(instance, method)("key", "value")
+                                getattr(instance, method)("key")
                             except Exception:
                                 pass
                 except Exception:
@@ -158,7 +158,7 @@ class TestCacheModules:
                     for method in dir(instance):
                         if not method.startswith("_") and callable(getattr(instance, method)):
                             try:
-                                getattr(instance, method)("key", "value")
+                                getattr(instance, method)("key")
                             except Exception:
                                 pass
                 except Exception:
