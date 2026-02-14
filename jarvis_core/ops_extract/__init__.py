@@ -14,6 +14,7 @@ from .contracts import (
     build_ops_extract_config,
 )
 from .drive_client import DriveResumableClient, DriveUploadError
+from .drive_audit import audit_manifest_vs_drive
 from .drive_repair import plan_duplicate_folder_repair, repair_duplicate_folders
 from .failure_analysis import build_failure_analysis, classify_failure_category
 from .drive_sync import sync_run_to_drive
@@ -50,6 +51,7 @@ from .stage_cache import (
 )
 from .sync_queue import enqueue_sync_request, load_sync_queue, mark_sync_queue_state
 from .doctor import run_doctor
+from .telemetry import ETAEstimator, ProgressEmitter, TelemetrySampler
 from .scoreboard import (
     compute_extract_score,
     compute_ops_score,
@@ -69,6 +71,7 @@ __all__ = [
     "build_failure_analysis",
     "DriveResumableClient",
     "DriveUploadError",
+    "audit_manifest_vs_drive",
     "plan_duplicate_folder_repair",
     "repair_duplicate_folders",
     "sync_run_to_drive",
@@ -108,6 +111,9 @@ __all__ = [
     "load_sync_queue",
     "mark_sync_queue_state",
     "run_doctor",
+    "ETAEstimator",
+    "ProgressEmitter",
+    "TelemetrySampler",
     "compute_ops_score",
     "compute_extract_score",
     "detect_anomalies",

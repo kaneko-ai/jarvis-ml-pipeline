@@ -74,6 +74,11 @@ web = [
 browser = [
     "playwright>=1.40",
 ]
+dashboard = [
+    "streamlit>=1.32",
+    "plotly>=5.20",
+    "psutil>=5.9",
+]
 mcp = [
     "httpx>=0.25",
 ]
@@ -89,7 +94,7 @@ dev = [
     "bandit>=1.7.0",
 ]
 all = [
-    "jarvis-research-os[ml,pdf,llm,embedding,web,browser,mcp]",
+    "jarvis-research-os[ml,pdf,llm,embedding,web,browser,dashboard,mcp]",
 ]
 
 [dependency-groups]

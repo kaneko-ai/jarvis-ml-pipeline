@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 from jarvis_core.ops_extract.schema_validate import validate_run_contracts

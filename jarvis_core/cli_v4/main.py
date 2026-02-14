@@ -8,10 +8,12 @@ from __future__ import annotations
 
 import argparse
 import sys
+from pathlib import Path
 
 from ..bundle_v2 import create_bundle_v2
 from ..config import Config, load_config
 from ..errors import JarvisError, ValidationError
+from ..ops_extract.telemetry import ETAEstimator, ProgressEmitter
 from ..workflows import (
     run_literature_to_plan,
     run_plan_to_grant,
@@ -122,6 +124,7 @@ def run_workflow(
 
     inputs = inputs or []
     concepts = concepts or []
+    progress_emitter = None
 
     # Create vectors from inputs (simplified for demo)
     vectors = []
@@ -146,7 +149,17 @@ def run_workflow(
 
     # Execute workflow
     if workflow == "literature_to_plan":
-        artifact = run_literature_to_plan(vectors, concepts or ["research"])
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        progress_emitter = ProgressEmitter(
+            output_path,
+            eta_estimator=ETAEstimator(Path("logs") / "runs"),
+        )
+        artifact = run_literature_to_plan(
+            vectors,
+            concepts or ["research"],
+            progress_emitter=progress_emitter,
+        )
     elif workflow == "plan_to_grant":
         plan = run_literature_to_plan(vectors, concepts or ["research"])
         artifact = run_plan_to_grant(plan, vectors, concepts)

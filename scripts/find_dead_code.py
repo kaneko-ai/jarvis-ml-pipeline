@@ -3,6 +3,7 @@
 import subprocess
 import sys
 
+
 def main():
     result = subprocess.run(
         [
@@ -11,7 +12,8 @@ def main():
             "vulture",
             "jarvis_core",
             "vulture_whitelist.py",
-            "--min-confidence", "80",
+            "--min-confidence",
+            "80",
         ],
         capture_output=True,
         text=True,
@@ -20,6 +22,7 @@ def main():
     if result.stderr:
         print(result.stderr, file=sys.stderr)
     return result.returncode
+
 
 if __name__ == "__main__":
     sys.exit(main())

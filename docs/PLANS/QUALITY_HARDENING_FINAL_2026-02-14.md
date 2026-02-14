@@ -1,4 +1,6 @@
-﻿> Authority: ROADMAP (Level 5, Non-binding)`r`n`r`n# Quality Hardening Final Report (2026-02-14)
+﻿> Authority: ROADMAP (Level 5, Non-binding)
+
+# Quality Hardening Final Report (2026-02-14)
 
 ## 1. 結論
 - `ops_extract` を含む全体品質負債ゼロ化フェーズを完了。
@@ -72,4 +74,5 @@
 ## 6. 変更の安全性
 - 破壊的リファクタは未実施（差分修正のみ）。
 - `ops_extract` の P1-P6 成果を維持したまま、warning/error耐性と運用品質のみを改善。
+
 

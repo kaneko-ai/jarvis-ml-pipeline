@@ -152,12 +152,14 @@ def _count_non_empty_jsonl_lines(path: Path) -> int:
     return count
 
 
-def validate_run_contracts_strict(run_dir: Path, *, include_ocr_meta: bool) -> list[str]:
+def validate_run_contracts_strict(
+    run_dir: Path, *, include_ocr_meta: bool, assume_failed: bool = False
+) -> list[str]:
     errors: list[str] = []
 
     expected = list_expected_contract_files(include_ocr_meta=include_ocr_meta)
     status = _read_run_status(run_dir)
-    if status == "failed":
+    if assume_failed or status == "failed":
         expected.append("crash_dump.json")
 
     for filename in expected:

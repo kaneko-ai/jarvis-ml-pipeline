@@ -26,7 +26,6 @@ def format_event(event: dict) -> str:
     ts = event.get("ts", "")[:19]  # Trim microseconds
     level = event.get("level", "INFO")
     evt = event.get("event", "?")
-    evt_type = event.get("event_type", "?")
     tool = event.get("tool", "")
     agent = event.get("agent", "")
 

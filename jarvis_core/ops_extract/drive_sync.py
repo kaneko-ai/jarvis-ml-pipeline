@@ -457,6 +457,7 @@ def sync_run_to_drive(
             "last_error": "",
             "dry_run": dry_run,
             "manifest_committed_drive": False,
+            "remote_root_folder_id": "",
             "last_attempt_at": _now(),
         }
         _write_sync_state(sync_state_path, payload)
@@ -503,6 +504,7 @@ def sync_run_to_drive(
         "last_error": "",
         "dry_run": dry_run,
         "manifest_committed_drive": False,
+        "remote_root_folder_id": str(previous.get("remote_root_folder_id", "") or ""),
         "last_attempt_at": _now(),
     }
     if manifest_fallback:
@@ -518,6 +520,7 @@ def sync_run_to_drive(
         state["manifest_committed_drive"] = True
         state["pending_files"] = []
         state["committed_at"] = previous.get("committed_at") or _now()
+        state["remote_root_folder_id"] = str(previous.get("remote_root_folder_id", "") or "")
         _write_sync_state(sync_state_path, state)
         return state
 
@@ -539,6 +542,7 @@ def sync_run_to_drive(
                 state["state"] = "deferred"
                 state["last_error"] = "sync_lock_conflict"
                 state["pending_files"] = [{"path": rel} for rel in pending]
+                state["remote_root_folder_id"] = str(state.get("remote_root_folder_id", "") or "")
                 state["last_attempt_at"] = _now()
                 _write_sync_state(sync_state_path, state)
                 return state
@@ -583,6 +587,7 @@ def sync_run_to_drive(
                 )
                 root_upload_folder_id = folder_id
                 folder_cache[""] = root_upload_folder_id
+        state["remote_root_folder_id"] = str(root_upload_folder_id or "")
 
         if (
             client is not None
@@ -729,6 +734,7 @@ def sync_run_to_drive(
         state["pending_files"] = []
         state["failed_files"] = []
         state["manifest_committed_drive"] = True
+        state["remote_root_folder_id"] = str(root_upload_folder_id or "")
         state["committed_at"] = _now()
         state["last_attempt_at"] = _now()
         _write_sync_state(sync_state_path, state)
@@ -754,6 +760,7 @@ def sync_run_to_drive(
             else [{"path": rel, "error": message} for rel in remaining[:1]]
         )
         state["manifest_committed_drive"] = False
+        state["remote_root_folder_id"] = str(state.get("remote_root_folder_id", "") or "")
         state["last_attempt_at"] = _now()
         _write_sync_state(sync_state_path, state)
         return state

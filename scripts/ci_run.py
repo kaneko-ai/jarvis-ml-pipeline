@@ -323,8 +323,6 @@ def generate_summary(
 def generate_manifest(run_id, query, status, run_dir, created_at, stats, pipeline_version, quality):
     """Artifact Contract v1に準拠したmanifest.jsonを生成"""
     run_path = Path(run_dir)
-    summary_path = run_path / "summary.json"
-    stats_path = run_path / "stats.json"
     meta_path = run_path / "raw" / "pubmed_metadata.json"
     logs_path = run_path / "logs.jsonl"
     report_path = run_path / "report.md"
