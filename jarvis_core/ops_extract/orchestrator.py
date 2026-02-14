@@ -40,8 +40,11 @@ from .needs_ocr import (
     summarize_page_metrics,
     unicode_category_distribution,
 )
+from .oauth_google import resolve_drive_access_token
 from .preflight import PreflightReport, run_preflight_checks
 from .pdf_diagnosis import diagnose_pdfs
+from .retention import apply_ops_extract_retention
+from .schema_validate import validate_run_contracts
 from .security import masked_ops_extract_config
 from .stage_cache import (
     cache_outputs_match,
@@ -51,6 +54,7 @@ from .stage_cache import (
     stage_outputs_from_paths,
     update_stage_cache_entry,
 )
+from .sync_queue import enqueue_sync_request
 
 
 @dataclass
@@ -91,6 +95,14 @@ class _DocOcrResult:
     ocr_text_path: str | None
     figure_count: int
     ocr_meta: dict[str, Any]
+    error: str | None = None
+
+
+@dataclass
+class _DocRasterResult:
+    doc_index: int
+    pdf_path: Path
+    raster_meta: dict[str, Any]
     error: str | None = None
 
 
@@ -304,8 +316,36 @@ class OpsExtractOrchestrator:
             )
 
     @staticmethod
+    def _rasterize_document(
+        parse_result: _DocParseResult,
+        ocr_dir: Path,
+    ) -> _DocRasterResult:
+        pdf_path = parse_result.pdf_path
+        try:
+            doc_ocr_root = ocr_dir / pdf_path.stem
+            page_output_dir = doc_ocr_root / "input_pages"
+            raster_meta = rasterize_pdf_to_images(
+                pdf_path=pdf_path,
+                output_dir=page_output_dir,
+            )
+            return _DocRasterResult(
+                doc_index=parse_result.doc_index,
+                pdf_path=pdf_path,
+                raster_meta=raster_meta,
+                error=None,
+            )
+        except Exception as exc:
+            return _DocRasterResult(
+                doc_index=parse_result.doc_index,
+                pdf_path=pdf_path,
+                raster_meta={},
+                error=str(exc),
+            )
+
+    @staticmethod
     def _ocr_document(
         parse_result: _DocParseResult,
+        raster_result: _DocRasterResult | None,
         config: OpsExtractConfig,
         ocr_dir: Path,
     ) -> _DocOcrResult:
@@ -325,13 +365,9 @@ class OpsExtractOrchestrator:
         try:
             normalizer = TextNormalizer()
             doc_ocr_root = ocr_dir / pdf_path.stem
-            page_output_dir = doc_ocr_root / "input_pages"
-            raster_start = time.perf_counter()
-            raster_meta = rasterize_pdf_to_images(
-                pdf_path=pdf_path,
-                output_dir=page_output_dir,
-            )
-            raster_sec = round(time.perf_counter() - raster_start, 6)
+            raster_meta = (raster_result.raster_meta if raster_result is not None else {}) or {}
+            if raster_result is not None and raster_result.error:
+                raise RuntimeError(f"rasterize_failed:{raster_result.error}")
             yomi_output_dir = doc_ocr_root / "yomitoku"
             ocr_start = time.perf_counter()
             yomi_result = run_yomitoku_cli(
@@ -357,9 +393,9 @@ class OpsExtractOrchestrator:
                     "figure": config.yomitoku_figure,
                 },
                 "timings": {
-                    "rasterize_sec": raster_sec,
+                    "rasterize_sec": float(raster_meta.get("elapsed_sec", 0.0)),
                     "ocr_sec": ocr_sec,
-                    "total_sec": round(raster_sec + ocr_sec, 6),
+                    "total_sec": round(float(raster_meta.get("elapsed_sec", 0.0)) + ocr_sec, 6),
                 },
                 "per_page_stats": per_page_stats,
                 "raster": raster_meta,
@@ -469,7 +505,14 @@ class OpsExtractOrchestrator:
                 config=self.config,
                 lessons_path=lessons_path,
             )
-            _finish_stage("preflight")
+            network_diagnosis_payload = {
+                "schema_version": OPS_EXTRACT_SCHEMA_VERSION,
+                "generated_at": _now_iso(),
+                "profile": preflight_report.network_profile,
+                "diagnosis": preflight_report.network_diagnosis or {},
+            }
+            _write_json(self.run_dir / "network_diagnosis.json", network_diagnosis_payload)
+            _finish_stage("preflight", outputs=[self.run_dir / "network_diagnosis.json"])
         except Exception as exc:
             _finish_stage("preflight", error=str(exc))
             raise
@@ -515,6 +558,13 @@ class OpsExtractOrchestrator:
                         parse_results.append(future.result())
                 parse_results.sort(key=lambda item: item.doc_index)
                 _finish_stage("extract_text_pdf", outputs=[ingestion_dir / "pdf_diagnosis.json"])
+                update_stage_cache_entry(
+                    stage_cache_payload,
+                    stage_id="extract_text_pdf",
+                    input_hash=compute_input_hash([path.as_posix() for path in input_paths]),
+                    outputs=stage_outputs_from_paths([ingestion_dir / "pdf_diagnosis.json"], self.run_dir),
+                    status="computed",
+                )
             except Exception as exc:
                 _finish_stage("extract_text_pdf", error=str(exc))
                 raise
@@ -554,9 +604,52 @@ class OpsExtractOrchestrator:
             _finish_stage("needs_ocr_decision")
 
             _start_stage("rasterize_pdf", [item.pdf_path for item in needs_ocr_docs])
+            raster_by_index: dict[int, _DocRasterResult] = {}
+            if needs_ocr_docs and not run_errors:
+                with ThreadPoolExecutor(max_workers=max(1, int(self.config.ocr_workers))) as pool:
+                    future_map = {
+                        pool.submit(self._rasterize_document, item, ocr_dir): item.doc_index
+                        for item in needs_ocr_docs
+                    }
+                    for future in as_completed(future_map):
+                        raster_result = future.result()
+                        raster_by_index[raster_result.doc_index] = raster_result
+                for item in raster_by_index.values():
+                    if item.error:
+                        run_errors.append(f"rasterize_failed:{item.pdf_path.name}:{item.error}")
+                        warning_records.append(
+                            {
+                                "code": "RASTERIZE_ERROR",
+                                "message": f"{item.pdf_path.name}: {item.error}",
+                                "severity": "error",
+                            }
+                        )
             _finish_stage(
                 "rasterize_pdf",
-                outputs=[ocr_dir / item.pdf_path.stem / "input_pages" for item in needs_ocr_docs],
+                outputs=[
+                    ocr_dir / item.pdf_path.stem / "input_pages"
+                    for item in needs_ocr_docs
+                    if (ocr_dir / item.pdf_path.stem / "input_pages").exists()
+                ],
+            )
+            update_stage_cache_entry(
+                stage_cache_payload,
+                stage_id="rasterize_pdf",
+                input_hash=compute_input_hash(
+                    {
+                        "docs": [item.pdf_path.as_posix() for item in needs_ocr_docs],
+                        "count": len(needs_ocr_docs),
+                    }
+                ),
+                outputs=stage_outputs_from_paths(
+                    [
+                        ocr_dir / item.pdf_path.stem / "input_pages"
+                        for item in needs_ocr_docs
+                        if (ocr_dir / item.pdf_path.stem / "input_pages").exists()
+                    ],
+                    self.run_dir,
+                ),
+                status="computed",
             )
 
             _start_stage("ocr_yomitoku", [item.pdf_path for item in needs_ocr_docs])
@@ -564,7 +657,13 @@ class OpsExtractOrchestrator:
             if needs_ocr_docs and not run_errors:
                 with ThreadPoolExecutor(max_workers=max(1, int(self.config.ocr_workers))) as pool:
                     future_map = {
-                        pool.submit(self._ocr_document, item, self.config, ocr_dir): item.doc_index
+                        pool.submit(
+                            self._ocr_document,
+                            item,
+                            raster_by_index.get(item.doc_index),
+                            self.config,
+                            ocr_dir,
+                        ): item.doc_index
                         for item in needs_ocr_docs
                     }
                     for future in as_completed(future_map):
@@ -575,6 +674,21 @@ class OpsExtractOrchestrator:
                 outputs=[
                     Path(item.ocr_text_path) for item in ocr_by_index.values() if item.ocr_text_path
                 ],
+            )
+            update_stage_cache_entry(
+                stage_cache_payload,
+                stage_id="ocr_yomitoku",
+                input_hash=compute_input_hash(
+                    {
+                        "docs": [item.pdf_path.as_posix() for item in needs_ocr_docs],
+                        "count": len(needs_ocr_docs),
+                    }
+                ),
+                outputs=stage_outputs_from_paths(
+                    [Path(item.ocr_text_path) for item in ocr_by_index.values() if item.ocr_text_path],
+                    self.run_dir,
+                ),
+                status="computed",
             )
 
             _start_stage("normalize_text", input_paths)
@@ -715,6 +829,8 @@ class OpsExtractOrchestrator:
                 _write_json(
                     ocr_dir / "ocr_meta.json",
                     {
+                        "schema_version": OPS_EXTRACT_SCHEMA_VERSION,
+                        "generated_at": _now_iso(),
                         "run_id": run_id,
                         "project": project,
                         "docs": ocr_meta_by_doc,
@@ -753,6 +869,7 @@ class OpsExtractOrchestrator:
                 overall_text_source = "pdf_text"
 
             text_source_payload = {
+                "schema_version": OPS_EXTRACT_SCHEMA_VERSION,
                 "run_id": run_id,
                 "project": project,
                 "source": overall_text_source,
@@ -830,6 +947,7 @@ class OpsExtractOrchestrator:
                 _write_json(
                     ingestion_dir / "text_source.json",
                     {
+                        "schema_version": OPS_EXTRACT_SCHEMA_VERSION,
                         "run_id": run_id,
                         "project": project,
                         "source": "unknown",
@@ -935,6 +1053,7 @@ class OpsExtractOrchestrator:
                 "errors": preflight_report.errors,
                 "warnings": preflight_report.warnings,
                 "checks": preflight_report.checks,
+                "network_profile": preflight_report.network_profile,
             },
         }
 
@@ -985,6 +1104,39 @@ class OpsExtractOrchestrator:
         write_manifest(self.run_dir / "manifest.json", manifest_payload)
         if status == "failed" and error_message:
             _write_crash_dump(self.run_dir, error_message)
+
+        contract_errors = validate_run_contracts(self.run_dir)
+        if contract_errors:
+            status = "failed"
+            error_message = "contract_validation_failed:" + " | ".join(contract_errors)
+            warning_records.append(
+                {
+                    "code": "CONTRACT_VALIDATION_FAILED",
+                    "message": error_message,
+                    "severity": "error",
+                }
+            )
+            failure_analysis = {
+                **failure_analysis,
+                "status": "failed",
+                "category": "contract_violation",
+                "root_cause_guess": error_message,
+            }
+            run_metadata["status"] = "failed"
+            manifest_payload["status"] = "failed"
+            _write_json(self.run_dir / "failure_analysis.json", failure_analysis)
+            _write_json(
+                self.run_dir / "warnings.json",
+                {
+                    "schema_version": OPS_EXTRACT_SCHEMA_VERSION,
+                    "warnings": warning_records,
+                },
+            )
+            _write_jsonl(self.run_dir / "warnings.jsonl", warning_records)
+            _write_json(self.run_dir / "run_metadata.json", run_metadata)
+            write_manifest(self.run_dir / "manifest.json", manifest_payload)
+            _write_crash_dump(self.run_dir, error_message)
+
         update_stage_cache_entry(
             stage_cache_payload,
             stage_id="write_contract_files",
@@ -1027,23 +1179,70 @@ class OpsExtractOrchestrator:
             [self.run_dir / "manifest.json", self.run_dir / "metrics.json"],
         )
         try:
-            sync_state = sync_run_to_drive(
-                run_dir=self.run_dir,
-                enabled=self.config.sync_enabled,
-                dry_run=self.config.sync_dry_run,
-                upload_workers=self.config.upload_workers,
-                access_token=self.config.drive_access_token
-                or os.getenv("GOOGLE_DRIVE_ACCESS_TOKEN"),
-                folder_id=self.config.drive_folder_id,
-                api_base_url=self.config.drive_api_base_url,
-                upload_base_url=self.config.drive_upload_base_url,
-                chunk_bytes=self.config.sync_chunk_bytes,
-                resume_token=run_id,
-                retries=metrics["ops"]["retry_count"],
-                max_retries=self.config.sync_max_retries,
-                retry_backoff_sec=self.config.sync_retry_backoff_sec,
-                verify_sha256=self.config.sync_verify_sha256,
+            should_defer_sync = (
+                self.config.sync_enabled
+                and not self.config.sync_dry_run
+                and preflight_report.network_profile != "ONLINE"
+                and self.config.network_offline_policy == "defer"
             )
+            if should_defer_sync:
+                queue_path = enqueue_sync_request(
+                    queue_dir=Path(self.config.sync_queue_dir),
+                    run_dir=self.run_dir,
+                    run_id=run_id,
+                    reason=f"network_profile={preflight_report.network_profile}",
+                    drive_folder_id=self.config.drive_folder_id,
+                )
+                sync_state = {
+                    "schema_version": OPS_EXTRACT_SCHEMA_VERSION,
+                    "version": "ops_extract_sync_v2",
+                    "state": "deferred",
+                    "uploaded_files": [],
+                    "pending_files": [{"path": "manifest.json"}],
+                    "failed_files": [],
+                    "retries": int(metrics["ops"]["retry_count"]),
+                    "resume_count": int(metrics["ops"]["resume_count"]),
+                    "last_error": "",
+                    "dry_run": self.config.sync_dry_run,
+                    "manifest_committed_drive": False,
+                    "last_attempt_at": _now_iso(),
+                    "queue_item": str(queue_path),
+                }
+                _write_json(self.run_dir / "sync_state.json", sync_state)
+                warning_records.append(
+                    {
+                        "code": "SYNC_DEFERRED",
+                        "message": f"Drive sync deferred ({preflight_report.network_profile})",
+                        "severity": "warning",
+                    }
+                )
+            else:
+                resolved_drive_token = resolve_drive_access_token(
+                    access_token=self.config.drive_access_token
+                    or os.getenv("GOOGLE_DRIVE_ACCESS_TOKEN"),
+                    refresh_token=self.config.drive_refresh_token,
+                    client_id=self.config.drive_client_id,
+                    client_secret=self.config.drive_client_secret,
+                    token_cache_path=self.config.drive_token_cache_path,
+                )
+                sync_state = sync_run_to_drive(
+                    run_dir=self.run_dir,
+                    enabled=self.config.sync_enabled,
+                    dry_run=self.config.sync_dry_run,
+                    upload_workers=self.config.upload_workers,
+                    access_token=resolved_drive_token,
+                    folder_id=self.config.drive_folder_id,
+                    api_base_url=self.config.drive_api_base_url,
+                    upload_base_url=self.config.drive_upload_base_url,
+                    chunk_bytes=self.config.sync_chunk_bytes,
+                    resume_token=run_id,
+                    retries=metrics["ops"]["retry_count"],
+                    max_retries=self.config.sync_max_retries,
+                    retry_backoff_sec=self.config.sync_retry_backoff_sec,
+                    verify_sha256=self.config.sync_verify_sha256,
+                    sync_lock_ttl_sec=self.config.sync_lock_ttl_sec,
+                    check_public_permissions=self.config.drive_fail_on_public_permissions,
+                )
             _finish_stage("enqueue_drive_sync", outputs=[self.run_dir / "sync_state.json"])
         except Exception as exc:
             _finish_stage("enqueue_drive_sync", error=str(exc))
@@ -1109,7 +1308,45 @@ class OpsExtractOrchestrator:
         _write_jsonl(self.run_dir / "warnings.jsonl", warning_records)
 
         _start_stage("retention_mark", [self.run_dir / "run_metadata.json"])
-        _finish_stage("retention_mark")
+        retention_report_path = self.run_dir / "retention_report.json"
+        try:
+            retention_result = apply_ops_extract_retention(
+                runs_base=self.run_dir.parent,
+                lessons_path=lessons_path,
+                failed_days=self.config.retention_failed_days,
+                success_days=self.config.retention_success_days,
+                trash_days=self.config.retention_trash_days,
+                max_delete_per_run=self.config.retention_max_delete_per_run,
+                dry_run=self.config.retention_dry_run,
+                current_run_id=run_id,
+            )
+            _write_json(
+                retention_report_path,
+                {
+                    "schema_version": OPS_EXTRACT_SCHEMA_VERSION,
+                    "retention_applied": True,
+                    "dry_run": retention_result.dry_run,
+                },
+            )
+            _finish_stage("retention_mark", outputs=[retention_report_path])
+        except Exception as exc:
+            warning_records.append(
+                {
+                    "code": "RETENTION_FAILED",
+                    "message": str(exc),
+                    "severity": "warning",
+                }
+            )
+            _finish_stage("retention_mark", error=str(exc))
+
+        _write_json(
+            self.run_dir / "warnings.json",
+            {
+                "schema_version": OPS_EXTRACT_SCHEMA_VERSION,
+                "warnings": warning_records,
+            },
+        )
+        _write_jsonl(self.run_dir / "warnings.jsonl", warning_records)
 
         if stage_starts:
             for dangling_stage in list(stage_starts.keys()):
@@ -1157,6 +1394,9 @@ class OpsExtractOrchestrator:
         output_entries = collect_output_entries(self.run_dir, exclude_relpaths={"manifest.json"})
         manifest_payload["outputs"] = output_entries
         write_manifest(self.run_dir / "manifest.json", manifest_payload)
+
+        warning_messages = [str(w.get("message", "")).strip() for w in warning_records]
+        warning_messages = [w for w in warning_messages if w]
 
         answer = (
             f"Ops+Extract completed: files={len(input_paths)}, ocr_used={ocr_used}, "

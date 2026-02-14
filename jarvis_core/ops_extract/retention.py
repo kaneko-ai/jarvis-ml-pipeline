@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-from .learning import lesson_exists_for_run
+from .learning import lesson_exists_for_run, record_lesson
 
 
 @dataclass
@@ -49,6 +49,7 @@ def apply_ops_extract_retention(
     trash_days: int = 7,
     max_delete_per_run: int = 200,
     dry_run: bool = False,
+    current_run_id: str | None = None,
 ) -> OpsExtractRetentionResult:
     now = now or datetime.now(timezone.utc)
     trash_dir = runs_base / "_trash_candidates"
@@ -61,6 +62,9 @@ def apply_ops_extract_retention(
     for run_dir in runs_base.iterdir():
         if not run_dir.is_dir() or run_dir.name.startswith("_"):
             continue
+        if current_run_id and run_dir.name == current_run_id:
+            kept.append(run_dir.name)
+            continue
         meta = _load_json(run_dir / "run_metadata.json")
         if meta.get("mode") != "ops_extract":
             kept.append(run_dir.name)
@@ -68,7 +72,11 @@ def apply_ops_extract_retention(
 
         manifest = _load_json(run_dir / "manifest.json")
         status = meta.get("status") or manifest.get("status")
-        pinned = bool(manifest.get("pinned", False))
+        pinned = bool(
+            manifest.get("pinned", False)
+            or meta.get("pinned", False)
+            or (run_dir / ".pin").exists()
+        )
         finished_at = _parse_time(meta.get("finished_at")) or _parse_time(
             manifest.get("finished_at")
         )
@@ -82,8 +90,20 @@ def apply_ops_extract_retention(
                 kept.append(run_dir.name)
                 continue
             if not lesson_exists_for_run(run_dir.name, lessons_path=lessons_path):
-                kept.append(run_dir.name)
-                continue
+                failure = _load_json(run_dir / "failure_analysis.json")
+                try:
+                    if not dry_run:
+                        record_lesson(
+                            run_id=run_dir.name,
+                            category=str(failure.get("category", "unknown")),
+                            root_cause=str(failure.get("root_cause_guess", "")),
+                            recommendation_steps=list(failure.get("recommendation_steps", [])),
+                            preventive_checks=list(failure.get("preventive_checks", [])),
+                            lessons_path=lessons_path,
+                        )
+                except Exception:
+                    kept.append(run_dir.name)
+                    continue
             if not dry_run:
                 shutil.move(str(run_dir), str(trash_dir / run_dir.name))
             moved.append(run_dir.name)

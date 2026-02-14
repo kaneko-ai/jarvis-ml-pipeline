@@ -20,6 +20,11 @@ SCHEMA_BY_FILENAME = {
     "sync_state.json": "sync_state.schema.json",
     "trace.jsonl": "trace.schema.json",
     "stage_cache.json": "stage_cache.schema.json",
+    "network_diagnosis.json": "network_diagnosis.schema.json",
+    "crash_dump.json": "crash_dump.schema.json",
+    "ingestion/pdf_diagnosis.json": "pdf_diagnosis.schema.json",
+    "ingestion/text_source.json": "text_source.schema.json",
+    "ocr/ocr_meta.json": "ocr_meta.schema.json",
 }
 
 
@@ -64,9 +69,10 @@ def validate_payload(payload: Any, *, schema_file: str) -> None:
 
 
 def schema_file_for_contract(contract_name: str) -> str:
-    if contract_name not in SCHEMA_BY_FILENAME:
+    key = contract_name.replace("\\", "/")
+    if key not in SCHEMA_BY_FILENAME:
         raise KeyError(f"unknown_contract:{contract_name}")
-    return SCHEMA_BY_FILENAME[contract_name]
+    return SCHEMA_BY_FILENAME[key]
 
 
 def validate_contract_path(path: Path, *, contract_name: str | None = None) -> None:
