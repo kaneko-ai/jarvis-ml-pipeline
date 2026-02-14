@@ -1,4 +1,4 @@
-﻿"""TD-003: Bundle contract validator.
+"""TD-003: Bundle contract validator.
 
 Validates that a run bundle contains all required files and valid JSON/JSONL content.
 """
