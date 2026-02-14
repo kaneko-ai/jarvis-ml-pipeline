@@ -31,6 +31,8 @@ runs/
 outputs/
 artifacts/audit/
 experiments/
+reports/weekly/
+reports/doctor/
 
 # Local coverage/test artifacts
 coverage.json
