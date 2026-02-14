@@ -35,7 +35,7 @@ def test_contract_validation_forces_failed_status(tmp_path: Path):
             return_value=_good_extraction(),
         ),
         patch(
-            "jarvis_core.ops_extract.orchestrator.validate_run_contracts",
+            "jarvis_core.ops_extract.orchestrator.validate_run_contracts_strict",
             return_value=["manifest.schema.json:required status"],
         ),
     ):

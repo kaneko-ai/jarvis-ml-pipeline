@@ -84,7 +84,7 @@ def _parse_iso(value: str | None) -> datetime | None:
         return None
 
 
-def _target_files_from_manifest(run_dir: Path) -> list[Path]:
+def _fallback_target_files(run_dir: Path) -> list[Path]:
     tier_candidates = [
         "input.json",
         "run_config.json",
@@ -114,6 +114,43 @@ def _target_files_from_manifest(run_dir: Path) -> list[Path]:
     files = [run_dir / rel for rel in tier_candidates if (run_dir / rel).exists()]
     files.sort(key=lambda p: (p.name == "manifest.json", p.relative_to(run_dir).as_posix()))
     return files
+
+
+def _target_files_from_manifest(run_dir: Path) -> tuple[list[Path], bool]:
+    manifest_path = run_dir / "manifest.json"
+    if not manifest_path.exists():
+        return _fallback_target_files(run_dir), True
+
+    try:
+        manifest_payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except Exception:
+        return _fallback_target_files(run_dir), True
+    if not isinstance(manifest_payload, dict):
+        return _fallback_target_files(run_dir), True
+
+    files: list[Path] = []
+    seen: set[str] = set()
+    outputs = manifest_payload.get("outputs", [])
+    if not isinstance(outputs, list) or len(outputs) == 0:
+        return _fallback_target_files(run_dir), True
+
+    for output in outputs:
+        if not isinstance(output, dict):
+            continue
+        rel = str(output.get("path", "")).strip()
+        if not rel or rel in seen:
+            continue
+        path = run_dir / rel
+        if path.exists():
+            files.append(path)
+            seen.add(rel)
+
+    if not files:
+        return _fallback_target_files(run_dir), True
+
+    files.append(manifest_path)
+    files.sort(key=lambda p: (p.name == "manifest.json", p.relative_to(run_dir).as_posix()))
+    return files, False
 
 
 def _build_manifest_override(path: Path, committed: bool) -> bytes:
@@ -434,7 +471,7 @@ def sync_run_to_drive(
     }
     resume_count = 1 if previous_uploaded or previous.get("pending_files") or previous_failed else 0
 
-    all_files = _target_files_from_manifest(run_dir)
+    all_files, manifest_fallback = _target_files_from_manifest(run_dir)
     target_meta = _build_target_meta(all_files, run_dir)
 
     uploaded_map: dict[str, dict[str, Any]] = {}
@@ -468,7 +505,15 @@ def sync_run_to_drive(
         "manifest_committed_drive": False,
         "last_attempt_at": _now(),
     }
+    if manifest_fallback:
+        state["warnings"].append("MANIFEST_MISSING_FALLBACK")
     if not pending and bool(previous.get("manifest_committed_drive", False)):
+        missing_uploaded_files = [rel for rel in target_meta if rel not in uploaded_map]
+        if missing_uploaded_files:
+            raise RuntimeError(
+                f"verification_failed:missing_uploaded_files={missing_uploaded_files}"
+            )
+
         state["state"] = "committed"
         state["manifest_committed_drive"] = True
         state["pending_files"] = []

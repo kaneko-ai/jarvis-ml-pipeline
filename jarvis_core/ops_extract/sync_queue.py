@@ -77,3 +77,48 @@ def mark_sync_queue_state(
         payload["attempts"] = int(attempts)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
+
+
+def _parse_iso(value: str) -> datetime | None:
+    raw = str(value).strip()
+    if not raw:
+        return None
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except Exception:
+        return None
+
+
+def queue_summary(queue_dir: Path) -> dict[str, Any]:
+    items = load_sync_queue(queue_dir)
+    pending_states = {"pending", "deferred", "in_progress"}
+    human_action_states = {"failed", "human_action_required"}
+    pending_count = 0
+    human_action_required_count = 0
+    oldest: datetime | None = None
+
+    for item in items:
+        state = str(item.get("state", "")).strip()
+        if state in pending_states:
+            pending_count += 1
+        if state in human_action_states:
+            human_action_required_count += 1
+        created_at = _parse_iso(str(item.get("created_at", "")))
+        if created_at is None:
+            continue
+        if oldest is None or created_at < oldest:
+            oldest = created_at
+
+    oldest_age_days = 0
+    if oldest is not None:
+        now = datetime.now(timezone.utc)
+        if oldest.tzinfo is None:
+            oldest = oldest.replace(tzinfo=timezone.utc)
+        delta_days = (now - oldest).total_seconds() / 86400.0
+        oldest_age_days = max(0, int(delta_days))
+
+    return {
+        "pending_count": pending_count,
+        "oldest_age_days": oldest_age_days,
+        "human_action_required_count": human_action_required_count,
+    }
