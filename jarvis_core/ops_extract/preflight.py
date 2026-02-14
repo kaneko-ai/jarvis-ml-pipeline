@@ -41,7 +41,9 @@ def _check_input_exists(paths: list[Path]) -> tuple[bool, str]:
     return True, f"inputs={len(paths)}"
 
 
-def _check_drive_auth(config: OpsExtractConfig, network_profile: str | None = None) -> tuple[bool, str]:
+def _check_drive_auth(
+    config: OpsExtractConfig, network_profile: str | None = None
+) -> tuple[bool, str]:
     if not config.sync_enabled or config.sync_dry_run:
         return True, "sync_disabled_or_dry_run"
     if network_profile and network_profile != "ONLINE" and config.network_offline_policy == "defer":
@@ -137,7 +139,10 @@ def run_preflight_checks(
             return False, f"network_profile={network_profile}, required_for_sync=true"
         if network_profile == "OFFLINE" and config.network_offline_policy == "fail":
             return False, "network_profile=OFFLINE, offline_policy=fail"
-        return True, f"network_profile={network_profile}, offline_policy={config.network_offline_policy}"
+        return (
+            True,
+            f"network_profile={network_profile}, offline_policy={config.network_offline_policy}",
+        )
 
     block_rules = load_block_rules(lessons_path)
     for raw_rule in block_rules:

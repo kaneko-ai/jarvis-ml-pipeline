@@ -92,4 +92,3 @@ def resolve_drive_access_token(
         return fresh_token
 
     return None
-

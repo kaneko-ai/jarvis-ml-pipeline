@@ -41,4 +41,3 @@ def test_scoreboard_reproducible(tmp_path: Path):
     assert first.ops_score == second.ops_score
     assert first.extract_score == second.extract_score
     assert first.run_count == second.run_count
-

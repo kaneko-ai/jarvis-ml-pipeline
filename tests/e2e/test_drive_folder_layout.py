@@ -49,7 +49,9 @@ class _FolderLayoutHandler(BaseHTTPRequestHandler):
                 "data": bytearray(),
             }
             port = self.server.server_address[1]
-            body = json.dumps({"session_uri": f"http://127.0.0.1:{port}/session/{sid}"}).encode("utf-8")
+            body = json.dumps({"session_uri": f"http://127.0.0.1:{port}/session/{sid}"}).encode(
+                "utf-8"
+            )
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(body)))
@@ -160,4 +162,3 @@ def test_drive_folder_layout_with_hierarchy(tmp_path: Path):
     assert ("root", "Javis") in _FolderLayoutHandler.folders
     assert any(item["name"] == "text.md" for item in _FolderLayoutHandler.uploads)
     assert not any("__" in item["name"] for item in _FolderLayoutHandler.uploads)
-

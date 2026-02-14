@@ -37,4 +37,3 @@ def test_detect_network_profile_offline(monkeypatch):
     profile, diagnosis = detect_network_profile(OpsExtractConfig(enabled=True))
     assert profile == "OFFLINE"
     assert diagnosis["dns_resolve_ok"] is False
-

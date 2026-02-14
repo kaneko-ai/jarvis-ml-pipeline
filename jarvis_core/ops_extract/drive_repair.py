@@ -33,4 +33,3 @@ def plan_duplicate_folder_repair(folders: list[dict[str, Any]]) -> dict[str, Any
 def repair_duplicate_folders(*, folders: list[dict[str, Any]]) -> dict[str, Any]:
     """Return deterministic repair plan for duplicated folders."""
     return plan_duplicate_folder_repair(folders)
-

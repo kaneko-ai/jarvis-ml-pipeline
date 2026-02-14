@@ -97,4 +97,3 @@ def test_permissions_public_link_hard_fail(tmp_path: Path):
         thread.join(timeout=2)
     assert state["state"] == "failed"
     assert "permissions_public_link_detected" in state["last_error"]
-

@@ -12,7 +12,9 @@ def generate_runbook(
     output_path: Path = Path("reports/runbook.md"),
 ) -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    text = lessons_path.read_text(encoding="utf-8", errors="ignore") if lessons_path.exists() else ""
+    text = (
+        lessons_path.read_text(encoding="utf-8", errors="ignore") if lessons_path.exists() else ""
+    )
     categories = re.findall(r"^- category:\s*(.+)\s*$", text, flags=re.MULTILINE)
     causes = re.findall(r"^- root_cause:\s*(.+)\s*$", text, flags=re.MULTILINE)
     checks = re.findall(r"^- block_rule:\s*(.+)\s*$", text, flags=re.MULTILINE)
@@ -32,4 +34,3 @@ def generate_runbook(
         for idx, check in enumerate(checks[:20], start=1):
             f.write(f"{idx}. {check}\n")
     return output_path
-

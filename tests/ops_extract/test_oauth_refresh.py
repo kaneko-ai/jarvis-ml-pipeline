@@ -52,4 +52,3 @@ def test_resolve_drive_access_token_uses_cache(tmp_path):
         token_cache_path=str(cache_path),
     )
     assert token == "cached"
-

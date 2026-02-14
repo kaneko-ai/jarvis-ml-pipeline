@@ -57,7 +57,9 @@ def load_sync_queue(queue_dir: Path) -> list[dict[str, Any]]:
     return rows
 
 
-def mark_sync_queue_state(path: Path, *, state: str, error: str = "", attempts: int | None = None) -> None:
+def mark_sync_queue_state(
+    path: Path, *, state: str, error: str = "", attempts: int | None = None
+) -> None:
     payload: dict[str, Any] = {}
     if path.exists():
         try:
@@ -75,4 +77,3 @@ def mark_sync_queue_state(path: Path, *, state: str, error: str = "", attempts: 
         payload["attempts"] = int(attempts)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
-

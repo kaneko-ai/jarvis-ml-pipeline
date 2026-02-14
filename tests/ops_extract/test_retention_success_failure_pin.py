@@ -76,4 +76,3 @@ def test_retention_success_failure_and_pin(tmp_path: Path):
     assert "success_old" in result.moved_to_trash
     assert "failed_old" in result.moved_to_trash
     assert "pinned_old" in result.kept
-

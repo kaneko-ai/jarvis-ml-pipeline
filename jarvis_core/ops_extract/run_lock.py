@@ -38,4 +38,3 @@ def run_lock_context(run_dir: Path, *, force: bool = False) -> Iterator[Path]:
         yield lock_path
     finally:
         release_run_lock(lock_path)
-

@@ -99,7 +99,9 @@ def compute_extract_score(runs: list[Path]) -> float:
         empty_ratio_sum += float(extract.get("empty_page_ratio", 0.0) or 0.0)
         warnings_payload = _read_json(run_dir / "warnings.json")
         warnings = warnings_payload.get("warnings", [])
-        if isinstance(warnings, list) and any((w or {}).get("code") == "OCR_ERROR" for w in warnings):
+        if isinstance(warnings, list) and any(
+            (w or {}).get("code") == "OCR_ERROR" for w in warnings
+        ):
             ocr_failures += 1
     total = len(runs)
     mean_chars = total_chars / max(1, total)
@@ -168,4 +170,3 @@ def generate_weekly_report(
         window_start=payload["window_start"],
         window_end=payload["window_end"],
     )
-

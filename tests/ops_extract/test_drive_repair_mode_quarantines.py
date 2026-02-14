@@ -14,4 +14,3 @@ def test_repair_mode_returns_primary_and_quarantine_ids():
     assert report["status"] == "duplicate_detected"
     assert report["primary_id"] == "f1"
     assert sorted(report["quarantine_ids"]) == ["f2", "f3"]
-

@@ -50,7 +50,12 @@ from .stage_cache import (
 )
 from .sync_queue import enqueue_sync_request, load_sync_queue, mark_sync_queue_state
 from .doctor import run_doctor
-from .scoreboard import compute_extract_score, compute_ops_score, detect_anomalies, generate_weekly_report
+from .scoreboard import (
+    compute_extract_score,
+    compute_ops_score,
+    detect_anomalies,
+    generate_weekly_report,
+)
 
 __all__ = [
     "OPS_EXTRACT_OPTIONAL_ARTIFACTS",

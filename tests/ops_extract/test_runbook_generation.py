@@ -19,4 +19,3 @@ def test_runbook_generation(tmp_path: Path):
     content = out.read_text(encoding="utf-8")
     assert "ocr" in content
     assert "check_yomitoku_available" in content
-

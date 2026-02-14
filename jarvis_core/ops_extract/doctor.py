@@ -45,4 +45,3 @@ def run_doctor(
                     f"error={item.get('last_error','')}\n"
                 )
     return report_path
-

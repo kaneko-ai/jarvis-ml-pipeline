@@ -15,4 +15,3 @@ def test_run_lock_prevents_double_run(tmp_path: Path):
             acquire_run_lock(run_dir)
     finally:
         release_run_lock(lock_path)
-

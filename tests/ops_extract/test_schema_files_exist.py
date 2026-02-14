@@ -24,4 +24,3 @@ def test_ops_extract_schema_files_exist():
     existing = {p.name for p in schema_dir.glob("*.schema.json")}
     missing = sorted(required - existing)
     assert not missing, f"missing schema files: {missing}"
-

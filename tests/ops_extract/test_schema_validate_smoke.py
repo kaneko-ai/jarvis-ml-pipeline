@@ -64,4 +64,3 @@ def test_schema_validate_fails_without_schema_version():
             },
             schema_file="text_source.schema.json",
         )
-

@@ -47,4 +47,3 @@ def test_contract_validation_forces_failed_status(tmp_path: Path):
     warnings = json.loads((run_dir / "warnings.json").read_text(encoding="utf-8"))["warnings"]
     assert any(w.get("code") == "CONTRACT_VALIDATION_FAILED" for w in warnings)
     assert (run_dir / "crash_dump.json").exists()
-

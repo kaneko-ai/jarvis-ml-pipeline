@@ -374,7 +374,12 @@ def _has_public_permission(permissions: list[dict[str, Any]]) -> bool:
     for item in permissions:
         perm_type = str(item.get("type", "")).lower()
         role = str(item.get("role", "")).lower()
-        if perm_type in {"anyone", "domain"} and role in {"reader", "writer", "commenter", "organizer"}:
+        if perm_type in {"anyone", "domain"} and role in {
+            "reader",
+            "writer",
+            "commenter",
+            "organizer",
+        }:
             return True
     return False
 
@@ -547,9 +552,13 @@ def sync_run_to_drive(
             except RuntimeError as exc:
                 if "permissions_public_link_detected" in str(exc):
                     raise
-                state["warnings"].append(f"PERMISSIONS_CHECK_SKIPPED:{redact_sensitive_text(str(exc))}")
+                state["warnings"].append(
+                    f"PERMISSIONS_CHECK_SKIPPED:{redact_sensitive_text(str(exc))}"
+                )
             except Exception as exc:
-                state["warnings"].append(f"PERMISSIONS_CHECK_SKIPPED:{redact_sensitive_text(str(exc))}")
+                state["warnings"].append(
+                    f"PERMISSIONS_CHECK_SKIPPED:{redact_sensitive_text(str(exc))}"
+                )
 
         manifest_rel = "manifest.json"
         pending_non_manifest = [rel for rel in pending if rel != manifest_rel]

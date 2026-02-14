@@ -50,4 +50,3 @@ def test_retention_writes_lessons_before_trash(tmp_path: Path):
     assert "failed_old" in result.moved_to_trash
     text = lessons.read_text(encoding="utf-8")
     assert "run_id=failed_old" in text
-

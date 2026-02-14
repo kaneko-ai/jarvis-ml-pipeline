@@ -27,4 +27,3 @@ def test_doctor_offline_safe(tmp_path: Path):
     assert report.exists()
     content = report.read_text(encoding="utf-8")
     assert "network_profile: OFFLINE" in content
-

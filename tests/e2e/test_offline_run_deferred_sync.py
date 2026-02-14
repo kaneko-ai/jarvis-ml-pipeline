@@ -55,4 +55,3 @@ def test_offline_run_is_deferred_to_queue(tmp_path: Path):
     assert sync_state["state"] == "deferred"
     queue_item = queue_dir / "offline-sync.json"
     assert queue_item.exists()
-

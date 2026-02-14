@@ -83,4 +83,3 @@ def test_drive_sync_lock_ttl_expired_allows_sync(tmp_path: Path):
 
     assert state["state"] == "committed"
     assert not lock_path.exists()
-

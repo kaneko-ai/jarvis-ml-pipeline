@@ -562,7 +562,9 @@ class OpsExtractOrchestrator:
                     stage_cache_payload,
                     stage_id="extract_text_pdf",
                     input_hash=compute_input_hash([path.as_posix() for path in input_paths]),
-                    outputs=stage_outputs_from_paths([ingestion_dir / "pdf_diagnosis.json"], self.run_dir),
+                    outputs=stage_outputs_from_paths(
+                        [ingestion_dir / "pdf_diagnosis.json"], self.run_dir
+                    ),
                     status="computed",
                 )
             except Exception as exc:
@@ -685,7 +687,11 @@ class OpsExtractOrchestrator:
                     }
                 ),
                 outputs=stage_outputs_from_paths(
-                    [Path(item.ocr_text_path) for item in ocr_by_index.values() if item.ocr_text_path],
+                    [
+                        Path(item.ocr_text_path)
+                        for item in ocr_by_index.values()
+                        if item.ocr_text_path
+                    ],
                     self.run_dir,
                 ),
                 status="computed",

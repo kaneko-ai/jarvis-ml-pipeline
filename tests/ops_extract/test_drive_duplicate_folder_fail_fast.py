@@ -20,4 +20,3 @@ def test_ensure_folder_fails_when_duplicate_exists(monkeypatch):
 
     with pytest.raises(DriveUploadError):
         client.ensure_folder(name="dup", parent_id="root")
-

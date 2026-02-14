@@ -59,4 +59,3 @@ def test_queue_then_sync_online(monkeypatch, tmp_path: Path):
     assert javisctl.main() == 0
     payload = json.loads(queue_item.read_text(encoding="utf-8"))
     assert payload["state"] == "done"
-
