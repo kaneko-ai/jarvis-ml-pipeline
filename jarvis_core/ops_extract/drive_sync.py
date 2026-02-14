@@ -36,13 +36,13 @@ def _sha256(path: Path) -> str:
 def _md5_bytes(raw: bytes) -> str:
     import hashlib
 
-    return hashlib.md5(raw).hexdigest()
+    return hashlib.md5(raw, usedforsecurity=False).hexdigest()
 
 
 def _md5(path: Path) -> str:
     import hashlib
 
-    h = hashlib.md5()
+    h = hashlib.md5(usedforsecurity=False)
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             h.update(chunk)
@@ -334,8 +334,8 @@ def _derive_drive_layout(run_dir: Path) -> tuple[str, str, str]:
             finished_at = str(payload.get("finished_at", "")).strip()
             if len(finished_at) >= 7 and finished_at[4] == "-":
                 month = finished_at[:7]
-        except Exception:
-            pass
+        except (json.JSONDecodeError, OSError, TypeError, ValueError):
+            return project, month, run_id
     return project, month, run_id
 
 
@@ -707,5 +707,6 @@ def sync_run_to_drive(
         if lock_created:
             try:
                 sync_lock_path.unlink(missing_ok=True)
-            except Exception:
-                pass
+            except OSError as exc:
+                state.setdefault("warnings", [])
+                state["warnings"].append(f"SYNC_LOCK_CLEANUP_FAILED:{type(exc).__name__}")

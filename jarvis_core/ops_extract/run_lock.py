@@ -27,8 +27,8 @@ def acquire_run_lock(run_dir: Path, *, force: bool = False) -> Path:
 def release_run_lock(lock_path: Path) -> None:
     try:
         lock_path.unlink(missing_ok=True)
-    except Exception:
-        pass
+    except OSError:
+        return
 
 
 @contextmanager

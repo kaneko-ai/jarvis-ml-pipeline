@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
 
 from .contracts import OpsExtractConfig
 from .network import detect_network_profile
