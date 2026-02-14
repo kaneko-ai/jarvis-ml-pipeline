@@ -104,6 +104,12 @@ def _cmd_cancel(args: argparse.Namespace) -> int:
 def _cmd_sync(args: argparse.Namespace) -> int:
     queue_dir = Path(args.queue_dir)
     items = load_sync_queue(queue_dir)
+    if args.only_human_action:
+        items = [
+            item
+            for item in items
+            if str(item.get("state", "")) in {"failed", "human_action_required"}
+        ]
     for item in items:
         path = Path(str(item.get("_path", "")))
         run_dir = Path(str(item.get("run_dir", "")))
@@ -228,6 +234,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_sync.add_argument("--upload-base-url")
     p_sync.add_argument("--dry-run", action="store_true")
     p_sync.add_argument("--no-verify", action="store_true")
+    p_sync.add_argument("--only-human-action", action="store_true")
     p_sync.set_defaults(func=_cmd_sync)
 
     p_audit = sub.add_parser("audit")
