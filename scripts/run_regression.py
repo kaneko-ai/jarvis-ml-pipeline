@@ -64,7 +64,8 @@ def compute_summary(results: List[Dict[str, Any]]) -> Dict[str, Any]:
     # Aggregate metrics
     all_metrics = [r.get("metrics", {}) for r in results]
 
-    avg = lambda key: (sum(m.get(key, 0) for m in all_metrics) / total if total > 0 else 0)
+    def avg(key: str) -> float:
+        return sum(m.get(key, 0) for m in all_metrics) / total if total > 0 else 0
 
     return {
         "total": total,

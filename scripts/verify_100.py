@@ -163,7 +163,7 @@ def check_evidence_locators(run_dir: Path) -> tuple[bool, str]:
                 missing_locator += 1
             elif isinstance(locator, dict) and not locator.get("section"):
                 missing_locator += 1
-        except:
+        except Exception:
             pass
 
     if missing_locator > 0:
@@ -202,7 +202,7 @@ def verify_run(run_dir: Path, check_api: bool = False) -> VerifyResult:
             with open(result_file, "r", encoding="utf-8") as f:
                 res = json.load(f)
             is_failure = res.get("status") != "success"
-        except:
+        except Exception:
             pass
 
     # 2. 契約チェック

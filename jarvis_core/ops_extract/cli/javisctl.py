@@ -4,14 +4,20 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
 from jarvis_core.app import run_task
 from jarvis_core.ops_extract.contracts import OpsExtractConfig
 from jarvis_core.ops_extract.doctor import run_doctor
+from jarvis_core.ops_extract.drive_audit import audit_manifest_vs_drive
+from jarvis_core.ops_extract.drive_client import DriveResumableClient
 from jarvis_core.ops_extract.drive_repair import repair_duplicate_folders
 from jarvis_core.ops_extract.drive_sync import sync_run_to_drive
+from jarvis_core.ops_extract.oauth_google import resolve_drive_access_token
 from jarvis_core.ops_extract.runbook import generate_runbook
 from jarvis_core.ops_extract.scoreboard import generate_weekly_report
 from jarvis_core.ops_extract.sync_queue import load_sync_queue, mark_sync_queue_state
@@ -26,6 +32,14 @@ def _read_json(path: Path) -> dict[str, Any]:
         return payload if isinstance(payload, dict) else {}
     except Exception:
         return {}
+
+
+def _resolve_run_dir(*, run_id: str | None = None, run_dir: str | None = None) -> Path:
+    if run_dir:
+        return Path(run_dir)
+    if run_id:
+        return Path("logs") / "runs" / str(run_id)
+    raise ValueError("either run_id or run_dir is required")
 
 
 def _cmd_run(args: argparse.Namespace) -> int:
@@ -139,22 +153,40 @@ def _cmd_sync(args: argparse.Namespace) -> int:
 
 
 def _cmd_audit(args: argparse.Namespace) -> int:
-    run_dir = Path(args.run_dir)
+    run_dir = _resolve_run_dir(run_id=getattr(args, "run_id", None), run_dir=args.run_dir)
     manifest = _read_json(run_dir / "manifest.json")
     sync_state = _read_json(run_dir / "sync_state.json")
-    outputs = manifest.get("outputs", []) if isinstance(manifest, dict) else []
-    uploaded = {
-        str(item.get("path", "")).strip()
-        for item in (sync_state.get("uploaded_files", []) if isinstance(sync_state, dict) else [])
-        if str(item.get("path", "")).strip()
-    }
-    missing = []
-    for output in outputs:
-        path = str((output or {}).get("path", "")).strip()
-        if path and path not in uploaded and path != "manifest.json":
-            missing.append(path)
-    print(json.dumps({"missing_remote": missing}, ensure_ascii=False, indent=2))
-    return 0 if not missing else 2
+    if not isinstance(manifest, dict) or not manifest:
+        print(json.dumps({"error": "manifest_missing_or_invalid"}, ensure_ascii=False, indent=2))
+        return 2
+    folder_id = str(
+        sync_state.get("remote_root_folder_id")
+        or sync_state.get("drive_folder_id")
+        or sync_state.get("folder_id")
+        or ""
+    ).strip()
+    if not folder_id:
+        print(json.dumps({"error": "remote_root_folder_id_missing"}, ensure_ascii=False, indent=2))
+        return 2
+
+    token = resolve_drive_access_token(
+        access_token=args.access_token or os.getenv("GOOGLE_DRIVE_ACCESS_TOKEN"),
+        refresh_token=None,
+        client_id=None,
+        client_secret=None,
+        token_cache_path=None,
+    )
+    if not token:
+        print(json.dumps({"error": "drive_access_token_missing"}, ensure_ascii=False, indent=2))
+        return 2
+
+    client = DriveResumableClient(
+        access_token=token,
+        api_base_url=args.api_base_url,
+    )
+    report = audit_manifest_vs_drive(run_dir=run_dir, client=client, folder_id=folder_id)
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+    return 0 if bool(report.get("ok", False)) else 2
 
 
 def _cmd_doctor(args: argparse.Namespace) -> int:
@@ -201,6 +233,13 @@ def _cmd_runbook(_args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_dashboard(args: argparse.Namespace) -> int:
+    run_dir = _resolve_run_dir(run_id=getattr(args, "run_id", None), run_dir=args.run_dir)
+    cmd = [sys.executable, "scripts/javis_dashboard.py", "--run-dir", str(run_dir)]
+    proc = subprocess.run(cmd, check=False)
+    return int(proc.returncode)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Ops+Extract control CLI")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -238,7 +277,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_sync.set_defaults(func=_cmd_sync)
 
     p_audit = sub.add_parser("audit")
-    p_audit.add_argument("--run-dir", required=True)
+    group_audit = p_audit.add_mutually_exclusive_group(required=True)
+    group_audit.add_argument("--run-dir")
+    group_audit.add_argument("--run-id")
+    p_audit.add_argument("--access-token")
+    p_audit.add_argument("--api-base-url")
     p_audit.set_defaults(func=_cmd_audit)
 
     p_doctor = sub.add_parser("doctor")
@@ -255,6 +298,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_runbook = sub.add_parser("runbook")
     p_runbook.set_defaults(func=_cmd_runbook)
+
+    p_dashboard = sub.add_parser("dashboard")
+    group_dashboard = p_dashboard.add_mutually_exclusive_group(required=True)
+    group_dashboard.add_argument("--run-dir")
+    group_dashboard.add_argument("--run-id")
+    p_dashboard.set_defaults(func=_cmd_dashboard)
     return parser
 
 

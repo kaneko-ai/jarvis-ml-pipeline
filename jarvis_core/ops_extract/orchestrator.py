@@ -55,6 +55,7 @@ from .stage_cache import (
     update_stage_cache_entry,
 )
 from .sync_queue import enqueue_sync_request
+from .telemetry import ETAEstimator, ProgressEmitter, TelemetrySampler
 
 
 @dataclass
@@ -260,6 +261,28 @@ def _write_crash_dump(run_dir: Path, error_message: str) -> None:
     _write_json(run_dir / "crash_dump.json", payload)
 
 
+def _append_crash_dump_post_contract_errors(run_dir: Path, errors: list[str]) -> None:
+    if not errors:
+        return
+    path = run_dir / "crash_dump.json"
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    except Exception:
+        payload = {}
+    if not isinstance(payload, dict):
+        payload = {}
+    existing = payload.get("post_contract_validation_errors", [])
+    merged: list[str] = []
+    if isinstance(existing, list):
+        merged.extend(str(item) for item in existing)
+    merged.extend(str(item) for item in errors)
+    payload["post_contract_validation_errors"] = merged
+    payload["generated_at"] = _now_iso()
+    payload.setdefault("schema_version", OPS_EXTRACT_SCHEMA_VERSION)
+    payload.setdefault("error", "contract_validation_failed")
+    _write_json(path, payload)
+
+
 class OpsExtractOrchestrator:
     def __init__(self, run_dir: Path, config: OpsExtractConfig):
         self.run_dir = Path(run_dir)
@@ -460,6 +483,30 @@ class OpsExtractOrchestrator:
         ingestion_dir.mkdir(parents=True, exist_ok=True)
         ocr_dir.mkdir(parents=True, exist_ok=True)
         stage_cache_payload = load_stage_cache(stage_cache_path)
+        telemetry_active = not _is_fixed_time_mode()
+
+        class _NoopProgressEmitter:
+            def emit_stage_start(self, stage: str, items_total: int | None = None) -> None:
+                return
+
+            def emit_stage_update(
+                self, stage: str, items_done: int, items_total: int | None = None
+            ) -> None:
+                return
+
+            def emit_stage_end(self, stage: str) -> None:
+                return
+
+        if telemetry_active:
+            eta_estimator = ETAEstimator(self.run_dir.parent)
+            progress_emitter = ProgressEmitter(self.run_dir, eta_estimator=eta_estimator)
+            telemetry_sampler = TelemetrySampler(
+                self.run_dir,
+                recent_exceptions_count_fn=lambda: len(run_errors),
+            )
+        else:
+            progress_emitter = _NoopProgressEmitter()
+            telemetry_sampler = None
 
         trace_rows: list[dict[str, Any]] = []
         stage_starts: dict[str, tuple[str, float, list[Path]]] = {}
@@ -470,6 +517,7 @@ class OpsExtractOrchestrator:
                 time.perf_counter(),
                 list(inputs),
             )
+            progress_emitter.emit_stage_start(stage_id)
 
         def _finish_stage(
             stage_id: str,
@@ -496,6 +544,7 @@ class OpsExtractOrchestrator:
                     "error": error,
                 }
             )
+            progress_emitter.emit_stage_end(stage_id)
 
         lessons_path = Path(self.config.lessons_path) if self.config.lessons_path else None
         _start_stage("preflight", input_paths)
@@ -556,6 +605,11 @@ class OpsExtractOrchestrator:
                     }
                     for future in as_completed(future_map):
                         parse_results.append(future.result())
+                        progress_emitter.emit_stage_update(
+                            "extract_text_pdf",
+                            len(parse_results),
+                            len(input_paths),
+                        )
                 parse_results.sort(key=lambda item: item.doc_index)
                 _finish_stage("extract_text_pdf", outputs=[ingestion_dir / "pdf_diagnosis.json"])
                 update_stage_cache_entry(
@@ -616,6 +670,11 @@ class OpsExtractOrchestrator:
                     for future in as_completed(future_map):
                         raster_result = future.result()
                         raster_by_index[raster_result.doc_index] = raster_result
+                        progress_emitter.emit_stage_update(
+                            "rasterize_pdf",
+                            len(raster_by_index),
+                            len(needs_ocr_docs),
+                        )
                 for item in raster_by_index.values():
                     if item.error:
                         run_errors.append(f"rasterize_failed:{item.pdf_path.name}:{item.error}")
@@ -671,6 +730,11 @@ class OpsExtractOrchestrator:
                     for future in as_completed(future_map):
                         ocr_result = future.result()
                         ocr_by_index[ocr_result.doc_index] = ocr_result
+                        progress_emitter.emit_stage_update(
+                            "ocr_yomitoku",
+                            len(ocr_by_index),
+                            len(needs_ocr_docs),
+                        )
             _finish_stage(
                 "ocr_yomitoku",
                 outputs=[
@@ -1136,6 +1200,16 @@ class OpsExtractOrchestrator:
             self.run_dir,
             include_ocr_meta=ocr_used,
         )
+        if telemetry_sampler is not None:
+            telemetry_sampler.start()
+        if telemetry_sampler is not None and not telemetry_sampler.enabled:
+            warning_records.append(
+                {
+                    "code": "TELEMETRY_DISABLED",
+                    "message": "psutil is unavailable; telemetry sampling is disabled",
+                    "severity": "warning",
+                }
+            )
         if contract_errors:
             status = "failed"
             error_message = "contract_validation_failed:" + " | ".join(contract_errors)
@@ -1168,6 +1242,41 @@ class OpsExtractOrchestrator:
             _write_json(self.run_dir / "run_metadata.json", run_metadata)
             write_manifest(self.run_dir / "manifest.json", manifest_payload)
             _write_crash_dump(self.run_dir, error_message)
+
+            # Re-validate after crash dump generation to close contract expectation
+            # for failed runs, including crash_dump presence itself.
+            errors2 = validate_run_contracts_strict(
+                self.run_dir,
+                include_ocr_meta=ocr_used,
+                assume_failed=True,
+            )
+            post_contract_errors = [
+                item for item in errors2 if str(item).strip() != "missing:crash_dump.json"
+            ]
+            if post_contract_errors:
+                _append_crash_dump_post_contract_errors(self.run_dir, post_contract_errors)
+                warning_records.append(
+                    {
+                        "code": "CONTRACT_POST_VALIDATION_FAILED",
+                        "message": " | ".join(post_contract_errors),
+                        "severity": "error",
+                    }
+                )
+                failure_analysis = {
+                    **failure_analysis,
+                    "status": "failed",
+                    "category": "contract_violation",
+                    "root_cause_guess": "contract_post_validation_failed",
+                }
+                _write_json(self.run_dir / "failure_analysis.json", failure_analysis)
+                _write_json(
+                    self.run_dir / "warnings.json",
+                    {
+                        "schema_version": OPS_EXTRACT_SCHEMA_VERSION,
+                        "warnings": warning_records,
+                    },
+                )
+                _write_jsonl(self.run_dir / "warnings.jsonl", warning_records)
 
         update_stage_cache_entry(
             stage_cache_payload,
@@ -1209,6 +1318,11 @@ class OpsExtractOrchestrator:
         _start_stage(
             "enqueue_drive_sync",
             [self.run_dir / "manifest.json", self.run_dir / "metrics.json"],
+        )
+        progress_emitter.emit_stage_update(
+            "enqueue_drive_sync",
+            0,
+            max(1, len(manifest_payload.get("outputs", [])) + 1),
         )
         try:
             should_defer_sync = (
@@ -1275,9 +1389,16 @@ class OpsExtractOrchestrator:
                     sync_lock_ttl_sec=self.config.sync_lock_ttl_sec,
                     check_public_permissions=self.config.drive_fail_on_public_permissions,
                 )
+            progress_emitter.emit_stage_update(
+                "enqueue_drive_sync",
+                max(1, len(manifest_payload.get("outputs", [])) + 1),
+                max(1, len(manifest_payload.get("outputs", [])) + 1),
+            )
             _finish_stage("enqueue_drive_sync", outputs=[self.run_dir / "sync_state.json"])
         except Exception as exc:
             _finish_stage("enqueue_drive_sync", error=str(exc))
+            if telemetry_sampler is not None:
+                telemetry_sampler.stop()
             raise
 
         update_stage_cache_entry(
@@ -1430,6 +1551,8 @@ class OpsExtractOrchestrator:
         warning_messages = [str(w.get("message", "")).strip() for w in warning_records]
         warning_messages = [w for w in warning_messages if w]
 
+        if telemetry_sampler is not None:
+            telemetry_sampler.stop()
         answer = (
             f"Ops+Extract completed: files={len(input_paths)}, ocr_used={ocr_used}, "
             f"status={status}, total_chars={metrics['extract']['total_chars']}"

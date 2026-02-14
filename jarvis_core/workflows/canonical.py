@@ -6,7 +6,7 @@ Each workflow is a complete pipeline from input to artifact output.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from ..artifacts.adapters import adapt_to_artifact
 from ..artifacts.schema import ArtifactBase, Inference, Provenance, Recommendation
@@ -19,6 +19,7 @@ def run_literature_to_plan(
     vectors: list[PaperVector],
     focus_concepts: list[str],
     goal: str = "research",
+    progress_emitter: Any | None = None,
 ) -> ArtifactBase:
     """Workflow 1: Literature → Research Plan.
 
@@ -36,7 +37,27 @@ def run_literature_to_plan(
     from ..experimental.gap_analysis import score_research_gaps
     from ..hypothesis import generate_hypotheses
 
+    survey_total = max(1, len(vectors))
+    if progress_emitter is not None:
+        progress_emitter.emit_stage_start("survey_discover", items_total=survey_total)
+        progress_emitter.emit_stage_update(
+            "survey_discover", min(len(vectors), survey_total), survey_total
+        )
+        progress_emitter.emit_stage_end("survey_discover")
+        progress_emitter.emit_stage_start("survey_download", items_total=survey_total)
+        progress_emitter.emit_stage_update(
+            "survey_download", min(len(vectors), survey_total), survey_total
+        )
+        progress_emitter.emit_stage_end("survey_download")
+        progress_emitter.emit_stage_start("survey_parse", items_total=max(1, len(focus_concepts)))
+
     if not vectors:
+        if progress_emitter is not None:
+            progress_emitter.emit_stage_update("survey_parse", 1, max(1, len(focus_concepts)))
+            progress_emitter.emit_stage_end("survey_parse")
+            progress_emitter.emit_stage_start("survey_index", items_total=1)
+            progress_emitter.emit_stage_update("survey_index", 1, 1)
+            progress_emitter.emit_stage_end("survey_index")
         return ArtifactBase(
             kind="research_plan",
             inferences=[
@@ -54,9 +75,16 @@ def run_literature_to_plan(
     for concept in focus_concepts:
         gap_result = score_research_gaps(vectors, concept)
         gaps.extend(gap_result)
+        if progress_emitter is not None:
+            progress_emitter.emit_stage_update(
+                "survey_parse", len(gaps), max(1, len(focus_concepts))
+            )
 
     # Step 2: Generate Hypotheses
     hypotheses = generate_hypotheses(vectors, focus_concepts)
+    if progress_emitter is not None:
+        progress_emitter.emit_stage_end("survey_parse")
+        progress_emitter.emit_stage_start("survey_index", items_total=max(1, len(hypotheses)))
 
     # Step 3: Assess Feasibility
     feasibility_results = []
@@ -68,6 +96,12 @@ def run_literature_to_plan(
                 "feasibility": feas,
             }
         )
+        if progress_emitter is not None:
+            progress_emitter.emit_stage_update(
+                "survey_index",
+                len(feasibility_results),
+                max(1, len(hypotheses[:3])),
+            )
 
     # Build Artifact
     inferences = [
@@ -99,7 +133,7 @@ def run_literature_to_plan(
                 )
             )
 
-    return ArtifactBase(
+    artifact = ArtifactBase(
         kind="research_plan",
         inferences=inferences,
         recommendations=recommendations,
@@ -119,6 +153,9 @@ def run_literature_to_plan(
             "feasibility": feasibility_results,
         },
     )
+    if progress_emitter is not None:
+        progress_emitter.emit_stage_end("survey_index")
+    return artifact
 
 
 def run_plan_to_grant(

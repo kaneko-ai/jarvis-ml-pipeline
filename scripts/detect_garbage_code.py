@@ -75,7 +75,10 @@ class GarbageDetector(ast.NodeVisitor):
 
     def visit_ExceptHandler(self, node: ast.ExceptHandler) -> None:
         if len(node.body) == 1 and isinstance(node.body[0], ast.Pass):
-            if isinstance(node.type, ast.Name) and node.type.id in {"ImportError", "AttributeError"}:
+            if isinstance(node.type, ast.Name) and node.type.id in {
+                "ImportError",
+                "AttributeError",
+            }:
                 self.generic_visit(node)
                 return
             self.issues.append(f"{node.lineno}: {MSG_EXCEPT_PASS}")
