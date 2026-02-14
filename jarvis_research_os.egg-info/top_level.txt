@@ -1,3 +1,0 @@
-jarvis_core
-jarvis_tools
-jarvis_web
