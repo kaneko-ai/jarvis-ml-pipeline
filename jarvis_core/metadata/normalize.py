@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 
@@ -27,7 +27,7 @@ def normalize_record(paper: dict[str, Any]) -> dict[str, Any]:
 
 
 def audit_records(papers: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    current_year = datetime.utcnow().year
+    current_year = datetime.now(timezone.utc).replace(tzinfo=None).year
     normalized = [normalize_record(p) for p in papers]
 
     doi_titles: dict[str, set] = {}

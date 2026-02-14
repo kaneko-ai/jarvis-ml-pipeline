@@ -63,13 +63,13 @@ class DurableRunner:
             completed: Completed item IDs.
             pending: Pending item IDs.
         """
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         checkpoint = Checkpoint(
             run_id=self.run_id,
             stage=stage,
             step_id=self._step_id,
-            timestamp=datetime.utcnow().isoformat() + "Z",
+            timestamp=datetime.now(timezone.utc).replace(tzinfo=None).isoformat() + "Z",
             data=data,
             completed_items=completed or [],
             pending_items=pending or [],

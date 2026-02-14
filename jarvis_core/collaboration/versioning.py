@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 import difflib
 import uuid
 
@@ -33,7 +33,7 @@ class VersionHistoryStore:
             artifact_id=artifact_id,
             content_hash=content_hash,
             author=author,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).replace(tzinfo=None).isoformat(),
             content=content,
         )
         self._versions.setdefault(artifact_id, []).append(version)

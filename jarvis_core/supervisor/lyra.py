@@ -19,7 +19,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -162,7 +162,7 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat."""
 
     def _generate_run_id(self) -> str:
         """Generate unique run ID."""
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         return hashlib.sha256(now.encode()).hexdigest()[:12]
 
     def _log(
@@ -175,7 +175,7 @@ DECONSTRUCT → DIAGNOSE → DEVELOP → DELIVER → repeat."""
     ) -> None:
         """Add entry to audit log."""
         log = SupervisionLog(
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).replace(tzinfo=None).isoformat(),
             run_id=self.run_id,
             phase=phase,
             issue_detected=issue,
@@ -612,7 +612,7 @@ Outputs without evidence_links will be REJECTED.
         Returns:
             DeliverResult ready for execution
         """
-        task_id = f"task-{self.run_id}-{datetime.utcnow().strftime('%H%M%S')}"
+        task_id = f"task-{self.run_id}-{datetime.now(timezone.utc).replace(tzinfo=None).strftime('%H%M%S')}"
 
         result = DeliverResult(
             task_id=task_id,

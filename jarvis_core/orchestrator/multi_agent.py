@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import uuid
 from dataclasses import asdict
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Awaitable, Callable
 
 from .conversation import Conversation, ConversationMessage
@@ -69,7 +69,7 @@ class MultiAgentOrchestrator:
             conversation = self._conversations[conversation_id]
             if agent_id not in conversation.agents:
                 conversation.agents.append(agent_id)
-                conversation.updated_at = datetime.utcnow()
+                conversation.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
         await self._queue.put((agent_id, task, instance.mode, conversation_id))
         return agent_id
 
@@ -148,7 +148,7 @@ class MultiAgentOrchestrator:
         conversation.messages.append(message)
         if agent_id not in conversation.agents:
             conversation.agents.append(agent_id)
-        conversation.updated_at = datetime.utcnow()
+        conversation.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
         return message_id
 
     def get_inbox(self) -> list[dict]:
@@ -228,7 +228,7 @@ class MultiAgentOrchestrator:
                 self._queue.task_done()
                 continue
             await self._set_status(instance, AgentStatus.EXECUTING)
-            instance.started_at = datetime.utcnow()
+            instance.started_at = datetime.now(timezone.utc).replace(tzinfo=None)
             try:
                 handler = self._resolve_agent(task.agent_type)
                 if handler:
@@ -237,11 +237,11 @@ class MultiAgentOrchestrator:
                     await asyncio.sleep(0)
                 await self.update_progress(agent_id, 1.0)
                 await self._set_status(instance, AgentStatus.COMPLETED)
-                instance.completed_at = datetime.utcnow()
+                instance.completed_at = datetime.now(timezone.utc).replace(tzinfo=None)
             except Exception as exc:  # pragma: no cover - defensive
                 await self._set_status(instance, AgentStatus.FAILED)
                 instance.errors.append(str(exc))
-                instance.completed_at = datetime.utcnow()
+                instance.completed_at = datetime.now(timezone.utc).replace(tzinfo=None)
             finally:
                 self._queue.task_done()
 

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -45,7 +45,7 @@ class AuditLogger:
         self.log_dir = log_dir or Path("artifacts/audit")
         self.log_dir.mkdir(parents=True, exist_ok=True)
         self.entries: list[AuditEntry] = []
-        self.run_id = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        self.run_id = datetime.now(timezone.utc).replace(tzinfo=None).strftime("%Y%m%d_%H%M%S")
 
     def log(
         self,
@@ -58,7 +58,7 @@ class AuditLogger:
     ) -> AuditEntry:
         """監査ログを記録."""
         entry = AuditEntry(
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).replace(tzinfo=None).isoformat(),
             run_id=self.run_id,
             stage=stage,
             action=action,

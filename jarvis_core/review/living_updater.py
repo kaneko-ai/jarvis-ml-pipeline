@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 
 from jarvis_core.advanced.features import SystematicReviewAgent
 from jarvis_core.evidence.ensemble import grade_evidence
@@ -41,7 +41,7 @@ class LivingReviewUpdater:
         but for this implementation we simulate by filtering provided papers.
         """
         last_check_str = self._last_checked.get(review_id)
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
         self._last_checked[review_id] = now.isoformat()
 
         if not last_check_str:
@@ -74,7 +74,7 @@ class LivingReviewUpdater:
         prisma_flow = review.get_prisma_flow()
         return UpdateReport(
             review_id=review_id,
-            updated_at=datetime.utcnow().isoformat(),
+            updated_at=datetime.now(timezone.utc).replace(tzinfo=None).isoformat(),
             new_papers=new_papers,
             evidence_grades=evidence_grades,
             prisma_flow=prisma_flow,

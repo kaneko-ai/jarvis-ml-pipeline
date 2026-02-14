@@ -10,7 +10,7 @@ import csv
 from dataclasses import dataclass
 from typing import List, Optional
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 @dataclass
@@ -41,7 +41,7 @@ def compute_kpis(
         KPISnapshot with computed metrics.
     """
     if timestamp is None:
-        timestamp = datetime.utcnow().isoformat() + "Z"
+        timestamp = datetime.now(timezone.utc).replace(tzinfo=None).isoformat() + "Z"
 
     total = len(runs)
     if total == 0:

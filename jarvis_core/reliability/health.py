@@ -93,12 +93,12 @@ class HealthChecker:
         Returns:
             HealthReport for liveness.
         """
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         return HealthReport(
             status=HealthStatus.HEALTHY,
             checks=[],
-            timestamp=datetime.utcnow().isoformat() + "Z",
+            timestamp=datetime.now(timezone.utc).replace(tzinfo=None).isoformat() + "Z",
             version=self.version,
             uptime_seconds=time.time() - self.start_time,
         )
@@ -109,7 +109,7 @@ class HealthChecker:
         Returns:
             HealthReport with all checks.
         """
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         results = []
         overall_status = HealthStatus.HEALTHY
@@ -143,7 +143,7 @@ class HealthChecker:
         return HealthReport(
             status=overall_status,
             checks=results,
-            timestamp=datetime.utcnow().isoformat() + "Z",
+            timestamp=datetime.now(timezone.utc).replace(tzinfo=None).isoformat() + "Z",
             version=self.version,
             uptime_seconds=time.time() - self.start_time,
         )
@@ -154,7 +154,7 @@ class HealthChecker:
         Returns:
             HealthReport with all checks.
         """
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         results = []
         overall_status = HealthStatus.HEALTHY
@@ -202,7 +202,7 @@ class HealthChecker:
         return HealthReport(
             status=overall_status,
             checks=results,
-            timestamp=datetime.utcnow().isoformat() + "Z",
+            timestamp=datetime.now(timezone.utc).replace(tzinfo=None).isoformat() + "Z",
             version=self.version,
             uptime_seconds=time.time() - self.start_time,
         )

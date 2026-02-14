@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -112,7 +112,7 @@ class AutomatedEvalPipeline:
 
         run = EvalRun(
             run_id=f"eval_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
-            timestamp=datetime.utcnow().isoformat() + "Z",
+            timestamp=datetime.now(timezone.utc).replace(tzinfo=None).isoformat() + "Z",
             metrics=metrics,
             cases_passed=passed,
             cases_failed=failed,

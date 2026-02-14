@@ -8,7 +8,7 @@ from __future__ import annotations
 import shutil
 import json
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 def generate_release_bundle(
@@ -81,7 +81,7 @@ python scripts/bench.py --cases docs/evals/bench_cases.jsonl
     # Generate manifest
     manifest = {
         "version": version,
-        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "generated_at": datetime.now(timezone.utc).replace(tzinfo=None).isoformat() + "Z",
         "files": [f.name for f in out_path.iterdir()],
     }
 

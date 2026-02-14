@@ -8,7 +8,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -85,7 +85,7 @@ class ABTestingFramework:
             name=name,
             variants=variants,
             traffic_split=traffic_split,
-            start_date=datetime.utcnow().isoformat() + "Z",
+            start_date=datetime.now(timezone.utc).replace(tzinfo=None).isoformat() + "Z",
             end_date=None,
             status="draft",
             metrics=metrics or ["success_rate"],
@@ -149,7 +149,8 @@ class ABTestingFramework:
             f.write(
                 json.dumps(
                     {
-                        "timestamp": datetime.utcnow().isoformat() + "Z",
+                        "timestamp": datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
+                        + "Z",
                         "variant": variant,
                         "metric": metric,
                         "value": value,
@@ -249,5 +250,7 @@ class ABTestingFramework:
         """Stop an experiment."""
         if experiment_id in self._experiments:
             self._experiments[experiment_id].status = "completed"
-            self._experiments[experiment_id].end_date = datetime.utcnow().isoformat() + "Z"
+            self._experiments[experiment_id].end_date = (
+                datetime.now(timezone.utc).replace(tzinfo=None).isoformat() + "Z"
+            )
             self._save_experiment(self._experiments[experiment_id])

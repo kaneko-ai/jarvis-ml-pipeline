@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from .schema import DISCLAIMER_TEXT, DecisionComparison
@@ -12,7 +12,7 @@ def build_markdown_report(comparison: DecisionComparison) -> str:
     """Build a markdown report from decision comparison."""
     lines = [
         "# Decision Intelligence Report",
-        f"- Generated: {datetime.utcnow().isoformat()}Z",
+        f"- Generated: {datetime.now(timezone.utc).replace(tzinfo=None).isoformat()}Z",
         f"- Disclaimer: {DISCLAIMER_TEXT}",
         "",
     ]

@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import uuid
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -87,7 +87,9 @@ class TaskContext:
     domain: str = "general"
     constraints: list[str] = field(default_factory=list)
     seed: int = 42
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
+    )
     run_id: str = field(default_factory=lambda: str(uuid.uuid4())[:12])
     user_id: str | None = None
     priority: int = 5
@@ -331,7 +333,9 @@ class ResultBundle:
         return rate >= min_rate
 
     def add_log(self, message: str) -> None:
-        self.logs.append(f"[{datetime.utcnow().isoformat()}] {message}")
+        self.logs.append(
+            f"[{datetime.now(timezone.utc).replace(tzinfo=None).isoformat()}] {message}"
+        )
 
     def mark_error(self, error: str) -> None:
         self.success = False

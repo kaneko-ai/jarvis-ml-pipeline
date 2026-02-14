@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 DISCLAIMER_TEXT = "仮定に依存する（推測です）"
 
@@ -15,7 +15,8 @@ class RationaleValue(BaseModel):
     value: float
     rationale: str = Field(..., min_length=1)
 
-    @validator("rationale")
+    @field_validator("rationale")
+    @classmethod
     def _rationale_not_empty(cls, value: str) -> str:
         if not value.strip():
             raise ValueError("rationale is required for numeric values")
