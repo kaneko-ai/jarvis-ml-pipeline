@@ -127,10 +127,9 @@ class OfflineManager:
     def _can_reach(self, host: str) -> bool:
         """Check if host is reachable."""
         try:
-            socket.setdefaulttimeout(self.config.check_timeout)
-            socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(
-                (host, self.config.check_port)
-            )
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.settimeout(self.config.check_timeout)
+                sock.connect((host, self.config.check_port))
             return True
         except (TimeoutError, OSError):
             return False

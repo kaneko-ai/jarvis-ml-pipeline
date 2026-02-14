@@ -142,6 +142,7 @@ def _run_sync(tmp_path: Path, metadata_without_md5: bool) -> dict[str, Any]:
         )
     finally:
         server.shutdown()
+        server.server_close()
         thread.join(timeout=2)
 
 
@@ -207,6 +208,7 @@ def test_drive_idempotent_resync(tmp_path: Path):
         )
     finally:
         server.shutdown()
+        server.server_close()
         thread.join(timeout=2)
 
     assert first["state"] == "committed"

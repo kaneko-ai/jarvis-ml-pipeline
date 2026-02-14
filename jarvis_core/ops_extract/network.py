@@ -61,13 +61,14 @@ def detect_network_profile(config: OpsExtractConfig) -> tuple[str, dict[str, Any
     probe_url = f"{api_base}/about"
     started = time.perf_counter()
     try:
-        resp = requests.get(
+        with requests.get(
             probe_url,
             params={"fields": "user"},
             timeout=3.0,
-        )
-        # 200/401/403 means endpoint is reachable at network layer.
-        diag["drive_api_reachable"] = resp.status_code in {200, 401, 403}
+            stream=True,
+        ) as resp:
+            # 200/401/403 means endpoint is reachable at network layer.
+            diag["drive_api_reachable"] = resp.status_code in {200, 401, 403}
     except Exception as exc:
         diag["errors"].append(f"drive_probe_failed:{exc}")
     finally:

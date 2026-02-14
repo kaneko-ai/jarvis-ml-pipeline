@@ -156,6 +156,7 @@ def test_drive_folder_layout_with_hierarchy(tmp_path: Path):
         )
     finally:
         server.shutdown()
+        server.server_close()
         thread.join(timeout=2)
 
     assert state["state"] == "committed"
