@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -51,13 +51,13 @@ async def simulate_decision(payload: Dict[str, object]):
 
     parsed = validation["parsed"]
     comparison = evaluate_options(parsed.options, parsed.assumptions)
-    return comparison.dict()
+    return comparison.model_dump()
 
 
 @router.post("/report")
 async def generate_report(request: ReportRequest):
     """Generate decision report files."""
-    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     report_dir = REPORTS_DIR / timestamp
     files = write_report_files(request.comparison, report_dir)
 

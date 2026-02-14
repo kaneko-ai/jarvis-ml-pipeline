@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import List, Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 
 
@@ -67,7 +67,7 @@ class DashboardAPI:
                 failed_runs=0,
                 avg_latency_ms=0,
                 papers_indexed=0,
-                last_updated=datetime.utcnow().isoformat() + "Z",
+                last_updated=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             )
 
         total = len(runs)
@@ -83,7 +83,7 @@ class DashboardAPI:
             failed_runs=failed,
             avg_latency_ms=avg_latency,
             papers_indexed=1000,  # Placeholder
-            last_updated=datetime.utcnow().isoformat() + "Z",
+            last_updated=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         )
 
     def list_runs(

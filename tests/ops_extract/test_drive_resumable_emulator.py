@@ -174,4 +174,5 @@ def test_drive_resumable_emulator_resume_and_commit(tmp_path: Path):
         assert any(item.get("path") == "manifest.json" for item in second["uploaded_files"])
     finally:
         server.shutdown()
+        server.server_close()
         thread.join(timeout=2)

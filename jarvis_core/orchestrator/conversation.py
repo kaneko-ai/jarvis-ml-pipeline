@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 @dataclass
@@ -12,7 +12,7 @@ class ConversationMessage:
     agent_id: str
     role: str
     content: str
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     artifacts: list[str] = field(default_factory=list)
 
 
@@ -24,5 +24,5 @@ class Conversation:
     agents: list[str] = field(default_factory=list)
     messages: list[ConversationMessage] = field(default_factory=list)
     status: str = "active"
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))

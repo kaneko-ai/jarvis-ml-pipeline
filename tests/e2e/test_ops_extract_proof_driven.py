@@ -230,4 +230,5 @@ def test_e2e_drive_sync_failed_then_resume_commit(tmp_path: Path):
         assert second["manifest_committed_drive"] is True
     finally:
         server.shutdown()
+        server.server_close()
         thread.join(timeout=2)

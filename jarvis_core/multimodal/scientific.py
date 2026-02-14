@@ -458,9 +458,7 @@ class FormulaCalculator:
         }
 
         def eval_node(node):
-            if isinstance(node, ast.Num):  # <3.8
-                return node.n
-            elif isinstance(node, ast.Constant):  # >=3.8
+            if isinstance(node, ast.Constant):
                 return node.value
             elif isinstance(node, ast.BinOp):
                 left = eval_node(node.left)

@@ -10,8 +10,20 @@ def test_detect_network_profile_online(monkeypatch):
     monkeypatch.delenv("JARVIS_OPS_EXTRACT_FIXED_TIME", raising=False)
     monkeypatch.setattr("socket.gethostbyname", lambda _host: "8.8.8.8")
 
+    class _Resp:
+        def __init__(self):
+            self.status_code = 401
+            self.content = b""
+            self.text = ""
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
     def _ok_get(*_args, **_kwargs):
-        return SimpleNamespace(status_code=401, content=b"", text="")
+        return _Resp()
 
     monkeypatch.setattr("requests.get", _ok_get)
 
