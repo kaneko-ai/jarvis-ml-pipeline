@@ -108,6 +108,7 @@ dev = [
 [project.scripts]
 jarvis = "jarvis_cli:main"
 jarvis-screen = "jarvis_core.active_learning.cli:cmd_screen"
+javisctl = "jarvis_core.ops_extract.cli.javisctl:main"
 
 [project.urls]
 Homepage = "https://github.com/kaneko-ai/jarvis-ml-pipeline"

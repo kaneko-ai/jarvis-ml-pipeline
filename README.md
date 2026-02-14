@@ -1,4 +1,4 @@
-# JARVIS Research OS
+﻿# JARVIS Research OS
 
 [![CI](https://github.com/kaneko-ai/jarvis-ml-pipeline/actions/workflows/eval.yml/badge.svg)](https://github.com/kaneko-ai/jarvis-ml-pipeline/actions)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -12,7 +12,7 @@ JARVIS Research OS is a local-first, AI-powered research assistant that helps re
 
 - Current release target: `v1.0.0`
 
-## ✨ Features
+## 笨ｨ Features
 
 ### Phase 1: Local-First Foundation
 - **Hybrid Search**: Sentence Transformers + BM25 with RRF fusion
@@ -36,7 +36,7 @@ JARVIS Research OS is a local-first, AI-powered research assistant that helps re
 - **Zotero Integration**: Reference management
 - **Export Formats**: RIS, BibTeX, Markdown
 
-## 🚀 Quick Start
+## 噫 Quick Start
 
 ### Installation
 
@@ -121,7 +121,7 @@ jarvis skills list
 jarvis skills show MCP
 ```
 
-## 📦 Core Modules
+## 逃 Core Modules
 
 | Module | Description |
 |--------|-------------|
@@ -135,7 +135,7 @@ jarvis skills show MCP
 | `paper_scoring/` | Paper quality scoring |
 | `active_learning/` | Active learning for efficient screening |
 
-## 🧪 Testing
+## ｧｪ Testing
 
 ```bash
 # Run all tests
@@ -146,16 +146,18 @@ uv run pytest tests/test_evidence_grading.py -v
 
 # Run with coverage
 uv run pytest --cov=jarvis_core
+
+開発実行は `uv run ...` を標準とし、`python -m pytest` は再現差が出るため非推奨です。
 ```
 
-## 📖 Documentation
+## 当 Documentation
 
 - [Docs Hub](docs/README.md)
 - [API Reference](docs/API_REFERENCE.md)
 - [Quickstart](docs/QUICKSTART.md)
 - [Contributing](CONTRIBUTING.md)
 
-## 🔧 Configuration
+## 肌 Configuration
 
 Create `config.yaml`:
 
@@ -179,11 +181,11 @@ offline:
   sync_on_connect: true
 ```
 
-## 📄 License
+## 塘 License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## 🙏 Acknowledgments
+## 剌 Acknowledgments
 
 - [Sentence Transformers](https://www.sbert.net/)
 - [PubMed](https://pubmed.ncbi.nlm.nih.gov/)

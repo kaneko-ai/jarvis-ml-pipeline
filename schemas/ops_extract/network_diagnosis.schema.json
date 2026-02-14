@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ops_extract network diagnosis",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generated_at",
+    "profile",
+    "diagnosis"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "profile": {
+      "type": "string",
+      "enum": ["OFFLINE", "VPN", "ONLINE"]
+    },
+    "diagnosis": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

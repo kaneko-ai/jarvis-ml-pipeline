@@ -37,6 +37,29 @@ class DriveResumableClient:
     def _is_google_mode(self) -> bool:
         return "googleapis.com" in self.upload_base_url
 
+    def _request_json(
+        self,
+        *,
+        method: str,
+        url: str,
+        params: dict[str, Any] | None = None,
+        json_payload: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        response = requests.request(
+            method=method.upper(),
+            url=url,
+            headers={**self._headers(), "Content-Type": "application/json"},
+            params=params,
+            json=json_payload,
+            timeout=self.timeout_sec,
+        )
+        if response.status_code >= 400:
+            raise DriveUploadError(f"drive_api_failed:{response.status_code}:{response.text[:200]}")
+        if not response.content:
+            return {}
+        payload = response.json()
+        return payload if isinstance(payload, dict) else {}
+
     def start_session(
         self,
         *,
@@ -181,3 +204,125 @@ class DriveResumableClient:
             resume_token=resume_token,
             session_uri=session_uri,
         )
+
+    def get_file_metadata(
+        self,
+        file_id: str,
+        *,
+        fields: str = "id,name,size,md5Checksum,modifiedTime,version",
+    ) -> dict[str, Any]:
+        file_id = str(file_id).strip()
+        if not file_id:
+            raise DriveUploadError("metadata_failed:empty_file_id")
+        if self._is_google_mode():
+            return self._request_json(
+                method="GET",
+                url=f"{self.api_base_url}/files/{file_id}",
+                params={"fields": fields, "supportsAllDrives": "true"},
+            )
+        return self._request_json(
+            method="GET",
+            url=f"{self.api_base_url}/files/{file_id}",
+            params={"fields": fields},
+        )
+
+    def list_children(
+        self,
+        *,
+        parent_id: str | None,
+        q: str | None = None,
+        fields: str = "files(id,name,mimeType)",
+    ) -> list[dict[str, Any]]:
+        if self._is_google_mode():
+            clauses: list[str] = []
+            if parent_id:
+                clauses.append(f"'{parent_id}' in parents")
+            if q:
+                clauses.append(q)
+            query = " and ".join(clauses)
+            payload = self._request_json(
+                method="GET",
+                url=f"{self.api_base_url}/files",
+                params={
+                    "q": query,
+                    "fields": fields,
+                    "supportsAllDrives": "true",
+                    "includeItemsFromAllDrives": "true",
+                },
+            )
+            files = payload.get("files", [])
+            return files if isinstance(files, list) else []
+        payload = self._request_json(
+            method="GET",
+            url=f"{self.api_base_url}/children",
+            params={"parent_id": parent_id or "", "q": q or "", "fields": fields},
+        )
+        files = payload.get("files", [])
+        return files if isinstance(files, list) else []
+
+    def ensure_folder(self, *, name: str, parent_id: str | None = None) -> str:
+        name = str(name).strip()
+        if not name:
+            raise DriveUploadError("ensure_folder_failed:empty_name")
+        if self._is_google_mode():
+            q_name = name.replace("'", "\\'")
+            query = (
+                "mimeType='application/vnd.google-apps.folder' "
+                f"and name='{q_name}' and trashed=false"
+            )
+            if parent_id:
+                query += f" and '{parent_id}' in parents"
+            existing = self.list_children(
+                parent_id=parent_id,
+                q=query,
+                fields="files(id,name,mimeType,createdTime)",
+            )
+            if len(existing) > 1:
+                raise DriveUploadError(f"duplicate_folder_detected:{name}")
+            if len(existing) == 1:
+                return str(existing[0].get("id", ""))
+            payload: dict[str, Any] = {
+                "name": name,
+                "mimeType": "application/vnd.google-apps.folder",
+            }
+            if parent_id:
+                payload["parents"] = [parent_id]
+            created = self._request_json(
+                method="POST",
+                url=f"{self.api_base_url}/files",
+                params={"fields": "id,name"},
+                json_payload=payload,
+            )
+            folder_id = str(created.get("id", "")).strip()
+            if not folder_id:
+                raise DriveUploadError(f"ensure_folder_failed:missing_id:{name}")
+            return folder_id
+        payload = self._request_json(
+            method="POST",
+            url=f"{self.api_base_url}/folders/ensure",
+            json_payload={"name": name, "parent_id": parent_id or ""},
+        )
+        folder_id = str(payload.get("folder_id") or payload.get("id") or "").strip()
+        if not folder_id:
+            raise DriveUploadError(f"ensure_folder_failed:missing_id:{name}")
+        return folder_id
+
+    def list_permissions(self, file_id: str) -> list[dict[str, Any]]:
+        file_id = str(file_id).strip()
+        if not file_id:
+            raise DriveUploadError("permissions_failed:empty_file_id")
+        if self._is_google_mode():
+            payload = self._request_json(
+                method="GET",
+                url=f"{self.api_base_url}/files/{file_id}/permissions",
+                params={"fields": "permissions(id,type,role,allowFileDiscovery)"},
+            )
+            perms = payload.get("permissions", [])
+            return perms if isinstance(perms, list) else []
+        payload = self._request_json(
+            method="GET",
+            url=f"{self.api_base_url}/permissions",
+            params={"file_id": file_id},
+        )
+        perms = payload.get("permissions", [])
+        return perms if isinstance(perms, list) else []

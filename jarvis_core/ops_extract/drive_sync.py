@@ -6,7 +6,7 @@ import json
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +27,22 @@ def _sha256(path: Path) -> str:
     import hashlib
 
     h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _md5_bytes(raw: bytes) -> str:
+    import hashlib
+
+    return hashlib.md5(raw, usedforsecurity=False).hexdigest()
+
+
+def _md5(path: Path) -> str:
+    import hashlib
+
+    h = hashlib.md5(usedforsecurity=False)
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             h.update(chunk)
@@ -59,6 +75,15 @@ def _read_sync_state(path: Path) -> dict[str, Any]:
     return {}
 
 
+def _parse_iso(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except Exception:
+        return None
+
+
 def _target_files_from_manifest(run_dir: Path) -> list[Path]:
     tier_candidates = [
         "input.json",
@@ -75,6 +100,7 @@ def _target_files_from_manifest(run_dir: Path) -> list[Path]:
         "metrics.json",
         "warnings.json",
         "failure_analysis.json",
+        "network_diagnosis.json",
         "trace.jsonl",
         "stage_cache.json",
         "ingestion/text.md",
@@ -112,15 +138,19 @@ def _upload_raw_json_payload(
     chunk_bytes: int,
     resume_token: str | None,
     session_uri: str | None = None,
+    filename: str | None = None,
 ) -> dict[str, Any]:
     expected_sha = _sha256_bytes(raw)
+    expected_md5 = _md5_bytes(raw)
     meta = {
         "path": rel_path,
         "size": len(raw),
         "sha256": expected_sha,
+        "md5": expected_md5,
         "uploaded_at": _now(),
         "verified": True,
         "attempts": 1,
+        "verification_warning": "",
     }
     if dry_run:
         meta["file_id"] = f"dryrun_{rel_path.replace('/', '_')}"
@@ -131,7 +161,7 @@ def _upload_raw_json_payload(
         raise RuntimeError("Drive client unavailable")
 
     upload_meta = client.upload_bytes(
-        filename=rel_path.replace("/", "__"),
+        filename=filename or Path(rel_path).name,
         raw=raw,
         folder_id=folder_id,
         chunk_bytes=chunk_bytes,
@@ -144,6 +174,36 @@ def _upload_raw_json_payload(
     return meta
 
 
+def _verify_remote_integrity(
+    *,
+    client: DriveResumableClient,
+    file_id: str,
+    expected_size: int,
+    expected_md5: str,
+) -> str:
+    try:
+        metadata = client.get_file_metadata(
+            file_id,
+            fields="id,name,size,md5Checksum,modifiedTime,version",
+        )
+    except Exception:
+        return "REMOTE_METADATA_UNAVAILABLE"
+    remote_size_raw = metadata.get("size")
+    if remote_size_raw is None:
+        raise RuntimeError("verification_failed:remote_size_missing")
+    remote_size = int(remote_size_raw)
+    if remote_size != int(expected_size):
+        raise RuntimeError(
+            f"verification_failed:remote_size_mismatch:{remote_size}!={int(expected_size)}"
+        )
+    remote_md5 = str(metadata.get("md5Checksum", "")).strip().lower()
+    if remote_md5:
+        if remote_md5 != str(expected_md5).strip().lower():
+            raise RuntimeError("verification_failed:remote_md5_mismatch")
+        return ""
+    return "REMOTE_CHECKSUM_UNAVAILABLE"
+
+
 def _upload_single_file(
     *,
     path: Path,
@@ -154,6 +214,7 @@ def _upload_single_file(
     chunk_bytes: int,
     resume_token: str | None,
     session_uri: str | None = None,
+    filename: str | None = None,
 ) -> dict[str, Any]:
     rel = path.relative_to(run_dir).as_posix()
     raw = path.read_bytes()
@@ -166,6 +227,7 @@ def _upload_single_file(
         chunk_bytes=chunk_bytes,
         resume_token=resume_token,
         session_uri=session_uri,
+        filename=filename or path.name,
     )
 
 
@@ -182,8 +244,10 @@ def _upload_with_retry(
     verify_sha256: bool,
     max_retries: int,
     retry_backoff_sec: float,
+    filename: str | None = None,
 ) -> dict[str, Any]:
     expected_sha = _sha256(path)
+    expected_md5 = _md5(path)
     latest_session_uri = session_uri
     for attempt in range(max(0, max_retries) + 1):
         try:
@@ -196,9 +260,19 @@ def _upload_with_retry(
                 chunk_bytes=chunk_bytes,
                 resume_token=resume_token,
                 session_uri=latest_session_uri,
+                filename=filename or path.name,
             )
             if verify_sha256 and str(result.get("sha256")) != expected_sha:
                 raise RuntimeError(f"sha256_mismatch:{path.name}")
+            verify_warning = ""
+            if verify_sha256 and not dry_run and client is not None:
+                verify_warning = _verify_remote_integrity(
+                    client=client,
+                    file_id=str(result.get("file_id", "")),
+                    expected_size=path.stat().st_size,
+                    expected_md5=expected_md5,
+                )
+            result["verification_warning"] = verify_warning
             result["verified"] = True
             result["attempts"] = max(int(result.get("attempts", 1)), attempt + 1)
             return result
@@ -227,6 +301,8 @@ def _normalize_uploaded_entry(item: dict[str, Any]) -> dict[str, Any]:
     row = dict(item)
     row["file_id"] = str(row.get("file_id", ""))
     row["session_uri"] = str(row.get("session_uri", ""))
+    row["md5"] = str(row.get("md5", ""))
+    row["verification_warning"] = str(row.get("verification_warning", ""))
     row["verified"] = bool(row.get("verified", False))
     row["attempts"] = int(row.get("attempts", 1))
     return row
@@ -240,8 +316,72 @@ def _build_target_meta(files: list[Path], run_dir: Path) -> dict[str, dict[str, 
             "path": rel,
             "size": path.stat().st_size,
             "sha256": _sha256(path),
+            "md5": _md5(path),
         }
     return payload
+
+
+def _derive_drive_layout(run_dir: Path) -> tuple[str, str, str]:
+    project = "default"
+    run_id = run_dir.name
+    month = datetime.now(timezone.utc).strftime("%Y-%m")
+    metadata_path = run_dir / "run_metadata.json"
+    if metadata_path.exists():
+        try:
+            payload = json.loads(metadata_path.read_text(encoding="utf-8"))
+            project = str(payload.get("project", project) or project)
+            run_id = str(payload.get("run_id", run_id) or run_id)
+            finished_at = str(payload.get("finished_at", "")).strip()
+            if len(finished_at) >= 7 and finished_at[4] == "-":
+                month = finished_at[:7]
+        except (json.JSONDecodeError, OSError, TypeError, ValueError):
+            return project, month, run_id
+    return project, month, run_id
+
+
+def _resolve_folder_ids_for_relpath(
+    *,
+    client: DriveResumableClient | None,
+    dry_run: bool,
+    root_folder_id: str | None,
+    rel_path: str,
+    folder_cache: dict[str, str | None],
+) -> tuple[str | None, str]:
+    filename = Path(rel_path).name
+    parent_rel = Path(rel_path).parent.as_posix()
+    if parent_rel in {"", "."}:
+        return root_folder_id, filename
+    if dry_run or client is None:
+        return root_folder_id, filename
+    parent_folder_id = root_folder_id
+    key_acc = ""
+    for part in parent_rel.split("/"):
+        key_acc = f"{key_acc}/{part}" if key_acc else part
+        cached = folder_cache.get(key_acc)
+        if cached is not None or key_acc in folder_cache:
+            parent_folder_id = cached
+            continue
+        try:
+            folder_id = client.ensure_folder(name=part, parent_id=parent_folder_id)
+        except Exception:
+            return root_folder_id, filename
+        folder_cache[key_acc] = folder_id
+        parent_folder_id = folder_id
+    return parent_folder_id, filename
+
+
+def _has_public_permission(permissions: list[dict[str, Any]]) -> bool:
+    for item in permissions:
+        perm_type = str(item.get("type", "")).lower()
+        role = str(item.get("role", "")).lower()
+        if perm_type in {"anyone", "domain"} and role in {
+            "reader",
+            "writer",
+            "commenter",
+            "organizer",
+        }:
+            return True
+    return False
 
 
 def sync_run_to_drive(
@@ -260,8 +400,11 @@ def sync_run_to_drive(
     max_retries: int = 3,
     retry_backoff_sec: float = 2.0,
     verify_sha256: bool = True,
+    sync_lock_ttl_sec: int = 900,
+    check_public_permissions: bool = True,
 ) -> dict[str, Any]:
     sync_state_path = run_dir / "sync_state.json"
+    sync_lock_path = run_dir / ".sync_lock.json"
 
     if not enabled:
         payload = {
@@ -271,6 +414,7 @@ def sync_run_to_drive(
             "uploaded_files": [],
             "pending_files": [],
             "failed_files": [],
+            "warnings": [],
             "retries": retries,
             "resume_count": 0,
             "last_error": "",
@@ -316,6 +460,7 @@ def sync_run_to_drive(
         "uploaded_files": [_normalize_uploaded_entry(v) for v in uploaded_map.values()],
         "pending_files": [{"path": rel} for rel in pending],
         "failed_files": [],
+        "warnings": list(previous.get("warnings", [])),
         "retries": int(previous.get("retries", retries)),
         "resume_count": resume_count,
         "last_error": "",
@@ -333,6 +478,38 @@ def sync_run_to_drive(
 
     _write_sync_state(sync_state_path, state)
 
+    lock_created = False
+    now = datetime.now(timezone.utc)
+    if not dry_run:
+        existing_lock: dict[str, Any] = {}
+        if sync_lock_path.exists():
+            try:
+                with open(sync_lock_path, encoding="utf-8") as f:
+                    existing_lock = json.load(f)
+            except Exception:
+                existing_lock = {}
+            created_at = _parse_iso(str(existing_lock.get("created_at", "")))
+            ttl_sec = int(existing_lock.get("ttl_sec", sync_lock_ttl_sec) or sync_lock_ttl_sec)
+            if created_at and now < created_at + timedelta(seconds=max(1, ttl_sec)):
+                state["state"] = "deferred"
+                state["last_error"] = "sync_lock_conflict"
+                state["pending_files"] = [{"path": rel} for rel in pending]
+                state["last_attempt_at"] = _now()
+                _write_sync_state(sync_state_path, state)
+                return state
+        with open(sync_lock_path, "w", encoding="utf-8") as f:
+            json.dump(
+                {
+                    "created_at": now.isoformat(),
+                    "pid": os.getpid(),
+                    "ttl_sec": max(1, int(sync_lock_ttl_sec)),
+                },
+                f,
+                ensure_ascii=False,
+                indent=2,
+            )
+        lock_created = True
+
     try:
         client = None
         if not dry_run:
@@ -344,6 +521,45 @@ def sync_run_to_drive(
                 upload_base_url=upload_base_url,
             )
 
+        root_upload_folder_id = folder_id
+        folder_cache: dict[str, str | None] = {"": root_upload_folder_id}
+        if client is not None and not dry_run:
+            project_name, run_month, run_name = _derive_drive_layout(run_dir)
+            try:
+                for part in ("Javis", "runs", project_name, run_month, run_name):
+                    root_upload_folder_id = client.ensure_folder(
+                        name=part,
+                        parent_id=root_upload_folder_id,
+                    )
+                folder_cache[""] = root_upload_folder_id
+            except Exception as exc:
+                state["warnings"].append(
+                    f"FOLDER_LAYOUT_FALLBACK:{redact_sensitive_text(str(exc))}"
+                )
+                root_upload_folder_id = folder_id
+                folder_cache[""] = root_upload_folder_id
+
+        if (
+            client is not None
+            and not dry_run
+            and check_public_permissions
+            and root_upload_folder_id
+        ):
+            try:
+                permissions = client.list_permissions(str(root_upload_folder_id))
+                if _has_public_permission(permissions):
+                    raise RuntimeError("permissions_public_link_detected")
+            except RuntimeError as exc:
+                if "permissions_public_link_detected" in str(exc):
+                    raise
+                state["warnings"].append(
+                    f"PERMISSIONS_CHECK_SKIPPED:{redact_sensitive_text(str(exc))}"
+                )
+            except Exception as exc:
+                state["warnings"].append(
+                    f"PERMISSIONS_CHECK_SKIPPED:{redact_sensitive_text(str(exc))}"
+                )
+
         manifest_rel = "manifest.json"
         pending_non_manifest = [rel for rel in pending if rel != manifest_rel]
 
@@ -353,12 +569,19 @@ def sync_run_to_drive(
 
         def do_upload(rel: str) -> dict[str, Any]:
             try:
+                target_folder_id, target_filename = _resolve_folder_ids_for_relpath(
+                    client=client,
+                    dry_run=dry_run,
+                    root_folder_id=root_upload_folder_id,
+                    rel_path=rel,
+                    folder_cache=folder_cache,
+                )
                 return _upload_with_retry(
                     path=run_dir / rel,
                     run_dir=run_dir,
                     dry_run=dry_run,
                     client=client,
-                    folder_id=folder_id,
+                    folder_id=target_folder_id,
                     chunk_bytes=chunk_bytes,
                     resume_token=resume_token,
                     session_uri=str(previous_uploaded.get(rel, {}).get("session_uri", "")).strip()
@@ -366,6 +589,7 @@ def sync_run_to_drive(
                     verify_sha256=verify_sha256,
                     max_retries=max_retries,
                     retry_backoff_sec=retry_backoff_sec,
+                    filename=target_filename,
                 )
             except Exception as exc:
                 raise RuntimeError(f"{rel}:{exc}") from exc
@@ -376,6 +600,9 @@ def sync_run_to_drive(
                 for future in as_completed(future_map):
                     rel = future_map[future]
                     result = future.result()
+                    warning_code = str(result.get("verification_warning", "")).strip()
+                    if warning_code:
+                        state["warnings"].append(f"{rel}:{warning_code}")
                     uploaded_map[rel] = result
 
         state["state"] = "verifying"
@@ -399,18 +626,28 @@ def sync_run_to_drive(
                 raw=manifest_raw_draft,
                 dry_run=dry_run,
                 client=client,
-                folder_id=folder_id,
+                folder_id=root_upload_folder_id,
                 chunk_bytes=chunk_bytes,
                 resume_token=resume_token,
                 session_uri=str(
                     previous_uploaded.get(manifest_rel, {}).get("session_uri", "")
                 ).strip()
                 or None,
+                filename="manifest.json",
             )
             if verify_sha256 and manifest_meta_draft.get("sha256") != _sha256_bytes(
                 manifest_raw_draft
             ):
                 raise RuntimeError("verification_failed:manifest_draft_sha256_mismatch")
+            if verify_sha256 and not dry_run and client is not None:
+                manifest_warning = _verify_remote_integrity(
+                    client=client,
+                    file_id=str(manifest_meta_draft.get("file_id", "")),
+                    expected_size=len(manifest_raw_draft),
+                    expected_md5=_md5_bytes(manifest_raw_draft),
+                )
+                if manifest_warning:
+                    state["warnings"].append(f"{manifest_rel}:{manifest_warning}")
 
             manifest_raw_final = _build_manifest_override(manifest_path, committed=True)
             manifest_meta_final = _upload_raw_json_payload(
@@ -418,15 +655,25 @@ def sync_run_to_drive(
                 raw=manifest_raw_final,
                 dry_run=dry_run,
                 client=client,
-                folder_id=folder_id,
+                folder_id=root_upload_folder_id,
                 chunk_bytes=chunk_bytes,
                 resume_token=resume_token,
-                session_uri=str(manifest_meta_draft.get("session_uri", "")).strip() or None,
+                session_uri=None,
+                filename="manifest.json",
             )
             if verify_sha256 and manifest_meta_final.get("sha256") != _sha256_bytes(
                 manifest_raw_final
             ):
                 raise RuntimeError("verification_failed:manifest_final_sha256_mismatch")
+            if verify_sha256 and not dry_run and client is not None:
+                manifest_warning = _verify_remote_integrity(
+                    client=client,
+                    file_id=str(manifest_meta_final.get("file_id", "")),
+                    expected_size=len(manifest_raw_final),
+                    expected_md5=_md5_bytes(manifest_raw_final),
+                )
+                if manifest_warning:
+                    state["warnings"].append(f"{manifest_rel}:{manifest_warning}")
             uploaded_map[manifest_rel] = manifest_meta_final
 
         state["state"] = "committed"
@@ -465,3 +712,10 @@ def sync_run_to_drive(
         state["last_attempt_at"] = _now()
         _write_sync_state(sync_state_path, state)
         return state
+    finally:
+        if lock_created:
+            try:
+                sync_lock_path.unlink(missing_ok=True)
+            except OSError as exc:
+                state.setdefault("warnings", [])
+                state["warnings"].append(f"SYNC_LOCK_CLEANUP_FAILED:{type(exc).__name__}")

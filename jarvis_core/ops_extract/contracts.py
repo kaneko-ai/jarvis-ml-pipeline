@@ -25,6 +25,7 @@ OPS_EXTRACT_OPTIONAL_ARTIFACTS = [
     "metrics.json",
     "warnings.json",
     "failure_analysis.json",
+    "network_diagnosis.json",
     "sync_state.json",
     "stage_cache.json",
     "trace.jsonl",
@@ -58,10 +59,19 @@ class OpsExtractConfig:
     sync_retry_backoff_sec: float = 2.0
     sync_verify_sha256: bool = True
     sync_chunk_bytes: int = 8 * 1024 * 1024
+    sync_queue_dir: str = "sync_queue"
+    sync_lock_ttl_sec: int = 900
     drive_access_token: str | None = None
+    drive_refresh_token: str | None = None
+    drive_client_id: str | None = None
+    drive_client_secret: str | None = None
+    drive_token_cache_path: str | None = None
     drive_folder_id: str | None = None
     drive_api_base_url: str | None = None
     drive_upload_base_url: str | None = None
+    drive_fail_on_public_permissions: bool = True
+    network_offline_policy: str = "defer"
+    network_required_for_sync: bool = False
     preflight_rule_mode: str = "strict"
     lessons_path: str | None = None
     stop_on_preflight_failure: bool = True
@@ -85,6 +95,7 @@ def build_ops_extract_config(raw: dict[str, Any] | None) -> OpsExtractConfig:
     preflight_raw = raw.get("preflight") or {}
     retention_raw = raw.get("retention") or {}
     drive_raw = raw.get("drive") or {}
+    network_raw = raw.get("network") or {}
 
     preflight_rule_mode = (
         str(preflight_raw.get("rule_mode", raw.get("preflight_rule_mode", "strict")))
@@ -93,6 +104,10 @@ def build_ops_extract_config(raw: dict[str, Any] | None) -> OpsExtractConfig:
     )
     if preflight_rule_mode not in {"strict", "warn"}:
         preflight_rule_mode = "strict"
+
+    network_offline_policy = str(network_raw.get("offline_policy", "defer")).strip().lower()
+    if network_offline_policy not in {"defer", "fail"}:
+        network_offline_policy = "defer"
 
     sync_chunk_legacy = raw.get("sync_chunk_size")
     if sync_chunk_legacy is None:
@@ -132,10 +147,19 @@ def build_ops_extract_config(raw: dict[str, Any] | None) -> OpsExtractConfig:
         sync_retry_backoff_sec=float(sync_raw.get("retry_backoff_sec", 2.0)),
         sync_verify_sha256=bool(sync_raw.get("verify_sha256", True)),
         sync_chunk_bytes=int(sync_raw.get("chunk_bytes", sync_chunk_legacy or 8 * 1024 * 1024)),
+        sync_queue_dir=str(sync_raw.get("queue_dir", "sync_queue")),
+        sync_lock_ttl_sec=int(sync_raw.get("lock_ttl_sec", 900)),
         drive_access_token=drive_raw.get("access_token"),
+        drive_refresh_token=drive_raw.get("refresh_token"),
+        drive_client_id=drive_raw.get("client_id"),
+        drive_client_secret=drive_raw.get("client_secret"),
+        drive_token_cache_path=drive_raw.get("token_cache_path"),
         drive_folder_id=drive_raw.get("folder_id"),
         drive_api_base_url=drive_raw.get("api_base_url") or drive_api_legacy,
         drive_upload_base_url=drive_raw.get("upload_base_url") or drive_upload_legacy,
+        drive_fail_on_public_permissions=bool(drive_raw.get("fail_on_public_permissions", True)),
+        network_offline_policy=network_offline_policy,
+        network_required_for_sync=bool(network_raw.get("required_for_sync", False)),
         preflight_rule_mode=preflight_rule_mode,
         lessons_path=raw.get("lessons_path"),
         stop_on_preflight_failure=bool(raw.get("stop_on_preflight_failure", True)),
@@ -163,6 +187,7 @@ def expected_optional_paths(run_dir: Path, include_ocr_meta: bool) -> list[Path]
         run_dir / "metrics.json",
         run_dir / "warnings.json",
         run_dir / "failure_analysis.json",
+        run_dir / "network_diagnosis.json",
         run_dir / "sync_state.json",
         run_dir / "stage_cache.json",
         run_dir / "trace.jsonl",
