@@ -84,6 +84,7 @@ def audit_manifest_vs_drive(
     mismatch_size: list[str] = []
     mismatch_md5: list[str] = []
     remote_no_md5: list[str] = []
+    metadata_fetch_errors: list[str] = []
     checked_paths: list[str] = []
 
     for row in outputs:
@@ -107,8 +108,8 @@ def audit_manifest_vs_drive(
                 )
                 if isinstance(fetched, dict) and fetched:
                     remote_meta.update(fetched)
-            except Exception:
-                pass
+            except Exception as exc:
+                metadata_fetch_errors.append(f"{rel}:{exc}")
 
         expected_size = row.get("size")
         try:
@@ -137,6 +138,7 @@ def audit_manifest_vs_drive(
         "mismatch_size": sorted(set(mismatch_size)),
         "mismatch_md5": sorted(set(mismatch_md5)),
         "remote_no_md5": sorted(set(remote_no_md5)),
+        "metadata_fetch_errors": sorted(set(metadata_fetch_errors)),
         "ok": not (missing or mismatch_size or mismatch_md5),
     }
     out_path = run_dir / "drive_audit.json"

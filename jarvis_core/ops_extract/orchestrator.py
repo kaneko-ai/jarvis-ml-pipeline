@@ -485,18 +485,6 @@ class OpsExtractOrchestrator:
         stage_cache_payload = load_stage_cache(stage_cache_path)
         telemetry_active = not _is_fixed_time_mode()
 
-        class _NoopProgressEmitter:
-            def emit_stage_start(self, stage: str, items_total: int | None = None) -> None:
-                return
-
-            def emit_stage_update(
-                self, stage: str, items_done: int, items_total: int | None = None
-            ) -> None:
-                return
-
-            def emit_stage_end(self, stage: str) -> None:
-                return
-
         if telemetry_active:
             eta_estimator = ETAEstimator(self.run_dir.parent)
             progress_emitter = ProgressEmitter(self.run_dir, eta_estimator=eta_estimator)
@@ -505,11 +493,31 @@ class OpsExtractOrchestrator:
                 recent_exceptions_count_fn=lambda: len(run_errors),
             )
         else:
-            progress_emitter = _NoopProgressEmitter()
+            progress_emitter = None
             telemetry_sampler = None
 
         trace_rows: list[dict[str, Any]] = []
         stage_starts: dict[str, tuple[str, float, list[Path]]] = {}
+
+        def _emit_stage_start(stage_id: str, items_total: int | None = None) -> None:
+            if progress_emitter is not None:
+                progress_emitter.emit_stage_start(stage_id, items_total=items_total)
+
+        def _emit_stage_update(
+            stage_id: str,
+            items_done: int,
+            items_total: int | None = None,
+        ) -> None:
+            if progress_emitter is not None:
+                progress_emitter.emit_stage_update(
+                    stage_id,
+                    items_done,
+                    items_total=items_total,
+                )
+
+        def _emit_stage_end(stage_id: str) -> None:
+            if progress_emitter is not None:
+                progress_emitter.emit_stage_end(stage_id)
 
         def _start_stage(stage_id: str, inputs: list[Path]) -> None:
             stage_starts[stage_id] = (
@@ -517,7 +525,7 @@ class OpsExtractOrchestrator:
                 time.perf_counter(),
                 list(inputs),
             )
-            progress_emitter.emit_stage_start(stage_id)
+            _emit_stage_start(stage_id)
 
         def _finish_stage(
             stage_id: str,
@@ -544,7 +552,7 @@ class OpsExtractOrchestrator:
                     "error": error,
                 }
             )
-            progress_emitter.emit_stage_end(stage_id)
+            _emit_stage_end(stage_id)
 
         lessons_path = Path(self.config.lessons_path) if self.config.lessons_path else None
         _start_stage("preflight", input_paths)
@@ -605,7 +613,7 @@ class OpsExtractOrchestrator:
                     }
                     for future in as_completed(future_map):
                         parse_results.append(future.result())
-                        progress_emitter.emit_stage_update(
+                        _emit_stage_update(
                             "extract_text_pdf",
                             len(parse_results),
                             len(input_paths),
@@ -670,7 +678,7 @@ class OpsExtractOrchestrator:
                     for future in as_completed(future_map):
                         raster_result = future.result()
                         raster_by_index[raster_result.doc_index] = raster_result
-                        progress_emitter.emit_stage_update(
+                        _emit_stage_update(
                             "rasterize_pdf",
                             len(raster_by_index),
                             len(needs_ocr_docs),
@@ -730,7 +738,7 @@ class OpsExtractOrchestrator:
                     for future in as_completed(future_map):
                         ocr_result = future.result()
                         ocr_by_index[ocr_result.doc_index] = ocr_result
-                        progress_emitter.emit_stage_update(
+                        _emit_stage_update(
                             "ocr_yomitoku",
                             len(ocr_by_index),
                             len(needs_ocr_docs),
@@ -1319,7 +1327,7 @@ class OpsExtractOrchestrator:
             "enqueue_drive_sync",
             [self.run_dir / "manifest.json", self.run_dir / "metrics.json"],
         )
-        progress_emitter.emit_stage_update(
+        _emit_stage_update(
             "enqueue_drive_sync",
             0,
             max(1, len(manifest_payload.get("outputs", [])) + 1),
@@ -1389,7 +1397,7 @@ class OpsExtractOrchestrator:
                     sync_lock_ttl_sec=self.config.sync_lock_ttl_sec,
                     check_public_permissions=self.config.drive_fail_on_public_permissions,
                 )
-            progress_emitter.emit_stage_update(
+            _emit_stage_update(
                 "enqueue_drive_sync",
                 max(1, len(manifest_payload.get("outputs", [])) + 1),
                 max(1, len(manifest_payload.get("outputs", [])) + 1),

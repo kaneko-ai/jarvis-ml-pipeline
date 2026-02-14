@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import threading
 import time
@@ -11,6 +12,8 @@ from pathlib import Path
 from typing import Callable
 
 from .models import TelemetryPoint
+
+LOGGER = logging.getLogger(__name__)
 
 
 def _now_iso() -> str:
@@ -65,8 +68,8 @@ class TelemetrySampler:
     def __del__(self) -> None:  # pragma: no cover
         try:
             self.stop()
-        except Exception:
-            pass
+        except Exception as exc:
+            LOGGER.debug("telemetry sampler stop on GC failed: %s", exc)
 
     def _run_loop(self, *, psutil_mod) -> None:
         process = psutil_mod.Process(os.getpid())
