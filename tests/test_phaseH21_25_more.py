@@ -3,6 +3,22 @@
 Target: Additional modules for maximum coverage
 """
 
+import inspect
+
+
+def _call_with_fallbacks(method):
+    for args in [(), ("",), ([],)]:
+        try:
+            result = method(*args)
+            if inspect.iscoroutine(result):
+                # Avoid un-awaited coroutine warnings in broad reflection tests.
+                result.close()
+            return
+        except TypeError:
+            continue
+        except Exception:
+            return
+
 
 def deep_test_module(module):
     """Helper to deeply test all classes and methods in a module."""
@@ -16,16 +32,7 @@ def deep_test_module(module):
                         if not method_name.startswith("_"):
                             method = getattr(instance, method_name)
                             if callable(method):
-                                try:
-                                    method()
-                                except TypeError:
-                                    try:
-                                        method("")
-                                    except Exception:
-                                        try:
-                                            method([])
-                                        except Exception:
-                                            pass
+                                _call_with_fallbacks(method)
                 except Exception:
                     pass
 
