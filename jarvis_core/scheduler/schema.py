@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class ScheduleQuery(BaseModel):
@@ -18,7 +18,8 @@ class ScheduleQuery(BaseModel):
     sort: str = "pub_date_desc"
     force_refresh: bool = False
 
-    @validator("oa_policy")
+    @field_validator("oa_policy")
+    @classmethod
     def validate_oa_policy(cls, value: str) -> str:
         if value not in {"strict", "lenient"}:
             raise ValueError("oa_policy must be strict or lenient")
@@ -108,7 +109,7 @@ def normalize_schedule_payload(
         updated_at=data.get("updated_at", _now()),
         degraded=bool(data.get("degraded", False)),
     )
-    return model.dict()
+    return model.model_dump()
 
 
 def validate_required_fields(payload: dict[str, Any]) -> None:

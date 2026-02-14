@@ -9,7 +9,7 @@ import json
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 
@@ -310,7 +310,7 @@ class Logger:
     ) -> None:
         """Internal log method."""
         entry = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).replace(tzinfo=None).isoformat() + "Z",
             "level": level,
             "logger": self.name,
             "message": message,

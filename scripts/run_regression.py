@@ -9,7 +9,7 @@ import json
 import sys
 import argparse
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any
 
 
@@ -73,7 +73,7 @@ def compute_summary(results: List[Dict[str, Any]]) -> Dict[str, Any]:
         "success_rate": success / total,
         "avg_claim_precision": avg("claim_precision"),
         "avg_citation_precision": avg("citation_precision"),
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).replace(tzinfo=None).isoformat() + "Z",
     }
 
 

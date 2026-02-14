@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from jarvis_core.finance.scenarios import ScenarioResult
 from jarvis_core.optimization.solver import ScenarioEvaluation
@@ -25,7 +25,7 @@ def generate_markdown(
 ) -> str:
     lines = [
         "# P10 Resource Optimization Report",
-        f"> Generated at {datetime.utcnow().isoformat()}Z",
+        f"> Generated at {datetime.now(timezone.utc).replace(tzinfo=None).isoformat()}Z",
         "",
         f"> すべての結果は仮定依存です {ASSUMPTION_NOTE}",
         "",
@@ -55,7 +55,7 @@ def generate_html(
 ) -> str:
     sections = [
         "<h1>P10 Resource Optimization Report</h1>",
-        f"<p>Generated at {datetime.utcnow().isoformat()}Z</p>",
+        f"<p>Generated at {datetime.now(timezone.utc).replace(tzinfo=None).isoformat()}Z</p>",
         f"<p>すべての結果は仮定依存です {ASSUMPTION_NOTE}</p>",
     ]
     for scenario_id, result in scenarios.items():

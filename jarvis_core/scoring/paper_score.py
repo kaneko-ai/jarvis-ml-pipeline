@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 
@@ -63,7 +63,7 @@ def _score_reliability(paper: dict[str, Any]) -> float:
     if paper.get("journal"):
         score += 10.0
     year = int(paper.get("year") or 0)
-    current_year = datetime.utcnow().year
+    current_year = datetime.now(timezone.utc).replace(tzinfo=None).year
     if year > 0:
         score += 5.0
         if current_year - year <= 5:

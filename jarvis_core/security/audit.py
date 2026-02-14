@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -61,7 +61,7 @@ class AuditLogger:
         return entries
 
     def _log_entry(self, action: str, user: str, details: dict) -> AuditEntry:
-        timestamp = datetime.utcnow().isoformat()
+        timestamp = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
         date_key = timestamp.split("T")[0]
         prev_hash = self._last_hash.get(date_key)
         payload = json.dumps(

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 import re
 import uuid
 
@@ -50,7 +50,7 @@ class CommentStore:
             content=content,
             selection=selection,
             mentions=mentions,
-            created_at=datetime.utcnow().isoformat(),
+            created_at=datetime.now(timezone.utc).replace(tzinfo=None).isoformat(),
         )
         self._comments[comment_id] = comment
         self._by_artifact.setdefault(artifact_id, []).append(comment_id)

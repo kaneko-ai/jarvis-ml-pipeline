@@ -80,7 +80,7 @@ def template_payload() -> dict[str, object]:
 def validate_payload(payload: dict[str, object]) -> dict[str, object]:
     """Validate payload and return either parsed data or errors."""
     try:
-        parsed = DecisionInput.parse_obj(payload)
+        parsed = DecisionInput.model_validate(payload)
         return {
             "valid": True,
             "errors": [],
