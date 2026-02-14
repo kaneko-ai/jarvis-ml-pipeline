@@ -278,7 +278,14 @@ class DriveResumableClient:
                 fields="files(id,name,mimeType,createdTime)",
             )
             if len(existing) > 1:
-                raise DriveUploadError(f"duplicate_folder_detected:{name}")
+                duplicate_ids = [
+                    str(item.get("id", "")).strip()
+                    for item in existing
+                    if str(item.get("id", "")).strip()
+                ]
+                raise DriveUploadError(
+                    f"duplicate_folder_detected:{name}:ids={','.join(duplicate_ids)}"
+                )
             if len(existing) == 1:
                 return str(existing[0].get("id", ""))
             payload: dict[str, Any] = {

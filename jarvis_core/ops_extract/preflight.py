@@ -14,6 +14,7 @@ from .contracts import OpsExtractConfig
 from .learning import load_block_rules
 from .network import detect_network_profile
 from .oauth_google import resolve_drive_access_token
+from .sync_queue import queue_summary
 
 
 @dataclass
@@ -129,6 +130,26 @@ def run_preflight_checks(
     execute(
         "check_drive_auth",
         lambda: _check_drive_auth(config, network_profile=network_profile),
+        hard=True,
+    )
+
+    def _check_sync_queue_backlog() -> tuple[bool, str]:
+        if not config.sync_enabled:
+            return True, "sync_disabled"
+        summary = queue_summary(Path(config.sync_queue_dir))
+        pending_count = int(summary.get("pending_count", 0))
+        oldest_age_days = int(summary.get("oldest_age_days", 0))
+        human_action_count = int(summary.get("human_action_required_count", 0))
+        backlog = pending_count >= 200 or oldest_age_days >= 14
+        detail = (
+            f"pending_count={pending_count}, oldest_age_days={oldest_age_days}, "
+            f"human_action_required_count={human_action_count}"
+        )
+        return (not backlog), detail
+
+    execute(
+        "check_sync_queue_backlog",
+        _check_sync_queue_backlog,
         hard=True,
     )
 

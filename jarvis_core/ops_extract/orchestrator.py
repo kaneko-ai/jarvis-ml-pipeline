@@ -44,7 +44,7 @@ from .oauth_google import resolve_drive_access_token
 from .preflight import PreflightReport, run_preflight_checks
 from .pdf_diagnosis import diagnose_pdfs
 from .retention import apply_ops_extract_retention
-from .schema_validate import validate_run_contracts
+from .schema_validate import validate_run_contracts_strict
 from .security import masked_ops_extract_config
 from .stage_cache import (
     cache_outputs_match,
@@ -1108,10 +1108,34 @@ class OpsExtractOrchestrator:
         _write_json(self.run_dir / "metrics.json", metrics)
         _write_json(self.run_dir / "run_metadata.json", run_metadata)
         write_manifest(self.run_dir / "manifest.json", manifest_payload)
+        # Strict contract validation runs in this stage, so emit provisional
+        # artifacts that are finalized later in the pipeline.
+        _write_json(
+            self.run_dir / "sync_state.json",
+            {
+                "schema_version": OPS_EXTRACT_SCHEMA_VERSION,
+                "version": "ops_extract_sync_v2",
+                "state": "not_started",
+                "uploaded_files": [],
+                "pending_files": [{"path": "manifest.json"}],
+                "failed_files": [],
+                "retries": int(metrics["ops"]["retry_count"]),
+                "resume_count": int(metrics["ops"]["resume_count"]),
+                "last_error": "",
+                "dry_run": bool(self.config.sync_dry_run),
+                "manifest_committed_drive": False,
+                "last_attempt_at": _now_iso(),
+            },
+        )
+        _write_jsonl(self.run_dir / "trace.jsonl", trace_rows)
+        save_stage_cache(stage_cache_path, stage_cache_payload)
         if status == "failed" and error_message:
             _write_crash_dump(self.run_dir, error_message)
 
-        contract_errors = validate_run_contracts(self.run_dir)
+        contract_errors = validate_run_contracts_strict(
+            self.run_dir,
+            include_ocr_meta=ocr_used,
+        )
         if contract_errors:
             status = "failed"
             error_message = "contract_validation_failed:" + " | ".join(contract_errors)
@@ -1130,6 +1154,8 @@ class OpsExtractOrchestrator:
             }
             run_metadata["status"] = "failed"
             manifest_payload["status"] = "failed"
+            manifest_payload["committed"] = False
+            manifest_payload["committed_drive"] = False
             _write_json(self.run_dir / "failure_analysis.json", failure_analysis)
             _write_json(
                 self.run_dir / "warnings.json",
