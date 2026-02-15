@@ -31,6 +31,8 @@ def _check_disk_free(min_gb: float) -> tuple[bool, str]:
     usage = shutil.disk_usage(Path.cwd())
     free_gb = usage.free / (1024**3)
     ok = free_gb >= min_gb
+    if os.getenv("JARVIS_OPS_EXTRACT_FIXED_TIME"):
+        return ok, f"disk_free_check_fixed, required={min_gb:.2f}"
     msg = f"disk_free_gb={free_gb:.2f}, required={min_gb:.2f}"
     return ok, msg
 
