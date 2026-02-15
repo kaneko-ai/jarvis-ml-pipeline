@@ -22,10 +22,10 @@ test.describe('public dashboard e2e', () => {
     await expect(page.locator('#runs-table')).toContainText('RUN_MOCK_001');
   });
 
-  test('run detail renders rank panel', async ({ page }) => {
+  test('run detail shows personal-core submission scope', async ({ page }) => {
     await page.goto('/run.html?id=RUN_MOCK_001');
-    await page.click('[data-testid="tab-rank"]');
-    await expect(page.locator('#rank-content')).toContainText('Mock Paper');
+    await expect(page.locator('[data-testid="tab-submission"]')).toBeDisabled();
+    await expect(page.locator('[data-testid="submission-not-implemented"]')).toContainText('対象外');
   });
 
   test('search page can save query locally', async ({ page }) => {

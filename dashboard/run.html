@@ -19,7 +19,7 @@
   <main class="container">
     <header class="page-header">
       <h1 id="run-title" data-testid="page-title">Run Detail</h1>
-      <p id="run-subtitle" data-testid="run-subtitle">進捗/成果物/QA/Submissionの詳細を表示します。</p>
+      <p id="run-subtitle" data-testid="run-subtitle">騾ｲ謐・謌先棡迚ｩ/QA/Submission縺ｮ隧ｳ邏ｰ繧定｡ｨ遉ｺ縺励∪縺吶・/p>
     </header>
 
     <section class="panel">
@@ -30,18 +30,18 @@
         <button data-tab="rank" data-testid="tab-rank">Rank</button>
         <button data-tab="claims" data-testid="tab-claims">Claims</button>
         <button data-tab="qa" data-testid="tab-qa">QA</button>
-        <button data-tab="submission" data-testid="tab-submission">Submission</button>
+        <button data-tab="submission" data-testid="tab-submission" disabled>Submission（対象外）</button>
       </div>
 
       <div id="tab-overview" class="tab-content active" data-testid="tab-content-overview">
         <div class="grid cols-2">
           <div>
             <h2>Summary</h2>
-            <div id="run-summary" class="notice" data-testid="run-summary">読み込み中...</div>
+            <div id="run-summary" class="notice" data-testid="run-summary">隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</div>
           </div>
           <div>
             <h2>Meta</h2>
-            <div id="run-meta" class="notice" data-testid="run-meta">読み込み中...</div>
+            <div id="run-meta" class="notice" data-testid="run-meta">隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</div>
           </div>
         </div>
       </div>
@@ -49,19 +49,19 @@
       <div id="tab-progress" class="tab-content" data-testid="tab-content-progress">
         <div class="section-title">
           <h2>Progress</h2>
-          <button class="secondary" id="refresh-progress" data-testid="refresh-progress">更新</button>
+          <button class="secondary" id="refresh-progress" data-testid="refresh-progress">譖ｴ譁ｰ</button>
         </div>
         <div class="progress-status">
           <div>
-            <div class="muted">接続</div>
-            <div id="progress-connection" class="status-pill" data-testid="progress-connection">未接続</div>
+            <div class="muted">謗･邯・/div>
+            <div id="progress-connection" class="status-pill" data-testid="progress-connection">譛ｪ謗･邯・/div>
           </div>
           <div>
-            <div class="muted">稼働状況</div>
-            <div id="progress-activity" class="status-pill" data-testid="progress-activity">不明</div>
+            <div class="muted">遞ｼ蜒咲憾豕・/div>
+            <div id="progress-activity" class="status-pill" data-testid="progress-activity">荳肴・</div>
           </div>
           <div>
-            <div class="muted">最終更新</div>
+            <div class="muted">譛邨よ峩譁ｰ</div>
             <div id="progress-updated" class="status-value" data-testid="progress-updated">-</div>
           </div>
         </div>
@@ -78,13 +78,13 @@
           <h2>Logs</h2>
           <button class="secondary" id="download-logs" data-testid="download-logs">Download</button>
         </div>
-        <pre id="run-logs" data-testid="run-logs">ログ待機中...</pre>
+        <pre id="run-logs" data-testid="run-logs">繝ｭ繧ｰ蠕・ｩ滉ｸｭ...</pre>
       </div>
 
       <div id="tab-exports" class="tab-content" data-testid="tab-content-exports">
         <div class="section-title">
           <h2>Exports</h2>
-          <button class="secondary" id="refresh-exports" data-testid="refresh-exports">更新</button>
+          <button class="secondary" id="refresh-exports" data-testid="refresh-exports">譖ｴ譁ｰ</button>
         </div>
         <div class="link-list" id="recommended-downloads" data-testid="recommended-downloads"></div>
         <hr />
@@ -94,9 +94,9 @@
       <div id="tab-rank" class="tab-content" data-testid="tab-content-rank">
         <div class="section-title">
           <h2>Ranked Papers</h2>
-          <button class="secondary" id="refresh-rank" data-testid="refresh-rank">更新</button>
+          <button class="secondary" id="refresh-rank" data-testid="refresh-rank">譖ｴ譁ｰ</button>
         </div>
-        <div class="notice" id="rank-status" data-testid="rank-status">読み込み中...</div>
+        <div class="notice" id="rank-status" data-testid="rank-status">隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</div>
         <div id="rank-content" data-testid="rank-content"></div>
       </div>
 
@@ -108,69 +108,51 @@
             <button id="load-claims" data-testid="load-claims">Load</button>
           </div>
         </div>
-        <div id="claims-status" class="notice" data-testid="claims-status">paper_idを入力してください。</div>
+        <div id="claims-status" class="notice" data-testid="claims-status">paper_id繧貞・蜉帙＠縺ｦ縺上□縺輔＞縲・/div>
         <div id="claims-content" data-testid="claims-content"></div>
       </div>
 
       <div id="tab-qa" class="tab-content" data-feature="qa_report">
         <div class="section-title">
           <h2>QA Report</h2>
-          <button class="secondary" id="refresh-qa" data-testid="refresh-qa">更新</button>
+          <button class="secondary" id="refresh-qa" data-testid="refresh-qa">譖ｴ譁ｰ</button>
         </div>
-        <div id="qa-status" class="notice" data-testid="qa-status">読み込み中...</div>
+        <div id="qa-status" class="notice" data-testid="qa-status">隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</div>
         <div id="qa-content" data-testid="qa-content"></div>
       </div>
 
       <div id="tab-submission" class="tab-content" data-testid="tab-content-submission">
         <div class="section-title">
           <h2>Submission</h2>
-          <button class="secondary" id="refresh-submission" data-testid="refresh-submission">更新</button>
         </div>
-        <div class="grid cols-2">
-          <div>
-            <h3>Build</h3>
-            <div class="form-row">
-              <input id="submission-version" placeholder="submission_version" data-testid="submission-version" />
-              <input id="submission-recipient" placeholder="recipient_type" data-testid="submission-recipient" />
-              <input id="submission-previous" placeholder="previous_package_path (optional)" data-testid="submission-previous" />
-            </div>
-            <button id="build-submission" data-testid="build-submission">Build Submission</button>
-            <div id="build-status" class="notice" data-testid="build-status">未実行</div>
-          </div>
-          <div>
-            <h3>Latest</h3>
-            <div id="submission-latest" class="notice" data-testid="submission-latest">読み込み中...</div>
-            <div id="submission-links" class="link-list" data-testid="submission-links"></div>
-          </div>
-        </div>
-        <hr />
-        <div class="grid cols-2">
-          <div>
-            <h3>ChangeLog</h3>
-            <pre id="submission-changelog" data-testid="submission-changelog">読み込み中...</pre>
-          </div>
-          <div>
-            <h3>Email Draft</h3>
-            <pre id="submission-email" data-testid="submission-email">読み込み中...</pre>
-            <button class="secondary" id="copy-email" data-testid="copy-email">Copy</button>
-          </div>
+        <div id="submission-not-implemented" class="notice warning" data-testid="submission-not-implemented">
+          対象外（personal core）
         </div>
       </div>
     </section>
   </main>
 
   <script src="assets/storage.js"></script>
-  <script src="assets/app.js"></script>
+  <script src="assets/errors.js"></script>
   <script src="assets/ui.js"></script>
+  <script src="assets/adapter_manifest_personal.js"></script>
+  <script src="assets/app.js"></script>
   <script>
     const runId = new URLSearchParams(window.location.search).get("id");
     const defaultRun = { files: [] };
     let runData = defaultRun;
     let poller = null;
     let sseSource = null;
-    let transportMode = "未接続";
+    let transportMode = "譛ｪ謗･邯・;
     let lastUpdateAt = null;
     let activityTimer = null;
+    let capabilityStatus = "unknown";
+    let features = {
+      research_rank: false,
+      research_paper: false,
+      qa_report: false,
+      events: false,
+    };
     const fetchIfUrl = async (url, responseType = "text") => {
       if (!url) return null;
       try {
@@ -201,7 +183,7 @@
       });
     };
 
-    const capabilityFallbackLabel = () => (capabilityStatus === "disconnected" ? "未接続" : "未実装");
+    const capabilityFallbackLabel = () => (capabilityStatus === "disconnected" ? "譛ｪ謗･邯・ : "譛ｪ螳溯｣・);
 
     const setFeatureVisibility = (featureKey, enabled) => {
       ui.qsa(`[data-feature="${featureKey}"]`).forEach((el) => {
@@ -223,15 +205,14 @@
       summary.innerHTML = "";
       meta.innerHTML = "";
       if (!runData || runData === defaultRun) {
-        summary.textContent = "未接続";
-        meta.textContent = "未接続";
+        summary.textContent = "譛ｪ謗･邯・;
+        meta.textContent = "譛ｪ謗･邯・;
         return;
       }
       const summaryList = ui.el("div");
       summaryList.appendChild(ui.el("div", { text: `Status: ${runData.status || "-"}` }));
       summaryList.appendChild(ui.el("div", { text: `Progress: ${runData.progress || runData.step || "-"}` }));
       summaryList.appendChild(ui.el("div", { text: `QA: ${runData.qa_status || runData.qa_ready || "-"}` }));
-      summaryList.appendChild(ui.el("div", { text: `Submission: ${runData.submission_status || "-"}` }));
       summary.appendChild(summaryList);
 
       const metaList = ui.el("div");
@@ -283,11 +264,11 @@
       const statusText = String(data.status || data.state || data.phase || "").toLowerCase();
       const stoppedSignals = ["done", "completed", "failed", "error", "cancel", "stopped", "idle"];
       const runningSignals = ["running", "in_progress", "processing", "active", "queued"];
-      if (stoppedSignals.some((flag) => statusText.includes(flag))) return { label: "停止中", tone: "danger" };
-      if (runningSignals.some((flag) => statusText.includes(flag))) return { label: "稼働中", tone: "success" };
-      if (lastUpdateAt && Date.now() - lastUpdateAt < 15000) return { label: "更新中", tone: "success" };
-      if (lastUpdateAt && Date.now() - lastUpdateAt >= 30000) return { label: "停止中", tone: "danger" };
-      return { label: "不明", tone: "" };
+      if (stoppedSignals.some((flag) => statusText.includes(flag))) return { label: "蛛懈ｭ｢荳ｭ", tone: "danger" };
+      if (runningSignals.some((flag) => statusText.includes(flag))) return { label: "遞ｼ蜒堺ｸｭ", tone: "success" };
+      if (lastUpdateAt && Date.now() - lastUpdateAt < 15000) return { label: "譖ｴ譁ｰ荳ｭ", tone: "success" };
+      if (lastUpdateAt && Date.now() - lastUpdateAt >= 30000) return { label: "蛛懈ｭ｢荳ｭ", tone: "danger" };
+      return { label: "荳肴・", tone: "" };
     };
 
     const updateStatusUI = () => {
@@ -327,7 +308,7 @@
     const renderLogs = (logs) => {
       const logEl = ui.qs("#run-logs");
       if (!logs) {
-        logEl.textContent = "ログがありません";
+        logEl.textContent = "繝ｭ繧ｰ縺後≠繧翫∪縺帙ｓ";
         return;
       }
       const lines = Array.isArray(logs) ? logs : String(logs).split("\n");
@@ -375,19 +356,19 @@
           renderLogs(payload.logs || payload.log || payload.events);
           updateStatusUI();
         } catch (error) {
-          ui.toast("SSEのデータ解析に失敗しました", "warning");
+          ui.toast("SSE縺ｮ繝・・繧ｿ隗｣譫舌↓螟ｱ謨励＠縺ｾ縺励◆", "warning");
         }
       };
       sseSource.onerror = () => {
         sseSource.close();
-        ui.toast("SSEが利用できません。ポーリングに切り替えます。", "warning");
+        ui.toast("SSE縺悟茜逕ｨ縺ｧ縺阪∪縺帙ｓ縲ゅ・繝ｼ繝ｪ繝ｳ繧ｰ縺ｫ蛻・ｊ譖ｿ縺医∪縺吶・, "warning");
         startPolling();
       };
     };
 
     const loadRun = async () => {
       if (!runId) {
-        ui.toast("run idが指定されていません", "warning");
+        ui.toast("run id縺梧欠螳壹＆繧後※縺・∪縺帙ｓ", "warning");
         return;
       }
       const response = await app.apiFetchSafe(app.formatPath("runs_detail", { runId }));
@@ -407,7 +388,7 @@
     const renderRank = async () => {
       const status = ui.qs("#rank-status");
       const content = ui.qs("#rank-content");
-      status.textContent = "読み込み中...";
+      status.textContent = "隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...";
       content.innerHTML = "";
 
       let data = null;
@@ -423,7 +404,7 @@
       }
 
       if (!data) {
-        status.textContent = "未実装/未接続";
+        status.textContent = "譛ｪ螳溯｣・譛ｪ謗･邯・;
         return;
       }
       status.textContent = "";
@@ -459,10 +440,10 @@
         content.innerHTML = "";
         return;
       }
-      status.textContent = "読み込み中...";
+      status.textContent = "隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...";
       content.innerHTML = "";
       if (!paperId) {
-        status.textContent = "paper_idを入力してください。";
+        status.textContent = "paper_id繧貞・蜉帙＠縺ｦ縺上□縺輔＞縲・;
         return;
       }
       let data = null;
@@ -477,7 +458,7 @@
         }
       }
       if (!data) {
-        status.textContent = "未実装/未接続";
+        status.textContent = "譛ｪ螳溯｣・譛ｪ謗･邯・;
         return;
       }
       status.textContent = "";
@@ -508,7 +489,7 @@
         content.innerHTML = "";
         return;
       }
-      status.textContent = "読み込み中...";
+      status.textContent = "隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...";
       content.innerHTML = "";
       let data = null;
       const response = await app.apiFetchSafe(app.formatPath("qa_report", {}, { run_id: runId }));
@@ -522,7 +503,7 @@
         }
       }
       if (!data) {
-        status.textContent = "未実装/未接続";
+        status.textContent = "譛ｪ螳溯｣・譛ｪ謗･邯・;
         return;
       }
       status.textContent = "";
@@ -551,16 +532,16 @@
       listEl.innerHTML = "";
       recommended.innerHTML = "";
       if (!runId) {
-        listEl.appendChild(ui.el("div", { className: "notice", text: "run idが指定されていません" }));
-        recommended.appendChild(ui.el("div", { className: "notice", text: "成果物がありません" }));
+        listEl.appendChild(ui.el("div", { className: "notice", text: "run id縺梧欠螳壹＆繧後※縺・∪縺帙ｓ" }));
+        recommended.appendChild(ui.el("div", { className: "notice", text: "謌先棡迚ｩ縺後≠繧翫∪縺帙ｓ" }));
         return;
       }
       const apiFiles = await app.apiFetchSafe(`/api/runs/${encodeURIComponent(runId)}/files`);
       const sourceFiles = apiFiles.ok ? apiFiles.data?.files : runData.files;
       const files = (sourceFiles || []).map(app.normalizeFileEntry).filter(Boolean);
       if (!files.length) {
-        listEl.appendChild(ui.el("div", { className: "notice", text: "未実装/未接続" }));
-        recommended.appendChild(ui.el("div", { className: "notice", text: "成果物がありません" }));
+        listEl.appendChild(ui.el("div", { className: "notice", text: "譛ｪ螳溯｣・譛ｪ謗･邯・ }));
+        recommended.appendChild(ui.el("div", { className: "notice", text: "謌先棡迚ｩ縺後≠繧翫∪縺帙ｓ" }));
         return;
       }
       const recommendedConfigs = [
@@ -594,7 +575,7 @@
       if (recommendedLinks.length) {
         recommendedLinks.forEach((link) => recommended.appendChild(link));
       } else {
-        recommended.appendChild(ui.el("div", { className: "notice", text: "おすすめ成果物はありません" }));
+        recommended.appendChild(ui.el("div", { className: "notice", text: "縺翫☆縺吶ａ謌先棡迚ｩ縺ｯ縺ゅｊ縺ｾ縺帙ｓ" }));
       }
       files.forEach((file) => {
         const url = app.resolveFileUrl(runId, file);
@@ -605,35 +586,8 @@
     };
 
     const renderSubmission = async () => {
-      const latestEl = ui.qs("#submission-latest");
-      const linkEl = ui.qs("#submission-links");
-      if (!features.submission) {
-        const label = capabilityFallbackLabel();
-        latestEl.textContent = label;
-        ui.qs("#submission-changelog").textContent = label;
-        ui.qs("#submission-email").textContent = label;
-        ui.qs("#build-status").textContent = label;
-        linkEl.innerHTML = "";
-        return;
-      }
-      latestEl.textContent = "読み込み中...";
-      linkEl.innerHTML = "";
-
-      const latest = await app.apiFetchSafe(app.formatPath("submission_latest", { runId }));
-      if (latest.ok) {
-        latestEl.textContent = JSON.stringify(latest.data, null, 2);
-        if (latest.data && latest.data.package_url) {
-          linkEl.appendChild(ui.el("a", { text: "Download submission package", attrs: { href: latest.data.package_url, target: "_blank" } }));
-        }
-      } else {
-        latestEl.textContent = "未実装/未接続";
-      }
-
-      const changelog = await app.apiFetchSafe(app.formatPath("submission_changelog", { runId }));
-      ui.qs("#submission-changelog").textContent = changelog.ok ? JSON.stringify(changelog.data, null, 2) : "未実装/未接続";
-
-      const email = await app.apiFetchSafe(app.formatPath("submission_email", { runId }));
-      ui.qs("#submission-email").textContent = email.ok ? JSON.stringify(email.data, null, 2) : "未実装/未接続";
+      const target = ui.qs("#submission-not-implemented");
+      ui.renderNotImplementedBanner(target, "対象外（personal core）");
     };
 
     const applyCapabilities = async () => {
@@ -644,29 +598,22 @@
           research_rank: app.isFeatureEnabled(result.data, "research_rank"),
           research_paper: app.isFeatureEnabled(result.data, "research_paper"),
           qa_report: app.isFeatureEnabled(result.data, "qa_report"),
-          submission: app.isFeatureEnabled(result.data, "submission"),
           events: app.isFeatureEnabled(result.data, "events"),
         };
         capabilityStatus = "available";
         setFeatureVisibility("research_rank", features.research_rank);
         setFeatureVisibility("research_paper", features.research_paper);
         setFeatureVisibility("qa_report", features.qa_report);
-        setFeatureVisibility("submission", features.submission);
         if (!features.research_rank) {
-          ui.qs("#papers-status").textContent = "未実装";
+          ui.qs("#papers-status").textContent = "譛ｪ螳溯｣・;
         }
         if (!features.research_paper) {
-          ui.qs("#claims-status").textContent = "未実装";
+          ui.qs("#claims-status").textContent = "譛ｪ螳溯｣・;
         }
         if (!features.qa_report) {
-          ui.qs("#qa-status").textContent = "未実装";
+          ui.qs("#qa-status").textContent = "譛ｪ螳溯｣・;
         }
-        if (!features.submission) {
-          ui.qs("#submission-latest").textContent = "未実装";
-          ui.qs("#submission-changelog").textContent = "未実装";
-          ui.qs("#submission-email").textContent = "未実装";
-          ui.qs("#build-status").textContent = "未実装";
-        }
+        renderSubmission();
         return;
       }
       ui.applyCapabilitiesToNav({});
@@ -675,16 +622,12 @@
         research_rank: false,
         research_paper: false,
         qa_report: false,
-        submission: false,
         events: false,
       };
-      ui.qs("#papers-status").textContent = "未接続";
-      ui.qs("#claims-status").textContent = "未接続";
-      ui.qs("#qa-status").textContent = "未接続";
-      ui.qs("#submission-latest").textContent = "未接続";
-      ui.qs("#submission-changelog").textContent = "未接続";
-      ui.qs("#submission-email").textContent = "未接続";
-      ui.qs("#build-status").textContent = "未接続";
+      ui.qs("#papers-status").textContent = "譛ｪ謗･邯・;
+      ui.qs("#claims-status").textContent = "譛ｪ謗･邯・;
+      ui.qs("#qa-status").textContent = "譛ｪ謗･邯・;
+      renderSubmission();
     };
 
     const init = async () => {
@@ -698,9 +641,7 @@
       if (features.qa_report) {
         renderQa();
       }
-      if (features.submission) {
-        renderSubmission();
-      }
+      renderSubmission();
 
       if (activityTimer) clearInterval(activityTimer);
       activityTimer = setInterval(updateStatusUI, 5000);
@@ -710,39 +651,20 @@
       ui.qs("#load-claims").addEventListener("click", renderClaims);
       ui.qs("#refresh-qa").addEventListener("click", renderQa);
       ui.qs("#refresh-exports").addEventListener("click", renderExports);
-      ui.qs("#refresh-submission").addEventListener("click", renderSubmission);
-
-      ui.qs("#build-submission").addEventListener("click", async () => {
-        if (!features.submission) {
-          ui.qs("#build-status").textContent = capabilityFallbackLabel();
-          return;
-        }
-        const payload = {
-          run_id: runId,
-          submission_version: ui.qs("#submission-version").value,
-          recipient_type: ui.qs("#submission-recipient").value,
-          previous_package_path: ui.qs("#submission-previous").value || null,
-        };
-        const result = await app.apiFetchSafe(app.getPath("submission_build"), { method: "POST", body: payload });
-        ui.qs("#build-status").textContent = result.ok ? "Build開始" : "未実装/未接続";
-        renderSubmission();
-      });
 
       ui.qs("#download-logs").addEventListener("click", async () => {
         const logsUrl = app.buildUrl ? app.buildUrl(app.formatPath("runs_logs", { runId })) : null;
         if (logsUrl) {
           window.open(logsUrl, "_blank");
         } else {
-          ui.toast("ログDLが未実装です", "warning");
+          ui.toast("繝ｭ繧ｰDL縺梧悴螳溯｣・〒縺・, "warning");
         }
       });
 
-      ui.qs("#copy-email").addEventListener("click", () => {
-        ui.copyToClipboard(ui.qs("#submission-email").textContent || "");
-      });
     };
 
     init();
   </script>
 </body>
 </html>
+

@@ -608,8 +608,38 @@ def run_writing_generate(job_id: str, payload: Dict[str, Any]) -> None:
 
 
 def _maybe_generate_exports(job_id: str, payload: Dict[str, Any]) -> None:
-    # Stub for exports
-    pass
+    outputs = payload.get("outputs")
+    if not isinstance(outputs, dict):
+        jobs.append_event(
+            job_id,
+            {
+                "message": "exports: no output configuration supplied, skip",
+                "level": "info",
+            },
+        )
+        return
+
+    enabled_outputs = sorted(
+        name for name, enabled in outputs.items() if enabled and isinstance(name, str)
+    )
+    if not enabled_outputs:
+        jobs.append_event(
+            job_id,
+            {
+                "message": "exports: all output targets are disabled, skip",
+                "level": "info",
+            },
+        )
+        return
+
+    jobs.append_event(
+        job_id,
+        {
+            "message": "exports: requested targets are not implemented yet "
+            f"({', '.join(enabled_outputs)})",
+            "level": "warning",
+        },
+    )
 
 
 def run_job(job_id: str) -> None:
