@@ -22,7 +22,7 @@ router = APIRouter(prefix="/feedback", tags=["feedback"])
 
 # Simple dependency injection
 def get_store():
-    # TODO: Configure path via settings
+    # Keep a deterministic local path for feedback logs in web mode.
     return FeedbackStore(Path("data/feedback"))
 
 

@@ -19,35 +19,35 @@
   <main class="container">
     <header class="page-header">
       <h1>Ops Dashboard</h1>
-      <p>運用状況やアラート、リカバリ導線をまとめるダッシュボード。</p>
+      <p>驕狗畑迥ｶ豕√ｄ繧｢繝ｩ繝ｼ繝医√Μ繧ｫ繝舌Μ蟆守ｷ壹ｒ縺ｾ縺ｨ繧√ｋ繝繝・す繝･繝懊・繝峨・/p>
     </header>
 
     <section class="panel">
       <div class="section-title">
         <h2>Health Overview</h2>
-        <button class="secondary" id="refresh-ops">更新</button>
+        <button class="secondary" id="refresh-ops">譖ｴ譁ｰ</button>
       </div>
       <div class="grid cols-3" id="health-grid">
         <div class="status-card" data-key="api">
           <div class="status-header">
             <h3>API</h3>
-            <span class="badge" data-role="status">未取得</span>
+            <span class="badge" data-role="status">譛ｪ蜿門ｾ・/span>
           </div>
-          <p class="muted" data-role="detail">未実装/未接続</p>
+          <p class="muted" data-role="detail">譛ｪ螳溯｣・譛ｪ謗･邯・/p>
         </div>
         <div class="status-card" data-key="cron">
           <div class="status-header">
             <h3>Cron</h3>
-            <span class="badge" data-role="status">未取得</span>
+            <span class="badge" data-role="status">譛ｪ蜿門ｾ・/span>
           </div>
-          <p class="muted" data-role="detail">未実装/未接続</p>
+          <p class="muted" data-role="detail">譛ｪ螳溯｣・譛ｪ謗･邯・/p>
         </div>
         <div class="status-card" data-key="scheduler">
           <div class="status-header">
             <h3>Scheduler</h3>
-            <span class="badge" data-role="status">未取得</span>
+            <span class="badge" data-role="status">譛ｪ蜿門ｾ・/span>
           </div>
-          <p class="muted" data-role="detail">未実装/未接続</p>
+          <p class="muted" data-role="detail">譛ｪ螳溯｣・譛ｪ謗･邯・/p>
         </div>
       </div>
     </section>
@@ -74,7 +74,7 @@
           <div class="value" data-role="metric-success">-</div>
         </div>
       </div>
-      <div class="notice" id="metrics-status">データ取得中...</div>
+      <div class="notice" id="metrics-status">繝・・繧ｿ蜿門ｾ嶺ｸｭ...</div>
     </section>
 
     <section class="panel">
@@ -93,13 +93,15 @@
         </thead>
         <tbody></tbody>
       </table>
-      <div id="stalled-empty" class="notice">データがありません。</div>
+      <div id="stalled-empty" class="notice">繝・・繧ｿ縺後≠繧翫∪縺帙ｓ縲・/div>
     </section>
   </main>
 
   <script src="assets/storage.js"></script>
-  <script src="assets/app.js"></script>
+  <script src="assets/errors.js"></script>
   <script src="assets/ui.js"></script>
+  <script src="assets/adapter_manifest_personal.js"></script>
+  <script src="assets/app.js"></script>
   <script>
     const setActiveNav = () => {
       const page = document.body.dataset.page;
@@ -133,7 +135,7 @@
     const renderHealth = async () => {
       const apiResponse = await app.apiFetchSafe("/api/health");
       if (!apiResponse.ok) {
-        setStatusCard("api", "未接続", "API未実装/未接続", "warning");
+        setStatusCard("api", "譛ｪ謗･邯・, "API譛ｪ螳溯｣・譛ｪ謗･邯・, "warning");
       } else {
         const statusValue = apiResponse.data?.status || apiResponse.data?.state || "ok";
         setStatusCard("api", statusValue, apiResponse.data?.message || "API is reachable", statusTone(statusValue));
@@ -141,7 +143,7 @@
 
       const cronResponse = await app.apiFetchSafe("/api/health/cron");
       if (!cronResponse.ok) {
-        setStatusCard("cron", "未接続", "Cron未実装/未接続", "warning");
+        setStatusCard("cron", "譛ｪ謗･邯・, "Cron譛ｪ螳溯｣・譛ｪ謗･邯・, "warning");
       } else {
         const statusValue = cronResponse.data?.status || cronResponse.data?.state || "ok";
         const nextRun = cronResponse.data?.next_run_at || cronResponse.data?.next_run || "-";
@@ -153,16 +155,7 @@
         );
       }
 
-      const scheduleResponse = await app.apiFetchSafe("/api/schedules");
-      if (!scheduleResponse.ok) {
-        setStatusCard("scheduler", "未接続", "Scheduler未実装/未接続", "warning");
-      } else {
-        const list = scheduleResponse.data?.schedules || [];
-        const enabledCount = list.filter((item) => item.enabled).length;
-        const detail = `Enabled: ${enabledCount}/${list.length}`;
-        const tone = list.length ? "success" : "warning";
-        setStatusCard("scheduler", list.length ? "Active" : "Empty", detail, tone);
-      }
+      setStatusCard("scheduler", "対象外", "対象外（personal core）", "warning");
     };
 
     const parseDate = (value) => {
@@ -186,11 +179,11 @@
       const emptyEl = ui.qs("#stalled-empty");
       const summaryEl = ui.qs("#stalled-summary");
       tableBody.innerHTML = "";
-      metricsStatus.textContent = "データ取得中...";
+      metricsStatus.textContent = "繝・・繧ｿ蜿門ｾ嶺ｸｭ...";
 
       const response = await app.apiFetchSafe("/api/runs");
       if (!response.ok) {
-        metricsStatus.textContent = "未実装/未接続";
+        metricsStatus.textContent = "譛ｪ螳溯｣・譛ｪ謗･邯・;
         emptyEl.style.display = "block";
         summaryEl.textContent = "-";
         return;
@@ -251,3 +244,4 @@
   </script>
 </body>
 </html>
+

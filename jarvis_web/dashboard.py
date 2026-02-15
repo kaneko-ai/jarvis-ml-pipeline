@@ -21,6 +21,7 @@ class DashboardStats:
     avg_latency_ms: float
     papers_indexed: int
     last_updated: str
+    reason: Optional[str] = None
 
 
 @dataclass
@@ -68,6 +69,7 @@ class DashboardAPI:
                 avg_latency_ms=0,
                 papers_indexed=0,
                 last_updated=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                reason="no_runs_available",
             )
 
         total = len(runs)
@@ -82,8 +84,9 @@ class DashboardAPI:
             successful_runs=successful,
             failed_runs=failed,
             avg_latency_ms=avg_latency,
-            papers_indexed=1000,  # Placeholder
+            papers_indexed=0,
             last_updated=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            reason="papers_index_not_available",
         )
 
     def list_runs(
@@ -206,15 +209,6 @@ class DashboardAPI:
         Returns:
             Daily metrics.
         """
-        # Placeholder - would aggregate from runs
-        history = []
-        for i in range(days):
-            history.append(
-                {
-                    "date": f"2024-12-{22 - i:02d}",
-                    "success_rate": 0.8 + (i % 5) * 0.02,
-                    "avg_latency_ms": 1000 + i * 10,
-                }
-            )
-
-        return history
+        # No synthetic values: return empty list when no aggregated metrics source exists.
+        _ = days
+        return []

@@ -1,4 +1,4 @@
-"""FastAPI Web Application (AG-05〜AG-07).
+"""FastAPI Web Application (AG-05縲廣G-07).
 
 Per RP-167 and BUNDLE_CONTRACT.md, provides HTTP API for JARVIS.
 - Run management (logs/runs/ based)
@@ -23,8 +23,9 @@ from jarvis_core.redact_logging import setup_logging
 
 try:
     from fastapi import FastAPI, HTTPException, Depends, UploadFile, File
-    from fastapi.responses import FileResponse, JSONResponse
+    from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
     from fastapi.middleware.cors import CORSMiddleware
+    from fastapi.staticfiles import StaticFiles
     from pydantic import BaseModel, Field
 
     FASTAPI_AVAILABLE = True
@@ -52,6 +53,7 @@ UPLOADS_DIR = Path("data/uploads")
 MAX_UPLOAD_SIZE = 100 * 1024 * 1024  # 100MB per file
 MAX_BATCH_FILES = 100
 API_MAP_PATH = Path("jarvis_web/contracts/api_map_v1.json")
+DASHBOARD_DIR = Path(__file__).resolve().parents[1] / "dashboard"
 
 
 # Create app if FastAPI available
@@ -116,6 +118,18 @@ if FASTAPI_AVAILABLE:
     app.include_router(ws_router)
     if submission_router:
         app.include_router(submission_router)
+
+    if DASHBOARD_DIR.exists():
+
+        @app.get("/dashboard", include_in_schema=False)
+        async def dashboard_entry() -> RedirectResponse:
+            return RedirectResponse(url="/dashboard/", status_code=307)
+
+        app.mount(
+            "/dashboard",
+            StaticFiles(directory=str(DASHBOARD_DIR), html=True),
+            name="dashboard",
+        )
 else:
     app = None
 
@@ -370,7 +384,7 @@ def load_run_summary(run_dir: Path) -> dict:
                 result = json.load(f)
             summary["status"] = result.get("status", "unknown")
             summary["timestamp"] = result.get("timestamp", "")
-        except:
+        except Exception:
             pass
 
     # Load eval_summary.json
@@ -381,7 +395,7 @@ def load_run_summary(run_dir: Path) -> dict:
                 eval_data = json.load(f)
             summary["gate_passed"] = eval_data.get("gate_passed", False)
             summary["metrics"] = eval_data.get("metrics", {})
-        except:
+        except Exception:
             pass
 
     # Check contract
@@ -424,7 +438,7 @@ def load_qa_summary(run_id: str) -> Optional[dict]:
             try:
                 with open(qa_path, "r", encoding="utf-8") as f:
                     return json.load(f)
-            except:
+            except Exception:
                 return None
     return None
 
@@ -669,7 +683,7 @@ if FASTAPI_AVAILABLE:
                 try:
                     with open(hash_file, "r") as f:
                         hashes = json.load(f)
-                except:
+                except Exception:
                     pass
 
             for extracted_path in extracted_paths:
@@ -740,7 +754,7 @@ async def _handle_upload(files: List[UploadFile], file_type: str) -> UploadRespo
         try:
             with open(hash_file, "r") as f:
                 hashes = json.load(f)
-        except:
+        except Exception:
             pass
 
     for upload_file in files:

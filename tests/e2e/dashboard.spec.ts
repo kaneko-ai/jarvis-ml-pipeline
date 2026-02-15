@@ -7,8 +7,8 @@ const selectors = {
   runLink: '#runs-table tbody tr a',
   exportTab: '[data-testid="tab-exports"]',
   exportLink: '#exports-list a',
-  rankTab: '[data-testid="tab-rank"]',
-  rankContent: '#rank-content',
+  submissionTab: '[data-testid="tab-submission"]',
+  submissionNotice: '[data-testid="submission-not-implemented"]',
 };
 
 test.describe('dashboard e2e (mock)', () => {
@@ -29,9 +29,9 @@ test.describe('dashboard e2e (mock)', () => {
     await expect(page.locator(selectors.exportLink).first()).toBeVisible();
   });
 
-  test('rank tab shows mock ranking result', async ({ page }) => {
+  test('submission tab is marked out of personal core scope', async ({ page }) => {
     await page.goto('/run.html?id=RUN_MOCK_001');
-    await page.click(selectors.rankTab);
-    await expect(page.locator(selectors.rankContent)).toContainText('Mock Paper');
+    await expect(page.locator(selectors.submissionTab)).toBeDisabled();
+    await expect(page.locator(selectors.submissionNotice)).toContainText('対象外');
   });
 });

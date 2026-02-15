@@ -46,11 +46,25 @@ const ui = (() => {
     items.forEach((item) => container.appendChild(item));
   };
 
+  const renderNotImplementedBanner = (target, detail = "") => {
+    if (!target) return null;
+    target.innerHTML = "";
+    const node = el("div", {
+      className: "notice warning",
+      text: "未実装：バックエンドAPIが存在しません",
+    });
+    if (detail) {
+      node.appendChild(el("div", { className: "muted", text: detail }));
+    }
+    target.appendChild(node);
+    return node;
+  };
+
   const copyToClipboard = async (text) => {
     try {
       await navigator.clipboard.writeText(text);
       toast("コピーしました", "success");
-    } catch (error) {
+    } catch (_error) {
       toast("コピーに失敗しました", "warning");
     }
   };
@@ -76,6 +90,7 @@ const ui = (() => {
     formatDateTime,
     formatNumber,
     renderList,
+    renderNotImplementedBanner,
     copyToClipboard,
     applyCapabilitiesToNav,
   };

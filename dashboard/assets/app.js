@@ -12,22 +12,27 @@ const app = (() => {
 
   const DEFAULT_API_MAP = {
     capabilities: "/api/capabilities",
+    health: "/api/health",
+    health_cron: "/api/health/cron",
     runs_list: "/api/runs",
     runs_detail: "/api/runs/:runId",
-    research_rank: "/api/research/rank",
-    research_paper: "/api/research/paper/:paperId",
+    runs_files: "/api/runs/:runId/files",
+    runs_events: "/api/runs/:runId/events",
     qa_report: "/api/qa/report",
-    submission_build: "/api/submission/build",
-    submission_latest: "/api/submission/latest/:runId",
-    submission_email: "/api/submission/email/:runId",
-    submission_changelog: "/api/submission/changelog/:runId",
-    schedules_list: "/api/schedules",
-    schedules_create: "/api/schedules",
-    schedules_update: "/api/schedules/:scheduleId",
-    schedules_run: "/api/schedules/:scheduleId/run",
+    feedback_risk: "/api/feedback/risk",
+    feedback_import: "/api/feedback/import",
+    decision_simulate: "/api/decision/simulate",
   };
 
   const getApiMap = () => window.api_map_v1 || DEFAULT_API_MAP;
+
+  const buildNotImplementedError = (message, detail = "") => ({
+    kind: "NOT_IMPLEMENTED",
+    status: 501,
+    message,
+    detail,
+    hint: "未実装：バックエンドAPIが存在しません",
+  });
 
   const getPath = (key) => {
     const entry = getApiMap()[key];
@@ -68,46 +73,94 @@ const app = (() => {
     return `${base.replace(/\/$/, "")}${path}`;
   };
 
-  const withTimeout = (promise, timeoutMs) => {
-    let timer;
-    const timeoutPromise = new Promise((_, reject) => {
-      timer = setTimeout(() => reject(new Error("Request timeout")), timeoutMs);
-    });
-    return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
+  const withTimeout = async (url, request, timeoutMs) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(url, {
+        ...request,
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  const normalizeThrownError = (error, response = null) => {
+    if (error && error.kind) {
+      return error;
+    }
+    if (window.JarvisErrors && typeof window.JarvisErrors.normalizeError === "function") {
+      return window.JarvisErrors.normalizeError(error, response);
+    }
+    return {
+      kind: "UNKNOWN",
+      status: response?.status || 0,
+      message: error?.message || "Unexpected error",
+      detail: "",
+      hint: "",
+    };
   };
 
   const apiFetch = async (path, options = {}) => {
     if (!path) {
-      throw new Error("APIが未実装です。");
+      throw buildNotImplementedError("未実装：バックエンドAPIが存在しません", "path is null");
     }
     const url = buildUrl(path);
     if (!url) {
-      throw new Error("API_BASEが未設定です。Settingsで設定してください。");
+      throw {
+        kind: "CONFIG_ERROR",
+        status: 0,
+        message: "API_BASE が設定されていません。Settings で設定してください。",
+        detail: "missing_api_base",
+      };
     }
+
     const { method = "GET", body, headers = {}, timeout = 15000 } = options;
     const finalHeaders = {
       Accept: "application/json",
       ...headers,
     };
+
     const token = getApiToken();
     if (!token) {
-      throw new Error("API_TOKENが未設定です。Settingsで設定してください。");
+      throw {
+        kind: "UNAUTHORIZED",
+        status: 401,
+        message: "API_TOKEN が設定されていません。Settings で設定してください。",
+        detail: "missing_api_token",
+      };
     }
     finalHeaders.Authorization = `Bearer ${token}`;
+
     let payload = body;
     if (body && !(body instanceof FormData)) {
       finalHeaders["Content-Type"] = "application/json";
       payload = JSON.stringify(body);
     }
 
-    const response = await withTimeout(
-      fetch(url, {
-        method,
-        headers: finalHeaders,
-        body: payload,
-      }),
-      timeout
-    );
+    let response;
+    try {
+      response = await withTimeout(
+        url,
+        {
+          method,
+          headers: finalHeaders,
+          body: payload,
+        },
+        timeout
+      );
+    } catch (error) {
+      if (error?.name === "AbortError") {
+        throw {
+          kind: "TIMEOUT",
+          status: 0,
+          message: "リクエストがタイムアウトしました",
+          detail: `timeout_ms=${timeout}`,
+        };
+      }
+      throw normalizeThrownError(error);
+    }
 
     const contentType = response.headers.get("content-type") || "";
     const rawText = await response.text();
@@ -117,23 +170,41 @@ const app = (() => {
         try {
           data = JSON.parse(rawText);
         } catch (error) {
-          throw new Error(`JSONパースに失敗しました: ${error.message}`);
+          throw {
+            kind: "BAD_RESPONSE",
+            status: response.status,
+            message: "JSON の解析に失敗しました",
+            detail: error.message,
+          };
         }
       } else {
         data = rawText;
       }
     }
 
-    if (response.status === 401) {
+    if (response.status === 401 || response.status === 403) {
       if (!window.location.pathname.endsWith("settings.html")) {
         window.location.href = "settings.html";
       }
-      throw new Error("認証エラー: Settingsでトークンを設定してください。");
+      throw {
+        kind: "UNAUTHORIZED",
+        status: response.status,
+        message: "認証エラー: Settingsでトークンを設定してください。",
+        detail: typeof data === "string" ? data : JSON.stringify(data || {}),
+      };
+    }
+
+    if (response.status === 404 || response.status === 501) {
+      throw buildNotImplementedError("未実装：バックエンドAPIが存在しません", path);
     }
 
     if (![200, 201].includes(response.status)) {
-      const message = typeof data === "string" ? data : JSON.stringify(data);
-      throw new Error(`HTTP ${response.status}: ${message || "Request failed"}`);
+      throw {
+        kind: response.status >= 500 ? "SERVER_ERROR" : "BAD_RESPONSE",
+        status: response.status,
+        message: `HTTP ${response.status}`,
+        detail: typeof data === "string" ? data : JSON.stringify(data || {}),
+      };
     }
 
     return data;
@@ -144,7 +215,7 @@ const app = (() => {
       const data = await apiFetch(path, options);
       return { ok: true, data };
     } catch (error) {
-      return { ok: false, error };
+      return { ok: false, error: normalizeThrownError(error) };
     }
   };
 
@@ -155,20 +226,20 @@ const app = (() => {
     if (capabilitiesCache) {
       return { ok: true, data: capabilitiesCache };
     }
-    if (!getApiBase()) {
-      return { ok: false, error: new Error("API_BASEが未設定です。Settingsで設定してください。") };
-    }
+    const path = getPath("capabilities") || "/api/capabilities";
     if (capabilitiesPromise) {
       return capabilitiesPromise;
     }
-    capabilitiesPromise = apiFetchSafe("/api/capabilities").then((result) => {
-      if (result.ok) {
-        capabilitiesCache = result.data;
-      }
-      return result;
-    }).finally(() => {
-      capabilitiesPromise = null;
-    });
+    capabilitiesPromise = apiFetchSafe(path)
+      .then((result) => {
+        if (result.ok) {
+          capabilitiesCache = result.data;
+        }
+        return result;
+      })
+      .finally(() => {
+        capabilitiesPromise = null;
+      });
     return capabilitiesPromise;
   };
 
@@ -181,14 +252,18 @@ const app = (() => {
     if (!file) return null;
     if (typeof file === "string") {
       if (isAbsoluteUrl(file)) return file;
-      return buildUrl(`/api/runs/${runId}/files/${encodeURIComponent(file)}`);
+      return buildUrl(`/api/runs/${encodeURIComponent(runId)}/files/${encodeURIComponent(file)}`);
     }
     if (isAbsoluteUrl(file.url)) return file.url;
     if (isAbsoluteUrl(file.download_url)) return file.download_url;
     if (isAbsoluteUrl(file.downloadUrl)) return file.downloadUrl;
     return (
-      (file.path ? buildUrl(`/api/runs/${runId}/files/${encodeURIComponent(file.path)}`) : null) ||
-      (file.key ? buildUrl(`/api/runs/${runId}/files/${encodeURIComponent(file.key)}`) : null)
+      (file.path
+        ? buildUrl(`/api/runs/${encodeURIComponent(runId)}/files/${encodeURIComponent(file.path)}`)
+        : null) ||
+      (file.key
+        ? buildUrl(`/api/runs/${encodeURIComponent(runId)}/files/${encodeURIComponent(file.key)}`)
+        : null)
     );
   };
 
@@ -204,40 +279,21 @@ const app = (() => {
     };
   };
 
-  const listRuns = () => apiFetch("/api/runs");
-  const getRun = (runId) => apiFetch(`/api/runs/${runId}`);
-  const listRunFiles = (runId) => apiFetch(`/api/runs/${runId}/files`);
-  const getRunEventsUrl = (runId) => buildUrl(`/api/runs/${runId}/events`);
-  const getHealth = () => apiFetch("/api/health");
-  const getCronHealth = () => apiFetch("/api/health/cron");
-  const createRun = (payload) => apiFetch("/api/runs", { method: "POST", body: payload });
-  const getRank = (runId, topK = 50) =>
-    apiFetch(formatPath("research_rank", {}, { run_id: runId, top_k: topK }));
-  const getPaper = (runId, paperId) =>
-    apiFetch(formatPath("research_paper", { paperId }, { run_id: runId }));
-  const getQaReport = (runId) => apiFetch(formatPath("qa_report", {}, { run_id: runId }));
-  const buildSubmission = (payload) => apiFetch(getPath("submission_build"), { method: "POST", body: payload });
-  const getSubmissionLatest = (runId) => apiFetch(formatPath("submission_latest", { runId }));
-  const getSubmissionEmail = (runId) => apiFetch(formatPath("submission_email", { runId }));
-  const getSubmissionChangelog = (runId) => apiFetch(formatPath("submission_changelog", { runId }));
-  const listSchedules = () => apiFetch(getPath("schedules_list"));
-  const createSchedule = (payload) => apiFetch(getPath("schedules_create"), { method: "POST", body: payload });
-  const updateSchedule = (scheduleId, payload) =>
-    apiFetch(formatPath("schedules_update", { scheduleId }), { method: "PATCH", body: payload });
-  const runScheduleNow = (scheduleId, force = false) =>
-    apiFetch(formatPath("schedules_run", { scheduleId }, { force }), { method: "POST" });
-  const getScheduleHistory = (scheduleId, limit = 50) =>
-    apiFetch(`/api/schedules/${encodeURIComponent(scheduleId)}/history?limit=${limit}`);
-  const importFeedback = (payload) => apiFetch("/api/feedback/import", { method: "POST", body: payload });
-  const getFeedbackRisk = (runId) => apiFetch(`/api/feedback/risk?run_id=${encodeURIComponent(runId)}`);
-  const decisionSimulate = (payload) => apiFetch("/api/decision/simulate", { method: "POST", body: payload });
-  const financeOptimize = (payload) => apiFetch("/api/finance/optimize", { method: "POST", body: payload });
-  const getKbStatus = () => apiFetch("/api/kb/status");
-  const getKbTopic = (topic) => apiFetch(`/api/kb/topic/${encodeURIComponent(topic)}`);
-  const getKbPaper = (pmid) => apiFetch(`/api/kb/paper/${encodeURIComponent(pmid)}`);
-  const listPacks = () => apiFetch("/api/packs");
-  const generatePack = () => apiFetch("/api/packs/generate", { method: "POST" });
-  const buildPackDownloadUrl = (packId) => buildUrl(`/api/packs/${encodeURIComponent(packId)}/download`);
+  const listRuns = () => apiFetch(getPath("runs_list") || "/api/runs");
+  const getRun = (runId) => apiFetch(formatPath("runs_detail", { runId }) || `/api/runs/${encodeURIComponent(runId)}`);
+  const listRunFiles = (runId) =>
+    apiFetch(formatPath("runs_files", { runId }) || `/api/runs/${encodeURIComponent(runId)}/files`);
+  const getRunEventsUrl = (runId) =>
+    buildUrl(formatPath("runs_events", { runId }) || `/api/runs/${encodeURIComponent(runId)}/events`);
+  const getHealth = () => apiFetch(getPath("health") || "/api/health");
+  const getCronHealth = () => apiFetch(getPath("health_cron") || "/api/health/cron");
+  const createRun = (payload) => apiFetch(getPath("runs_list") || "/api/runs", { method: "POST", body: payload });
+  const getQaReport = (runId) => apiFetch(formatPath("qa_report", {}, { run_id: runId }) || `/api/qa/report?run_id=${encodeURIComponent(runId)}`);
+  const importFeedback = (payload) => apiFetch(getPath("feedback_import") || "/api/feedback/import", { method: "POST", body: payload });
+  const getFeedbackRisk = (runId) =>
+    apiFetch(formatPath("feedback_risk", {}, { run_id: runId }) || `/api/feedback/risk?run_id=${encodeURIComponent(runId)}`);
+  const decisionSimulate = (payload) =>
+    apiFetch(getPath("decision_simulate") || "/api/decision/simulate", { method: "POST", body: payload });
 
   return {
     STORAGE_BASE,
@@ -246,12 +302,14 @@ const app = (() => {
     getApiToken,
     setApiConfig,
     clearApiConfig,
+    getApiMap,
+    getPath,
+    formatPath,
+    buildUrl,
     apiFetch,
     apiFetchSafe,
     resolveFileUrl,
     normalizeFileEntry,
-    getPath,
-    formatPath,
     listRuns,
     getRun,
     listRunFiles,
@@ -259,31 +317,13 @@ const app = (() => {
     getHealth,
     getCronHealth,
     createRun,
-    getRank,
-    getPaper,
     getQaReport,
-    buildSubmission,
-    getSubmissionLatest,
-    getSubmissionEmail,
-    getSubmissionChangelog,
-    listSchedules,
-    createSchedule,
-    updateSchedule,
-    runScheduleNow,
-    getScheduleHistory,
     importFeedback,
     getFeedbackRisk,
     decisionSimulate,
-    financeOptimize,
-    getKbStatus,
-    getKbTopic,
-    getKbPaper,
-    listPacks,
-    generatePack,
-    buildPackDownloadUrl,
-    buildUrl,
     getCapabilities,
     isFeatureEnabled,
+    buildNotImplementedError,
   };
 })();
 
