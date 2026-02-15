@@ -19,7 +19,7 @@
   <main class="container">
     <header class="page-header">
       <h1 id="run-title" data-testid="page-title">Run Detail</h1>
-      <p id="run-subtitle" data-testid="run-subtitle">騾ｲ謐・謌先棡迚ｩ/QA/Submission縺ｮ隧ｳ邏ｰ繧定｡ｨ遉ｺ縺励∪縺吶・/p>
+      <p id="run-subtitle" data-testid="run-subtitle">進捗/成果物/QA/Submissionの詳細を表示します。</p>
     </header>
 
     <section class="panel">
@@ -37,11 +37,11 @@
         <div class="grid cols-2">
           <div>
             <h2>Summary</h2>
-            <div id="run-summary" class="notice" data-testid="run-summary">隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</div>
+            <div id="run-summary" class="notice" data-testid="run-summary">読み込み中...</div>
           </div>
           <div>
             <h2>Meta</h2>
-            <div id="run-meta" class="notice" data-testid="run-meta">隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</div>
+            <div id="run-meta" class="notice" data-testid="run-meta">読み込み中...</div>
           </div>
         </div>
       </div>
@@ -49,19 +49,19 @@
       <div id="tab-progress" class="tab-content" data-testid="tab-content-progress">
         <div class="section-title">
           <h2>Progress</h2>
-          <button class="secondary" id="refresh-progress" data-testid="refresh-progress">譖ｴ譁ｰ</button>
+          <button class="secondary" id="refresh-progress" data-testid="refresh-progress">更新</button>
         </div>
         <div class="progress-status">
           <div>
-            <div class="muted">謗･邯・/div>
-            <div id="progress-connection" class="status-pill" data-testid="progress-connection">譛ｪ謗･邯・/div>
+            <div class="muted">接続</div>
+            <div id="progress-connection" class="status-pill" data-testid="progress-connection">未接続</div>
           </div>
           <div>
-            <div class="muted">遞ｼ蜒咲憾豕・/div>
-            <div id="progress-activity" class="status-pill" data-testid="progress-activity">荳肴・</div>
+            <div class="muted">稼働状況</div>
+            <div id="progress-activity" class="status-pill" data-testid="progress-activity">不明</div>
           </div>
           <div>
-            <div class="muted">譛邨よ峩譁ｰ</div>
+            <div class="muted">最終更新</div>
             <div id="progress-updated" class="status-value" data-testid="progress-updated">-</div>
           </div>
         </div>
@@ -78,13 +78,13 @@
           <h2>Logs</h2>
           <button class="secondary" id="download-logs" data-testid="download-logs">Download</button>
         </div>
-        <pre id="run-logs" data-testid="run-logs">繝ｭ繧ｰ蠕・ｩ滉ｸｭ...</pre>
+        <pre id="run-logs" data-testid="run-logs">ログ待機中...</pre>
       </div>
 
       <div id="tab-exports" class="tab-content" data-testid="tab-content-exports">
         <div class="section-title">
           <h2>Exports</h2>
-          <button class="secondary" id="refresh-exports" data-testid="refresh-exports">譖ｴ譁ｰ</button>
+          <button class="secondary" id="refresh-exports" data-testid="refresh-exports">更新</button>
         </div>
         <div class="link-list" id="recommended-downloads" data-testid="recommended-downloads"></div>
         <hr />
@@ -94,13 +94,13 @@
       <div id="tab-rank" class="tab-content" data-testid="tab-content-rank">
         <div class="section-title">
           <h2>Ranked Papers</h2>
-          <button class="secondary" id="refresh-rank" data-testid="refresh-rank">譖ｴ譁ｰ</button>
+          <button class="secondary" id="refresh-rank" data-testid="refresh-rank">更新</button>
         </div>
-        <div class="notice" id="rank-status" data-testid="rank-status">隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</div>
+        <div class="notice" id="rank-status" data-testid="rank-status">読み込み中...</div>
         <div id="rank-content" data-testid="rank-content"></div>
       </div>
 
-      <div id="tab-claims" class="tab-content" data-feature="research_paper">
+      <div id="tab-claims" class="tab-content" data-testid="tab-content-claims">
         <div class="section-title">
           <h2>Claims & Evidence</h2>
           <div class="flex">
@@ -108,16 +108,16 @@
             <button id="load-claims" data-testid="load-claims">Load</button>
           </div>
         </div>
-        <div id="claims-status" class="notice" data-testid="claims-status">paper_id繧貞・蜉帙＠縺ｦ縺上□縺輔＞縲・/div>
+        <div id="claims-status" class="notice" data-testid="claims-status">paper_idを入力してください。</div>
         <div id="claims-content" data-testid="claims-content"></div>
       </div>
 
-      <div id="tab-qa" class="tab-content" data-feature="qa_report">
+      <div id="tab-qa" class="tab-content" data-testid="tab-content-qa">
         <div class="section-title">
           <h2>QA Report</h2>
-          <button class="secondary" id="refresh-qa" data-testid="refresh-qa">譖ｴ譁ｰ</button>
+          <button class="secondary" id="refresh-qa" data-testid="refresh-qa">更新</button>
         </div>
-        <div id="qa-status" class="notice" data-testid="qa-status">隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...</div>
+        <div id="qa-status" class="notice" data-testid="qa-status">読み込み中...</div>
         <div id="qa-content" data-testid="qa-content"></div>
       </div>
 
@@ -143,16 +143,9 @@
     let runData = defaultRun;
     let poller = null;
     let sseSource = null;
-    let transportMode = "譛ｪ謗･邯・;
+    let transportMode = "未接続";
     let lastUpdateAt = null;
     let activityTimer = null;
-    let capabilityStatus = "unknown";
-    let features = {
-      research_rank: false,
-      research_paper: false,
-      qa_report: false,
-      events: false,
-    };
     const fetchIfUrl = async (url, responseType = "text") => {
       if (!url) return null;
       try {
@@ -183,21 +176,6 @@
       });
     };
 
-    const capabilityFallbackLabel = () => (capabilityStatus === "disconnected" ? "譛ｪ謗･邯・ : "譛ｪ螳溯｣・);
-
-    const setFeatureVisibility = (featureKey, enabled) => {
-      ui.qsa(`[data-feature="${featureKey}"]`).forEach((el) => {
-        el.style.display = enabled ? "" : "none";
-      });
-      const active = ui.qs(".tabs button.active");
-      if (active && active.style.display === "none") {
-        const overview = ui.qs('.tabs button[data-tab="overview"]');
-        if (overview) {
-          overview.click();
-        }
-      }
-    };
-
     const updateOverview = () => {
       ui.qs("#run-title").textContent = `Run ${runId || "-"}`;
       const summary = ui.qs("#run-summary");
@@ -205,8 +183,8 @@
       summary.innerHTML = "";
       meta.innerHTML = "";
       if (!runData || runData === defaultRun) {
-        summary.textContent = "譛ｪ謗･邯・;
-        meta.textContent = "譛ｪ謗･邯・;
+        summary.textContent = "未接続";
+        meta.textContent = "未接続";
         return;
       }
       const summaryList = ui.el("div");
@@ -264,11 +242,11 @@
       const statusText = String(data.status || data.state || data.phase || "").toLowerCase();
       const stoppedSignals = ["done", "completed", "failed", "error", "cancel", "stopped", "idle"];
       const runningSignals = ["running", "in_progress", "processing", "active", "queued"];
-      if (stoppedSignals.some((flag) => statusText.includes(flag))) return { label: "蛛懈ｭ｢荳ｭ", tone: "danger" };
-      if (runningSignals.some((flag) => statusText.includes(flag))) return { label: "遞ｼ蜒堺ｸｭ", tone: "success" };
-      if (lastUpdateAt && Date.now() - lastUpdateAt < 15000) return { label: "譖ｴ譁ｰ荳ｭ", tone: "success" };
-      if (lastUpdateAt && Date.now() - lastUpdateAt >= 30000) return { label: "蛛懈ｭ｢荳ｭ", tone: "danger" };
-      return { label: "荳肴・", tone: "" };
+      if (stoppedSignals.some((flag) => statusText.includes(flag))) return { label: "停止中", tone: "danger" };
+      if (runningSignals.some((flag) => statusText.includes(flag))) return { label: "稼働中", tone: "success" };
+      if (lastUpdateAt && Date.now() - lastUpdateAt < 15000) return { label: "更新中", tone: "success" };
+      if (lastUpdateAt && Date.now() - lastUpdateAt >= 30000) return { label: "停止中", tone: "danger" };
+      return { label: "不明", tone: "" };
     };
 
     const updateStatusUI = () => {
@@ -308,7 +286,7 @@
     const renderLogs = (logs) => {
       const logEl = ui.qs("#run-logs");
       if (!logs) {
-        logEl.textContent = "繝ｭ繧ｰ縺後≠繧翫∪縺帙ｓ";
+        logEl.textContent = "ログがありません";
         return;
       }
       const lines = Array.isArray(logs) ? logs : String(logs).split("\n");
@@ -320,7 +298,7 @@
       transportMode = "Polling";
       updateStatusUI();
       poller = setInterval(async () => {
-        const response = await app.apiFetchSafe(app.formatPath("runs_detail", { runId }));
+        const response = await app.apiFetchSafe(`/api/runs/${runId}`);
         if (response.ok) {
           runData = response.data || defaultRun;
           lastUpdateAt = Date.now();
@@ -356,22 +334,22 @@
           renderLogs(payload.logs || payload.log || payload.events);
           updateStatusUI();
         } catch (error) {
-          ui.toast("SSE縺ｮ繝・・繧ｿ隗｣譫舌↓螟ｱ謨励＠縺ｾ縺励◆", "warning");
+          ui.toast("ログDLは未実装です。", "warning");
         }
       };
       sseSource.onerror = () => {
         sseSource.close();
-        ui.toast("SSE縺悟茜逕ｨ縺ｧ縺阪∪縺帙ｓ縲ゅ・繝ｼ繝ｪ繝ｳ繧ｰ縺ｫ蛻・ｊ譖ｿ縺医∪縺吶・, "warning");
+        ui.toast("ログDLは未実装です。", "warning");
         startPolling();
       };
     };
 
     const loadRun = async () => {
       if (!runId) {
-        ui.toast("run id縺梧欠螳壹＆繧後※縺・∪縺帙ｓ", "warning");
+        ui.toast("ログDLは未実装です。", "warning");
         return;
       }
-      const response = await app.apiFetchSafe(app.formatPath("runs_detail", { runId }));
+      const response = await app.apiFetchSafe(`/api/runs/${runId}`);
       if (response.ok) {
         runData = response.data || defaultRun;
       } else {
@@ -388,11 +366,11 @@
     const renderRank = async () => {
       const status = ui.qs("#rank-status");
       const content = ui.qs("#rank-content");
-      status.textContent = "隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...";
+      status.textContent = "読み込み中...";
       content.innerHTML = "";
 
       let data = null;
-      const response = await app.apiFetchSafe(app.formatPath("research_rank", {}, { run_id: runId, top_k: 50 }));
+      const response = await app.apiFetchSafe(`/api/research/rank?run_id=${encodeURIComponent(runId)}&top_k=50`);
       if (response.ok) {
         data = response.data;
       } else {
@@ -404,7 +382,7 @@
       }
 
       if (!data) {
-        status.textContent = "譛ｪ螳溯｣・譛ｪ謗･邯・;
+        status.textContent = "未実装/未接続";
         return;
       }
       status.textContent = "";
@@ -435,19 +413,14 @@
       const paperId = ui.qs("#paper-id").value.trim();
       const status = ui.qs("#claims-status");
       const content = ui.qs("#claims-content");
-      if (!features.research_paper) {
-        status.textContent = capabilityFallbackLabel();
-        content.innerHTML = "";
-        return;
-      }
-      status.textContent = "隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...";
+      status.textContent = "読み込み中...";
       content.innerHTML = "";
       if (!paperId) {
-        status.textContent = "paper_id繧貞・蜉帙＠縺ｦ縺上□縺輔＞縲・;
+        status.textContent = "paper_idを入力してください。";
         return;
       }
       let data = null;
-      const response = await app.apiFetchSafe(app.formatPath("research_paper", { paperId }, { run_id: runId }));
+      const response = await app.apiFetchSafe(`/api/research/paper/${encodeURIComponent(paperId)}?run_id=${encodeURIComponent(runId)}`);
       if (response.ok) {
         data = response.data;
       } else {
@@ -458,7 +431,7 @@
         }
       }
       if (!data) {
-        status.textContent = "譛ｪ螳溯｣・譛ｪ謗･邯・;
+        status.textContent = "未実装/未接続";
         return;
       }
       status.textContent = "";
@@ -484,15 +457,10 @@
     const renderQa = async () => {
       const status = ui.qs("#qa-status");
       const content = ui.qs("#qa-content");
-      if (!features.qa_report) {
-        status.textContent = capabilityFallbackLabel();
-        content.innerHTML = "";
-        return;
-      }
-      status.textContent = "隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ...";
+      status.textContent = "読み込み中...";
       content.innerHTML = "";
       let data = null;
-      const response = await app.apiFetchSafe(app.formatPath("qa_report", {}, { run_id: runId }));
+      const response = await app.apiFetchSafe(`/api/qa/report?run_id=${encodeURIComponent(runId)}`);
       if (response.ok) {
         data = response.data;
       } else {
@@ -503,7 +471,7 @@
         }
       }
       if (!data) {
-        status.textContent = "譛ｪ螳溯｣・譛ｪ謗･邯・;
+        status.textContent = "未実装/未接続";
         return;
       }
       status.textContent = "";
@@ -526,121 +494,49 @@
       content.appendChild(warnSection);
     };
 
-    const renderExports = async () => {
+    const renderExports = () => {
       const listEl = ui.qs("#exports-list");
       const recommended = ui.qs("#recommended-downloads");
       listEl.innerHTML = "";
       recommended.innerHTML = "";
-      if (!runId) {
-        listEl.appendChild(ui.el("div", { className: "notice", text: "run id縺梧欠螳壹＆繧後※縺・∪縺帙ｓ" }));
-        recommended.appendChild(ui.el("div", { className: "notice", text: "謌先棡迚ｩ縺後≠繧翫∪縺帙ｓ" }));
-        return;
-      }
-      const apiFiles = await app.apiFetchSafe(`/api/runs/${encodeURIComponent(runId)}/files`);
-      const sourceFiles = apiFiles.ok ? apiFiles.data?.files : runData.files;
-      const files = (sourceFiles || []).map(app.normalizeFileEntry).filter(Boolean);
+      const files = (runData.files || []).map(app.normalizeFileEntry).filter(Boolean);
       if (!files.length) {
-        listEl.appendChild(ui.el("div", { className: "notice", text: "譛ｪ螳溯｣・譛ｪ謗･邯・ }));
-        recommended.appendChild(ui.el("div", { className: "notice", text: "謌先棡迚ｩ縺後≠繧翫∪縺帙ｓ" }));
+        listEl.appendChild(ui.el("div", { className: "notice", text: "未実装/未接続" }));
         return;
       }
-      const recommendedConfigs = [
-        { label: "Download ZIP", patterns: ["package.zip", "bundle.zip", "artifacts.zip", "submission.zip", "release.zip"] },
-        { label: "Download Notes", patterns: ["notes.zip", "notes.md", "notes.txt"] },
-        { label: "Download Slides", patterns: ["slides.pptx", "slides.pdf", "slides.key"] },
-        { label: "Download Manuscript", patterns: ["drafts.docx", "draft.docx", "manuscript.docx", "paper.docx"] },
-        { label: "Download Manifest", patterns: ["manifest.json"] },
+      const recommendedKeys = [
+        "package.zip",
+        "notes.zip",
+        "drafts.docx",
+        "slides.pptx",
+        "manifest.json",
       ];
-      const normalized = files.map((file) => ({
-        ...file,
-        name: file.name || "",
-        nameLower: String(file.name || "").toLowerCase(),
-      }));
-      const recommendedLinks = [];
-      recommendedConfigs.forEach((config) => {
-        const match = normalized.find((file) =>
-          config.patterns.some((pattern) => file.nameLower.includes(pattern))
-        );
-        if (!match) return;
-        const url = app.resolveFileUrl(runId, match);
-        if (!url) return;
-        recommendedLinks.push(
-          ui.el("a", {
-            text: config.label,
-            className: "download-button",
-            attrs: { href: url, target: "_blank", rel: "noopener" },
-          })
-        );
-      });
-      if (recommendedLinks.length) {
-        recommendedLinks.forEach((link) => recommended.appendChild(link));
-      } else {
-        recommended.appendChild(ui.el("div", { className: "notice", text: "縺翫☆縺吶ａ謌先棡迚ｩ縺ｯ縺ゅｊ縺ｾ縺帙ｓ" }));
-      }
       files.forEach((file) => {
         const url = app.resolveFileUrl(runId, file);
         if (!url) return;
-        const link = ui.el("a", { text: file.name, attrs: { href: url, target: "_blank", rel: "noopener" } });
+        const link = ui.el("a", { text: file.name, attrs: { href: url, target: "_blank" } });
         listEl.appendChild(link);
+        if (recommendedKeys.some((key) => file.name.includes(key))) {
+          const rec = ui.el("a", { text: `Download ${file.name}`, attrs: { href: url, target: "_blank" } });
+          recommended.appendChild(rec);
+        }
       });
     };
 
-    const renderSubmission = async () => {
+    const renderSubmission = () => {
       const target = ui.qs("#submission-not-implemented");
+      if (!target) return;
       ui.renderNotImplementedBanner(target, "対象外（personal core）");
-    };
-
-    const applyCapabilities = async () => {
-      const result = await app.getCapabilities();
-      if (result.ok) {
-        ui.applyCapabilitiesToNav(result.data);
-        features = {
-          research_rank: app.isFeatureEnabled(result.data, "research_rank"),
-          research_paper: app.isFeatureEnabled(result.data, "research_paper"),
-          qa_report: app.isFeatureEnabled(result.data, "qa_report"),
-          events: app.isFeatureEnabled(result.data, "events"),
-        };
-        capabilityStatus = "available";
-        setFeatureVisibility("research_rank", features.research_rank);
-        setFeatureVisibility("research_paper", features.research_paper);
-        setFeatureVisibility("qa_report", features.qa_report);
-        if (!features.research_rank) {
-          ui.qs("#papers-status").textContent = "譛ｪ螳溯｣・;
-        }
-        if (!features.research_paper) {
-          ui.qs("#claims-status").textContent = "譛ｪ螳溯｣・;
-        }
-        if (!features.qa_report) {
-          ui.qs("#qa-status").textContent = "譛ｪ螳溯｣・;
-        }
-        renderSubmission();
-        return;
-      }
-      ui.applyCapabilitiesToNav({});
-      capabilityStatus = "disconnected";
-      features = {
-        research_rank: false,
-        research_paper: false,
-        qa_report: false,
-        events: false,
-      };
-      ui.qs("#papers-status").textContent = "譛ｪ謗･邯・;
-      ui.qs("#claims-status").textContent = "譛ｪ謗･邯・;
-      ui.qs("#qa-status").textContent = "譛ｪ謗･邯・;
-      renderSubmission();
     };
 
     const init = async () => {
       setActiveNav();
       setTabs();
-      await applyCapabilities();
       await loadRun();
       startSse();
       renderRank();
       renderExports();
-      if (features.qa_report) {
-        renderQa();
-      }
+      renderQa();
       renderSubmission();
 
       if (activityTimer) clearInterval(activityTimer);
@@ -653,18 +549,18 @@
       ui.qs("#refresh-exports").addEventListener("click", renderExports);
 
       ui.qs("#download-logs").addEventListener("click", async () => {
-        const logsUrl = app.buildUrl ? app.buildUrl(app.formatPath("runs_logs", { runId })) : null;
+        const logsUrl = app.buildUrl ? app.buildUrl(`/api/runs/${runId}/logs`) : null;
         if (logsUrl) {
           window.open(logsUrl, "_blank");
         } else {
-          ui.toast("繝ｭ繧ｰDL縺梧悴螳溯｣・〒縺・, "warning");
+          ui.toast("ログDLは未実装です。", "warning");
         }
       });
-
     };
 
     init();
   </script>
 </body>
 </html>
+
 
