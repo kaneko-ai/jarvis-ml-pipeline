@@ -68,6 +68,7 @@ def resolve_drive_access_token(
         return access_token
 
     cache_path = Path(token_cache_path) if token_cache_path else None
+    cache: dict[str, Any] = {}
     if cache_path is not None:
         cache = _read_token_cache(cache_path)
         token = str(cache.get("access_token", "")).strip()
@@ -75,19 +76,34 @@ def resolve_drive_access_token(
         if token and expires_at > int(time.time()) + 30:
             return token
 
-    if refresh_token and client_id and client_secret:
+    cache_refresh = str(cache.get("refresh_token", "")).strip() if cache else ""
+    cache_client_id = str(cache.get("client_id", "")).strip() if cache else ""
+    cache_client_secret = str(cache.get("client_secret", "")).strip() if cache else ""
+    resolved_refresh = cache_refresh or str(refresh_token or "").strip()
+    resolved_client_id = cache_client_id or str(client_id or "").strip()
+    resolved_client_secret = cache_client_secret or str(client_secret or "").strip()
+
+    if resolved_refresh and resolved_client_id and resolved_client_secret:
         fresh_token, expires_in = refresh_access_token(
-            refresh_token=refresh_token,
-            client_id=client_id,
-            client_secret=client_secret,
+            refresh_token=resolved_refresh,
+            client_id=resolved_client_id,
+            client_secret=resolved_client_secret,
         )
         if cache_path is not None:
-            _write_token_cache(
-                cache_path,
+            merged = dict(cache) if cache else {}
+            merged.update(
                 {
+                    "schema_version": str(merged.get("schema_version", "1")),
+                    "client_id": resolved_client_id,
+                    "client_secret": resolved_client_secret,
+                    "refresh_token": resolved_refresh,
                     "access_token": fresh_token,
                     "expires_at": int(time.time()) + max(0, int(expires_in)),
-                },
+                }
+            )
+            _write_token_cache(
+                cache_path,
+                merged,
             )
         return fresh_token
 

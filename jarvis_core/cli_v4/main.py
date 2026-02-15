@@ -13,7 +13,9 @@ from pathlib import Path
 from ..bundle_v2 import create_bundle_v2
 from ..config import Config, load_config
 from ..errors import JarvisError, ValidationError
+from ..literature.paper_counter import PaperCounterStore
 from ..ops_extract.telemetry import ETAEstimator, ProgressEmitter
+from ..ops_extract.personal_config import load_personal_config
 from ..workflows import (
     run_literature_to_plan,
     run_plan_to_grant,
@@ -125,6 +127,9 @@ def run_workflow(
     inputs = inputs or []
     concepts = concepts or []
     progress_emitter = None
+    personal_cfg = load_personal_config()
+    paper_counter = PaperCounterStore(personal_cfg["paper_counter_path"])
+    paper_counter.init_if_missing()
 
     # Create vectors from inputs (simplified for demo)
     vectors = []
@@ -154,11 +159,15 @@ def run_workflow(
         progress_emitter = ProgressEmitter(
             output_path,
             eta_estimator=ETAEstimator(Path("logs") / "runs"),
+            paper_counter=paper_counter,
+            run_id=output_path.name,
         )
         artifact = run_literature_to_plan(
             vectors,
             concepts or ["research"],
+            goal=output_path.name,
             progress_emitter=progress_emitter,
+            paper_counter=paper_counter,
         )
     elif workflow == "plan_to_grant":
         plan = run_literature_to_plan(vectors, concepts or ["research"])

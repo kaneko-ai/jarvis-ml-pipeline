@@ -12,6 +12,7 @@ from ..artifacts.adapters import adapt_to_artifact
 from ..artifacts.schema import ArtifactBase, Inference, Provenance, Recommendation
 
 if TYPE_CHECKING:
+    from ..literature.paper_counter import PaperCounterStore
     from ..paper_vector import PaperVector
 
 
@@ -20,6 +21,7 @@ def run_literature_to_plan(
     focus_concepts: list[str],
     goal: str = "research",
     progress_emitter: Any | None = None,
+    paper_counter: PaperCounterStore | None = None,
 ) -> ArtifactBase:
     """Workflow 1: Literature → Research Plan.
 
@@ -38,6 +40,20 @@ def run_literature_to_plan(
     from ..hypothesis import generate_hypotheses
 
     survey_total = max(1, len(vectors))
+    counter_run_id = str(goal).strip() or "literature_to_plan"
+
+    def _bump_counter(field: str, delta: int) -> bool:
+        if paper_counter is None:
+            return False
+        bump_fn = getattr(paper_counter, "bump", None)
+        if not callable(bump_fn):
+            return False
+        try:
+            bump_fn(run_id=counter_run_id, field=field, delta=int(delta))
+            return True
+        except Exception:
+            return False
+
     if progress_emitter is not None:
         progress_emitter.emit_stage_start("survey_discover", items_total=survey_total)
         progress_emitter.emit_stage_update(
@@ -79,6 +95,7 @@ def run_literature_to_plan(
             progress_emitter.emit_stage_update(
                 "survey_parse", len(gaps), max(1, len(focus_concepts))
             )
+    _bump_counter("parsed", len(vectors))
 
     # Step 2: Generate Hypotheses
     hypotheses = generate_hypotheses(vectors, focus_concepts)
@@ -102,6 +119,7 @@ def run_literature_to_plan(
                 len(feasibility_results),
                 max(1, len(hypotheses[:3])),
             )
+    _bump_counter("indexed", len(feasibility_results))
 
     # Build Artifact
     inferences = [

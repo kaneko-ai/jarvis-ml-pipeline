@@ -79,6 +79,10 @@ dashboard = [
     "plotly>=5.20",
     "psutil>=5.9",
 ]
+drive_auth = [
+    "google-auth-oauthlib>=1.2",
+    "google-auth>=2.0",
+]
 mcp = [
     "httpx>=0.25",
 ]

@@ -487,7 +487,11 @@ class OpsExtractOrchestrator:
 
         if telemetry_active:
             eta_estimator = ETAEstimator(self.run_dir.parent)
-            progress_emitter = ProgressEmitter(self.run_dir, eta_estimator=eta_estimator)
+            progress_emitter = ProgressEmitter(
+                self.run_dir,
+                eta_estimator=eta_estimator,
+                run_id=run_id,
+            )
             telemetry_sampler = TelemetrySampler(
                 self.run_dir,
                 recent_exceptions_count_fn=lambda: len(run_errors),

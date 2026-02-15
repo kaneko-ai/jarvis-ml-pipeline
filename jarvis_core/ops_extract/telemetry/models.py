@@ -28,3 +28,5 @@ class ProgressPoint:
     items_total: int
     eta_seconds: float | None
     eta_confidence_percent: float
+    papers_total: dict[str, int] | None = None
+    papers_run: dict[str, int] | None = None

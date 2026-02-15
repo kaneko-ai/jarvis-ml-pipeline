@@ -53,6 +53,8 @@ class ProgressEmitter:
         run_dir: Path,
         *,
         eta_estimator: ETAEstimator | None = None,
+        paper_counter: Any | None = None,
+        run_id: str | None = None,
         filename: str = "progress.jsonl",
     ) -> None:
         self.run_dir = Path(run_dir)
@@ -64,6 +66,8 @@ class ProgressEmitter:
         self._run_started = time.perf_counter()
         self._stage_state: dict[str, dict[str, Any]] = {}
         self._category_progress = {key: 0.0 for key in STAGE_WEIGHT_MAP}
+        self._paper_counter = paper_counter
+        self._paper_run_id = str(run_id or "").strip()
 
     def emit_stage_start(self, stage: str, items_total: int | None = None) -> None:
         total = int(items_total) if items_total is not None and int(items_total) > 0 else 0
@@ -118,6 +122,7 @@ class ProgressEmitter:
             overall_progress_percent=overall,
         )
 
+        papers_total, papers_run = self._read_paper_counts()
         point = ProgressPoint(
             ts_iso=_now_iso(),
             stage=stage,
@@ -127,6 +132,8 @@ class ProgressEmitter:
             items_total=int(state.get("items_total", 0)),
             eta_seconds=(round(eta_seconds, 4) if eta_seconds is not None else None),
             eta_confidence_percent=round(eta_confidence, 2),
+            papers_total=papers_total,
+            papers_run=papers_run,
         )
         with open(self.path, "a", encoding="utf-8") as f:
             f.write(json.dumps(point.__dict__, ensure_ascii=False) + "\n")
@@ -137,3 +144,26 @@ class ProgressEmitter:
             progress = max(0.0, min(100.0, float(self._category_progress.get(category, 0.0))))
             total += weight * (progress / 100.0)
         return max(0.0, min(100.0, total))
+
+    def _read_paper_counts(self) -> tuple[dict[str, int] | None, dict[str, int] | None]:
+        if self._paper_counter is None:
+            return None, None
+        snapshot_fn = getattr(self._paper_counter, "snapshot", None)
+        if not callable(snapshot_fn):
+            return None, None
+        try:
+            payload = snapshot_fn()
+        except Exception:
+            return None, None
+        if not isinstance(payload, dict):
+            return None, None
+        totals = payload.get("totals")
+        papers_total = totals if isinstance(totals, dict) else None
+        papers_run = None
+        if self._paper_run_id:
+            by_run = payload.get("by_run")
+            if isinstance(by_run, dict):
+                candidate = by_run.get(self._paper_run_id)
+                if isinstance(candidate, dict):
+                    papers_run = candidate
+        return papers_total, papers_run

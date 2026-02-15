@@ -13,11 +13,16 @@ from typing import Any
 from jarvis_core.app import run_task
 from jarvis_core.ops_extract.contracts import OpsExtractConfig
 from jarvis_core.ops_extract.doctor import run_doctor
+from jarvis_core.ops_extract.drive_auth_flow import (
+    DEFAULT_DRIVE_SCOPES,
+    run_local_oauth_flow,
+)
 from jarvis_core.ops_extract.drive_audit import audit_manifest_vs_drive
 from jarvis_core.ops_extract.drive_client import DriveResumableClient
 from jarvis_core.ops_extract.drive_repair import repair_duplicate_folders
 from jarvis_core.ops_extract.drive_sync import sync_run_to_drive
 from jarvis_core.ops_extract.oauth_google import resolve_drive_access_token
+from jarvis_core.ops_extract.personal_config import load_personal_config
 from jarvis_core.ops_extract.runbook import generate_runbook
 from jarvis_core.ops_extract.scoreboard import generate_weekly_report
 from jarvis_core.ops_extract.sync_queue import load_sync_queue, mark_sync_queue_state
@@ -35,10 +40,20 @@ def _read_json(path: Path) -> dict[str, Any]:
 
 
 def _resolve_run_dir(*, run_id: str | None = None, run_dir: str | None = None) -> Path:
+    cfg = load_personal_config()
+    runs_dir = Path(cfg["runs_dir"])
     if run_dir:
         return Path(run_dir)
     if run_id:
-        return Path("logs") / "runs" / str(run_id)
+        rid = str(run_id).strip()
+        if rid == "latest":
+            if runs_dir.exists():
+                candidates = [p for p in runs_dir.iterdir() if p.is_dir()]
+                candidates.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+                if candidates:
+                    return candidates[0]
+            return runs_dir
+        return runs_dir / rid
     raise ValueError("either run_id or run_dir is required")
 
 
@@ -169,12 +184,13 @@ def _cmd_audit(args: argparse.Namespace) -> int:
         print(json.dumps({"error": "remote_root_folder_id_missing"}, ensure_ascii=False, indent=2))
         return 2
 
+    personal_cfg = load_personal_config()
     token = resolve_drive_access_token(
         access_token=args.access_token or os.getenv("GOOGLE_DRIVE_ACCESS_TOKEN"),
         refresh_token=None,
         client_id=None,
         client_secret=None,
-        token_cache_path=None,
+        token_cache_path=args.token_cache_path or personal_cfg.get("drive_token_cache"),
     )
     if not token:
         print(json.dumps({"error": "drive_access_token_missing"}, ensure_ascii=False, indent=2))
@@ -187,6 +203,59 @@ def _cmd_audit(args: argparse.Namespace) -> int:
     report = audit_manifest_vs_drive(run_dir=run_dir, client=client, folder_id=folder_id)
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0 if bool(report.get("ok", False)) else 2
+
+
+def _cmd_drive_auth(args: argparse.Namespace) -> int:
+    personal_cfg = load_personal_config()
+    token_cache = args.token_cache_path or personal_cfg.get("drive_token_cache")
+    scopes = args.scopes if args.scopes else list(DEFAULT_DRIVE_SCOPES)
+    payload = run_local_oauth_flow(
+        client_secrets_path=args.client_secrets,
+        scopes=scopes,
+        token_cache_path=token_cache,
+    )
+    printable = dict(payload)
+    if printable.get("client_secret"):
+        printable["client_secret"] = "***"
+    if printable.get("refresh_token"):
+        printable["refresh_token"] = "***"
+    if printable.get("access_token"):
+        printable["access_token"] = "***"
+    printable["token_cache_path"] = str(token_cache)
+    print(json.dumps(printable, ensure_ascii=False, indent=2))
+    return 0
+
+
+def _cmd_drive_whoami(args: argparse.Namespace) -> int:
+    personal_cfg = load_personal_config()
+    token = resolve_drive_access_token(
+        access_token=args.access_token or os.getenv("GOOGLE_DRIVE_ACCESS_TOKEN"),
+        refresh_token=None,
+        client_id=None,
+        client_secret=None,
+        token_cache_path=args.token_cache_path or personal_cfg.get("drive_token_cache"),
+    )
+    if not token:
+        print(json.dumps({"error": "drive_access_token_missing"}, ensure_ascii=False, indent=2))
+        return 2
+    client = DriveResumableClient(
+        access_token=token,
+        api_base_url=args.api_base_url,
+    )
+    try:
+        payload = client._request_json(  # noqa: SLF001 - internal helper reuse for about endpoint
+            method="GET",
+            url=f"{client.api_base_url}/about",
+            params={
+                "fields": "user(displayName,emailAddress,permissionId),storageQuota",
+                "supportsAllDrives": "true",
+            },
+        )
+    except Exception as exc:
+        print(json.dumps({"error": f"drive_whoami_failed:{exc}"}, ensure_ascii=False, indent=2))
+        return 2
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
+    return 0
 
 
 def _cmd_doctor(args: argparse.Namespace) -> int:
@@ -234,13 +303,15 @@ def _cmd_runbook(_args: argparse.Namespace) -> int:
 
 
 def _cmd_dashboard(args: argparse.Namespace) -> int:
-    run_dir = _resolve_run_dir(run_id=getattr(args, "run_id", None), run_dir=args.run_dir)
+    run_id = getattr(args, "run_id", None) or "latest"
+    run_dir = _resolve_run_dir(run_id=run_id, run_dir=args.run_dir)
     cmd = [sys.executable, "scripts/javis_dashboard.py", "--run-dir", str(run_dir)]
     proc = subprocess.run(cmd, check=False)
     return int(proc.returncode)
 
 
 def build_parser() -> argparse.ArgumentParser:
+    personal_cfg = load_personal_config()
     parser = argparse.ArgumentParser(description="Ops+Extract control CLI")
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -266,7 +337,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_cancel.set_defaults(func=_cmd_cancel)
 
     p_sync = sub.add_parser("sync")
-    p_sync.add_argument("--queue-dir", default="sync_queue")
+    p_sync.add_argument("--queue-dir", default=str(personal_cfg.get("queue_dir", "sync_queue")))
     p_sync.add_argument("--upload-workers", type=int, default=4)
     p_sync.add_argument("--access-token")
     p_sync.add_argument("--api-base-url")
@@ -281,11 +352,12 @@ def build_parser() -> argparse.ArgumentParser:
     group_audit.add_argument("--run-dir")
     group_audit.add_argument("--run-id")
     p_audit.add_argument("--access-token")
+    p_audit.add_argument("--token-cache-path")
     p_audit.add_argument("--api-base-url")
     p_audit.set_defaults(func=_cmd_audit)
 
     p_doctor = sub.add_parser("doctor")
-    p_doctor.add_argument("--queue-dir", default="sync_queue")
+    p_doctor.add_argument("--queue-dir", default=str(personal_cfg.get("queue_dir", "sync_queue")))
     p_doctor.add_argument("--api-base-url")
     p_doctor.set_defaults(func=_cmd_doctor)
 
@@ -300,10 +372,22 @@ def build_parser() -> argparse.ArgumentParser:
     p_runbook.set_defaults(func=_cmd_runbook)
 
     p_dashboard = sub.add_parser("dashboard")
-    group_dashboard = p_dashboard.add_mutually_exclusive_group(required=True)
+    group_dashboard = p_dashboard.add_mutually_exclusive_group(required=False)
     group_dashboard.add_argument("--run-dir")
     group_dashboard.add_argument("--run-id")
     p_dashboard.set_defaults(func=_cmd_dashboard)
+
+    p_drive_auth = sub.add_parser("drive-auth")
+    p_drive_auth.add_argument("--client-secrets", required=True)
+    p_drive_auth.add_argument("--scopes", nargs="+")
+    p_drive_auth.add_argument("--token-cache-path")
+    p_drive_auth.set_defaults(func=_cmd_drive_auth)
+
+    p_drive_whoami = sub.add_parser("drive-whoami")
+    p_drive_whoami.add_argument("--access-token")
+    p_drive_whoami.add_argument("--token-cache-path")
+    p_drive_whoami.add_argument("--api-base-url")
+    p_drive_whoami.set_defaults(func=_cmd_drive_whoami)
     return parser
 
 

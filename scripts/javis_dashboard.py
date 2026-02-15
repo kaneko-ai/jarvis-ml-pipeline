@@ -9,13 +9,23 @@ import subprocess
 import sys
 from pathlib import Path
 
+from jarvis_core.ops_extract.personal_config import load_personal_config
+
 
 def _resolve_run_dir(*, run_id: str | None, run_dir: str | None) -> Path:
+    cfg = load_personal_config()
+    runs_dir = Path(cfg["runs_dir"])
     if run_dir:
         return Path(run_dir)
-    if run_id:
-        return Path("logs") / "runs" / str(run_id)
-    raise ValueError("either --run-id or --run-dir is required")
+    rid = str(run_id or "latest").strip()
+    if rid == "latest":
+        if runs_dir.exists():
+            candidates = [p for p in runs_dir.iterdir() if p.is_dir()]
+            candidates.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+            if candidates:
+                return candidates[0]
+        return runs_dir
+    return runs_dir / rid
 
 
 def _missing_dashboard_extras() -> list[str]:
@@ -26,7 +36,7 @@ def _missing_dashboard_extras() -> list[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Launch ops_extract dashboard")
-    group = parser.add_mutually_exclusive_group(required=True)
+    group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument("--run-id")
     group.add_argument("--run-dir")
     args = parser.parse_args()
