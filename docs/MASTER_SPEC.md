@@ -213,3 +213,35 @@ try/except握り潰し
 ---
 
 *JARVIS Research OS - MASTER_SPEC v1.0*
+
+---
+
+## 10. Auxiliary CLI Subcommands (Binding)
+
+- Entry point is still `jarvis_cli.py` only.
+- The following helper subcommands are allowed:
+  - `papers tree`
+  - `papers map3d`
+  - `harvest watch`
+  - `harvest work`
+  - `radar run`
+  - `collect papers`
+  - `collect drive-sync`
+  - `market propose`
+- Every run from these commands must produce the required 10 bundle files via `BundleAssembler.build(...)`.
+- Extra artifacts must be stored under `logs/runs/{run_id}/<feature_subdir>/`.
+
+## 11. Result Status Vocabulary (Binding)
+
+- `result.json.status` is restricted to:
+  - `success`
+  - `failed`
+  - `needs_retry`
+- `partial`, `budget_exceeded` and similar labels must not be used in `result.json.status`.
+- Details should be recorded in `eval_summary.json.fail_reasons` and `report.md`.
+
+### Status Decision Rule
+
+- `gate_passed == true` -> `status = success`
+- `gate_passed == false` -> `status = failed` or `needs_retry`
+- `quality_report is None` -> must not be `success` (`needs_retry` with reason `VERIFY_NOT_RUN`)

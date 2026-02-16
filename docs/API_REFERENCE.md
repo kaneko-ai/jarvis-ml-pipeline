@@ -236,3 +236,79 @@ paper = client.get_by_doi("10.1038/s41586-020-2649-2")
 ---
 
 © 2026 JARVIS Team - MIT License
+
+---
+
+## New Subcommands (2026-02-16)
+
+### `jarvis papers tree`
+
+```bash
+jarvis papers tree --id arxiv:1234.5678 --depth 2 --max-per-level 50 --out logs/runs --out-run auto
+```
+
+Outputs:
+- `logs/runs/<run_id>/paper_graph/tree/graph.json`
+- `logs/runs/<run_id>/paper_graph/tree/tree.md`
+- `logs/runs/<run_id>/paper_graph/tree/tree.mermaid.md`
+- `logs/runs/<run_id>/paper_graph/tree/summary.md`
+
+### `jarvis papers map3d`
+
+```bash
+jarvis papers map3d --id arxiv:1234.5678 --k 30 --out logs/runs --out-run auto
+```
+
+Outputs:
+- `logs/runs/<run_id>/paper_graph/map3d/map_points.json`
+- `logs/runs/<run_id>/paper_graph/map3d/map.md`
+- `logs/runs/<run_id>/paper_graph/map3d/map.html` (optional)
+
+### `jarvis harvest watch` / `jarvis harvest work`
+
+```bash
+jarvis harvest watch --source pubmed --since-hours 6 --budget "max_items=200,max_minutes=30,max_requests=400" --out logs/runs --out-run auto
+jarvis harvest work  --budget "max_items=200,max_minutes=30,max_requests=400" --out logs/runs --out-run <same_run_id>
+```
+
+Outputs:
+- `logs/runs/<run_id>/harvest/queue.jsonl`
+- `logs/runs/<run_id>/harvest/items/`
+- `logs/runs/<run_id>/harvest/stats.json`
+- `logs/runs/<run_id>/harvest/report.md`
+
+Queue persistence scope:
+- `harvest/queue.jsonl` is **run-scoped** (`logs/runs/{run_id}/harvest/queue.jsonl`)
+
+### `jarvis radar run`
+
+```bash
+jarvis radar run --source arxiv --query "immunometabolism PD-1" --since-days 2 --out logs/runs --out-run auto
+```
+
+Outputs:
+- `logs/runs/<run_id>/radar/radar_findings.json`
+- `logs/runs/<run_id>/radar/upgrade_proposals.md`
+
+### `jarvis collect papers` / `jarvis collect drive-sync`
+
+```bash
+jarvis collect papers --query "cd73 immunotherapy" --max 50 --oa-only true --out logs/runs --out-run auto
+jarvis collect drive-sync --run-id <run_id> --drive-folder <folder_id_or_path>
+```
+
+Outputs:
+- `logs/runs/<run_id>/collector/papers.json`
+- `logs/runs/<run_id>/collector/pdfs/`
+- `logs/runs/<run_id>/collector/bibtex/`
+- `logs/runs/<run_id>/collector/report.md`
+
+### `jarvis market propose`
+
+```bash
+jarvis market propose --input-run <run_id> --market-data-dir market_data --out logs/runs --out-run auto
+```
+
+Outputs:
+- `logs/runs/<run_id>/market/proposals.json`
+- `logs/runs/<run_id>/market/proposals_deck.md`

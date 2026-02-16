@@ -41,8 +41,7 @@ class BundleValidator:
                     if key not in data:
                         errors.append(f"eval_summary.json missing key: {key}")
 
-                # Consistency check: gate_passed=false should mean status is failed (conceptual)
-                # But here we just check if it matches result.json if we have it
+                # Consistency check: gate_passed=false must never be success.
                 if (bundle_path / "result.json").exists():
                     res_data = json.loads((bundle_path / "result.json").read_text())
                     if not data.get("gate_passed") and res_data.get("status") == "success":

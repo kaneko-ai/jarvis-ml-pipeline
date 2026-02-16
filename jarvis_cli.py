@@ -215,6 +215,152 @@ def cmd_benchmark(args):
         print("Unknown benchmark command", file=sys.stderr)
 
 
+def cmd_papers(args):
+    """Paper graph features: tree/map3d."""
+    if args.papers_command == "tree":
+        from jarvis_core.paper_graph import run_tree
+
+        result = run_tree(
+            paper_id=args.id,
+            depth=args.depth,
+            max_per_level=args.max_per_level,
+            out=args.out,
+            out_run=args.out_run,
+        )
+    elif args.papers_command == "map3d":
+        from jarvis_core.paper_graph import run_map3d
+
+        result = run_map3d(
+            paper_id=args.id,
+            k_neighbors=args.k,
+            seed=args.seed,
+            out=args.out,
+            out_run=args.out_run,
+        )
+    else:
+        print("Error: Unknown papers command", file=sys.stderr)
+        sys.exit(1)
+
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+    else:
+        print(f"Run ID: {result['run_id']}")
+        print(f"Run Dir: {result['run_dir']}")
+        print(f"Status: {result['status']}")
+
+
+def cmd_harvest(args):
+    """Harvest watch/work commands."""
+    if args.harvest_command == "watch":
+        from jarvis_core.harvest import run_watch
+
+        result = run_watch(
+            source=args.source,
+            since_hours=args.since_hours,
+            budget_raw=args.budget,
+            out=args.out,
+            out_run=args.out_run,
+            query=args.query,
+        )
+    elif args.harvest_command == "work":
+        from jarvis_core.harvest import run_work
+
+        result = run_work(
+            budget_raw=args.budget,
+            out=args.out,
+            out_run=args.out_run,
+            oa_only=args.oa_only,
+        )
+    else:
+        print("Error: Unknown harvest command", file=sys.stderr)
+        sys.exit(1)
+
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+    else:
+        print(f"Run ID: {result['run_id']}")
+        print(f"Run Dir: {result['run_dir']}")
+        print(f"Status: {result['status']}")
+
+
+def cmd_radar(args):
+    """R&D radar command."""
+    if args.radar_command != "run":
+        print("Error: Unknown radar command", file=sys.stderr)
+        sys.exit(1)
+
+    from jarvis_core.radar import run_radar
+
+    result = run_radar(
+        source=args.source,
+        query=args.query,
+        since_days=args.since_days,
+        out=args.out,
+        out_run=args.out_run,
+        rss_url=args.rss_url,
+        manual_urls_path=args.manual_urls,
+    )
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+    else:
+        print(f"Run ID: {result['run_id']}")
+        print(f"Run Dir: {result['run_dir']}")
+        print(f"Status: {result['status']}")
+
+
+def cmd_collect(args):
+    """Collector commands."""
+    if args.collect_command == "papers":
+        from jarvis_core.collector import run_collect_papers
+
+        result = run_collect_papers(
+            query=args.query,
+            max_items=args.max,
+            oa_only=args.oa_only,
+            out=args.out,
+            out_run=args.out_run,
+        )
+    elif args.collect_command == "drive-sync":
+        from jarvis_core.collector import run_drive_sync
+
+        result = run_drive_sync(
+            run_id=args.run_id,
+            out=args.out,
+            drive_folder=args.drive_folder,
+        )
+    else:
+        print("Error: Unknown collect command", file=sys.stderr)
+        sys.exit(1)
+
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+    else:
+        print(f"Run ID: {result['run_id']}")
+        print(f"Run Dir: {result['run_dir']}")
+        print(f"Status: {result['status']}")
+
+
+def cmd_market(args):
+    """Market proposal commands."""
+    if args.market_command != "propose":
+        print("Error: Unknown market command", file=sys.stderr)
+        sys.exit(1)
+    from jarvis_core.market import run_market_propose
+
+    result = run_market_propose(
+        input_run=args.input_run,
+        market_data_dir=args.market_data_dir,
+        out=args.out,
+        out_run=args.out_run,
+    )
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+    else:
+        print(f"Run ID: {result['run_id']}")
+        print(f"Run Dir: {result['run_dir']}")
+        print(f"Status: {result['status']}")
+
+
 def cmd_model(args):
     """Manage LLM models (Phase 1: Model Management CLI)."""
     import os
@@ -919,6 +1065,90 @@ def main():
     )
     workflows_init_parser.set_defaults(workflows_command="init")
 
+    # === papers command ===
+    papers_parser = subparsers.add_parser("papers", help="Paper graph features")
+    papers_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    papers_subparsers = papers_parser.add_subparsers(dest="papers_command", help="Papers commands")
+
+    papers_tree_parser = papers_subparsers.add_parser("tree", help="Build citation tree")
+    papers_tree_parser.add_argument("--id", type=str, required=True, help="paper id: doi:/pmid:/arxiv:/s2:")
+    papers_tree_parser.add_argument("--depth", type=int, default=2, choices=[1, 2], help="Tree depth")
+    papers_tree_parser.add_argument("--max-per-level", type=int, default=50, help="Max refs per level")
+    papers_tree_parser.add_argument("--out", type=str, default="logs/runs", help="Base output directory")
+    papers_tree_parser.add_argument("--out-run", type=str, default="auto", help="Run id or auto")
+
+    papers_map_parser = papers_subparsers.add_parser("map3d", help="Build 3D paper map")
+    papers_map_parser.add_argument("--id", type=str, required=True, help="paper id: doi:/pmid:/arxiv:/s2:")
+    papers_map_parser.add_argument("--k", type=int, default=30, help="Neighbors (10-50)")
+    papers_map_parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    papers_map_parser.add_argument("--out", type=str, default="logs/runs", help="Base output directory")
+    papers_map_parser.add_argument("--out-run", type=str, default="auto", help="Run id or auto")
+
+    # === harvest command ===
+    harvest_parser = subparsers.add_parser("harvest", help="Auto harvest commands")
+    harvest_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    harvest_subparsers = harvest_parser.add_subparsers(dest="harvest_command", help="Harvest commands")
+
+    harvest_watch_parser = harvest_subparsers.add_parser("watch", help="Watch sources and enqueue")
+    harvest_watch_parser.add_argument("--source", type=str, default="pubmed", choices=["pubmed"])
+    harvest_watch_parser.add_argument("--query", type=str, default="immunotherapy")
+    harvest_watch_parser.add_argument("--since-hours", type=int, default=6)
+    harvest_watch_parser.add_argument(
+        "--budget", type=str, default="max_items=200,max_minutes=30,max_requests=400"
+    )
+    harvest_watch_parser.add_argument("--out", type=str, default="logs/runs", help="Base output directory")
+    harvest_watch_parser.add_argument("--out-run", type=str, default="auto", help="Run id or auto")
+
+    harvest_work_parser = harvest_subparsers.add_parser("work", help="Process queued harvest items")
+    harvest_work_parser.add_argument(
+        "--budget", type=str, default="max_items=200,max_minutes=30,max_requests=400"
+    )
+    harvest_work_parser.add_argument("--oa-only", type=lambda v: str(v).lower() == "true", default=True)
+    harvest_work_parser.add_argument("--out", type=str, default="logs/runs", help="Base output directory")
+    harvest_work_parser.add_argument("--out-run", type=str, default="auto", help="Run id or auto")
+
+    # === radar command ===
+    radar_parser = subparsers.add_parser("radar", help="R&D radar commands")
+    radar_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    radar_subparsers = radar_parser.add_subparsers(dest="radar_command", help="Radar commands")
+
+    radar_run_parser = radar_subparsers.add_parser("run", help="Run radar collection and proposals")
+    radar_run_parser.add_argument("--source", type=str, default="arxiv", choices=["arxiv", "rss", "all"])
+    radar_run_parser.add_argument("--query", type=str, default="immunometabolism PD-1")
+    radar_run_parser.add_argument("--since-days", type=int, default=2)
+    radar_run_parser.add_argument("--rss-url", type=str, default=None)
+    radar_run_parser.add_argument("--manual-urls", type=str, default=None)
+    radar_run_parser.add_argument("--out", type=str, default="logs/runs", help="Base output directory")
+    radar_run_parser.add_argument("--out-run", type=str, default="auto", help="Run id or auto")
+
+    # === collect command ===
+    collect_parser = subparsers.add_parser("collect", help="Collector commands")
+    collect_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    collect_subparsers = collect_parser.add_subparsers(dest="collect_command", help="Collect commands")
+
+    collect_papers_parser = collect_subparsers.add_parser("papers", help="Collect papers metadata")
+    collect_papers_parser.add_argument("--query", type=str, required=True)
+    collect_papers_parser.add_argument("--max", type=int, default=50)
+    collect_papers_parser.add_argument("--oa-only", type=lambda v: str(v).lower() == "true", default=True)
+    collect_papers_parser.add_argument("--out", type=str, default="logs/runs", help="Base output directory")
+    collect_papers_parser.add_argument("--out-run", type=str, default="auto", help="Run id or auto")
+
+    collect_drive_parser = collect_subparsers.add_parser("drive-sync", help="Sync collected run to drive")
+    collect_drive_parser.add_argument("--run-id", type=str, required=True)
+    collect_drive_parser.add_argument("--drive-folder", type=str, default=None)
+    collect_drive_parser.add_argument("--out", type=str, default="logs/runs", help="Base output directory")
+
+    # === market command ===
+    market_parser = subparsers.add_parser("market", help="Market proposal commands")
+    market_parser.add_argument("--json", action="store_true", help="Output as JSON")
+    market_subparsers = market_parser.add_subparsers(dest="market_command", help="Market commands")
+
+    market_propose_parser = market_subparsers.add_parser("propose", help="Generate market proposals")
+    market_propose_parser.add_argument("--input-run", type=str, required=True)
+    market_propose_parser.add_argument("--market-data-dir", type=str, default=None)
+    market_propose_parser.add_argument("--out", type=str, default="logs/runs", help="Base output directory")
+    market_propose_parser.add_argument("--out-run", type=str, default="auto", help="Run id or auto")
+
     # === sync command ===
     sync_parser = subparsers.add_parser("sync", help="Process pending sync queue items")
 
@@ -990,6 +1220,16 @@ def main():
         cmd_rules(args)
     elif args.command == "workflows":
         cmd_workflows(args)
+    elif args.command == "papers":
+        cmd_papers(args)
+    elif args.command == "harvest":
+        cmd_harvest(args)
+    elif args.command == "radar":
+        cmd_radar(args)
+    elif args.command == "collect":
+        cmd_collect(args)
+    elif args.command == "market":
+        cmd_market(args)
     elif args.command == "sync":
         from jarvis_core.sync.manager import SyncQueueManager
 

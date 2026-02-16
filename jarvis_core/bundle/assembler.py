@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 
 class BundleAssembler:
@@ -42,6 +43,22 @@ class BundleAssembler:
         "warnings.jsonl",
         "report.md",
     ]
+
+    ALLOWED_RESULT_STATUSES = {"success", "failed", "needs_retry"}
+    FATAL_FAIL_CODES = {
+        "INPUT_INVALID",
+        "TASK_INVALID",
+        "CONFIG_INVALID",
+        "EXECUTION_ERROR",
+        "INTERNAL_ERROR",
+        "CONTRACT_VALIDATION_FAILED",
+        "CONTRACT_POST_VALIDATION_FAILED",
+    }
+    VERIFY_NOT_RUN_REASON = {
+        "code": "VERIFY_NOT_RUN",
+        "msg": "Quality gate verification was not executed.",
+        "severity": "error",
+    }
 
     def __init__(self, run_dir: Path):
         """初期化.
@@ -126,19 +143,21 @@ class BundleAssembler:
         self._save_json("scores.json", self._ensure_scores_schema(scores))
         generated.append("scores.json")
 
+        normalized_quality_report = self._normalize_quality_report(quality_report)
+        warnings = self._build_warnings(artifacts.get("warnings", []), normalized_quality_report)
+
         # 7. result.json
-        result = self._build_result(context, artifacts)
+        result = self._build_result(context, artifacts, normalized_quality_report)
         self._save_json("result.json", result)
         generated.append("result.json")
 
         # 8. eval_summary.json
-        eval_summary = self._build_eval_summary(context, artifacts, quality_report)
+        eval_summary = self._build_eval_summary(context, artifacts, normalized_quality_report)
         self._save_json("eval_summary.json", eval_summary)
         generated.append("eval_summary.json")
 
         # 9. warnings.jsonl
-        warnings = artifacts.get("warnings", [])
-        self._save_jsonl("warnings.jsonl", self._ensure_warning_schema(warnings))
+        self._save_jsonl("warnings.jsonl", warnings)
         generated.append("warnings.jsonl")
 
         # 10. report.md
@@ -324,16 +343,85 @@ class BundleAssembler:
 
     # === Builders ===
 
-    def _build_result(self, context: dict, artifacts: dict) -> dict:
-        """result.jsonを構築."""
+    def _normalize_quality_report(self, quality_report: dict | None) -> dict:
+        if quality_report is None:
+            return {
+                "gate_passed": False,
+                "fail_reasons": [self.VERIFY_NOT_RUN_REASON.copy()],
+            }
+        gate_passed = bool(quality_report.get("gate_passed", False))
+        fail_reasons = self._normalize_fail_reasons(quality_report.get("fail_reasons", []))
+        if not gate_passed and not fail_reasons:
+            fail_reasons = [
+                {
+                    "code": "QUALITY_GATE_FAILED",
+                    "msg": "Quality gate did not pass.",
+                    "severity": "error",
+                }
+            ]
+        return {
+            "gate_passed": gate_passed,
+            "fail_reasons": fail_reasons,
+        }
+
+    def _normalize_fail_reasons(self, reasons: Any) -> list[dict]:
+        normalized = []
+        if not isinstance(reasons, list):
+            reasons = []
+        for reason in reasons:
+            if hasattr(reason, "to_dict"):
+                reason = reason.to_dict()
+            if isinstance(reason, str):
+                normalized.append({"code": "UNKNOWN", "msg": reason, "severity": "error"})
+                continue
+            if isinstance(reason, dict):
+                code = str(reason.get("code", "UNKNOWN"))
+                msg = str(reason.get("msg", reason.get("message", reason)))
+                severity = str(reason.get("severity", "error"))
+                normalized.append({"code": code, "msg": msg, "severity": severity})
+        return normalized
+
+    def _has_fatal_fail_reason(self, fail_reasons: list[dict]) -> bool:
+        for reason in fail_reasons:
+            code = str(reason.get("code", "")).upper()
+            if code in self.FATAL_FAIL_CODES:
+                return True
+        return False
+
+    def _build_warnings(self, warnings: list, quality_report: dict) -> list[dict]:
+        result = self._ensure_warning_schema(warnings)
+        existing_codes = {
+            str(w.get("code", "")).upper() for w in result if isinstance(w, dict) and w.get("code")
+        }
+        for reason in quality_report.get("fail_reasons", []):
+            code = str(reason.get("code", "UNKNOWN")).upper()
+            if code in existing_codes:
+                continue
+            message = str(reason.get("msg", reason.get("message", code)))
+            severity = (
+                "error" if code in self.FATAL_FAIL_CODES or code == "VERIFY_NOT_RUN" else "warning"
+            )
+            result.append({"code": code, "message": message, "severity": severity})
+            existing_codes.add(code)
+        return result
+
+    def _build_result(self, context: dict, artifacts: dict, quality_report: dict) -> dict:
+        gate_passed = bool(quality_report.get("gate_passed", False))
+        fail_reasons = self._normalize_fail_reasons(quality_report.get("fail_reasons", []))
+        if gate_passed:
+            status = "success"
+        elif self._has_fatal_fail_reason(fail_reasons):
+            status = "failed"
+        else:
+            status = "needs_retry"
         return {
             "run_id": context.get("run_id", "unknown"),
             "task_id": context.get("task_id", context.get("run_id", "unknown")),
-            "status": "success",
+            "status": status,
             "answer": artifacts.get("answer", ""),
             "citations": artifacts.get("citations", []),
             "warnings": [
-                w.get("message", str(w)) if isinstance(w, dict) else w
+                w.get("message", w.get("msg", str(w))) if isinstance(w, dict) else w
                 for w in artifacts.get("warnings", [])
             ],
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -366,11 +454,11 @@ class BundleAssembler:
 
         # 品質ゲート判定 (AG-02: QualityGateVerifierを優先)
         if quality_report:
-            gate_passed = quality_report.get("gate_passed", True)
-            fail_reasons = quality_report.get("fail_reasons", [])
+            gate_passed = bool(quality_report.get("gate_passed", False))
+            fail_reasons = self._normalize_fail_reasons(quality_report.get("fail_reasons", []))
         else:
-            gate_passed = True
-            fail_reasons = []
+            gate_passed = False
+            fail_reasons = [self.VERIFY_NOT_RUN_REASON.copy()]
 
         feedback_summary = feedback_risk.get("summary") if isinstance(feedback_risk, dict) else None
         ready_to_submit = True

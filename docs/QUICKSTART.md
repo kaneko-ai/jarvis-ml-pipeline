@@ -173,3 +173,22 @@ jarvis workflows list
 
 - [API リファレンス](API_REFERENCE.md) - 詳細なAPI仕様
 - [ドキュメントハブ](README.md) - 運用方針と最新の実装ノート
+
+## New Quickstart Commands (2026-02-16)
+
+```bash
+# 1) Citation Tree
+jarvis papers tree --id arxiv:1234.5678 --depth 2 --max-per-level 50 --out logs/runs --out-run auto
+
+# 2) 3D Paper Map
+jarvis papers map3d --id arxiv:1234.5678 --k 30 --out logs/runs --out-run auto
+
+# 3) Harvest watch/work (run-scoped queue)
+jarvis harvest watch --source pubmed --query "immunotherapy" --since-hours 6 --budget "max_items=200,max_minutes=30,max_requests=400" --out logs/runs --out-run auto
+jarvis harvest work --budget "max_items=200,max_minutes=30,max_requests=400" --out logs/runs --out-run <same_run_id>
+```
+
+Notes:
+- Harvest queue is persisted per run: `logs/runs/{run_id}/harvest/queue.jsonl`
+- `result.json.status` is one of `success | failed | needs_retry`
+- `--offline` should not crash; failed reasons are written to `warnings.jsonl` and `report.md`

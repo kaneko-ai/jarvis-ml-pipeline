@@ -105,8 +105,8 @@ def test_run_task_budget_error(mock_env):
     # Execute
     result = run_task(task_dict)
 
-    # Should fail with budget error info
-    assert result.status == "failed"
+    # Budget-related gate failure should request retry under 3-value status policy
+    assert result.status == "needs_retry"
     assert any("Budget exhausted" in w for w in result.warnings)
 
 
@@ -117,7 +117,7 @@ def test_run_task_empty_llm_response(mock_env):
     # Execute
     result = run_task(task_dict)
 
-    # LLM returns empty -> Agent might return empty or fail -> Quality gate fails
-    assert result.status == "failed"
+    # LLM returns empty -> quality gate fails as non-fatal -> needs_retry
+    assert result.status == "needs_retry"
     # Result answer should be empty if agent couldn't handle it
     assert result.answer == ""

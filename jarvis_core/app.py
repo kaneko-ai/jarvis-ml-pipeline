@@ -86,6 +86,40 @@ def _top_categories(items: list[dict]) -> list[str]:
     return [k for k, _ in sorted(tally.items(), key=lambda kv: kv[1], reverse=True)[:3]]
 
 
+FATAL_STATUS_CODES = {
+    "INPUT_INVALID",
+    "TASK_INVALID",
+    "CONFIG_INVALID",
+    "EXECUTION_ERROR",
+    "INTERNAL_ERROR",
+    "CONTRACT_VALIDATION_FAILED",
+    "CONTRACT_POST_VALIDATION_FAILED",
+}
+
+
+def _normalize_fail_reason_dicts(fail_reasons: list[Any]) -> list[dict[str, Any]]:
+    normalized: list[dict[str, Any]] = []
+    for reason in fail_reasons:
+        if hasattr(reason, "to_dict"):
+            reason = reason.to_dict()
+        if isinstance(reason, str):
+            normalized.append({"code": "UNKNOWN", "msg": reason, "severity": "error"})
+            continue
+        if isinstance(reason, dict):
+            normalized.append(
+                {
+                    "code": str(reason.get("code", "UNKNOWN")),
+                    "msg": str(reason.get("msg", reason.get("message", reason))),
+                    "severity": str(reason.get("severity", "error")),
+                }
+            )
+    return normalized
+
+
+def _has_fatal_fail_reason(fail_reasons: list[dict[str, Any]]) -> bool:
+    return any(str(reason.get("code", "")).upper() in FATAL_STATUS_CODES for reason in fail_reasons)
+
+
 @dataclass
 class AppResult:
     """Result from app execution."""
@@ -492,15 +526,18 @@ def run_task(
         },
     )
 
-    # === Determine final status (per MASTER_SPEC: gate_passed必須) ===
-    # status == "success" ⇔ gate_passed == true AND no execution error
+    # === Determine final status (per MASTER_SPEC) ===
+    verify_fail_reasons = _normalize_fail_reason_dicts(
+        [fr.to_dict() if hasattr(fr, "to_dict") else fr for fr in verify_result.fail_reasons]
+    )
     if execution_error:
         final_status = "failed"
     elif verify_result.gate_passed:
         final_status = "success"
-    else:
-        # gate_passed == false → cannot be success
+    elif _has_fatal_fail_reason(verify_fail_reasons):
         final_status = "failed"
+    else:
+        final_status = "needs_retry"
 
     feedback_report = _run_feedback_analysis(answer)
     if feedback_report:
@@ -527,9 +564,7 @@ def run_task(
         # 失敗時: FAILURE_REQUIRED + 可能な成果物
         # FailReasonをdict化（JSON直列化のため）
         fail_reasons_dict = [{"code": "EXECUTION_ERROR", "msg": execution_error}]
-        fail_reasons_dict.extend(
-            [fr.to_dict() if hasattr(fr, "to_dict") else fr for fr in verify_result.fail_reasons]
-        )
+        fail_reasons_dict.extend(verify_fail_reasons)
         assembler.build_failure(
             context=context,
             error=execution_error,
@@ -556,9 +591,7 @@ def run_task(
         }
         quality_report = {
             "gate_passed": verify_result.gate_passed,
-            "fail_reasons": [
-                fr.to_dict() if hasattr(fr, "to_dict") else fr for fr in verify_result.fail_reasons
-            ],
+            "fail_reasons": verify_fail_reasons,
         }
         assembler.build(context, artifacts, quality_report)
 

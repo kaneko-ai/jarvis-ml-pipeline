@@ -82,7 +82,7 @@
 
 ### 強み（維持・強化）
 
-- SPEC_AUTHORITY.md による仕様権威階層
+- docs/SPEC_AUTHORITY.md による仕様権威階層
 - 10ファイルBundle契約
 - QualityGateVerifier 4層品質ゲート
 - Pipeline as Config (YAML定義)
@@ -235,14 +235,25 @@ graph TD
 
 1. このドキュメントをチームでレビュー
 2. [Phase 1 タスク](./tasks/PHASE1_TASKS.md) から着手
-3. 週次で進捗を DECISIONS.md に記録
+3. 週次で進捗を docs/DECISIONS.md に記録
 4. マイルストーン毎にスコア再評価
 
 ---
 
 ## 関連ドキュメント
 
-- [SPEC_AUTHORITY.md](./SPEC_AUTHORITY.md) - 仕様権威階層
-- [BUNDLE_CONTRACT.md](./BUNDLE_CONTRACT.md) - 成果物契約
-- [DoD.md](./DoD.md) - 完了定義
-- [DECISIONS.md](./DECISIONS.md) - 決定記録
+docs/SPEC_AUTHORITY.md - 仕様権威階層（正本）
+
+docs/BUNDLE_CONTRACT.md - 成果物契約（正本）
+
+docs/DoD.md - 完了定義（正本）
+
+docs/DECISIONS.md - 決定記録（正本）
+
+docs/tasks/PHASE1_TASKS.md
+
+docs/tasks/PHASE2_TASKS.md
+
+docs/tasks/PHASE3_TASKS.md
+
+docs/PLANS/FEATURE_SPEC_PACK_v1.md - 追加機能SPEC Pack（正本）

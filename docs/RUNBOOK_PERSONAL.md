@@ -45,3 +45,21 @@ javisctl doctor --queue-dir logs/sync_queue
 - `logs/runs/<run_id>/drive_audit.json`（audit実行時）
 - `logs/counters/papers.json`
 
+
+## Harvest Watch/Work 運用 (Run-Scoped Queue)
+
+### watch
+```bash
+jarvis harvest watch --source pubmed --query "immunotherapy" --since-hours 6 --budget "max_items=200,max_minutes=30,max_requests=400" --out logs/runs --out-run auto
+```
+
+### work
+```bash
+jarvis harvest work --budget "max_items=200,max_minutes=30,max_requests=400" --out logs/runs --out-run <same_run_id>
+```
+
+運用ルール:
+- queueは run単位で永続化する: `logs/runs/{run_id}/harvest/queue.jsonl`
+- `watch` と `work` は同一 `run_id` で継続する
+- budget超過時は `result.json.status=needs_retry` とし、詳細は `harvest/report.md` / `eval_summary.json` に残す
+- offline時は成功扱いにしない（`failed` または `needs_retry`）
