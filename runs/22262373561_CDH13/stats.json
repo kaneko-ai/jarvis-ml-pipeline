@@ -1,0 +1,18 @@
+{
+  "run_id": "22262373561_CDH13",
+  "query": "(CDH13[Title/Abstract] OR T-cadherin[Title/Abstract]) AND free full text[filter]",
+  "status": "success",
+  "started_at": "2026-02-21T18:53:19.012104+00:00",
+  "finished_at": "2026-02-21T18:58:52.513159+00:00",
+  "updated_at": "2026-02-21T18:58:52.515254+00:00",
+  "index_version": "22262373561_CDH13",
+  "pmids": 50,
+  "meta": 50,
+  "pmcids": 42,
+  "pdf_ok": 10,
+  "pdf_fail": 32,
+  "chunks": 559,
+  "index_ok": 1,
+  "failed": false,
+  "error": ""
+}
