@@ -39,6 +39,15 @@ def get_note_files():
     return [str(f) for f in files]
 
 
+def get_prisma_files():
+    """Find all PRISMA files in logs/prisma/."""
+    prisma_dir = Path("logs/prisma")
+    if not prisma_dir.exists():
+        return []
+    files = sorted(prisma_dir.glob("*.md"), key=lambda f: f.stat().st_mtime, reverse=True)
+    return [str(f) for f in files]
+
+
 def filter_papers(papers, keyword, year_range, sources):
     """Filter papers by keyword, year range, and source."""
     filtered = []
@@ -102,7 +111,7 @@ st.sidebar.markdown("---")
 
 page = st.sidebar.radio(
     "ページ選択",
-    ["📚 論文データベース", "📝 研究ノート", "📊 統計情報"],
+    ["📚 論文データベース", "📝 研究ノート", "📊 統計情報", "🔀 PRISMA図"],
 )
 
 st.sidebar.markdown("---")
@@ -110,6 +119,7 @@ st.sidebar.markdown("**収集済みデータ**")
 
 json_files = get_json_files()
 note_files = get_note_files()
+prisma_files = get_prisma_files()
 
 # Show dataset selector in sidebar
 selected_file = st.sidebar.selectbox(
@@ -296,3 +306,55 @@ elif page == "📊 統計情報":
             evidence_counts[ev] = evidence_counts.get(ev, 0) + 1
     if evidence_counts:
         st.bar_chart(evidence_counts)
+
+
+elif page == "🔀 PRISMA図":
+    st.title("🔀 PRISMA 2020 Flow Diagram")
+
+    if not prisma_files:
+        st.warning("PRISMA図がありません。まず生成してください。")
+        st.code('python -m jarvis_cli prisma logs/search/file1.json logs/search/file2.json', language="powershell")
+        st.stop()
+
+    selected_prisma = st.selectbox(
+        "PRISMA図を選択",
+        prisma_files,
+        format_func=lambda x: Path(x).stem,
+    )
+
+    if selected_prisma:
+        content = Path(selected_prisma).read_text(encoding="utf-8")
+
+        # Extract mermaid code from markdown
+        mermaid_path = Path(selected_prisma).with_suffix(".mmd")
+        if mermaid_path.exists():
+            mermaid_code = mermaid_path.read_text(encoding="utf-8")
+
+            # Display mermaid diagram
+            st.markdown("### フロー図")
+            st.markdown(f"```mermaid\n{mermaid_code}\n```")
+
+            # Also show as a visual using streamlit's built-in support
+            try:
+                import streamlit.components.v1 as components
+                mermaid_html = f"""
+                <div class="mermaid">
+                {mermaid_code}
+                </div>
+                <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+                <script>mermaid.initialize({{startOnLoad:true, theme:'default'}});</script>
+                """
+                components.html(mermaid_html, height=500, scrolling=True)
+            except Exception:
+                st.info("Mermaid図のレンダリングには対応ブラウザが必要です。上記のコードブロックをコピーして mermaid.live で確認できます。")
+
+        # Show statistics table from markdown
+        st.markdown("---")
+        st.markdown(content)
+
+        st.download_button(
+            "📥 PRISMA Markdown ダウンロード",
+            data=content,
+            file_name=Path(selected_prisma).name,
+            mime="text/markdown",
+        )

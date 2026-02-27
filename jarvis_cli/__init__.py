@@ -84,6 +84,19 @@ def main(argv=None):
         help="LLM provider: codex (default) or gemini",
     )
 
+    # --- prisma command ---
+    prisma_parser = subparsers.add_parser(
+        "prisma", help="Generate PRISMA 2020 flow diagram"
+    )
+    prisma_parser.add_argument(
+        "files", nargs="+",
+        help="Search result JSON files used in the review",
+    )
+    prisma_parser.add_argument(
+        "--output", "-o", type=str, default=None,
+        help="Output file path (default: logs/prisma/prisma_<timestamp>.md)",
+    )
+
     args = parser.parse_args(argv)
 
     if args.command is None:
@@ -101,6 +114,9 @@ def main(argv=None):
 
     if args.command == "note":
         return _cmd_note(args)
+
+    if args.command == "prisma":
+        return _cmd_prisma(args)
 
     parser.print_help()
     return 0
@@ -153,6 +169,12 @@ def _cmd_note(args):
     """note command: generate research note."""
     from jarvis_cli.note import run_note
     return run_note(args)
+
+
+def _cmd_prisma(args):
+    """prisma command: generate PRISMA flow diagram."""
+    from jarvis_cli.prisma import run_prisma
+    return run_prisma(args)
 
 
 if __name__ == "__main__":

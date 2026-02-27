@@ -1,0 +1,15 @@
+graph TD
+    A["<b>Identification</b><br/>6 database searches<br/>Records identified<br/>(n = 120)"] --> B["Duplicate removal<br/>(n = 14 removed)"]
+    B --> C["<b>Screening</b><br/>Records after dedup<br/>(n = 106)"]
+    C --> D{"Abstract available?"}
+    D -->|Yes| E["Records screened<br/>(n = 103)"]
+    D -->|No| F["Excluded: no abstract<br/>(n = 3)"]
+    E --> G{"LLM summary generated?"}
+    G -->|Yes| H["<b>Included</b><br/>Studies with summary<br/>(n = 99)"]
+    G -->|No| I["Excluded: no summary<br/>(n = 4)"]
+
+    style A fill:#4CAF50,color:#fff,stroke:#333
+    style C fill:#2196F3,color:#fff,stroke:#333
+    style H fill:#FF9800,color:#fff,stroke:#333
+    style F fill:#f44336,color:#fff,stroke:#333
+    style I fill:#f44336,color:#fff,stroke:#333
