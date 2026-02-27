@@ -41,3 +41,5 @@ pytest_results.txt
 
 test_experiments/
 pdf_fail_*.txt
+
+venv/
