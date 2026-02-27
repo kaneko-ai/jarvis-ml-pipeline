@@ -14,6 +14,28 @@ class DummyLLM:
         return "dummy answer"
 
 
+class _FakePubMedClient:
+    def search_and_fetch(self, query: str, max_results: int = 5):
+        from jarvis_core.sources.pubmed_client import PubMedArticle
+
+        return [
+            PubMedArticle(
+                pmid=str(1000 + i),
+                title=f"{query} study {i + 1}",
+                abstract=f"Abstract for {query} study {i + 1}",
+                authors=["Tester A"],
+                journal="Test Journal",
+                pub_date="2026",
+            )
+            for i in range(max_results)
+        ]
+
+
+class _EmptySourceClient:
+    def search(self, *args, **kwargs):  # pragma: no cover - simple stub
+        return []
+
+
 def test_registry_loads_agents_from_yaml():
     registry = AgentRegistry.from_file(Path("configs/agents.yaml"))
 
@@ -26,13 +48,18 @@ def test_registry_loads_agents_from_yaml():
     assert "es_edit" in job_agents
 
 
-def test_registry_instantiates_agent_stub():
+def test_registry_instantiates_paper_fetcher(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr("jarvis_core.agents.PubMedClient", _FakePubMedClient)
+    monkeypatch.setattr("jarvis_core.agents.ArxivClient", _EmptySourceClient)
+    monkeypatch.setattr("jarvis_core.agents.CrossrefClient", _EmptySourceClient)
+
     registry = AgentRegistry.from_file(Path("configs/agents.yaml"))
     agent = registry.create_agent_instance("paper_fetcher")
 
     result = agent.run_single(DummyLLM(), "test paper fetch")
-    assert "fetching papers" in result.answer
-    assert result.meta and result.meta.get("source") == "paper_fetcher_stub"
+    assert "Found 5 papers" in result.answer
+    assert result.meta and result.meta.get("source") == "paper_fetcher"
+    assert len(result.meta.get("papers", [])) == 5
 
     with pytest.raises(KeyError):
         registry.create_agent_instance("unknown_agent")

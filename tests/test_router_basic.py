@@ -44,12 +44,38 @@ class DummyLLM:
         return "dummy answer"
 
 
+class _FakePubMedClient:
+    def search_and_fetch(self, query: str, max_results: int = 5):
+        from jarvis_core.sources.pubmed_client import PubMedArticle
+
+        return [
+            PubMedArticle(
+                pmid=str(2000 + i),
+                title=f"{query} result {i + 1}",
+                abstract=f"Abstract for {query} result {i + 1}",
+                authors=["Router Tester"],
+                journal="Router Journal",
+                pub_date="2026",
+            )
+            for i in range(max_results)
+        ]
+
+
+class _EmptySourceClient:
+    def search(self, *args, **kwargs):  # pragma: no cover - simple stub
+        return []
+
+
 def make_router():
     registry = AgentRegistry.from_file(Path("configs/agents.yaml"))
     return Router(llm=DummyLLM(), registry=registry)
 
 
-def test_router_selects_agent_by_category():
+def test_router_selects_agent_by_category(monkeypatch):
+    monkeypatch.setattr("jarvis_core.agents.PubMedClient", _FakePubMedClient)
+    monkeypatch.setattr("jarvis_core.agents.ArxivClient", _EmptySourceClient)
+    monkeypatch.setattr("jarvis_core.agents.CrossrefClient", _EmptySourceClient)
+
     router = make_router()
     task = Task(
         task_id="t1",
@@ -62,8 +88,10 @@ def test_router_selects_agent_by_category():
     )
 
     result = router.run(task)
-    assert "fetching papers" in result.answer
-    assert result.meta and result.meta.get("source") == "paper_fetcher_stub"
+    assert "Found 5 papers" in result.answer
+    assert "CD73" in result.answer
+    assert result.meta and result.meta.get("source") == "paper_fetcher"
+    assert len(result.meta.get("papers", [])) == 5
 
 
 def test_router_respects_agent_hint():

@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import re
 from typing import Any
 import types
 
 from .llm import LLMClient, Message
+from .sources.arxiv_client import ArxivClient, ArxivPaper
+from .sources.crossref_client import CrossrefClient, CrossrefWork
+from .sources.pubmed_client import PubMedArticle, PubMedClient
 
 base = types.ModuleType("jarvis_core.agents.base")
 scientist = types.ModuleType("jarvis_core.agents.scientist")
@@ -227,17 +231,252 @@ class MiscAgent(BaseAgent):
 
 
 class PaperFetcherAgent(BaseAgent):
-    """Stub for paper-fetcher style agent."""
+    """Paper search agent backed by free literature APIs."""
 
     name = "paper_fetcher"
 
+    _CLARIFY_STEP = "Clarify paper requirements and search keywords"
+    _COLLECT_STEP = "Collect candidate papers or sources"
+    _SUMMARY_STEP = "Summarize findings against the goal"
+    _DEFAULT_MAX_RESULTS = 5
+
+    def __init__(
+        self,
+        pubmed_client: PubMedClient | None = None,
+        arxiv_client: ArxivClient | None = None,
+        crossref_client: CrossrefClient | None = None,
+    ) -> None:
+        self.pubmed_client = pubmed_client or PubMedClient()
+        self.arxiv_client = arxiv_client or ArxivClient()
+        self.crossref_client = crossref_client or CrossrefClient()
+
     def run_single(self, llm: LLMClient, task: str) -> AgentResult:  # noqa: ARG002
+        query = self._extract_query(task)
+        max_results = self._extract_max_results(task)
+        step = self._detect_step(task)
+
+        if not query:
+            return AgentResult(
+                status="fail",
+                answer="",
+                citations=[],
+                meta={
+                    "source": "paper_fetcher",
+                    "papers": [],
+                    "warnings": ["empty_query"],
+                },
+            )
+
+        if step == "clarify":
+            return AgentResult(
+                status="success",
+                answer=(
+                    f"Search plan for '{query}': query PubMed first, then fall back to arXiv "
+                    f"and Crossref if needed. Target {max_results} papers."
+                ),
+                citations=[],
+                meta={
+                    "source": "paper_fetcher",
+                    "query": query,
+                    "papers": [],
+                    "paper_count": 0,
+                },
+            )
+
+        papers, warnings = self._search_papers(query=query, max_results=max_results)
+        if not papers:
+            warnings.append("no_papers_found")
+            return AgentResult(
+                status="partial",
+                answer=f"No papers found for '{query}'.",
+                citations=[],
+                meta={
+                    "source": "paper_fetcher",
+                    "query": query,
+                    "papers": [],
+                    "paper_count": 0,
+                    "warnings": warnings,
+                },
+            )
+
+        answer = self._build_answer(query=query, papers=papers)
         return AgentResult(
             status="success",
-            answer=f"Stub: fetching papers for '{task}'",
+            answer=answer,
             citations=[],
-            meta={"source": "paper_fetcher_stub"},
+            meta={
+                "source": "paper_fetcher",
+                "query": query,
+                "papers": [] if step == "summarize" else papers,
+                "paper_count": len(papers),
+                "warnings": warnings,
+                "sources": sorted({str(p.get("source", "")) for p in papers if p.get("source")}),
+            },
         )
+
+    def _detect_step(self, task: str) -> str:
+        if self._CLARIFY_STEP in task:
+            return "clarify"
+        if self._SUMMARY_STEP in task:
+            return "summarize"
+        return "collect"
+
+    def _extract_query(self, task: str) -> str:
+        match = re.search(r"^Query:\s*(.+)$", task, flags=re.MULTILINE)
+        if match:
+            return match.group(1).strip()
+
+        first_line = next((line.strip() for line in task.splitlines() if line.strip()), "")
+        for step in (self._CLARIFY_STEP, self._COLLECT_STEP, self._SUMMARY_STEP):
+            if step in first_line:
+                first_line = first_line.split(step, 1)[0]
+        return first_line.strip(" -:|.;,")
+
+    def _extract_max_results(self, task: str) -> int:
+        patterns = [
+            r"(?i)\b(?:search|find|fetch|collect)\s+(\d+)\s+papers?\b",
+            r"(?i)\b(\d+)\s+papers?\b",
+            r"(?i)\btop\s+(\d+)\b",
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, task)
+            if match:
+                value = int(match.group(1))
+                return max(1, min(value, 20))
+        return self._DEFAULT_MAX_RESULTS
+
+    def _search_papers(self, query: str, max_results: int) -> tuple[list[dict[str, Any]], list[str]]:
+        papers: list[dict[str, Any]] = []
+        warnings: list[str] = []
+        seen: set[str] = set()
+
+        def extend_with(items: list[dict[str, Any]]) -> None:
+            for item in items:
+                key = self._paper_key(item)
+                if key in seen:
+                    continue
+                seen.add(key)
+                papers.append(item)
+                if len(papers) >= max_results:
+                    break
+
+        try:
+            pubmed_articles = self.pubmed_client.search_and_fetch(query, max_results=max_results)
+            extend_with([self._normalize_pubmed_article(article) for article in pubmed_articles])
+        except Exception as exc:
+            warnings.append(f"pubmed_error:{exc}")
+
+        if len(papers) < max_results:
+            try:
+                remaining = max_results - len(papers)
+                arxiv_papers = self.arxiv_client.search(query, max_results=remaining)
+                extend_with([self._normalize_arxiv_paper(paper) for paper in arxiv_papers])
+            except Exception as exc:
+                warnings.append(f"arxiv_error:{exc}")
+
+        if len(papers) < max_results:
+            try:
+                remaining = max_results - len(papers)
+                crossref_works = self.crossref_client.search(
+                    query,
+                    rows=remaining,
+                    filter_type="journal-article",
+                )
+                extend_with([self._normalize_crossref_work(work) for work in crossref_works])
+            except Exception as exc:
+                warnings.append(f"crossref_error:{exc}")
+
+        return papers[:max_results], warnings
+
+    def _normalize_pubmed_article(self, article: PubMedArticle) -> dict[str, Any]:
+        title = article.title.strip() or "Untitled"
+        return {
+            "paper_id": f"pubmed:{article.pmid or self._slugify(title)}",
+            "source": "pubmed",
+            "source_id": article.pmid,
+            "title": title,
+            "year": self._extract_year(article.pub_date),
+            "authors": article.authors,
+            "abstract": article.abstract,
+            "journal": article.journal,
+            "pub_date": article.pub_date,
+            "doi": article.doi,
+            "pmid": article.pmid,
+            "pmc_id": article.pmc_id,
+            "keywords": article.keywords,
+            "mesh_terms": article.mesh_terms,
+            "url": f"https://pubmed.ncbi.nlm.nih.gov/{article.pmid}/" if article.pmid else "",
+        }
+
+    def _normalize_arxiv_paper(self, paper: ArxivPaper) -> dict[str, Any]:
+        title = paper.title.strip() or "Untitled"
+        year = paper.published.year if paper.published else (paper.updated.year if paper.updated else 0)
+        return {
+            "paper_id": f"arxiv:{paper.arxiv_id or self._slugify(title)}",
+            "source": "arxiv",
+            "source_id": paper.arxiv_id,
+            "title": title,
+            "year": year,
+            "authors": paper.authors,
+            "abstract": paper.abstract,
+            "journal": paper.journal_ref or "",
+            "doi": paper.doi,
+            "arxiv_id": paper.arxiv_id,
+            "categories": paper.categories,
+            "primary_category": paper.primary_category,
+            "published": paper.published.isoformat() if paper.published else None,
+            "updated": paper.updated.isoformat() if paper.updated else None,
+            "url": paper.abs_url or paper.pdf_url or "",
+            "pdf_url": paper.pdf_url,
+        }
+
+    def _normalize_crossref_work(self, work: CrossrefWork) -> dict[str, Any]:
+        title = work.title.strip() or "Untitled"
+        year = work.published_date.year if work.published_date else 0
+        return {
+            "paper_id": f"doi:{work.doi.lower()}" if work.doi else f"crossref:{self._slugify(title)}",
+            "source": "crossref",
+            "source_id": work.doi,
+            "title": title,
+            "year": year,
+            "authors": work.authors,
+            "abstract": work.abstract or "",
+            "journal": work.journal or "",
+            "doi": work.doi,
+            "publisher": work.publisher,
+            "type": work.type,
+            "citation_count": work.cited_by_count,
+            "references_count": work.references_count,
+            "url": work.url or (f"https://doi.org/{work.doi}" if work.doi else ""),
+        }
+
+    def _paper_key(self, paper: dict[str, Any]) -> str:
+        doi = str(paper.get("doi") or "").strip().lower()
+        if doi:
+            return f"doi:{doi}"
+        source = str(paper.get("source") or "").strip().lower()
+        source_id = str(paper.get("source_id") or "").strip().lower()
+        if source and source_id:
+            return f"{source}:{source_id}"
+        title = str(paper.get("title") or "").strip().lower()
+        return f"title:{self._slugify(title)}"
+
+    def _build_answer(self, query: str, papers: list[dict[str, Any]]) -> str:
+        lines = [f"Found {len(papers)} papers for '{query}'."]
+        for index, paper in enumerate(papers, start=1):
+            year = paper.get("year") or "n.d."
+            venue = paper.get("journal") or paper.get("source") or "unknown venue"
+            source = paper.get("source") or "unknown"
+            lines.append(f"{index}. {paper.get('title', 'Untitled')} ({year}; {venue}; {source})")
+        return "\n".join(lines)
+
+    def _extract_year(self, pub_date: str) -> int:
+        match = re.search(r"\b(19|20)\d{2}\b", pub_date or "")
+        return int(match.group()) if match else 0
+
+    def _slugify(self, value: str) -> str:
+        slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+        return slug or "untitled"
 
 
 class MyGPTPaperAnalyzerAgent(BaseAgent):

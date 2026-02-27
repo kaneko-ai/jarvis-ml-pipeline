@@ -1,6 +1,28 @@
 """Tests for agents module - Coverage improvement (FIXED)."""
 
 
+class _FakePubMedClient:
+    def search_and_fetch(self, query: str, max_results: int = 5):
+        from jarvis_core.sources.pubmed_client import PubMedArticle
+
+        return [
+            PubMedArticle(
+                pmid=str(3000 + i),
+                title=f"{query} paper {i + 1}",
+                abstract=f"Abstract for {query} paper {i + 1}",
+                authors=["Coverage Tester"],
+                journal="Coverage Journal",
+                pub_date="2026",
+            )
+            for i in range(max_results)
+        ]
+
+
+class _EmptySourceClient:
+    def search(self, *args, **kwargs):  # pragma: no cover - simple stub
+        return []
+
+
 class TestCitation:
     """Tests for Citation dataclass."""
 
@@ -114,6 +136,25 @@ class TestPaperFetcherAgent:
 
         agent = PaperFetcherAgent()
         assert agent.name == "paper_fetcher"
+
+    def test_paper_fetcher_agent_returns_search_results(self, monkeypatch):
+        """Test PaperFetcherAgent returns normalized papers instead of stub text."""
+        from jarvis_core.agents import PaperFetcherAgent
+
+        monkeypatch.setattr("jarvis_core.agents.PubMedClient", _FakePubMedClient)
+        monkeypatch.setattr("jarvis_core.agents.ArxivClient", _EmptySourceClient)
+        monkeypatch.setattr("jarvis_core.agents.CrossrefClient", _EmptySourceClient)
+
+        agent = PaperFetcherAgent()
+        result = agent.run_single(llm=None, task="Search 5 papers about PD-1")
+
+        assert result.status == "success"
+        assert "Stub:" not in result.answer
+        assert "Found 5 papers for 'Search 5 papers about PD-1'" in result.answer
+        assert result.meta is not None
+        assert result.meta["source"] == "paper_fetcher"
+        assert len(result.meta["papers"]) == 5
+        assert result.meta["papers"][0]["paper_id"].startswith("pubmed:")
 
 
 class TestMyGPTPaperAnalyzerAgent:
