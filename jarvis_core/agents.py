@@ -1,7 +1,18 @@
+# ============================================================
+# jarvis_core/agents.py — BUG-1, BUG-2, BUG-3 修正版
+# ============================================================
+# 変更点:
+#   BUG-1: _extract_query() を改善してキーワードだけを抽出
+#          _detect_step() をデフォルト "collect" に変更
+#   BUG-2: run_single() で Citation オブジェクトを生成して返す
+#   BUG-3: run_single() で Gemini による日本語要約・エビデンスレベル追加
+# ============================================================
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 import re
+import logging
 from typing import Any
 import types
 
@@ -9,6 +20,8 @@ from .llm import LLMClient, Message
 from .sources.arxiv_client import ArxivClient, ArxivPaper
 from .sources.crossref_client import CrossrefClient, CrossrefWork
 from .sources.pubmed_client import PubMedArticle, PubMedClient
+
+logger = logging.getLogger(__name__)
 
 base = types.ModuleType("jarvis_core.agents.base")
 scientist = types.ModuleType("jarvis_core.agents.scientist")
@@ -120,7 +133,6 @@ class BaseAgent:
         import re
 
         citations = []
-        # Find all occurrences of [chunk:XXX]
         for match in re.finditer(r"\[chunk:([\w\-]+)\]", text):
             chunk_id = match.group(1)
             citations.append(Citation(chunk_id=chunk_id, source="", locator="", quote=""))
@@ -231,7 +243,14 @@ class MiscAgent(BaseAgent):
 
 
 class PaperFetcherAgent(BaseAgent):
-    """Paper search agent backed by free literature APIs."""
+    """Paper search agent backed by free literature APIs.
+    
+    修正済み (BUG-1, BUG-2, BUG-3):
+    - _extract_query(): ゴール全文ではなくキーワードのみ抽出
+    - _detect_step(): デフォルトを "collect" に固定（サブタスクテキストに惑わされない）
+    - run_single(): Citation オブジェクトを生成して返す (BUG-2)
+    - run_single(): Gemini で日本語要約・エビデンスレベルを付与 (BUG-3)
+    """
 
     name = "paper_fetcher"
 
@@ -239,6 +258,17 @@ class PaperFetcherAgent(BaseAgent):
     _COLLECT_STEP = "Collect candidate papers or sources"
     _SUMMARY_STEP = "Summarize findings against the goal"
     _DEFAULT_MAX_RESULTS = 5
+
+    # --- BUG-1 修正: アクションワードを除去するための正規表現 ---
+    _ACTION_WORDS = re.compile(
+        r"(?i)^(search|find|fetch|collect|get|retrieve|look\s+up|summarize|"
+        r"analyze|review|identify|list|show|give\s+me|探して|検索して|"
+        r"要約して|まとめて|調べて|見つけて)\s+",
+    )
+    _QUANTITY_PREFIX = re.compile(
+        r"(?i)^\d+\s+(recent\s+|latest\s+|new\s+)?(papers?|articles?|studies?|論文)\s+"
+        r"(about|on|regarding|related\s+to|concerning|に関する|について)\s*",
+    )
 
     def __init__(
         self,
@@ -250,7 +280,13 @@ class PaperFetcherAgent(BaseAgent):
         self.arxiv_client = arxiv_client or ArxivClient()
         self.crossref_client = crossref_client or CrossrefClient()
 
-    def run_single(self, llm: LLMClient, task: str) -> AgentResult:  # noqa: ARG002
+    def run_single(self, llm: LLMClient, task: str) -> AgentResult:
+        """論文検索を実行し、Citation付きの結果を返す。
+        
+        BUG-1: _extract_query() でキーワードのみ抽出
+        BUG-2: 各論文を Citation オブジェクトに変換
+        BUG-3: LLM で日本語要約・エビデンスレベルを付与
+        """
         query = self._extract_query(task)
         max_results = self._extract_max_results(task)
         step = self._detect_step(task)
@@ -283,6 +319,7 @@ class PaperFetcherAgent(BaseAgent):
                 },
             )
 
+        # --- 常に collect として論文を検索（BUG-1 修正の核心） ---
         papers, warnings = self._search_papers(query=query, max_results=max_results)
         if not papers:
             warnings.append("no_papers_found")
@@ -299,15 +336,21 @@ class PaperFetcherAgent(BaseAgent):
                 },
             )
 
+        # --- BUG-3: Gemini で各論文に日本語要約とエビデンスレベルを付与 ---
+        papers = self._enrich_papers_with_llm(llm, papers)
+
+        # --- BUG-2: Citation オブジェクトを生成 ---
+        citations = self._build_citations(papers)
+
         answer = self._build_answer(query=query, papers=papers)
         return AgentResult(
             status="success",
             answer=answer,
-            citations=[],
+            citations=citations,
             meta={
                 "source": "paper_fetcher",
                 "query": query,
-                "papers": [] if step == "summarize" else papers,
+                "papers": papers,
                 "paper_count": len(papers),
                 "warnings": warnings,
                 "sources": sorted({str(p.get("source", "")) for p in papers if p.get("source")}),
@@ -315,28 +358,180 @@ class PaperFetcherAgent(BaseAgent):
         )
 
     def _detect_step(self, task: str) -> str:
-        if self._CLARIFY_STEP in task:
+        """ステップ検出（BUG-1 修正）。
+        
+        変更前: タスクテキストに _SUMMARY_STEP 等が含まれるかで判定
+            → Plannerのサブタスクタイトルに "Summarize" が入ると誤判定
+        
+        変更後: "clarify" は明示的に指定された場合のみ。
+                それ以外は常に "collect"（論文検索を実行）。
+                summarize ステップでも論文データが必要なので collect で統一。
+        """
+        # clarify は最初のサブタスクでのみ発動。
+        # ただし task テキストの先頭が明確に clarify 指示の場合のみ。
+        first_line = next((line.strip() for line in task.splitlines() if line.strip()), "")
+        if first_line == self._CLARIFY_STEP:
             return "clarify"
-        if self._SUMMARY_STEP in task:
-            return "summarize"
+        # それ以外はすべて collect（論文検索実行）
         return "collect"
 
     def _extract_query(self, task: str) -> str:
+        """タスクテキストから検索キーワードのみを抽出（BUG-1 修正の核心）。
+        
+        変更前: "Query:" 行があればその値を返し、なければ最初の行をそのまま返す
+            → Planner/Router が加工したテキスト全体がクエリになってしまう
+        
+        変更後: 
+          1. "Query:" 行があればその値を使う
+          2. ゴールテキスト（最初の意味のある行）からアクションワードや
+             ステップ説明を除去し、科学的トピックだけを抽出する
+          3. 最終的に短いキーワードに整える
+        """
+        # Step 1: "Query:" 行を探す
         match = re.search(r"^Query:\s*(.+)$", task, flags=re.MULTILINE)
         if match:
-            return match.group(1).strip()
+            raw_query = match.group(1).strip()
+            # Query: 行自体がゴール全文の場合があるので、さらにクリーニング
+            return self._clean_query(raw_query)
 
-        first_line = next((line.strip() for line in task.splitlines() if line.strip()), "")
+        # Step 2: ゴールテキストを抽出（ステップ説明や装飾を除去）
+        goal_text = self._extract_goal_from_task_text(task)
+        return self._clean_query(goal_text)
+
+    def _extract_goal_from_task_text(self, task: str) -> str:
+        """タスクテキストからゴール部分だけを取り出す。
+        
+        Router._render_task_text() の出力形式:
+          "{goal}\nQuery: {query}\nContext: {ctx}"
+        
+        Planner が作るサブタスクの title:
+          "{goal[:50]}... — {step_description}"
+        """
+        lines = [line.strip() for line in task.splitlines() if line.strip()]
+        if not lines:
+            return ""
+
+        # "Query:" や "Context:" 行を除外
+        content_lines = []
+        for line in lines:
+            if re.match(r"^(Query|Context):\s*", line):
+                continue
+            content_lines.append(line)
+
+        if not content_lines:
+            # Query: 行しかなかった場合はそれを使う
+            for line in lines:
+                m = re.match(r"^Query:\s*(.+)$", line)
+                if m:
+                    return m.group(1).strip()
+            return lines[0] if lines else ""
+
+        # 最初の内容行を取得
+        first_line = content_lines[0]
+
+        # " — {step}" 部分を除去（Planner が付けるサブタスクタイトル）
         for step in (self._CLARIFY_STEP, self._COLLECT_STEP, self._SUMMARY_STEP):
-            if step in first_line:
-                first_line = first_line.split(step, 1)[0]
+            # "Goal text — Summarize findings against the goal" → "Goal text"
+            sep_patterns = [f" — {step}", f" - {step}", f"— {step}", f"- {step}"]
+            for sep in sep_patterns:
+                if sep in first_line:
+                    first_line = first_line.split(sep, 1)[0]
+            # step が行の先頭にある場合も除去
+            if first_line.strip().startswith(step):
+                first_line = first_line.strip()[len(step):]
+
         return first_line.strip(" -:|.;,")
+
+    def _clean_query(self, raw: str) -> str:
+        """生のテキストから科学的キーワードのみを抽出する。
+        
+        "Search 5 recent papers about PD-1 and summarize" → "PD-1"
+        "PD-1に関する最新の論文を10件検索して日本語で要約" → "PD-1"
+        """
+        text = raw.strip()
+        if not text:
+            return ""
+
+        # ステップ説明文の除去（念のため）
+        for step in (self._CLARIFY_STEP, self._COLLECT_STEP, self._SUMMARY_STEP):
+            text = text.replace(step, "")
+
+        # "and summarize" / "and analyze" 等の後続アクションを除去
+        text = re.sub(
+            r"(?i)\s+and\s+(summarize|analyze|review|compare|evaluate|list|rank|grade)\b.*$",
+            "",
+            text,
+        )
+
+        # 日本語のアクション部分を除去
+        # "PD-1に関する最新の論文を10件検索して日本語で要約" → "PD-1"
+        text = re.sub(
+            r"(に関する|について|に対する|の|related\s+to)(最新の|recent\s+)?"
+            r"(論文|文献|研究|papers?|articles?|studies?)"
+            r"(を?\d+件?)?.*$",
+            "",
+            text,
+        )
+
+        # 英語のアクションワード除去: "Search 5 recent papers about PD-1"
+        # まず "Search" 等のアクション動詞を除去
+        text = self._ACTION_WORDS.sub("", text).strip()
+        # "5 recent papers about" 等の数量+名詞+前置詞を除去
+        text = self._QUANTITY_PREFIX.sub("", text).strip()
+
+        # "about PD-1" → "PD-1" （前置詞が残っている場合）
+        text = re.sub(
+            r"(?i)^(about|on|regarding|concerning|for|of)\s+",
+            "",
+            text,
+        ).strip()
+
+        # 末尾の不要な接続詞や句読点を除去
+        text = re.sub(r"[\s,;.。、]+$", "", text)
+        text = re.sub(r"(?i)\s+(and|or)\s*$", "", text)
+
+        # もし結果が空か非常に長い（50文字超 = クリーニング失敗）場合、
+        # フォールバック: 大文字/ハイフン/数字を含む科学用語っぽいトークンを抽出
+        if not text or len(text) > 50:
+            tokens = self._extract_scientific_tokens(raw)
+            if tokens:
+                text = " ".join(tokens)
+
+        return text.strip()
+
+    def _extract_scientific_tokens(self, text: str) -> list[str]:
+        """テキストから科学用語っぽいトークンを抽出するフォールバック。
+        
+        大文字+数字、ハイフン付き（PD-1, CRISPR-Cas9, IL-6 等）を優先的に取得。
+        """
+        # 科学用語パターン: PD-1, CRISPR, mTOR, IL-6, spermidine, etc.
+        scientific_pattern = re.compile(
+            r"\b([A-Z][A-Za-z]*-?\d+[A-Za-z]*"  # PD-1, IL-6, CD8
+            r"|[A-Z]{2,}(?:-[A-Za-z0-9]+)*"       # CRISPR, CRISPR-Cas9, mRNA
+            r"|[a-z]+[A-Z][a-zA-Z]*"               # spermidine-like camelCase
+            r"|(?:spermidine|autophagy|immunotherapy|checkpoint|apoptosis))\b",  # 既知用語
+            re.IGNORECASE,
+        )
+        matches = scientific_pattern.findall(text)
+        # 重複除去しつつ順序を保持
+        seen = set()
+        result = []
+        for m in matches:
+            key = m.lower()
+            if key not in seen and key not in {
+                "search", "find", "collect", "summarize", "query",
+                "papers", "paper", "about", "recent", "latest",
+            }:
+                seen.add(key)
+                result.append(m)
+        return result[:5]  # 最大5トークン
 
     def _extract_max_results(self, task: str) -> int:
         patterns = [
             r"(?i)\b(?:search|find|fetch|collect)\s+(\d+)\s+papers?\b",
             r"(?i)\b(\d+)\s+papers?\b",
             r"(?i)\btop\s+(\d+)\b",
+            r"(\d+)\s*件",  # 日本語: "10件"
         ]
         for pattern in patterns:
             match = re.search(pattern, task)
@@ -387,6 +582,106 @@ class PaperFetcherAgent(BaseAgent):
                 warnings.append(f"crossref_error:{exc}")
 
         return papers[:max_results], warnings
+
+    # --- BUG-2: Citation オブジェクト生成 ---
+    def _build_citations(self, papers: list[dict[str, Any]]) -> list[Citation]:
+        """各論文から Citation オブジェクトを生成する。
+        
+        QualityGateVerifier が require_citations=True, require_locators=True で
+        チェックするため、chunk_id, source, locator, quote すべて必要。
+        """
+        citations = []
+        for paper in papers:
+            source = str(paper.get("source", "unknown"))
+            source_id = str(paper.get("source_id", ""))
+            title = str(paper.get("title", "Untitled"))
+
+            # chunk_id: ソースとIDの組み合わせ
+            chunk_id = paper.get("paper_id", f"{source}:{source_id}")
+
+            # locator: 論文の場所を特定する情報
+            if source == "pubmed" and source_id:
+                locator = f"pmid:{source_id}"
+            elif source == "arxiv" and source_id:
+                locator = f"arxiv:{source_id}"
+            elif paper.get("doi"):
+                locator = f"doi:{paper['doi']}"
+            else:
+                locator = f"url:{paper.get('url', 'unknown')}"
+
+            # quote: 論文タイトル（要約があれば先頭100文字も追加）
+            abstract = str(paper.get("abstract", ""))
+            quote = title
+            if abstract:
+                quote = f"{title} — {abstract[:100]}..."
+
+            citations.append(Citation(
+                chunk_id=chunk_id,
+                source=source,
+                locator=locator,
+                quote=quote,
+            ))
+        return citations
+
+    # --- BUG-3: LLM で日本語要約・エビデンスレベルを付与 ---
+    def _enrich_papers_with_llm(
+        self, llm: LLMClient, papers: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
+        """各論文に summary_ja と evidence_level を付与する。
+        
+        Gemini API レート制限 (Tier 1 = 15 RPM) を考慮し、
+        1論文ずつ要約。失敗しても元の papers データは保持。
+        """
+        import time as _time
+        import json as _json
+
+        for paper in papers:
+            title = paper.get("title", "")
+            abstract = paper.get("abstract", "")
+
+            if not abstract:
+                paper["summary_ja"] = f"（アブストラクト未取得: {title}）"
+                paper["evidence_level"] = "N/A"
+                continue
+
+            system_prompt = (
+                "あなたは医学・生命科学の文献レビュー専門家です。\n"
+                "以下の論文のアブストラクトを読んで、2つのことを行ってください:\n"
+                "1. 日本語で3-5文の要約を作成\n"
+                "2. CEBM (Centre for Evidence-Based Medicine) のエビデンスレベルを推定\n"
+                "   レベル: 1a, 1b, 1c, 2a, 2b, 2c, 3a, 3b, 4, 5\n\n"
+                "出力はJSON形式で:\n"
+                '{"summary_ja": "...", "evidence_level": "..."}\n'
+                "JSONのみ出力し、他のテキストは含めないでください。"
+            )
+            user_prompt = f"Title: {title}\n\nAbstract: {abstract}"
+
+            try:
+                raw = llm.chat(
+                    [
+                        Message(role="system", content=system_prompt),
+                        Message(role="user", content=user_prompt),
+                    ]
+                )
+                # JSONパース（コードブロックに包まれている場合も対処）
+                raw_clean = raw.strip()
+                if raw_clean.startswith("```"):
+                    # ```json ... ``` を除去
+                    raw_clean = re.sub(r"^```(?:json)?\s*", "", raw_clean)
+                    raw_clean = re.sub(r"\s*```$", "", raw_clean)
+
+                parsed = _json.loads(raw_clean)
+                paper["summary_ja"] = parsed.get("summary_ja", "（要約生成失敗）")
+                paper["evidence_level"] = parsed.get("evidence_level", "N/A")
+            except Exception as e:
+                logger.warning(f"LLM enrichment failed for '{title[:40]}': {e}")
+                paper["summary_ja"] = f"（要約生成失敗: {e}）"
+                paper["evidence_level"] = "N/A"
+
+            # レート制限対策: 4秒待機（15 RPM = 4秒/リクエスト）
+            _time.sleep(4)
+
+        return papers
 
     def _normalize_pubmed_article(self, article: PubMedArticle) -> dict[str, Any]:
         title = article.title.strip() or "Untitled"
@@ -467,7 +762,15 @@ class PaperFetcherAgent(BaseAgent):
             year = paper.get("year") or "n.d."
             venue = paper.get("journal") or paper.get("source") or "unknown venue"
             source = paper.get("source") or "unknown"
-            lines.append(f"{index}. {paper.get('title', 'Untitled')} ({year}; {venue}; {source})")
+            summary_ja = paper.get("summary_ja", "")
+            evidence_level = paper.get("evidence_level", "")
+
+            line = f"{index}. {paper.get('title', 'Untitled')} ({year}; {venue}; {source})"
+            if evidence_level and evidence_level != "N/A":
+                line += f" [CEBM: {evidence_level}]"
+            lines.append(line)
+            if summary_ja:
+                lines.append(f"   要約: {summary_ja}")
         return "\n".join(lines)
 
     def _extract_year(self, pub_date: str) -> int:
