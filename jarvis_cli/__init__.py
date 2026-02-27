@@ -40,6 +40,10 @@ def main(argv=None):
         "--json", action="store_true", dest="json_output",
         help="Output as JSON",
     )
+    search_parser.add_argument(
+        "--bibtex", action="store_true",
+        help="Also save as BibTeX (.bib) file",
+    )
 
     args = parser.parse_args(argv)
 

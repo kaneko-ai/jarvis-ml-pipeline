@@ -1,4 +1,4 @@
-"""jarvis search - lightweight paper search (P1-1)."""
+"""jarvis search - lightweight paper search (P1-1 + P1-3)."""
 
 from __future__ import annotations
 
@@ -7,6 +7,8 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+
+from jarvis_cli.bibtex import save_bibtex
 
 
 def run_search(args):
@@ -66,8 +68,14 @@ def run_search(args):
         md = _build_report_md(query, papers, warnings, search_duration)
         output_path.write_text(md, encoding="utf-8")
 
+    # BibTeX output (P1-3)
+    if getattr(args, "bibtex", False):
+        bib_path = output_path.with_suffix(".bib")
+        save_bibtex(papers, bib_path)
+        print(f"BibTeX saved to: {bib_path}")
+
     print()
-    print(f"Saved to: {output_path}")
+    print(f"Report saved to: {output_path}")
 
     if warnings:
         print()
