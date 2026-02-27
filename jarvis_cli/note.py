@@ -1,0 +1,207 @@
+"""jarvis note - generate research notes from collected papers (P3-3)."""
+
+from __future__ import annotations
+
+import json
+import sys
+import os
+from datetime import datetime, timezone
+from pathlib import Path
+
+from jarvis_core.llm_utils import LLMClient, Message
+
+
+def run_note(args):
+    """Generate a research note from a merged JSON file."""
+    input_path = args.input
+    provider = getattr(args, "provider", "gemini")
+    output_path = args.output
+
+    # Load papers
+    try:
+        with open(input_path, "r", encoding="utf-8") as f:
+            papers = json.load(f)
+    except Exception as e:
+        print(f"Error loading {input_path}: {e}", file=sys.stderr)
+        return 1
+
+    if not papers:
+        print("No papers found in input file.", file=sys.stderr)
+        return 1
+
+    print(f"Loaded {len(papers)} papers from {input_path}")
+    print(f"LLM provider: {provider}")
+    print()
+
+    # Build paper summaries for the prompt
+    paper_list = _build_paper_list(papers)
+
+    # Generate research note in chunks to stay within context limits
+    llm = LLMClient(provider=provider)
+
+    print("Step 1/3: Generating theme classification...")
+    themes = _generate_themes(llm, paper_list)
+    print("Done.")
+    print()
+
+    print("Step 2/3: Generating detailed analysis...")
+    analysis = _generate_analysis(llm, paper_list, themes)
+    print("Done.")
+    print()
+
+    print("Step 3/3: Generating research directions...")
+    directions = _generate_directions(llm, paper_list, themes)
+    print("Done.")
+    print()
+
+    # Build final markdown
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    topic = Path(input_path).stem.replace("_final", "").replace("_", " ").title()
+
+    md = _build_note_md(topic, now, len(papers), themes, analysis, directions, papers)
+
+    # Save
+    if not output_path:
+        os.makedirs("logs/notes", exist_ok=True)
+        safe = Path(input_path).stem
+        output_path = f"logs/notes/{safe}_note.md"
+
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    Path(output_path).write_text(md, encoding="utf-8")
+
+    print(f"Research note saved to: {output_path}")
+    print(f"Total papers: {len(papers)}")
+    return 0
+
+
+def _build_paper_list(papers):
+    """Build a compact text list of papers for LLM prompts."""
+    lines = []
+    for i, p in enumerate(papers, 1):
+        title = p.get("title", "Untitled")
+        year = p.get("year", "n.d.")
+        journal = p.get("journal", "")
+        summary = p.get("summary_ja", "")
+        abstract = p.get("abstract", "")
+
+        line = f"[{i}] {title} ({year}) - {journal}"
+        if summary and not summary.startswith("（"):
+            line += f"\n    要約: {summary}"
+        elif abstract:
+            # Use first 200 chars of abstract if no summary
+            line += f"\n    Abstract: {abstract[:200]}..."
+        lines.append(line)
+    return "\n".join(lines)
+
+
+def _generate_themes(llm, paper_list):
+    """Ask LLM to classify papers into research themes."""
+    prompt = (
+        "以下の論文リストを読んで、主要な研究テーマを5-8個に分類してください。\n"
+        "各テーマについて:\n"
+        "- テーマ名（日本語）\n"
+        "- 該当する論文の番号\n"
+        "- テーマの簡潔な説明（2-3文）\n\n"
+        "出力は日本語で、マークダウン形式でお願いします。\n\n"
+        f"--- 論文リスト ---\n{paper_list}"
+    )
+    messages = [
+        Message(role="system", content="あなたは医学・生命科学の文献レビュー専門家です。"),
+        Message(role="user", content=prompt),
+    ]
+    return llm.chat(messages)
+
+
+def _generate_analysis(llm, paper_list, themes):
+    """Ask LLM to provide detailed analysis."""
+    prompt = (
+        "以下の論文リストとテーマ分類に基づいて、各テーマの詳細な分析を行ってください。\n\n"
+        "各テーマについて:\n"
+        "- 主要な発見・知見のまとめ\n"
+        "- テーマ内での論文間の関連性や矛盾点\n"
+        "- エビデンスの強さの評価\n\n"
+        "出力は日本語で、マークダウン形式でお願いします。\n\n"
+        f"--- テーマ分類 ---\n{themes}\n\n"
+        f"--- 論文リスト ---\n{paper_list}"
+    )
+    messages = [
+        Message(role="system", content="あなたは医学・生命科学の文献レビュー専門家です。系統的レビューの手法に基づいて分析してください。"),
+        Message(role="user", content=prompt),
+    ]
+    return llm.chat(messages)
+
+
+def _generate_directions(llm, paper_list, themes):
+    """Ask LLM to suggest research directions."""
+    prompt = (
+        "以下の論文リストとテーマ分類に基づいて、今後の研究の方向性を提案してください。\n\n"
+        "以下の観点で:\n"
+        "- 現在の研究のギャップ（まだ十分に研究されていない領域）\n"
+        "- 有望な研究の方向性（3-5個）\n"
+        "- 大学院生の修士研究として取り組みやすいテーマの提案\n\n"
+        "出力は日本語で、マークダウン形式でお願いします。\n\n"
+        f"--- テーマ分類 ---\n{themes}\n\n"
+        f"--- 論文リスト ---\n{paper_list}"
+    )
+    messages = [
+        Message(role="system", content="あなたは医学・生命科学の研究指導者です。大学院生へのアドバイスとして回答してください。"),
+        Message(role="user", content=prompt),
+    ]
+    return llm.chat(messages)
+
+
+def _build_note_md(topic, now, paper_count, themes, analysis, directions, papers):
+    """Build the final research note markdown."""
+    lines = [
+        f"# Research Note: {topic}",
+        "",
+        f"**Generated:** {now}",
+        f"**Total papers analyzed:** {paper_count}",
+        f"**Generated by:** JARVIS Research OS",
+        "",
+        "---",
+        "",
+        "## 1. テーマ分類",
+        "",
+        themes,
+        "",
+        "---",
+        "",
+        "## 2. 詳細分析",
+        "",
+        analysis,
+        "",
+        "---",
+        "",
+        "## 3. 今後の研究方向性",
+        "",
+        directions,
+        "",
+        "---",
+        "",
+        "## 4. 論文一覧",
+        "",
+    ]
+
+    for i, p in enumerate(papers, 1):
+        title = p.get("title", "Untitled")
+        year = p.get("year", "n.d.")
+        authors = p.get("authors", [])
+        journal = p.get("journal", "")
+        doi = p.get("doi", "")
+
+        a_str = ", ".join(authors[:3])
+        if len(authors) > 3:
+            a_str += " et al."
+
+        ref = f"{i}. {a_str} ({year}). **{title}** *{journal}*."
+        if doi:
+            ref += f" [DOI](https://doi.org/{doi})"
+        lines.append(ref)
+        lines.append("")
+
+    lines.append("---")
+    lines.append("")
+    lines.append(f"*Generated by JARVIS Research OS on {now}*")
+
+    return "\n".join(lines)

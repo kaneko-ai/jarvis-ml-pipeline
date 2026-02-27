@@ -67,6 +67,23 @@ def main(argv=None):
         help="Also generate BibTeX (.bib) file",
     )
 
+    # --- note command ---
+    note_parser = subparsers.add_parser(
+        "note", help="Generate research note from collected papers"
+    )
+    note_parser.add_argument(
+        "input", help="Merged JSON file (e.g. logs/search/PD-1_final.json)",
+    )
+    note_parser.add_argument(
+        "--output", "-o", type=str, default=None,
+        help="Output file path (default: logs/notes/<name>_note.md)",
+    )
+    note_parser.add_argument(
+        "--provider", type=str, default="codex",
+        choices=["gemini", "codex"],
+        help="LLM provider: codex (default) or gemini",
+    )
+
     args = parser.parse_args(argv)
 
     if args.command is None:
@@ -81,6 +98,9 @@ def main(argv=None):
 
     if args.command == "merge":
         return _cmd_merge(args)
+
+    if args.command == "note":
+        return _cmd_note(args)
 
     parser.print_help()
     return 0
@@ -127,6 +147,12 @@ def _cmd_merge(args):
     """merge command: merge and deduplicate search results."""
     from jarvis_cli.merge import run_merge
     return run_merge(args)
+
+
+def _cmd_note(args):
+    """note command: generate research note."""
+    from jarvis_cli.note import run_note
+    return run_note(args)
 
 
 if __name__ == "__main__":
