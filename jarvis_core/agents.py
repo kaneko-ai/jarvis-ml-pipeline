@@ -253,6 +253,7 @@ class PaperFetcherAgent(BaseAgent):
     """
 
     name = "paper_fetcher"
+    _summary_cache = {}
 
     _CLARIFY_STEP = "Clarify paper requirements and search keywords"
     _COLLECT_STEP = "Collect candidate papers or sources"
@@ -638,6 +639,12 @@ class PaperFetcherAgent(BaseAgent):
         for paper in papers:
             title = paper.get("title", "")
             abstract = paper.get("abstract", "")
+            paper_id = paper.get("paper_id", title)
+            if paper_id in PaperFetcherAgent._summary_cache:
+                cached = PaperFetcherAgent._summary_cache[paper_id]
+                paper["summary_ja"] = cached["summary_ja"]
+                paper["evidence_level"] = cached["evidence_level"]
+                continue
 
             if not abstract:
                 paper["summary_ja"] = f"（アブストラクト未取得: {title}）"
@@ -673,10 +680,27 @@ class PaperFetcherAgent(BaseAgent):
                 parsed = _json.loads(raw_clean)
                 paper["summary_ja"] = parsed.get("summary_ja", "（要約生成失敗）")
                 paper["evidence_level"] = parsed.get("evidence_level", "N/A")
+                PaperFetcherAgent._summary_cache[paper.get("paper_id", title)] = {"summary_ja": paper["summary_ja"], "evidence_level": paper["evidence_level"]}
             except Exception as e:
-                logger.warning(f"LLM enrichment failed for '{title[:40]}': {e}")
-                paper["summary_ja"] = f"（要約生成失敗: {e}）"
-                paper["evidence_level"] = "N/A"
+                error_str = str(e)
+                if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                    import time as _t
+                    _t.sleep(40)
+                    try:
+                        raw = llm.chat([Message(role="system", content=system_prompt), Message(role="user", content=user_prompt)])
+                        raw_clean = raw.strip()
+                        import json as _j2
+                        parsed = _j2.loads(raw_clean)
+                        paper["summary_ja"] = parsed.get("summary_ja", "（要約生成失敗）")
+                        paper["evidence_level"] = parsed.get("evidence_level", "N/A")
+                        PaperFetcherAgent._summary_cache[paper.get("paper_id", title)] = {"summary_ja": paper["summary_ja"], "evidence_level": paper["evidence_level"]}
+                    except Exception:
+                        paper["summary_ja"] = "（要約生成失敗: API制限）"
+                        paper["evidence_level"] = "N/A"
+                else:
+                    logger.warning(f"LLM enrichment failed for '{title[:40]}': {e}")
+                    paper["summary_ja"] = f"（要約生成失敗: {e}）"
+                    paper["evidence_level"] = "N/A"
 
             # レート制限対策: 4秒待機（15 RPM = 4秒/リクエスト）
             _time.sleep(4)

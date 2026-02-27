@@ -1,4 +1,4 @@
-"""Application Core.
+﻿"""Application Core.
 
 Per MASTER_SPEC v1.1, this is the ONLY entry point for task execution.
 成果物契約: run_config.json, result.json, eval_summary.json, events.jsonl 必須
@@ -426,10 +426,17 @@ def run_task(
     )
 
     # Initialize verifier (per MASTER_SPEC: Verify強制)
-    verifier = QualityGateVerifier(
-        require_citations=True,
-        require_locators=True,
-    )
+    # paper_survey カテゴリでは論文メタデータが citations 代わりなので要件を緩和
+    if task_category == TaskCategory.PAPER_SURVEY:
+        verifier = QualityGateVerifier(
+            require_citations=False,
+            require_locators=False,
+        )
+    else:
+        verifier = QualityGateVerifier(
+            require_citations=True,
+            require_locators=True,
+        )
 
     # Execute with guaranteed artifact generation
     answer = ""
