@@ -1,13 +1,16 @@
-# llm.py
+# llm_utils.py
 """LLM client with provider switching support.
 
 Supports:
 - gemini (default): Google Gemini API
 - ollama: Local Ollama server (http://127.0.0.1:11434)
+- codex: OpenAI Codex CLI (ChatGPT Plus, GPT-5.2)
 
 Set LLM_PROVIDER environment variable to switch providers.
 """
 import os
+import subprocess
+import tempfile
 from dataclasses import dataclass
 from typing import Literal
 
@@ -96,6 +99,8 @@ class LLMClient:
             self._init_gemini()
         elif self.provider == "ollama":
             self._init_ollama()
+        elif self.provider == "codex":
+            self._init_codex()
         elif self.provider == "mock":
             self._init_mock()
         else:
@@ -119,6 +124,25 @@ class LLMClient:
         if "gemini" in self.model.lower():
             self.model = os.getenv("OLLAMA_MODEL", "llama3.2")
 
+    def _init_codex(self) -> None:
+        """Initialize Codex CLI provider (ChatGPT Plus, GPT-5.2)."""
+        self._codex_model = os.getenv("CODEX_MODEL", "gpt-5.2")
+        # Verify codex is available
+        try:
+            result = subprocess.run(
+                "codex --version",
+                capture_output=True, text=True, timeout=10,
+                shell=True,
+            )
+            if result.returncode != 0:
+                raise RuntimeError(
+                    f"codex CLI error: {result.stderr.strip()}"
+                )
+        except FileNotFoundError:
+            raise RuntimeError(
+                "codex CLI is not installed. Run: npm i -g @openai/codex"
+            )
+
     def _init_mock(self) -> None:
         """Initialize Mock client."""
         self._mock_engine = MockLLM()
@@ -136,6 +160,8 @@ class LLMClient:
             return self._chat_gemini(messages)
         elif self.provider == "ollama":
             return self._chat_ollama(messages)
+        elif self.provider == "codex":
+            return self._chat_codex(messages)
         elif self.provider == "mock":
             return self._chat_mock(messages)
         else:
@@ -201,6 +227,100 @@ class LLMClient:
             return data.get("message", {}).get("content", "")
         except requests.RequestException as e:
             raise RuntimeError(f"Ollama API error: {e}") from e
+
+    def _chat_codex(self, messages: list[Message]) -> str:
+        """Chat via Codex CLI (GPT-5.2 through ChatGPT Plus).
+
+        Uses temp files for both input and output to avoid
+        Windows cp932 encoding issues with subprocess pipes.
+        """
+        # Build prompt from messages
+        prompt_parts = []
+        for m in messages:
+            if m.role == "system":
+                prompt_parts.append(f"[System Instructions]\n{m.content}\n")
+            elif m.role == "user":
+                prompt_parts.append(f"{m.content}\n")
+            elif m.role == "assistant":
+                prompt_parts.append(f"[Previous Response]\n{m.content}\n")
+        full_prompt = "\n".join(prompt_parts)
+
+        # Use temp files for input and output to avoid cp932 issues
+        prompt_file = None
+        output_file = None
+        try:
+            # Write prompt to temp file (UTF-8)
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".txt", delete=False,
+                encoding="utf-8", prefix="jarvis_prompt_"
+            ) as pf:
+                pf.write(full_prompt)
+                prompt_file = pf.name
+
+            # Create output temp file
+            with tempfile.NamedTemporaryFile(
+                suffix=".txt", delete=False, prefix="jarvis_output_"
+            ) as of:
+                output_file = of.name
+
+            # codex exec: pipe prompt from file, capture output to file
+            # This avoids all cp932 encoding issues on Windows
+            cmd = (
+                f'codex exec --skip-git-repo-check '
+                f'-m {self._codex_model} '
+                f'-o "{output_file}" '
+                f'- < "{prompt_file}"'
+            )
+            result = subprocess.run(
+                cmd,
+                timeout=120,
+                shell=True,
+                cwd=os.getcwd(),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+
+            # Read output file as UTF-8
+            if os.path.exists(output_file):
+                with open(output_file, "r", encoding="utf-8") as f:
+                    output = f.read().strip()
+                if output:
+                    return output
+
+            # Fallback: if -o didn't produce output, try direct capture
+            # with explicit encoding via environment variable
+            env = os.environ.copy()
+            env["PYTHONIOENCODING"] = "utf-8"
+            cmd2 = (
+                f'codex exec --skip-git-repo-check '
+                f'-m {self._codex_model} '
+                f'- < "{prompt_file}"'
+            )
+            result2 = subprocess.run(
+                cmd2,
+                capture_output=True, timeout=120,
+                shell=True,
+                cwd=os.getcwd(),
+                env=env,
+            )
+            # Decode as UTF-8 from raw bytes
+            if result2.stdout:
+                output = result2.stdout.decode("utf-8", errors="replace").strip()
+                if output:
+                    return output
+
+            raise RuntimeError("Codex returned no output")
+
+        except subprocess.TimeoutExpired:
+            raise RuntimeError("Codex CLI timeout (120s)")
+        finally:
+            # Clean up temp files
+            for path in (prompt_file, output_file):
+                if path and os.path.exists(path):
+                    try:
+                        os.unlink(path)
+                    except OSError:
+                        pass
 
     def _chat_mock(self, messages: list[Message]) -> str:
         """Return a mock response using MockLLM engine."""

@@ -1,4 +1,4 @@
-"""jarvis search - lightweight paper search (P1-1 + P1-3)."""
+"""jarvis search - lightweight paper search (P1-1 + P1-3 + P3 codex)."""
 
 from __future__ import annotations
 
@@ -18,12 +18,15 @@ def run_search(args):
 
     query = args.query.strip()
     max_results = max(1, min(args.max_results, 20))
+    provider = getattr(args, "provider", "gemini")
 
     if not query:
         print("Error: search query is empty.", file=sys.stderr)
         return 1
 
     print(f"Searching for: '{query}' (max {max_results} papers)...")
+    if provider != "gemini":
+        print(f"LLM provider: {provider}")
     print()
 
     agent = PaperFetcherAgent()
@@ -41,13 +44,13 @@ def run_search(args):
     print(f"Found {len(papers)} papers in {search_duration:.1f}s")
 
     if not args.no_summary:
-        print("Adding LLM summaries (may take a moment)...")
+        print(f"Adding LLM summaries via {provider} (may take a moment)...")
         try:
-            llm = LLMClient()
+            llm = LLMClient(provider=provider)
             papers = agent._enrich_papers_with_llm(llm, papers)
             print("Done.")
         except Exception as e:
-            print(f"Warning: LLM summary failed: {e}")
+            print(f"Warning: LLM summary failed ({provider}): {e}")
             print("Continuing without summaries.")
     print()
 
