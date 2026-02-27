@@ -486,7 +486,7 @@ class BundleAssembler:
         }
 
     def _build_report(self, context: dict, artifacts: dict, eval_summary: dict) -> str:
-        """report.mdを構築."""
+        """report.mdを構築 (P1-2: paper_survey対応版)."""
         lines = [
             f"# Run Report: {context.get('run_id', 'unknown')}",
             "",
@@ -494,14 +494,75 @@ class BundleAssembler:
             "",
             f"**Status:** {eval_summary.get('status', 'unknown')}",
             "",
-            f"**Gate Passed:** {'✅' if eval_summary.get('gate_passed') else '❌'}",
-            "",
             "---",
-            "",
-            "## Metrics",
             "",
         ]
 
+        # --- P1-2: Paper details section ---
+        papers = artifacts.get("papers", [])
+        if papers:
+            lines.append(f"## Papers Found ({len(papers)})")
+            lines.append("")
+            for idx, p in enumerate(papers, 1):
+                title = p.get("title", "Untitled")
+                year = p.get("year", "n.d.")
+                authors = p.get("authors", [])
+                journal = p.get("journal", "")
+                source = p.get("source", "")
+                doi = p.get("doi", "")
+                pmid = p.get("pmid", "")
+                url = p.get("url", "")
+                evidence = p.get("evidence_level", "")
+                summary = p.get("summary_ja", "")
+                abstract = p.get("abstract", "")
+
+                lines.append(f"### {idx}. {title}")
+                lines.append("")
+                if authors:
+                    a_str = ", ".join(authors[:5])
+                    if len(authors) > 5:
+                        a_str += " et al."
+                    lines.append(f"**Authors:** {a_str}")
+                lines.append(f"**Year:** {year}")
+                if journal:
+                    lines.append(f"**Journal:** {journal}")
+                lines.append(f"**Source:** {source}")
+                if evidence and evidence != "N/A":
+                    lines.append(f"**CEBM Evidence Level:** {evidence}")
+                lines.append("")
+
+                link_parts = []
+                if url:
+                    link_parts.append(f"[Link]({url})")
+                if doi:
+                    link_parts.append(f"[DOI](https://doi.org/{doi})")
+                if pmid:
+                    link_parts.append(f"[PubMed](https://pubmed.ncbi.nlm.nih.gov/{pmid}/)")
+                if link_parts:
+                    lines.append(" | ".join(link_parts))
+                    lines.append("")
+
+                if summary:
+                    lines.append("**Summary (Japanese):**")
+                    lines.append("")
+                    lines.append(summary)
+                    lines.append("")
+
+                if abstract:
+                    lines.append("<details>")
+                    lines.append("<summary>Abstract (English)</summary>")
+                    lines.append("")
+                    lines.append(abstract)
+                    lines.append("")
+                    lines.append("</details>")
+                    lines.append("")
+
+                lines.append("---")
+                lines.append("")
+
+        # --- Metrics ---
+        lines.append("## Metrics")
+        lines.append("")
         metrics = eval_summary.get("metrics", {})
         for key, value in metrics.items():
             lines.append(f"- **{key}:** {value}")
@@ -521,16 +582,33 @@ class BundleAssembler:
         # Fail reasons
         fail_reasons = eval_summary.get("fail_reasons", [])
         if fail_reasons:
-            lines.extend(["", "## ⚠️ Issues", ""])
+            lines.extend(["", "## Issues", ""])
             for fr in fail_reasons:
                 code = fr.get("code", "UNKNOWN")
                 msg = fr.get("msg", str(fr))
                 lines.append(f"- **{code}:** {msg}")
 
+        # --- P1-2: References section ---
+        if papers:
+            lines.extend(["", "## References", ""])
+            for idx, p in enumerate(papers, 1):
+                title = p.get("title", "Untitled")
+                authors = p.get("authors", [])
+                year = p.get("year", "n.d.")
+                journal = p.get("journal", "")
+                doi = p.get("doi", "")
+                a_str = ", ".join(authors[:3])
+                if len(authors) > 3:
+                    a_str += " et al."
+                ref = f"{idx}. {a_str} ({year}). {title}. {journal}."
+                if doi:
+                    ref += f" doi:{doi}"
+                lines.append(ref)
+                lines.append("")
+
         lines.extend(["", "---", "", f"*Generated at {datetime.now(timezone.utc).isoformat()}*"])
 
         return "\n".join(lines)
-
     def _build_failure_report(self, context: dict, error: str, reasons: list) -> str:
         """失敗時のreport.mdを構築."""
         lines = [
