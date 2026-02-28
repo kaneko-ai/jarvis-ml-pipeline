@@ -1,5 +1,6 @@
 # Python
 .venv/
+venv/
 __pycache__/
 *.pyc
 .pytest_cache/
@@ -10,6 +11,16 @@ __pycache__/
 coverage.xml
 htmlcov/
 .env
+
+# ★ v2追加: API キーファイル（万が一 .key ファイルを作った場合の保険）
+*.key
+
+# ★ v2追加: JARVIS のデータディレクトリ（論文 JSON, ノート, 被引用数データ等）
+# これらはローカルの研究データなので GitHub には上げない
+logs/
+
+# ★ v2追加: キャッシュディレクトリ（LLM 応答キャッシュ, 埋め込みインデックス等）
+.cache/
 
 # OS/Editor
 .DS_Store
@@ -41,5 +52,3 @@ pytest_results.txt
 
 test_experiments/
 pdf_fail_*.txt
-
-venv/
