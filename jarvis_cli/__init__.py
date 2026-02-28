@@ -190,6 +190,8 @@ def main(argv=None):
         return _cmd_semantic_search(args)
     if args.command == "contradict":
         return _cmd_contradict(args)
+    if cmd == "zotero-sync":
+        return _cmd_zotero_sync(args)
 
     parser.print_help()
     return 0
@@ -319,3 +321,8 @@ def _do_obsidian_export(input_path_str: str):
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+def _cmd_zotero_sync(args):
+    from jarvis_cli.zotero_sync import run_zotero_sync
+    return run_zotero_sync(args)
