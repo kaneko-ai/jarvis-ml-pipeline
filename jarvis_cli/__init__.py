@@ -23,7 +23,7 @@ def main(argv=None):
     search_parser = subparsers.add_parser(
         "search", help="Search papers (lightweight, no full pipeline)"
     )
-    search_parser.add_argument("query", help="Search query (e.g. 'PD-1')")
+    search_parser.add_argument("query", help="Search query")
     search_parser.add_argument(
         "--max", type=int, default=5, dest="max_results",
         help="Max papers (default: 5, max: 20)",
@@ -47,14 +47,11 @@ def main(argv=None):
     search_parser.add_argument(
         "--provider", type=str, default="gemini",
         choices=["gemini", "codex"],
-        help="LLM provider: gemini (default) or codex (ChatGPT Plus)",
+        help="LLM provider: gemini (default) or codex",
     )
     search_parser.add_argument(
         "--sources", type=str, default=None,
-        help=(
-            "Comma-separated search sources: pubmed,s2,openalex "
-            "(default: pubmed only for backward compatibility)"
-        ),
+        help="Comma-separated search sources: pubmed,s2,openalex",
     )
 
     # --- merge command ---
@@ -63,27 +60,27 @@ def main(argv=None):
     )
     merge_parser.add_argument(
         "files", nargs="+",
-        help="JSON files to merge (e.g. logs/search/PD-1_*.json)",
+        help="JSON files to merge",
     )
     merge_parser.add_argument(
         "--output", "-o", type=str, default=None,
-        help="Output file path (default: logs/search/merged_<timestamp>.json)",
+        help="Output file path",
     )
     merge_parser.add_argument(
         "--bibtex", action="store_true",
         help="Also generate BibTeX (.bib) file",
     )
 
-    # --- note command --- (T2-2: added --obsidian)
+    # --- note command ---
     note_parser = subparsers.add_parser(
         "note", help="Generate research note from collected papers"
     )
     note_parser.add_argument(
-        "input", help="Merged JSON file (e.g. logs/search/PD-1_final.json)",
+        "input", help="Merged JSON file",
     )
     note_parser.add_argument(
         "--output", "-o", type=str, default=None,
-        help="Output file path (default: logs/notes/<name>_note.md)",
+        help="Output file path",
     )
     note_parser.add_argument(
         "--provider", type=str, default="codex",
@@ -92,7 +89,7 @@ def main(argv=None):
     )
     note_parser.add_argument(
         "--obsidian", action="store_true",
-        help="Also export each paper to Obsidian Vault (requires config.yaml)",
+        help="Also export each paper to Obsidian Vault",
     )
 
     # --- citation command ---
@@ -100,7 +97,7 @@ def main(argv=None):
         "citation", help="Fetch citation counts from Semantic Scholar"
     )
     citation_parser.add_argument(
-        "input", help="Input JSON file (e.g. logs/search/PD-1_final.json)",
+        "input", help="Input JSON file",
     )
 
     # --- prisma command ---
@@ -113,7 +110,7 @@ def main(argv=None):
     )
     prisma_parser.add_argument(
         "--output", "-o", type=str, default=None,
-        help="Output file path (default: logs/prisma/prisma_<timestamp>.md)",
+        help="Output file path",
     )
 
     # --- evidence command --- (T2-1)
@@ -121,8 +118,7 @@ def main(argv=None):
         "evidence", help="Grade CEBM evidence level for each paper"
     )
     evidence_parser.add_argument(
-        "input",
-        help="Input JSON file (e.g. logs/search/PD-1_final.json)",
+        "input", help="Input JSON file",
     )
     evidence_parser.add_argument(
         "--output", "-o", type=str, default=None,
@@ -130,17 +126,42 @@ def main(argv=None):
     )
     evidence_parser.add_argument(
         "--use-llm", action="store_true",
-        help="Use LLM to re-grade low-confidence papers (uses Gemini API credits)",
+        help="Use LLM to re-grade low-confidence papers",
     )
 
-    # --- obsidian-export command --- (T2-2: standalone export)
+    # --- obsidian-export command --- (T2-2)
     obsidian_parser = subparsers.add_parser(
         "obsidian-export",
-        help="Export papers from JSON to Obsidian Vault (standalone)",
+        help="Export papers from JSON to Obsidian Vault",
     )
     obsidian_parser.add_argument(
-        "input",
-        help="Input JSON file (e.g. logs/search/PD-1_final_evidence.json)",
+        "input", help="Input JSON file",
+    )
+
+    # --- semantic-search command --- (T3-1)
+    ss_parser = subparsers.add_parser(
+        "semantic-search",
+        help="Semantic search within collected papers (BM25 + Sentence Transformers)",
+    )
+    ss_parser.add_argument(
+        "query", help="Search query (e.g. 'immune checkpoint resistance')",
+    )
+    ss_parser.add_argument(
+        "--db", required=True,
+        help="Path to paper database JSON file",
+    )
+    ss_parser.add_argument(
+        "--top", type=int, default=10,
+        help="Number of top results to show (default: 10)",
+    )
+
+    # --- contradict command --- (T3-2)
+    contradict_parser = subparsers.add_parser(
+        "contradict",
+        help="Detect contradictions between papers",
+    )
+    contradict_parser.add_argument(
+        "input", help="Input JSON file",
     )
 
     args = parser.parse_args(argv)
@@ -151,27 +172,24 @@ def main(argv=None):
 
     if args.command == "run":
         return _cmd_run(args)
-
     if args.command == "search":
         return _cmd_search(args)
-
     if args.command == "merge":
         return _cmd_merge(args)
-
     if args.command == "note":
         return _cmd_note(args)
-
     if args.command == "citation":
         return _cmd_citation(args)
-
     if args.command == "prisma":
         return _cmd_prisma(args)
-
     if args.command == "evidence":
         return _cmd_evidence(args)
-
     if args.command == "obsidian-export":
         return _cmd_obsidian_export(args)
+    if args.command == "semantic-search":
+        return _cmd_semantic_search(args)
+    if args.command == "contradict":
+        return _cmd_contradict(args)
 
     parser.print_help()
     return 0
@@ -223,15 +241,11 @@ def _cmd_merge(args):
 def _cmd_note(args):
     """note command: generate research note."""
     from jarvis_cli.note import run_note
-
     result = run_note(args)
-
-    # T2-2: --obsidian flag handling
     if getattr(args, "obsidian", False) and result == 0:
         print()
         print("Exporting papers to Obsidian Vault...")
         _do_obsidian_export(args.input)
-
     return result
 
 
@@ -259,8 +273,20 @@ def _cmd_obsidian_export(args):
     return 0
 
 
+def _cmd_semantic_search(args):
+    """semantic-search command: search within collected papers."""
+    from jarvis_cli.semantic_search import run_semantic_search
+    return run_semantic_search(args)
+
+
+def _cmd_contradict(args):
+    """contradict command: detect contradictions."""
+    from jarvis_cli.contradict import run_contradict
+    return run_contradict(args)
+
+
 def _do_obsidian_export(input_path_str: str):
-    """Shared logic for Obsidian export (used by both note --obsidian and obsidian-export)."""
+    """Shared logic for Obsidian export."""
     import json
     from pathlib import Path
     from jarvis_cli.obsidian_export import export_papers_to_obsidian
