@@ -49,7 +49,6 @@ def main(argv=None):
         choices=["gemini", "codex"],
         help="LLM provider: gemini (default) or codex (ChatGPT Plus)",
     )
-    # ★ v2追加: 統合検索ソース指定オプション
     search_parser.add_argument(
         "--sources", type=str, default=None,
         help=(
@@ -92,7 +91,7 @@ def main(argv=None):
         help="LLM provider: codex (default) or gemini",
     )
 
-    # --- citation command ---  # ★ v2追加: 既存だが登録漏れの可能性があるため明示
+    # --- citation command ---
     citation_parser = subparsers.add_parser(
         "citation", help="Fetch citation counts from Semantic Scholar"
     )
@@ -111,6 +110,23 @@ def main(argv=None):
     prisma_parser.add_argument(
         "--output", "-o", type=str, default=None,
         help="Output file path (default: logs/prisma/prisma_<timestamp>.md)",
+    )
+
+    # --- evidence command --- (T2-1)
+    evidence_parser = subparsers.add_parser(
+        "evidence", help="Grade CEBM evidence level for each paper"
+    )
+    evidence_parser.add_argument(
+        "input",
+        help="Input JSON file (e.g. logs/search/PD-1_final.json)",
+    )
+    evidence_parser.add_argument(
+        "--output", "-o", type=str, default=None,
+        help="Output file path (default: <input>_evidence.json)",
+    )
+    evidence_parser.add_argument(
+        "--use-llm", action="store_true",
+        help="Use LLM to re-grade low-confidence papers (uses Gemini API credits)",
     )
 
     args = parser.parse_args(argv)
@@ -136,6 +152,9 @@ def main(argv=None):
 
     if args.command == "prisma":
         return _cmd_prisma(args)
+
+    if args.command == "evidence":
+        return _cmd_evidence(args)
 
     parser.print_help()
     return 0
@@ -200,6 +219,12 @@ def _cmd_prisma(args):
     """prisma command: generate PRISMA flow diagram."""
     from jarvis_cli.prisma import run_prisma
     return run_prisma(args)
+
+
+def _cmd_evidence(args):
+    """evidence command: grade CEBM evidence levels."""
+    from jarvis_cli.evidence import run_evidence
+    return run_evidence(args)
 
 
 if __name__ == "__main__":
