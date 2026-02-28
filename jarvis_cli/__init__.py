@@ -49,6 +49,14 @@ def main(argv=None):
         choices=["gemini", "codex"],
         help="LLM provider: gemini (default) or codex (ChatGPT Plus)",
     )
+    # ★ v2追加: 統合検索ソース指定オプション
+    search_parser.add_argument(
+        "--sources", type=str, default=None,
+        help=(
+            "Comma-separated search sources: pubmed,s2,openalex "
+            "(default: pubmed only for backward compatibility)"
+        ),
+    )
 
     # --- merge command ---
     merge_parser = subparsers.add_parser(
@@ -84,6 +92,14 @@ def main(argv=None):
         help="LLM provider: codex (default) or gemini",
     )
 
+    # --- citation command ---  # ★ v2追加: 既存だが登録漏れの可能性があるため明示
+    citation_parser = subparsers.add_parser(
+        "citation", help="Fetch citation counts from Semantic Scholar"
+    )
+    citation_parser.add_argument(
+        "input", help="Input JSON file (e.g. logs/search/PD-1_final.json)",
+    )
+
     # --- prisma command ---
     prisma_parser = subparsers.add_parser(
         "prisma", help="Generate PRISMA 2020 flow diagram"
@@ -114,6 +130,9 @@ def main(argv=None):
 
     if args.command == "note":
         return _cmd_note(args)
+
+    if args.command == "citation":
+        return _cmd_citation(args)
 
     if args.command == "prisma":
         return _cmd_prisma(args)
@@ -169,6 +188,12 @@ def _cmd_note(args):
     """note command: generate research note."""
     from jarvis_cli.note import run_note
     return run_note(args)
+
+
+def _cmd_citation(args):
+    """citation command: fetch citation counts."""
+    from jarvis_cli.citation import run_citation
+    return run_citation(args)
 
 
 def _cmd_prisma(args):
