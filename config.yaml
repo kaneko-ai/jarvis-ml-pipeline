@@ -1,42 +1,35 @@
+# JARVIS Research OS - Configuration File
+# Created for v2 T2-2: Obsidian Vault integration
+
+obsidian:
+  # Obsidian Vault のルートフォルダパス
+  # ★ 自分の環境に合わせて変更してください
+  vault_path: "C:\\Users\\kaneko yu\\Documents\\ObsidianVault"
+
+  # Vault 内の論文保存先フォルダ（自動作成されます）
+  papers_folder: "JARVIS/Papers"
+
+  # Vault 内の研究ノート保存先フォルダ（自動作成されます）
+  notes_folder: "JARVIS/Notes"
+
+zotero:
+  # Week 3 で設定予定（.env から読み込み）
+  api_key: ""
+  user_id: ""
+  collection: "JARVIS"
+
+search:
+  default_sources:
+    - pubmed
+    - semantic_scholar
+    - openalex
+  max_results: 20
+
 llm:
-  backend: "gemini"            # 今は gemini 固定
-  model: "gemini-2.0-flash"    # 無料枠向け軽量モデル
+  default_provider: gemini
+  gemini_model: gemini-2.0-flash
+  cache_enabled: true
 
-router:
-  # RouterAgent が分類に使うタスクカテゴリ
-  task_types:
-    - id: "thesis"
-      description: "修士論文・研究関連（背景・考察・図表説明など）"
-    - id: "paper_survey"
-      description: "文献検索・トリアージ・要約"
-    - id: "es_edit"
-      description: "ES・自己PR・志望動機のドラフト・添削"
-    - id: "misc"
-      description: "その他の一般的な質問・タスク"
-
-  # 重要度が high のタスクでは Verbalized Sampling を使う
-  use_sampling_for_importance:
-    - "high"
-
-sampling:
-  num_candidates: 3            # 何案出すか
-  default_importance: "high"   # デフォルト重要度
-
-logging:
-  save_dir: "logs"             # ログを保存するフォルダ名
-  save_candidates: true        # 候補案も保存するか
-  save_thoughts: true          # THOUGHT も保存するか
-
-budget:
-  mode: standard               # fast | standard | high
-  max_tool_calls: 30           # 最大ツール呼び出し回数
-  max_retries: 2               # 最大リトライ回数
-  max_search_results: 10       # 最大検索結果数
-  max_summary_depth: 3         # 要約の最大深度
-  hard_timeout_sec: null       # ハードタイムアウト（秒）
-  allow_fallback: true         # フォールバック許可
-
-ranking:
-  enabled: true
-  backend: heuristics          # heuristics | lgbm (later)
-  log_path: logs/ranking.jsonl
+evidence:
+  use_llm: false
+  strategy: weighted_average

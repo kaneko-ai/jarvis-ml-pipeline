@@ -74,7 +74,7 @@ def main(argv=None):
         help="Also generate BibTeX (.bib) file",
     )
 
-    # --- note command ---
+    # --- note command --- (T2-2: added --obsidian)
     note_parser = subparsers.add_parser(
         "note", help="Generate research note from collected papers"
     )
@@ -89,6 +89,10 @@ def main(argv=None):
         "--provider", type=str, default="codex",
         choices=["gemini", "codex"],
         help="LLM provider: codex (default) or gemini",
+    )
+    note_parser.add_argument(
+        "--obsidian", action="store_true",
+        help="Also export each paper to Obsidian Vault (requires config.yaml)",
     )
 
     # --- citation command ---
@@ -129,6 +133,16 @@ def main(argv=None):
         help="Use LLM to re-grade low-confidence papers (uses Gemini API credits)",
     )
 
+    # --- obsidian-export command --- (T2-2: standalone export)
+    obsidian_parser = subparsers.add_parser(
+        "obsidian-export",
+        help="Export papers from JSON to Obsidian Vault (standalone)",
+    )
+    obsidian_parser.add_argument(
+        "input",
+        help="Input JSON file (e.g. logs/search/PD-1_final_evidence.json)",
+    )
+
     args = parser.parse_args(argv)
 
     if args.command is None:
@@ -155,6 +169,9 @@ def main(argv=None):
 
     if args.command == "evidence":
         return _cmd_evidence(args)
+
+    if args.command == "obsidian-export":
+        return _cmd_obsidian_export(args)
 
     parser.print_help()
     return 0
@@ -206,7 +223,16 @@ def _cmd_merge(args):
 def _cmd_note(args):
     """note command: generate research note."""
     from jarvis_cli.note import run_note
-    return run_note(args)
+
+    result = run_note(args)
+
+    # T2-2: --obsidian flag handling
+    if getattr(args, "obsidian", False) and result == 0:
+        print()
+        print("Exporting papers to Obsidian Vault...")
+        _do_obsidian_export(args.input)
+
+    return result
 
 
 def _cmd_citation(args):
@@ -225,6 +251,44 @@ def _cmd_evidence(args):
     """evidence command: grade CEBM evidence levels."""
     from jarvis_cli.evidence import run_evidence
     return run_evidence(args)
+
+
+def _cmd_obsidian_export(args):
+    """obsidian-export command: standalone Obsidian export."""
+    _do_obsidian_export(args.input)
+    return 0
+
+
+def _do_obsidian_export(input_path_str: str):
+    """Shared logic for Obsidian export (used by both note --obsidian and obsidian-export)."""
+    import json
+    from pathlib import Path
+    from jarvis_cli.obsidian_export import export_papers_to_obsidian
+
+    input_path = Path(input_path_str)
+    if not input_path.exists():
+        print(f"  Error: File not found: {input_path}")
+        return
+
+    try:
+        papers = json.loads(input_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as e:
+        print(f"  Error: Could not read JSON: {e}")
+        return
+
+    if not isinstance(papers, list):
+        print("  Error: JSON root must be an array of papers.")
+        return
+
+    try:
+        saved = export_papers_to_obsidian(papers)
+        print(f"  Exported {len(saved)} papers to Obsidian Vault:")
+        for p in saved[:5]:
+            print(f"    - {p.name}")
+        if len(saved) > 5:
+            print(f"    ... and {len(saved) - 5} more")
+    except Exception as e:
+        print(f"  Error during Obsidian export: {e}")
 
 
 if __name__ == "__main__":
