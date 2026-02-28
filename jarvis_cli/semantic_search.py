@@ -1,100 +1,129 @@
-"""jarvis semantic-search - Semantic search within collected papers (v2 T3-1).
-
-Uses HybridSearch (Sentence Transformers + BM25 with RRF fusion) to find
-the most relevant papers in a local collection by meaning, not just keywords.
-"""
+"""jarvis semantic-search - Hybrid Search (BM25 + Vector) over local paper DB."""
 
 from __future__ import annotations
 
 import json
 import sys
+import time
 from pathlib import Path
 
 
-def run_semantic_search(args):
-    """semantic-search command main logic."""
-    from jarvis_core.embeddings.hybrid import HybridSearch
-
-    query = args.query.strip()
+def run_semantic_search(args) -> int:
+    """Run semantic search over a local JSON paper database."""
+    query = args.query
     db_path = Path(args.db)
-    top_n = getattr(args, "top", 10)
-
-    if not query:
-        print("Error: search query is empty.", file=sys.stderr)
-        return 1
+    top_k = args.top
 
     if not db_path.exists():
-        print(f"Error: File not found: {db_path}", file=sys.stderr)
+        print(f"  Error: DB file not found: {db_path}")
         return 1
 
-    # 1. Load papers
-    try:
-        papers = json.loads(db_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as e:
-        print(f"Error: Invalid JSON: {e}", file=sys.stderr)
+    # Load papers
+    with open(db_path, encoding="utf-8") as f:
+        papers = json.load(f)
+
+    if not papers:
+        print("  Error: No papers in DB file.")
         return 1
 
-    if not isinstance(papers, list) or len(papers) == 0:
-        print("Error: JSON must be a non-empty array of papers.", file=sys.stderr)
-        return 1
-
-    print(f"Semantic search: '{query}'")
-    print(f"  Database: {db_path.name} ({len(papers)} papers)")
-    print(f"  Top {top_n} results")
+    print(f"  Query: {query}")
+    print(f"  DB: {db_path.name} ({len(papers)} papers)")
     print()
 
-    # 2. Build corpus from title + abstract
+    # Build corpus: title + abstract for each paper
     corpus = []
-    valid_indices = []
+    doc_ids = []
+    metadata_list = []
     for i, p in enumerate(papers):
         title = p.get("title", "")
         abstract = p.get("abstract", "")
-        text = f"{title}. {abstract}".strip()
-        if text and text != ".":
-            corpus.append(text)
-            valid_indices.append(i)
+        text = f"{title}. {abstract}" if abstract else title
+        corpus.append(text)
+        doc_ids.append(str(i))
+        metadata_list.append(p)
 
-    if not corpus:
-        print("Error: No papers with title/abstract found.", file=sys.stderr)
-        return 1
-
-    print(f"  Building index for {len(corpus)} papers (first run may download model ~80MB)...")
-
-    # 3. Run hybrid search
+    # Try HybridSearch (dense + sparse), fallback to BM25 only
     try:
-        searcher = HybridSearch()
-        searcher.index(corpus)
-        results = searcher.search(query, top_k=min(top_n, len(corpus)))
+        from jarvis_core.embeddings import HybridSearch
+
+        print("  Building hybrid index (BM25 + SentenceTransformer)...")
+        start = time.time()
+        hybrid = HybridSearch()
+        hybrid.index(corpus, ids=doc_ids, metadata=metadata_list)
+        result = hybrid.search(query, top_k=top_k)
+
+        # result is HybridSearchResult, actual items are in result.results
+        search_results = result.results
+        elapsed = time.time() - start
+
+        print(f"  Search completed in {elapsed:.1f}s "
+              f"(candidates: {result.total_candidates}, "
+              f"fusion: {result.fusion_method})")
+        print()
+
+        if not search_results:
+            print("  No matching papers found.")
+            return 0
+
+        print(f"  Top {len(search_results)} results:")
+        print(f"  {'Rank':<5} {'Score':>6} {'Title'}")
+        print(f"  {'-'*4:<5} {'-'*6:>6} {'-'*50}")
+
+        for rank, sr in enumerate(search_results, 1):
+            meta = sr.metadata if sr.metadata else {}
+            title = meta.get("title", sr.text[:60])
+            year = meta.get("year", "")
+            source = meta.get("source", "")
+            evidence = meta.get("evidence_level", "")
+            journal = meta.get("journal", "")
+
+            print(f"  {rank:<5} {sr.score:>6.4f} {title}")
+            details = []
+            if year:
+                details.append(f"Year: {year}")
+            if source:
+                details.append(f"Source: {source}")
+            if journal:
+                details.append(f"Journal: {journal}")
+            if evidence:
+                details.append(f"Evidence: {evidence}")
+            if details:
+                print(f"  {'':>12} {' | '.join(details)}")
+            print()
+
+        return 0
+
+    except ImportError as e:
+        print(f"  Warning: HybridSearch unavailable ({e})")
+        print("  Falling back to simple keyword matching...")
+        print()
+
+        # Simple fallback: keyword matching
+        query_lower = query.lower()
+        scored = []
+        for i, text in enumerate(corpus):
+            words = query_lower.split()
+            matches = sum(1 for w in words if w in text.lower())
+            if matches > 0:
+                score = matches / len(words)
+                scored.append((i, score))
+
+        scored.sort(key=lambda x: x[1], reverse=True)
+        scored = scored[:top_k]
+
+        if not scored:
+            print("  No matching papers found.")
+            return 0
+
+        print(f"  Top {len(scored)} results (keyword match):")
+        for rank, (idx, score) in enumerate(scored, 1):
+            p = papers[idx]
+            title = p.get("title", "Unknown")
+            print(f"  {rank}. [{score:.2f}] {title}")
+        print()
+
+        return 0
+
     except Exception as e:
-        print(f"Error during search: {e}", file=sys.stderr)
+        print(f"  Error during search: {e}")
         return 1
-
-    # 4. Display results
-    print()
-    print(f"  Top {len(results)} results:")
-    print("=" * 60)
-
-    for rank, (idx, score) in enumerate(results, 1):
-        if idx < len(valid_indices):
-            paper_idx = valid_indices[idx]
-            paper = papers[paper_idx]
-        else:
-            continue
-
-        title = paper.get("title", "Untitled")
-        year = paper.get("year", "n.d.")
-        source = paper.get("source", "?")
-        journal = paper.get("journal", paper.get("venue", ""))
-        evidence = paper.get("evidence_level", "")
-
-        print(f"  [{rank}] (score: {score:.4f}) {title}")
-        print(f"      Year: {year} | Source: {source}", end="")
-        if journal:
-            print(f" | Journal: {journal}", end="")
-        if evidence and evidence != "unknown":
-            print(f" | Evidence: {evidence}", end="")
-        print()
-        print()
-
-    print("=" * 60)
-    return 0
