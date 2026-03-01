@@ -77,17 +77,22 @@ def main(argv=None):
     zt_p = subparsers.add_parser("zotero-sync", help="Sync papers to Zotero")
     zt_p.add_argument("input")
 
-    # --- dispatch ---
-    # --- pipeline command --- (T4-1)
-    pl_p = subparsers.add_parser("pipeline", help="Run full pipeline (search -> grade -> export)")
+    # --- pipeline (T4-1 + A-1/A-3/A-4/A-5) ---
+    pl_p = subparsers.add_parser("pipeline", help="Run full pipeline (search -> grade -> summarize -> export)")
     pl_p.add_argument("query", help="Search query")
     pl_p.add_argument("--max", type=int, default=20, dest="max_results",
                        help="Max papers per source (default: 20)")
     pl_p.add_argument("--provider", default="gemini", choices=["gemini", "codex"])
+    pl_p.add_argument("--no-summary", action="store_true",
+                       help="Skip LLM summary generation")
     pl_p.add_argument("--obsidian", action="store_true",
                        help="Export results to Obsidian Vault")
     pl_p.add_argument("--zotero", action="store_true",
                        help="Sync results to Zotero library")
+    pl_p.add_argument("--prisma", action="store_true",
+                       help="Generate PRISMA 2020 flow diagram (A-4)")
+    pl_p.add_argument("--bibtex", action="store_true",
+                       help="Export results as BibTeX file (A-5)")
 
     args = parser.parse_args(argv)
     cmd = args.command
@@ -190,10 +195,10 @@ def _cmd_zotero_sync(args):
     return run_zotero_sync(args)
 
 
-
 def _cmd_pipeline(args):
     from jarvis_cli.pipeline import run_pipeline
     return run_pipeline(args)
+
 
 def _do_obsidian_export(input_path_str: str):
     """Shared Obsidian export logic."""

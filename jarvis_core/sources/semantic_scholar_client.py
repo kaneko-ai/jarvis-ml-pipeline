@@ -1,7 +1,9 @@
 """Semantic Scholar Client for JARVIS.
 
-Per JARVIS_LOCALFIRST_ROADMAP Task 1.4: 辟｡譁僊PI邨ｱ蜷・
+Per JARVIS_LOCALFIRST_ROADMAP Task 1.4: Free API integration.
 Uses Semantic Scholar Academic Graph API (free tier: 100 requests/5 min).
+
+A-2: Added exponential backoff retry on 429 Too Many Requests.
 """
 
 from __future__ import annotations
@@ -16,6 +18,10 @@ import requests  # type: ignore[import-untyped]
 logger = logging.getLogger(__name__)
 
 S2_API_BASE = "https://api.semanticscholar.org/graph/v1"
+
+# A-2: Retry configuration for 429 errors
+RETRY_WAIT_SECONDS = [5, 10, 30]  # Exponential backoff: 5s, 10s, 30s
+MAX_RETRIES = len(RETRY_WAIT_SECONDS)
 
 
 @dataclass
@@ -64,6 +70,7 @@ class SemanticScholarClient:
     """Client for Semantic Scholar Academic Graph API.
 
     Free tier: 100 requests per 5 minutes.
+    A-2: Includes exponential backoff retry on 429 errors.
     """
 
     PAPER_FIELDS = [
@@ -100,6 +107,64 @@ class SemanticScholarClient:
             time.sleep(self.rate_limit - elapsed)
         self._last_request_time = time.time()
 
+    def _make_request(self, url: str, params: dict, timeout: int = 30) -> dict | None:
+        """Make an HTTP GET request with 429 retry logic (A-2).
+
+        Args:
+            url: Request URL.
+            params: Query parameters.
+            timeout: Request timeout in seconds.
+
+        Returns:
+            Parsed JSON dict, or None on failure.
+        """
+        self._rate_limit_wait()
+
+        for attempt in range(MAX_RETRIES + 1):
+            try:
+                response = self._session.get(url, params=params, timeout=timeout)
+
+                # A-2: Handle 429 Too Many Requests with exponential backoff
+                if response.status_code == 429:
+                    if attempt < MAX_RETRIES:
+                        wait = RETRY_WAIT_SECONDS[attempt]
+                        logger.warning(
+                            f"S2 rate limit hit (429). "
+                            f"Retry {attempt + 1}/{MAX_RETRIES} in {wait}s..."
+                        )
+                        print(
+                            f"    S2 rate limit (429). "
+                            f"Waiting {wait}s before retry "
+                            f"({attempt + 1}/{MAX_RETRIES})..."
+                        )
+                        time.sleep(wait)
+                        continue
+                    else:
+                        logger.error(
+                            f"S2 rate limit (429) exceeded after "
+                            f"{MAX_RETRIES} retries. Giving up."
+                        )
+                        print(
+                            f"    S2 rate limit: all {MAX_RETRIES} "
+                            f"retries exhausted. Returning empty."
+                        )
+                        return None
+
+                response.raise_for_status()
+                return response.json()
+
+            except requests.RequestException as e:
+                if attempt < MAX_RETRIES and "429" in str(e):
+                    wait = RETRY_WAIT_SECONDS[attempt]
+                    logger.warning(f"S2 request error (retrying in {wait}s): {e}")
+                    print(f"    S2 error (retrying in {wait}s): {e}")
+                    time.sleep(wait)
+                    continue
+                logger.error(f"S2 request error: {e}")
+                return None
+
+        return None
+
     def search(
         self,
         query: str,
@@ -120,8 +185,6 @@ class SemanticScholarClient:
         Returns:
             List of S2Paper objects.
         """
-        self._rate_limit_wait()
-
         url = f"{S2_API_BASE}/paper/search"
         params = {
             "query": query,
@@ -135,18 +198,13 @@ class SemanticScholarClient:
         if fields_of_study:
             params["fieldsOfStudy"] = ",".join(fields_of_study)
 
-        try:
-            response = self._session.get(url, params=params, timeout=30)
-            response.raise_for_status()
-            data = response.json()
-
-            papers = [self._parse_paper(p) for p in data.get("data", [])]
-            logger.info(f"S2 search '{query[:50]}...' returned {len(papers)} results")
-            return papers
-
-        except requests.RequestException as e:
-            logger.error(f"Semantic Scholar search error: {e}")
+        data = self._make_request(url, params, timeout=30)
+        if data is None:
             return []
+
+        papers = [self._parse_paper(p) for p in data.get("data", [])]
+        logger.info(f"S2 search '{query[:50]}...' returned {len(papers)} results")
+        return papers
 
     def get_paper(self, paper_id: str) -> S2Paper | None:
         """Get paper by ID.
@@ -158,19 +216,14 @@ class SemanticScholarClient:
         Returns:
             S2Paper or None.
         """
-        self._rate_limit_wait()
-
         url = f"{S2_API_BASE}/paper/{paper_id}"
         params = {"fields": ",".join(self.PAPER_FIELDS)}
 
-        try:
-            response = self._session.get(url, params=params, timeout=30)
-            response.raise_for_status()
-            return self._parse_paper(response.json())
-
-        except requests.RequestException as e:
-            logger.error(f"S2 get paper error: {e}")
+        data = self._make_request(url, params, timeout=30)
+        if data is None:
             return None
+
+        return self._parse_paper(data)
 
     def get_citations(
         self,
@@ -186,30 +239,23 @@ class SemanticScholarClient:
         Returns:
             List of citing papers.
         """
-        self._rate_limit_wait()
-
         url = f"{S2_API_BASE}/paper/{paper_id}/citations"
         params = {
             "fields": ",".join(self.PAPER_FIELDS),
             "limit": min(limit, 1000),
         }
 
-        try:
-            response = self._session.get(url, params=params, timeout=60)
-            response.raise_for_status()
-            data = response.json()
-
-            papers = []
-            for item in data.get("data", []):
-                citing = item.get("citingPaper")
-                if citing:
-                    papers.append(self._parse_paper(citing))
-
-            return papers
-
-        except requests.RequestException as e:
-            logger.error(f"S2 citations error: {e}")
+        data = self._make_request(url, params, timeout=60)
+        if data is None:
             return []
+
+        papers = []
+        for item in data.get("data", []):
+            citing = item.get("citingPaper")
+            if citing:
+                papers.append(self._parse_paper(citing))
+
+        return papers
 
     def get_references(
         self,
@@ -225,30 +271,23 @@ class SemanticScholarClient:
         Returns:
             List of referenced papers.
         """
-        self._rate_limit_wait()
-
         url = f"{S2_API_BASE}/paper/{paper_id}/references"
         params = {
             "fields": ",".join(self.PAPER_FIELDS),
             "limit": min(limit, 1000),
         }
 
-        try:
-            response = self._session.get(url, params=params, timeout=60)
-            response.raise_for_status()
-            data = response.json()
-
-            papers = []
-            for item in data.get("data", []):
-                cited = item.get("citedPaper")
-                if cited:
-                    papers.append(self._parse_paper(cited))
-
-            return papers
-
-        except requests.RequestException as e:
-            logger.error(f"S2 references error: {e}")
+        data = self._make_request(url, params, timeout=60)
+        if data is None:
             return []
+
+        papers = []
+        for item in data.get("data", []):
+            cited = item.get("citedPaper")
+            if cited:
+                papers.append(self._parse_paper(cited))
+
+        return papers
 
     def _parse_paper(self, data: dict[str, Any]) -> S2Paper:
         """Parse paper from API response."""
