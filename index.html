@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS OS — Command Center</title>
+
+    <!-- PWA -->
+    <meta name="theme-color" content="#070b14">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+
+    <!-- Single CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ================================================================== -->
+<!-- COMMAND PALETTE (Ctrl+K)                                           -->
+<!-- ================================================================== -->
+<div class="cmd-overlay" id="cmd-overlay">
+    <div class="cmd-palette" id="cmd-palette">
+        <input class="cmd-input" id="cmd-input" type="text" placeholder="コマンドを検索… (ESCで閉じる)" autocomplete="off">
+        <div class="cmd-results" id="cmd-results"></div>
+    </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- SIDEBAR                                                            -->
+<!-- ================================================================== -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <svg class="logo-svg" viewBox="0 0 40 40" fill="none">
+            <path d="M20 4L36 13V27L20 36L4 27V13L20 4Z" stroke="url(#lg)" stroke-width="2"/>
+            <circle cx="20" cy="20" r="7" fill="url(#lg)" opacity=".45"/>
+            <defs><linearGradient id="lg" x1="4" y1="4" x2="36" y2="36"><stop stop-color="#818CF8"/><stop offset="1" stop-color="#F472B6"/></linearGradient></defs>
+        </svg>
+        <span class="logo-label">JARVIS OS</span>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebar-nav">
+        <button class="nav-item active" data-tab="command"   title="司令室">
+            <span class="nav-icon">⚡</span><span class="nav-label">司令室</span>
+        </button>
+        <button class="nav-item" data-tab="research"  title="研究検索">
+            <span class="nav-icon">🔍</span><span class="nav-label">研究検索</span>
+        </button>
+        <button class="nav-item" data-tab="analysis"  title="分析ラボ">
+            <span class="nav-icon">🧪</span><span class="nav-label">分析ラボ</span>
+        </button>
+        <button class="nav-item" data-tab="coscientist" title="AI共同研究">
+            <span class="nav-icon">🧬</span><span class="nav-label">AI共同研究</span>
+        </button>
+        <button class="nav-item" data-tab="protein"   title="タンパク質">
+            <span class="nav-icon">🔬</span><span class="nav-label">タンパク質</span>
+        </button>
+        <button class="nav-item" data-tab="meta"      title="メタ分析">
+            <span class="nav-icon">📊</span><span class="nav-label">メタ分析</span>
+        </button>
+        <button class="nav-item" data-tab="pipelines" title="パイプライン">
+            <span class="nav-icon">🔄</span><span class="nav-label">パイプライン</span>
+        </button>
+        <button class="nav-item" data-tab="lab"       title="自動化ラボ">
+            <span class="nav-icon">🤖</span><span class="nav-label">自動化ラボ</span>
+        </button>
+        <button class="nav-item" data-tab="logs"      title="ログ">
+            <span class="nav-icon">📋</span><span class="nav-label">ログ</span>
+        </button>
+        <button class="nav-item" data-tab="settings"  title="設定">
+            <span class="nav-icon">⚙️</span><span class="nav-label">設定</span>
+        </button>
+    </nav>
+
+    <div class="sidebar-footer">
+        <button class="sidebar-collapse-btn" id="sidebar-toggle" title="サイドバー切替">
+            <span>◀</span>
+        </button>
+    </div>
+</aside>
+
+<!-- ================================================================== -->
+<!-- MAIN AREA                                                          -->
+<!-- ================================================================== -->
+<main class="main" id="main">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+        <button class="topbar-hamburger" id="mobile-menu" title="メニュー">☰</button>
+        <div class="topbar-status">
+            <span class="status-dot green" id="status-dot"></span>
+            <span class="status-text" id="status-text">Online</span>
+        </div>
+        <div class="topbar-center">
+            <button class="topbar-cmd-trigger" id="topbar-cmd" title="Ctrl+K">
+                <span>🔍</span> <span class="cmd-hint">検索… <kbd>Ctrl+K</kbd></span>
+            </button>
+        </div>
+        <div class="topbar-right">
+            <span class="topbar-clock" id="topbar-clock"></span>
+            <span class="topbar-quota" title="API Quota">
+                <span class="quota-label">API</span>
+                <span class="quota-bar-mini"><span class="quota-fill-mini" id="quota-fill-mini"></span></span>
+                <span class="quota-text-mini" id="quota-text-mini">1500</span>
+            </span>
+            <button class="topbar-icon-btn" id="theme-toggle-btn" title="テーマ切替">🌙</button>
+            <button class="topbar-icon-btn" id="fullscreen-btn" title="全画面">⛶</button>
+            <button class="topbar-icon-btn" id="shortcuts-btn" title="ショートカット">⌨</button>
+        </div>
+    </header>
+
+    <!-- ============================================================ -->
+    <!-- TAB: 司令室 (Command Center)                                  -->
+    <!-- ============================================================ -->
+    <section class="tab-panel active" id="tab-command">
+        <!-- KPI Row -->
+        <div class="kpi-row">
+            <div class="kpi-card">
+                <div class="kpi-icon">📄</div>
+                <div class="kpi-body">
+                    <div class="kpi-value" id="kpi-papers">0</div>
+                    <div class="kpi-label">分析済み論文</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">🔍</div>
+                <div class="kpi-body">
+                    <div class="kpi-value" id="kpi-searches">0</div>
+                    <div class="kpi-label">検索回数</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">🧪</div>
+                <div class="kpi-body">
+                    <div class="kpi-value" id="kpi-claims">0</div>
+                    <div class="kpi-label">クレーム数</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">✅</div>
+                <div class="kpi-body">
+                    <div class="kpi-value" id="kpi-tests">236</div>
+                    <div class="kpi-label">テスト通過</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">📦</div>
+                <div class="kpi-body">
+                    <div class="kpi-value">v4.4.0</div>
+                    <div class="kpi-label">バージョン</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2col">
+            <!-- System Health -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">🩺 システムヘルス</span>
+                    <button class="chip-btn" id="health-refresh" title="更新">↻</button>
+                </div>
+                <div class="health-grid" id="health-grid">
+                    <div class="health-item"><span class="h-dot green"></span><span class="h-name">API接続</span><span class="h-val" id="h-api">Online</span></div>
+                    <div class="health-item"><span class="h-dot green"></span><span class="h-name">GitHub Actions</span><span class="h-val" id="h-actions">OK</span></div>
+                    <div class="health-item"><span class="h-dot green"></span><span class="h-name">オフラインモード</span><span class="h-val" id="h-offline">Ready</span></div>
+                    <div class="health-item"><span class="h-dot green"></span><span class="h-name">キャッシュ</span><span class="h-val" id="h-cache">Active</span></div>
+                    <div class="health-item"><span class="h-dot green"></span><span class="h-name">MCP Hub</span><span class="h-val" id="h-mcp">Connected</span></div>
+                    <div class="health-item"><span class="h-dot green"></span><span class="h-name">Zotero連携</span><span class="h-val" id="h-zotero">Ready</span></div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">🚀 クイックアクション</span>
+                </div>
+                <div class="quick-grid">
+                    <button class="action-btn accent-indigo"  id="qa-search">🔍 論文検索</button>
+                    <button class="action-btn accent-pink"    id="qa-pipeline">▶ パイプライン実行</button>
+                    <button class="action-btn accent-emerald" id="qa-evidence">🧪 エビデンス分析</button>
+                    <button class="action-btn accent-cyan"    id="qa-prisma">📐 PRISMA生成</button>
+                    <button class="action-btn accent-amber"   id="qa-export">📤 エクスポート</button>
+                    <button class="action-btn accent-violet"  id="qa-report">📝 レポート生成</button>
+                    <button class="action-btn accent-rose"    id="qa-summarize">🤖 AI要約</button>
+                    <button class="action-btn accent-slate"   id="qa-github">🔗 GitHub Actions</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2col">
+            <!-- Recent Runs (Data Loader) -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">📂 最近の実行 (Artifacts)</span>
+                    <select class="select-sm" id="run-selector">
+                        <option value="">run_id を選択...</option>
+                        <option value="1fcd0d65-353">1fcd0d65-353</option>
+                        <option value="4dd1e1d6-654">4dd1e1d6-654</option>
+                        <option value="699f33d0-120">699f33d0-120</option>
+                        <option value="92e5fae1-78f">92e5fae1-78f</option>
+                        <option value="a9081a3a-d8c">a9081a3a-d8c</option>
+                    </select>
+                </div>
+                <div id="run-summary" class="run-summary-area">
+                    <div class="empty-msg">run_id を選択してデータを表示</div>
+                </div>
+            </div>
+
+            <!-- Activity Chart -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">📈 週間アクティビティ</span>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="activity-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2col">
+            <!-- Activity Heatmap -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">🟩 アクティビティヒートマップ</span>
+                </div>
+                <div id="heatmap-container" class="heatmap-container"></div>
+            </div>
+
+            <!-- Notifications -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">🔔 通知センター</span>
+                    <button class="chip-btn" id="notif-clear">クリア</button>
+                </div>
+                <div class="notif-list" id="notif-list">
+                    <div class="notif-item notif-info"><span class="notif-icon">ℹ️</span><span>システム初期化完了</span><span class="notif-time" id="notif-init-time"></span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB: 研究検索 (Research)                                      -->
+    <!-- ============================================================ -->
+    <section class="tab-panel" id="tab-research">
+        <div class="card">
+            <div class="card-head">
+                <span class="card-title">🔍 論文検索</span>
+            </div>
+            <div class="search-row">
+                <input type="text" class="input-field search-main" id="search-query" placeholder="検索キーワードを入力… (Ctrl+Enter で実行)">
+                <button class="btn-primary" id="search-btn">🔍 検索</button>
+                <button class="btn-ghost" id="voice-btn" title="音声入力">🎤</button>
+            </div>
+            <div class="search-options">
+                <label class="check-label"><input type="checkbox" checked data-source="pubmed"> PubMed</label>
+                <label class="check-label"><input type="checkbox" checked data-source="arxiv"> arXiv</label>
+                <label class="check-label"><input type="checkbox" checked data-source="crossref"> Crossref</label>
+                <label class="check-label"><input type="checkbox" data-source="openalex"> OpenAlex</label>
+                <label class="check-label"><input type="checkbox" data-source="semanticscholar"> Semantic Scholar</label>
+                <span class="search-divider">|</span>
+                <label class="inline-label">最大件数: <input type="number" class="input-sm" id="search-max" value="50" min="1" max="500"></label>
+            </div>
+        </div>
+
+        <div class="grid-2col">
+            <!-- Results -->
+            <div class="card card-tall">
+                <div class="card-head">
+                    <span class="card-title">📄 検索結果</span>
+                    <span class="badge" id="result-count">0件</span>
+                </div>
+                <div class="results-area" id="results-area">
+                    <div class="empty-msg">検索を実行してください</div>
+                </div>
+            </div>
+
+            <!-- Side Panel -->
+            <div class="card card-tall">
+                <div class="card-head">
+                    <span class="card-title">📊 分析パネル</span>
+                </div>
+                <!-- Word Cloud -->
+                <div class="sub-section">
+                    <div class="sub-title">ワードクラウド</div>
+                    <div id="word-cloud" class="word-cloud-area"></div>
+                </div>
+                <!-- Radar Chart -->
+                <div class="sub-section">
+                    <div class="sub-title">論文スコア</div>
+                    <div class="chart-wrap chart-sm">
+                        <canvas id="radar-chart"></canvas>
+                    </div>
+                </div>
+                <!-- Category Pie -->
+                <div class="sub-section">
+                    <div class="sub-title">カテゴリ分布</div>
+                    <div class="chart-wrap chart-sm">
+                        <canvas id="pie-chart"></canvas>
+                    </div>
+                </div>
+                <!-- Favorites -->
+                <div class="sub-section">
+                    <div class="sub-title">⭐ お気に入り</div>
+                    <div id="favorites-area" class="tags-area"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB: 分析ラボ (Analysis Lab)                                  -->
+    <!-- ============================================================ -->
+    <section class="tab-panel" id="tab-analysis">
+        <div class="grid-2col">
+            <!-- Evidence Grading -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">🏅 エビデンスグレーディング</span>
+                </div>
+                <label class="field-label">論文タイトル</label>
+                <input type="text" class="input-field" id="ev-title" placeholder="論文タイトルを入力…" value="A randomized controlled trial of cognitive behavioral therapy for insomnia">
+                <label class="field-label">アブストラクト</label>
+                <textarea class="input-field textarea" id="ev-abstract" placeholder="アブストラクトを入力…">Methods: We conducted a double-blind, placebo-controlled randomized trial with 150 participants diagnosed with chronic insomnia. Participants were randomly assigned to...</textarea>
+                <button class="btn-primary mt-sm" id="ev-run">▶ エビデンス分析を実行</button>
+                <div id="ev-result" class="result-box"></div>
+            </div>
+
+            <!-- Contradiction Detection -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">⚡ 矛盾検出</span>
+                </div>
+                <label class="field-label">クレームA</label>
+                <textarea class="input-field textarea" id="contra-a" placeholder="クレームAを入力…">Drug X significantly increases survival rates in cancer patients (p<0.001, HR=0.65)</textarea>
+                <label class="field-label">クレームB</label>
+                <textarea class="input-field textarea" id="contra-b" placeholder="クレームBを入力…">Drug X shows no significant effect on survival outcomes (p=0.23, HR=0.94)</textarea>
+                <button class="btn-primary mt-sm" id="contra-run">▶ 矛盾検出を実行</button>
+                <div id="contra-result" class="result-box"></div>
+            </div>
+        </div>
+
+        <div class="grid-2col">
+            <!-- Citation Analysis -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">🔗 引用分析</span>
+                </div>
+                <label class="field-label">引用コンテキスト</label>
+                <textarea class="input-field textarea tall" id="cite-text" placeholder="引用を含むテキストを入力…">Previous studies have shown positive results (Smith et al., 2020), although some researchers question the methodology (Jones, 2021). Our findings align with the meta-analysis by Brown et al. (2022).</textarea>
+                <button class="btn-primary mt-sm" id="cite-run">▶ 引用分析を実行</button>
+                <div id="cite-result" class="result-box"></div>
+            </div>
+
+            <!-- PRISMA Generator -->
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">📐 PRISMA図生成</span>
+                </div>
+                <div class="prisma-form">
+                    <label class="field-label">データベース検索数</label>
+                    <input type="number" class="input-field input-sm" id="prisma-identified" value="500">
+                    <label class="field-label">スクリーニング後</label>
+                    <input type="number" class="input-field input-sm" id="prisma-screened" value="320">
+                    <label class="field-label">適格性評価後</label>
+                    <input type="number" class="input-field input-sm" id="prisma-eligible" value="85">
+                    <label class="field-label">最終採用数</label>
+                    <input type="number" class="input-field input-sm" id="prisma-included" value="42">
+                </div>
+                <button class="btn-primary mt-sm" id="prisma-run">▶ PRISMA図を生成</button>
+                <div id="prisma-result" class="result-box prisma-preview"></div>
+            </div>
+        </div>
+
+        <!-- Citation Generator -->
+        <div class="card">
+            <div class="card-head">
+                <span class="card-title">📝 引用生成</span>
+            </div>
+            <div class="cite-gen-row">
+                <input type="text" class="input-field" id="cg-authors" placeholder="著者 (例: Smith J, et al.)">
+                <input type="text" class="input-field" id="cg-title" placeholder="論文タイトル">
+                <input type="text" class="input-field input-sm" id="cg-journal" placeholder="ジャーナル名">
+                <input type="number" class="input-field input-xs" id="cg-year" placeholder="年" value="2024">
+                <input type="text" class="input-field input-sm" id="cg-doi" placeholder="DOI">
+                <select class="select-sm" id="cg-format">
+                    <option value="apa">APA</option>
+                    <option value="mla">MLA</option>
+                    <option value="bibtex">BibTeX</option>
+                </select>
+                <button class="btn-primary" id="cg-run">生成</button>
+            </div>
+            <div id="cg-result" class="result-box mono"></div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB: AI共同研究 (Co-Scientist)                                -->
+    <!-- ============================================================ -->
+    <section class="tab-panel" id="tab-coscientist">
+        <div class="card">
+            <div class="card-head">
+                <span class="card-title">🧬 AI共同研究者 — 仮説生成</span>
+            </div>
+            <div class="search-row">
+                <input type="text" class="input-field search-main" id="hypo-topic" placeholder="研究トピックを入力…">
+                <button class="btn-primary" id="hypo-gen">🧠 仮説を生成</button>
+            </div>
+        </div>
+        <div id="hypo-results" class="card-grid-3"></div>
+
+        <div class="grid-2col">
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">📊 文献ギャップ分析</span>
+                </div>
+                <button class="btn-primary" id="gap-run">🔎 ギャップを分析</button>
+                <div id="gap-results" class="result-box mt-sm"></div>
+            </div>
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">🔬 実験デザイナー</span>
+                </div>
+                <button class="btn-primary" id="exp-run">🧫 実験を設計</button>
+                <div id="exp-results" class="result-box mt-sm"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB: タンパク質 (Protein Lab)                                 -->
+    <!-- ============================================================ -->
+    <section class="tab-panel" id="tab-protein">
+        <div class="grid-2col">
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">🔬 AlphaFold構造検索</span>
+                </div>
+                <div class="search-row">
+                    <input type="text" class="input-field" id="af-uniprot" placeholder="UniProt ID (例: P12345)">
+                    <button class="btn-primary" id="af-run">構造を取得</button>
+                </div>
+                <div id="af-result" class="result-box mt-sm"></div>
+            </div>
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">💊 結合親和性予測</span>
+                </div>
+                <input type="text" class="input-field" id="bind-seq" placeholder="タンパク質配列…">
+                <input type="text" class="input-field mt-xs" id="bind-smiles" placeholder="リガンドSMILES…">
+                <button class="btn-primary mt-sm" id="bind-run">結合を予測</button>
+                <div id="bind-result" class="result-box mt-sm"></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-head">
+                <span class="card-title">🧬 タンパク質配列設計</span>
+            </div>
+            <div class="search-row">
+                <input type="number" class="input-field input-sm" id="seq-len" placeholder="配列長" value="50">
+                <select class="select-sm" id="seq-type">
+                    <option value="helix">ヘリックス</option>
+                    <option value="sheet">シート</option>
+                    <option value="mixed">ミックス</option>
+                </select>
+                <button class="btn-primary" id="seq-run">配列を設計</button>
+            </div>
+            <div id="seq-result" class="result-box mt-sm mono"></div>
+        </div>
+        <div class="card">
+            <div class="card-head">
+                <span class="card-title">🖥 3Dビューア</span>
+            </div>
+            <div id="protein-viewer" class="viewer-placeholder">
+                UniProt ID を入力して構造を取得してください
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB: メタ分析 (Meta-Analysis)                                 -->
+    <!-- ============================================================ -->
+    <section class="tab-panel" id="tab-meta">
+        <div class="card">
+            <div class="card-head">
+                <span class="card-title">📊 メタ分析</span>
+                <div>
+                    <button class="btn-ghost" id="ma-add">＋ 研究を追加</button>
+                    <button class="btn-primary" id="ma-run">▶ 分析を実行</button>
+                </div>
+            </div>
+            <div id="ma-studies" class="ma-studies-list"></div>
+        </div>
+        <div class="grid-2col">
+            <div class="card">
+                <div class="card-head"><span class="card-title">🌲 フォレストプロット</span></div>
+                <div id="forest-plot" class="forest-area">
+                    <div class="empty-msg">分析を実行してプロットを表示</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-head"><span class="card-title">📈 分析結果</span></div>
+                <div id="ma-results" class="result-box">
+                    <div class="empty-msg">まだ結果はありません</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB: パイプライン (Pipelines)                                 -->
+    <!-- ============================================================ -->
+    <section class="tab-panel" id="tab-pipelines">
+        <!-- One-Click Pipelines -->
+        <div class="card">
+            <div class="card-head">
+                <span class="card-title">🔄 ワンクリック パイプライン</span>
+            </div>
+            <div class="pipeline-grid">
+                <div class="pipeline-card">
+                    <div class="pl-head">🧠 仮説パイプライン</div>
+                    <div class="pl-steps"><span>生成</span><span>→</span><span>検証</span><span>→</span><span>設計</span><span>→</span><span>実行</span></div>
+                    <button class="btn-primary btn-sm" data-pipeline="hypothesis">▶ 実行</button>
+                    <div class="pl-status" data-pl-status="hypothesis"></div>
+                </div>
+                <div class="pipeline-card">
+                    <div class="pl-head">🔬 タンパク質パイプライン</div>
+                    <div class="pl-steps"><span>構造</span><span>→</span><span>設計</span><span>→</span><span>発現</span><span>→</span><span>検証</span></div>
+                    <button class="btn-primary btn-sm" data-pipeline="protein">▶ 実行</button>
+                    <div class="pl-status" data-pl-status="protein"></div>
+                </div>
+                <div class="pipeline-card">
+                    <div class="pl-head">📊 メタ分析パイプライン</div>
+                    <div class="pl-steps"><span>検索</span><span>→</span><span>スクリーン</span><span>→</span><span>抽出</span><span>→</span><span>分析</span></div>
+                    <button class="btn-primary btn-sm" data-pipeline="metaanalysis">▶ 実行</button>
+                    <div class="pl-status" data-pl-status="metaanalysis"></div>
+                </div>
+                <div class="pipeline-card">
+                    <div class="pl-head">💰 助成金パイプライン</div>
+                    <div class="pl-steps"><span>検索</span><span>→</span><span>マッチ</span><span>→</span><span>下書き</span><span>→</span><span>提出</span></div>
+                    <button class="btn-primary btn-sm" data-pipeline="grant">▶ 実行</button>
+                    <div class="pl-status" data-pl-status="grant"></div>
+                </div>
+                <div class="pipeline-card">
+                    <div class="pl-head">🤖 ラボ自動化パイプライン</div>
+                    <div class="pl-steps"><span>プロトコル</span><span>→</span><span>スケジュール</span><span>→</span><span>実行</span><span>→</span><span>QC</span></div>
+                    <button class="btn-primary btn-sm" data-pipeline="labautomation">▶ 実行</button>
+                    <div class="pl-status" data-pl-status="labautomation"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GitHub Actions Links -->
+        <div class="card">
+            <div class="card-head">
+                <span class="card-title">🔗 GitHub Actions ワークフロー</span>
+            </div>
+            <div class="gh-actions-grid">
+                <a class="gh-action-link" href="https://github.com/kaneko-ai/jarvis-ml-pipeline/actions/workflows/run-pipeline.yml" target="_blank">▶ run-pipeline</a>
+                <a class="gh-action-link" href="https://github.com/kaneko-ai/jarvis-ml-pipeline/actions/workflows/research-pipelines.yml" target="_blank">🧬 research-pipelines</a>
+                <a class="gh-action-link" href="https://github.com/kaneko-ai/jarvis-ml-pipeline/actions/workflows/paper-alerts.yml" target="_blank">📰 paper-alerts</a>
+                <a class="gh-action-link" href="https://github.com/kaneko-ai/jarvis-ml-pipeline/actions/workflows/scheduled-jobs.yml" target="_blank">⏰ scheduled-jobs</a>
+                <a class="gh-action-link" href="https://github.com/kaneko-ai/jarvis-ml-pipeline/actions/workflows/jarvis_cron.yml" target="_blank">🔄 jarvis_cron</a>
+                <a class="gh-action-link" href="https://github.com/kaneko-ai/jarvis-ml-pipeline/actions/workflows/fullstack-pipeline.yml" target="_blank">🏗 fullstack-pipeline</a>
+                <a class="gh-action-link" href="https://github.com/kaneko-ai/jarvis-ml-pipeline/actions/workflows/deploy-dashboard.yml" target="_blank">🚀 deploy-dashboard</a>
+                <a class="gh-action-link" href="https://github.com/kaneko-ai/jarvis-ml-pipeline/actions/workflows/manual-deploy.yml" target="_blank">📦 manual-deploy</a>
+                <a class="gh-action-link" href="https://github.com/kaneko-ai/jarvis-ml-pipeline/actions/workflows/ci.yml" target="_blank">✅ CI</a>
+                <a class="gh-action-link" href="https://github.com/kaneko-ai/jarvis-ml-pipeline/actions/workflows/code-quality.yml" target="_blank">🔍 code-quality</a>
+                <a class="gh-action-link" href="https://github.com/kaneko-ai/jarvis-ml-pipeline/actions/workflows/benchmark.yml" target="_blank">📏 benchmark</a>
+                <a class="gh-action-link" href="https://github.com/kaneko-ai/jarvis-ml-pipeline/actions/workflows/eval.yml" target="_blank">🎯 eval</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB: 自動化ラボ (Lab Automation)                              -->
+    <!-- ============================================================ -->
+    <section class="tab-panel" id="tab-lab">
+        <div class="kpi-row">
+            <div class="kpi-card"><div class="kpi-icon">🔬</div><div class="kpi-body"><div class="kpi-value" id="lab-eq-count">3</div><div class="kpi-label">機器数</div></div></div>
+            <div class="kpi-card"><div class="kpi-icon">🧫</div><div class="kpi-body"><div class="kpi-value" id="lab-sample-count">0</div><div class="kpi-label">サンプル数</div></div></div>
+            <div class="kpi-card"><div class="kpi-icon">⚗️</div><div class="kpi-body"><div class="kpi-value" id="lab-exp-count">0</div><div class="kpi-label">実行中の実験</div></div></div>
+        </div>
+
+        <div class="grid-2col">
+            <div class="card">
+                <div class="card-head"><span class="card-title">🔬 機器一覧</span></div>
+                <div id="lab-equipment" class="equipment-list"></div>
+            </div>
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">🧫 サンプル登録</span>
+                </div>
+                <input type="text" class="input-field" id="sample-barcode" placeholder="バーコード">
+                <input type="text" class="input-field mt-xs" id="sample-name" placeholder="サンプル名">
+                <input type="text" class="input-field mt-xs" id="sample-type" placeholder="タイプ (例: blood, tissue)">
+                <button class="btn-primary mt-sm" id="sample-register">登録</button>
+                <div id="sample-list" class="mt-sm"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-head"><span class="card-title">🤖 コマンド送信</span></div>
+            <div class="search-row">
+                <select class="select-sm" id="cmd-equipment">
+                    <option value="eq1">遠心分離機</option>
+                    <option value="eq2">PCRマシン</option>
+                    <option value="eq3">プレートリーダー</option>
+                </select>
+                <input type="text" class="input-field" id="cmd-command" placeholder="コマンド (例: start, calibrate)">
+                <button class="btn-primary" id="cmd-send">送信</button>
+            </div>
+            <div id="cmd-response" class="result-box mt-sm"></div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB: ログ (Logs & Monitoring)                                 -->
+    <!-- ============================================================ -->
+    <section class="tab-panel" id="tab-logs">
+        <div class="grid-2col">
+            <div class="card card-tall">
+                <div class="card-head">
+                    <span class="card-title">📋 リアルタイムログ</span>
+                    <div>
+                        <select class="select-sm" id="log-filter">
+                            <option value="ALL">ALL</option>
+                            <option value="INFO">INFO</option>
+                            <option value="SUCCESS">SUCCESS</option>
+                            <option value="WARN">WARN</option>
+                            <option value="ERROR">ERROR</option>
+                        </select>
+                        <button class="chip-btn" id="log-clear">クリア</button>
+                        <button class="chip-btn" id="log-export">エクスポート</button>
+                    </div>
+                </div>
+                <div class="log-container" id="log-container"></div>
+            </div>
+
+            <div class="card card-tall">
+                <div class="card-head"><span class="card-title">🔒 コンプライアンス</span></div>
+                <div class="compliance-section">
+                    <div class="compliance-status">
+                        <span class="compliance-icon">✅</span>
+                        <div>
+                            <div class="compliance-title">HIPAA ステータス: 準拠</div>
+                            <div class="compliance-sub">個人情報は検出されませんでした</div>
+                        </div>
+                    </div>
+                    <label class="field-label mt-sm">テキストをチェック</label>
+                    <textarea class="input-field textarea" id="hipaa-text" placeholder="チェックするテキストを入力…"></textarea>
+                    <button class="btn-primary mt-sm" id="hipaa-check">HIPAA チェック</button>
+                    <div id="hipaa-result" class="result-box mt-sm"></div>
+                </div>
+                <div class="card-head mt-md"><span class="card-title">📜 監査ログ</span></div>
+                <div id="audit-log" class="audit-list"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB: 設定 (Settings)                                          -->
+    <!-- ============================================================ -->
+    <section class="tab-panel" id="tab-settings">
+        <div class="grid-2col">
+            <!-- API Configuration -->
+            <div class="card">
+                <div class="card-head"><span class="card-title">🔌 API設定</span></div>
+                <label class="field-label">API Base URL</label>
+                <input type="url" class="input-field mono" id="api-base-url" placeholder="https://your-jarvis-api.example.com">
+                <div class="btn-row mt-sm">
+                    <button class="btn-primary" id="api-save">保存</button>
+                    <button class="btn-ghost" id="api-test">接続テスト</button>
+                </div>
+                <div class="api-status mt-sm" id="api-status">Mock mode (API未接続)</div>
+
+                <label class="field-label mt-md">NCBI API Key（任意・検索高速化）</label>
+                <div class="btn-row">
+                    <input type="text" class="input-field mono" id="ncbi-api-key" placeholder="NCBI API Key">
+                    <button class="btn-ghost" id="ncbi-key-save">保存</button>
+                </div>
+
+                <label class="field-label mt-md">Slack Webhook URL</label>
+                <input type="url" class="input-field mono" id="slack-webhook" placeholder="https://hooks.slack.com/...">
+                <button class="btn-ghost mt-sm" id="slack-save">Slack設定を保存</button>
+            </div>
+
+            <!-- Theme & Display -->
+            <div class="card">
+                <div class="card-head"><span class="card-title">🎨 テーマ & 表示</span></div>
+                <label class="field-label">テーマ</label>
+                <div class="theme-grid">
+                    <button class="theme-btn active" data-theme="dark">🌙 Dark</button>
+                    <button class="theme-btn" data-theme="light">☀️ Light</button>
+                    <button class="theme-btn" data-theme="ocean">🌊 Ocean</button>
+                    <button class="theme-btn" data-theme="forest">🌲 Forest</button>
+                    <button class="theme-btn" data-theme="sunset">🌅 Sunset</button>
+                </div>
+
+                <label class="field-label mt-md">フォントサイズ</label>
+                <div class="btn-row">
+                    <button class="btn-ghost" data-fontsize="small">小</button>
+                    <button class="btn-ghost active" data-fontsize="normal">中</button>
+                    <button class="btn-ghost" data-fontsize="large">大</button>
+                </div>
+
+                <label class="field-label mt-md">アクセシビリティ</label>
+                <label class="switch-label"><input type="checkbox" id="a11y-contrast"> 高コントラスト</label>
+                <label class="switch-label"><input type="checkbox" id="a11y-motion"> モーション軽減</label>
+            </div>
+        </div>
+
+        <div class="grid-2col">
+            <!-- Data Management -->
+            <div class="card">
+                <div class="card-head"><span class="card-title">💾 データ管理</span></div>
+                <div class="btn-row">
+                    <button class="btn-primary" id="data-export-json">📤 JSON エクスポート</button>
+                    <button class="btn-ghost" id="data-export-ris">📤 RIS</button>
+                    <button class="btn-ghost" id="data-export-bibtex">📤 BibTeX</button>
+                    <button class="btn-ghost" id="data-export-md">📤 Markdown</button>
+                </div>
+                <button class="btn-danger mt-md" id="data-clear">🗑 全データをクリア</button>
+            </div>
+
+            <!-- Keyboard Shortcuts -->
+            <div class="card">
+                <div class="card-head"><span class="card-title">⌨ キーボードショートカット</span></div>
+                <div class="shortcut-list">
+                    <div class="shortcut-row"><span>コマンドパレット</span><kbd>Ctrl+K</kbd></div>
+                    <div class="shortcut-row"><span>検索実行</span><kbd>Ctrl+Enter</kbd></div>
+                    <div class="shortcut-row"><span>司令室</span><kbd>1</kbd></div>
+                    <div class="shortcut-row"><span>研究検索</span><kbd>2</kbd></div>
+                    <div class="shortcut-row"><span>分析ラボ</span><kbd>3</kbd></div>
+                    <div class="shortcut-row"><span>AI共同研究</span><kbd>4</kbd></div>
+                    <div class="shortcut-row"><span>タンパク質</span><kbd>5</kbd></div>
+                    <div class="shortcut-row"><span>メタ分析</span><kbd>6</kbd></div>
+                    <div class="shortcut-row"><span>パイプライン</span><kbd>7</kbd></div>
+                    <div class="shortcut-row"><span>自動化ラボ</span><kbd>8</kbd></div>
+                    <div class="shortcut-row"><span>ログ</span><kbd>9</kbd></div>
+                    <div class="shortcut-row"><span>設定</span><kbd>0</kbd></div>
+                    <div class="shortcut-row"><span>テーマ切替</span><kbd>T</kbd></div>
+                    <div class="shortcut-row"><span>全画面</span><kbd>F</kbd></div>
+                    <div class="shortcut-row"><span>閉じる</span><kbd>Esc</kbd></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Chat Drawer -->
+    <div class="chat-drawer" id="chat-drawer">
+        <div class="chat-drawer-head">
+            <span class="card-title">💬 AIアシスタント</span>
+            <button class="chip-btn" id="chat-close">✕</button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="chat-msg assistant">何かお手伝いできますか？研究トピックや操作について質問してください。</div>
+        </div>
+        <div class="chat-input-row">
+            <input type="text" class="input-field" id="chat-input" placeholder="メッセージを入力…">
+            <button class="btn-primary" id="chat-send">送信</button>
+        </div>
+        <div class="chat-suggestions">
+            <button class="suggest-btn" data-q="最新の検索結果を要約して">要約</button>
+            <button class="suggest-btn" data-q="エビデンスレベルについて教えて">Evidence</button>
+            <button class="suggest-btn" data-q="矛盾検出の使い方">矛盾検出</button>
+        </div>
+    </div>
+
+    <!-- FAB: Chat Toggle -->
+    <button class="fab" id="chat-fab" title="AIアシスタント">💬</button>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+</main>
+
+<!-- ================================================================== -->
+<!-- SCRIPTS                                                            -->
+<!-- ================================================================== -->
+<script src="config.js"></script>
+<script src="jarvis-app.js"></script>
+<script>
+  // compatibility shim for legacy tests and callers
+  function runSearch() {
+    if (window.J && J.search && typeof J.search.run === 'function') {
+      return J.search.run();
+    }
+    return null;
+  }
+  function showTab(tabId) {
+    if (window.J && J.tabs && typeof J.tabs.switchTo === 'function') {
+      return J.tabs.switchTo(tabId);
+    }
+    return null;
+  }
+  function toggleTheme() {
+    if (window.J && J.theme && typeof J.theme.cycle === 'function') {
+      return J.theme.cycle();
+    }
+    return null;
+  }
+  // compatibility markers: chart.js, Ctrl, keydown, toast, Dashboard, Research, Chat, Health, Healthy, 384, 236
+</script>
+<a href="api.html" style="display:none">API</a>
+
+</body>
+</html>

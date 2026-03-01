@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://example.com/jarvis/PLANS/QUALITY_HARDENING_FINAL_2026-02-14/">
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>QUALITY HARDENING FINAL 2026 02 14 - JARVIS Research OS</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../../css/brands.min.css" rel="stylesheet">
+        <link href="../../css/solid.min.css" rel="stylesheet">
+        <link href="../../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">JARVIS Research OS</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href="../../docs/index.md" class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/mcp.md" class="nav-link">MCP Hub</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/browser.md" class="nav-link">Browser Agent</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/skills.md" class="nav-link">Skills System</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/multi_agent.md" class="nav-link">Multi-Agent</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/terminal_security.md" class="nav-link">Terminal Security</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/kaneko-ai/jarvis-ml-pipeline/edit/master/docs/PLANS/QUALITY_HARDENING_FINAL_2026-02-14.md" class="nav-link"><i class="fa-brands fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#quality-hardening-final-report-2026-02-14" class="nav-link">Quality Hardening Final Report (2026-02-14)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#1" class="nav-link">1. 結論</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2" class="nav-link">2. 今回実施したこと（事実）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#3" class="nav-link">3. 最終検証結果（実測）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#4-2026-02-14" class="nav-link">4. 事実ベーススコア（2026-02-14 時点）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#5" class="nav-link">5. 残タスク</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#6" class="nav-link">6. 変更の安全性</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<blockquote>
+<p>Authority: ROADMAP (Level 5, Non-binding)</p>
+</blockquote>
+<h1 id="quality-hardening-final-report-2026-02-14">Quality Hardening Final Report (2026-02-14)</h1>
+<h2 id="1">1. 結論</h2>
+<ul>
+<li><code>ops_extract</code> を含む全体品質負債ゼロ化フェーズを完了。</li>
+<li>最終ゲートはすべて成功。</li>
+<li><code>open PR = 0</code> を維持。</li>
+<li><code>paper-alert</code> は運用方針どおり最新1件のみ open（#109）。</li>
+</ul>
+<h2 id="2">2. 今回実施したこと（事実）</h2>
+<h3 id="21-squash-merge">2.1 既に squash merge 済み（本日）</h3>
+<ol>
+<li><code>#124</code> <code>chore(repo): stop tracking generated egg-info and weekly reports</code></li>
+<li><code>#125</code> <code>chore(tooling): remove deprecated ruff/license settings and BOM</code></li>
+<li><code>#126</code> <code>refactor(core): remove datetime/pydantic deprecations</code></li>
+<li><code>#127</code> <code>fix(tests+sources): eliminate remaining pytest warnings</code></li>
+<li><code>#128</code> <code>chore(ops): enforce paper-alert close policy</code></li>
+</ol>
+<h3 id="22-13">2.2 この最終仕上げで実施した修正（13ファイル）</h3>
+<ul>
+<li>Runtime/Deprecation/ResourceWarning 解消</li>
+<li><code>jarvis_core/multimodal/scientific.py</code></li>
+<li><code>jarvis_core/runtime/offline_manager.py</code></li>
+<li><code>jarvis_core/orchestrator/schema.py</code></li>
+<li><code>jarvis_core/orchestrator/conversation.py</code></li>
+<li><code>jarvis_core/ops_extract/network.py</code></li>
+<li><code>jarvis_web/dashboard.py</code></li>
+<li><code>jarvis_web/routes/decision.py</code></li>
+<li>E2E/Unit テスト側のソケット・コンテキスト管理修正</li>
+<li><code>tests/e2e/test_drive_folder_layout.py</code></li>
+<li><code>tests/e2e/test_drive_verify_remote_metadata.py</code></li>
+<li><code>tests/e2e/test_ops_extract_proof_driven.py</code></li>
+<li><code>tests/e2e/test_permissions_public_link_hard_fail.py</code></li>
+<li><code>tests/ops_extract/test_drive_resumable_emulator.py</code></li>
+<li><code>tests/unit/test_network_profile_detection.py</code></li>
+</ul>
+<h2 id="3">3. 最終検証結果（実測）</h2>
+<ul>
+<li><code>uv run pytest -q -W error</code></li>
+<li>結果: <code>6496 passed, 469 skipped</code>（warningをerror化して通過）</li>
+<li><code>uv run ruff check jarvis_core tests</code></li>
+<li>結果: <code>All checks passed</code></li>
+<li><code>uv run black --check jarvis_core tests</code></li>
+<li>結果: <code>1504 files would be left unchanged</code></li>
+<li><code>uv run python scripts/security_gate.py</code></li>
+<li>結果: <code>Security Gate: PASSED</code></li>
+<li><code>uv run python -m build</code></li>
+<li>結果: sdist/wheel build 成功</li>
+<li><code>gh pr list --state open</code></li>
+<li>結果: 0件</li>
+<li><code>gh issue list --state open --label paper-alert --limit 20</code></li>
+<li>結果: <code>#109</code> のみ open</li>
+</ul>
+<h2 id="4-2026-02-14">4. 事実ベーススコア（2026-02-14 時点）</h2>
+<p>採点は「ゲート通過の有無」を機械的に 0/100 判定。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>判定根拠</th>
+<th style="text-align: right;">Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Test Stability</td>
+<td><code>pytest -W error</code> 通過</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td>Warning Hygiene</td>
+<td>warningをerror化して全通過</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td>Lint</td>
+<td><code>ruff</code> 全通過</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td>Format</td>
+<td><code>black --check</code> 全通過</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td>Security Gate</td>
+<td><code>security_gate.py</code> 通過</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td>Build</td>
+<td><code>python -m build</code> 成功</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td>PR Backlog Hygiene</td>
+<td>open PR 0件</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td>Alert Ops Hygiene</td>
+<td><code>paper-alert</code> open 1件運用</td>
+<td style="text-align: right;">100</td>
+</tr>
+</tbody>
+</table>
+<p><strong>総合スコア: 100 / 100</strong></p>
+<h2 id="5">5. 残タスク</h2>
+<ul>
+<li>機能・品質ゲート上の未完了タスクは現時点で無し。</li>
+<li>継続運用タスクのみ:</li>
+<li><code>paper-alert</code> を日次ワークフローで1件維持</li>
+<li>新規変更は <code>main</code> 起点・小型PR・squash運用を継続</li>
+</ul>
+<h2 id="6">6. 変更の安全性</h2>
+<ul>
+<li>破壊的リファクタは未実施（差分修正のみ）。</li>
+<li><code>ops_extract</code> の P1-P6 成果を維持したまま、warning/error耐性と運用品質のみを改善。</li>
+</ul></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

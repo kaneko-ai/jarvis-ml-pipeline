@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://example.com/jarvis/PLANS/FEATURE_SPEC_PACK_v1/">
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>FEATURE SPEC PACK v1 - JARVIS Research OS</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../../css/brands.min.css" rel="stylesheet">
+        <link href="../../css/solid.min.css" rel="stylesheet">
+        <link href="../../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">JARVIS Research OS</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href="../../docs/index.md" class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/mcp.md" class="nav-link">MCP Hub</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/browser.md" class="nav-link">Browser Agent</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/skills.md" class="nav-link">Skills System</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/multi_agent.md" class="nav-link">Multi-Agent</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/terminal_security.md" class="nav-link">Terminal Security</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/kaneko-ai/jarvis-ml-pipeline/edit/master/docs/PLANS/FEATURE_SPEC_PACK_v1.md" class="nav-link"><i class="fa-brands fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#feature-spec-pack-v1-citation-tree-3d-paper-map-auto-harvester-rd-intel-drive-collector-market-proposal" class="nav-link">FEATURE SPEC PACK v1 — Citation Tree / 3D Paper Map / Auto Harvester / R&amp;D Intel / Drive Collector / Market Proposal</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#0-spec" class="nav-link">0. 最重要原則（このSPECの前提）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#1-feature-acitation-tree" class="nav-link">1. Feature A：Citation Tree（参考文献の樹形図）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2-feature-b3d-paper-mapa3" class="nav-link">2. Feature B：3D Paper Map（論文A中心の3次元配置）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#3-feature-cauto-harvesterpubmedoa" class="nav-link">3. Feature C：Auto Harvester（自動収集：PubMed等を監視してOA中心に収集）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#4-feature-drd-intelarxiv" class="nav-link">4. Feature D：R&amp;D Intel（arXiv＋開発情報の監視→改善提案）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#5-feature-edrive-collectorpdfbibtexgoogle-drive" class="nav-link">5. Feature E：Drive Collector（PDF＋BibTeXを自動収集してGoogle Driveへ格納）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#6-feature-fmarket-proposal" class="nav-link">6. Feature F：Market Proposal（データ資産でニッチアプリ案を提案）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#7-spec-packdod" class="nav-link">7. このSPEC PackのDoD</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<blockquote>
+<p>Authority: SPEC (Level 2, Binding)
+Canonical: YES (for these new features)
+Owner: Human Authority (金子優)
+Date: 2026-02-16
+Scope: New features only (Citation Tree / 3D Map / Auto Harvester / R&amp;D Intel / Drive Collector / Market Proposal)
+Dependency: docs/MASTER_SPEC.md, docs/SPEC_AUTHORITY.md, docs/BUNDLE_CONTRACT.md, docs/DoD.md</p>
+</blockquote>
+<h1 id="feature-spec-pack-v1-citation-tree-3d-paper-map-auto-harvester-rd-intel-drive-collector-market-proposal">FEATURE SPEC PACK v1 — Citation Tree / 3D Paper Map / Auto Harvester / R&amp;D Intel / Drive Collector / Market Proposal</h1>
+<h2 id="0-spec">0. 最重要原則（このSPECの前提）</h2>
+<ul>
+<li>既存の <strong>BUNDLE_CONTRACT（必須10ファイル）</strong> を絶対に壊さない。</li>
+<li>追加成果物は <code>logs/runs/{run_id}/artifacts/</code> に置く（必須10ファイルとは分離）。</li>
+<li><strong>status == "success" ⇔ gate_passed == true</strong> を維持する。</li>
+<li>収集の自動化は可能。ただし <strong>Human Authority を空文化する自動承認はしない</strong>。</li>
+<li>自動化は「収集まで」。解析・結論生成・採用判断はゲートと承認の枠内で行う。</li>
+</ul>
+<h2 id="1-feature-acitation-tree">1. Feature A：Citation Tree（参考文献の樹形図）</h2>
+<h3 id="11">1.1 目的</h3>
+<p>論文Aの参考文献（第1階層）と、その参考文献の参考文献（第2階層）を樹状に可視化し、
+論文Aの立ち位置・必要性・ストーリーを理解可能にする。</p>
+<h3 id="12-inputs">1.2 入力（Inputs）</h3>
+<ul>
+<li>paper_id: DOI / PMID / arXiv_id / internal_id のいずれか</li>
+<li>depth: 1 or 2（デフォルト2）</li>
+<li>max_refs_per_node: int（デフォルト50）</li>
+<li>dedup_strategy: "doi_first" | "title_year_author_fallback"</li>
+<li>source_priority: ["openalex", "crossref", "semantic_scholar", "pdf_ref_parse"]（上から優先）</li>
+</ul>
+<h3 id="13-outputs">1.3 出力（Outputs）</h3>
+<p>必須10ファイルに加え、以下を artifacts に出す：
+- artifacts/citation_tree.nodes.jsonl
+  - node: {node_id, title, year, venue, ids:{doi,pmid,arxiv}, level, inbound_cites, score_optional}
+- artifacts/citation_tree.edges.jsonl
+  - edge: {from_node_id, to_node_id, type:"cites"}
+- artifacts/citation_tree.mmd
+  - Mermaid graph（巨大な場合は分割して複数ファイル可）
+- artifacts/citation_tree.summary.md
+  - (a) hub nodes（中心性上位）
+  - (b) cluster rough interpretation（粗いクラスタ説明）
+  - (c) story gaps（欠けていそうな前提領域候補）</p>
+<h3 id="14-rules">1.4 ルール（Rules）</h3>
+<ul>
+<li>depth=2は爆発しやすいので、max_refs_per_node を必ず強制する。</li>
+<li>参照のID解決率（resolved_reference_rate）を audit.json に書く。</li>
+<li>取得ソースと件数を run.json または audit.json に記録する。</li>
+</ul>
+<h3 id="15-dod">1.5 テスト（DoD）</h3>
+<ul>
+<li>DOIあり/なしでも node_id が安定する（dedup_strategyが機能する）</li>
+<li>depth=2でノード数が上限制御される</li>
+<li>取得元が落ちても graceful degradation（縮退してもRunが監査可能）</li>
+</ul>
+<h2 id="2-feature-b3d-paper-mapa3">2. Feature B：3D Paper Map（論文A中心の3次元配置）</h2>
+<h3 id="21">2.1 目的</h3>
+<p>論文Aを中心（0,0,0に相当）として、関連論文10〜50本を3D空間に配置し、
+“関連の構造”を視覚的に把握できるようにする（UI表示も含む）。</p>
+<h3 id="22-inputs">2.2 入力（Inputs）</h3>
+<ul>
+<li>paper_id</li>
+<li>k_neighbors: 10〜50</li>
+<li>embedding_model: 既存のSentenceTransformer系（モデル名とversion固定）</li>
+<li>reduction: "umap" | "tsne"</li>
+<li>seed: int（必須。再現性のため固定）</li>
+<li>neighbor_sources:</li>
+<li>semantic: embedding cosine</li>
+<li>citation: 可能なら共引用/書誌結合</li>
+<li>fusion: RRF等（パラメータ固定）</li>
+</ul>
+<h3 id="23-outputs">2.3 出力（Outputs）</h3>
+<ul>
+<li>artifacts/paper_map.points.json</li>
+<li>{paper_id, title, year, x,y,z, score, cluster_id, distance_to_center}</li>
+<li>artifacts/paper_map.config.json</li>
+<li>{embedding_model, reduction, seed, params}</li>
+<li>artifacts/paper_map.html</li>
+<li>単体で開ける可視化（オフライン閲覧可能が望ましい）</li>
+<li>artifacts/paper_map.summary.md</li>
+<li>クラスタ解釈、近傍TopN、外れ値（なぜ外れ値か）</li>
+</ul>
+<h3 id="24-rules">2.4 ルール（Rules）</h3>
+<ul>
+<li>seed固定で、同一入力は同等の配置を再現できること（許容誤差はSPEC内で定義）。</li>
+<li>埋め込み欠損時はfallbackし、必ず “低信頼” フラグを出す。</li>
+</ul>
+<h3 id="25-dod">2.5 テスト（DoD）</h3>
+<ul>
+<li>同一paper_idで2回実行して座標がほぼ一致</li>
+<li>k=10/50の両方で破綻しない</li>
+<li>fallback時に “低信頼” が明示される</li>
+</ul>
+<h2 id="3-feature-cauto-harvesterpubmedoa">3. Feature C：Auto Harvester（自動収集：PubMed等を監視してOA中心に収集）</h2>
+<h3 id="31">3.1 目的</h3>
+<p>ユーザーがアクティブに動かなくても、設定した条件に従い、API制限内で自動的にOA論文を収集する。
+監視→リスト化→キュー→順次収集→保存を自動で回す。</p>
+<h3 id="32-inputs">3.2 入力（Inputs）</h3>
+<ul>
+<li>harvest_config.yaml（新規・ただし本タスクでは作らない：別タスク）</li>
+<li>sources: pubmed/arxiv/crossref/openalex 等</li>
+<li>watch_interval_minutes</li>
+<li>query_terms / mesh_terms / journals / authors</li>
+<li>max_per_day（API・規約順守）</li>
+<li>oa_only: true/false（デフォルトtrue）</li>
+<li>storage_paths（data/harvest 等）</li>
+<li>mode:</li>
+<li>"monitor_only" | "monitor_and_fetch" | "fetch_from_list"</li>
+</ul>
+<h3 id="33-outputs">3.3 出力（Outputs）</h3>
+<p>永続（data）：
+- data/harvest/seen_ids.jsonl
+- data/harvest/queue.jsonl
+- data/harvest/errors.jsonl
+- data/harvest/metrics.json
+Run artifacts：
+- artifacts/harvest_run_summary.md（今回何を検知し、何を取得し、何が失敗したか）</p>
+<h3 id="34-rules">3.4 ルール（Rules）</h3>
+<ul>
+<li>レート制限：token bucket + exponential backoff（429/5xx）</li>
+<li>重複排除：doi優先、なければtitle/year/authorで近似</li>
+<li>収集は自動でよいが、解析や結論生成は gate と承認の枠内で行う（Human Authority保持）</li>
+<li>OAでないものは無理に取らない（規約違反回避）。理由を記録して終了。</li>
+</ul>
+<h3 id="35-dod">3.5 テスト（DoD）</h3>
+<ul>
+<li>中断→再開で二重取得しない</li>
+<li>API停止でも監視ループが死なず次回復帰</li>
+<li>OAでない場合は理由が残る</li>
+</ul>
+<h2 id="4-feature-drd-intelarxiv">4. Feature D：R&amp;D Intel（arXiv＋開発情報の監視→改善提案）</h2>
+<h3 id="41">4.1 目的</h3>
+<p>arXiv等の最新動向を定期監視し、JARVISの機構・パイプラインの上位互換になり得るアイデアを抽出し、
+根拠付きでアップグレード提案する。</p>
+<h3 id="42-inputs">4.2 入力（Inputs）</h3>
+<ul>
+<li>rd_intel_config.yaml（新規・ただし本タスクでは作らない：別タスク）</li>
+<li>arxiv_categories</li>
+<li>keywords</li>
+<li>interval_hours</li>
+<li>allowed_sources（規約順守の手段のみ：RSS/公式API等）</li>
+</ul>
+<h3 id="43-outputs">4.3 出力（Outputs）</h3>
+<ul>
+<li>artifacts/rd_intel.digest.md（要約）</li>
+<li>artifacts/rd_intel.candidates.json（候補：効果、依存、リスク）</li>
+<li>artifacts/rd_intel.recommendations.md（採用優先度と理由）</li>
+<li>（可能なら）PoCの検証結果：検証できない場合は「できない理由」を明記（推測禁止）</li>
+</ul>
+<h3 id="44-rules">4.4 採用/不採用基準（Rules）</h3>
+<ul>
+<li>採用：KPIで測れる改善で、MASTER_SPEC（監査・契約）を壊さない</li>
+<li>不採用：ブラックボックス化／規約違反前提／再現性が落ちる</li>
+</ul>
+<h3 id="45-dod">4.5 テスト（DoD）</h3>
+<ul>
+<li>参照ソースが明示されている（根拠なし断言なし）</li>
+<li>“検証した/していない”が区別されている</li>
+</ul>
+<h2 id="5-feature-edrive-collectorpdfbibtexgoogle-drive">5. Feature E：Drive Collector（PDF＋BibTeXを自動収集してGoogle Driveへ格納）</h2>
+<h3 id="51">5.1 目的</h3>
+<p>指定した雑誌・分子名・クエリで論文を収集し、PDFとBibTeXを自動取得してGoogle Drive指定フォルダへ格納する。</p>
+<h3 id="52-inputs">5.2 入力（Inputs）</h3>
+<ul>
+<li>collector_config.yaml（新規・ただし本タスクでは作らない：別タスク）</li>
+</ul>
+<h3 id="53-outputs">5.3 出力（Outputs）</h3>
+<p>Drive構造（固定）：
+- DriveRoot/{topic}/{year}/{paper_id}/paper.pdf
+- DriveRoot/{topic}/{year}/{paper_id}/citation.bib
+- DriveRoot/{topic}/{year}/{paper_id}/meta.json</p>
+<h3 id="54-rules">5.4 ルール（Rules）</h3>
+<ul>
+<li>OA判定：Unpaywall/PMC優先</li>
+<li>PDF未取得でもBibTeXとメタは保存（理由記録）</li>
+<li>二重格納禁止（paper_id解決とalias管理）</li>
+</ul>
+<h3 id="55-dod">5.5 テスト（DoD）</h3>
+<ul>
+<li>中断→再開で重複格納しない</li>
+<li>フォルダ命名が安定（aliasで追跡）</li>
+</ul>
+<h2 id="6-feature-fmarket-proposal">6. Feature F：Market Proposal（データ資産でニッチアプリ案を提案）</h2>
+<h3 id="61">6.1 目的</h3>
+<p>収集した論文・メタデータを資産として、市場調査を挟みつつ作るべきアプリ/サイト案を提案する。</p>
+<h3 id="62-inputs">6.2 入力（Inputs）</h3>
+<ul>
+<li>market_config.yaml（新規・ただし本タスクでは作らない：別タスク）</li>
+</ul>
+<h3 id="63-outputs">6.3 出力（Outputs）</h3>
+<ul>
+<li>artifacts/product_ideas.deck.md</li>
+<li>artifacts/product_ideas.json</li>
+<li>artifacts/product_ideas.sources.md</li>
+</ul>
+<h3 id="64-rules">6.4 ルール（Rules）</h3>
+<ul>
+<li>断言は必ず根拠（論文＋市場データ＋競合分析）を伴う</li>
+<li>推測の場合は推測と明記</li>
+</ul>
+<h3 id="65-dod">6.5 テスト（DoD）</h3>
+<ul>
+<li>参照ソースが明示されている</li>
+<li>競合と差別化が説明されている</li>
+</ul>
+<h2 id="7-spec-packdod">7. このSPEC PackのDoD</h2>
+<ul>
+<li>本ファイルが docs/PLANS/FEATURE_SPEC_PACK_v1.md に存在</li>
+<li>各Featureに Inputs/Outputs/Rules/DoD が揃っている</li>
+<li>BUNDLE_CONTRACT（必須10ファイル）と矛盾しない</li>
+<li>自動化が Human Authority を空文化しない</li>
+</ul></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

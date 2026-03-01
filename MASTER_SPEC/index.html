@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://example.com/jarvis/MASTER_SPEC/">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>MASTER SPEC - JARVIS Research OS</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../css/brands.min.css" rel="stylesheet">
+        <link href="../css/solid.min.css" rel="stylesheet">
+        <link href="../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">JARVIS Research OS</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href="../docs/index.md" class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../docs/mcp.md" class="nav-link">MCP Hub</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../docs/browser.md" class="nav-link">Browser Agent</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../docs/skills.md" class="nav-link">Skills System</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../docs/multi_agent.md" class="nav-link">Multi-Agent</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../docs/terminal_security.md" class="nav-link">Terminal Security</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/kaneko-ai/jarvis-ml-pipeline/edit/master/docs/MASTER_SPEC.md" class="nav-link"><i class="fa-brands fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#jarvis-research-os" class="nav-link">JARVIS Research OS</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#master_specmd-v12" class="nav-link">MASTER_SPEC.md v1.2</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#0" class="nav-link">0. 基本原則（非交渉）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#1" class="nav-link">1. レイヤ構造（固定）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2-research-lifecycle" class="nav-link">2. Research Lifecycle</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#3-stage-registry" class="nav-link">3. Stage Registry（必須）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#4-plugin" class="nav-link">4. Plugin仕様（統一）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#5-quality-gates" class="nav-link">5. Quality Gates（強制）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#6-ci" class="nav-link">6. CI分離</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#7" class="nav-link">7. 禁止事項（絶対）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#8-lyra" class="nav-link">8. Lyra権限</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#9-dod" class="nav-link">9. 受け入れ基準（DoD）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#10-auxiliary-cli-subcommands-binding" class="nav-link">10. Auxiliary CLI Subcommands (Binding)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#11-result-status-vocabulary-binding" class="nav-link">11. Result Status Vocabulary (Binding)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<blockquote>
+<p>Authority: SPEC (Level 1, Binding)</p>
+</blockquote>
+<h1 id="jarvis-research-os">JARVIS Research OS</h1>
+<h1 id="master_specmd-v12">MASTER_SPEC.md v1.2</h1>
+<blockquote>
+<p><strong>強制文書</strong>: 本仕様書は全実装の最上位規約</p>
+</blockquote>
+<hr />
+<h2 id="0">0. 基本原則（非交渉）</h2>
+<h3 id="_1">実行入口（唯一）</h3>
+<table>
+<thead>
+<tr>
+<th>入口</th>
+<th>ファイル</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CLI（唯一）</strong></td>
+<td><code>jarvis_cli.py</code></td>
+<td>すべての実行はここから</td>
+</tr>
+<tr>
+<td>デモ</td>
+<td><code>main.py</code></td>
+<td>開発デモ専用（本番禁止）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>警告</strong>: jarvis_cli.py 以外からの実行は禁止</p>
+</blockquote>
+<h3 id="10">成果物契約（必須10ファイル）</h3>
+<blockquote>
+<p>DEC-006により唯一の成果物契約として確定</p>
+</blockquote>
+<p>すべてのrunは <code>logs/runs/{run_id}/</code> に以下のファイルを<strong>必ず</strong>生成する:</p>
+<table>
+<thead>
+<tr>
+<th>ファイル</th>
+<th>用途</th>
+<th>必須キー</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>input.json</code></td>
+<td>実行条件</td>
+<td>goal, query, constraints</td>
+</tr>
+<tr>
+<td><code>run_config.json</code></td>
+<td>実行設定</td>
+<td>run_id, pipeline, timestamp</td>
+</tr>
+<tr>
+<td><code>papers.jsonl</code></td>
+<td>論文メタ</td>
+<td>paper_id, title, year</td>
+</tr>
+<tr>
+<td><code>claims.jsonl</code></td>
+<td>主張</td>
+<td>claim_id, paper_id, claim_text</td>
+</tr>
+<tr>
+<td><code>evidence.jsonl</code></td>
+<td>根拠</td>
+<td>claim_id, paper_id, evidence_text, locator</td>
+</tr>
+<tr>
+<td><code>scores.json</code></td>
+<td>スコア</td>
+<td>features, rankings</td>
+</tr>
+<tr>
+<td><code>result.json</code></td>
+<td>実行結果</td>
+<td>run_id, status, answer, citations</td>
+</tr>
+<tr>
+<td><code>eval_summary.json</code></td>
+<td>評価結果</td>
+<td>gate_passed, fail_reasons, metrics</td>
+</tr>
+<tr>
+<td><code>warnings.jsonl</code></td>
+<td>警告</td>
+<td>code, message, severity</td>
+</tr>
+<tr>
+<td><code>report.md</code></td>
+<td>人間向けレポート</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Contract</strong>: 成功/失敗に関わらず10ファイル必須。欠損はシステムエラー。
+失敗時でも result.json, eval_summary.json, warnings.jsonl, report.md は必ず生成。</p>
+</blockquote>
+<h3 id="_2">成功条件（強制）</h3>
+<pre><code>status == &quot;success&quot; ⇔ gate_passed == true
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gate_passed == true</code></td>
+<td>Verifyを通過</td>
+</tr>
+<tr>
+<td><code>gate_passed == false</code></td>
+<td>status は "failed" または "needs_retry"</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>警告</strong>: Verify未実行のrunは success にならない</p>
+</blockquote>
+<h3 id="_3">三位一体</h3>
+<table>
+<thead>
+<tr>
+<th>要素</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>静的仕様</td>
+<td>YAML定義が唯一の真実</td>
+</tr>
+<tr>
+<td>動的監督</td>
+<td>Lyra Supervisorが品質保証</td>
+</tr>
+<tr>
+<td>自動評価</td>
+<td>CI/Quality Gatesが強制</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">必須条件</h3>
+<p>すべての出力は:
+- <strong>再現可能</strong> (seed固定、モデルバージョン固定)
+- <strong>根拠追跡可能</strong> (evidence_links必須)
+- <strong>評価可能</strong> (スコア・監査ログ)</p>
+<blockquote>
+<p>「動くが説明できない」「賢そうだが再現しない」→ <strong>不合格</strong></p>
+</blockquote>
+<hr />
+<h2 id="1">1. レイヤ構造（固定）</h2>
+<pre><code>Layer 0: Human Authority
+  └ 金子優（最終判断・価値定義）
+
+Layer 1: Supervisor Layer
+  └ Lyra（思考・指示・品質・乖離監査）
+
+Layer 2: Orchestration Core
+  └ JARVIS Core（契約・実行・ログ・評価）
+
+Layer 3: Worker AIs
+  ├ antigravity（設計・実装）
+  ├ codex（コード生成）
+  ├ LLM群（抽出・要約・評価）
+  └ 外部API（PubMed, UniProt, etc）
+</code></pre>
+<hr />
+<h2 id="2-research-lifecycle">2. Research Lifecycle</h2>
+<pre><code class="language-mermaid">graph LR
+    A[文献探索] --&gt; B[スクリーニング]
+    B --&gt; C[抽出]
+    C --&gt; D[要約]
+    D --&gt; E[比較]
+    E --&gt; F[評価]
+    F --&gt; G[知識化]
+    G --&gt; H[仮説生成]
+    H --&gt; I[実験設計]
+    I --&gt; J[再評価]
+    J --&gt; A
+</code></pre>
+<p>全工程を<strong>1 pipeline</strong>として閉じること。</p>
+<hr />
+<h2 id="3-stage-registry">3. Stage Registry（必須）</h2>
+<h3 id="_5">仕様</h3>
+<ul>
+<li>YAML記載の<strong>全stage</strong>が実行可能であること</li>
+<li>未登録stage = <strong>CI失敗</strong></li>
+</ul>
+<h3 id="_6">デコレータ方式</h3>
+<pre><code class="language-python">@register_stage(&quot;retrieval.query_expand&quot;)
+def stage_query_expand(context, artifacts):
+    ...  # 最小実装（provenance必須）
+</code></pre>
+<hr />
+<h2 id="4-plugin">4. Plugin仕様（統一）</h2>
+<h3 id="pluginjson">plugin.json 正式仕様</h3>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;retrieval_st&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;type&quot;: &quot;retrieval|extract|summarize|score|graph|design|ops|ui&quot;,
+  &quot;entrypoint&quot;: &quot;plugin.py:PluginClass&quot;,
+  &quot;dependencies&quot;: [],
+  &quot;hardware&quot;: {&quot;gpu_optional&quot;: true}
+}
+</code></pre>
+<blockquote>
+<p>別キーは禁止</p>
+</blockquote>
+<hr />
+<h2 id="5-quality-gates">5. Quality Gates（強制）</h2>
+<table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>閾値</th>
+<th>条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>根拠付け率</td>
+<td>≥95%</td>
+<td>全claimにevidenceあり</td>
+</tr>
+<tr>
+<td>根拠なし事実</td>
+<td>=0</td>
+<td>factにevidenceなし禁止</td>
+</tr>
+<tr>
+<td>パイプライン完走</td>
+<td>=100%</td>
+<td>途中失敗禁止</td>
+</tr>
+<tr>
+<td>再現性 Top10</td>
+<td>≥90%</td>
+<td>同一入力→同一順序</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-ci">6. CI分離</h2>
+<h3 id="cpu-ci">CPU CI</h3>
+<ul>
+<li>Stage Registry検証</li>
+<li>plugin.json検証</li>
+<li>Contract test</li>
+<li>Golden test</li>
+</ul>
+<h3 id="ml-ci">ML CI</h3>
+<ul>
+<li>Rerank/Embedding実行</li>
+<li>再現性テスト</li>
+<li>根拠率テスト</li>
+</ul>
+<hr />
+<h2 id="7">7. 禁止事項（絶対）</h2>
+<pre><code class="language-yaml"># 禁止
+|| true
+continue-on-error: true
+pass
+NotImplementedError
+空return
+try/except握り潰し
+</code></pre>
+<hr />
+<h2 id="8-lyra">8. Lyra権限</h2>
+<table>
+<thead>
+<tr>
+<th>権限</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>実装拒否権</td>
+<td>品質不足の実装を拒否</td>
+</tr>
+<tr>
+<td>再指示生成権</td>
+<td>修正指示を生成</td>
+</tr>
+<tr>
+<td>CI失敗時介入</td>
+<td>自動で診断・修正提案</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-dod">9. 受け入れ基準（DoD）</h2>
+<p>全て満たされた時のみ「達成」:</p>
+<ul>
+<li>[ ] 全stage がregistry登録済み</li>
+<li>[ ] plugin.json 単一仕様</li>
+<li>[ ] 全stage がprovenance更新</li>
+<li>[ ] CI 失敗がブロック</li>
+<li>[ ] Golden/再現性/根拠率テスト green</li>
+<li>[ ] CI failure → Lyra修正指示</li>
+</ul>
+<hr />
+<p><em>JARVIS Research OS - MASTER_SPEC v1.0</em></p>
+<hr />
+<h2 id="10-auxiliary-cli-subcommands-binding">10. Auxiliary CLI Subcommands (Binding)</h2>
+<ul>
+<li>Entry point is still <code>jarvis_cli.py</code> only.</li>
+<li>The following helper subcommands are allowed:</li>
+<li><code>papers tree</code></li>
+<li><code>papers map3d</code></li>
+<li><code>harvest watch</code></li>
+<li><code>harvest work</code></li>
+<li><code>radar run</code></li>
+<li><code>collect papers</code></li>
+<li><code>collect drive-sync</code></li>
+<li><code>market propose</code></li>
+<li>Every run from these commands must produce the required 10 bundle files via <code>BundleAssembler.build(...)</code>.</li>
+<li>Extra artifacts must be stored under <code>logs/runs/{run_id}/&lt;feature_subdir&gt;/</code>.</li>
+</ul>
+<h2 id="11-result-status-vocabulary-binding">11. Result Status Vocabulary (Binding)</h2>
+<ul>
+<li><code>result.json.status</code> is restricted to:</li>
+<li><code>success</code></li>
+<li><code>failed</code></li>
+<li><code>needs_retry</code></li>
+<li><code>partial</code>, <code>budget_exceeded</code> and similar labels must not be used in <code>result.json.status</code>.</li>
+<li>Details should be recorded in <code>eval_summary.json.fail_reasons</code> and <code>report.md</code>.</li>
+</ul>
+<h3 id="status-decision-rule">Status Decision Rule</h3>
+<ul>
+<li><code>gate_passed == true</code> -&gt; <code>status = success</code></li>
+<li><code>gate_passed == false</code> -&gt; <code>status = failed</code> or <code>needs_retry</code></li>
+<li><code>quality_report is None</code> -&gt; must not be <code>success</code> (<code>needs_retry</code> with reason <code>VERIFY_NOT_RUN</code>)</li>
+</ul></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js"></script>
+        <script src="../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

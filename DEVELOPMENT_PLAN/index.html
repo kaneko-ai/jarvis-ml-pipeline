@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://example.com/jarvis/DEVELOPMENT_PLAN/">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>DEVELOPMENT PLAN - JARVIS Research OS</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../css/brands.min.css" rel="stylesheet">
+        <link href="../css/solid.min.css" rel="stylesheet">
+        <link href="../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">JARVIS Research OS</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href="../docs/index.md" class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../docs/mcp.md" class="nav-link">MCP Hub</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../docs/browser.md" class="nav-link">Browser Agent</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../docs/skills.md" class="nav-link">Skills System</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../docs/multi_agent.md" class="nav-link">Multi-Agent</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../docs/terminal_security.md" class="nav-link">Terminal Security</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/kaneko-ai/jarvis-ml-pipeline/edit/master/docs/DEVELOPMENT_PLAN.md" class="nav-link"><i class="fa-brands fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#jarvis-research-os-v10" class="nav-link">JARVIS Research OS 開発計画書 v1.0</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#_1" class="nav-link">目次</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#_2" class="nav-link">概要</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#_6" class="nav-link">現状分析</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#_9" class="nav-link">競合比較</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#_11" class="nav-link">開発フェーズ</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#_13" class="nav-link">タスク一覧</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#_15" class="nav-link">マイルストーン</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#_16" class="nav-link">依存関係</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#_17" class="nav-link">リソース見積</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#_20" class="nav-link">次のステップ</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#_21" class="nav-link">関連ドキュメント</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<blockquote>
+<p>Authority: ROADMAP (Level 5, Non-binding)</p>
+</blockquote>
+<h1 id="jarvis-research-os-v10">JARVIS Research OS 開発計画書 v1.0</h1>
+<p><strong>作成日</strong>: 2026-01-05<br />
+<strong>対象リポジトリ</strong>: <a href="https://github.com/kaneko-ai/jarvis-ml-pipeline">kaneko-ai/jarvis-ml-pipeline</a><br />
+<strong>目標スコア</strong>: 120/100点（業界トップ水準）<br />
+<strong>計画期間</strong>: 24週間（6ヶ月）</p>
+<hr />
+<h2 id="_1">目次</h2>
+<ol>
+<li><a href="#概要">概要</a></li>
+<li><a href="#現状分析">現状分析</a></li>
+<li><a href="#競合比較">競合比較</a></li>
+<li><a href="#開発フェーズ">開発フェーズ</a></li>
+<li><a href="#タスク一覧">タスク一覧</a></li>
+<li><a href="#マイルストーン">マイルストーン</a></li>
+<li><a href="#依存関係">依存関係</a></li>
+<li><a href="#リソース見積">リソース見積</a></li>
+</ol>
+<hr />
+<h2 id="_2">概要</h2>
+<h3 id="_3">ビジョン</h3>
+<p><strong>「研究の再現性を保証する唯一のOSS」</strong> として、学術研究支援AIツール市場でトップの地位を確立する。</p>
+<h3 id="_4">戦略的ポジショニング</h3>
+<pre><code>                    高い再現性・品質保証
+                           ↑
+                           │
+        ┌──────────────────┼──────────────────┐
+        │                  │                  │
+        │    【空白領域】   │    JARVIS        │
+        │    ここを狙う     │    目標位置      │
+        │                  │     ★           │
+商用SaaS ←─────────────────┼──────────────────→ OSS
+        │                  │                  │
+        │   Elicit        │    PaperQA2      │
+        │   Consensus     │    ASReview      │
+        │   scite         │                  │
+        └──────────────────┼──────────────────┘
+                           │
+                           ↓
+                    低い再現性・品質保証
+</code></pre>
+<h3 id="_5">差別化要因</h3>
+<table>
+<thead>
+<tr>
+<th>要因</th>
+<th>JARVIS</th>
+<th>Elicit</th>
+<th>PaperQA2</th>
+<th>Rayyan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>品質ゲート4層</td>
+<td>◎</td>
+<td>△</td>
+<td>△</td>
+<td>○</td>
+</tr>
+<tr>
+<td>仕様権威階層</td>
+<td>◎</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>10ファイルBundle契約</td>
+<td>◎</td>
+<td>❌</td>
+<td>○</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>完全OSS</td>
+<td>◎</td>
+<td>❌</td>
+<td>◎</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>PRISMA準拠</td>
+<td>△→◎</td>
+<td>△</td>
+<td>❌</td>
+<td>◎</td>
+</tr>
+<tr>
+<td>Evidence評価</td>
+<td>△→◎</td>
+<td>◎</td>
+<td>◎</td>
+<td>△</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_6">現状分析</h2>
+<h3 id="803100">現在スコア: 80.3/100点</h3>
+<table>
+<thead>
+<tr>
+<th>評価項目</th>
+<th>現在</th>
+<th>目標</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>アーキテクチャ設計</td>
+<td>88</td>
+<td>100+</td>
+</tr>
+<tr>
+<td>コード品質</td>
+<td>82</td>
+<td>100+</td>
+</tr>
+<tr>
+<td>ドキュメント</td>
+<td>95</td>
+<td>100+</td>
+</tr>
+<tr>
+<td>テスト・CI/CD</td>
+<td>78</td>
+<td>100+</td>
+</tr>
+<tr>
+<td>セキュリティ</td>
+<td>75</td>
+<td>100+</td>
+</tr>
+<tr>
+<td>再現性・品質保証</td>
+<td>90</td>
+<td>100+</td>
+</tr>
+<tr>
+<td>ユーザビリティ</td>
+<td>72</td>
+<td>100+</td>
+</tr>
+<tr>
+<td>拡張性</td>
+<td>85</td>
+<td>100+</td>
+</tr>
+<tr>
+<td>運用・監視</td>
+<td>70</td>
+<td>100+</td>
+</tr>
+<tr>
+<td>コミュニティ・OSS対応</td>
+<td>68</td>
+<td>100+</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">強み（維持・強化）</h3>
+<ul>
+<li>docs/SPEC_AUTHORITY.md による仕様権威階層</li>
+<li>10ファイルBundle契約</li>
+<li>QualityGateVerifier 4層品質ゲート</li>
+<li>Pipeline as Config (YAML定義)</li>
+<li>Feedback Risk Model</li>
+</ul>
+<h3 id="_8">弱み（改善対象）</h3>
+<ul>
+<li>論文DB規模（PubMedのみ→138M+論文）</li>
+<li>Evidence強度評価（未実装→scite相当）</li>
+<li>引用ネットワーク可視化（未実装）</li>
+<li>Multi-LLM対応（限定的→全プロバイダ）</li>
+<li>系統的レビュー対応（未実装→PRISMA準拠）</li>
+</ul>
+<hr />
+<h2 id="_9">競合比較</h2>
+<h3 id="_10">機能マトリクス</h3>
+<table>
+<thead>
+<tr>
+<th>機能</th>
+<th>JARVIS</th>
+<th>Elicit</th>
+<th>Consensus</th>
+<th>PaperQA2</th>
+<th>scite</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>論文DB規模</td>
+<td>PubMed</td>
+<td>138M</td>
+<td>220M</td>
+<td>ユーザー提供</td>
+<td>15億引用</td>
+</tr>
+<tr>
+<td>要約生成</td>
+<td>○</td>
+<td>◎</td>
+<td>◎</td>
+<td>◎</td>
+<td>○</td>
+</tr>
+<tr>
+<td>Evidence強度</td>
+<td>△</td>
+<td>◎</td>
+<td>◎</td>
+<td>◎</td>
+<td>◎</td>
+</tr>
+<tr>
+<td>引用ネットワーク</td>
+<td>❌</td>
+<td>○</td>
+<td>△</td>
+<td>△</td>
+<td>◎</td>
+</tr>
+<tr>
+<td>Contradiction検出</td>
+<td>❌</td>
+<td>△</td>
+<td>○</td>
+<td>◎</td>
+<td>◎</td>
+</tr>
+<tr>
+<td>品質ゲート</td>
+<td>◎</td>
+<td>△</td>
+<td>△</td>
+<td>△</td>
+<td>△</td>
+</tr>
+<tr>
+<td>オフライン動作</td>
+<td>◎</td>
+<td>❌</td>
+<td>❌</td>
+<td>◎</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>OSS</td>
+<td>◎</td>
+<td>❌</td>
+<td>❌</td>
+<td>◎</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>価格</td>
+<td>無料</td>
+<td>$49/月</td>
+<td>$65/月</td>
+<td>無料</td>
+<td>$20/月</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_11">開発フェーズ</h2>
+<h3 id="_12">全体構造</h3>
+<pre><code>Phase 1: 基盤強化 (Week 1-8)
+├── Sprint 1-2: テスト・品質基盤
+├── Sprint 3-4: Multi-LLM・データソース統合
+├── Sprint 5-6: CLI/UX改善
+└── Sprint 7-8: ドキュメント・配布
+
+Phase 2: 差別化機能 (Week 9-16)
+├── Sprint 9-10: Evidence評価システム
+├── Sprint 11-12: 引用分析・可視化
+├── Sprint 13-14: 系統的レビュー対応
+└── Sprint 15-16: マルチモーダル解析
+
+Phase 3: 市場制覇 (Week 17-24)
+├── Sprint 17-18: AI高度化
+├── Sprint 19-20: レポート・統合
+├── Sprint 21-22: 運用・監視
+└── Sprint 23-24: コラボレーション・最終統合
+</code></pre>
+<h3 id="phase">Phase別目標スコア</h3>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>期間</th>
+<th>目標スコア</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 1完了</td>
+<td>Week 8</td>
+<td>88/100</td>
+</tr>
+<tr>
+<td>Phase 2完了</td>
+<td>Week 16</td>
+<td>103/100</td>
+</tr>
+<tr>
+<td>Phase 3完了</td>
+<td>Week 24</td>
+<td>120/100</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_13">タスク一覧</h2>
+<p>詳細は以下のファイルを参照:</p>
+<ul>
+<li><a href="../tasks/PHASE1_TASKS/">Phase 1 タスク詳細</a></li>
+<li><a href="../tasks/PHASE2_TASKS/">Phase 2 タスク詳細</a></li>
+<li><a href="../tasks/PHASE3_TASKS/">Phase 3 タスク詳細</a></li>
+</ul>
+<h3 id="_14">サマリー</h3>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Task数</th>
+<th>SubTask数</th>
+<th>推定工数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 1</td>
+<td>13</td>
+<td>89</td>
+<td>320h</td>
+</tr>
+<tr>
+<td>Phase 2</td>
+<td>7</td>
+<td>57</td>
+<td>280h</td>
+</tr>
+<tr>
+<td>Phase 3</td>
+<td>9</td>
+<td>62</td>
+<td>300h</td>
+</tr>
+<tr>
+<td><strong>合計</strong></td>
+<td><strong>29</strong></td>
+<td><strong>208</strong></td>
+<td><strong>900h</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_15">マイルストーン</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>マイルストーン</th>
+<th>週</th>
+<th>達成基準</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M1</td>
+<td>基盤完成</td>
+<td>Week 8</td>
+<td>E2E通過、Multi-LLM対応、3データソース統合</td>
+</tr>
+<tr>
+<td>M2</td>
+<td>差別化完成</td>
+<td>Week 16</td>
+<td>Evidence評価、引用分析、PRISMA対応</td>
+</tr>
+<tr>
+<td>M3</td>
+<td>v1.0リリース</td>
+<td>Week 24</td>
+<td>全機能統合、ドキュメント完備、PyPI公開</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_16">依存関係</h2>
+<pre><code class="language-mermaid">graph TD
+    T1_1[Task 1.1: E2Eテスト] --&gt; T1_5[Task 1.5: LiteLLM]
+    T1_2[Task 1.2: Lint強化] --&gt; T1_5
+    T1_5 --&gt; T2_1[Task 2.1: Evidence評価]
+    T1_6[Task 1.6: Semantic Scholar] --&gt; T2_1
+    T1_7[Task 1.7: arXiv] --&gt; T2_1
+
+    T2_1 --&gt; T2_4[Task 2.4: Contradiction]
+    T2_1 --&gt; T3_1[Task 3.1: Active Learning]
+
+    T2_2[Task 2.2: Support/Contrast] --&gt; T2_3[Task 2.3: 引用グラフ]
+    T2_5[Task 2.5: PRISMA] --&gt; T2_6[Task 2.6: PICO]
+    T2_6 --&gt; T3_3[Task 3.3: レポート生成]
+
+    T1_9[Task 1.9: Rich CLI] --&gt; T3_2[Task 3.2: Deep Chat]
+
+    T3_6[Task 3.6: OTEL] --&gt; T3_7[Task 3.7: Cost Dashboard]
+    T3_8[Task 3.8: コラボ] --&gt; T3_9[Task 3.9: 最終統合]
+
+    T1_1 --&gt; T3_9
+    T2_7[Task 2.7: マルチモーダル] --&gt; T3_9
+    T3_3 --&gt; T3_9
+</code></pre>
+<hr />
+<h2 id="_17">リソース見積</h2>
+<h3 id="_18">工数配分</h3>
+<table>
+<thead>
+<tr>
+<th>カテゴリ</th>
+<th>工数</th>
+<th>割合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>実装</td>
+<td>600h</td>
+<td>67%</td>
+</tr>
+<tr>
+<td>テスト</td>
+<td>150h</td>
+<td>17%</td>
+</tr>
+<tr>
+<td>ドキュメント</td>
+<td>100h</td>
+<td>11%</td>
+</tr>
+<tr>
+<td>レビュー・調整</td>
+<td>50h</td>
+<td>5%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_19">技術スタック追加</h3>
+<table>
+<thead>
+<tr>
+<th>技術</th>
+<th>用途</th>
+<th>Phase</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LiteLLM</td>
+<td>Multi-LLM対応</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Rich/Typer</td>
+<td>CLI改善</td>
+<td>1</td>
+</tr>
+<tr>
+<td>NetworkX</td>
+<td>引用グラフ</td>
+<td>2</td>
+</tr>
+<tr>
+<td>OpenTelemetry</td>
+<td>可観測性</td>
+<td>3</td>
+</tr>
+<tr>
+<td>FastAPI WebSocket</td>
+<td>リアルタイム</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_20">次のステップ</h2>
+<ol>
+<li>このドキュメントをチームでレビュー</li>
+<li><a href="../tasks/PHASE1_TASKS/">Phase 1 タスク</a> から着手</li>
+<li>週次で進捗を docs/DECISIONS.md に記録</li>
+<li>マイルストーン毎にスコア再評価</li>
+</ol>
+<hr />
+<h2 id="_21">関連ドキュメント</h2>
+<p>docs/SPEC_AUTHORITY.md - 仕様権威階層（正本）</p>
+<p>docs/BUNDLE_CONTRACT.md - 成果物契約（正本）</p>
+<p>docs/DoD.md - 完了定義（正本）</p>
+<p>docs/DECISIONS.md - 決定記録（正本）</p>
+<p>docs/tasks/PHASE1_TASKS.md</p>
+<p>docs/tasks/PHASE2_TASKS.md</p>
+<p>docs/tasks/PHASE3_TASKS.md</p>
+<p>docs/PLANS/FEATURE_SPEC_PACK_v1.md - 追加機能SPEC Pack（正本）</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js"></script>
+        <script src="../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

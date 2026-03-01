@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://example.com/jarvis/HUMAN_TASKS_PLAYBOOK_2026-02-12/">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>HUMAN TASKS PLAYBOOK 2026 02 12 - JARVIS Research OS</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../css/brands.min.css" rel="stylesheet">
+        <link href="../css/solid.min.css" rel="stylesheet">
+        <link href="../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">JARVIS Research OS</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href="../docs/index.md" class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../docs/mcp.md" class="nav-link">MCP Hub</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../docs/browser.md" class="nav-link">Browser Agent</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../docs/skills.md" class="nav-link">Skills System</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../docs/multi_agent.md" class="nav-link">Multi-Agent</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../docs/terminal_security.md" class="nav-link">Terminal Security</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/kaneko-ai/jarvis-ml-pipeline/edit/master/docs/HUMAN_TASKS_PLAYBOOK_2026-02-12.md" class="nav-link"><i class="fa-brands fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#human-tasks-playbook-2026-02-13" class="nav-link">Human Tasks Playbook (2026-02-13)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#_1" class="nav-link">目的</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#_2" class="nav-link">進捗サマリー</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#a" class="nav-link">段階実装A（反映済み）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#b" class="nav-link">段階実装B（反映済み）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#c" class="nav-link">段階実装C（今回反映）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#run_configextraops_extract" class="nav-link">設定キー（run_config.extra.ops_extract）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#ops_extract" class="nav-link">成果物（ops_extract）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2026-02-13" class="nav-link">テスト結果（2026-02-13）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2026-02-13_1" class="nav-link">静的チェック・ビルド（2026-02-13）</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#_5" class="nav-link">次段候補</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#_6" class="nav-link">補足</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#proof-driven-v20" class="nav-link">Proof-Driven v2.0 実装ログ</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<blockquote>
+<p>Authority: ROADMAP (Level 5, Non-binding)</p>
+</blockquote>
+<h1 id="human-tasks-playbook-2026-02-13">Human Tasks Playbook (2026-02-13)</h1>
+<h2 id="_1">目的</h2>
+<ul>
+<li>Ops+Extract の実装状況を 2026-02-13 時点で整理する。</li>
+<li>docs 配下の md を 5 ファイル構成で維持する。</li>
+</ul>
+<h2 id="_2">進捗サマリー</h2>
+<ul>
+<li>ランディングページ刷新、SEO、OGP/Favicon 整備は別ブランチで進行済み。</li>
+<li>Ops+Extract は段階実装A/Bに続き、段階実装Cまで反映済み。</li>
+</ul>
+<h2 id="a">段階実装A（反映済み）</h2>
+<ul>
+<li>needs_ocr 判定</li>
+<li>YomiToku CLI 経路</li>
+<li><code>manifest.json</code> / <code>metrics.json</code> / <code>failure_analysis.json</code> 出力</li>
+<li><code>run_task</code> の <code>ops_extract</code> 経路分岐（LLM初期化スキップ）</li>
+</ul>
+<h2 id="b">段階実装B（反映済み）</h2>
+<ul>
+<li>preflight チェック（入力存在、ディスク空き、Drive認証、lessons ルール反映）</li>
+<li>failure learning（<code>knowledge/failures/lessons_learned.md</code> 追記 + ロック制御）</li>
+<li>Drive 同期雛形（<code>sync_state.json</code>）</li>
+<li>retention（<code>_trash_candidates</code> への移動と期限削除）</li>
+</ul>
+<h2 id="c">段階実装C（今回反映）</h2>
+<h3 id="c1-drive-commit">C1: Drive同期の commit 方式</h3>
+<ul>
+<li><code>manifest.json</code> を Drive 同期の最終ステップとして扱う構成へ更新。</li>
+<li>同期時に draft (<code>committed=false</code>) と final (<code>committed=true</code>) を分けて処理。</li>
+<li><code>metrics.ops.manifest_committed_drive</code> と <code>manifest.ops.sync_state</code> を同期結果で更新。</li>
+</ul>
+<h3 id="c2-retry-resume">C2: retry / resume 強化</h3>
+<ul>
+<li><code>sync_state.json</code> を拡張。</li>
+<li><code>version</code>, <code>state</code>, <code>uploaded_files</code>, <code>pending_files</code>, <code>failed_files</code>, <code>retries</code>, <code>resume_count</code>, <code>last_error</code>, <code>manifest_committed_drive</code>, <code>last_attempt_at</code>, <code>committed_at</code></li>
+<li>既存 <code>sync_state.json</code> を読み込んで再開し、<code>path + size + sha256</code> 一致ファイルは再送対象から除外。</li>
+<li><code>failed_files</code> がある場合は失敗対象を優先して再送。</li>
+<li>指数バックオフ付き再試行（<code>retry_backoff_sec * 2^n</code>）を反映。</li>
+</ul>
+<h3 id="c3-parse-ocr-upload">C3: parse / ocr / upload 並列化</h3>
+<ul>
+<li>parse を <code>parse_workers</code> で並列化。</li>
+<li>OCR を <code>ocr_workers</code> で並列化。</li>
+<li>upload は <code>upload_workers</code> を維持して Drive 側で並列処理。</li>
+<li>入力順保持のため <code>doc_index</code> で最終整列。</li>
+<li>ワーカースレッド内で <code>RobustPDFExtractor</code> / <code>TextNormalizer</code> を都度生成。</li>
+</ul>
+<h3 id="c4-lessons-preflight">C4: lessons / preflight ルール粒度調整</h3>
+<ul>
+<li>lessons の <code>block_rule</code> を <code>hard:&lt;rule&gt;</code> / <code>warn:&lt;rule&gt;</code> 形式で解釈可能に拡張。</li>
+<li>既存形式（prefixなし）は <code>hard</code> として扱う。</li>
+<li><code>preflight.rule_mode=warn</code> で hard 失敗を warning 側へ降格。</li>
+<li>OCR要件判定後に <code>check_yomitoku_available</code> を再評価する二段チェックを追加。</li>
+<li>preflight 詳細（checks/errors/warnings）を <code>run_metadata.json.preflight</code> に保存。</li>
+</ul>
+<h3 id="c5-retention">C5: retention 調整</h3>
+<ul>
+<li><code>max_delete_per_run</code> を追加。</li>
+<li><code>dry_run</code> 時は移動/削除を行わず、差分のみ返す。</li>
+<li><code>pinned=true</code> run を保持対象として扱う。</li>
+</ul>
+<h2 id="run_configextraops_extract">設定キー（run_config.extra.ops_extract）</h2>
+<ul>
+<li>既存キー</li>
+<li><code>enabled</code>, <code>parse_workers</code>, <code>ocr_workers</code>, <code>upload_workers</code></li>
+<li><code>thresholds.min_total_chars</code>, <code>thresholds.min_chars_per_page</code>, <code>thresholds.empty_page_ratio_threshold</code></li>
+<li><code>yomitoku.mode</code>, <code>yomitoku.figure</code></li>
+<li><code>sync.enabled</code>, <code>sync.dry_run</code></li>
+<li><code>drive.access_token</code>, <code>drive.folder_id</code></li>
+<li><code>lessons_path</code>, <code>stop_on_preflight_failure</code>, <code>min_disk_free_gb</code></li>
+<li>段階実装Cで追加</li>
+<li><code>sync.max_retries</code>, <code>sync.retry_backoff_sec</code>, <code>sync.verify_sha256</code></li>
+<li><code>preflight.rule_mode</code> (<code>strict</code> or <code>warn</code>)</li>
+<li><code>retention.failed_days</code>, <code>retention.success_days</code>, <code>retention.trash_days</code>, <code>retention.max_delete_per_run</code>, <code>retention.dry_run</code></li>
+</ul>
+<h2 id="ops_extract">成果物（ops_extract）</h2>
+<h3 id="_3">既存契約</h3>
+<ul>
+<li>既存 10 ファイル契約は維持。</li>
+<li><code>warnings.jsonl</code> は継続利用。</li>
+</ul>
+<h3 id="_4">追加成果物</h3>
+<ul>
+<li><code>manifest.json</code></li>
+<li><code>run_metadata.json</code></li>
+<li><code>metrics.json</code></li>
+<li><code>warnings.json</code></li>
+<li><code>failure_analysis.json</code></li>
+<li><code>sync_state.json</code></li>
+<li><code>ingestion/text.md</code></li>
+<li><code>ingestion/text_source.json</code></li>
+<li><code>ocr/ocr_meta.json</code>（OCR 経路時）</li>
+</ul>
+<h2 id="2026-02-13">テスト結果（2026-02-13）</h2>
+<ul>
+<li><code>uv run pytest -q tests/ops_extract tests/test_run_task_ops_extract_mode.py tests/sync/test_queue.py tests/sync/test_auto_sync.py tests/test_validate_bundle.py</code></li>
+<li>47 passed</li>
+<li><code>uv run pytest -q</code></li>
+<li>6426 passed, 468 skipped, 1 skipped(collection)</li>
+</ul>
+<h2 id="2026-02-13_1">静的チェック・ビルド（2026-02-13）</h2>
+<ul>
+<li><code>uv run ruff check jarvis_core tests</code> pass</li>
+<li><code>uv run black --check jarvis_core tests</code> pass</li>
+<li><code>uv run mypy --explicit-package-bases --follow-imports=skip jarvis_core/evidence/ jarvis_core/contradiction/ jarvis_core/citation/ jarvis_core/sources/ --ignore-missing-imports</code> pass</li>
+<li><code>python tools/spec_lint.py</code> pass</li>
+<li><code>uv build</code> pass</li>
+</ul>
+<h2 id="_5">次段候補</h2>
+<ul>
+<li>Drive 側 file_id 管理を強化して差分同期を細分化する。</li>
+<li>preflight と lessons の運用ルールを実運用データで調整する。</li>
+<li>retention の運用値を run 数に合わせて再調整する。</li>
+</ul>
+<h2 id="_6">補足</h2>
+<ul>
+<li>ファイル名 <code>docs/HUMAN_TASKS_PLAYBOOK_2026-02-12.md</code> は既存スクリプト参照のため継続。</li>
+</ul>
+<h2 id="proof-driven-v20">Proof-Driven v2.0 実装ログ</h2>
+<h3 id="_7">ログ運用テンプレート</h3>
+<ul>
+<li>日時</li>
+<li>段階名</li>
+<li>実装差分</li>
+<li>実行コマンド</li>
+<li>結果（成功/失敗、件数）</li>
+<li>学習・再発防止</li>
+<li>次段の着手条件</li>
+</ul>
+<h3 id="2026-02-13-stage-1">2026-02-13 / Stage 1: 計画書とログ運用開始</h3>
+<ul>
+<li>日時</li>
+<li>2026-02-13</li>
+<li>段階名</li>
+<li>Stage 1: 計画書MD作成とログ運用開始</li>
+<li>実装差分</li>
+<li><code>docs/PLANS/JAVIS_OPS_EXTRACT_PROOF_DRIVEN_PLAN_V2.md</code> を追加</li>
+<li>本ファイルに <code>Proof-Driven v2.0 実装ログ</code> セクションを追加</li>
+<li>実行コマンド</li>
+<li><code>uv run pytest -q tests/ops_extract tests/test_run_task_ops_extract_mode.py tests/sync/test_queue.py tests/sync/test_auto_sync.py tests/test_validate_bundle.py</code></li>
+<li><code>uv run pytest -q</code></li>
+<li><code>uv run ruff check jarvis_core tests</code></li>
+<li><code>uv run black --check jarvis_core tests</code></li>
+<li><code>uv run mypy --explicit-package-bases --follow-imports=skip jarvis_core/evidence/ jarvis_core/contradiction/ jarvis_core/citation/ jarvis_core/sources/ --ignore-missing-imports</code></li>
+<li><code>uv build</code></li>
+<li>結果（成功/失敗、件数）</li>
+<li>成功: <code>47 passed</code>（ops_extract 関連）</li>
+<li>成功: <code>6426 passed, 468 skipped</code>（全体）</li>
+<li>成功: ruff / black / mypy / build</li>
+<li>学習・再発防止</li>
+<li>既存実装は段階Cまで安定しており、以後は証明系ゲート追加を中心に進めると差分管理しやすい</li>
+<li>次段の着手条件</li>
+<li>No-Stub Gate の実装と CI 連携、単体テスト追加</li>
+</ul>
+<h3 id="2026-02-13-stage-2-no-stub-gate">2026-02-13 / Stage 2: No-Stub Gate</h3>
+<ul>
+<li>日時</li>
+<li>2026-02-13</li>
+<li>段階名</li>
+<li>Stage 2: No-Stub quality gate の導入</li>
+<li>実装差分</li>
+<li><code>scripts/no_stub_gate.py</code> を追加（TODO/FIXME、pass-only、return定数、dummy id、<code>ok:true</code> を検知）</li>
+<li><code>configs/no_stub_allowlist.txt</code> を追加（<code>path_glob|code|line|reason</code> 形式）</li>
+<li><code>.pre-commit-config.yaml</code> に <code>no-stub-gate</code> ローカルフックを追加</li>
+<li><code>.github/workflows/ci.yml</code> の lint job に no-stub 実行ステップを追加</li>
+<li><code>tests/quality/test_no_stub_gate.py</code> を追加</li>
+<li>実行コマンド</li>
+<li><code>uv run pytest -q tests/quality/test_no_stub_gate.py</code></li>
+<li><code>uv run python scripts/no_stub_gate.py --paths jarvis_core/ops_extract</code></li>
+<li>結果（成功/失敗、件数）</li>
+<li>成功: <code>5 passed</code></li>
+<li>成功: <code>NO_STUB_GATE: PASS</code></li>
+<li>学習・再発防止</li>
+<li>リポジトリ全体には既存 TODO が多いため、最初は <code>jarvis_core/ops_extract</code> 範囲で運用を開始すると段階導入しやすい</li>
+<li>次段の着手条件</li>
+<li>ops_extract 契約用 JSON Schema と validator 実装、契約テスト追加</li>
+</ul>
+<h3 id="2026-02-13-stage-3-contractjson-schema-contract-test">2026-02-13 / Stage 3: Contract固定（JSON Schema + Contract Test）</h3>
+<ul>
+<li>日時</li>
+<li>2026-02-13</li>
+<li>段階名</li>
+<li>Stage 3: 契約スキーマ固定と検証導線の実装</li>
+<li>実装差分</li>
+<li><code>schemas/ops_extract/</code> を追加し、<code>manifest/metrics/warnings/failure_analysis/run_metadata/sync_state/trace/stage_cache</code> の8スキーマを追加</li>
+<li><code>jarvis_core/ops_extract/schema_validate.py</code> を追加し、JSON Schemaベースの検証APIを実装</li>
+<li><code>scripts/validate_ops_extract_contracts.py</code> を追加し、run directory単位で契約検証できるCLIを追加</li>
+<li><code>jarvis_core/ops_extract/orchestrator.py</code> / <code>jarvis_core/ops_extract/drive_sync.py</code> / <code>jarvis_core/ops_extract/manifest.py</code> / <code>jarvis_core/ops_extract/metrics.py</code> / <code>jarvis_core/ops_extract/failure_analysis.py</code> に <code>schema_version</code> と互換キーを反映</li>
+<li><code>tests/ops_extract/test_contract_schemas.py</code> を追加</li>
+<li><code>pyproject.toml</code> に <code>jsonschema</code> 依存を追加し <code>uv.lock</code> を更新</li>
+<li>実行コマンド</li>
+<li><code>uv lock</code></li>
+<li><code>uv run pytest -q tests/ops_extract/test_contract_schemas.py tests/ops_extract/test_metrics_manifest.py tests/ops_extract/test_ops_extract_orchestrator.py tests/ops_extract/test_sync_resume_commit.py</code></li>
+<li>結果（成功/失敗、件数）</li>
+<li>成功: <code>14 passed</code></li>
+<li>成功: contract schema validator と既存ops_extract主要テストが共存</li>
+<li>学習・再発防止</li>
+<li>スキーマ導入時は既存互換キー（<code>version</code> / <code>committed</code>）を残しつつ <code>schema_version</code> を追加すると破壊的変更を避けられる</li>
+<li>JSONL（<code>trace.jsonl</code>）は単一オブジェクトschemaを行単位で検証する実装が運用しやすい</li>
+<li>次段の着手条件</li>
+<li>DAG固定stage ID、<code>trace.jsonl</code> 実出力、失敗時 <code>crash_dump.json</code> を追加して成功・失敗双方で契約検証できること</li>
+</ul>
+<h3 id="2026-02-13-stage-4-dag-trace-crash-dump">2026-02-13 / Stage 4: DAG固定 + Trace + Crash Dump</h3>
+<ul>
+<li>日時</li>
+<li>2026-02-13</li>
+<li>段階名</li>
+<li>Stage 4: stage ID固定、<code>trace.jsonl</code>、<code>crash_dump.json</code> 導入</li>
+<li>実装差分</li>
+<li><code>jarvis_core/ops_extract/orchestrator.py</code> に固定stage ID（<code>preflight</code> 〜 <code>retention_mark</code>）を実装</li>
+<li>各stageの <code>start_ts/end_ts/duration/inputs(outputs+sha256)/retry_count/error</code> を <code>trace.jsonl</code> に記録</li>
+<li>stage未実行時も <code>error=skipped</code> で埋めて、1run=1trace の整形を保証</li>
+<li>失敗時に <code>crash_dump.json</code>（OS/Python/deps/GPU/disk/locale）を出力</li>
+<li><code>contracts.py</code> で <code>trace.jsonl</code> を optional artifact に追加</li>
+<li><code>tests/ops_extract/test_trace_contract.py</code>, <code>tests/ops_extract/test_crash_dump.py</code> を追加</li>
+<li>実行コマンド</li>
+<li><code>uv run pytest -q tests/ops_extract/test_trace_contract.py tests/ops_extract/test_crash_dump.py tests/ops_extract/test_ops_extract_orchestrator.py tests/ops_extract/test_parallel_pipeline.py tests/test_run_task_ops_extract_mode.py</code></li>
+<li>結果（成功/失敗、件数）</li>
+<li>成功: <code>12 passed</code></li>
+<li>学習・再発防止</li>
+<li>traceは「実行されたstage」だけでなく「未実行stage」の理由（<code>skipped</code>）も残すと後段の原因分析が速い</li>
+<li>crash dumpは失敗時のみ書き込むことで通常runのノイズを抑えつつ調査情報を確保できる</li>
+<li>次段の着手条件</li>
+<li><code>pdf_diagnosis</code> 出力、needs_ocr複合判定、正規化ハッシュ、図表抽出best-effort契約を追加してテスト固定</li>
+</ul>
+<h3 id="2026-02-13-stage-5-extractdiagnosisocr">2026-02-13 / Stage 5: Extract強化（Diagnosis/OCR判定/正規化証跡）</h3>
+<ul>
+<li>日時</li>
+<li>2026-02-13</li>
+<li>段階名</li>
+<li>Stage 5: <code>pdf_diagnosis</code> + <code>needs_ocr</code> 複合指標 + hash証跡</li>
+<li>実装差分</li>
+<li><code>jarvis_core/ops_extract/pdf_diagnosis.py</code> を追加し <code>text-embedded/image-only/hybrid/encrypted/corrupted</code> 判定を実装</li>
+<li><code>orchestrator.py</code> で <code>ingestion/pdf_diagnosis.json</code> を常時出力（失敗時も空構造で作成）</li>
+<li><code>needs_ocr.py</code> を拡張し <code>unicode_category_distribution</code> と <code>extraction_exceptions</code>（<code>parser_fail/encoding_fail</code>）を判定材料へ追加</li>
+<li><code>orchestrator.py</code> の OCRメタを <code>engine_version/args/timings/per_page_stats</code> 付きに拡張</li>
+<li>正規化前後のハッシュを <code>metrics.extract.raw_text_sha256 / normalized_text_sha256</code> に保存</li>
+<li>図表抽出は best-effort 契約として <code>FIGURE_TABLE_EXTRACTION</code> warning に <code>success/failed/not_supported</code> を必ず記録</li>
+<li><code>contracts.py</code> に <code>ingestion/pdf_diagnosis.json</code> を optional artifact として追加</li>
+<li>新規テスト: <code>tests/ops_extract/test_pdf_diagnosis.py</code>, <code>tests/ops_extract/test_normalization_hashes.py</code></li>
+<li>既存 <code>tests/ops_extract/test_needs_ocr.py</code> を拡張</li>
+<li>実行コマンド</li>
+<li><code>uv run pytest -q tests/ops_extract/test_pdf_diagnosis.py tests/ops_extract/test_needs_ocr.py tests/ops_extract/test_normalization_hashes.py tests/ops_extract/test_ops_extract_orchestrator.py tests/ops_extract/test_trace_contract.py</code></li>
+<li>結果（成功/失敗、件数）</li>
+<li>成功: <code>19 passed</code></li>
+<li>学習・再発防止</li>
+<li>OCR判定は閾値だけだと誤判定が残るため、例外種別と文字種分布を併用した方が失敗要因をwarningsへ説明可能</li>
+<li>失敗時でも <code>pdf_diagnosis.json</code> を必ず生成しておくと後続の契約検証が安定する</li>
+<li>次段の着手条件</li>
+<li><code>stage_cache.json</code> を導入して hash一致skip / 不一致再計算 (<code>RECOMPUTED</code>) を実装し、determinismテストを追加</li>
+</ul>
+<h3 id="2026-02-13-stage-6-resumedeterminism">2026-02-13 / Stage 6: Resume/Determinism（重複処理防止）</h3>
+<ul>
+<li>日時</li>
+<li>2026-02-13</li>
+<li>段階名</li>
+<li>Stage 6: <code>stage_cache.json</code> と determinism 証明</li>
+<li>実装差分</li>
+<li><code>jarvis_core/ops_extract/stage_cache.py</code> を追加し、<code>input_hash</code>・<code>outputs(sha256)</code>・<code>status</code>・<code>updated_at</code> を管理</li>
+<li><code>orchestrator.py</code> の <code>normalize_text</code> stageで cache判定を実装<ul>
+<li>hash一致 + 出力hash一致で skip</li>
+<li>不一致時は再計算し <code>RECOMPUTED</code> warning を記録</li>
+</ul>
+</li>
+<li><code>stage_cache.json</code> を run成果物として常時出力</li>
+<li>fixed-timeモード（<code>JARVIS_OPS_EXTRACT_FIXED_TIME</code>）を <code>orchestrator</code> / <code>drive_sync</code> / <code>failure_analysis</code> に導入し、再現性テストを安定化</li>
+<li><code>drive_sync.py</code> の同期対象に <code>trace.jsonl</code>, <code>stage_cache.json</code>, <code>ingestion/pdf_diagnosis.json</code> を追加</li>
+<li>新規テスト: <code>tests/ops_extract/test_stage_cache_resume.py</code>, <code>tests/ops_extract/test_ops_extract_determinism.py</code></li>
+<li>実行コマンド</li>
+<li><code>uv run pytest -q tests/ops_extract/test_stage_cache_resume.py tests/ops_extract/test_ops_extract_determinism.py tests/ops_extract/test_contract_schemas.py tests/ops_extract/test_trace_contract.py tests/ops_extract/test_ops_extract_orchestrator.py</code></li>
+<li>結果（成功/失敗、件数）</li>
+<li>成功: <code>11 passed</code></li>
+<li>学習・再発防止</li>
+<li>stage cacheは「入力hash一致」だけでは不十分で、出力hashの照合まで入れると壊れたキャッシュを回避できる</li>
+<li>determinismは時刻固定だけでなく run_duration/trace duration を0化する実装が必要</li>
+<li>次段の着手条件</li>
+<li>Drive同期を resumable upload 対応 client に切り替え、<code>sync_state v2</code> と二段階commitをエミュレータテストで証明する</li>
+</ul>
+<h3 id="2026-02-13-stage-7-driveresumable-commit-protocol">2026-02-13 / Stage 7: Drive同期（resumable + commit protocol）</h3>
+<ul>
+<li>日時</li>
+<li>2026-02-13</li>
+<li>段階名</li>
+<li>Stage 7: ops_extract専用 Drive client と <code>sync_state v2</code></li>
+<li>実装差分</li>
+<li><code>jarvis_core/ops_extract/drive_client.py</code> を追加し resumable upload client（Google互換/エミュレータ両対応）を実装</li>
+<li><code>drive_sync.py</code> を <code>DriveResumableClient</code> 利用へ切替<ul>
+<li>追加引数: <code>api_base_url</code>, <code>upload_base_url</code>, <code>chunk_bytes</code>, <code>resume_token</code></li>
+<li><code>uploaded_files[]</code> に <code>file_id/session_uri/verified/attempts</code> を保持</li>
+<li>二段階commit（manifest draft→final）を維持</li>
+<li>失敗ファイル優先の再開ロジックを「優先順のみ」に修正（他pendingも取りこぼさない）</li>
+</ul>
+</li>
+<li><code>orchestrator.py</code> から新引数を接続（config経由）</li>
+<li><code>tests/ops_extract/test_drive_resumable_emulator.py</code> を追加（途中失敗→再開→<code>committed_drive=true</code>）</li>
+<li><code>tests/ops_extract/test_drive_real_smoke.py</code> を追加（<code>@pytest.mark.network</code>、env設定時に任意実行）</li>
+<li>実行コマンド</li>
+<li><code>uv run pytest -q tests/ops_extract/test_drive_resumable_emulator.py</code></li>
+<li><code>uv run pytest -q tests/ops_extract/test_sync_resume_commit.py tests/ops_extract/test_preflight_learning_sync_retention.py tests/ops_extract/test_drive_real_smoke.py</code></li>
+<li>結果（成功/失敗、件数）</li>
+<li>成功: <code>1 passed</code>（emulator）</li>
+<li>成功: <code>14 passed, 1 skipped</code>（real smokeはenv未設定でskip）</li>
+<li>学習・再発防止</li>
+<li>resume実装は「failed対象のみ再送」にすると partial upload で未送信ファイルを残すため、failed優先の順序制御に留める必要がある</li>
+<li>エミュレータで <code>500→再開</code> を強制すると commit protocol の欠陥を早期に検出できる</li>
+<li>次段の着手条件</li>
+<li>config versioning / migration / secrets redaction / CI security gate を追加し、互換性と運用安全性をテスト固定する</li>
+</ul>
+<h3 id="2026-02-13-stage-8">2026-02-13 / Stage 8: 互換性・移行・セキュリティ・運用自動化</h3>
+<ul>
+<li>日時</li>
+<li>2026-02-13</li>
+<li>段階名</li>
+<li>Stage 8: config versioning + migration + secret安全化 + CI guard</li>
+<li>実装差分</li>
+<li><code>contracts.py</code> に <code>OPS_EXTRACT_CONFIG_SCHEMA_VERSION</code> と deprecated key対応を追加<ul>
+<li><code>sync_chunk_size</code>, <code>drive_api_url</code>, <code>drive_upload_url</code>, <code>trace</code>, <code>resume</code> を後方互換で吸収</li>
+</ul>
+</li>
+<li><code>security.py</code> を追加し、機微情報マスク（token/Bearer）を実装</li>
+<li><code>orchestrator.py</code> の <code>run_metadata.config</code> をマスク済み出力へ変更（Drive token露出防止）</li>
+<li><code>drive_sync.py</code> の <code>last_error</code> を redaction して保存</li>
+<li><code>scripts/migrate_ops_extract_runs_v1_to_v2.py</code> を追加し、manifest/sync_state/stage_cache/trace/pdf_diagnosis の移行を自動化</li>
+<li>CI (<code>.github/workflows/ci.yml</code>) に <code>uv lock --check</code> と security job強化（<code>bandit</code>, <code>pip-audit</code> fail-fast）を追加</li>
+<li>新規テスト:<ul>
+<li><code>tests/ops_extract/test_config_versioning.py</code></li>
+<li><code>tests/ops_extract/test_migration_v1_to_v2.py</code></li>
+<li><code>tests/security/test_ops_extract_secrets_redaction.py</code></li>
+</ul>
+</li>
+<li>実行コマンド</li>
+<li><code>uv run pytest -q tests/ops_extract/test_config_versioning.py tests/ops_extract/test_migration_v1_to_v2.py tests/security/test_ops_extract_secrets_redaction.py</code></li>
+<li>結果（成功/失敗、件数）</li>
+<li>成功: <code>5 passed</code></li>
+<li>学習・再発防止</li>
+<li>run_metadataへconfigをそのまま書くと秘密情報が残るため、保存時の一律redactionを適用</li>
+<li>migrationは「既存ファイルの部分補完」にすると再実行しても壊れない（idempotent）</li>
+<li>次段の着手条件</li>
+<li>最終受け入れ用 <code>tests/e2e/test_ops_extract_proof_driven.py</code> を追加し、text/ocr/drive-resume の3経路を固定化して全体ゲートを実行</li>
+</ul>
+<h3 id="2026-02-13-stage-9">2026-02-13 / Stage 9: 最終統合と受け入れゲート</h3>
+<ul>
+<li>日時</li>
+<li>2026-02-13</li>
+<li>段階名</li>
+<li>Stage 9: Proof-Driven E2E固定 + 最終品質ゲート</li>
+<li>実装差分</li>
+<li><code>tests/e2e/test_ops_extract_proof_driven.py</code> を追加<ul>
+<li>E2E-1: text-embedded 経路（OCR不要）</li>
+<li>E2E-2: image-only 相当経路（OCR必要、OCR I/O契約実ファイル）</li>
+<li>E2E-3: Drive同期（エミュレータで失敗→再開→commit）</li>
+</ul>
+</li>
+<li><code>release.yml</code> に ops_extract proof-driven guard（no-stub + contract/emulator/e2e）を追加</li>
+<li><code>tests/ops_extract/test_determinism.py</code> は既存同名テストとの衝突回避のため <code>tests/ops_extract/test_ops_extract_determinism.py</code> に改名</li>
+<li>実行コマンド</li>
+<li><code>uv run pytest -q tests/e2e/test_ops_extract_proof_driven.py</code></li>
+<li><code>uv run pytest -q tests/ops_extract tests/security/test_ops_extract_secrets_redaction.py tests/e2e/test_ops_extract_proof_driven.py tests/test_run_task_ops_extract_mode.py</code></li>
+<li><code>uv run pytest -q</code></li>
+<li><code>uv run ruff check jarvis_core tests</code></li>
+<li><code>uv run black --check jarvis_core tests</code></li>
+<li><code>uv run mypy --explicit-package-bases --follow-imports=skip jarvis_core/evidence/ jarvis_core/contradiction/ jarvis_core/citation/ jarvis_core/sources/ --ignore-missing-imports</code></li>
+<li><code>uv build</code></li>
+<li>結果（成功/失敗、件数）</li>
+<li>成功: E2E proof-driven <code>3 passed</code></li>
+<li>成功: ops_extract/security/e2e統合 <code>60 passed, 1 skipped</code></li>
+<li>成功: 全体 <code>6457 passed, 469 skipped</code></li>
+<li>成功: ruff / black / mypy / build</li>
+<li>学習・再発防止</li>
+<li>大規模リポジトリではテストファイルのbasename衝突で収集エラーが起きるため、ドメイン名を含む命名（<code>test_ops_extract_*</code>）が安全</li>
+<li>release前ガードに emulator + contract を入れることで「動いたふり」の混入を抑止できる</li>
+<li>次段の着手条件</li>
+<li>Proof-Driven v2.0 実装完了。以後は実運用データで閾値（needs_ocr/retention/retry）を調整する段階</li>
+</ul></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js"></script>
+        <script src="../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

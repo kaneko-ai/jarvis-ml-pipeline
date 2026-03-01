@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://example.com/jarvis/SCHEMAS/paper_graph.schema/">
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>Paper graph.schema - JARVIS Research OS</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../../css/brands.min.css" rel="stylesheet">
+        <link href="../../css/solid.min.css" rel="stylesheet">
+        <link href="../../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">JARVIS Research OS</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href="../../docs/index.md" class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/mcp.md" class="nav-link">MCP Hub</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/browser.md" class="nav-link">Browser Agent</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/skills.md" class="nav-link">Skills System</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/multi_agent.md" class="nav-link">Multi-Agent</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/terminal_security.md" class="nav-link">Terminal Security</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/kaneko-ai/jarvis-ml-pipeline/edit/master/docs/SCHEMAS/paper_graph.schema.md" class="nav-link"><i class="fa-brands fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#paper-graph-radar-market-json-schemas" class="nav-link">Paper Graph / Radar / Market JSON Schemas</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#1-paper_graphtreegraphjson" class="nav-link">1) paper_graph/tree/graph.json</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2-paper_graphmap3dmap_pointsjson" class="nav-link">2) paper_graph/map3d/map_points.json</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#3-radarradar_findingsjson" class="nav-link">3) radar/radar_findings.json</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#4-marketproposalsjson" class="nav-link">4) market/proposals.json</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<blockquote>
+<p>Authority: CONTRACT (Level 3, Binding)
+Date: 2026-02-16</p>
+</blockquote>
+<h1 id="paper-graph-radar-market-json-schemas">Paper Graph / Radar / Market JSON Schemas</h1>
+<h2 id="1-paper_graphtreegraphjson">1) <code>paper_graph/tree/graph.json</code></h2>
+<pre><code class="language-json">{
+  &quot;nodes&quot;: [
+    {
+      &quot;node_id&quot;: &quot;doi:10.1000/xyz&quot;,
+      &quot;title&quot;: &quot;Paper title&quot;,
+      &quot;year&quot;: 2024,
+      &quot;venue&quot;: &quot;Nature&quot;,
+      &quot;ids&quot;: {&quot;doi&quot;: &quot;10.1000/xyz&quot;, &quot;pmid&quot;: null, &quot;arxiv&quot;: null},
+      &quot;level&quot;: 0,
+      &quot;inbound_cites&quot;: 123
+    }
+  ],
+  &quot;edges&quot;: [
+    {&quot;from_node_id&quot;: &quot;doi:10.1000/xyz&quot;, &quot;to_node_id&quot;: &quot;s2:abc&quot;, &quot;type&quot;: &quot;cites&quot;}
+  ]
+}
+</code></pre>
+<h2 id="2-paper_graphmap3dmap_pointsjson">2) <code>paper_graph/map3d/map_points.json</code></h2>
+<pre><code class="language-json">[
+  {
+    &quot;paper_id&quot;: &quot;arxiv:1234.5678&quot;,
+    &quot;title&quot;: &quot;Root paper&quot;,
+    &quot;year&quot;: 2024,
+    &quot;x&quot;: 0.0,
+    &quot;y&quot;: 0.0,
+    &quot;z&quot;: 0.0,
+    &quot;score&quot;: 10.0,
+    &quot;cluster_id&quot;: 0,
+    &quot;distance_to_center&quot;: 0.0
+  }
+]
+</code></pre>
+<h2 id="3-radarradar_findingsjson">3) <code>radar/radar_findings.json</code></h2>
+<pre><code class="language-json">[
+  {
+    &quot;source&quot;: &quot;arxiv&quot;,
+    &quot;id&quot;: &quot;arxiv:2501.00001&quot;,
+    &quot;title&quot;: &quot;Title&quot;,
+    &quot;summary&quot;: &quot;Short summary&quot;,
+    &quot;url&quot;: &quot;https://arxiv.org/abs/2501.00001&quot;,
+    &quot;published&quot;: &quot;2026-02-15T00:00:00+00:00&quot;,
+    &quot;tags&quot;: [&quot;rag&quot;, &quot;eval&quot;]
+  }
+]
+</code></pre>
+<h2 id="4-marketproposalsjson">4) <code>market/proposals.json</code></h2>
+<pre><code class="language-json">[
+  {
+    &quot;idea_id&quot;: &quot;idea-1&quot;,
+    &quot;name&quot;: &quot;OA Evidence Tracker&quot;,
+    &quot;problem&quot;: &quot;Problem statement&quot;,
+    &quot;solution&quot;: &quot;Solution statement&quot;,
+    &quot;why_now&quot;: &quot;Timing rationale&quot;,
+    &quot;risk&quot;: &quot;Main risk&quot;,
+    &quot;differentiation&quot;: &quot;Differentiation&quot;,
+    &quot;sources_used&quot;: 12
+  }
+]
+</code></pre></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

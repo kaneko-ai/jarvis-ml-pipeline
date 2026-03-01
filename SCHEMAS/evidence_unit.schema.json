@@ -1,0 +1,78 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Evidence Unit Schema",
+    "description": "主張を支持する根拠の最小単位 (Phase 2 Intelligence)",
+    "type": "object",
+    "required": [
+        "evidence_id",
+        "claim_id",
+        "paper_id",
+        "locator",
+        "quote_span",
+        "evidence_strength"
+    ],
+    "properties": {
+        "evidence_id": {
+            "type": "string",
+            "format": "uuid"
+        },
+        "claim_id": {
+            "type": "string",
+            "description": "ID of the supported claim"
+        },
+        "paper_id": {
+            "type": "string"
+        },
+        "locator": {
+            "type": "object",
+            "required": [
+                "section",
+                "paragraph_index"
+            ],
+            "properties": {
+                "section": {
+                    "type": "string"
+                },
+                "paragraph_index": {
+                    "type": "integer"
+                },
+                "sentence_index": {
+                    "type": "integer"
+                },
+                "char_offset": {
+                    "type": "integer"
+                }
+            }
+        },
+        "quote_span": {
+            "type": "string",
+            "maxLength": 400,
+            "description": "Exact text quote from source (max 400 chars)"
+        },
+        "evidence_strength": {
+            "type": "string",
+            "enum": [
+                "Strong",
+                "Medium",
+                "Weak",
+                "None"
+            ],
+            "description": "Graded strength of evidence"
+        },
+        "evidence_role": {
+            "type": "string",
+            "enum": [
+                "Direct",
+                "Indirect",
+                "Prior",
+                "Speculation"
+            ],
+            "default": "Direct"
+        },
+        "contradiction_flag": {
+            "type": "boolean",
+            "default": false,
+            "description": "True if this evidence contradicts the claim"
+        }
+    }
+}

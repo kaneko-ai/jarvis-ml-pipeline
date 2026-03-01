@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://example.com/jarvis/PLANS/PAPER_GRAPH_AND_HARVESTER_EXECPLAN_2026-02-16/">
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>PAPER GRAPH AND HARVESTER EXECPLAN 2026 02 16 - JARVIS Research OS</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../../css/brands.min.css" rel="stylesheet">
+        <link href="../../css/solid.min.css" rel="stylesheet">
+        <link href="../../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">JARVIS Research OS</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href="../../docs/index.md" class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/mcp.md" class="nav-link">MCP Hub</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/browser.md" class="nav-link">Browser Agent</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/skills.md" class="nav-link">Skills System</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/multi_agent.md" class="nav-link">Multi-Agent</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../docs/terminal_security.md" class="nav-link">Terminal Security</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/kaneko-ai/jarvis-ml-pipeline/edit/master/docs/PLANS/PAPER_GRAPH_AND_HARVESTER_EXECPLAN_2026-02-16.md" class="nav-link"><i class="fa-brands fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#paper_graph-map3d-harvest-radar-collectdrive-market" class="nav-link">PAPER_GRAPH + MAP3D + HARVEST + RADAR + COLLECT+DRIVE + MARKET</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#scope" class="nav-link">Scope</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#contract-rules" class="nav-link">Contract Rules</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#harvest-queue-persistence" class="nav-link">Harvest Queue Persistence</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#offline-policy" class="nav-link">Offline Policy</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#deliverables-by-feature" class="nav-link">Deliverables by Feature</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<blockquote>
+<p>Authority: SPEC (Level 2, Binding)
+Date: 2026-02-16
+Alignment: docs/MASTER_SPEC.md v1.2</p>
+</blockquote>
+<h1 id="paper_graph-map3d-harvest-radar-collectdrive-market">PAPER_GRAPH + MAP3D + HARVEST + RADAR + COLLECT+DRIVE + MARKET</h1>
+<h2 id="scope">Scope</h2>
+<ul>
+<li>Single entrypoint: <code>jarvis_cli.py</code></li>
+<li>New command families:</li>
+<li><code>papers tree</code></li>
+<li><code>papers map3d</code></li>
+<li><code>harvest watch</code></li>
+<li><code>harvest work</code></li>
+<li><code>radar run</code></li>
+<li><code>collect papers</code></li>
+<li><code>collect drive-sync</code></li>
+<li><code>market propose</code></li>
+<li>All commands must generate bundle required files via <code>BundleAssembler.build(...)</code>.</li>
+</ul>
+<h2 id="contract-rules">Contract Rules</h2>
+<ul>
+<li>Required artifacts: same 10 files defined by bundle contract.</li>
+<li>Extra outputs must be placed under <code>logs/runs/{run_id}/&lt;feature_dir&gt;/</code>.</li>
+<li>Status vocabulary:</li>
+<li><code>success</code></li>
+<li><code>failed</code></li>
+<li><code>needs_retry</code></li>
+</ul>
+<h2 id="harvest-queue-persistence">Harvest Queue Persistence</h2>
+<ul>
+<li>Queue path: <code>logs/runs/{run_id}/harvest/queue.jsonl</code></li>
+<li>Persistence scope: <strong>run-scoped</strong></li>
+<li><code>watch</code> and <code>work</code> should continue with the same <code>run_id</code>.</li>
+</ul>
+<h2 id="offline-policy">Offline Policy</h2>
+<ul>
+<li><code>--offline</code> must not crash command execution.</li>
+<li>If outputs are incomplete under offline conditions:</li>
+<li>mark <code>status</code> as <code>failed</code> or <code>needs_retry</code></li>
+<li>write detailed reasons to <code>warnings.jsonl</code>, <code>eval_summary.json</code>, <code>report.md</code></li>
+</ul>
+<h2 id="deliverables-by-feature">Deliverables by Feature</h2>
+<h3 id="papers-tree">papers tree</h3>
+<ul>
+<li><code>paper_graph/tree/graph.json</code></li>
+<li><code>paper_graph/tree/tree.md</code></li>
+<li><code>paper_graph/tree/tree.mermaid.md</code></li>
+<li><code>paper_graph/tree/summary.md</code></li>
+</ul>
+<h3 id="papers-map3d">papers map3d</h3>
+<ul>
+<li><code>paper_graph/map3d/map_points.json</code></li>
+<li><code>paper_graph/map3d/map.md</code></li>
+<li><code>paper_graph/map3d/map.html</code> (optional if plotly is available)</li>
+</ul>
+<h3 id="harvest">harvest</h3>
+<ul>
+<li><code>harvest/queue.jsonl</code></li>
+<li><code>harvest/items/</code></li>
+<li><code>harvest/stats.json</code></li>
+<li><code>harvest/report.md</code></li>
+</ul>
+<h3 id="radar">radar</h3>
+<ul>
+<li><code>radar/radar_findings.json</code></li>
+<li><code>radar/upgrade_proposals.md</code></li>
+</ul>
+<h3 id="collect">collect</h3>
+<ul>
+<li><code>collector/papers.json</code></li>
+<li><code>collector/pdfs/</code></li>
+<li><code>collector/bibtex/</code></li>
+<li><code>collector/report.md</code></li>
+</ul>
+<h3 id="market">market</h3>
+<ul>
+<li><code>market/proposals.json</code></li>
+<li><code>market/proposals_deck.md</code></li>
+</ul></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

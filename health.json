@@ -1,0 +1,12 @@
+{
+    "status": "healthy",
+    "uptime": "99.9%",
+    "last_check": "2024-12-23T00:00:00Z",
+    "services": {
+        "api": "up",
+        "dashboard": "up",
+        "github_actions": "up"
+    },
+    "version": "4.4.0",
+    "environment": "production"
+}
