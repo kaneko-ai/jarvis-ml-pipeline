@@ -78,6 +78,17 @@ def main(argv=None):
     zt_p.add_argument("input")
 
     # --- dispatch ---
+    # --- pipeline command --- (T4-1)
+    pl_p = subparsers.add_parser("pipeline", help="Run full pipeline (search -> grade -> export)")
+    pl_p.add_argument("query", help="Search query")
+    pl_p.add_argument("--max", type=int, default=20, dest="max_results",
+                       help="Max papers per source (default: 20)")
+    pl_p.add_argument("--provider", default="gemini", choices=["gemini", "codex"])
+    pl_p.add_argument("--obsidian", action="store_true",
+                       help="Export results to Obsidian Vault")
+    pl_p.add_argument("--zotero", action="store_true",
+                       help="Sync results to Zotero library")
+
     args = parser.parse_args(argv)
     cmd = args.command
 
@@ -97,6 +108,7 @@ def main(argv=None):
         "semantic-search": _cmd_semantic_search,
         "contradict": _cmd_contradict,
         "zotero-sync": _cmd_zotero_sync,
+        "pipeline": _cmd_pipeline,
     }
 
     handler = dispatch.get(cmd)
@@ -177,6 +189,11 @@ def _cmd_zotero_sync(args):
     from jarvis_cli.zotero_sync import run_zotero_sync
     return run_zotero_sync(args)
 
+
+
+def _cmd_pipeline(args):
+    from jarvis_cli.pipeline import run_pipeline
+    return run_pipeline(args)
 
 def _do_obsidian_export(input_path_str: str):
     """Shared Obsidian export logic."""
