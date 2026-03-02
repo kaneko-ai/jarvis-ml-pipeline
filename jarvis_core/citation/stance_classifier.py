@@ -1,228 +1,204 @@
-"""Citation Stance Classifier.
+"""Citation Stance Classifier (B-1).
 
-Classifies citation stances as Support/Contrast/Mention.
-Per JARVIS_COMPLETION_PLAN_v3 Task 2.2.2
+Classifies the relationship between two papers as:
+  - support: Paper B supports/confirms Paper A's findings
+  - contrast: Paper B contradicts/challenges Paper A's findings
+  - neutral: No clear support or contradiction
+  - mention: Simple citation without clear stance
+
+Uses Gemini API for semantic classification, with a keyword-based fallback.
 """
 
 from __future__ import annotations
 
+import json
 import logging
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any
-
-from jarvis_core.citation.context_extractor import CitationContext
 
 logger = logging.getLogger(__name__)
 
 
-class CitationStance(Enum):
-    """Citation stance towards the cited work."""
+class CitationStance(str, Enum):
+    """Stance categories.
 
-    SUPPORT = "support"  # Cites to support/confirm
-    CONTRAST = "contrast"  # Cites to contrast/critique
-    MENTION = "mention"  # Neutral mention/background
-    EXTEND = "extend"  # Extends the cited work
-    COMPARE = "compare"  # Compares methods/results
-    UNKNOWN = "unknown"
+    MENTION and CONTRAST are required by citation/graph.py.
+    """
+    SUPPORT = "support"
+    CONTRAST = "contrast"
+    CONTRADICT = "contradict"
+    NEUTRAL = "neutral"
+    MENTION = "mention"
 
 
 @dataclass
 class StanceResult:
-    """Result of stance classification."""
-
+    """Result of stance classification for a paper pair."""
+    paper_a_title: str
+    paper_b_title: str
     stance: CitationStance
     confidence: float
-    evidence: str = ""  # Key phrases that led to the classification
-    scores: dict[str, float] = field(default_factory=dict)  # Raw scores for all stances
-
-    def __post_init__(self) -> None:
-        if self.scores is None:
-            self.scores = {}
-
-    def to_dict(self) -> dict[str, Any]:
-        """Convert to dictionary."""
-        return {
-            "stance": self.stance.value,
-            "confidence": self.confidence,
-            "evidence": self.evidence,
-            "scores": self.scores,
-        }
-
-
-# Stance indicator patterns
-SUPPORT_PATTERNS = [
-    re.compile(r"\b(confirm|support|consistent with|in (?:line|agreement) with)\b", re.IGNORECASE),
-    re.compile(r"\b(validate|corroborate|replicate|verify)\b", re.IGNORECASE),
-    re.compile(r"\b(demonstrated|showed|found(?: that)?|reported)\b", re.IGNORECASE),
-    re.compile(r"\b(following|building on|based on|as (?:shown|described))\b", re.IGNORECASE),
-]
-
-CONTRAST_PATTERNS = [
-    re.compile(r"\b(contrast|contrary|unlike|differ|disagree)\b", re.IGNORECASE),
-    re.compile(r"\b(however|although|despite|but|whereas)\b", re.IGNORECASE),
-    re.compile(r"\b(limitation|failed|unable|problem|issue)\b", re.IGNORECASE),
-    re.compile(r"\b(challenge|question|critique|criticize)\b", re.IGNORECASE),
-    re.compile(r"\b(improve(?:d|s)? (?:upon|on)|better than|outperform)\b", re.IGNORECASE),
-]
-
-EXTEND_PATTERNS = [
-    re.compile(r"\b(extend|expand|build(?:ing)? (?:on|upon)|advance)\b", re.IGNORECASE),
-    re.compile(r"\b(further|additional|novel|new approach)\b", re.IGNORECASE),
-    re.compile(r"\b(we (?:propose|introduce|present|develop))\b", re.IGNORECASE),
-]
-
-COMPARE_PATTERNS = [
-    re.compile(r"\b(compare|comparison|similar(?:ly)?|likewise)\b", re.IGNORECASE),
-    re.compile(r"\b(versus|vs\.?|against|relative to)\b", re.IGNORECASE),
-    re.compile(r"\b(both|like|same as)\b", re.IGNORECASE),
-]
-
-MENTION_PATTERNS = [
-    re.compile(r"\b(see|refer|note|e\.g\.|i\.e\.)\b", re.IGNORECASE),
-    re.compile(r"\b(previous(?:ly)?|earlier|prior|recent(?:ly)?)\b", re.IGNORECASE),
-    re.compile(r"\b(studied|examined|investigated|analyzed)\b", re.IGNORECASE),
-]
+    reason: str
 
 
 class StanceClassifier:
-    """Classifies citation stances using pattern matching.
+    """Classifies citation stance between paper pairs.
 
-    Uses linguistic cues to determine whether a citation supports,
-    contrasts with, or merely mentions the cited work.
-
-    Example:
-        >>> classifier = StanceClassifier()
-        >>> result = classifier.classify_text(
-        ...     "Our results confirm the findings of Smith et al. [1]."
-        ... )
-        >>> print(result.stance)
-        CitationStance.SUPPORT
+    Uses LLM (Gemini) when available, falls back to keyword heuristics.
     """
 
-    def __init__(self, use_llm: bool = False) -> None:
-        """Initialize the classifier.
+    def __init__(self, use_llm: bool = True, provider: str = "gemini"):
+        self.use_llm = use_llm
+        self.provider = provider
+        self._llm = None
+
+    def _get_llm(self):
+        """Lazy-init LLM client."""
+        if self._llm is None and self.use_llm:
+            try:
+                from dotenv import load_dotenv
+                load_dotenv()
+            except ImportError:
+                pass
+            try:
+                from jarvis_core.llm import LLMClient
+                self._llm = LLMClient(provider=self.provider)
+            except Exception as e:
+                logger.warning(f"LLM init failed: {e}. Using keyword fallback.")
+                self.use_llm = False
+        return self._llm
+
+    def classify(self, paper_a: dict, paper_b: dict) -> StanceResult:
+        """Classify stance between two papers.
 
         Args:
-            use_llm: Whether to use LLM for classification (not yet implemented)
-        """
-        self._use_llm = use_llm
-
-        self._stance_patterns = {
-            CitationStance.SUPPORT: SUPPORT_PATTERNS,
-            CitationStance.CONTRAST: CONTRAST_PATTERNS,
-            CitationStance.EXTEND: EXTEND_PATTERNS,
-            CitationStance.COMPARE: COMPARE_PATTERNS,
-            CitationStance.MENTION: MENTION_PATTERNS,
-        }
-
-        # Weights for stance importance
-        self._stance_weights = {
-            CitationStance.CONTRAST: 1.5,  # Contrast is often more explicit
-            CitationStance.SUPPORT: 1.2,
-            CitationStance.EXTEND: 1.1,
-            CitationStance.COMPARE: 1.0,
-            CitationStance.MENTION: 0.8,  # Mention is a fallback
-        }
-
-    def classify(self, context: CitationContext) -> StanceResult:
-        """Classify citation stance from context.
-
-        Args:
-            context: CitationContext to classify
+            paper_a: First paper dict (needs 'title' and 'abstract')
+            paper_b: Second paper dict (needs 'title' and 'abstract')
 
         Returns:
-            StanceResult with classification
+            StanceResult with stance, confidence, and reason.
         """
-        # Use full context for better classification
-        text = context.get_full_context()
-        return self.classify_text(text)
+        title_a = paper_a.get("title", "")
+        title_b = paper_b.get("title", "")
+        abstract_a = paper_a.get("abstract", "")
+        abstract_b = paper_b.get("abstract", "")
 
-    def classify_text(self, text: str) -> StanceResult:
-        """Classify citation stance from text.
+        if self.use_llm:
+            llm = self._get_llm()
+            if llm:
+                return self._classify_llm(llm, title_a, abstract_a, title_b, abstract_b)
 
-        Args:
-            text: Text containing the citation
+        return self._classify_keywords(title_a, abstract_a, title_b, abstract_b)
 
-        Returns:
-            StanceResult with classification
-        """
-        if not text:
-            return StanceResult(
-                stance=CitationStance.UNKNOWN,
-                confidence=0.0,
-            )
+    def _classify_llm(self, llm, title_a, abstract_a, title_b, abstract_b) -> StanceResult:
+        """Classify using LLM."""
+        from jarvis_core.llm import Message
 
-        # Calculate scores for each stance
-        scores: dict[CitationStance, float] = {}
-        evidence: dict[CitationStance, list[str]] = {}
-
-        for stance, patterns in self._stance_patterns.items():
-            score = 0.0
-            matched_phrases = []
-
-            for pattern in patterns:
-                matches = pattern.findall(text)
-                if matches:
-                    score += len(matches) * self._stance_weights.get(stance, 1.0)
-                    matched_phrases.extend(matches)
-
-            scores[stance] = score
-            evidence[stance] = matched_phrases[:3]  # Keep top 3 phrases
-
-        # Determine best stance
-        if not any(scores.values()):
-            return StanceResult(
-                stance=CitationStance.MENTION,  # Default to neutral mention
-                confidence=0.3,
-                evidence="No explicit stance indicators",
-                scores={s.value: v for s, v in scores.items()},
-            )
-
-        # Get stance with highest score
-        best_stance = max(scores, key=lambda stance: scores[stance])
-        best_score = scores[best_stance]
-
-        # Calculate confidence (normalize by total)
-        total_score = sum(scores.values())
-        confidence = best_score / total_score if total_score > 0 else 0.0
-
-        # Build evidence string
-        evidence_str = ", ".join(evidence.get(best_stance, []))
-
-        return StanceResult(
-            stance=best_stance,
-            confidence=min(1.0, confidence),
-            evidence=evidence_str,
-            scores={s.value: v for s, v in scores.items()},
+        system_prompt = (
+            "You are a scientific literature analysis expert.\n"
+            "Given two paper abstracts, classify their relationship as:\n"
+            "- support: Paper B supports or confirms Paper A's findings\n"
+            "- contrast: Paper B contradicts or challenges Paper A's findings\n"
+            "- neutral: No clear relationship between findings\n\n"
+            "Output ONLY a JSON object:\n"
+            '{"stance": "support|contrast|neutral", "confidence": 0.0-1.0, "reason": "brief explanation"}'
         )
 
-    def classify_batch(
-        self,
-        contexts: list[CitationContext],
-    ) -> list[StanceResult]:
-        """Classify multiple citation contexts.
+        user_prompt = (
+            f"Paper A: {title_a}\n{abstract_a[:500]}\n\n"
+            f"Paper B: {title_b}\n{abstract_b[:500]}"
+        )
 
-        Args:
-            contexts: List of CitationContext objects
+        try:
+            raw = llm.chat([
+                Message(role="system", content=system_prompt),
+                Message(role="user", content=user_prompt),
+            ])
+            raw_clean = raw.strip()
+            if raw_clean.startswith("```"):
+                raw_clean = re.sub(r"^```(?:json)?\s*", "", raw_clean)
+                raw_clean = re.sub(r"\s*```$", "", raw_clean)
 
-        Returns:
-            List of StanceResult objects
-        """
-        return [self.classify(ctx) for ctx in contexts]
+            parsed = json.loads(raw_clean)
+            stance_str = parsed.get("stance", "neutral").lower()
+
+            stance_map = {
+                "support": CitationStance.SUPPORT,
+                "contrast": CitationStance.CONTRAST,
+                "contradict": CitationStance.CONTRAST,
+                "neutral": CitationStance.NEUTRAL,
+            }
+            stance = stance_map.get(stance_str, CitationStance.NEUTRAL)
+
+            return StanceResult(
+                paper_a_title=title_a,
+                paper_b_title=title_b,
+                stance=stance,
+                confidence=float(parsed.get("confidence", 0.5)),
+                reason=parsed.get("reason", "LLM classification"),
+            )
+        except Exception as e:
+            logger.warning(f"LLM stance classification failed: {e}")
+            return self._classify_keywords(title_a, abstract_a, title_b, abstract_b)
+
+    def _classify_keywords(self, title_a, abstract_a, title_b, abstract_b) -> StanceResult:
+        """Fallback keyword-based classification."""
+        text_a = (title_a + " " + abstract_a).lower()
+        text_b = (title_b + " " + abstract_b).lower()
+
+        # Check if they discuss similar topics (word overlap)
+        words_a = set(text_a.split())
+        words_b = set(text_b.split())
+        overlap = len(words_a & words_b)
+        union = len(words_a | words_b)
+        similarity = overlap / max(union, 1)
+
+        if similarity < 0.1:
+            return StanceResult(
+                paper_a_title=title_a, paper_b_title=title_b,
+                stance=CitationStance.NEUTRAL, confidence=0.3,
+                reason="Low topic overlap",
+            )
+
+        contradict_words = [
+            "however", "contrary", "contradict", "disagree", "inconsistent",
+            "failed to", "no effect", "no significant", "ineffective",
+            "challenge", "refute", "oppose", "conflicting",
+        ]
+        support_words = [
+            "consistent with", "in agreement", "confirms", "supports",
+            "corroborates", "in line with", "similar to", "aligns with",
+            "validates", "reinforces",
+        ]
+
+        contra_score = sum(1 for w in contradict_words if w in text_b)
+        support_score = sum(1 for w in support_words if w in text_b)
+
+        if contra_score > support_score and contra_score > 0:
+            return StanceResult(
+                paper_a_title=title_a, paper_b_title=title_b,
+                stance=CitationStance.CONTRAST,
+                confidence=min(0.6, 0.3 + contra_score * 0.1),
+                reason=f"Keyword match: {contra_score} contradiction indicators",
+            )
+        elif support_score > contra_score and support_score > 0:
+            return StanceResult(
+                paper_a_title=title_a, paper_b_title=title_b,
+                stance=CitationStance.SUPPORT,
+                confidence=min(0.6, 0.3 + support_score * 0.1),
+                reason=f"Keyword match: {support_score} support indicators",
+            )
+
+        return StanceResult(
+            paper_a_title=title_a, paper_b_title=title_b,
+            stance=CitationStance.NEUTRAL, confidence=0.3,
+            reason="No clear stance indicators found",
+        )
 
 
-def classify_citation_stance(text: str) -> StanceResult:
-    """Classify citation stance from text.
-
-    Convenience function for quick classification.
-
-    Args:
-        text: Text containing the citation
-
-    Returns:
-        StanceResult with classification
-    """
-    classifier = StanceClassifier()
-    return classifier.classify_text(text)
+def classify_citation_stance(paper_a: dict, paper_b: dict, use_llm: bool = True) -> StanceResult:
+    """Convenience function to classify stance between two papers."""
+    classifier = StanceClassifier(use_llm=use_llm)
+    return classifier.classify(paper_a, paper_b)

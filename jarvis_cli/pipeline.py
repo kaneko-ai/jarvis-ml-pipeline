@@ -1,8 +1,7 @@
-"""jarvis pipeline - End-to-end literature review pipeline (T4-1 + A-1/A-3/A-4/A-5).
+"""jarvis pipeline - End-to-end literature review pipeline.
 
-Runs: search -> dedup (fuzzy) -> evidence grading -> LLM summary
+Runs: search -> dedup (fuzzy) -> evidence grading -> scoring -> LLM summary
       -> save -> [Obsidian] -> [Zotero] -> [PRISMA] -> [BibTeX] -> log
-All in one command.
 """
 
 from __future__ import annotations
@@ -44,10 +43,8 @@ def run_pipeline(args) -> int:
     print("=" * 60)
     print()
 
-    # ========================================
-    # Step 1: Search papers from multiple sources
-    # ========================================
-    print("[Step 1/6] Searching papers...")
+    # Step 1: Search
+    print("[Step 1/7] Searching papers...")
     papers = _step_search(query, max_results)
     if not papers:
         print("  No papers found. Pipeline stopped.")
@@ -55,10 +52,8 @@ def run_pipeline(args) -> int:
     print(f"  Found {len(papers)} papers.")
     print()
 
-    # ========================================
-    # Step 2: Deduplicate (A-3: fuzzy match)
-    # ========================================
-    print("[Step 2/6] Deduplicating (DOI + exact title + fuzzy title)...")
+    # Step 2: Dedup
+    print("[Step 2/7] Deduplicating (DOI + exact title + fuzzy title)...")
     before_count = len(papers)
     papers = _step_dedup(papers)
     after_count = len(papers)
@@ -66,10 +61,8 @@ def run_pipeline(args) -> int:
     print(f"  {before_count} -> {after_count} papers ({removed} duplicates removed)")
     print()
 
-    # ========================================
     # Step 3: Evidence grading
-    # ========================================
-    print("[Step 3/6] Grading evidence levels...")
+    print("[Step 3/7] Grading evidence levels...")
     papers = _step_evidence(papers)
     level_counts = {}
     for p in papers:
@@ -78,22 +71,28 @@ def run_pipeline(args) -> int:
     print(f"  Evidence distribution: {level_counts}")
     print()
 
-    # ========================================
-    # Step 4: LLM Summary (A-1)
-    # ========================================
+    # Step 4: Paper scoring (B-3)
+    print("[Step 4/7] Scoring paper quality...")
+    papers = _step_scoring(papers)
+    grades = {}
+    for p in papers:
+        g = p.get("quality_grade", "?")
+        grades[g] = grades.get(g, 0) + 1
+    print(f"  Grade distribution: {grades}")
+    print()
+
+    # Step 5: LLM Summary (A-1)
     summary_count = 0
     if do_summary:
-        print(f"[Step 4/6] Generating Japanese summaries via {provider}...")
+        print(f"[Step 5/7] Generating Japanese summaries via {provider}...")
         papers, summary_count = _step_summarize(papers, provider)
         print(f"  Summarized {summary_count}/{len(papers)} papers.")
     else:
-        print("[Step 4/6] LLM Summary: skipped (--no-summary)")
+        print("[Step 5/7] LLM Summary: skipped (--no-summary)")
     print()
 
-    # ========================================
-    # Step 5: Save results + optional exports
-    # ========================================
-    print("[Step 5/6] Saving results...")
+    # Step 6: Save results + optional exports
+    print("[Step 6/7] Saving results...")
     log_dir = Path("logs/pipeline")
     log_dir.mkdir(parents=True, exist_ok=True)
 
@@ -108,7 +107,7 @@ def run_pipeline(args) -> int:
     )
     print(f"  JSON: {json_path}")
 
-    # --- Obsidian export (optional) ---
+    # --- Obsidian export ---
     obsidian_count = 0
     if do_obsidian:
         print()
@@ -116,7 +115,7 @@ def run_pipeline(args) -> int:
         obsidian_count = _step_obsidian(papers)
         print(f"  Exported {obsidian_count} papers to Obsidian.")
 
-    # --- Zotero sync (optional) ---
+    # --- Zotero sync ---
     zotero_count = 0
     if do_zotero:
         print()
@@ -124,7 +123,7 @@ def run_pipeline(args) -> int:
         zotero_count = _step_zotero(papers)
         print(f"  Synced {zotero_count} papers to Zotero.")
 
-    # --- PRISMA diagram (A-4, optional) ---
+    # --- PRISMA diagram (A-4) ---
     prisma_path = ""
     if do_prisma:
         print()
@@ -133,7 +132,7 @@ def run_pipeline(args) -> int:
         if prisma_path:
             print(f"  PRISMA: {prisma_path}")
 
-    # --- BibTeX export (A-5, optional) ---
+    # --- BibTeX export (A-5) ---
     bibtex_path = ""
     if do_bibtex:
         print()
@@ -142,11 +141,9 @@ def run_pipeline(args) -> int:
         if bibtex_path:
             print(f"  BibTeX: {bibtex_path}")
 
-    # ========================================
-    # Step 6: Save execution log
-    # ========================================
+    # Step 7: Save execution log
     print()
-    print("[Step 6/6] Saving execution log...")
+    print("[Step 7/7] Saving execution log...")
     duration = time.time() - start_time
 
     exec_log = {
@@ -159,6 +156,7 @@ def run_pipeline(args) -> int:
         "after_dedup": after_count,
         "dedup_method": "doi + exact_title + fuzzy_title(>=90)",
         "evidence_grading": level_counts,
+        "quality_grades": grades,
         "llm_summary": summary_count,
         "llm_provider": provider if do_summary else "none",
         "obsidian_export": obsidian_count,
@@ -180,6 +178,7 @@ def run_pipeline(args) -> int:
     print("=" * 60)
     print(f"  Pipeline completed in {duration:.1f}s")
     print(f"  Papers: {after_count} (from {before_count})")
+    print(f"  Grades: {grades}")
     if do_summary:
         print(f"  Summaries: {summary_count}/{after_count}")
     print(f"  Output: {json_path}")
@@ -204,15 +203,10 @@ def _step_search(query: str, max_results: int) -> list[dict]:
     """Search papers using UnifiedSourceClient or fallback."""
     try:
         from jarvis_core.sources import UnifiedSourceClient
-
         client = UnifiedSourceClient()
         from jarvis_core.sources.unified_source_client import SourceType
-
         sources = [SourceType.PUBMED, SourceType.OPENALEX]
-        unified_papers = client.search(
-            query, max_results=max_results, sources=sources
-        )
-
+        unified_papers = client.search(query, max_results=max_results, sources=sources)
         papers = []
         for up in unified_papers:
             papers.append({
@@ -229,14 +223,11 @@ def _step_search(query: str, max_results: int) -> list[dict]:
                 "keywords": up.keywords or [],
             })
         return papers
-
     except Exception as e:
         print(f"  Warning: UnifiedSourceClient failed ({e})")
         print("  Falling back to PubMed only...")
-
         try:
             from jarvis_core.sources import PubMedClient
-
             client = PubMedClient()
             articles = client.search_and_fetch(query, max_results=max_results)
             papers = []
@@ -258,44 +249,31 @@ def _step_search(query: str, max_results: int) -> list[dict]:
 
 
 def _step_dedup(papers: list[dict]) -> list[dict]:
-    """Remove duplicate papers by DOI, exact title, or fuzzy title match (A-3).
-
-    Three-stage deduplication:
-      1. DOI exact match (case-insensitive)
-      2. Title exact match (case-insensitive, stripped)
-      3. Title fuzzy match (rapidfuzz ratio >= 90)
-    """
+    """Remove duplicate papers (DOI + exact title + fuzzy title)."""
     try:
         from rapidfuzz import fuzz
         has_rapidfuzz = True
     except ImportError:
-        print("  Warning: rapidfuzz not installed. Using exact match only.")
         has_rapidfuzz = False
 
     seen_doi = set()
-    seen_titles = []  # list of lowercase titles for fuzzy comparison
+    seen_titles = []
     unique = []
 
     for p in papers:
         doi = (p.get("doi") or "").strip().lower()
         title = (p.get("title") or "").strip().lower()
 
-        # Stage 1: DOI exact match
         if doi and doi in seen_doi:
             continue
-
-        # Stage 2: Title exact match
         if title and title in seen_titles:
             if doi:
                 seen_doi.add(doi)
             continue
-
-        # Stage 3: Title fuzzy match (A-3)
         if has_rapidfuzz and title:
             is_fuzzy_dup = False
             for existing_title in seen_titles:
-                score = fuzz.ratio(title, existing_title)
-                if score >= 90:
+                if fuzz.ratio(title, existing_title) >= 90:
                     is_fuzzy_dup = True
                     break
             if is_fuzzy_dup:
@@ -303,7 +281,6 @@ def _step_dedup(papers: list[dict]) -> list[dict]:
                     seen_doi.add(doi)
                 continue
 
-        # Not a duplicate - add to unique list
         if doi:
             seen_doi.add(doi)
         if title:
@@ -322,23 +299,29 @@ def _step_evidence(papers: list[dict]) -> list[dict]:
         return papers
 
     for p in papers:
-        title = p.get('title', '')
-        abstract = p.get('abstract', '')
-
+        title = p.get("title", "")
+        abstract = p.get("abstract", "")
         grade = grade_evidence(title=title, abstract=abstract, use_llm=False)
-
         level_val = grade.level.value if grade.level else "unknown"
         study_val = grade.study_type.value if grade.study_type else "unknown"
         conf = grade.confidence
-
         if level_val == "unknown":
             level_val, study_val, conf = _fallback_classify(title, abstract)
-
         p["evidence_level"] = level_val
         p["evidence_confidence"] = conf
         p["study_type"] = study_val
 
     return papers
+
+
+def _step_scoring(papers: list[dict]) -> list[dict]:
+    """Calculate quality score for each paper (B-3)."""
+    try:
+        from jarvis_cli.score import score_papers
+        return score_papers(papers)
+    except Exception as e:
+        print(f"  Warning: Scoring failed: {e}")
+        return papers
 
 
 def _step_summarize(papers: list[dict], provider: str = "gemini") -> tuple[list[dict], int]:
@@ -362,24 +345,19 @@ def _step_summarize(papers: list[dict], provider: str = "gemini") -> tuple[list[
         return papers, 0
 
     success_count = 0
-
     for i, p in enumerate(papers):
         title = p.get("title", "")
         abstract = p.get("abstract", "")
-
         if not abstract:
             p["summary_ja"] = f"（アブストラクト未取得: {title[:50]}）"
             continue
-
         print(f"  [{i+1}/{len(papers)}] {title[:55]}...")
-
         system_prompt = (
             "あなたは医学・生命科学の文献レビュー専門家です。\n"
             "以下の論文のタイトルとアブストラクトを読み、日本語で3〜5文の要約を作成してください。\n"
             "要約のみを出力し、他の説明は不要です。"
         )
         user_prompt = f"Title: {title}\n\nAbstract: {abstract}"
-
         try:
             raw = llm.chat([
                 Message(role="system", content=system_prompt),
@@ -411,29 +389,18 @@ def _step_summarize(papers: list[dict], provider: str = "gemini") -> tuple[list[
                     p["summary_ja"] = f"（要約生成失敗: {e2}）"
             else:
                 p["summary_ja"] = f"（要約生成失敗: {e}）"
-
         time.sleep(4)
 
     return papers, success_count
 
 
 def _step_prisma(json_path: str, log_dir: Path, base_name: str) -> str:
-    """Generate PRISMA 2020 flow diagram from pipeline results (A-4).
-
-    Calls run_prisma() with a mock args object pointing to the saved JSON.
-    Returns the output path string, or empty string on failure.
-    """
+    """Generate PRISMA 2020 flow diagram (A-4)."""
     try:
         import types
         from jarvis_cli.prisma import run_prisma
-
         prisma_output = str(log_dir / f"{base_name}_prisma.md")
-
-        mock_args = types.SimpleNamespace(
-            files=[json_path],
-            output=prisma_output,
-        )
-
+        mock_args = types.SimpleNamespace(files=[json_path], output=prisma_output)
         result = run_prisma(mock_args)
         if result == 0:
             return prisma_output
@@ -444,13 +411,9 @@ def _step_prisma(json_path: str, log_dir: Path, base_name: str) -> str:
 
 
 def _step_bibtex(papers: list[dict], log_dir: Path, base_name: str) -> str:
-    """Export papers as BibTeX file (A-5).
-
-    Returns the output path string, or empty string on failure.
-    """
+    """Export papers as BibTeX file (A-5)."""
     try:
         from jarvis_cli.bibtex import save_bibtex
-
         bib_path = log_dir / f"{base_name}.bib"
         save_bibtex(papers, bib_path)
         return str(bib_path)
@@ -460,9 +423,8 @@ def _step_bibtex(papers: list[dict], log_dir: Path, base_name: str) -> str:
 
 
 def _fallback_classify(title: str, abstract: str) -> tuple:
-    """Simple keyword-based fallback when rule-based classifier returns unknown."""
+    """Simple keyword-based fallback for evidence classification."""
     text = (title + " " + abstract).lower()
-
     patterns = [
         (["systematic review", "meta-analysis", "meta analysis"], "1a", "systematic_review", 0.6),
         (["randomized", "randomised", "rct", "double-blind", "placebo-controlled"], "1b", "randomized_controlled_trial", 0.6),
@@ -474,12 +436,10 @@ def _fallback_classify(title: str, abstract: str) -> tuple:
         (["in vitro", "in vivo", "cell line", "mouse model", "animal model", "mice"], "5", "experimental_basic", 0.5),
         (["review", "overview", "summarize", "summarise"], "5", "narrative_review", 0.3),
     ]
-
     for keywords, level, study_type, confidence in patterns:
         for kw in keywords:
             if kw in text:
                 return (level, study_type, confidence)
-
     return ("5", "unknown", 0.1)
 
 
@@ -500,11 +460,9 @@ def _step_zotero(papers: list[dict]) -> int:
         from jarvis_cli.zotero_sync import _get_zotero_client, _build_zotero_item
         from jarvis_cli.zotero_sync import _get_crossref_metadata, _get_doi_from_crossref
         import time as _time
-
         zot = _get_zotero_client()
         if zot is None:
             return 0
-
         count = 0
         for p in papers:
             doi = p.get("doi") or p.get("DOI")
@@ -512,7 +470,6 @@ def _step_zotero(papers: list[dict]) -> int:
                 doi = _get_doi_from_crossref(p.get("title", ""))
             if not doi:
                 continue
-
             try:
                 meta = _get_crossref_metadata(doi)
                 item = _build_zotero_item(zot, doi, meta)
@@ -520,11 +477,8 @@ def _step_zotero(papers: list[dict]) -> int:
                 count += 1
             except Exception:
                 pass
-
             _time.sleep(1)
-
         return count
-
     except Exception as e:
         print(f"  Warning: Zotero sync failed: {e}")
         return 0

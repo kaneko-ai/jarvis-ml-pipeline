@@ -48,6 +48,12 @@ def main(argv=None):
     c_p = subparsers.add_parser("citation", help="Fetch citation counts")
     c_p.add_argument("input")
 
+    # --- citation-stance (B-1) ---
+    cs_p = subparsers.add_parser("citation-stance", help="Classify citation stance between papers")
+    cs_p.add_argument("input")
+    cs_p.add_argument("--no-llm", action="store_true",
+                       help="Use keyword heuristic only (no Gemini)")
+
     # --- prisma ---
     pr_p = subparsers.add_parser("prisma", help="Generate PRISMA diagram")
     pr_p.add_argument("files", nargs="+")
@@ -59,6 +65,21 @@ def main(argv=None):
     ev_p.add_argument("--output", "-o", type=str, default=None)
     ev_p.add_argument("--use-llm", action="store_true")
 
+    # --- score (B-3) ---
+    sc_p = subparsers.add_parser("score", help="Calculate paper quality scores")
+    sc_p.add_argument("input")
+    sc_p.add_argument("--output", "-o", type=str, default=None)
+
+    # --- screen (B-4) ---
+    sr_p = subparsers.add_parser("screen", help="Active learning paper screening")
+    sr_p.add_argument("input", help="JSON file with papers to screen")
+    sr_p.add_argument("--auto", action="store_true",
+                       help="Auto-label using keywords (no human input)")
+    sr_p.add_argument("--batch-size", type=int, default=5,
+                       help="Papers per iteration (default: 5)")
+    sr_p.add_argument("--budget", type=float, default=0.5,
+                       help="Max fraction of papers to label (default: 0.5)")
+
     # --- obsidian-export (T2-2) ---
     ob_p = subparsers.add_parser("obsidian-export", help="Export papers to Obsidian")
     ob_p.add_argument("input")
@@ -69,16 +90,18 @@ def main(argv=None):
     ss_p.add_argument("--db", required=True)
     ss_p.add_argument("--top", type=int, default=10)
 
-    # --- contradict (T3-2) ---
-    ct_p = subparsers.add_parser("contradict", help="Detect contradictions")
+    # --- contradict (T3-2 + B-2) ---
+    ct_p = subparsers.add_parser("contradict", help="Detect contradictions between papers")
     ct_p.add_argument("input")
+    ct_p.add_argument("--use-llm", action="store_true",
+                       help="Use Gemini LLM for semantic contradiction detection")
 
     # --- zotero-sync (T3-3) ---
     zt_p = subparsers.add_parser("zotero-sync", help="Sync papers to Zotero")
     zt_p.add_argument("input")
 
-    # --- pipeline (T4-1 + A-1/A-3/A-4/A-5) ---
-    pl_p = subparsers.add_parser("pipeline", help="Run full pipeline (search -> grade -> summarize -> export)")
+    # --- pipeline ---
+    pl_p = subparsers.add_parser("pipeline", help="Run full pipeline")
     pl_p.add_argument("query", help="Search query")
     pl_p.add_argument("--max", type=int, default=20, dest="max_results",
                        help="Max papers per source (default: 20)")
@@ -90,9 +113,9 @@ def main(argv=None):
     pl_p.add_argument("--zotero", action="store_true",
                        help="Sync results to Zotero library")
     pl_p.add_argument("--prisma", action="store_true",
-                       help="Generate PRISMA 2020 flow diagram (A-4)")
+                       help="Generate PRISMA 2020 flow diagram")
     pl_p.add_argument("--bibtex", action="store_true",
-                       help="Export results as BibTeX file (A-5)")
+                       help="Export results as BibTeX file")
 
     args = parser.parse_args(argv)
     cmd = args.command
@@ -107,8 +130,11 @@ def main(argv=None):
         "merge": _cmd_merge,
         "note": _cmd_note,
         "citation": _cmd_citation,
+        "citation-stance": _cmd_citation_stance,
         "prisma": _cmd_prisma,
         "evidence": _cmd_evidence,
+        "score": _cmd_score,
+        "screen": _cmd_screen,
         "obsidian-export": _cmd_obsidian_export,
         "semantic-search": _cmd_semantic_search,
         "contradict": _cmd_contradict,
@@ -165,6 +191,12 @@ def _cmd_citation(args):
     return run_citation(args)
 
 
+def _cmd_citation_stance(args):
+    from jarvis_cli.citation_stance import run_citation_stance
+    args.use_llm = not getattr(args, "no_llm", False)
+    return run_citation_stance(args)
+
+
 def _cmd_prisma(args):
     from jarvis_cli.prisma import run_prisma
     return run_prisma(args)
@@ -173,6 +205,16 @@ def _cmd_prisma(args):
 def _cmd_evidence(args):
     from jarvis_cli.evidence import run_evidence
     return run_evidence(args)
+
+
+def _cmd_score(args):
+    from jarvis_cli.score import run_score
+    return run_score(args)
+
+
+def _cmd_screen(args):
+    from jarvis_cli.screen import run_screen
+    return run_screen(args)
 
 
 def _cmd_obsidian_export(args):

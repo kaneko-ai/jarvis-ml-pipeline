@@ -1,7 +1,12 @@
-"""jarvis obsidian_export - Write papers to Obsidian Vault as Markdown (v2 T2-2).
+"""jarvis obsidian_export - Write papers to Obsidian Vault as Markdown (v2 T2-2 + B-5).
 
 Each paper is saved as a .md file with YAML frontmatter in the Obsidian Vault.
 Obsidian automatically detects new files via folder watching.
+
+B-5 enhancements:
+  - study_type and keywords in frontmatter
+  - Evidence level badge (emoji-based)
+  - Cross-references between papers from the same pipeline run
 """
 
 from __future__ import annotations
@@ -14,15 +19,23 @@ from pathlib import Path
 import yaml
 
 
+# B-5: Evidence level badge mapping
+_EVIDENCE_BADGES = {
+    "1a": "1a - Systematic Review of RCTs",
+    "1b": "1b - Individual RCT",
+    "1c": "1c - All or None",
+    "2a": "2a - Systematic Review of Cohort",
+    "2b": "2b - Individual Cohort / Low-quality RCT",
+    "2c": "2c - Outcomes Research",
+    "3a": "3a - Systematic Review of Case-Control",
+    "3b": "3b - Individual Case-Control",
+    "4":  "4 - Case Series",
+    "5":  "5 - Expert Opinion / Basic Research",
+}
+
+
 def load_config(config_path: str = "config.yaml") -> dict:
-    """Load config.yaml and return as dict.
-
-    Args:
-        config_path: Path to config.yaml (default: project root)
-
-    Returns:
-        Configuration dictionary. Returns defaults if file not found.
-    """
+    """Load config.yaml and return as dict."""
     p = Path(config_path)
     if not p.exists():
         return {
@@ -36,30 +49,26 @@ def load_config(config_path: str = "config.yaml") -> dict:
 
 
 def _safe_filename(title: str) -> str:
-    """Convert a paper title to a safe filename.
-
-    Removes characters that are not allowed in Windows/Mac/Linux filenames,
-    and truncates to 80 characters to avoid path length issues.
-
-    Args:
-        title: Paper title string
-
-    Returns:
-        Sanitized filename string (without .md extension)
-    """
+    """Convert a paper title to a safe filename."""
     safe = re.sub(r'[<>:"/\\|?*]', "", title)
     safe = safe.strip()
     safe = safe[:80]
     return safe if safe else "Untitled"
 
 
-def export_single_paper(paper: dict, vault_path: str, papers_folder: str) -> Path:
+def export_single_paper(
+    paper: dict,
+    vault_path: str,
+    papers_folder: str,
+    sibling_titles: list[str] | None = None,
+) -> Path:
     """Export one paper as a YAML frontmatter Markdown file to Obsidian Vault.
 
     Args:
         paper: Paper data dictionary
         vault_path: Obsidian Vault root folder path
-        papers_folder: Subfolder within Vault for papers (e.g. "JARVIS/Papers")
+        papers_folder: Subfolder within Vault for papers
+        sibling_titles: Titles of other papers in same pipeline run (B-5 cross-ref)
 
     Returns:
         Path to the saved .md file
@@ -73,12 +82,13 @@ def export_single_paper(paper: dict, vault_path: str, papers_folder: str) -> Pat
     citation_count = paper.get("citation_count", 0)
     evidence_level = paper.get("evidence_level", "unknown")
     evidence_confidence = paper.get("evidence_confidence", 0.0)
-    evidence_description = paper.get("evidence_description", "")
+    study_type = paper.get("study_type", "")
     summary_ja = paper.get("summary_ja", "")
     abstract = paper.get("abstract", "")
     source = paper.get("source", "")
+    keywords = paper.get("keywords", [])
 
-    # --- Build YAML frontmatter ---
+    # --- Build YAML frontmatter (B-5 enhanced) ---
     frontmatter = {
         "title": title,
         "authors": authors[:5],
@@ -89,7 +99,9 @@ def export_single_paper(paper: dict, vault_path: str, papers_folder: str) -> Pat
         "citation_count": citation_count,
         "evidence_level": evidence_level,
         "evidence_confidence": evidence_confidence,
-        "tags": ["JARVIS"],
+        "study_type": study_type,
+        "keywords": keywords[:10] if keywords else [],
+        "tags": ["JARVIS", f"evidence-{evidence_level}"],
         "source": "JARVIS Research OS",
         "created": date.today().isoformat(),
     }
@@ -110,6 +122,16 @@ def export_single_paper(paper: dict, vault_path: str, papers_folder: str) -> Pat
     lines.append(f"# {title}")
     lines.append("")
 
+    # B-5: Evidence badge
+    badge_desc = _EVIDENCE_BADGES.get(evidence_level, evidence_level)
+    if evidence_level and evidence_level != "unknown":
+        lines.append(f"> **Evidence Level**: {badge_desc}")
+        lines.append(f"> **Confidence**: {evidence_confidence:.0%}")
+        if study_type and study_type != "unknown":
+            display_type = study_type.replace("_", " ").title()
+            lines.append(f"> **Study Type**: {display_type}")
+        lines.append("")
+
     # Basic info section
     lines.append("## Basic Info")
     author_str = ", ".join(authors[:5])
@@ -120,14 +142,14 @@ def export_single_paper(paper: dict, vault_path: str, papers_folder: str) -> Pat
     lines.append(f"- **Source**: {source}")
     if citation_count:
         lines.append(f"- **Citations**: {citation_count:,}")
-    if evidence_level and evidence_level != "unknown":
-        desc = f" ({evidence_description})" if evidence_description else ""
-        lines.append(f"- **Evidence Level**: {evidence_level}{desc}")
+    if keywords:
+        kw_str = ", ".join(keywords[:10])
+        lines.append(f"- **Keywords**: {kw_str}")
     lines.append("")
 
     # Japanese summary (if available)
     if summary_ja:
-        lines.append("## Summary (Japanese)")
+        lines.append("## Japanese Summary")
         lines.append("")
         lines.append(summary_ja)
         lines.append("")
@@ -146,6 +168,17 @@ def export_single_paper(paper: dict, vault_path: str, papers_folder: str) -> Pat
     if doi:
         lines.append(f"- [DOI](https://doi.org/{doi})")
     lines.append("")
+
+    # B-5: Cross-references to sibling papers
+    if sibling_titles:
+        other_titles = [t for t in sibling_titles if t != title]
+        if other_titles:
+            lines.append("## Related Papers (Same Search)")
+            lines.append("")
+            for t in other_titles:
+                safe_t = _safe_filename(t)
+                lines.append(f"- [[{safe_t}]]")
+            lines.append("")
 
     # --- Write file ---
     output_dir = Path(vault_path) / papers_folder
@@ -187,10 +220,13 @@ def export_papers_to_obsidian(papers: list[dict], config: dict | None = None) ->
         print(f"  Note: Vault folder does not exist, creating: {vault_path}")
         vault.mkdir(parents=True, exist_ok=True)
 
+    # B-5: Collect all titles for cross-referencing
+    all_titles = [p.get("title", "Untitled") for p in papers]
+
     saved_paths = []
     for paper in papers:
         try:
-            path = export_single_paper(paper, vault_path, papers_folder)
+            path = export_single_paper(paper, vault_path, papers_folder, sibling_titles=all_titles)
             saved_paths.append(path)
         except Exception as e:
             title = paper.get("title", "?")[:50]

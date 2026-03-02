@@ -1,130 +1,206 @@
-"""Contradiction Detector (Phase 28).
+"""Contradiction Detector (B-2 enhanced).
 
-Detects logical contradictions between claims.
+Detects contradictions between paper claims using:
+  1. LLM-based semantic analysis (Gemini API) - when --use-llm is set
+  2. Keyword heuristic fallback (original method)
 """
 
 from __future__ import annotations
 
+import json
 import logging
-from collections.abc import Mapping, Sequence
-from typing import List
-from dataclasses import dataclass
+import re
+import time
+from typing import Sequence
 
-try:
-    import transformers as transformers
-except Exception:  # pragma: no cover - compatibility for tests patching module attr
-
-    class _TransformersShim:
-        class _UnavailableSequenceModel:
-            """Fallback object used when transformers is unavailable."""
-
-            def __init__(self, model_name: str = "") -> None:
-                self.model_name = model_name
-
-        class AutoModelForSequenceClassification:
-            @staticmethod
-            def from_pretrained(
-                *args: object, **kwargs: object
-            ) -> "_TransformersShim._UnavailableSequenceModel":
-                model_name = str(args[0]) if args else str(kwargs.get("model_name", ""))
-                return _TransformersShim._UnavailableSequenceModel(model_name=model_name)
-
-    transformers = _TransformersShim()
+from jarvis_core.contradiction.schema import (
+    Claim,
+    ClaimPair,
+    ContradictionResult,
+    ContradictionType,
+)
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class Contradiction:
-    """Represents a potential contradiction between two statements."""
-
-    statement_a: str
-    statement_b: str
-    confidence: float
-    reason: str
-
-
 class ContradictionDetector:
-    """Detects contradictions using heuristics or models."""
+    """Detects contradictions between pairs of claims.
 
-    def __init__(self, config: dict[str, object] | None = None) -> None:
-        self.config: dict[str, object] = config or {}
-        # Simple heuristic antonym pairs for smoke testing
+    B-2: Added LLM-based detection via Gemini API.
+    """
+
+    def __init__(self, use_llm: bool = False, provider: str = "gemini"):
+        self.use_llm = use_llm
+        self.provider = provider
+        self._llm = None
         self.antonyms = [
             ("increase", "decrease"),
             ("positive", "negative"),
             ("effective", "ineffective"),
             ("safe", "dangerous"),
             ("significant", "insignificant"),
-            ("true", "false"),
+            ("beneficial", "harmful"),
+            ("promote", "inhibit"),
+            ("activate", "suppress"),
+            ("upregulate", "downregulate"),
+            ("enhance", "reduce"),
         ]
 
-    def detect(self, claims: Sequence[str | Mapping[str, object]]) -> List[Contradiction]:
-        """Detect contradictions within a list of claims."""
-        contradictions = []
+    def _get_llm(self):
+        """Lazy-init LLM client."""
+        if self._llm is None and self.use_llm:
+            try:
+                from dotenv import load_dotenv
+                load_dotenv()
+            except ImportError:
+                pass
+            try:
+                from jarvis_core.llm import LLMClient
+                self._llm = LLMClient(provider=self.provider)
+            except Exception as e:
+                logger.warning(f"LLM init failed: {e}. Falling back to heuristic.")
+                self.use_llm = False
+        return self._llm
 
-        for i, claim_a in enumerate(claims):
-            for j, claim_b in enumerate(claims):
-                if i >= j:
-                    continue
+    def detect(self, claim_a: Claim, claim_b: Claim) -> ContradictionResult:
+        """Detect contradiction between two claims.
 
-                text_a = self._extract_text(claim_a)
-                text_b = self._extract_text(claim_b)
-                score = self._check_pair(text_a, text_b)
-                if score > 0.5:
-                    contradictions.append(
-                        Contradiction(
-                            statement_a=text_a,
-                            statement_b=text_b,
-                            confidence=score,
-                            reason="Heuristic antonym match",
-                        )
-                    )
+        Args:
+            claim_a: First claim.
+            claim_b: Second claim.
 
-        return contradictions
+        Returns:
+            ContradictionResult with type, confidence, and explanation.
+        """
+        pair = ClaimPair(claim_a=claim_a, claim_b=claim_b)
 
-    def _extract_text(self, claim: str | Mapping[str, object]) -> str:
-        """Extract canonical text from claim-like objects."""
-        if isinstance(claim, str):
-            return claim
-        if isinstance(claim, Mapping):
-            text = claim.get("text")
-            if isinstance(text, str):
-                return text
-            return str(text) if text is not None else ""
-        return str(claim)
+        if self.use_llm:
+            llm = self._get_llm()
+            if llm:
+                return self._detect_llm(llm, pair)
 
-    def _check_pair(self, text_a: str, text_b: str) -> float:
-        """Check a pair of texts for contradiction."""
-        # Normalize
-        a_lower = text_a.lower()
-        b_lower = text_b.lower()
+        return self._detect_heuristic(pair)
 
-        # Heuristic: If sentences are very similar but contain antonyms
-        # This is very simplistic but sufficient for Phase 28 smoke test
+    def detect_batch(self, claims: Sequence[Claim]) -> list[ContradictionResult]:
+        """Detect contradictions among all pairs of claims.
 
-        # 1. Check for antonyms
+        Args:
+            claims: List of claims to compare pairwise.
+
+        Returns:
+            List of ContradictionResult for pairs with contradictions.
+        """
+        results = []
+        for i in range(len(claims)):
+            for j in range(i + 1, len(claims)):
+                result = self.detect(claims[i], claims[j])
+                if result.is_contradictory:
+                    results.append(result)
+        return results
+
+    def _detect_llm(self, llm, pair: ClaimPair) -> ContradictionResult:
+        """Detect contradiction using LLM (Gemini)."""
+        from jarvis_core.llm import Message
+
+        text_a = pair.claim_a.text[:500]
+        text_b = pair.claim_b.text[:500]
+        title_a = pair.claim_a.paper_id
+        title_b = pair.claim_b.paper_id
+
+        system_prompt = (
+            "You are a scientific contradiction detector.\n"
+            "Given two paper abstracts, determine if they contain contradictory findings.\n\n"
+            "Contradiction types:\n"
+            "- direct: A says X, B says not-X\n"
+            "- quantitative: Conflicting numeric results\n"
+            "- methodological: Different methods lead to opposite conclusions\n"
+            "- partial: Partially contradictory findings\n"
+            "- none: No contradiction\n\n"
+            "Output ONLY a JSON object:\n"
+            '{"type": "direct|quantitative|methodological|partial|none", '
+            '"confidence": 0.0-1.0, "explanation": "brief reason"}'
+        )
+
+        user_prompt = (
+            f"Paper A ({title_a}):\n{text_a}\n\n"
+            f"Paper B ({title_b}):\n{text_b}"
+        )
+
+        try:
+            raw = llm.chat([
+                Message(role="system", content=system_prompt),
+                Message(role="user", content=user_prompt),
+            ])
+            raw_clean = raw.strip()
+            if raw_clean.startswith("```"):
+                raw_clean = re.sub(r"^```(?:json)?\s*", "", raw_clean)
+                raw_clean = re.sub(r"\s*```$", "", raw_clean)
+
+            parsed = json.loads(raw_clean)
+
+            type_map = {
+                "direct": ContradictionType.DIRECT,
+                "quantitative": ContradictionType.QUANTITATIVE,
+                "methodological": ContradictionType.METHODOLOGICAL,
+                "partial": ContradictionType.PARTIAL,
+                "temporal": ContradictionType.TEMPORAL,
+                "none": ContradictionType.NONE,
+            }
+            ctype = type_map.get(parsed.get("type", "none"), ContradictionType.NONE)
+            confidence = float(parsed.get("confidence", 0.0))
+            explanation = parsed.get("explanation", "")
+
+            return ContradictionResult(
+                claim_pair=pair,
+                contradiction_type=ctype,
+                confidence=confidence,
+                explanation=explanation,
+                evidence=[f"LLM ({self.provider}) classification"],
+            )
+        except Exception as e:
+            logger.warning(f"LLM contradiction detection failed: {e}")
+            return self._detect_heuristic(pair)
+
+    def _detect_heuristic(self, pair: ClaimPair) -> ContradictionResult:
+        """Detect contradiction using keyword heuristics."""
+        text_a = pair.claim_a.text.lower()
+        text_b = pair.claim_b.text.lower()
+
+        # Check for antonym pairs
         has_antonym = False
+        matched_pair = None
         for word1, word2 in self.antonyms:
-            if (word1 in a_lower and word2 in b_lower) or (word2 in a_lower and word1 in b_lower):
+            if (word1 in text_a and word2 in text_b) or (word2 in text_a and word1 in text_b):
                 has_antonym = True
+                matched_pair = (word1, word2)
                 break
 
         if has_antonym:
-            # Check overlap to ensure context is similar
-            words_a = set(a_lower.split())
-            words_b = set(b_lower.split())
-            overlap = len(words_a.intersection(words_b))
-            union = len(words_a.union(words_b))
+            # Check context overlap (Jaccard similarity)
+            words_a = set(text_a.split())
+            words_b = set(text_b.split())
+            overlap = len(words_a & words_b)
+            union = len(words_a | words_b)
             jaccard = overlap / max(union, 1)
 
-            if jaccard > 0.3:  # Arbitrary threshold for context similarity
-                return 0.8
+            if jaccard > 0.15:
+                return ContradictionResult(
+                    claim_pair=pair,
+                    contradiction_type=ContradictionType.DIRECT,
+                    confidence=min(0.7, 0.4 + jaccard),
+                    explanation=f"Antonym pair ({matched_pair[0]}/{matched_pair[1]}) with topic overlap ({jaccard:.2f})",
+                    evidence=[f"Antonym: {matched_pair[0]} vs {matched_pair[1]}"],
+                )
 
-        return 0.0
+        return ContradictionResult(
+            claim_pair=pair,
+            contradiction_type=ContradictionType.NONE,
+            confidence=0.1,
+            explanation="No contradiction indicators found",
+        )
 
 
-def detect_contradiction(claims: Sequence[str]) -> List[Contradiction]:
-    """Convenience function to detect contradictions."""
-    detector = ContradictionDetector()
-    return detector.detect(claims)
+def detect_contradiction(claims: Sequence[Claim], use_llm: bool = False) -> list[ContradictionResult]:
+    """Convenience function to detect contradictions among claims."""
+    detector = ContradictionDetector(use_llm=use_llm)
+    return detector.detect_batch(list(claims))
