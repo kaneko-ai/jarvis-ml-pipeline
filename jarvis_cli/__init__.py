@@ -97,6 +97,19 @@ def main(argv=None):
     sk_p.add_argument("--name", "-n", type=str, default=None,
                        help="Skill name for show/execute")
 
+    # --- mcp (C-1) ---
+    mc_p = subparsers.add_parser("mcp", help="MCP Hub - manage servers and invoke tools")
+    mc_p.add_argument("action", choices=["servers", "tools", "invoke", "status"],
+                       help="servers / tools / invoke / status")
+    mc_p.add_argument("--tool", "-t", type=str, default=None,
+                       help="Tool name for invoke")
+    mc_p.add_argument("--params", "-p", type=str, default=None,
+                       help='JSON params for invoke, e.g. \'{"query":"cancer"}\'')
+    mc_p.add_argument("--config", "-c", type=str, default=None,
+                       help="Path to MCP config JSON file")
+    mc_p.add_argument("--params-file", "-f", type=str, default=None,
+                       help="JSON file containing params for invoke")
+
     # --- obsidian-export (T2-2) ---
     ob_p = subparsers.add_parser("obsidian-export", help="Export papers to Obsidian")
     ob_p.add_argument("input")
@@ -154,6 +167,7 @@ def main(argv=None):
         "screen": _cmd_screen,
         "browse": _cmd_browse,
         "skills": _cmd_skills,
+        "mcp": _cmd_mcp,
         "obsidian-export": _cmd_obsidian_export,
         "semantic-search": _cmd_semantic_search,
         "contradict": _cmd_contradict,
@@ -244,6 +258,11 @@ def _cmd_browse(args):
 def _cmd_skills(args):
     from jarvis_cli.skills import run_skills
     return run_skills(args)
+
+
+def _cmd_mcp(args):
+    from jarvis_cli.mcp import run_mcp
+    return run_mcp(args)
 
 
 def _cmd_obsidian_export(args):

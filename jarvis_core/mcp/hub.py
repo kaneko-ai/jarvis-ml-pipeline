@@ -20,10 +20,34 @@ class MCPHub:
     def __init__(self) -> None:
         self._servers: dict[str, MCPServer] = {}
         self._rate_log: dict[str, list[float]] = defaultdict(list)
+        self._local_handlers: dict[str, Any] = {}
 
     def register_server(self, server: MCPServer) -> None:
         """Register an MCP server."""
         self._servers[server.name] = server
+
+    def register_builtin_servers(self) -> None:
+        """Register all predefined builtin MCP servers."""
+        from .servers import (
+            get_pubmed_mcp_server,
+            get_openalex_mcp_server,
+            get_semantic_scholar_mcp_server,
+            get_arxiv_mcp_server,
+            get_crossref_mcp_server,
+        )
+        for factory in [
+            get_pubmed_mcp_server,
+            get_openalex_mcp_server,
+            get_semantic_scholar_mcp_server,
+            get_arxiv_mcp_server,
+            get_crossref_mcp_server,
+        ]:
+            server = factory()
+            self.register_server(server)
+
+    def register_local_handler(self, tool_name: str, handler: Any) -> None:
+        """Register a local Python callable as a tool handler."""
+        self._local_handlers[tool_name] = handler
 
     def register_from_config(self, config_path: str) -> None:
         """Register MCP servers from a JSON configuration file."""
@@ -53,127 +77,170 @@ class MCPHub:
                 ]
             self.register_server(server)
 
-    async def discover_tools(self, server_name: str) -> list[MCPTool]:
-        """Discover tools from a specific server."""
-        server = self._servers.get(server_name)
-        if not server:
-            return []
-        if not self._allow_request(server):
-            server.status = MCPServerStatus.RATE_LIMITED
-            return []
-
-        url = f"{server.server_url.rstrip('/')}/tools"
-        start = time.perf_counter()
-        try:
-            response = await asyncio.to_thread(
-                requests.request,
-                "GET",
-                url,
-                headers=server.headers,
-                timeout=30,
-            )
-            response.raise_for_status()
-            payload = response.json()
-            tool_payloads = payload.get("tools", payload if isinstance(payload, list) else [])
-            tools = [
-                MCPTool(
-                    name=tool.get("name", ""),
-                    description=tool.get("description", ""),
-                    parameters=tool.get("parameters", {}),
-                    required_params=tool.get("required_params", []),
-                    enabled=tool.get("enabled", True),
+    def invoke_tool_sync(self, tool_name: str, params: dict) -> MCPToolResult:
+        """Synchronously invoke a tool - tries local handler first, then remote."""
+        # Try local handler
+        handler = self._local_handlers.get(tool_name)
+        if handler:
+            start = time.perf_counter()
+            try:
+                data = handler(params)
+                latency = (time.perf_counter() - start) * 1000
+                return MCPToolResult(
+                    tool_name=tool_name,
+                    server_name="local",
+                    success=True,
+                    data=data,
+                    latency_ms=latency,
                 )
-                for tool in tool_payloads
-            ]
-            server.tools = tools
-            server.status = MCPServerStatus.CONNECTED
-            _ = (time.perf_counter() - start) * 1000
-            return tools
-        except requests.RequestException:
-            server.status = MCPServerStatus.ERROR
-            return []
+            except Exception as e:
+                latency = (time.perf_counter() - start) * 1000
+                return MCPToolResult(
+                    tool_name=tool_name,
+                    server_name="local",
+                    success=False,
+                    error=str(e),
+                    latency_ms=latency,
+                )
 
-    async def invoke_tool(self, tool_name: str, params: dict) -> MCPToolResult:
-        """Invoke a tool by name using the registered servers."""
+        # Find the tool in registered servers
         server, tool = self._find_tool(tool_name)
         if not server or not tool:
             return MCPToolResult(
                 tool_name=tool_name,
-                server_name=server.name if server else "unknown",
+                server_name="unknown",
                 success=False,
                 error="tool_not_found",
                 latency_ms=0.0,
             )
-        if not tool.enabled:
-            return MCPToolResult(
-                tool_name=tool_name,
-                server_name=server.name,
-                success=False,
-                error="tool_disabled",
-                latency_ms=0.0,
-            )
-        if not self._allow_request(server):
-            server.status = MCPServerStatus.RATE_LIMITED
-            return MCPToolResult(
-                tool_name=tool_name,
-                server_name=server.name,
-                success=False,
-                error="rate_limit_exceeded",
-                latency_ms=0.0,
-            )
 
-        url = f"{server.server_url.rstrip('/')}/invoke"
-        payload = {"tool": tool_name, "params": params}
-        start = time.perf_counter()
-        try:
-            response = await asyncio.to_thread(
-                requests.request,
-                "POST",
-                url,
-                headers=server.headers,
-                json=payload,
-                timeout=60,
-            )
-            response.raise_for_status()
-            data = response.json()
-            latency_ms = (time.perf_counter() - start) * 1000
-            server.status = MCPServerStatus.CONNECTED
-            return MCPToolResult(
-                tool_name=tool_name,
-                server_name=server.name,
-                success=True,
-                data=data,
-                latency_ms=latency_ms,
-            )
-        except requests.RequestException as exc:
-            latency_ms = (time.perf_counter() - start) * 1000
-            server.status = MCPServerStatus.ERROR
-            return MCPToolResult(
-                tool_name=tool_name,
-                server_name=server.name,
-                success=False,
-                error=str(exc),
-                latency_ms=latency_ms,
-            )
+        # Dispatch to known API handlers
+        dispatch = {
+            "pubmed_search": self._local_pubmed_search,
+            "arxiv_search": self._local_arxiv_search,
+            "crossref_search": self._local_crossref_search,
+            "openalex_search": self._local_openalex_search,
+        }
+        local_fn = dispatch.get(tool_name)
+        if local_fn:
+            start = time.perf_counter()
+            try:
+                data = local_fn(params)
+                latency = (time.perf_counter() - start) * 1000
+                server.status = MCPServerStatus.CONNECTED
+                return MCPToolResult(
+                    tool_name=tool_name,
+                    server_name=server.name,
+                    success=True,
+                    data=data,
+                    latency_ms=latency,
+                )
+            except Exception as e:
+                latency = (time.perf_counter() - start) * 1000
+                server.status = MCPServerStatus.ERROR
+                return MCPToolResult(
+                    tool_name=tool_name,
+                    server_name=server.name,
+                    success=False,
+                    error=str(e),
+                    latency_ms=latency,
+                )
+
+        return MCPToolResult(
+            tool_name=tool_name,
+            server_name=server.name,
+            success=False,
+            error="no_local_handler_and_remote_not_available",
+            latency_ms=0.0,
+        )
+
+    # --- Local API handlers ---
+
+    def _local_pubmed_search(self, params: dict) -> dict:
+        from jarvis_core.sources import PubMedClient
+        client = PubMedClient()
+        query = params.get("query", "")
+        max_results = params.get("max_results", 5)
+        articles = client.search(query, max_results=max_results)
+        results = []
+        for a in articles:
+            if isinstance(a, dict):
+                results.append({"title": a.get("title", ""), "pmid": a.get("pmid", ""), "doi": a.get("doi", "")})
+            elif isinstance(a, str):
+                results.append({"pmid": a})
+            else:
+                results.append({"title": getattr(a, "title", ""), "pmid": getattr(a, "pmid", ""), "doi": getattr(a, "doi", "")})
+        return {
+            "source": "pubmed",
+            "query": query,
+            "count": len(results),
+            "results": results,
+        }
+
+    def _local_arxiv_search(self, params: dict) -> dict:
+        from jarvis_core.sources import ArxivClient
+        client = ArxivClient()
+        query = params.get("query", "")
+        max_results = params.get("max_results", 5)
+        papers = client.search(query, max_results=max_results)
+        return {
+            "source": "arxiv",
+            "query": query,
+            "count": len(papers),
+            "results": [p.to_dict() if hasattr(p, "to_dict") else {"title": p.title} for p in papers],
+        }
+
+    def _local_crossref_search(self, params: dict) -> dict:
+        from jarvis_core.sources import CrossrefClient
+        client = CrossrefClient()
+        query = params.get("query", "")
+        rows = params.get("rows", 5)
+        works = client.search(query, rows=rows)
+        return {
+            "source": "crossref",
+            "query": query,
+            "count": len(works),
+            "results": [{"title": w.title, "doi": w.doi} for w in works],
+        }
+
+    def _local_openalex_search(self, params: dict) -> dict:
+        from jarvis_core.sources import OpenAlexClient
+        client = OpenAlexClient()
+        query = params.get("query", "")
+        max_results = params.get("max_results", 5)
+        works = client.search(query, max_results=max_results)
+        return {
+            "source": "openalex",
+            "query": query,
+            "count": len(works),
+            "results": [{"title": w.title, "doi": getattr(w, "doi", "")} for w in works],
+        }
+
+    # --- Async methods (kept for compatibility) ---
+
+    async def discover_tools(self, server_name: str) -> list[MCPTool]:
+        server = self._servers.get(server_name)
+        if not server:
+            return []
+        return server.tools
+
+    async def invoke_tool(self, tool_name: str, params: dict) -> MCPToolResult:
+        return self.invoke_tool_sync(tool_name, params)
 
     def list_all_tools(self) -> list[dict[str, Any]]:
-        """List all registered tools across servers."""
         tools: list[dict[str, Any]] = []
         for server in self._servers.values():
             for tool in server.tools:
-                tools.append(
-                    {
-                        "server": server.name,
-                        "tool": tool.name,
-                        "description": tool.description,
-                        "enabled": tool.enabled,
-                        "required_params": tool.required_params,
-                    }
-                )
+                tools.append({
+                    "server": server.name,
+                    "tool": tool.name,
+                    "description": tool.description,
+                    "enabled": tool.enabled,
+                    "required_params": tool.required_params,
+                })
         return tools
 
     def list_servers(self) -> list[dict[str, Any]]:
-        """List registered MCP servers."""
         return [
             {
                 "name": server.name,
