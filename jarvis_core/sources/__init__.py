@@ -4,8 +4,8 @@ Provides clients for:
 - NCBI PubMed (E-utilities)
 - Semantic Scholar
 - OpenAlex
-- arXiv
-- Crossref
+- arXiv (C-5)
+- Crossref (C-5)
 - Unpaywall
 """
 
@@ -16,6 +16,8 @@ from .chunking import (
     SourceDocument,
     ingest,
 )
+from .arxiv_client import ArxivClient, ArxivPaper
+from .crossref_client import CrossrefClient, CrossrefWork
 from .openalex_client import OpenAlexClient, OpenAlexWork
 from .pubmed_client import PubMedArticle, PubMedClient
 from .semantic_scholar_client import S2Paper, SemanticScholarClient
@@ -28,6 +30,10 @@ __all__ = [
     "S2Paper",
     "OpenAlexClient",
     "OpenAlexWork",
+    "ArxivClient",
+    "ArxivPaper",
+    "CrossrefClient",
+    "CrossrefWork",
     "UnifiedSourceClient",
     "SourceDocument",
     "Chunker",

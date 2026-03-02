@@ -1,4 +1,4 @@
-"""jarvis search - lightweight paper search (P1-1 + P1-3 + P3 codex + v2 unified)."""
+"""jarvis search - lightweight paper search (P1-1 + P1-3 + P3 codex + v2 unified + C-5 arxiv/crossref)."""
 
 from __future__ import annotations
 
@@ -12,42 +12,23 @@ from jarvis_cli.bibtex import save_bibtex
 
 
 # ---------------------------------------------------------------------------
-# ★ v2追加: ソース名の文字列 → SourceType 列挙値 への変換マップ
-#
-#   ユーザーがコマンドラインで指定する短い名前（左側）を、
-#   jarvis_core が内部で使う SourceType 列挙値の名前（右側）に対応付けます。
-#   例: "s2" → "SEMANTIC_SCHOLAR"
+# v2 + C-5: source name -> SourceType mapping
 # ---------------------------------------------------------------------------
 _SOURCE_NAME_MAP: dict[str, str] = {
     "pubmed": "PUBMED",
     "s2": "SEMANTIC_SCHOLAR",
     "semantic_scholar": "SEMANTIC_SCHOLAR",
     "openalex": "OPENALEX",
+    "arxiv": "ARXIV",
+    "crossref": "CROSSREF",
 }
 
 
 def _parse_sources(sources_str: str | None):
-    """カンマ区切りのソース指定文字列を SourceType のリストに変換する。
-
-    Args:
-        sources_str: "pubmed,s2,openalex" のようなカンマ区切り文字列。
-                     None の場合は None を返す（＝従来の PubMed のみ動作）。
-
-    Returns:
-        SourceType のリスト、または None。
-
-    使用例:
-        _parse_sources("pubmed,s2")
-        → [SourceType.PUBMED, SourceType.SEMANTIC_SCHOLAR]
-
-        _parse_sources(None)
-        → None
-    """
+    """Parse comma-separated source names into SourceType list."""
     if sources_str is None:
         return None
 
-    # ここで初めて jarvis_core をインポートする（遅延インポート）。
-    # 理由: --sources を使わない場合は jarvis_core.sources を読み込まなくて済むため。
     from jarvis_core.sources.unified_source_client import SourceType
 
     result = []
@@ -59,7 +40,7 @@ def _parse_sources(sources_str: str | None):
         else:
             available = ", ".join(sorted(_SOURCE_NAME_MAP.keys()))
             print(
-                f"  Warning: Unknown source '{name}' (skipping). "
+                f"  Warning: Unknown source \'{name}\' (skipping). "
                 f"Available sources: {available}"
             )
 
@@ -67,29 +48,15 @@ def _parse_sources(sources_str: str | None):
 
 
 def _search_with_unified_client(query: str, max_results: int, sources):
-    """UnifiedSourceClient を使って複数ソースから統合検索する。
-
-    Args:
-        query: 検索クエリ（例: "PD-1 immunotherapy"）
-        max_results: 各ソースから取得する最大件数
-        sources: SourceType のリスト
-
-    Returns:
-        (papers, warnings) のタプル。
-        papers は既存の dict 形式（_print_papers 等が期待するフォーマット）のリスト。
-        warnings は警告メッセージのリスト。
-    """
+    """Search using UnifiedSourceClient across multiple sources."""
     from jarvis_core.sources.unified_source_client import UnifiedSourceClient
 
     source_names = [s.value for s in sources]
     print(f"  Unified search mode: {source_names}")
     print(f"  Max {max_results} papers per source, with DOI deduplication")
 
-    # UnifiedSourceClient はコンストラクタ引数で email や API キーを
-    # 受け取れるが、現時点では省略してデフォルトで動かす。
     client = UnifiedSourceClient()
 
-    # 統合検索を実行（ソースごとに順次呼び出し → DOI で重複除去）
     unified_papers = client.search(
         query=query,
         max_results=max_results,
@@ -99,9 +66,6 @@ def _search_with_unified_client(query: str, max_results: int, sources):
 
     warnings: list[str] = []
 
-    # UnifiedPaper オブジェクトを、既存 CLI が使っている dict 形式に変換する。
-    # こうすることで、_print_papers(), _build_report_md(), save_bibtex() など
-    # 既存の関数をそのまま使える。
     papers: list[dict] = []
     for up in unified_papers:
         paper_dict = {
@@ -109,11 +73,11 @@ def _search_with_unified_client(query: str, max_results: int, sources):
             "abstract": up.abstract,
             "authors": up.authors,
             "year": up.year,
-            "journal": up.venue,           # UnifiedPaper では venue
+            "journal": up.venue,
             "doi": up.doi,
             "pmid": up.pmid,
-            "source": up.source.value,     # "pubmed", "semantic_scholar", "openalex"
-            "source_id": up.id,            # "pubmed:12345", "s2:abcde" etc.
+            "source": up.source.value,
+            "source_id": up.id,
             "url": up.url or "",
             "citation_count": up.citation_count,
             "keywords": up.keywords,
@@ -121,7 +85,7 @@ def _search_with_unified_client(query: str, max_results: int, sources):
         papers.append(paper_dict)
 
     if not papers:
-        warnings.append(f"No papers found from any source for '{query}'.")
+        warnings.append(f"No papers found from any source for \'{query}\'.")
     else:
         print(f"  Retrieved {len(papers)} unique papers (after deduplication)")
 
@@ -129,15 +93,7 @@ def _search_with_unified_client(query: str, max_results: int, sources):
 
 
 def _search_with_legacy(query: str, max_results: int):
-    """従来の PubMed のみ検索（既存動作の維持）。
-
-    Args:
-        query: 検索クエリ
-        max_results: 最大件数
-
-    Returns:
-        (papers, warnings) のタプル。
-    """
+    """Legacy PubMed-only search."""
     from jarvis_core.agents import PaperFetcherAgent
 
     agent = PaperFetcherAgent()
@@ -146,11 +102,7 @@ def _search_with_legacy(query: str, max_results: int):
 
 
 def run_search(args):
-    """search command main logic.
-
-    --sources が指定されていれば UnifiedSourceClient で複数ソース検索。
-    指定がなければ従来通り PubMed のみ検索。
-    """
+    """search command main logic."""
     query = args.query.strip()
     max_results = max(1, min(args.max_results, 20))
     provider = getattr(args, "provider", "gemini")
@@ -160,27 +112,22 @@ def run_search(args):
         print("Error: search query is empty.", file=sys.stderr)
         return 1
 
-    print(f"Searching for: '{query}' (max {max_results} papers)...")
+    print(f"Searching for: \'{query}\' (max {max_results} papers)...")
     if provider != "gemini":
         print(f"  LLM provider: {provider}")
     print()
 
-    # ------------------------------------------------------------------
-    # 検索の実行
-    # ------------------------------------------------------------------
     start_time = time.perf_counter()
 
     if sources is not None:
-        # ★ v2: UnifiedSourceClient による統合検索
         papers, warnings = _search_with_unified_client(query, max_results, sources)
     else:
-        # 従来動作: PubMed のみ
         papers, warnings = _search_with_legacy(query, max_results)
 
     search_duration = time.perf_counter() - start_time
 
     if not papers:
-        print(f"No papers found for '{query}'.")
+        print(f"No papers found for \'{query}\'.")
         if warnings:
             for w in warnings:
                 print(f"  Warning: {w}")
@@ -188,9 +135,6 @@ def run_search(args):
 
     print(f"Found {len(papers)} papers in {search_duration:.1f}s")
 
-    # ------------------------------------------------------------------
-    # LLM による日本語要約（--no-summary が指定されていなければ実行）
-    # ------------------------------------------------------------------
     if not args.no_summary:
         print(f"Adding LLM summaries via {provider} (may take a moment)...")
         try:
@@ -206,17 +150,11 @@ def run_search(args):
             print("Continuing without summaries.")
     print()
 
-    # ------------------------------------------------------------------
-    # 結果の表示
-    # ------------------------------------------------------------------
     if args.json_output:
         print(json.dumps(papers, ensure_ascii=False, indent=2))
     else:
         _print_papers(papers)
 
-    # ------------------------------------------------------------------
-    # ファイルへの保存
-    # ------------------------------------------------------------------
     output_path = _get_output_path(args.output, query, args.json_output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -229,7 +167,6 @@ def run_search(args):
         md = _build_report_md(query, papers, warnings, search_duration)
         output_path.write_text(md, encoding="utf-8")
 
-    # BibTeX output (P1-3)
     if getattr(args, "bibtex", False):
         bib_path = output_path.with_suffix(".bib")
         save_bibtex(papers, bib_path)
@@ -247,13 +184,7 @@ def run_search(args):
     return 0
 
 
-# ======================================================================
-# 以下は既存の関数（変更なし）
-# ======================================================================
-
-
 def _print_papers(papers):
-    """Print papers to terminal."""
     for i, p in enumerate(papers, 1):
         title = p.get("title", "Untitled")
         year = p.get("year", "n.d.")
@@ -275,7 +206,6 @@ def _print_papers(papers):
 
 
 def _get_output_path(user_path, query, is_json):
-    """Decide output file path."""
     if user_path:
         return Path(user_path)
 
@@ -287,7 +217,6 @@ def _get_output_path(user_path, query, is_json):
 
 
 def _build_report_md(query, papers, warnings, duration):
-    """Build a Markdown report."""
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     lines = [
         f"# Paper Search: {query}",
