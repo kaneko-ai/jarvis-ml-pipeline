@@ -104,11 +104,22 @@ def main(argv=None):
     mc_p.add_argument("--tool", "-t", type=str, default=None,
                        help="Tool name for invoke")
     mc_p.add_argument("--params", "-p", type=str, default=None,
-                       help='JSON params for invoke, e.g. \'{"query":"cancer"}\'')
-    mc_p.add_argument("--config", "-c", type=str, default=None,
-                       help="Path to MCP config JSON file")
+                       help="JSON params for invoke")
     mc_p.add_argument("--params-file", "-f", type=str, default=None,
                        help="JSON file containing params for invoke")
+    mc_p.add_argument("--config", type=str, default=None,
+                       help="Path to MCP config JSON file")
+
+    # --- orchestrate (C-4) ---
+    or_p = subparsers.add_parser("orchestrate", help="Multi-Agent Orchestrator")
+    or_p.add_argument("action", choices=["run", "agents", "decompose", "status"],
+                       help="run / agents / decompose / status")
+    or_p.add_argument("--goal", "-g", type=str, default=None,
+                       help="Research goal for run/decompose")
+    or_p.add_argument("--max", type=int, default=5, dest="max_results",
+                       help="Max papers to retrieve (default: 5)")
+    or_p.add_argument("--no-summary", action="store_true",
+                       help="Skip LLM summary")
 
     # --- obsidian-export (T2-2) ---
     ob_p = subparsers.add_parser("obsidian-export", help="Export papers to Obsidian")
@@ -168,6 +179,7 @@ def main(argv=None):
         "browse": _cmd_browse,
         "skills": _cmd_skills,
         "mcp": _cmd_mcp,
+        "orchestrate": _cmd_orchestrate,
         "obsidian-export": _cmd_obsidian_export,
         "semantic-search": _cmd_semantic_search,
         "contradict": _cmd_contradict,
@@ -200,16 +212,13 @@ def _cmd_run(args):
         print(f"Error: {e}", file=sys.stderr)
         return 1
 
-
 def _cmd_search(args):
     from jarvis_cli.search import run_search
     return run_search(args)
 
-
 def _cmd_merge(args):
     from jarvis_cli.merge import run_merge
     return run_merge(args)
-
 
 def _cmd_note(args):
     from jarvis_cli.note import run_note
@@ -218,77 +227,66 @@ def _cmd_note(args):
         _do_obsidian_export(args.input)
     return result
 
-
 def _cmd_citation(args):
     from jarvis_cli.citation import run_citation
     return run_citation(args)
-
 
 def _cmd_citation_stance(args):
     from jarvis_cli.citation_stance import run_citation_stance
     args.use_llm = not getattr(args, "no_llm", False)
     return run_citation_stance(args)
 
-
 def _cmd_prisma(args):
     from jarvis_cli.prisma import run_prisma
     return run_prisma(args)
-
 
 def _cmd_evidence(args):
     from jarvis_cli.evidence import run_evidence
     return run_evidence(args)
 
-
 def _cmd_score(args):
     from jarvis_cli.score import run_score
     return run_score(args)
-
 
 def _cmd_screen(args):
     from jarvis_cli.screen import run_screen
     return run_screen(args)
 
-
 def _cmd_browse(args):
     from jarvis_cli.browse import run_browse
     return run_browse(args)
-
 
 def _cmd_skills(args):
     from jarvis_cli.skills import run_skills
     return run_skills(args)
 
-
 def _cmd_mcp(args):
     from jarvis_cli.mcp import run_mcp
     return run_mcp(args)
 
+def _cmd_orchestrate(args):
+    from jarvis_cli.orchestrate import run_orchestrate
+    return run_orchestrate(args)
 
 def _cmd_obsidian_export(args):
     _do_obsidian_export(args.input)
     return 0
 
-
 def _cmd_semantic_search(args):
     from jarvis_cli.semantic_search import run_semantic_search
     return run_semantic_search(args)
-
 
 def _cmd_contradict(args):
     from jarvis_cli.contradict import run_contradict
     return run_contradict(args)
 
-
 def _cmd_zotero_sync(args):
     from jarvis_cli.zotero_sync import run_zotero_sync
     return run_zotero_sync(args)
 
-
 def _cmd_pipeline(args):
     from jarvis_cli.pipeline import run_pipeline
     return run_pipeline(args)
-
 
 def _do_obsidian_export(input_path_str: str):
     """Shared Obsidian export logic."""
