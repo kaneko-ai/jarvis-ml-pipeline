@@ -1,35 +1,33 @@
-# JARVIS Research OS - Configuration File
-# Created for v2 T2-2: Obsidian Vault integration
-
 obsidian:
-  # Obsidian Vault のルートフォルダパス
-  # ★ 自分の環境に合わせて変更してください
-  vault_path: "C:\\Users\\kaneko yu\\Documents\\ObsidianVault"
-
-  # Vault 内の論文保存先フォルダ（自動作成されます）
-  papers_folder: "JARVIS/Papers"
-
-  # Vault 内の研究ノート保存先フォルダ（自動作成されます）
-  notes_folder: "JARVIS/Notes"
-
+  vault_path: C:\Users\kaneko yu\Documents\ObsidianVault
+  papers_folder: JARVIS/Papers
+  notes_folder: JARVIS/Notes
 zotero:
-  # Week 3 で設定予定（.env から読み込み）
-  api_key: ""
-  user_id: ""
-  collection: "JARVIS"
-
+  api_key: ''
+  user_id: ''
+  collection: JARVIS
 search:
   default_sources:
-    - pubmed
-    - semantic_scholar
-    - openalex
+  - pubmed
+  - semantic_scholar
+  - openalex
   max_results: 20
-
 llm:
   default_provider: gemini
-  gemini_model: gemini-2.0-flash
+  default_model: gemini/gemini-2.0-flash
+  fallback_model: openai/gpt-4.1
+  models:
+    gemini: gemini/gemini-2.0-flash
+    openai: openai/gpt-5-mini
+    deepseek: deepseek/deepseek-reasoner
   cache_enabled: true
-
+  max_retries: 3
+  temperature: 0.3
 evidence:
   use_llm: false
   strategy: weighted_average
+storage:
+  logs_dir: logs
+  exports_dir: exports
+  pdf_archive_dir: pdf-archive
+  local_fallback: logs

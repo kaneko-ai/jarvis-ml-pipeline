@@ -52,3 +52,10 @@ pytest_results.txt
 
 test_experiments/
 pdf_fail_*.txt
+
+# --- D1-5: Temp build scripts ---
+/write_*.py
+/fix_*.py
+/check_*.py
+/tatus
+/mcp_test_params.json
