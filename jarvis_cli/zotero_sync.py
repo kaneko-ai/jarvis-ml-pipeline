@@ -1,7 +1,12 @@
-"""jarvis zotero-sync - Sync papers to Zotero library (T3-3).
+"""jarvis zotero-sync - Sync papers to Zotero library (T3-3 + C-6 collection support).
 
 Based on: https://github.com/kaneko-ai/zotero-doi-importer
 Uses pyzotero to register papers by DOI via create_items().
+
+C-6: Added collection support.
+  - Reads zotero.collection from config.yaml
+  - Auto-creates collection if it does not exist
+  - Assigns papers to the specified collection
 """
 
 from __future__ import annotations
@@ -10,6 +15,19 @@ import json
 import os
 import time
 from pathlib import Path
+
+import yaml
+
+
+def _load_config(config_path: str = "config.yaml") -> dict:
+    """Load config.yaml and return as dict."""
+    p = Path(config_path)
+    if not p.exists():
+        return {}
+    try:
+        return yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return {}
 
 
 def _get_zotero_client():
@@ -30,10 +48,66 @@ def _get_zotero_client():
     try:
         from pyzotero import zotero
     except ImportError:
-        print("  Error: pyzotero is not installed. Run: pip install pyzotero")
+        print("  Error: pyzotero is not installed. Run: python -m pip install pyzotero")
         return None
 
     return zotero.Zotero(user_id, "user", api_key)
+
+
+def _get_or_create_collection(zot, collection_name: str) -> str | None:
+    """Get collection key by name, or create it if not found.
+
+    Args:
+        zot: pyzotero.Zotero client
+        collection_name: Collection name (e.g. "JARVIS")
+
+    Returns:
+        Collection key string, or None on failure.
+    """
+    if not collection_name:
+        return None
+
+    try:
+        collections = zot.collections()
+        for c in collections:
+            data = c.get("data", {})
+            if data.get("name") == collection_name:
+                key = data.get("key") or c.get("key")
+                print(f"  Collection found: {collection_name} (key: {key})")
+                return key
+
+        # Collection not found - create it
+        print(f"  Collection '{collection_name}' not found, creating...")
+        resp = zot.create_collections([{"name": collection_name}])
+
+        if isinstance(resp, dict):
+            success = resp.get("successful", resp.get("success", {}))
+            if success:
+                first_key = list(success.keys())[0]
+                new_item = success[first_key]
+                if isinstance(new_item, dict):
+                    key = new_item.get("data", {}).get("key") or new_item.get("key", "")
+                else:
+                    key = str(new_item)
+                print(f"  Collection created: {collection_name} (key: {key})")
+                return key
+
+        # Fallback: re-fetch collections to find the new one
+        time.sleep(1)
+        collections = zot.collections()
+        for c in collections:
+            data = c.get("data", {})
+            if data.get("name") == collection_name:
+                key = data.get("key") or c.get("key")
+                print(f"  Collection created: {collection_name} (key: {key})")
+                return key
+
+        print(f"  Warning: Could not verify collection creation for '{collection_name}'")
+        return None
+
+    except Exception as e:
+        print(f"  Warning: Collection handling failed: {e}")
+        return None
 
 
 def _get_crossref_metadata(doi: str) -> dict | None:
@@ -65,12 +139,24 @@ def _get_doi_from_crossref(title: str) -> str | None:
         return None
 
 
-def _build_zotero_item(zot, doi: str, meta: dict | None = None) -> dict:
-    """Build a Zotero journal article item from DOI and Crossref metadata."""
+def _build_zotero_item(zot, doi: str, meta: dict | None = None,
+                       collection_key: str | None = None) -> dict:
+    """Build a Zotero journal article item from DOI and Crossref metadata.
+
+    Args:
+        zot: pyzotero.Zotero client
+        doi: DOI string
+        meta: Crossref metadata dict (optional)
+        collection_key: Zotero collection key to assign (C-6, optional)
+    """
     template = zot.item_template("journalArticle")
 
     template["DOI"] = doi
     template["url"] = f"https://doi.org/{doi}"
+
+    # C-6: Assign to collection
+    if collection_key:
+        template["collections"] = [collection_key]
 
     if meta:
         # Title
@@ -153,6 +239,21 @@ def run_zotero_sync(args) -> int:
         print(f"  Error: Cannot connect to Zotero API: {e}")
         return 1
 
+    # C-6: Get or create collection from config.yaml
+    config = _load_config()
+    collection_name = config.get("zotero", {}).get("collection", "")
+    collection_key = None
+
+    if collection_name:
+        print(f"  Target collection: {collection_name}")
+        collection_key = _get_or_create_collection(zot, collection_name)
+        if collection_key:
+            print(f"  Collection key: {collection_key}")
+        else:
+            print(f"  Warning: Could not resolve collection '{collection_name}', using top-level library")
+    else:
+        print("  No collection specified in config.yaml, using top-level library")
+
     print()
 
     registered = 0
@@ -180,9 +281,9 @@ def run_zotero_sync(args) -> int:
         print(f"    Fetching metadata for DOI: {doi}")
         meta = _get_crossref_metadata(doi)
 
-        # Build Zotero item and register
+        # Build Zotero item and register (C-6: with collection_key)
         try:
-            item = _build_zotero_item(zot, doi, meta)
+            item = _build_zotero_item(zot, doi, meta, collection_key=collection_key)
             resp = zot.create_items([item])
 
             # Check response
@@ -216,6 +317,8 @@ def run_zotero_sync(args) -> int:
 
     print()
     print(f"  Results: {registered} registered, {skipped} skipped, {failed} failed")
+    if collection_name and collection_key:
+        print(f"  Collection: {collection_name}")
     print(f"  Total: {len(papers)} papers")
 
     return 0
