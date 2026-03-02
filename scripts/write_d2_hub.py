@@ -1,3 +1,8 @@
+import pathlib
+
+target = pathlib.Path("jarvis_core/mcp/hub.py")
+
+code = '''\
 """Core hub for managing MCP servers and invoking tools."""
 
 from __future__ import annotations
@@ -239,8 +244,8 @@ class MCPHub:
         from jarvis_core.sources import OpenAlexClient
         client = OpenAlexClient()
         query = params.get("query", "")
-        per_page = params.get("max_results", 5)
-        works = client.search(query, per_page=per_page)
+        max_results = params.get("max_results", 5)
+        works = client.search(query, max_results=max_results)
         return {
             "source": "openalex",
             "query": query,
@@ -268,25 +273,15 @@ class MCPHub:
     # --- Local API handlers: Semantic Scholar ---
 
     def _local_s2_search(self, params: dict) -> dict:
-        import time as _time
         query = params.get("query", "")
         limit = min(params.get("limit", 5), 100)
         url = "https://api.semanticscholar.org/graph/v1/paper/search"
-        delays = [5, 10, 30]
-        resp = None
-        for attempt in range(4):
-            resp = requests.get(
-                url,
-                params={"query": query, "limit": limit, "fields": "title,authors,year,abstract,externalIds,citationCount"},
-                headers={"User-Agent": "JARVIS Research OS/2.0"},
-                timeout=15,
-            )
-            if resp.status_code != 429:
-                break
-            if attempt < 3:
-                wait = delays[attempt]
-                print(f"    S2 429 - retry in {wait}s (attempt {attempt+1}/3)")
-                _time.sleep(wait)
+        resp = requests.get(
+            url,
+            params={"query": query, "limit": limit, "fields": "title,authors,year,abstract,externalIds,citationCount"},
+            headers={"User-Agent": "JARVIS Research OS/2.0"},
+            timeout=15,
+        )
         resp.raise_for_status()
         data = resp.json()
         papers = data.get("data", [])
@@ -311,25 +306,15 @@ class MCPHub:
         }
 
     def _local_s2_paper(self, params: dict) -> dict:
-        import time as _time
         paper_id = params.get("paper_id", "")
         fields = "title,authors,year,abstract,externalIds,citationCount,referenceCount,venue"
         url = f"https://api.semanticscholar.org/graph/v1/paper/{paper_id}"
-        delays = [5, 10, 30]
-        resp = None
-        for attempt in range(4):
-            resp = requests.get(
-                url,
-                params={"fields": fields},
-                headers={"User-Agent": "JARVIS Research OS/2.0"},
-                timeout=15,
-            )
-            if resp.status_code != 429:
-                break
-            if attempt < 3:
-                wait = delays[attempt]
-                print(f"    S2 429 - retry in {wait}s (attempt {attempt+1}/3)")
-                _time.sleep(wait)
+        resp = requests.get(
+            url,
+            params={"fields": fields},
+            headers={"User-Agent": "JARVIS Research OS/2.0"},
+            timeout=15,
+        )
         resp.raise_for_status()
         p = resp.json()
         ext = p.get("externalIds", {}) or {}
@@ -459,3 +444,7 @@ class MCPHub:
         timestamps.append(now)
         self._rate_log[server.name] = timestamps
         return True
+'''
+
+target.write_text(code, encoding="utf-8")
+print(f"Created: {target} ({target.stat().st_size} bytes)")

@@ -1,4 +1,8 @@
-"""jarvis browse - Lightweight browser agent for paper metadata extraction.
+import pathlib
+
+target = pathlib.Path("jarvis_cli/browse.py")
+
+code = r'''"""jarvis browse - Lightweight browser agent for paper metadata extraction.
 
 Fetches a URL and extracts paper metadata (title, abstract, authors, DOI).
 Uses requests + Scrapling parser (784x faster than BeautifulSoup).
@@ -401,3 +405,7 @@ def run_browse(args) -> int:
 
     print(f"\nDone: {len(results)} URL(s) processed.")
     return 0
+'''
+
+target.write_text(code, encoding="utf-8")
+print(f"Created: {target} ({target.stat().st_size} bytes)")
