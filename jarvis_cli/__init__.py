@@ -29,7 +29,7 @@ def main(argv=None):
     s_p.add_argument("--bibtex", action="store_true")
     s_p.add_argument("--provider", default="gemini", choices=["gemini", "codex"])
     s_p.add_argument("--sources", type=str, default=None,
-                     help="Comma-separated: pubmed,s2,openalex")
+                     help="Comma-separated: pubmed,s2,openalex,arxiv,crossref")
 
     # --- merge ---
     m_p = subparsers.add_parser("merge", help="Merge JSON results")
@@ -79,6 +79,14 @@ def main(argv=None):
                        help="Papers per iteration (default: 5)")
     sr_p.add_argument("--budget", type=float, default=0.5,
                        help="Max fraction of papers to label (default: 0.5)")
+
+    # --- browse (C-2) ---
+    br_p = subparsers.add_parser("browse", help="Fetch URL and extract paper metadata")
+    br_p.add_argument("urls", nargs="+", help="One or more URLs to fetch")
+    br_p.add_argument("--output", "-o", type=str, default=None,
+                       help="Save results as JSON file")
+    br_p.add_argument("--json", action="store_true", dest="json_output",
+                       help="Print results as JSON")
 
     # --- obsidian-export (T2-2) ---
     ob_p = subparsers.add_parser("obsidian-export", help="Export papers to Obsidian")
@@ -135,6 +143,7 @@ def main(argv=None):
         "evidence": _cmd_evidence,
         "score": _cmd_score,
         "screen": _cmd_screen,
+        "browse": _cmd_browse,
         "obsidian-export": _cmd_obsidian_export,
         "semantic-search": _cmd_semantic_search,
         "contradict": _cmd_contradict,
@@ -215,6 +224,11 @@ def _cmd_score(args):
 def _cmd_screen(args):
     from jarvis_cli.screen import run_screen
     return run_screen(args)
+
+
+def _cmd_browse(args):
+    from jarvis_cli.browse import run_browse
+    return run_browse(args)
 
 
 def _cmd_obsidian_export(args):
