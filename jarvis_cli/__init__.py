@@ -88,6 +88,15 @@ def main(argv=None):
     br_p.add_argument("--json", action="store_true", dest="json_output",
                        help="Print results as JSON")
 
+    # --- skills (C-3) ---
+    sk_p = subparsers.add_parser("skills", help="Manage and query skills")
+    sk_p.add_argument("action", choices=["list", "match", "show", "context", "execute"],
+                       help="list / match / show / context / execute")
+    sk_p.add_argument("--query", "-q", type=str, default=None,
+                       help="Query string for match/context")
+    sk_p.add_argument("--name", "-n", type=str, default=None,
+                       help="Skill name for show/execute")
+
     # --- obsidian-export (T2-2) ---
     ob_p = subparsers.add_parser("obsidian-export", help="Export papers to Obsidian")
     ob_p.add_argument("input")
@@ -144,6 +153,7 @@ def main(argv=None):
         "score": _cmd_score,
         "screen": _cmd_screen,
         "browse": _cmd_browse,
+        "skills": _cmd_skills,
         "obsidian-export": _cmd_obsidian_export,
         "semantic-search": _cmd_semantic_search,
         "contradict": _cmd_contradict,
@@ -229,6 +239,11 @@ def _cmd_screen(args):
 def _cmd_browse(args):
     from jarvis_cli.browse import run_browse
     return run_browse(args)
+
+
+def _cmd_skills(args):
+    from jarvis_cli.skills import run_skills
+    return run_skills(args)
 
 
 def _cmd_obsidian_export(args):

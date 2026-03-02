@@ -21,9 +21,16 @@ class SkillsEngine:
         self._discovered = False
 
     def _skill_dirs(self) -> list[tuple[SkillScope, Path]]:
-        dirs: list[tuple[SkillScope, Path]] = [
+        dirs: list[tuple[SkillScope, Path]] = []
+        # 1. Builtin skills shipped with the package
+        builtin_dir = Path(__file__).parent / "builtin"
+        if builtin_dir.exists():
+            dirs.append((SkillScope.GLOBAL, builtin_dir))
+        # 2. User global skills
+        dirs.append(
             (SkillScope.GLOBAL, Path("~/.gemini/antigravity/skills").expanduser()),
-        ]
+        )
+        # 3. Workspace-local skills
         if self.workspace_path:
             dirs.append((SkillScope.WORKSPACE, self.workspace_path / ".agent" / "skills"))
         return dirs
@@ -89,6 +96,7 @@ class SkillsEngine:
         skill.loaded = True
 
     def list_all_skills(self) -> list[dict]:
+        """Return a sorted list of all discovered skills as dicts."""
         self._discover()
         output = []
         for skill in self._skills.values():
@@ -103,7 +111,16 @@ class SkillsEngine:
             output.append(data)
         return sorted(output, key=lambda item: item.get("name", ""))
 
+    def get_skill(self, name: str) -> Skill | None:
+        """Get a skill by name, loading it if necessary."""
+        self._discover()
+        skill = self._skills.get(name)
+        if skill and not skill.loaded:
+            self._load_skill(skill)
+        return skill
+
     def match_skills(self, user_request: str) -> list[str]:
+        """Return skill names whose triggers match the user request."""
         self._discover()
         normalized = user_request.lower()
         matches: list[str] = []
@@ -112,6 +129,48 @@ class SkillsEngine:
             if any(trigger in normalized for trigger in triggers if trigger):
                 matches.append(name)
         return sorted(set(matches))
+
+    def execute_skill(self, name: str, context: dict | None = None) -> dict:
+        """Execute a skill by name and return results.
+
+        Currently dispatches to the corresponding jarvis_cli command.
+        """
+        skill = self.get_skill(name)
+        if not skill:
+            return {"success": False, "error": f"Skill not found: {name}"}
+
+        ctx = context or {}
+        result = {"success": True, "skill": name, "description": skill.metadata.description}
+
+        # Map skill names to CLI module functions
+        dispatch_map = {
+            "systematic-review": ("jarvis_cli.pipeline", "run_pipeline"),
+            "evidence-grading": ("jarvis_cli.evidence", "run_evidence"),
+            "citation-analysis": ("jarvis_cli.citation_stance", "run_citation_stance"),
+            "contradiction-detection": ("jarvis_cli.contradict", "run_contradict"),
+            "paper-scoring": ("jarvis_cli.score", "run_score"),
+            "active-learning": ("jarvis_cli.screen", "run_screen"),
+            "browser-agent": ("jarvis_cli.browse", "run_browse"),
+        }
+
+        entry = dispatch_map.get(name)
+        if entry and ctx.get("execute"):
+            import importlib
+            mod_name, func_name = entry
+            try:
+                mod = importlib.import_module(mod_name)
+                func = getattr(mod, func_name)
+                result["module"] = mod_name
+                result["function"] = func_name
+                result["callable"] = True
+            except Exception as e:
+                result["callable"] = False
+                result["import_error"] = str(e)
+        else:
+            result["instructions"] = skill.instructions
+            result["resources"] = list(skill.resources.keys()) if skill.loaded else []
+
+        return result
 
     def get_resource(self, skill_name: str, resource_name: str) -> str | None:
         self._discover()
