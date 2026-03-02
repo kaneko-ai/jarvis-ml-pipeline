@@ -455,14 +455,20 @@ def _step_obsidian(papers: list[dict]) -> int:
 
 
 def _step_zotero(papers: list[dict]) -> int:
-    """Sync papers to Zotero."""
+    """Sync papers to Zotero (C-6: with collection support)."""
     try:
         from jarvis_cli.zotero_sync import _get_zotero_client, _build_zotero_item
         from jarvis_cli.zotero_sync import _get_crossref_metadata, _get_doi_from_crossref
+        from jarvis_cli.zotero_sync import _load_config, _get_or_create_collection
         import time as _time
         zot = _get_zotero_client()
         if zot is None:
             return 0
+        config = _load_config()
+        collection_name = config.get("zotero", {}).get("collection", "")
+        collection_key = None
+        if collection_name:
+            collection_key = _get_or_create_collection(zot, collection_name)
         count = 0
         for p in papers:
             doi = p.get("doi") or p.get("DOI")
@@ -472,7 +478,7 @@ def _step_zotero(papers: list[dict]) -> int:
                 continue
             try:
                 meta = _get_crossref_metadata(doi)
-                item = _build_zotero_item(zot, doi, meta)
+                item = _build_zotero_item(zot, doi, meta, collection_key=collection_key)
                 zot.create_items([item])
                 count += 1
             except Exception:
