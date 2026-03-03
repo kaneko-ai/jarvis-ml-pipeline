@@ -6,188 +6,152 @@
 
 **AI-Powered Research Operating System for Systematic Literature Reviews**
 
-JARVIS Research OS is a local-first, AI-powered research assistant that helps researchers conduct systematic literature reviews with evidence grading, citation analysis, and contradiction detection.
+JARVIS Research OS is a local-first, AI-powered research assistant that automates systematic literature reviews with evidence grading, citation network analysis, and multi-agent orchestration.
 
 ## Release Status
 
-- Current release target: `v1.0.0`
+- **Current version**: `v1.3.0` (2026-03-04)
+- **Target version**: `v2.0.0`
+- **CLI Commands**: 22
 
-## 笨ｨ Features
+## Features
 
-### Phase 1: Local-First Foundation
-- **Hybrid Search**: Sentence Transformers + BM25 with RRF fusion
-- **Offline Mode**: Network detection and graceful degradation
-- **Free APIs**: arXiv, Crossref, Unpaywall integration
-
-### Phase 2: Differentiation Features
+### Core Pipeline
+- **Multi-Source Search**: PubMed, Semantic Scholar, OpenAlex, arXiv, Crossref
 - **Evidence Grading**: CEBM evidence level classification (1a-5)
-- **Citation Analysis**: Support/Contrast/Mention stance classification
-- **Contradiction Detection**: Negation, antonym, and quantitative contradiction detection
-- **PRISMA Diagrams**: PRISMA 2020 flow diagram generation (Mermaid/SVG)
 - **Paper Scoring**: Comprehensive quality scoring with multiple signals
+- **LLM Japanese Summary**: Gemini-powered structured summaries
+- **Deduplication**: DOI/title fuzzy matching with RapidFuzz
+
+### Analysis & Discovery
+- **Citation Network**: PageRank hub detection, Mermaid/GraphML visualization (D5)
+- **Citation Stance**: Support/Contrast/Mention classification
+- **Contradiction Detection**: Negation, antonym, and quantitative analysis
+- **Semantic Search**: ChromaDB persistent vector search (D3)
+- **Deep Research**: Autonomous multi-query research with Codex/Copilot/Gemini fallback (D4)
 - **Active Learning**: Efficient screening with uncertainty sampling
 
-### Phase 3: Ecosystem
-- **MCP Hub**: External search servers (PubMed/Semantic Scholar/OpenAlex)
-- **Browser Agent**: Safe browser automation with security policy
+### AI Infrastructure
+- **LiteLLM**: Unified multi-provider LLM access (Gemini/OpenAI/DeepSeek) (D1)
+- **LangGraph Orchestrator**: 6-agent pipeline with conditional retry loops (D4)
+- **PydanticAI + Instructor**: Structured LLM output validation (D1)
+- **LightRAG**: Graph-based RAG with entity/relation extraction (D3)
+- **PDF-to-Markdown**: PyMuPDF4LLM full-text extraction (D3)
+
+### Export & Integration
+- **Obsidian Notes**: Auto-generated research notes in Obsidian Vault
+- **Zotero Sync**: Reference management integration
+- **PRISMA Diagrams**: PRISMA 2020 flow diagram generation (Mermaid)
+- **BibTeX Export**: Standard bibliography format
+- **Google Drive**: H: drive storage with local fallback (D5)
+
+### Ecosystem
+- **MCP Hub**: 5 servers, 15 tools for external API access
 - **Skills System**: Task-specific workflows via `SKILL.md`
-- **Multi-Agent Orchestrator**: Parallel agents + approval flow
-- **Plugin System**: Extensible architecture
-- **Zotero Integration**: Reference management
-- **Export Formats**: RIS, BibTeX, Markdown
+- **Streamlit Dashboard**: 5-page web UI (Overview/Search/Citation/ChromaDB/Storage) (D6)
 
-## 噫 Quick Start
-
-### Installation
+## Quick Start
 
 ```bash
-# Clone repository
+# Clone
 git clone https://github.com/kaneko-ai/jarvis-ml-pipeline.git
 cd jarvis-ml-pipeline
 
-# Install with uv (recommended)
-uv sync
+# Setup (Windows)
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e .
 
-# Or with pip
-pip install -e .
-```
+# Verify
+python -m jarvis_cli --help
+Copy
+CLI Commands (22)
+#	Command	Description
+1	run	Run full pipeline with goal
+2	search	Search papers across multiple sources
+3	merge	Merge and deduplicate JSON results
+4	note	Generate LLM research note
+5	citation	Fetch citation counts
+6	citation-stance	Classify citation relationships
+7	prisma	Generate PRISMA 2020 flow diagram
+8	evidence	Grade CEBM evidence level
+9	score	Calculate paper quality scores
+10	screen	Active learning paper screening
+11	browse	Fetch URL and extract metadata
+12	skills	Manage task-specific workflows
+13	mcp	MCP Hub server/tool management
+14	orchestrate	LangGraph multi-agent orchestrator
+15	obsidian-export	Export papers to Obsidian Vault
+16	semantic-search	ChromaDB persistent semantic search
+17	contradict	Detect contradictions between papers
+18	zotero-sync	Sync papers to Zotero library
+19	pdf-extract	Convert PDF to Markdown
+20	deep-research	Autonomous deep research mode
+21	citation-graph	Build citation network visualization
+22	pipeline	Run full pipeline with all options
+Usage Examples
+Copy# Search papers
+jarvis search "PD-1 immunotherapy" --max 10 --sources pubmed,s2
 
-### Basic Usage
+# Full pipeline with Obsidian export
+jarvis pipeline "spermidine autophagy aging" --max 20 --obsidian --zotero --prisma
 
-```python
-from jarvis_core.evidence import grade_evidence
-from jarvis_core.citation import extract_citation_contexts, classify_citation_stance
-from jarvis_core.contradiction import Claim, ContradictionDetector
+# Multi-agent orchestration
+jarvis orchestrate run --goal "immunosenescence mechanisms" --max 5
 
-# Grade evidence level
-grade = grade_evidence(
-    title="A randomized controlled trial...",
-    abstract="Methods: We conducted a double-blind RCT..."
-)
-print(f"Evidence Level: {grade.level.value} ({grade.level.description})")
+# Deep research
+jarvis deep-research "PD-1 resistance mechanisms" --max-sources 20
 
-# Analyze citations
-contexts = extract_citation_contexts(text, paper_id="paper_A")
-for ctx in contexts:
-    stance = classify_citation_stance(ctx.get_full_context())
-    print(f"Citation to {ctx.cited_paper_id}: {stance.stance.value}")
+# Citation network
+jarvis citation-graph results.json --obsidian
 
-# Detect contradictions
-detector = ContradictionDetector()
-claim_a = Claim(claim_id="1", text="Drug X increases survival", paper_id="A")
-claim_b = Claim(claim_id="2", text="Drug X decreases survival", paper_id="B")
-result = detector.detect(claim_a, claim_b)
-print(f"Contradiction: {result.is_contradictory}")
-```
+# Semantic search (ChromaDB)
+jarvis semantic-search "autophagy aging" --top 10
 
-### CLI Usage
+# Evidence grading
+jarvis evidence papers.json --use-llm
 
-```bash
-# Search papers
-jarvis search "machine learning cancer diagnosis"
+# Streamlit Dashboard
+streamlit run jarvis_web/streamlit_app.py
+Architecture
+jarvis-ml-pipeline/
+├── jarvis_cli/          # 22 CLI command handlers
+├── jarvis_core/
+│   ├── embeddings/      # ChromaDB PaperStore, sentence-transformers
+│   ├── evidence.py      # CEBM evidence grading
+│   ├── llm/             # LiteLLM client, Pydantic models
+│   ├── mcp/             # MCP Hub (5 servers, 15 tools)
+│   ├── pdf/             # PDF-to-Markdown (PyMuPDF4LLM)
+│   ├── rag/             # LightRAG, CitationGraph, citation enricher
+│   ├── skills/          # Skills engine
+│   ├── sources/         # Unified multi-source search
+│   └── storage_utils.py # H: drive / local fallback paths
+├── jarvis_web/          # Streamlit dashboard
+├── tests/               # pytest suite (50+ D6 tests)
+├── config.yaml          # Project configuration
+└── .env                 # API keys (gitignored)
+Requirements
+Python 3.11+
+Windows 11 (primary), Linux/macOS (untested)
+Gemini API key (free tier: 15 RPM)
+Optional: Codex CLI (ChatGPT Plus), Copilot CLI (Education Pro)
+Development
+Copy# Run tests
+python -m pytest tests/ -v --timeout=30
 
-# Run full pipeline
-jarvis run --config pipeline.yaml
+# Run D6 tests only
+python -m pytest tests/test_imports.py tests/test_citation_graph.py tests/test_storage_utils.py -v
 
-# Generate PRISMA diagram
-jarvis prisma --output prisma_flow.svg
-```
+# Check CLI
+python -m jarvis_cli --help
+Version History
+Version	Date	Highlights
+v1.3.0	2026-03-04	D5: Obsidian/storage H: migration, citation network, 22 CLI commands
+v1.2.0	2026-03-03	D3: ChromaDB, LightRAG, PDF-to-Markdown
+v1.1.0	2026-03-03	D2: Jina Reader, MCP handlers, browse enhancement
+v1.0.0	2026-03-02	Initial release: 21 CLI commands, full SLR pipeline
+License
+MIT License - see LICENSE for details.
 
-### MCP Hub Example
-
-```bash
-# Register MCP servers and list tools
-jarvis mcp list --config configs/mcp_config.json
-
-# Invoke MCP tool
-jarvis mcp invoke search_pubmed --params '{"query": "cancer immunotherapy"}'
-```
-
-### Browser Agent Example
-
-```python
-from jarvis_core.browser.subagent import BrowserSubagent
-from jarvis_core.browser.schema import SecurityPolicy
-
-policy = SecurityPolicy(url_allow_list=["pubmed.ncbi.nlm.nih.gov"])
-agent = BrowserSubagent(security_policy=policy, headless=True)
-```
-
-### Skills System Example
-
-```bash
-# List skills and show details
-jarvis skills list
-jarvis skills show MCP
-```
-
-## 逃 Core Modules
-
-| Module | Description |
-|--------|-------------|
-| `embeddings/` | Sentence Transformers, BM25, Hybrid search |
-| `network/` | Network detection, offline mode |
-| `sources/` | arXiv, Crossref, Unpaywall clients |
-| `evidence/` | CEBM evidence grading |
-| `citation/` | Citation context and stance analysis |
-| `contradiction/` | Claim normalization and contradiction detection |
-| `prisma/` | PRISMA 2020 flow diagram generation |
-| `paper_scoring/` | Paper quality scoring |
-| `active_learning/` | Active learning for efficient screening |
-
-## ｧｪ Testing
-
-```bash
-# Run all tests
-uv run pytest
-
-# Run specific module tests
-uv run pytest tests/test_evidence_grading.py -v
-
-# Run with coverage
-uv run pytest --cov=jarvis_core
-
-開発実行は `uv run ...` を標準とし、`python -m pytest` は再現差が出るため非推奨です。
-```
-
-## 当 Documentation
-
-- [Docs Hub](docs/README.md)
-- [API Reference](docs/API_REFERENCE.md)
-- [Quickstart](docs/QUICKSTART.md)
-- [Contributing](CONTRIBUTING.md)
-
-## 肌 Configuration
-
-Create `config.yaml`:
-
-```yaml
-search:
-  default_sources:
-    - pubmed
-    - arxiv
-  max_results: 100
-
-embeddings:
-  model: all-MiniLM-L6-v2
-  device: auto
-
-evidence:
-  use_llm: false
-  ensemble_strategy: weighted_average
-
-offline:
-  enabled: true
-  sync_on_connect: true
-```
-
-## 塘 License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
-## 剌 Acknowledgments
-
-- [Sentence Transformers](https://www.sbert.net/)
-- [PubMed](https://pubmed.ncbi.nlm.nih.gov/)
-- [arXiv](https://arxiv.org/)
-- [PRISMA Statement](http://www.prisma-statement.org/)
+Handover
+See HANDOVER_v8.md for complete development context and continuation instructions.
