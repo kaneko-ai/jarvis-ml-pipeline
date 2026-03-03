@@ -110,7 +110,7 @@ def main(argv=None):
     mc_p.add_argument("--config", type=str, default=None,
                        help="Path to MCP config JSON file")
 
-    # --- orchestrate (C-4) ---
+    # --- orchestrate (C-4, LangGraph) ---
     or_p = subparsers.add_parser("orchestrate", help="Multi-Agent Orchestrator")
     or_p.add_argument("action", choices=["run", "agents", "decompose", "status"],
                        help="run / agents / decompose / status")
@@ -158,6 +158,16 @@ def main(argv=None):
                        choices=["markdown", "html", "json", "chunks"],
                        help="Output format (default: markdown)")
 
+    # --- deep-research (D4-2) ---
+    dr_p = subparsers.add_parser("deep-research", help="Autonomous deep research (Codex/Copilot/Gemini)")
+    dr_p.add_argument("goal", help="Research goal or question")
+    dr_p.add_argument("--max-sources", type=int, default=20,
+                       help="Max total papers to collect (default: 20)")
+    dr_p.add_argument("--output", "-o", type=str, default=None,
+                       help="Output report file path")
+    dr_p.add_argument("--no-report", action="store_true",
+                       help="Skip LLM report generation")
+
     # --- pipeline ---
     pl_p = subparsers.add_parser("pipeline", help="Run full pipeline")
     pl_p.add_argument("query", help="Search query")
@@ -202,6 +212,7 @@ def main(argv=None):
         "contradict": _cmd_contradict,
         "zotero-sync": _cmd_zotero_sync,
         "pdf-extract": _cmd_pdf_extract,
+        "deep-research": _cmd_deep_research,
         "pipeline": _cmd_pipeline,
     }
 
@@ -305,6 +316,10 @@ def _cmd_zotero_sync(args):
 def _cmd_pdf_extract(args):
     from jarvis_cli.pdf_extract import run_pdf_extract
     return run_pdf_extract(args)
+
+def _cmd_deep_research(args):
+    from jarvis_cli.deep_research import run_deep_research
+    return run_deep_research(args)
 
 def _cmd_pipeline(args):
     from jarvis_cli.pipeline import run_pipeline
