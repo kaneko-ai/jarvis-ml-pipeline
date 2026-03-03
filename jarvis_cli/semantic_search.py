@@ -1,4 +1,4 @@
-"""jarvis semantic-search - Hybrid Search (BM25 + Vector) over local paper DB."""
+"""jarvis semantic-search - ChromaDB persistent + legacy hybrid search."""
 
 from __future__ import annotations
 
@@ -9,40 +9,123 @@ from pathlib import Path
 
 
 def run_semantic_search(args) -> int:
-    """Run semantic search over a local JSON paper database."""
+    """Run semantic search with ChromaDB persistence."""
     query = args.query
-    db_path = Path(args.db)
     top_k = args.top
+    db_path = getattr(args, "db", None)
+    index_only = getattr(args, "index_only", False)
+    legacy = getattr(args, "legacy", False)
 
-    if not db_path.exists():
-        print(f"  Error: DB file not found: {db_path}")
+    # ------------------------------------------------------------------
+    # Legacy mode: use old HybridSearch / keyword fallback (requires --db)
+    # ------------------------------------------------------------------
+    if legacy:
+        if not db_path:
+            print("  Error: --legacy requires --db <file.json>")
+            return 1
+        return _legacy_search(query, db_path, top_k)
+
+    # ------------------------------------------------------------------
+    # ChromaDB mode (default)
+    # ------------------------------------------------------------------
+    try:
+        from jarvis_core.embeddings.paper_store import PaperStore
+    except ImportError as e:
+        print(f"  Error: ChromaDB not available ({e})")
+        print("  Install with: python -m pip install chromadb")
         return 1
 
-    # Load papers
-    with open(db_path, encoding="utf-8") as f:
+    store = PaperStore()
+
+    # If --db is given, index that JSON file into ChromaDB first
+    if db_path:
+        p = Path(db_path)
+        if not p.exists():
+            print(f"  Error: File not found: {db_path}")
+            return 1
+        print(f"  Indexing {p.name} into ChromaDB...")
+        count = store.add_from_json(str(p))
+        print(f"  Indexed {count} papers (total in DB: {store.count()})")
+        if index_only:
+            print("  Done (--index-only mode).")
+            return 0
+        print()
+
+    # Check if there are papers in the store
+    total = store.count()
+    if total == 0:
+        print("  Error: ChromaDB is empty. Use --db <file.json> to index papers first.")
+        return 1
+
+    # Search
+    print(f"  Query: {query}")
+    print(f"  ChromaDB papers: {total}")
+    start = time.time()
+    results = store.search(query, top_k=top_k)
+    elapsed = time.time() - start
+    print(f"  Search completed in {elapsed:.2f}s")
+    print()
+
+    if not results:
+        print("  No matching papers found.")
+        return 0
+
+    print(f"  Top {len(results)} results:")
+    print(f"  {'Rank':<5} {'Score':>7} {'Title'}")
+    print(f"  {'-'*4:<5} {'-'*7:>7} {'-'*55}")
+
+    for rank, r in enumerate(results, 1):
+        meta = r.get("metadata", {})
+        title = meta.get("title", r.get("id", "Unknown"))
+        year = meta.get("year", "")
+        source = meta.get("source", "")
+        doi = meta.get("doi", "")
+        score = r.get("score", 0)
+
+        print(f"  {rank:<5} {score:>7.4f} {title}")
+        details = []
+        if year:
+            details.append(f"Year: {year}")
+        if source:
+            details.append(f"Source: {source}")
+        if doi:
+            details.append(f"DOI: {doi}")
+        if details:
+            print(f"  {'':>13} {' | '.join(details)}")
+        print()
+
+    return 0
+
+
+def _legacy_search(query: str, db_path: str, top_k: int) -> int:
+    """Legacy in-memory HybridSearch / keyword fallback."""
+    p = Path(db_path)
+    if not p.exists():
+        print(f"  Error: DB file not found: {p}")
+        return 1
+
+    with open(p, encoding="utf-8") as f:
         papers = json.load(f)
 
     if not papers:
         print("  Error: No papers in DB file.")
         return 1
 
-    print(f"  Query: {query}")
-    print(f"  DB: {db_path.name} ({len(papers)} papers)")
+    print(f"  [Legacy mode] Query: {query}")
+    print(f"  DB: {p.name} ({len(papers)} papers)")
     print()
 
-    # Build corpus: title + abstract for each paper
     corpus = []
     doc_ids = []
     metadata_list = []
-    for i, p in enumerate(papers):
-        title = p.get("title", "")
-        abstract = p.get("abstract", "")
+    for i, paper in enumerate(papers):
+        title = paper.get("title", "")
+        abstract = paper.get("abstract", "")
         text = f"{title}. {abstract}" if abstract else title
         corpus.append(text)
         doc_ids.append(str(i))
-        metadata_list.append(p)
+        metadata_list.append(paper)
 
-    # Try HybridSearch (dense + sparse), fallback to BM25 only
     try:
         from jarvis_core.embeddings import HybridSearch
 
@@ -51,8 +134,6 @@ def run_semantic_search(args) -> int:
         hybrid = HybridSearch()
         hybrid.index(corpus, ids=doc_ids, metadata=metadata_list)
         result = hybrid.search(query, top_k=top_k)
-
-        # result is HybridSearchResult, actual items are in result.results
         search_results = result.results
         elapsed = time.time() - start
 
@@ -74,31 +155,19 @@ def run_semantic_search(args) -> int:
             title = meta.get("title", sr.text[:60])
             year = meta.get("year", "")
             source = meta.get("source", "")
-            evidence = meta.get("evidence_level", "")
-            journal = meta.get("journal", "")
-
             print(f"  {rank:<5} {sr.score:>6.4f} {title}")
             details = []
             if year:
                 details.append(f"Year: {year}")
             if source:
                 details.append(f"Source: {source}")
-            if journal:
-                details.append(f"Journal: {journal}")
-            if evidence:
-                details.append(f"Evidence: {evidence}")
             if details:
                 print(f"  {'':>12} {' | '.join(details)}")
             print()
-
         return 0
 
-    except ImportError as e:
-        print(f"  Warning: HybridSearch unavailable ({e})")
-        print("  Falling back to simple keyword matching...")
-        print()
-
-        # Simple fallback: keyword matching
+    except ImportError:
+        print("  Falling back to keyword matching...")
         query_lower = query.lower()
         scored = []
         for i, text in enumerate(corpus):
@@ -107,7 +176,6 @@ def run_semantic_search(args) -> int:
             if matches > 0:
                 score = matches / len(words)
                 scored.append((i, score))
-
         scored.sort(key=lambda x: x[1], reverse=True)
         scored = scored[:top_k]
 
@@ -117,13 +185,7 @@ def run_semantic_search(args) -> int:
 
         print(f"  Top {len(scored)} results (keyword match):")
         for rank, (idx, score) in enumerate(scored, 1):
-            p = papers[idx]
-            title = p.get("title", "Unknown")
+            title = papers[idx].get("title", "Unknown")
             print(f"  {rank}. [{score:.2f}] {title}")
         print()
-
         return 0
-
-    except Exception as e:
-        print(f"  Error during search: {e}")
-        return 1

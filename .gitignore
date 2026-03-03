@@ -59,3 +59,9 @@ pdf_fail_*.txt
 /check_*.py
 /tatus
 /mcp_test_params.json
+
+# D3 data files
+.chroma/
+.lightrag/
+test_paper.pdf
+test_paper.md

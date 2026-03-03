@@ -125,11 +125,16 @@ def main(argv=None):
     ob_p = subparsers.add_parser("obsidian-export", help="Export papers to Obsidian")
     ob_p.add_argument("input")
 
-    # --- semantic-search (T3-1) ---
+    # --- semantic-search (T3-1 + D3-1 ChromaDB) ---
     ss_p = subparsers.add_parser("semantic-search", help="Semantic search in papers")
     ss_p.add_argument("query")
-    ss_p.add_argument("--db", required=True)
+    ss_p.add_argument("--db", default=None,
+                       help="JSON file to index (optional if ChromaDB has data)")
     ss_p.add_argument("--top", type=int, default=10)
+    ss_p.add_argument("--index-only", action="store_true",
+                       help="Index JSON into ChromaDB without searching")
+    ss_p.add_argument("--legacy", action="store_true",
+                       help="Use legacy HybridSearch (requires --db)")
 
     # --- contradict (T3-2 + B-2) ---
     ct_p = subparsers.add_parser("contradict", help="Detect contradictions between papers")
@@ -140,6 +145,18 @@ def main(argv=None):
     # --- zotero-sync (T3-3) ---
     zt_p = subparsers.add_parser("zotero-sync", help="Sync papers to Zotero")
     zt_p.add_argument("input")
+
+    # --- pdf-extract (D3-3) ---
+    pe_p = subparsers.add_parser("pdf-extract", help="Convert PDF to Markdown via MinerU")
+    pe_p.add_argument("input", help="Path to PDF file")
+    pe_p.add_argument("--output", "-o", type=str, default=None,
+                       help="Output file path (default: same name .md)")
+    pe_p.add_argument("--mode", default="balanced",
+                       choices=["fast", "balanced", "accurate"],
+                       help="Processing mode (default: balanced)")
+    pe_p.add_argument("--format", default="markdown",
+                       choices=["markdown", "html", "json", "chunks"],
+                       help="Output format (default: markdown)")
 
     # --- pipeline ---
     pl_p = subparsers.add_parser("pipeline", help="Run full pipeline")
@@ -184,6 +201,7 @@ def main(argv=None):
         "semantic-search": _cmd_semantic_search,
         "contradict": _cmd_contradict,
         "zotero-sync": _cmd_zotero_sync,
+        "pdf-extract": _cmd_pdf_extract,
         "pipeline": _cmd_pipeline,
     }
 
@@ -283,6 +301,10 @@ def _cmd_contradict(args):
 def _cmd_zotero_sync(args):
     from jarvis_cli.zotero_sync import run_zotero_sync
     return run_zotero_sync(args)
+
+def _cmd_pdf_extract(args):
+    from jarvis_cli.pdf_extract import run_pdf_extract
+    return run_pdf_extract(args)
 
 def _cmd_pipeline(args):
     from jarvis_cli.pipeline import run_pipeline
