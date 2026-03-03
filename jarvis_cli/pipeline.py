@@ -12,6 +12,7 @@ import time
 import uuid
 from datetime import datetime
 from pathlib import Path
+from jarvis_core.storage_utils import get_logs_dir
 
 
 def run_pipeline(args) -> int:
@@ -93,8 +94,8 @@ def run_pipeline(args) -> int:
 
     # Step 6: Save results + optional exports
     print("[Step 6/7] Saving results...")
-    log_dir = Path("logs/pipeline")
-    log_dir.mkdir(parents=True, exist_ok=True)
+    log_dir = get_logs_dir("pipeline")
+    # mkdir handled by get_logs_dir
 
     safe_name = "".join(c if c.isalnum() or c in " _-" else "_" for c in query)
     safe_name = safe_name.strip().replace(" ", "_")[:50]

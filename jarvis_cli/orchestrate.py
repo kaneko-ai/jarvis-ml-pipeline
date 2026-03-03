@@ -14,6 +14,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, TypedDict
+from jarvis_core.storage_utils import get_logs_dir
 
 # ---------------------------------------------------------------------------
 # Agent definitions (metadata only — no import of jarvis_core.agents)
@@ -429,8 +430,8 @@ def _run_pipeline(args):
 
     safe_name = "".join(c if c.isalnum() or c in "-_" else "_" for c in goal)[:40]
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_dir = Path("logs") / "orchestrate"
-    log_dir.mkdir(parents=True, exist_ok=True)
+    log_dir = get_logs_dir("orchestrate")
+    # mkdir handled by get_logs_dir
     out_path = log_dir / f"{safe_name}_{ts}.json"
     out_path.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
 

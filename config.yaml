@@ -1,5 +1,5 @@
 obsidian:
-  vault_path: C:\Users\kaneko yu\Documents\ObsidianVault
+  vault_path: "H:\\マイドライブ\\obsidian-vault"
   papers_folder: JARVIS/Papers
   notes_folder: JARVIS/Notes
 zotero:
@@ -7,10 +7,7 @@ zotero:
   user_id: ''
   collection: JARVIS
 search:
-  default_sources:
-  - pubmed
-  - semantic_scholar
-  - openalex
+  default_sources: [pubmed, semantic_scholar, openalex]
   max_results: 20
 llm:
   default_provider: gemini
@@ -27,7 +24,7 @@ evidence:
   use_llm: false
   strategy: weighted_average
 storage:
-  logs_dir: logs
-  exports_dir: exports
-  pdf_archive_dir: pdf-archive
+  logs_dir: "H:\\マイドライブ\\jarvis-data\\logs"
+  exports_dir: "H:\\マイドライブ\\jarvis-data\\exports"
+  pdf_archive_dir: "H:\\マイドライブ\\jarvis-data\\pdf-archive"
   local_fallback: logs

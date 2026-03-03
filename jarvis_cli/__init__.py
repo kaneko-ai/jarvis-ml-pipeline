@@ -168,6 +168,18 @@ def main(argv=None):
     dr_p.add_argument("--no-report", action="store_true",
                        help="Skip LLM report generation")
 
+    # --- citation-graph (D5-2) ---
+    cg_p = subparsers.add_parser("citation-graph", help="Build and visualize citation network")
+    cg_p.add_argument("input", help="JARVIS JSON file with papers")
+    cg_p.add_argument("--output-dir", "-o", default=None,
+                       help="Output directory (default: logs/citation_graph/)")
+    cg_p.add_argument("--obsidian", action="store_true",
+                       help="Also copy MD to Obsidian vault")
+    cg_p.add_argument("--max-nodes", type=int, default=30,
+                       help="Max nodes in Mermaid diagram (default: 30)")
+    cg_p.add_argument("--stats-only", action="store_true",
+                       help="Print stats without saving files")
+
     # --- pipeline ---
     pl_p = subparsers.add_parser("pipeline", help="Run full pipeline")
     pl_p.add_argument("query", help="Search query")
@@ -213,6 +225,7 @@ def main(argv=None):
         "zotero-sync": _cmd_zotero_sync,
         "pdf-extract": _cmd_pdf_extract,
         "deep-research": _cmd_deep_research,
+        "citation-graph": _cmd_citation_graph,
         "pipeline": _cmd_pipeline,
     }
 
@@ -320,6 +333,10 @@ def _cmd_pdf_extract(args):
 def _cmd_deep_research(args):
     from jarvis_cli.deep_research import run_deep_research
     return run_deep_research(args)
+
+def _cmd_citation_graph(args):
+    from jarvis_cli.citation_graph import run
+    return run(args)
 
 def _cmd_pipeline(args):
     from jarvis_cli.pipeline import run_pipeline

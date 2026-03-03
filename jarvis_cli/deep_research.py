@@ -24,6 +24,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
+from jarvis_core.storage_utils import get_logs_dir
 
 PROJECT_DIR = Path(r"C:\Users\kaneko yu\Documents\jarvis-work\jarvis-ml-pipeline")
 _last_llm_call = 0.0
@@ -368,8 +369,8 @@ def run_deep_research(args) -> int:
     safe_name = "".join(c if c.isalnum() or c in "-_" else "_" for c in goal)[:40]
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    log_dir = Path("logs") / "deep_research"
-    log_dir.mkdir(parents=True, exist_ok=True)
+    log_dir = get_logs_dir("deep_research")
+    # mkdir handled by get_logs_dir
 
     # Save JSON results
     results = {
