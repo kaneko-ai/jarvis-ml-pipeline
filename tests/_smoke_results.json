@@ -1,0 +1,94 @@
+{
+  "passed": 22,
+  "total": 22,
+  "results": [
+    [
+      "run --help",
+      "PASS"
+    ],
+    [
+      "search --help",
+      "PASS"
+    ],
+    [
+      "merge --help",
+      "PASS"
+    ],
+    [
+      "note --help",
+      "PASS"
+    ],
+    [
+      "browse --help",
+      "PASS"
+    ],
+    [
+      "pipeline --help",
+      "PASS"
+    ],
+    [
+      "deep-research --help",
+      "PASS"
+    ],
+    [
+      "orchestrate --help",
+      "PASS"
+    ],
+    [
+      "pdf-extract --help",
+      "PASS"
+    ],
+    [
+      "zotero-sync --help",
+      "PASS"
+    ],
+    [
+      "evidence",
+      "PASS"
+    ],
+    [
+      "score",
+      "PASS"
+    ],
+    [
+      "citation-stance --no-llm",
+      "PASS"
+    ],
+    [
+      "contradict",
+      "PASS"
+    ],
+    [
+      "prisma",
+      "PASS"
+    ],
+    [
+      "obsidian-export",
+      "PASS"
+    ],
+    [
+      "citation-graph --stats-only",
+      "PASS"
+    ],
+    [
+      "skills list",
+      "PASS"
+    ],
+    [
+      "mcp servers",
+      "PASS"
+    ],
+    [
+      "mcp tools",
+      "PASS"
+    ],
+    [
+      "orchestrate status",
+      "PASS"
+    ],
+    [
+      "semantic-search",
+      "PASS"
+    ]
+  ]
+}
