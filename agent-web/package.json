@@ -1,0 +1,23 @@
+{
+  "name": "jarvis-agent-web",
+  "version": "1.0.0",
+  "description": "JARVIS Research OS - Node.js Agent Web Interface",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "build": "echo 'No build step needed'"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "better-sqlite3": "^11.8.0",
+    "copilot-api": "latest",
+    "dotenv": "^16.5.0",
+    "js-yaml": "^4.1.0",
+    "eventsource-parser": "^3.0.1",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

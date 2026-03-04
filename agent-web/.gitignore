@@ -1,0 +1,8 @@
+node_modules/
+chat-history.db
+chat-history.db-shm
+chat-history.db-wal
+*.log
+curl-body.json
+curl-output.log
+.env

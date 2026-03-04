@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JARVIS Research OS</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <aside id="sidebar">
+        <div class="sidebar-header">
+          <div class="logo-block">
+            <span class="logo-mark">JR</span>
+            <div>
+              <h1>JARVIS Research OS</h1>
+              <p>Agent Web Interface</p>
+            </div>
+          </div>
+          <button id="new-session-btn" type="button">+ New Session</button>
+        </div>
+
+        <section class="sidebar-section">
+          <label for="model-selector">Model</label>
+          <select id="model-selector"></select>
+        </section>
+
+        <section class="sidebar-section">
+          <div class="section-title-row">
+            <h2>Session History</h2>
+          </div>
+          <div id="session-history" class="session-history"></div>
+        </section>
+
+        <section class="sidebar-section">
+          <h2>System Status</h2>
+          <div id="status-panel" class="status-panel">
+            <div class="status-group">
+              <h3>MCP Servers</h3>
+              <div id="mcp-status"></div>
+            </div>
+            <div class="status-group">
+              <h3>Skills</h3>
+              <div id="skills-status"></div>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <main id="main">
+        <header class="main-header">
+          <div>
+            <p class="eyebrow">Active Model</p>
+            <h2 id="current-model-label">Loading...</h2>
+          </div>
+          <button id="toggle-activity-btn" type="button">Activity</button>
+        </header>
+
+        <section id="chat-messages" class="chat-messages"></section>
+
+        <section id="agent-activity-panel" class="agent-activity-panel">
+          <div class="panel-header">
+            <h3>Agent Activity</h3>
+            <span id="activity-status" class="indicator idle">idle</span>
+          </div>
+          <div id="activity-timeline" class="activity-timeline"></div>
+        </section>
+
+        <form id="chat-input-form" class="chat-input-form">
+          <textarea
+            id="chat-input"
+            rows="1"
+            placeholder="Message JARVIS..."
+            autocomplete="off"
+          ></textarea>
+          <button id="send-button" type="submit">Send</button>
+        </form>
+      </main>
+    </div>
+
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>
