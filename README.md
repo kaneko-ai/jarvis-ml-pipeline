@@ -50,6 +50,67 @@ JARVIS Research OS is a local-first, AI-powered research assistant that automate
 - **Skills System**: Task-specific workflows via `SKILL.md`
 - **Streamlit Dashboard**: 5-page web UI (Overview/Search/Citation/ChromaDB/Storage) (D6)
 
+## Agent-Web (Chat UI)
+
+JARVIS includes a browser-based chat interface (gent-web/) that connects to GitHub Copilot API and LLM fallbacks, providing a rich research assistant experience.
+
+### Features
+
+- **Real-time SSE Streaming**: Server-Sent Events for live response streaming with inline activity timeline
+- **Multi-Model Support**: claude-sonnet-4.6 (default), gpt-4.1, o4-mini, gemini-2.0-flash fallback
+- **Session Management**: SQLite-backed chat history with full CRUD
+- **Dark/Gold RPG Theme**: Particle background, frosted-glass sidebar, four-pointed star logo (Phase 1 UI)
+- **Code Highlighting**: highlight.js integration with one-click copy button
+- **Inline Activity Timeline**: Real-time display of thinking/searching/generating steps
+- **Tool Integration**: Semantic search (ChromaDB), URL browsing, Python CLI bridge
+- **Skills Display**: 8 research skills accessible from sidebar
+
+### Tech Stack
+
+- **Backend**: Express v5, better-sqlite3, copilot-api proxy
+- **Frontend**: Vanilla JS SPA (652 lines), CSS3 with glassmorphism, Canvas particle engine
+- **Tests**: 5 CRUD tests (node:test) + 10 category integration tests
+
+### Quick Start (Agent-Web)
+
+`ash
+# Terminal A: Start Copilot API proxy
+cd agent-web
+npx copilot-api@latest start --port 4141
+
+# Terminal B: Start Agent-Web server
+cd agent-web
+npm run dev
+# => JARVIS Agent Web v1.0.0 running at http://localhost:3000
+
+# Terminal C: Run tests
+cd agent-web
+node --test tests/database.test.js
+`
+
+### Agent-Web Architecture
+
+`
+agent-web/
+  src/
+    server.js              # Express v5 entry point
+    routes/
+      chat.js              # /api/chat/stream (SSE)
+      models.js            # /api/models
+      sessions.js          # /api/sessions CRUD
+      skills.js            # /api/skills
+    services/
+      copilot-bridge.js    # Copilot API proxy
+      jarvis-bridge.js     # Python CLI bridge
+      database.js          # SQLite chat-history.db
+  public/
+    index.html             # SPA shell
+    css/styles.css         # Dark/gold theme
+    js/app.js              # 652-line UI engine
+  tests/
+    database.test.js       # 5 CRUD tests
+`
+
 ## Quick Start
 
 ```bash
@@ -154,4 +215,4 @@ License
 MIT License - see LICENSE for details.
 
 Handover
-See HANDOVER_v8.md for complete development context and continuation instructions.
+See HANDOVER_v11.md for complete development context and continuation instructions.
