@@ -1,5 +1,5 @@
 import express from "express";
-import { addMessage, createSession } from "../db/database.js";
+import { addMessage, createSession, getMessages } from "../db/database.js";
 import { callCopilotLLMStream, callCopilotLLM } from "../llm/copilot-bridge.js";
 
 let callPythonLLM;
@@ -44,6 +44,8 @@ const RESEARCH_KEYWORDS = [
   "\u30b9\u30da\u30eb\u30df\u30b8\u30f3",
 ];
 
+const MAX_HISTORY_MESSAGES = 20;
+
 function isResearchQuery(message) {
   const lower = message.toLowerCase();
   return RESEARCH_KEYWORDS.some((kw) => lower.includes(kw.toLowerCase()));
@@ -51,6 +53,19 @@ function isResearchQuery(message) {
 
 function isLiteLLMModel(model) {
   return model && model.includes("/") && !model.startsWith("[copilot]");
+}function buildHistory(sessionId) {
+  if (!sessionId) return [];
+  try {
+    const allMsgs = getMessages(sessionId);
+    const relevant = allMsgs
+      .filter(m => m.role === "user" || m.role === "assistant")
+      .slice(-MAX_HISTORY_MESSAGES)
+      .map(m => ({ role: m.role, content: m.content }));
+    return relevant;
+  } catch (e) {
+    console.error("buildHistory error:", e.message);
+    return [];
+  }
 }
 
 router.post("/stream", async (req, res) => {
@@ -178,7 +193,8 @@ router.post("/stream", async (req, res) => {
       }
     } else {
       try {
-        const stream = await callCopilotLLMStream({ message: cleanMessage, model, history: [] });
+        const history = buildHistory(sessionId);
+        const stream = await callCopilotLLMStream({ message: cleanMessage, model, history });
         const reader = stream.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
