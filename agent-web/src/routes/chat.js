@@ -17,6 +17,13 @@ try {
   jarvisTools = null;
 }
 
+let paperSearch;
+try {
+  paperSearch = await import("../llm/paper-search.js");
+} catch (e) {
+  paperSearch = null;
+}
+
 const router = express.Router();
 
 function sendSSE(res, event, data) {
@@ -149,14 +156,37 @@ router.post("/stream", async (req, res) => {
       }
     }
 
-    // --- Build augmented prompt ---
-    if (browseContent && searchContent) {
-      augmentedMessage = `\u4ee5\u4e0b\u306e\u60c5\u5831\u3092\u53c2\u8003\u306b\u3057\u3066\u56de\u7b54\u3057\u3066\u304f\u3060\u3055\u3044:\n\nURL\u5185\u5bb9:\n${browseContent}\n\n\u95a2\u9023\u8ad6\u6587:\n${searchContent}\n\n\u30e6\u30fc\u30b6\u30fc\u306e\u8cea\u554f: ${message}`;
-    } else if (browseContent) {
-      augmentedMessage = `\u4ee5\u4e0b\u306eURL\u306e\u5185\u5bb9\u3092\u53c2\u8003\u306b\u3057\u3066\u56de\u7b54\u3057\u3066\u304f\u3060\u3055\u3044:\n${browseContent}\n\n\u30e6\u30fc\u30b6\u30fc\u306e\u8cea\u554f: ${message}`;
-    } else if (searchContent) {
-      augmentedMessage = `\u4ee5\u4e0b\u306e\u95a2\u9023\u8ad6\u6587\u60c5\u5831\u3092\u53c2\u8003\u306b\u3057\u3066\u56de\u7b54\u3057\u3066\u304f\u3060\u3055\u3044:\n${searchContent}\n\n\u30e6\u30fc\u30b6\u30fc\u306e\u8cea\u554f: ${message}`;
+        // --- Live Paper Search (PubMed + Semantic Scholar) ---
+    let livePaperContent = "";
+    if (isResearchQuery(message) && paperSearch) {
+      const liveStart = Date.now();
+      sendSSE(res, "activity", { step: "live_paper_search", status: "running" });
+      try {
+        const liveResults = await paperSearch.searchLivePapers(message, 3);
+        const liveTime = Date.now() - liveStart;
+        livePaperContent = paperSearch.formatPapersForLLM(liveResults);
+        if (livePaperContent) {
+          sendSSE(res, "activity", { step: "live_paper_search", status: "done", time: liveTime + "ms" });
+          const totalCount = liveResults.pubmed.length + liveResults.semanticScholar.length;
+          sendSSE(res, "tool_call", { name: "live_paper_search", result: "Found " + totalCount + " papers (PubMed: " + liveResults.pubmed.length + ", S2: " + liveResults.semanticScholar.length + ")" });
+          usedTools.push({ name: "live_paper_search", result: "Found " + totalCount + " papers" });
+        } else {
+          sendSSE(res, "activity", { step: "live_paper_search", status: "done", time: liveTime + "ms" });
+        }
+      } catch (liveErr) {
+        sendSSE(res, "activity", { step: "live_paper_search", status: "error", time: (Date.now() - liveStart) + "ms" });
+      }
     }
+
+// --- Build augmented prompt ---
+    const contextParts = [];
+    if (browseContent) contextParts.push("URL\u5185\u5bb9:\n" + browseContent);
+    if (searchContent) contextParts.push("ChromaDB\u95a2\u9023\u8ad6\u6587:\n" + searchContent);
+    if (livePaperContent) contextParts.push("\u6700\u65b0\u8ad6\u6587\u691c\u7d22\u7d50\u679c:\n" + livePaperContent);
+    if (contextParts.length > 0) {
+      augmentedMessage = "\u4ee5\u4e0b\u306e\u60c5\u5831\u3092\u53c2\u8003\u306b\u3057\u3066\u56de\u7b54\u3057\u3066\u304f\u3060\u3055\u3044:\n\n" + contextParts.join("\n\n") + "\n\n\u30e6\u30fc\u30b6\u30fc\u306e\u8cea\u554f: " + message;
+    }
+
 
     // --- Generate LLM Response ---
     const genStart = Date.now();
