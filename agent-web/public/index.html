@@ -1,17 +1,19 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JARVIS Research OS</title>
     <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
   </head>
   <body>
+    <canvas id="particle-canvas"></canvas>
     <div id="app">
       <aside id="sidebar">
         <div class="sidebar-header">
           <div class="logo-block">
-            <span class="logo-mark">JR</span>
+            <span class="logo-mark">&#10024;</span>
             <div>
               <h1>JARVIS Research OS</h1>
               <p>Agent Web Interface</p>
@@ -53,31 +55,23 @@
             <p class="eyebrow">Active Model</p>
             <h2 id="current-model-label">Loading...</h2>
           </div>
-          <button id="toggle-activity-btn" type="button">Activity</button>
         </header>
 
         <section id="chat-messages" class="chat-messages"></section>
-
-        <section id="agent-activity-panel" class="agent-activity-panel">
-          <div class="panel-header">
-            <h3>Agent Activity</h3>
-            <span id="activity-status" class="indicator idle">idle</span>
-          </div>
-          <div id="activity-timeline" class="activity-timeline"></div>
-        </section>
 
         <form id="chat-input-form" class="chat-input-form">
           <textarea
             id="chat-input"
             rows="1"
-            placeholder="Message JARVIS..."
+            placeholder="Message JARVIS... &#10024;"
             autocomplete="off"
           ></textarea>
-          <button id="send-button" type="submit">Send</button>
+          <button id="send-button" type="submit">&#10024; Send</button>
         </form>
       </main>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script type="module" src="./js/app.js"></script>
   </body>
 </html>
