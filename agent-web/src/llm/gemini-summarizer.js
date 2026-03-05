@@ -159,7 +159,7 @@ async function summarizeSinglePaper(paper, { apiKey, model, timeoutMs }) {
 
 export async function summarizeBatch(
   papers,
-  { concurrency = 2, delayMs = 1000, onProgress, timeoutMs = 30000 } = {}
+  { concurrency = 1, delayMs = 4500, onProgress, timeoutMs = 30000 } = {}
 ) {
   const list = Array.isArray(papers) ? papers : [];
   if (list.length === 0) {
@@ -233,3 +233,4 @@ export async function summarizeBatch(
   await Promise.all(workers);
   return results;
 }
+

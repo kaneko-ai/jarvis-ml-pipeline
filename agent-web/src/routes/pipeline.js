@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { searchLivePapers } from "../llm/paper-search.js";
 import { ParallelRunner } from "../llm/parallel-runner.js";
 import { summarizeBatch } from "../llm/gemini-summarizer.js";
+import { insertPapers } from "../db/papers-repository.js";
 
 const router = express.Router();
 const TOTAL_STEPS = 7;
@@ -509,6 +510,34 @@ router.get("/run", async (req, res) => {
         })),
       };
       sendProgress(res, 6, 90, "Structured JSON prepared.");
+      try {
+        const dbPayload = papersWithSummaries.map((p) => ({
+          title: p.title || "",
+          authors:
+            typeof p.authors === "string"
+              ? p.authors
+              : Array.isArray(p.authors)
+                ? p.authors.join(", ")
+                : "",
+          journal: p.journal || p.source || "",
+          year: p.year || null,
+          abstract: p.abstract || "",
+          summary: p.summary || "",
+          source: p.source || "pipeline",
+          doi: p.doi || "",
+          pmid: p.pmid || "",
+          score: p.score || null,
+          evidence_level: p.evidence_level || "",
+          keyword: query,
+        }));
+        insertPapers(dbPayload);
+        sendProgress(res, 6, 95, `Saved ${dbPayload.length} papers to database`);
+      } catch (error) {
+        sendSSE(res, {
+          warning: `Failed to save papers to database: ${error.message || "unknown error"}. Continuing pipeline.`,
+        });
+      }
+
     } catch (error) {
       if (clientClosed) return;
       const message = isPipelineTimeoutError(error)
@@ -606,3 +635,4 @@ router.get("/history", (req, res) => {
 });
 
 export default router;
+
