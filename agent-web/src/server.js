@@ -13,6 +13,7 @@ import skillsRouter from "./routes/skills.js";
 import mcpRouter from "./routes/mcp.js";
 import usageRouter from "./routes/usage.js";
 import pipelineRouter from "./routes/pipeline.js";
+import monitorRouter from "./routes/monitor.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -62,6 +63,7 @@ app.use((req, res, next) => {
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.static(publicDir));
+app.use("/data", express.static(path.join(agentWebRoot, "data")));
 
 app.use("/api/chat", chatRouter);
 app.use("/api/sessions", sessionsRouter);
@@ -70,6 +72,7 @@ app.use("/api/skills", skillsRouter);
 app.use("/api/mcp", mcpRouter);
 app.use("/api/usage", usageRouter);
 app.use("/api/pipeline", pipelineRouter);
+app.use("/api/monitor", monitorRouter);
 
 app.get("/api/health", (req, res) => {
   res.json({
@@ -84,3 +87,5 @@ app.listen(port, () => {
 });
 
 export default app;
+
+

@@ -5,9 +5,10 @@ import { fileURLToPath } from "node:url";
 
 import { searchLivePapers } from "../llm/paper-search.js";
 import { ParallelRunner } from "../llm/parallel-runner.js";
+import { summarizeBatch } from "../llm/gemini-summarizer.js";
 
 const router = express.Router();
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 7;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -86,6 +87,32 @@ function scorePaperAgainstQuery(paper, queryKeywords) {
   return score;
 }
 
+function extractSummaryText(summaryResult, fallbackPaper) {
+  if (typeof summaryResult === "string") {
+    const normalized = summaryResult.trim();
+    return normalized || null;
+  }
+
+  if (summaryResult && typeof summaryResult === "object") {
+    if (typeof summaryResult.summary === "string") {
+      const normalized = summaryResult.summary.trim();
+      return normalized || null;
+    }
+
+    if (typeof summaryResult.text === "string") {
+      const normalized = summaryResult.text.trim();
+      return normalized || null;
+    }
+  }
+
+  if (fallbackPaper && typeof fallbackPaper.summary === "string") {
+    const normalized = fallbackPaper.summary.trim();
+    return normalized || null;
+  }
+
+  return null;
+}
+
 function sanitizeQueryForFilename(query) {
   const cleaned = String(query ?? "")
     .trim()
@@ -152,17 +179,17 @@ router.get("/run", async (req, res) => {
     sendProgress(res, 1, 15, `Search completed: ${allPapers.length} papers fetched.`);
     if (aborted) return;
 
-    sendProgress(res, 2, 20, "Deduplicating papers by title similarity...");
+    sendProgress(res, 2, 15, "Deduplicating papers by title similarity...");
     const deduplicatedPapers = deduplicateByTitle(allPapers);
     sendProgress(
       res,
       2,
-      30,
+      25,
       `Deduplication completed: ${allPapers.length - deduplicatedPapers.length} duplicates removed.`
     );
     if (aborted) return;
 
-    sendProgress(res, 3, 35, "Scoring relevance against query keywords...");
+    sendProgress(res, 3, 25, "Scoring relevance against query keywords...");
     const keywords = [...new Set(tokenize(query))];
     const scoredPapers = await runner.runAll(
       "apiPool",
@@ -171,44 +198,138 @@ router.get("/run", async (req, res) => {
         score: scorePaperAgainstQuery(paper, keywords),
       }))
     );
-    sendProgress(res, 3, 50, "Relevance scoring completed.");
+    sendProgress(res, 3, 40, "Relevance scoring completed.");
     if (aborted) return;
 
-    sendProgress(res, 4, 60, "Sorting papers by score and taking top results...");
+    sendProgress(res, 4, 40, "Sorting papers by score and taking top results...");
     const topPapers = scoredPapers
       .sort((a, b) => (b.score || 0) - (a.score || 0))
       .slice(0, limit);
-    sendProgress(res, 4, 70, `Top ${topPapers.length} papers selected.`);
+    sendProgress(res, 4, 50, `Top ${topPapers.length} papers selected.`);
     if (aborted) return;
 
-    sendProgress(res, 5, 80, "Formatting structured JSON result...");
+    sendProgress(res, 5, 50, "Preparing Gemini summarization...");
+    let papersWithSummaries = topPapers.map((paper) => ({
+      ...paper,
+      summary: paper.summary ?? null,
+    }));
+    const summaryTargetCount = Math.min(10, papersWithSummaries.length);
+
+    if (summaryTargetCount === 0) {
+      sendProgress(res, 5, 80, "No papers available for summarization.");
+    } else if (!process.env.GEMINI_API_KEY) {
+      const warningMessage = "GEMINI_API_KEY is not set. Skipping Gemini summarization.";
+      sendSSE(res, { warning: warningMessage });
+      sendProgress(res, 5, 80, warningMessage);
+    } else {
+      try {
+        const summarizedBatchResult = await summarizeBatch(
+          papersWithSummaries.slice(0, summaryTargetCount),
+          {
+            concurrency: 2,
+            delayMs: 1200,
+            onProgress: (progressPayload, fallbackTotal) => {
+              if (aborted) return;
+
+              let current = 0;
+              let total = summaryTargetCount;
+
+              if (typeof progressPayload === "number") {
+                current = progressPayload;
+                if (Number.isFinite(fallbackTotal) && fallbackTotal > 0) {
+                  total = Number(fallbackTotal);
+                }
+              } else if (progressPayload && typeof progressPayload === "object") {
+                const parsedCurrent = Number(
+                  progressPayload.current ??
+                    progressPayload.completed ??
+                    progressPayload.index ??
+                    progressPayload.count ??
+                    0
+                );
+                const parsedTotal = Number(progressPayload.total ?? progressPayload.max ?? total);
+                if (Number.isFinite(parsedCurrent)) {
+                  current = parsedCurrent;
+                }
+                if (Number.isFinite(parsedTotal) && parsedTotal > 0) {
+                  total = parsedTotal;
+                }
+              }
+
+              const safeTotal = Math.max(1, Math.floor(total));
+              const safeCurrent = Math.min(safeTotal, Math.max(0, Math.floor(current)));
+              const progress = Math.min(
+                80,
+                Math.max(50, Math.round(50 + (safeCurrent / safeTotal) * 30))
+              );
+              sendProgress(
+                res,
+                5,
+                progress,
+                `Summarizing paper ${Math.max(1, safeCurrent)}/${safeTotal}...`
+              );
+            },
+          }
+        );
+
+        const summarizedPapers = Array.isArray(summarizedBatchResult)
+          ? summarizedBatchResult
+          : Array.isArray(summarizedBatchResult?.papers)
+            ? summarizedBatchResult.papers
+            : [];
+
+        papersWithSummaries = papersWithSummaries.map((paper, index) => {
+          if (index >= summaryTargetCount) {
+            return {
+              ...paper,
+              summary: paper.summary ?? null,
+            };
+          }
+
+          return {
+            ...paper,
+            summary: extractSummaryText(summarizedPapers[index], paper),
+          };
+        });
+
+        sendProgress(res, 5, 80, `Summarization completed for ${summaryTargetCount} papers.`);
+      } catch (error) {
+        const warningMessage = `Gemini summarization failed: ${error.message || "unknown error"}`;
+        sendSSE(res, { warning: warningMessage });
+        sendProgress(res, 5, 80, warningMessage);
+      }
+    }
+    if (aborted) return;
+
+    sendProgress(res, 6, 80, "Formatting structured JSON result...");
     const generatedAt = new Date().toISOString();
     const output = {
       query,
       limit,
       generatedAt,
-      paperCount: topPapers.length,
+      paperCount: papersWithSummaries.length,
       sourceCounts: {
         pubmed: searchResult.pubmed?.length ?? 0,
         semanticScholar: searchResult.semanticScholar?.length ?? 0,
         openAlex: searchResult.openAlex?.length ?? 0,
       },
-      papers: topPapers.map((paper, index) => ({
+      papers: papersWithSummaries.map((paper, index) => ({
         rank: index + 1,
         ...paper,
+        summary: paper.summary ?? null,
       })),
     };
-    sendProgress(res, 5, 90, "Structured JSON prepared.");
+    sendProgress(res, 6, 90, "Structured JSON prepared.");
     if (aborted) return;
 
-    sendProgress(res, 6, 95, "Saving result file...");
+    sendProgress(res, 7, 90, "Saving result file...");
     const filename = `${buildTimestampForFilename()}-${sanitizeQueryForFilename(query)}.json`;
     const filePath = path.join(dataDir, filename);
     fs.writeFileSync(filePath, `${JSON.stringify(output, null, 2)}\n`, "utf8");
-    sendProgress(res, 6, 100, "Pipeline completed.");
+    sendProgress(res, 7, 100, "Pipeline completed.");
     sendSSE(res, {
       done: true,
-      paperCount: topPapers.length,
+      paperCount: papersWithSummaries.length,
       file: `agent-web/data/${filename}`,
     });
   } catch (error) {

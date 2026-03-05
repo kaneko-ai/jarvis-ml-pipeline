@@ -1,4 +1,4 @@
-﻿/* ===== Particle Engine ===== */
+/* ===== Particle Engine ===== */
 function initParticles() {
   const canvas = document.getElementById("particle-canvas");
   if (!canvas) return;
@@ -398,6 +398,412 @@ async function fetchJson(url, opts) {
   return r.json();
 }
 
+/* ===== Pipeline ===== */
+const PIPELINE_TOTAL_STEPS = 7;
+const pipelineState = {
+  eventSource: null,
+  running: false,
+  historyLoaded: false,
+};
+
+const pipelineStepDefaults = [
+  "Waiting for search start...",
+  "Waiting for deduplication...",
+  "Waiting for relevance scoring...",
+  "Waiting for ranking...",
+  "Waiting for Gemini summarization...",
+  "Waiting for output formatting...",
+  "Waiting for file save...",
+];
+
+function getPipelineStepCards() {
+  return Array.from(document.querySelectorAll(".pipeline-step-card"));
+}
+
+function clampNumber(value, min, max) {
+  return Math.min(Math.max(Number(value) || 0, min), max);
+}
+
+function setPipelineRunButtonState(running) {
+  var btn = document.getElementById("pipeline-run-btn");
+  if (!btn) return;
+  btn.disabled = Boolean(running);
+  btn.textContent = running ? "Running..." : "Run";
+}
+
+function setPipelineStatusMessage(message, type) {
+  var statusEl = document.getElementById("pipeline-status-message");
+  if (!statusEl) return;
+  statusEl.classList.remove("error", "success");
+  if (type) statusEl.classList.add(type);
+  statusEl.textContent = message || "";
+}
+
+function renderPipelineEmptyResults(message) {
+  var body = document.getElementById("pipeline-results-body");
+  if (!body) return;
+  var rowMessage = message || "No results yet.";
+  body.innerHTML =
+    '<tr><td colspan="5" class="pipeline-empty-row">' + escapeHtml(rowMessage) + '</td></tr>';
+}
+
+function resetPipelineSteps() {
+  var cards = getPipelineStepCards();
+  for (var i = 0; i < cards.length; i += 1) {
+    var card = cards[i];
+    card.classList.remove("active", "completed");
+
+    var messageEl = card.querySelector("[data-step-message]");
+    if (messageEl) {
+      messageEl.textContent = pipelineStepDefaults[i] || "Waiting for progress...";
+    }
+
+    var fillEl = card.querySelector("[data-step-fill]");
+    if (fillEl) {
+      fillEl.style.width = "0%";
+    }
+
+    var percentEl = card.querySelector("[data-step-percent]");
+    if (percentEl) {
+      percentEl.textContent = "0%";
+    }
+  }
+}
+
+function deriveStepLocalProgress(step, globalProgress) {
+  var current = clampNumber(step, 1, PIPELINE_TOTAL_STEPS);
+  var progress = clampNumber(globalProgress, 0, 100);
+  var start = ((current - 1) / PIPELINE_TOTAL_STEPS) * 100;
+  var end = (current / PIPELINE_TOTAL_STEPS) * 100;
+  if (progress <= start) return 0;
+  if (progress >= end) return 100;
+  return clampNumber(((progress - start) / (end - start)) * 100, 0, 100);
+}
+
+function updatePipelineSteps(step, progress, message) {
+  var currentStep = clampNumber(step, 1, PIPELINE_TOTAL_STEPS);
+  var safeProgress = clampNumber(progress, 0, 100);
+  var cards = getPipelineStepCards();
+
+  for (var i = 0; i < cards.length; i += 1) {
+    var card = cards[i];
+    var cardStep = i + 1;
+    var fillEl = card.querySelector("[data-step-fill]");
+    var percentEl = card.querySelector("[data-step-percent]");
+
+    card.classList.toggle("active", cardStep === currentStep && safeProgress < 100);
+    card.classList.toggle("completed", cardStep < currentStep);
+
+    var stepProgress = 0;
+    if (cardStep < currentStep) {
+      stepProgress = 100;
+    } else if (cardStep === currentStep) {
+      stepProgress = deriveStepLocalProgress(currentStep, safeProgress);
+      if (safeProgress >= 100) {
+        card.classList.remove("active");
+        card.classList.add("completed");
+        stepProgress = 100;
+      }
+    }
+
+    if (fillEl) fillEl.style.width = stepProgress.toFixed(1) + "%";
+    if (percentEl) percentEl.textContent = Math.round(stepProgress) + "%";
+  }
+
+  var activeCard = document.querySelector('.pipeline-step-card[data-step="' + currentStep + '"]');
+  if (activeCard) {
+    var messageEl = activeCard.querySelector("[data-step-message]");
+    if (messageEl && message) {
+      messageEl.textContent = message;
+    }
+  }
+}
+
+function normalizePipelineUrl(rawUrl) {
+  if (!rawUrl) return "";
+  var text = String(rawUrl).trim();
+  if (!text) return "";
+  if (text.startsWith("http://") || text.startsWith("https://")) return text;
+  if (text.startsWith("10.")) return "https://doi.org/" + text;
+  return "";
+}
+
+function normalizePipelineAuthors(rawAuthors) {
+  if (Array.isArray(rawAuthors)) return rawAuthors.join(", ");
+  if (rawAuthors === null || rawAuthors === undefined) return "-";
+  var text = String(rawAuthors).trim();
+  return text || "-";
+}
+
+function normalizePipelineScore(rawScore) {
+  if (!Number.isFinite(Number(rawScore))) return "-";
+  return Number(rawScore).toFixed(1);
+}
+
+function renderPipelineResults(papers) {
+  var body = document.getElementById("pipeline-results-body");
+  if (!body) return;
+  body.innerHTML = "";
+
+  if (!Array.isArray(papers) || !papers.length) {
+    renderPipelineEmptyResults("No papers returned by pipeline.");
+    return;
+  }
+
+  for (var paper of papers) {
+    var row = document.createElement("tr");
+
+    var titleCell = document.createElement("td");
+    var authorsCell = document.createElement("td");
+    var yearCell = document.createElement("td");
+    var sourceCell = document.createElement("td");
+    var scoreCell = document.createElement("td");
+
+    var title = paper.title ? String(paper.title) : "-";
+    var url = normalizePipelineUrl(paper.url || paper.link || paper.doi);
+    if (url) {
+      var link = document.createElement("a");
+      link.className = "pipeline-results-title-link";
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.href = url;
+      link.textContent = title;
+      titleCell.appendChild(link);
+    } else {
+      titleCell.textContent = title;
+    }
+
+    authorsCell.textContent = normalizePipelineAuthors(paper.authors);
+    yearCell.textContent = paper.year ? String(paper.year) : "-";
+    sourceCell.textContent = paper.source || paper.journal || "-";
+    scoreCell.textContent = normalizePipelineScore(paper.score);
+
+    row.appendChild(titleCell);
+    row.appendChild(authorsCell);
+    row.appendChild(yearCell);
+    row.appendChild(sourceCell);
+    row.appendChild(scoreCell);
+    body.appendChild(row);
+  }
+}
+
+function formatPipelineHistoryDate(rawDate) {
+  if (!rawDate) return "--";
+  var parsed = new Date(rawDate);
+  if (Number.isNaN(parsed.getTime())) return String(rawDate);
+  return parsed.toLocaleString("ja-JP");
+}
+
+function renderPipelineHistory(items) {
+  var list = document.getElementById("pipeline-history-list");
+  if (!list) return;
+  list.innerHTML = "";
+
+  if (!Array.isArray(items) || !items.length) {
+    list.innerHTML = '<li class="pipeline-empty-row">No history yet.</li>';
+    return;
+  }
+
+  for (var item of items) {
+    var li = document.createElement("li");
+    li.className = "pipeline-history-item";
+    li.innerHTML =
+      '<div><div class="pipeline-history-query">' + escapeHtml(item.query || "(unknown query)") + '</div>' +
+      '<div class="pipeline-history-meta">' + escapeHtml(formatPipelineHistoryDate(item.date)) + '</div></div>' +
+      '<div class="pipeline-history-meta">Papers: ' + escapeHtml(String(item.paperCount ?? "-")) + '</div>';
+    list.appendChild(li);
+  }
+}
+
+async function loadPipelineHistory(force) {
+  if (pipelineState.historyLoaded && !force) return;
+  try {
+    var history = await fetchJson("/api/pipeline/history");
+    renderPipelineHistory(history);
+    pipelineState.historyLoaded = true;
+  } catch (error) {
+    renderPipelineHistory([]);
+    setPipelineStatusMessage("Failed to load history: " + error.message, "error");
+  }
+}
+
+function buildPipelineFileCandidates(filePath) {
+  var raw = String(filePath || "").trim().replace(/\\/g, "/");
+  if (!raw) return [];
+
+  var normalized = raw.replace(/^\/+/, "").replace(/^\.\//, "");
+  var candidates = [];
+
+  function addCandidate(url) {
+    if (!url || candidates.includes(url)) return;
+    candidates.push(url);
+  }
+
+  addCandidate("/" + normalized);
+
+  if (normalized.startsWith("agent-web/")) {
+    addCandidate("/" + normalized.slice("agent-web/".length));
+  }
+
+  if (normalized.startsWith("data/")) {
+    addCandidate("/" + normalized);
+  }
+
+  var dataIndex = normalized.indexOf("data/");
+  if (dataIndex >= 0) {
+    addCandidate("/" + normalized.slice(dataIndex));
+  }
+
+  var filename = normalized.split("/").pop();
+  if (filename) {
+    addCandidate("/data/" + filename);
+  }
+
+  return candidates;
+}
+
+async function fetchPipelineResultFile(filePath) {
+  var candidates = buildPipelineFileCandidates(filePath);
+  var lastError = null;
+
+  for (var candidate of candidates) {
+    try {
+      var response = await fetch(candidate, { cache: "no-store" });
+      if (!response.ok) {
+        lastError = new Error(response.status + " " + response.statusText);
+        continue;
+      }
+      var payload = await response.json();
+      if (payload && Array.isArray(payload.papers)) {
+        return payload;
+      }
+      lastError = new Error("Result file payload missing papers array");
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError || new Error("Unable to fetch pipeline result file");
+}
+
+function stopPipelineStream() {
+  if (pipelineState.eventSource) {
+    pipelineState.eventSource.close();
+    pipelineState.eventSource = null;
+  }
+  pipelineState.running = false;
+  setPipelineRunButtonState(false);
+}
+
+async function handlePipelineMessage(payload, sourceRef) {
+  if (pipelineState.eventSource !== sourceRef) return;
+
+  if (payload.error) {
+    setPipelineStatusMessage("Pipeline error: " + payload.error, "error");
+    stopPipelineStream();
+    return;
+  }
+
+  if (payload.done) {
+    updatePipelineSteps(PIPELINE_TOTAL_STEPS, 100, "Pipeline completed.");
+    var summary = "Completed: " + String(payload.paperCount ?? 0) + " papers";
+    setPipelineStatusMessage(summary, "success");
+
+    var rendered = false;
+    if (payload.file) {
+      try {
+        var resultFile = await fetchPipelineResultFile(payload.file);
+        renderPipelineResults(resultFile.papers || []);
+        rendered = true;
+      } catch (error) {
+        renderPipelineEmptyResults("Completed, but failed to load results file.");
+        setPipelineStatusMessage(summary + " (result fetch failed)", "error");
+      }
+    }
+
+    if (!rendered) {
+      renderPipelineEmptyResults("Completed. Result details are not available from API response.");
+    }
+
+    pipelineState.historyLoaded = false;
+    await loadPipelineHistory(true);
+    stopPipelineStream();
+    return;
+  }
+
+  if (typeof payload.step === "number") {
+    updatePipelineSteps(payload.step, payload.progress, payload.message || "Running...");
+    setPipelineStatusMessage(payload.message || ("Step " + payload.step + " in progress"));
+  }
+}
+
+function runPipelineQuery(query) {
+  var trimmedQuery = String(query || "").trim();
+  if (!trimmedQuery || pipelineState.running) return;
+
+  stopPipelineStream();
+  pipelineState.running = true;
+  setPipelineRunButtonState(true);
+  resetPipelineSteps();
+  renderPipelineEmptyResults("Pipeline running...");
+  setPipelineStatusMessage("Running pipeline for: " + trimmedQuery);
+
+  var streamUrl = "/api/pipeline/run?query=" + encodeURIComponent(trimmedQuery) + "&limit=50";
+  var eventSource = new EventSource(streamUrl);
+  pipelineState.eventSource = eventSource;
+
+  eventSource.onmessage = function(event) {
+    if (pipelineState.eventSource !== eventSource) return;
+    try {
+      var payload = JSON.parse(event.data);
+      Promise.resolve(handlePipelineMessage(payload, eventSource)).catch(function(error) {
+        setPipelineStatusMessage("Pipeline error: " + error.message, "error");
+        stopPipelineStream();
+      });
+    } catch (error) {
+      setPipelineStatusMessage("Invalid stream payload", "error");
+      stopPipelineStream();
+    }
+  };
+
+  eventSource.onerror = function() {
+    if (pipelineState.eventSource !== eventSource) return;
+    setPipelineStatusMessage("Pipeline stream disconnected.", "error");
+    stopPipelineStream();
+  };
+}
+
+function bindPipelineEvents() {
+  var form = document.getElementById("pipeline-form");
+  var queryInput = document.getElementById("pipeline-query-input");
+  var refreshBtn = document.getElementById("pipeline-refresh-history-btn");
+
+  if (form && queryInput) {
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+      var query = queryInput.value.trim();
+      if (!query) {
+        setPipelineStatusMessage("Query is required.", "error");
+        return;
+      }
+      runPipelineQuery(query);
+    });
+  }
+
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", function() {
+      pipelineState.historyLoaded = false;
+      loadPipelineHistory(true);
+    });
+  }
+}
+
+function initializePipelineUI() {
+  resetPipelineSteps();
+  renderPipelineEmptyResults("No results yet.");
+  setPipelineStatusMessage("Enter a query and run the pipeline.");
+  setPipelineRunButtonState(false);
+}
 /* ===== Session Management ===== */
 function renderSessionList(sessions) {
   elements.sessionHistory.innerHTML = "";
@@ -624,6 +1030,9 @@ function bindTabNavigation() {
       tabPanels.forEach(function(panel) {
         panel.classList.toggle("active", panel.id === targetTab);
       });
+      if (targetTab === "pipeline-container") {
+        loadPipelineHistory().catch(function() {});
+      }
     });
   });
 }
@@ -643,6 +1052,8 @@ function bindEvents() {
     if (ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); await sendMessage(elements.chatInput.value); }
   });
   elements.newSessionBtn.addEventListener("click", newSession);
+  bindPipelineEvents();
+  window.addEventListener("beforeunload", stopPipelineStream);
 }
 
 /* ===== Initialize ===== */
@@ -653,6 +1064,7 @@ async function initialize() {
   ensureResearchBadge();
   ensureCopilotBadge();
   ensureUsageDisplay();
+  initializePipelineUI();
   renderEmptyState("\u2728 Loading...");
   try {
     await Promise.all([loadModels(), refreshSessions(), updateSystemStatus()]);
@@ -666,4 +1078,248 @@ async function initialize() {
 }
 
 initialize();
+
+
+
+/* ===== Monitor Tab ===== */
+var monitorRefreshIntervalId = null;
+var monitorBindingsApplied = false;
+
+var MONITOR_COLORS = {
+  ok: "#00ff88",
+  error: "#ff4444",
+  degraded: "#ffaa00",
+  cardA: "#1a1a2e",
+  cardB: "#111",
+  border: "#333",
+  text: "#e8ecf2",
+  muted: "#9ca3af",
+};
+
+function formatUptimeToClock(seconds) {
+  var total = Math.max(0, Number(seconds) || 0);
+  var hours = Math.floor(total / 3600);
+  var minutes = Math.floor((total % 3600) / 60);
+  var secs = Math.floor(total % 60);
+  return String(hours).padStart(2, "0") + ":" + String(minutes).padStart(2, "0") + ":" + String(secs).padStart(2, "0");
+}
+
+function monitorStatusKind(value) {
+  if (value === true) return "ok";
+  if (value === false || value == null) return "error";
+  var normalized = String(value).toLowerCase();
+  if (normalized === "ok" || normalized === "up" || normalized === "healthy" || normalized === "pass") return "ok";
+  if (normalized === "degraded" || normalized === "warn" || normalized === "warning") return "degraded";
+  if (normalized === "down" || normalized === "error" || normalized === "unhealthy" || normalized === "fail") return "error";
+  return "error";
+}
+
+function monitorKindColor(kind) {
+  if (kind === "ok") return MONITOR_COLORS.ok;
+  if (kind === "degraded") return MONITOR_COLORS.degraded;
+  return MONITOR_COLORS.error;
+}
+
+function setMonitorIndicator(dotId, valueId, rawValue) {
+  var dot = document.getElementById(dotId);
+  var value = document.getElementById(valueId);
+  if (!dot || !value) return;
+  var kind = monitorStatusKind(rawValue);
+  var color = monitorKindColor(kind);
+  var text = kind === "ok" ? "UP" : (kind === "degraded" ? "DEGRADED" : "DOWN");
+  dot.style.background = color;
+  dot.style.boxShadow = "0 0 10px " + color;
+  value.textContent = text;
+  value.style.color = color;
+}
+
+function setMonitorHealthValue(rawValue) {
+  var value = document.getElementById("monitor-health-value");
+  if (!value) return;
+  var kind = monitorStatusKind(rawValue);
+  var color = monitorKindColor(kind);
+  var text = kind === "ok" ? "healthy" : (kind === "degraded" ? "degraded" : "unhealthy");
+  value.textContent = text;
+  value.style.color = color;
+}
+
+function updateMonitorHistoryTable(historyList) {
+  var body = document.getElementById("monitor-history-body");
+  if (!body) return;
+  if (!Array.isArray(historyList) || !historyList.length) {
+    body.innerHTML = '<tr><td colspan="5" style="padding:12px;color:' + MONITOR_COLORS.muted + ';text-align:center;">No history found.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = historyList.map(function(item) {
+    var query = escapeHtml(item.query || "-");
+    var filename = escapeHtml(item.filename || "-");
+    var date = item.date ? escapeHtml(new Date(item.date).toLocaleString()) : "-";
+    var paperCount = item.paperCount != null ? String(item.paperCount) : "-";
+    var sizeKB = item.sizeKB != null ? String(item.sizeKB) : "-";
+    return (
+      "<tr>" +
+        '<td style="padding:10px;border-bottom:1px solid ' + MONITOR_COLORS.border + ';color:' + MONITOR_COLORS.text + ';">' + filename + "</td>" +
+        '<td style="padding:10px;border-bottom:1px solid ' + MONITOR_COLORS.border + ';color:' + MONITOR_COLORS.text + ';">' + query + "</td>" +
+        '<td style="padding:10px;border-bottom:1px solid ' + MONITOR_COLORS.border + ';color:' + MONITOR_COLORS.text + ';">' + date + "</td>" +
+        '<td style="padding:10px;border-bottom:1px solid ' + MONITOR_COLORS.border + ';color:' + MONITOR_COLORS.text + ';text-align:right;">' + paperCount + "</td>" +
+        '<td style="padding:10px;border-bottom:1px solid ' + MONITOR_COLORS.border + ';color:' + MONITOR_COLORS.text + ';text-align:right;">' + sizeKB + "</td>" +
+      "</tr>"
+    );
+  }).join("");
+}
+
+function setMonitorLastUpdateText(text) {
+  var stamp = document.getElementById("monitor-last-updated");
+  if (!stamp) return;
+  stamp.textContent = text;
+}
+
+async function refreshMonitorStatus() {
+  try {
+    var results = await Promise.all([
+      fetchJson("/api/monitor/status"),
+      fetchJson("/api/monitor/health"),
+      fetchJson("/api/monitor/history"),
+    ]);
+    var status = results[0] || {};
+    var health = results[1] || {};
+    var history = results[2] || [];
+
+    setMonitorIndicator("monitor-copilot-dot", "monitor-copilot-value", status.copilotApi);
+    setMonitorIndicator("monitor-db-dot", "monitor-db-value", status.db);
+    setMonitorHealthValue(health.status);
+
+    var uptimeValue = document.getElementById("monitor-uptime-value");
+    if (uptimeValue) uptimeValue.textContent = formatUptimeToClock(status.uptime);
+
+    updateMonitorHistoryTable(history);
+    var ts = status.timestamp || new Date().toISOString();
+    setMonitorLastUpdateText("Last updated: " + new Date(ts).toLocaleString());
+  } catch (error) {
+    setMonitorLastUpdateText("Monitor refresh failed");
+    updateMonitorHistoryTable([]);
+    setMonitorHealthValue("unhealthy");
+    setMonitorIndicator("monitor-copilot-dot", "monitor-copilot-value", false);
+    setMonitorIndicator("monitor-db-dot", "monitor-db-value", false);
+    var uptimeValueOnError = document.getElementById("monitor-uptime-value");
+    if (uptimeValueOnError) uptimeValueOnError.textContent = "--:--:--";
+    showToast(error && error.message ? error.message : "Failed to refresh monitor");
+  }
+}
+
+function stopMonitorAutoRefresh() {
+  if (monitorRefreshIntervalId) {
+    clearInterval(monitorRefreshIntervalId);
+    monitorRefreshIntervalId = null;
+  }
+}
+
+function startMonitorAutoRefresh() {
+  refreshMonitorStatus().catch(function() {});
+  if (monitorRefreshIntervalId) return;
+  monitorRefreshIntervalId = setInterval(function() {
+    refreshMonitorStatus().catch(function() {});
+  }, 10000);
+}
+
+function monitorHandleTabSwitch(targetTabId) {
+  if (targetTabId === "monitor-container") {
+    startMonitorAutoRefresh();
+  } else if (targetTabId === "chat-container" || targetTabId === "pipeline-container") {
+    stopMonitorAutoRefresh();
+  }
+}
+
+function bindMonitorTabAutoRefresh() {
+  if (monitorBindingsApplied) return;
+  monitorBindingsApplied = true;
+  var tabButtons = document.querySelectorAll(".tab-btn");
+  tabButtons.forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      monitorHandleTabSwitch(btn.dataset.tab);
+    });
+  });
+
+  var activeBtn = document.querySelector(".tab-btn.active");
+  if (activeBtn) monitorHandleTabSwitch(activeBtn.dataset.tab);
+}
+
+function initializeMonitorTabUI() {
+  var container = document.getElementById("monitor-container");
+  if (!container) return;
+  if (container.dataset.monitorReady === "1") return;
+  container.dataset.monitorReady = "1";
+
+  var styleId = "monitor-inline-style";
+  if (!document.getElementById(styleId)) {
+    var style = document.createElement("style");
+    style.id = styleId;
+    style.textContent =
+      "#monitor-container .monitor-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:18px;}" +
+      "#monitor-container .monitor-card{background:linear-gradient(180deg," + MONITOR_COLORS.cardA + ", " + MONITOR_COLORS.cardB + ");border:1px solid " + MONITOR_COLORS.border + ";border-radius:12px;padding:14px;}" +
+      "#monitor-container .monitor-card-title{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:" + MONITOR_COLORS.muted + ";margin-bottom:8px;}" +
+      "#monitor-container .monitor-card-value{font-size:22px;font-weight:700;color:" + MONITOR_COLORS.text + ";display:flex;align-items:center;gap:8px;}" +
+      "#monitor-container .monitor-dot{width:10px;height:10px;border-radius:999px;display:inline-block;}" +
+      "#monitor-container .monitor-history-wrap{background:linear-gradient(180deg," + MONITOR_COLORS.cardA + ", " + MONITOR_COLORS.cardB + ");border:1px solid " + MONITOR_COLORS.border + ";border-radius:12px;padding:14px;overflow:auto;}" +
+      "#monitor-container .monitor-history-title{font-size:15px;font-weight:600;color:" + MONITOR_COLORS.text + ";margin-bottom:10px;}" +
+      "#monitor-container .monitor-history-table{width:100%;border-collapse:collapse;min-width:680px;}" +
+      "#monitor-container .monitor-history-table th{padding:10px;text-align:left;color:" + MONITOR_COLORS.muted + ";font-size:12px;text-transform:uppercase;border-bottom:1px solid " + MONITOR_COLORS.border + ";}" +
+      "#monitor-container .monitor-meta{margin:10px 2px 0;color:" + MONITOR_COLORS.muted + ";font-size:12px;}";
+    document.head.appendChild(style);
+  }
+
+  container.innerHTML =
+    '<section style="padding:18px 0;">' +
+      '<div class="monitor-grid">' +
+        '<article class="monitor-card">' +
+          '<div class="monitor-card-title">Copilot API</div>' +
+          '<div class="monitor-card-value"><span id="monitor-copilot-dot" class="monitor-dot" style="background:' + MONITOR_COLORS.error + ';"></span><span id="monitor-copilot-value">DOWN</span></div>' +
+        "</article>" +
+        '<article class="monitor-card">' +
+          '<div class="monitor-card-title">Database</div>' +
+          '<div class="monitor-card-value"><span id="monitor-db-dot" class="monitor-dot" style="background:' + MONITOR_COLORS.error + ';"></span><span id="monitor-db-value">DOWN</span></div>' +
+        "</article>" +
+        '<article class="monitor-card">' +
+          '<div class="monitor-card-title">Health</div>' +
+          '<div id="monitor-health-value" class="monitor-card-value" style="color:' + MONITOR_COLORS.error + ';">unhealthy</div>' +
+        "</article>" +
+        '<article class="monitor-card">' +
+          '<div class="monitor-card-title">Uptime</div>' +
+          '<div id="monitor-uptime-value" class="monitor-card-value">00:00:00</div>' +
+        "</article>" +
+      "</div>" +
+      '<section class="monitor-history-wrap">' +
+        '<div class="monitor-history-title">Pipeline History</div>' +
+        '<table class="monitor-history-table">' +
+          "<thead>" +
+            "<tr>" +
+              "<th>Filename</th>" +
+              "<th>Query</th>" +
+              "<th>Date</th>" +
+              "<th>Papers</th>" +
+              "<th>Size (KB)</th>" +
+            "</tr>" +
+          "</thead>" +
+          '<tbody id="monitor-history-body">' +
+            '<tr><td colspan="5" style="padding:12px;color:' + MONITOR_COLORS.muted + ';text-align:center;">Loading...</td></tr>' +
+          "</tbody>" +
+        "</table>" +
+        '<div id="monitor-last-updated" class="monitor-meta">Last updated: --</div>' +
+      "</section>" +
+    "</section>";
+}
+
+function bootMonitorTab() {
+  initializeMonitorTabUI();
+  bindMonitorTabAutoRefresh();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bootMonitorTab);
+} else {
+  bootMonitorTab();
+}
+
+window.refreshMonitorStatus = refreshMonitorStatus;
 

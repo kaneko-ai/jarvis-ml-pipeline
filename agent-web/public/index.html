@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
@@ -77,7 +77,131 @@
           </form>
         </div>
 
-        <div id="pipeline-container" class="tab-panel"></div>
+        <div id="pipeline-container" class="tab-panel">
+          <section class="pipeline-shell" aria-label="Pipeline Runner">
+            <form id="pipeline-form" class="pipeline-form">
+              <input
+                id="pipeline-query-input"
+                type="text"
+                placeholder="Enter research topic..."
+                autocomplete="off"
+                required
+              />
+              <button id="pipeline-run-btn" type="submit">Run</button>
+            </form>
+
+            <div id="pipeline-status-message" class="pipeline-status-message">
+              Enter a query and run the pipeline.
+            </div>
+
+            <section class="pipeline-steps" aria-label="Pipeline Progress Steps">
+              <div id="pipeline-steps-grid" class="pipeline-steps-grid">
+                <article class="pipeline-step-card" data-step="1">
+                  <div class="pipeline-step-head">
+                    <span class="pipeline-step-index">Step 1</span>
+                    <span class="pipeline-step-percent" data-step-percent>0%</span>
+                  </div>
+                  <p class="pipeline-step-message" data-step-message>Waiting for progress...</p>
+                  <div class="pipeline-step-progress">
+                    <div class="pipeline-step-progress-fill" data-step-fill></div>
+                  </div>
+                </article>
+                <article class="pipeline-step-card" data-step="2">
+                  <div class="pipeline-step-head">
+                    <span class="pipeline-step-index">Step 2</span>
+                    <span class="pipeline-step-percent" data-step-percent>0%</span>
+                  </div>
+                  <p class="pipeline-step-message" data-step-message>Waiting for progress...</p>
+                  <div class="pipeline-step-progress">
+                    <div class="pipeline-step-progress-fill" data-step-fill></div>
+                  </div>
+                </article>
+                <article class="pipeline-step-card" data-step="3">
+                  <div class="pipeline-step-head">
+                    <span class="pipeline-step-index">Step 3</span>
+                    <span class="pipeline-step-percent" data-step-percent>0%</span>
+                  </div>
+                  <p class="pipeline-step-message" data-step-message>Waiting for progress...</p>
+                  <div class="pipeline-step-progress">
+                    <div class="pipeline-step-progress-fill" data-step-fill></div>
+                  </div>
+                </article>
+                <article class="pipeline-step-card" data-step="4">
+                  <div class="pipeline-step-head">
+                    <span class="pipeline-step-index">Step 4</span>
+                    <span class="pipeline-step-percent" data-step-percent>0%</span>
+                  </div>
+                  <p class="pipeline-step-message" data-step-message>Waiting for progress...</p>
+                  <div class="pipeline-step-progress">
+                    <div class="pipeline-step-progress-fill" data-step-fill></div>
+                  </div>
+                </article>
+                                <article class="pipeline-step-card" data-step="5">
+                  <div class="pipeline-step-head">
+                    <span class="pipeline-step-index">Step 5</span>
+                    <span class="pipeline-step-percent" data-step-percent>0%</span>
+                  </div>
+                  <p class="pipeline-step-message" data-step-message>Waiting for progress...</p>
+                  <div class="pipeline-step-progress">
+                    <div class="pipeline-step-progress-fill" data-step-fill></div>
+                  </div>
+                </article>
+                <article class="pipeline-step-card" data-step="6">
+                  <div class="pipeline-step-head">
+                    <span class="pipeline-step-index">Step 6</span>
+                    <span class="pipeline-step-percent" data-step-percent>0%</span>
+                  </div>
+                  <p class="pipeline-step-message" data-step-message>Waiting for progress...</p>
+                  <div class="pipeline-step-progress">
+                    <div class="pipeline-step-progress-fill" data-step-fill></div>
+                  </div>
+                </article>
+                <article class="pipeline-step-card" data-step="7">
+                  <div class="pipeline-step-head">
+                    <span class="pipeline-step-index">Step 7</span>
+                    <span class="pipeline-step-percent" data-step-percent>0%</span>
+                  </div>
+                  <p class="pipeline-step-message" data-step-message>Waiting for progress...</p>
+                  <div class="pipeline-step-progress">
+                    <div class="pipeline-step-progress-fill" data-step-fill></div>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section class="pipeline-results" aria-label="Pipeline Results">
+              <h3>Results</h3>
+              <div class="pipeline-results-table-wrap">
+                <table class="pipeline-results-table">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Authors</th>
+                      <th>Year</th>
+                      <th>Source</th>
+                      <th>Score</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pipeline-results-body">
+                    <tr>
+                      <td colspan="5" class="pipeline-empty-row">No results yet.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="pipeline-history" aria-label="Pipeline Run History">
+              <div class="pipeline-history-head">
+                <h3>History</h3>
+                <button id="pipeline-refresh-history-btn" type="button">Refresh</button>
+              </div>
+              <ul id="pipeline-history-list" class="pipeline-history-list">
+                <li class="pipeline-empty-row">No history yet.</li>
+              </ul>
+            </section>
+          </section>
+        </div>
         <div id="monitor-container" class="tab-panel"></div>
       </main>
     </div>
@@ -86,4 +210,7 @@
     <script type="module" src="./js/app.js"></script>
   </body>
 </html>
+
+
+
 
