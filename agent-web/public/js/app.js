@@ -584,6 +584,16 @@ function renderPipelineResults(papers) {
     row.appendChild(sourceCell);
     row.appendChild(scoreCell);
     body.appendChild(row);
+
+    if (paper.summary) {
+      var summaryRow = document.createElement("tr");
+      var summaryCell = document.createElement("td");
+      summaryCell.colSpan = 5;
+      summaryCell.style.cssText = "padding:8px 16px;color:#aaa;font-size:0.85em;border-bottom:1px solid #333;background:#0d0d0d;";
+      summaryCell.textContent = paper.summary;
+      summaryRow.appendChild(summaryCell);
+      body.appendChild(summaryRow);
+    }
   }
 }
 
@@ -1322,4 +1332,5 @@ if (document.readyState === "loading") {
 }
 
 window.refreshMonitorStatus = refreshMonitorStatus;
+
 

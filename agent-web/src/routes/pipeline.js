@@ -9,6 +9,7 @@ import { summarizeBatch } from "../llm/gemini-summarizer.js";
 
 const router = express.Router();
 const TOTAL_STEPS = 7;
+const PIPELINE_TIMEOUT_MS = 120000;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -139,6 +140,18 @@ function inferQueryFromFilename(filename) {
   return base.replace(/^\d{4}-\d{2}-\d{2}(?:_\d{2}-\d{2}-\d{2})?-/, "");
 }
 
+function createPipelineTimeoutError() {
+  const error = new Error(
+    `Pipeline timed out after ${Math.round(PIPELINE_TIMEOUT_MS / 1000)} seconds and was aborted.`
+  );
+  error.code = "PIPELINE_TIMEOUT";
+  return error;
+}
+
+function isPipelineTimeoutError(error) {
+  return error?.code === "PIPELINE_TIMEOUT";
+}
+
 ensureDataDirectory();
 
 router.get("/run", async (req, res) => {
@@ -158,78 +171,229 @@ router.get("/run", async (req, res) => {
   }
 
   const runner = new ParallelRunner();
-  let aborted = false;
+  const pipelineStartedAt = Date.now();
+  let clientClosed = false;
+  let timedOut = false;
+
+  const timeoutTimer = setTimeout(() => {
+    timedOut = true;
+    runner.shutdown();
+  }, PIPELINE_TIMEOUT_MS);
+  if (typeof timeoutTimer.unref === "function") {
+    timeoutTimer.unref();
+  }
+
   req.on("close", () => {
-    aborted = true;
+    clientClosed = true;
     runner.shutdown();
   });
+
+  function ensurePipelineActive() {
+    if (timedOut) {
+      throw createPipelineTimeoutError();
+    }
+    if (clientClosed) {
+      throw new Error("Client disconnected.");
+    }
+  }
+
+  async function runWithPipelineDeadline(taskFactory) {
+    ensurePipelineActive();
+
+    const elapsedMs = Date.now() - pipelineStartedAt;
+    const remainingMs = PIPELINE_TIMEOUT_MS - elapsedMs;
+    if (remainingMs <= 0) {
+      timedOut = true;
+      runner.shutdown();
+      throw createPipelineTimeoutError();
+    }
+
+    let timer = null;
+    try {
+      return await Promise.race([
+        Promise.resolve().then(taskFactory),
+        new Promise((_, reject) => {
+          timer = setTimeout(() => {
+            timedOut = true;
+            runner.shutdown();
+            reject(createPipelineTimeoutError());
+          }, remainingMs);
+        }),
+      ]);
+    } finally {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    }
+  }
 
   try {
     ensureDataDirectory();
 
+    let searchResult = {
+      pubmed: [],
+      semanticScholar: [],
+      openAlex: [],
+    };
+    let allPapers = [];
+    let deduplicatedPapers = [];
+    let scoredPapers = [];
+    let topPapers = [];
+    let papersWithSummaries = [];
+    let output = null;
+
     sendProgress(res, 1, 0, "Searching papers from PubMed and Semantic Scholar...");
-    const searchResult = await runner.runInPool("apiPool", () =>
-      searchLivePapers(query, limit)
-    );
-    const allPapers = [
-      ...(searchResult.pubmed ?? []),
-      ...(searchResult.semanticScholar ?? []),
-      ...(searchResult.openAlex ?? []),
-    ];
-    sendProgress(res, 1, 15, `Search completed: ${allPapers.length} papers fetched.`);
-    if (aborted) return;
+    try {
+      const rawSearchResult = await runWithPipelineDeadline(() =>
+        runner.runInPool("apiPool", () => searchLivePapers(query, limit))
+      );
+      ensurePipelineActive();
+
+      searchResult = {
+        pubmed: Array.isArray(rawSearchResult?.pubmed) ? rawSearchResult.pubmed : [],
+        semanticScholar: Array.isArray(rawSearchResult?.semanticScholar)
+          ? rawSearchResult.semanticScholar
+          : [],
+        openAlex: Array.isArray(rawSearchResult?.openAlex) ? rawSearchResult.openAlex : [],
+      };
+
+      const pubmedSucceeded = searchResult.pubmed.length > 0;
+      const semanticSucceeded = searchResult.semanticScholar.length > 0;
+      const openAlexSucceeded = searchResult.openAlex.length > 0;
+
+      sendSSE(res, {
+        sourceStatus: {
+          pubmed: pubmedSucceeded ? "succeeded" : "failed",
+          semanticScholar: semanticSucceeded ? "succeeded" : "failed",
+          openAlex: openAlexSucceeded ? "succeeded" : "failed_or_unused",
+        },
+      });
+
+      if (!pubmedSucceeded && !semanticSucceeded) {
+        sendSSE(res, {
+          error: "Search failed: PubMed and Semantic Scholar both failed. Pipeline stopped.",
+        });
+        return;
+      }
+
+      if (!pubmedSucceeded || !semanticSucceeded) {
+        const fallbackWarning = !pubmedSucceeded
+          ? "PubMed search failed. Continuing with Semantic Scholar only."
+          : "Semantic Scholar search failed. Continuing with PubMed only.";
+        sendSSE(res, { warning: fallbackWarning });
+      }
+
+      if (pubmedSucceeded && semanticSucceeded) {
+        allPapers = [
+          ...searchResult.pubmed,
+          ...searchResult.semanticScholar,
+          ...searchResult.openAlex,
+        ];
+      } else if (pubmedSucceeded) {
+        allPapers = [...searchResult.pubmed];
+      } else {
+        allPapers = [...searchResult.semanticScholar];
+      }
+
+      sendProgress(
+        res,
+        1,
+        15,
+        `Search completed: ${allPapers.length} papers fetched. Sources pubmed=${pubmedSucceeded ? "ok" : "failed"}, semanticScholar=${semanticSucceeded ? "ok" : "failed"}.`
+      );
+    } catch (error) {
+      if (clientClosed) return;
+      const message = isPipelineTimeoutError(error)
+        ? error.message
+        : `Search step failed: ${error.message || "unknown error"}`;
+      sendSSE(res, { error: message });
+      return;
+    }
+    if (clientClosed) return;
 
     sendProgress(res, 2, 15, "Deduplicating papers by title similarity...");
-    const deduplicatedPapers = deduplicateByTitle(allPapers);
-    sendProgress(
-      res,
-      2,
-      25,
-      `Deduplication completed: ${allPapers.length - deduplicatedPapers.length} duplicates removed.`
-    );
-    if (aborted) return;
+    try {
+      ensurePipelineActive();
+      deduplicatedPapers = deduplicateByTitle(allPapers);
+      sendProgress(
+        res,
+        2,
+        25,
+        `Deduplication completed: ${allPapers.length - deduplicatedPapers.length} duplicates removed.`
+      );
+    } catch (error) {
+      if (clientClosed) return;
+      const message = isPipelineTimeoutError(error)
+        ? error.message
+        : `Deduplication step failed: ${error.message || "unknown error"}`;
+      sendSSE(res, { error: message });
+      return;
+    }
+    if (clientClosed) return;
 
     sendProgress(res, 3, 25, "Scoring relevance against query keywords...");
-    const keywords = [...new Set(tokenize(query))];
-    const scoredPapers = await runner.runAll(
-      "apiPool",
-      deduplicatedPapers.map((paper) => async () => ({
-        ...paper,
-        score: scorePaperAgainstQuery(paper, keywords),
-      }))
-    );
-    sendProgress(res, 3, 40, "Relevance scoring completed.");
-    if (aborted) return;
+    try {
+      const keywords = [...new Set(tokenize(query))];
+      scoredPapers = await runWithPipelineDeadline(() =>
+        runner.runAll(
+          "apiPool",
+          deduplicatedPapers.map((paper) => async () => ({
+            ...paper,
+            score: scorePaperAgainstQuery(paper, keywords),
+          }))
+        )
+      );
+      ensurePipelineActive();
+      sendProgress(res, 3, 40, "Relevance scoring completed.");
+    } catch (error) {
+      if (clientClosed) return;
+      const message = isPipelineTimeoutError(error)
+        ? error.message
+        : `Scoring step failed: ${error.message || "unknown error"}`;
+      sendSSE(res, { error: message });
+      return;
+    }
+    if (clientClosed) return;
 
     sendProgress(res, 4, 40, "Sorting papers by score and taking top results...");
-    const topPapers = scoredPapers
-      .sort((a, b) => (b.score || 0) - (a.score || 0))
-      .slice(0, limit);
-    sendProgress(res, 4, 50, `Top ${topPapers.length} papers selected.`);
-    if (aborted) return;
+    try {
+      ensurePipelineActive();
+      topPapers = scoredPapers
+        .sort((a, b) => (b.score || 0) - (a.score || 0))
+        .slice(0, limit);
+      sendProgress(res, 4, 50, `Top ${topPapers.length} papers selected.`);
+    } catch (error) {
+      if (clientClosed) return;
+      const message = isPipelineTimeoutError(error)
+        ? error.message
+        : `Ranking step failed: ${error.message || "unknown error"}`;
+      sendSSE(res, { error: message });
+      return;
+    }
+    if (clientClosed) return;
 
     sendProgress(res, 5, 50, "Preparing Gemini summarization...");
-    let papersWithSummaries = topPapers.map((paper) => ({
-      ...paper,
-      summary: paper.summary ?? null,
-    }));
-    const summaryTargetCount = Math.min(10, papersWithSummaries.length);
+    try {
+      papersWithSummaries = topPapers.map((paper) => ({
+        ...paper,
+        summary: paper.summary ?? null,
+      }));
+      const summaryTargetCount = Math.min(10, papersWithSummaries.length);
 
-    if (summaryTargetCount === 0) {
-      sendProgress(res, 5, 80, "No papers available for summarization.");
-    } else if (!process.env.GEMINI_API_KEY) {
-      const warningMessage = "GEMINI_API_KEY is not set. Skipping Gemini summarization.";
-      sendSSE(res, { warning: warningMessage });
-      sendProgress(res, 5, 80, warningMessage);
-    } else {
-      try {
-        const summarizedBatchResult = await summarizeBatch(
-          papersWithSummaries.slice(0, summaryTargetCount),
-          {
+      if (summaryTargetCount === 0) {
+        sendProgress(res, 5, 80, "No papers available for summarization.");
+      } else if (!process.env.GEMINI_API_KEY) {
+        const warningMessage = "GEMINI_API_KEY is not set. Skipping Gemini summarization.";
+        sendSSE(res, { warning: warningMessage });
+        sendProgress(res, 5, 80, warningMessage);
+      } else {
+        const summarizedBatchResult = await runWithPipelineDeadline(() =>
+          summarizeBatch(papersWithSummaries.slice(0, summaryTargetCount), {
             concurrency: 2,
             delayMs: 1200,
+            timeoutMs: 30000,
             onProgress: (progressPayload, fallbackTotal) => {
-              if (aborted) return;
+              if (clientClosed || timedOut) return;
 
               let current = 0;
               let total = summaryTargetCount;
@@ -269,8 +433,9 @@ router.get("/run", async (req, res) => {
                 `Summarizing paper ${Math.max(1, safeCurrent)}/${safeTotal}...`
               );
             },
-          }
+          })
         );
+        ensurePipelineActive();
 
         const summarizedPapers = Array.isArray(summarizedBatchResult)
           ? summarizedBatchResult
@@ -289,54 +454,113 @@ router.get("/run", async (req, res) => {
           return {
             ...paper,
             summary: extractSummaryText(summarizedPapers[index], paper),
+            summaryError: summarizedPapers[index]?.summaryError,
+            summaryWarning: summarizedPapers[index]?.summaryWarning,
           };
         });
 
+        const summaryIssues = papersWithSummaries.slice(0, summaryTargetCount);
+        const summaryErrorCount = summaryIssues.filter((paper) => paper.summaryError).length;
+        const summaryWarningCount = summaryIssues.filter((paper) => paper.summaryWarning).length;
+
+        if (summaryErrorCount > 0 || summaryWarningCount > 0) {
+          const summaryWarningMessage =
+            summaryErrorCount >= summaryTargetCount
+              ? "Gemini summarization failed for all target papers. Continuing without summaries."
+              : `Gemini summarization completed with issues: ${summaryErrorCount} errors, ${summaryWarningCount} warnings.`;
+          sendSSE(res, { warning: summaryWarningMessage });
+        }
+
         sendProgress(res, 5, 80, `Summarization completed for ${summaryTargetCount} papers.`);
-      } catch (error) {
-        const warningMessage = `Gemini summarization failed: ${error.message || "unknown error"}`;
-        sendSSE(res, { warning: warningMessage });
-        sendProgress(res, 5, 80, warningMessage);
       }
+    } catch (error) {
+      if (clientClosed) return;
+      if (isPipelineTimeoutError(error)) {
+        sendSSE(res, { error: error.message });
+        return;
+      }
+
+      const warningMessage =
+        `Gemini summarization failed: ${error.message || "unknown error"}. ` +
+        "Continuing without summaries.";
+      sendSSE(res, { warning: warningMessage });
+      sendProgress(res, 5, 80, warningMessage);
     }
-    if (aborted) return;
+    if (clientClosed) return;
 
     sendProgress(res, 6, 80, "Formatting structured JSON result...");
-    const generatedAt = new Date().toISOString();
-    const output = {
-      query,
-      limit,
-      generatedAt,
-      paperCount: papersWithSummaries.length,
-      sourceCounts: {
-        pubmed: searchResult.pubmed?.length ?? 0,
-        semanticScholar: searchResult.semanticScholar?.length ?? 0,
-        openAlex: searchResult.openAlex?.length ?? 0,
-      },
-      papers: papersWithSummaries.map((paper, index) => ({
-        rank: index + 1,
-        ...paper,
-        summary: paper.summary ?? null,
-      })),
-    };
-    sendProgress(res, 6, 90, "Structured JSON prepared.");
-    if (aborted) return;
+    try {
+      ensurePipelineActive();
+      const generatedAt = new Date().toISOString();
+      output = {
+        query,
+        limit,
+        generatedAt,
+        paperCount: papersWithSummaries.length,
+        sourceCounts: {
+          pubmed: searchResult.pubmed?.length ?? 0,
+          semanticScholar: searchResult.semanticScholar?.length ?? 0,
+          openAlex: searchResult.openAlex?.length ?? 0,
+        },
+        papers: papersWithSummaries.map((paper, index) => ({
+          rank: index + 1,
+          ...paper,
+          summary: paper.summary ?? null,
+        })),
+      };
+      sendProgress(res, 6, 90, "Structured JSON prepared.");
+    } catch (error) {
+      if (clientClosed) return;
+      const message = isPipelineTimeoutError(error)
+        ? error.message
+        : `Formatting step failed: ${error.message || "unknown error"}`;
+      sendSSE(res, { error: message });
+      return;
+    }
+    if (clientClosed) return;
 
     sendProgress(res, 7, 90, "Saving result file...");
-    const filename = `${buildTimestampForFilename()}-${sanitizeQueryForFilename(query)}.json`;
-    const filePath = path.join(dataDir, filename);
-    fs.writeFileSync(filePath, `${JSON.stringify(output, null, 2)}\n`, "utf8");
+    let savedFile = null;
+    try {
+      ensurePipelineActive();
+      const filename = `${buildTimestampForFilename()}-${sanitizeQueryForFilename(query)}.json`;
+      const filePath = path.join(dataDir, filename);
+      fs.writeFileSync(filePath, `${JSON.stringify(output, null, 2)}\n`, "utf8");
+      savedFile = `agent-web/data/${filename}`;
+    } catch (error) {
+      if (clientClosed) return;
+      if (isPipelineTimeoutError(error)) {
+        sendSSE(res, { error: error.message });
+        return;
+      }
+      const warningMessage =
+        `Failed to save result file: ${error.message || "unknown error"}. ` +
+        "Returning results via SSE only.";
+      console.error(warningMessage);
+      sendSSE(res, { warning: warningMessage });
+    }
+
     sendProgress(res, 7, 100, "Pipeline completed.");
-    sendSSE(res, {
+    const donePayload = {
       done: true,
       paperCount: papersWithSummaries.length,
-      file: `agent-web/data/${filename}`,
-    });
+      file: savedFile,
+    };
+    if (!savedFile) {
+      donePayload.results = output;
+    }
+    sendSSE(res, donePayload);
   } catch (error) {
-    sendSSE(res, { error: error.message || "Pipeline execution failed." });
+    if (!clientClosed) {
+      const message = isPipelineTimeoutError(error)
+        ? error.message
+        : error.message || "Pipeline execution failed.";
+      sendSSE(res, { error: message });
+    }
   } finally {
+    clearTimeout(timeoutTimer);
     runner.shutdown();
-    if (!aborted) {
+    if (!clientClosed) {
       res.end();
     }
   }

@@ -35,50 +35,132 @@ function buildPrompt(paper) {
   ].join("\n");
 }
 
-async function summarizeSinglePaper(paper, { apiKey, model, timeoutMs }) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const response = await fetch(
-      `${GEMINI_API_BASE}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: buildPrompt(paper) }],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.2,
-            maxOutputTokens: 220,
-          },
-        }),
-        signal: controller.signal,
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status} ${response.statusText}`);
-    }
-
-    const payload = await response.json();
-    const summary = extractGeminiText(payload);
-    return {
-      ...paper,
-      summary: summary || null,
-    };
-  } finally {
-    clearTimeout(timer);
-  }
+function createResultWithIssue(paper, issueField, message) {
+  return {
+    ...paper,
+    summary: null,
+    [issueField]: message,
+  };
 }
 
-export async function summarizeBatch(papers, { concurrency = 2, delayMs = 1000, onProgress, timeoutMs = 30000 } = {}) {
+function isNetworkFetchError(error) {
+  if (!error) {
+    return false;
+  }
+  if (error.name === "TypeError") {
+    return true;
+  }
+  const message = String(error.message || "").toLowerCase();
+  return message.includes("fetch failed") || message.includes("network");
+}
+
+async function summarizeSinglePaper(paper, { apiKey, model, timeoutMs }) {
+  if (!apiKey) {
+    return createResultWithIssue(paper, "summaryError", "GEMINI_API_KEY is not set.");
+  }
+
+  const maxAttempts = 2;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(
+        `${GEMINI_API_BASE}/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: buildPrompt(paper) }],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.2,
+              maxOutputTokens: 220,
+            },
+          }),
+          signal: controller.signal,
+        }
+      );
+
+      if (response.ok) {
+        const payload = await response.json();
+        const summary = extractGeminiText(payload);
+        return {
+          ...paper,
+          summary: summary || null,
+        };
+      }
+
+      if (response.status === 429) {
+        if (attempt < maxAttempts) {
+          await sleep(15000);
+          continue;
+        }
+        return createResultWithIssue(
+          paper,
+          "summaryError",
+          "Gemini rate limit (429) persisted after one retry. Skipped."
+        );
+      }
+
+      if (response.status === 500 || response.status === 503) {
+        if (attempt < maxAttempts) {
+          await sleep(5000);
+          continue;
+        }
+        return createResultWithIssue(
+          paper,
+          "summaryError",
+          `Gemini server error (${response.status}) persisted after one retry. Skipped.`
+        );
+      }
+
+      return createResultWithIssue(
+        paper,
+        "summaryError",
+        `Gemini API error: ${response.status} ${response.statusText || "unknown"}`
+      );
+    } catch (error) {
+      if (error?.name === "AbortError") {
+        return createResultWithIssue(
+          paper,
+          "summaryWarning",
+          `Gemini request timed out after ${Math.round(timeoutMs / 1000)}s. Skipped.`
+        );
+      }
+
+      if (isNetworkFetchError(error)) {
+        return createResultWithIssue(
+          paper,
+          "summaryWarning",
+          `Network error while calling Gemini: ${error?.message || "fetch failed"}. Skipped.`
+        );
+      }
+
+      return createResultWithIssue(
+        paper,
+        "summaryError",
+        error?.message || "Summarization failed"
+      );
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  return createResultWithIssue(paper, "summaryError", "Summarization failed.");
+}
+
+export async function summarizeBatch(
+  papers,
+  { concurrency = 2, delayMs = 1000, onProgress, timeoutMs = 30000 } = {}
+) {
   const list = Array.isArray(papers) ? papers : [];
   if (list.length === 0) {
     return [];
@@ -86,7 +168,9 @@ export async function summarizeBatch(papers, { concurrency = 2, delayMs = 1000, 
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not set.");
+    return list.map((paper) =>
+      createResultWithIssue(paper, "summaryError", "GEMINI_API_KEY is not set.")
+    );
   }
 
   const model = String(process.env.GEMINI_MODEL || "gemini-2.0-flash").trim();
@@ -115,11 +199,11 @@ export async function summarizeBatch(papers, { concurrency = 2, delayMs = 1000, 
           timeoutMs: safeTimeoutMs,
         });
       } catch (error) {
-        results[index] = {
-          ...paper,
-          summary: null,
-          summaryError: error?.message || "Summarization failed",
-        };
+        results[index] = createResultWithIssue(
+          paper,
+          "summaryError",
+          error?.message || "Summarization failed"
+        );
       }
 
       completed += 1;
@@ -142,7 +226,10 @@ export async function summarizeBatch(papers, { concurrency = 2, delayMs = 1000, 
     }
   }
 
-  const workers = Array.from({ length: Math.min(safeConcurrency, list.length) }, () => runWorker());
+  const workers = Array.from(
+    { length: Math.min(safeConcurrency, list.length) },
+    () => runWorker()
+  );
   await Promise.all(workers);
   return results;
 }
