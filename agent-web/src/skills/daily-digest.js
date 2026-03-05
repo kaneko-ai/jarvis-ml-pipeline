@@ -7,6 +7,7 @@ import yaml from "js-yaml";
 
 import { searchLivePapers } from "../llm/paper-search.js";
 import { summarizeBatch } from "../llm/gemini-summarizer.js";
+import { exportDigestToObsidian } from "./digest-to-obsidian.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -232,6 +233,12 @@ export default async function runDailyDigest(options = {}) {
     });
 
     fs.writeFileSync(markdownPath, markdown, "utf8");
+    try {
+      const obsResult = exportDigestToObsidian(markdownPath);
+      console.log("[Digest] Exported to Obsidian:", obsResult.outputPath);
+    } catch (e) {
+      console.warn("[Digest] Obsidian export skipped:", e.message);
+    }
     fs.writeFileSync(jsonPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
 
     savePipelineRun({ dbPath, payload });

@@ -106,3 +106,45 @@ describe('digest-to-obsidian module', () => {
     assert.equal(typeof mod.exportLatestDigest, 'function');
   });
 });
+
+
+describe('pdf-archiver module', () => {
+  it('should export archivePdf function', async () => {
+    const mod = await import('../src/skills/pdf-archiver.js');
+    assert.equal(typeof mod.archivePdf, 'function');
+  });
+
+  it('should export archivePapers function', async () => {
+    const mod = await import('../src/skills/pdf-archiver.js');
+    assert.equal(typeof mod.archivePapers, 'function');
+  });
+});
+
+describe('zotero-sync module', () => {
+  it('should export syncToZotero function', async () => {
+    const mod = await import('../src/skills/zotero-sync.js');
+    assert.equal(typeof mod.syncToZotero, 'function');
+  });
+
+  it('should export syncLatestDigest function', async () => {
+    const mod = await import('../src/skills/zotero-sync.js');
+    assert.equal(typeof mod.syncLatestDigest, 'function');
+  });
+});
+
+describe('chroma-bridge module', () => {
+  it('should export searchChromaDB function', async () => {
+    const mod = await import('../src/db/chroma-bridge.js');
+    assert.equal(typeof mod.searchChromaDB, 'function');
+  });
+
+  it('should export getChromaCount function', async () => {
+    const mod = await import('../src/db/chroma-bridge.js');
+    assert.equal(typeof mod.getChromaCount, 'function');
+  });
+
+  it('should export indexPapersToChroma function', async () => {
+    const mod = await import('../src/db/chroma-bridge.js');
+    assert.equal(typeof mod.indexPapersToChroma, 'function');
+  });
+});

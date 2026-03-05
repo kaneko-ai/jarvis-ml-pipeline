@@ -7,6 +7,7 @@ import { searchLivePapers } from "../llm/paper-search.js";
 import { ParallelRunner } from "../llm/parallel-runner.js";
 import { summarizeBatch } from "../llm/gemini-summarizer.js";
 import { insertPapers } from "../db/papers-repository.js";
+import { archivePapers } from "../skills/pdf-archiver.js";
 
 const router = express.Router();
 const TOTAL_STEPS = 7;
@@ -532,6 +533,16 @@ router.get("/run", async (req, res) => {
         }));
         insertPapers(dbPayload);
         sendProgress(res, 6, 95, `Saved ${dbPayload.length} papers to database`);
+
+        try {
+          const archiveResults = await archivePapers(topPapers.slice(0, 5));
+          const archived = archiveResults.filter((r) => r.success).length;
+          if (archived > 0) {
+            sendProgress(res, 7, 95, `Archived ${archived} PDFs.`);
+          }
+        } catch (e) {
+          sendSSE(res, { warning: `PDF archive skipped: ${e.message}` });
+        }
       } catch (error) {
         sendSSE(res, {
           warning: `Failed to save papers to database: ${error.message || "unknown error"}. Continuing pipeline.`,
