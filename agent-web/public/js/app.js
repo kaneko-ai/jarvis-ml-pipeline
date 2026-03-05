@@ -113,51 +113,142 @@ function scrollChatToBottom() {
 /* ===== Markdown Rendering ===== */
 function formatMarkdown(raw) {
   if (!raw) return "";
-  var result = "";
-  var remaining = raw;
-  var codeStart = remaining.indexOf("`");
-
-  while (codeStart !== -1) {
-    var before = remaining.slice(0, codeStart);
-    result += formatInlineText(before);
-
-    var afterOpen = remaining.slice(codeStart + 3);
-    var newlinePos = afterOpen.indexOf("\n");
-    var codeEnd = afterOpen.indexOf("`", newlinePos > -1 ? newlinePos : 0);
-
-    if (newlinePos === -1 || codeEnd === -1) {
-      result += formatInlineText(remaining.slice(codeStart));
-      remaining = "";
-      break;
-    }
-
-    var lang = afterOpen.slice(0, newlinePos).trim() || "plaintext";
-    var code = afterOpen.slice(newlinePos + 1, codeEnd);
+  var normalized = String(raw).replace(/\r\n/g, "\n");
+  var codeBlocks = [];
+  var withoutCode = normalized.replace(/```([^\n`]*)\n([\s\S]*?)```/g, function(_, rawLang, rawCode) {
+    var lang = (rawLang || "").trim() || "plaintext";
+    var code = String(rawCode || "");
     var highlighted = escapeHtml(code);
     if (typeof hljs !== "undefined" && lang !== "plaintext" && hljs.getLanguage(lang)) {
-      try { highlighted = hljs.highlight(code, { language: lang }).value; } catch(e) {}
+      try { highlighted = hljs.highlight(code, { language: lang }).value; } catch (e) {}
     }
-    result +=
+
+    var html =
       '<div class="code-block-wrapper">' +
       '<div class="code-block-header"><span>' + escapeHtml(lang) + '</span>' +
       '<button class="code-copy-btn" onclick="copyCode(this)" type="button">copy</button></div>' +
       '<pre><code class="hljs language-' + escapeHtml(lang) + '">' + highlighted + '</code></pre></div>';
 
-    remaining = afterOpen.slice(codeEnd + 3);
-    codeStart = remaining.indexOf("`");
+    var token = "@@CODE_BLOCK_" + codeBlocks.length + "@@";
+    codeBlocks.push({ token: token, html: html });
+    return token;
+  });
+
+  var result = formatInlineText(withoutCode);
+  for (var i = 0; i < codeBlocks.length; i += 1) {
+    result = result.replaceAll(codeBlocks[i].token, codeBlocks[i].html);
   }
 
-  result += formatInlineText(remaining);
   return result;
+}
+
+function applyInlineMarkdownStyles(text) {
+  if (!text) return "";
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/`([^`]+)`/g, '<code>$1</code>');
 }
 
 function formatInlineText(text) {
   if (!text) return "";
   var escaped = escapeHtml(text);
-  return escaped
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\n/g, "<br>");
+  var headingTokens = [];
+
+  var tokenized = escaped.split("\n").map(function(line) {
+    var h2 = line.match(/^##\s+(.+)$/);
+    if (h2) {
+      var h2Token = "@@MD_H2_" + headingTokens.length + "@@";
+      headingTokens.push({ token: h2Token, html: '<h2 class="md-heading md-heading-h2">' + applyInlineMarkdownStyles(h2[1]) + "</h2>" });
+      return h2Token;
+    }
+
+    var h3 = line.match(/^###\s+(.+)$/);
+    if (h3) {
+      var h3Token = "@@MD_H3_" + headingTokens.length + "@@";
+      headingTokens.push({ token: h3Token, html: '<h3 class="md-heading md-heading-h3">' + applyInlineMarkdownStyles(h3[1]) + "</h3>" });
+      return h3Token;
+    }
+
+    return line;
+  }).join("\n");
+
+  var formatted = applyInlineMarkdownStyles(tokenized).replace(/\n/g, "<br>");
+  for (var i = 0; i < headingTokens.length; i += 1) {
+    formatted = formatted.replace(headingTokens[i].token, headingTokens[i].html);
+  }
+
+  return formatted;
+}
+
+function getMarkdownHeadingLevel(node) {
+  if (!node || node.nodeType !== 1 || !node.tagName) return 0;
+  var tagName = node.tagName.toUpperCase();
+  if (tagName === "H2") return 2;
+  if (tagName === "H3") return 3;
+  return 0;
+}
+
+function trimSectionBreaks(container) {
+  if (!container) return;
+  while (container.firstChild && container.firstChild.nodeType === 1 && container.firstChild.tagName.toUpperCase() === "BR") {
+    container.removeChild(container.firstChild);
+  }
+  while (container.lastChild && container.lastChild.nodeType === 1 && container.lastChild.tagName.toUpperCase() === "BR") {
+    container.removeChild(container.lastChild);
+  }
+}
+
+function buildCollapsibleMarkdownSections(container) {
+  if (!container) return;
+  var children = Array.from(container.childNodes);
+  var cursor = 0;
+
+  while (cursor < children.length) {
+    var node = children[cursor];
+    var level = getMarkdownHeadingLevel(node);
+    if (!level) {
+      cursor += 1;
+      continue;
+    }
+
+    var details = document.createElement("details");
+    details.className = "markdown-section markdown-section-level-" + level;
+    details.open = true;
+
+    var summary = document.createElement("summary");
+    summary.className = "markdown-section-summary";
+    summary.innerHTML = node.innerHTML;
+    details.appendChild(summary);
+
+    var body = document.createElement("div");
+    body.className = "markdown-section-body";
+    var inner = document.createElement("div");
+    inner.className = "markdown-section-body-inner";
+    body.appendChild(inner);
+    details.appendChild(body);
+
+    container.insertBefore(details, node);
+    node.remove();
+    cursor += 1;
+
+    while (cursor < children.length) {
+      var candidate = children[cursor];
+      var candidateLevel = getMarkdownHeadingLevel(candidate);
+      if (candidateLevel && candidateLevel <= level) break;
+      inner.appendChild(candidate);
+      cursor += 1;
+    }
+
+    trimSectionBreaks(inner);
+    if (level === 2) {
+      buildCollapsibleMarkdownSections(inner);
+    }
+  }
+}
+
+function enhanceAssistantMarkdown(contentEl) {
+  if (!contentEl) return;
+  buildCollapsibleMarkdownSections(contentEl);
 }
 
 window.copyCode = function(btn) {
@@ -434,6 +525,9 @@ function renderMessage(role, content) {
   var contentEl = document.createElement("div");
   contentEl.className = "message-content";
   contentEl.innerHTML = formatMarkdown(content);
+  if (role === "assistant") {
+    enhanceAssistantMarkdown(contentEl);
+  }
   bubble.appendChild(contentEl);
   bubble.dataset.renderedTextLength = String((contentEl.textContent || "").length);
   elements.chatMessages.appendChild(bubble);
@@ -457,6 +551,254 @@ async function fetchJson(url, opts) {
   var r = await fetch(url, opts || {});
   if (!r.ok) throw new Error(r.status + " " + r.statusText);
   return r.json();
+}
+
+/* ===== Memory ===== */
+var memoryState = {
+  bindingsApplied: false,
+};
+
+function renderFactsList(facts) {
+  var listEl = document.getElementById("facts-list");
+  if (!listEl) return;
+
+  if (!Array.isArray(facts) || !facts.length) {
+    listEl.innerHTML = '<li class="pipeline-empty-row">No facts yet.</li>';
+    return;
+  }
+
+  listEl.innerHTML = facts.map(function(fact) {
+    var key = String(fact && fact.key ? fact.key : "").trim();
+    var value = String(fact && fact.value ? fact.value : "").trim();
+    var category = String(fact && fact.category ? fact.category : "general").trim() || "general";
+    var encodedKey = encodeURIComponent(key);
+
+    return (
+      '<li class="memory-list-item">' +
+        '<div class="memory-item-main">' +
+          '<div class="memory-item-key">' + escapeHtml(key || "-") + "</div>" +
+          '<div class="memory-item-value">' + escapeHtml(value || "-") + "</div>" +
+          '<div class="memory-item-meta">Category: ' + escapeHtml(category) + "</div>" +
+        "</div>" +
+        '<button type="button" class="btn-gold memory-delete-btn" data-delete-fact-key="' + encodedKey + '">🗑️</button>' +
+      "</li>"
+    );
+  }).join("");
+}
+
+function renderPreferencesList(preferences) {
+  var listEl = document.getElementById("prefs-list");
+  if (!listEl) return;
+
+  var entries = Object.entries(preferences || {});
+  if (!entries.length) {
+    listEl.innerHTML = '<li class="pipeline-empty-row">No preferences yet.</li>';
+    return;
+  }
+
+  listEl.innerHTML = entries.map(function(entry) {
+    var key = String(entry[0] || "").trim();
+    var value = String(entry[1] || "").trim();
+    return (
+      '<li class="memory-list-item">' +
+        '<div class="memory-item-main">' +
+          '<div class="memory-item-key">' + escapeHtml(key || "-") + "</div>" +
+          '<div class="memory-item-value">' + escapeHtml(value || "-") + "</div>" +
+        "</div>" +
+      "</li>"
+    );
+  }).join("");
+}
+
+function renderMemoryContext(contextText) {
+  var contextEl = document.getElementById("memory-context");
+  if (!contextEl) return;
+  var safeContext = String(contextText || "").trim();
+  contextEl.textContent = safeContext || "No context available.";
+}
+
+async function fetchMemoryFacts() {
+  try {
+    return await fetchJson("/api/memory/facts");
+  } catch (error) {
+    showToast("Failed to load memory facts: " + (error.message || "unknown"));
+    return [];
+  }
+}
+
+async function fetchMemoryPreferences() {
+  try {
+    return await fetchJson("/api/memory/preferences");
+  } catch (error) {
+    showToast("Failed to load preferences: " + (error.message || "unknown"));
+    return {};
+  }
+}
+
+async function fetchMemoryContext() {
+  try {
+    var contextPayload = await fetchJson("/api/memory/context");
+    return contextPayload && contextPayload.context ? contextPayload.context : "";
+  } catch (error) {
+    showToast("Failed to load memory context: " + (error.message || "unknown"));
+    return "";
+  }
+}
+
+async function loadMemoryPanel() {
+  var factsEl = document.getElementById("facts-list");
+  if (factsEl) factsEl.innerHTML = '<li class="pipeline-empty-row">Loading facts...</li>';
+  var prefsEl = document.getElementById("prefs-list");
+  if (prefsEl) prefsEl.innerHTML = '<li class="pipeline-empty-row">Loading preferences...</li>';
+  renderMemoryContext("Loading memory context...");
+
+  var data = await Promise.all([
+    fetchMemoryFacts(),
+    fetchMemoryPreferences(),
+    fetchMemoryContext(),
+  ]);
+
+  renderFactsList(data[0]);
+  renderPreferencesList(data[1]);
+  renderMemoryContext(data[2]);
+}
+
+async function deleteMemoryFactByKey(key) {
+  try {
+    await fetchJson("/api/memory/facts/" + encodeURIComponent(key), {
+      method: "DELETE",
+    });
+    return true;
+  } catch (error) {
+    showToast("Failed to delete fact: " + (error.message || "unknown"));
+    return false;
+  }
+}
+
+async function addMemoryFact(payload) {
+  try {
+    await fetchJson("/api/memory/facts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return true;
+  } catch (error) {
+    showToast("Failed to add fact: " + (error.message || "unknown"));
+    return false;
+  }
+}
+
+async function addMemoryPreference(payload) {
+  try {
+    await fetchJson("/api/memory/preferences", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    return true;
+  } catch (error) {
+    showToast("Failed to add preference: " + (error.message || "unknown"));
+    return false;
+  }
+}
+
+async function handleAddFactSubmit(event) {
+  event.preventDefault();
+  var form = event.currentTarget;
+  var keyInput = form.querySelector('[name="key"]');
+  var valueInput = form.querySelector('[name="value"]');
+  var categoryInput = form.querySelector('[name="category"]');
+
+  var payload = {
+    key: keyInput ? keyInput.value.trim() : "",
+    value: valueInput ? valueInput.value.trim() : "",
+    category: categoryInput ? categoryInput.value.trim() : "",
+  };
+
+  if (!payload.key || !payload.value) {
+    showToast("Fact key and value are required.");
+    return;
+  }
+
+  var ok = await addMemoryFact(payload);
+  if (!ok) return;
+
+  form.reset();
+  showToast("Fact added.");
+  await loadMemoryPanel();
+}
+
+async function handleAddPreferenceSubmit(event) {
+  event.preventDefault();
+  var form = event.currentTarget;
+  var keyInput = form.querySelector('[name="key"]');
+  var valueInput = form.querySelector('[name="value"]');
+
+  var payload = {
+    key: keyInput ? keyInput.value.trim() : "",
+    value: valueInput ? valueInput.value.trim() : "",
+  };
+
+  if (!payload.key || !payload.value) {
+    showToast("Preference key and value are required.");
+    return;
+  }
+
+  var ok = await addMemoryPreference(payload);
+  if (!ok) return;
+
+  form.reset();
+  showToast("Preference added.");
+  await loadMemoryPanel();
+}
+
+function bindMemoryPanelEvents() {
+  if (memoryState.bindingsApplied) return;
+  memoryState.bindingsApplied = true;
+
+  var factsList = document.getElementById("facts-list");
+  if (factsList) {
+    factsList.addEventListener("click", function(event) {
+      var target = event.target.closest("[data-delete-fact-key]");
+      if (!target) return;
+
+      var encodedKey = target.getAttribute("data-delete-fact-key") || "";
+      var factKey = "";
+      try {
+        factKey = decodeURIComponent(encodedKey);
+      } catch (error) {
+        showToast("Failed to decode fact key.");
+        return;
+      }
+
+      if (!factKey) return;
+      deleteMemoryFactByKey(factKey).then(function(ok) {
+        if (!ok) return;
+        loadMemoryPanel().catch(function(error) {
+          showToast("Failed to refresh memory panel: " + (error.message || "unknown"));
+        });
+      });
+    });
+  }
+
+  var addFactForm = document.getElementById("add-fact-form");
+  if (addFactForm) {
+    addFactForm.addEventListener("submit", function(event) {
+      handleAddFactSubmit(event).catch(function(error) {
+        showToast("Failed to submit fact: " + (error.message || "unknown"));
+      });
+    });
+  }
+
+  var addPrefForm = document.getElementById("add-pref-form");
+  if (addPrefForm) {
+    addPrefForm.addEventListener("submit", function(event) {
+      handleAddPreferenceSubmit(event).catch(function(error) {
+        showToast("Failed to submit preference: " + (error.message || "unknown"));
+      });
+    });
+  }
 }
 
 /* ===== Pipeline ===== */
@@ -1007,6 +1349,7 @@ function appendAssistantDelta(content) {
   bubble.dataset.rawContent = next;
   var contentEl = getMessageContentElement(bubble);
   contentEl.innerHTML = formatMarkdown(next);
+  enhanceAssistantMarkdown(contentEl);
   var nextRenderedLength = (contentEl.textContent || "").length;
   bubble.dataset.renderedTextLength = String(nextRenderedLength);
   applyStreamingTextReveal(bubble, contentEl, Math.max(nextRenderedLength - previousRenderedLength, 0));
@@ -1097,17 +1440,25 @@ function bindTabNavigation() {
   var tabPanels = document.querySelectorAll(".tab-panel");
   if (!tabButtons.length || !tabPanels.length) return;
 
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      var targetTab = btn.dataset.tab;
+  tabButtons.forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      var requestedTab = btn.dataset.tab;
+      var targetTab = requestedTab === "memory" ? "memory-view" : requestedTab;
       tabButtons.forEach(function(button) {
         button.classList.toggle("active", button === btn);
       });
       tabPanels.forEach(function(panel) {
-        panel.classList.toggle("active", panel.id === targetTab);
+        var isTarget = panel.id === targetTab;
+        panel.classList.toggle("active", isTarget);
+        panel.classList.toggle("hidden", !isTarget);
       });
       if (targetTab === "pipeline-container") {
         loadPipelineHistory().catch(function() {});
+      }
+      if (targetTab === "memory-view") {
+        loadMemoryPanel().catch(function(error) {
+          showToast("Failed to load memory panel: " + (error.message || "unknown"));
+        });
       }
     });
   });
@@ -1129,6 +1480,7 @@ function bindEvents() {
   });
   elements.newSessionBtn.addEventListener("click", newSession);
   bindPipelineEvents();
+  bindMemoryPanelEvents();
   window.addEventListener("beforeunload", stopPipelineStream);
 }
 
@@ -1302,7 +1654,7 @@ function startMonitorAutoRefresh() {
 function monitorHandleTabSwitch(targetTabId) {
   if (targetTabId === "monitor-container") {
     startMonitorAutoRefresh();
-  } else if (targetTabId === "chat-container" || targetTabId === "pipeline-container") {
+  } else {
     stopMonitorAutoRefresh();
   }
 }
@@ -1777,4 +2129,13 @@ if (document.readyState === "loading") {
 } else {
   bootDigestUI();
 }
+
+
+
+
+
+
+
+
+
 

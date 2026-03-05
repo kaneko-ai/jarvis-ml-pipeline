@@ -54,6 +54,9 @@
           <button type="button" class="tab-btn active" data-tab="chat-container">Chat</button>
           <button type="button" class="tab-btn" data-tab="pipeline-container">Pipeline</button>
           <button type="button" class="tab-btn" data-tab="monitor-container">Monitor</button>
+          <button class="tab-btn nav-btn" data-tab="memory" id="memoryTab">
+            <span class="nav-icon">&#129504;</span> Memory
+          </button>
         </nav>
 
         <div id="chat-container" class="tab-panel active">
@@ -258,6 +261,28 @@
           </section>
         </div>
         <div id="monitor-container" class="tab-panel"></div>
+
+        <section id="memory-view" class="tab-panel view hidden">
+          <div class="memory-panel">
+            <h2>Facts</h2>
+            <div id="facts-list" class="memory-list"></div>
+            <form id="add-fact-form" class="memory-form">
+              <input type="text" id="fact-key" name="key" placeholder="Key" required>
+              <input type="text" id="fact-value" name="value" placeholder="Value" required>
+              <input type="text" id="fact-category" name="category" placeholder="Category" value="general">
+              <button type="submit" class="btn-gold">Add Fact</button>
+            </form>
+            <h2>Preferences</h2>
+            <div id="prefs-list" class="memory-list"></div>
+            <form id="add-pref-form" class="memory-form">
+              <input type="text" id="pref-key" name="key" placeholder="Key" required>
+              <input type="text" id="pref-value" name="value" placeholder="Value" required>
+              <button type="submit" class="btn-gold">Set Preference</button>
+            </form>
+            <h2>Memory Context</h2>
+            <pre id="memory-context" class="memory-context-box"></pre>
+          </div>
+        </section>
       </main>
     </div>
 
@@ -265,6 +290,10 @@
     <script type="module" src="./js/app.js"></script>
   </body>
 </html>
+
+
+
+
 
 
 
