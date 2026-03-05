@@ -50,24 +50,35 @@
       </aside>
 
       <main id="main">
-        <header class="main-header">
-          <div>
-            <p class="eyebrow">Active Model</p>
-            <h2 id="current-model-label">Loading...</h2>
-          </div>
-        </header>
+        <nav class="tab-nav" aria-label="Main tabs">
+          <button type="button" class="tab-btn active" data-tab="chat-container">Chat</button>
+          <button type="button" class="tab-btn" data-tab="pipeline-container">Pipeline</button>
+          <button type="button" class="tab-btn" data-tab="monitor-container">Monitor</button>
+        </nav>
 
-        <section id="chat-messages" class="chat-messages"></section>
+        <div id="chat-container" class="tab-panel active">
+          <header class="main-header">
+            <div>
+              <p class="eyebrow">Active Model</p>
+              <h2 id="current-model-label">Loading...</h2>
+            </div>
+          </header>
 
-        <form id="chat-input-form" class="chat-input-form">
-          <textarea
-            id="chat-input"
-            rows="1"
-            placeholder="Message JARVIS... &#10024;"
-            autocomplete="off"
-          ></textarea>
-          <button id="send-button" type="submit">&#10024; Send</button>
-        </form>
+          <section id="chat-messages" class="chat-messages"></section>
+
+          <form id="chat-input-form" class="chat-input-form">
+            <textarea
+              id="chat-input"
+              rows="1"
+              placeholder="Message JARVIS... &#10024;"
+              autocomplete="off"
+            ></textarea>
+            <button id="send-button" type="submit">&#10024; Send</button>
+          </form>
+        </div>
+
+        <div id="pipeline-container" class="tab-panel"></div>
+        <div id="monitor-container" class="tab-panel"></div>
       </main>
     </div>
 
@@ -75,3 +86,4 @@
     <script type="module" src="./js/app.js"></script>
   </body>
 </html>
+

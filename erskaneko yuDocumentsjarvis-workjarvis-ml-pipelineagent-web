@@ -1,0 +1,5 @@
+[33mcdc05f58[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m docs: HANDOVER_v12.md - H-2 session memory + H-1 live paper search complete
+[33mfcaad471[m feat(agent-web): live paper search - PubMed + Semantic Scholar + OpenAlex fallback [H-1]
+[33m3938883a[m feat(agent-web): session memory - send conversation history as LLM context [H-2]
+[33m37051d0d[m docs: add Agent-Web section to README, update to v2.0.0 [I-3]
+[33m643c7d74[m feat(agent-web): Phase 1 UI - dark/gold theme, particles, inline activity, code highlight + HANDOVER_v11

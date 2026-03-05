@@ -178,6 +178,42 @@ button, select, textarea { font: inherit; }
   gap: 1rem; position: relative;
 }
 
+.tab-nav {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.35rem 0.45rem;
+  border-radius: 14px;
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tab-btn {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #e0e0e0;
+  padding: 0.55rem 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  color: #e0e0e0;
+  border-bottom-color: #00ff88;
+}
+
+.tab-panel {
+  display: none;
+  flex: 1;
+  min-height: 0;
+}
+
+.tab-panel.active {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .main-header, .agent-activity-panel { border-radius: 18px; padding: 1rem 1.2rem; }
 
 .main-header {
@@ -467,3 +503,4 @@ button, select, textarea { font: inherit; }
 
 /* ===== Old activity panel removal ===== */
 .agent-activity-panel { display: none; }
+

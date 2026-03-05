@@ -610,6 +610,24 @@ function autoResizeTextarea() {
   elements.chatInput.style.height = Math.min(elements.chatInput.scrollHeight, 200) + "px";
 }
 
+function bindTabNavigation() {
+  var tabButtons = document.querySelectorAll(".tab-btn");
+  var tabPanels = document.querySelectorAll(".tab-panel");
+  if (!tabButtons.length || !tabPanels.length) return;
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      var targetTab = btn.dataset.tab;
+      tabButtons.forEach(function(button) {
+        button.classList.toggle("active", button === btn);
+      });
+      tabPanels.forEach(function(panel) {
+        panel.classList.toggle("active", panel.id === targetTab);
+      });
+    });
+  });
+}
+
 function bindEvents() {
   elements.modelSelector.addEventListener("change", function() {
     var a = state.models.find(function(m) { return m.id === elements.modelSelector.value; });
@@ -630,6 +648,7 @@ function bindEvents() {
 /* ===== Initialize ===== */
 async function initialize() {
   initParticles();
+  bindTabNavigation();
   bindEvents();
   ensureResearchBadge();
   ensureCopilotBadge();
@@ -647,3 +666,4 @@ async function initialize() {
 }
 
 initialize();
+
