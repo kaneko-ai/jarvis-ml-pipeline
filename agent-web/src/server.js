@@ -12,6 +12,7 @@ import modelsRouter from "./routes/models.js";
 import skillsRouter from "./routes/skills.js";
 import mcpRouter from "./routes/mcp.js";
 import usageRouter from "./routes/usage.js";
+import pipelineRouter from "./routes/pipeline.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -68,6 +69,7 @@ app.use("/api/models", modelsRouter);
 app.use("/api/skills", skillsRouter);
 app.use("/api/mcp", mcpRouter);
 app.use("/api/usage", usageRouter);
+app.use("/api/pipeline", pipelineRouter);
 
 app.get("/api/health", (req, res) => {
   res.json({
