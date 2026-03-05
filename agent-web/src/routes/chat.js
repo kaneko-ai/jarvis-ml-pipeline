@@ -1,6 +1,7 @@
 import express from "express";
 import { addMessage, createSession, getMessages } from "../db/database.js";
 import { searchPapers } from "../db/papers-repository.js";
+import { getMemoryContext, extractAndStoreFacts } from "../db/memory-store.js";
 import { callCopilotLLMStream, callCopilotLLM } from "../llm/copilot-bridge.js";
 
 let callPythonLLM;
@@ -207,13 +208,13 @@ router.post("/stream", async (req, res) => {
     let usedModel = model;
     let usedProvider = isLiteLLMModel(model) ? "litellm" : "copilot";
     const cleanMessage = augmentedMessage.replace(/[\uD800-\uDFFF]/g, "");
-    let systemPrompt = SYSTEM_PROMPT;
+    let systemPromptWithContext = SYSTEM_PROMPT;
 
     if (isResearchQuery(message)) {
       try {
         const relatedPapers = searchPapers(message.substring(0, 100)).slice(0, 3);
         if (relatedPapers.length > 0) {
-          systemPrompt += "\n\nRelevant papers in your database:\n" + relatedPapers
+          systemPromptWithContext += "\n\nRelevant papers in your database:\n" + relatedPapers
             .map((paper) => `- ${paper.title || "Untitled"} (${paper.year ?? "n/a"}) [${paper.source || "unknown"}]`)
             .join("\n");
         }
@@ -222,7 +223,16 @@ router.post("/stream", async (req, res) => {
       }
     }
 
-    const litellmHistory = [{ role: "system", content: systemPrompt }, ...history];
+    try {
+      const memoryContext = getMemoryContext();
+      if (memoryContext && memoryContext.trim().length > 0) {
+        systemPromptWithContext += "\n\nUser memory:\n" + memoryContext;
+      }
+    } catch (e) {
+      // best-effort
+    }
+
+    const litellmHistory = [{ role: "system", content: systemPromptWithContext }, ...history];
 
     if (isLiteLLMModel(model)) {
       if (callPythonLLM) {
@@ -250,7 +260,7 @@ router.post("/stream", async (req, res) => {
       }
     } else {
       try {
-        const stream = await callCopilotLLMStream({ message: cleanMessage, model, history, systemPrompt });
+        const stream = await callCopilotLLMStream({ message: cleanMessage, model, history, systemPrompt: systemPromptWithContext });
         const reader = stream.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
@@ -281,7 +291,7 @@ router.post("/stream", async (req, res) => {
       } catch (streamErr) {
         // Streaming failed — try non-streaming fallback
         try {
-          const result = await callCopilotLLM({ message: cleanMessage, model, history, systemPrompt });
+          const result = await callCopilotLLM({ message: cleanMessage, model, history, systemPrompt: systemPromptWithContext });
           if (result.success && result.content) {
             fullContent = result.content;
             for (const char of fullContent) {
@@ -323,6 +333,11 @@ router.post("/stream", async (req, res) => {
       { step: "generate_response", status: "done", time: `${genTime}ms`, provider: usedProvider, model: usedModel }
     ];
     addMessage(sessionId, "assistant", fullContent, activityLog, usedTools.length ? usedTools : null);
+    try {
+      extractAndStoreFacts(fullContent, sessionId);
+    } catch (e) {
+      // best-effort
+    }
   } catch (err) {
     sendSSE(res, "error", { message: err.message || "Unknown error" });
   }

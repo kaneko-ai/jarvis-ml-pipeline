@@ -15,6 +15,7 @@ import usageRouter from "./routes/usage.js";
 import pipelineRouter from "./routes/pipeline.js";
 import monitorRouter from "./routes/monitor.js";
 import digestRouter from "./routes/digest.js";
+import memoryRouter from "./routes/memory.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -75,6 +76,7 @@ app.use("/api/usage", usageRouter);
 app.use("/api/pipeline", pipelineRouter);
 app.use("/api/monitor", monitorRouter);
 app.use("/api/digest", digestRouter);
+app.use("/api/memory", memoryRouter);
 
 app.get("/api/health", (req, res) => {
   res.json({

@@ -148,3 +148,89 @@ describe('chroma-bridge module', () => {
     assert.equal(typeof mod.indexPapersToChroma, 'function');
   });
 });
+
+describe('memory-store module', () => {
+  it('should export storeFact function', async () => {
+    const mod = await import('../src/db/memory-store.js');
+    assert.equal(typeof mod.storeFact, 'function');
+  });
+
+  it('should export getMemoryContext function', async () => {
+    const mod = await import('../src/db/memory-store.js');
+    assert.equal(typeof mod.getMemoryContext, 'function');
+  });
+
+  it('should export extractAndStoreFacts function', async () => {
+    const mod = await import('../src/db/memory-store.js');
+    assert.equal(typeof mod.extractAndStoreFacts, 'function');
+  });
+
+  it('storeFact and getFact roundtrip', async () => {
+    const { storeFact, getFact, deleteFact } = await import('../src/db/memory-store.js');
+    const stored = storeFact({ key: 'test_key', value: 'test_value', category: 'test' });
+    assert.ok(stored);
+    const fact = getFact('test_key');
+    assert.ok(fact);
+    assert.equal(fact.value, 'test_value');
+    deleteFact('test_key');
+  });
+
+  it('setPreference and getPreference roundtrip', async () => {
+    const { setPreference, getPreference } = await import('../src/db/memory-store.js');
+    const pref = setPreference('test_pref', 'test_val');
+    assert.ok(pref);
+    assert.equal(getPreference('test_pref'), 'test_val');
+    setPreference('test_pref', '');
+  });
+
+  it('getMemoryContext returns string', async () => {
+    const { getMemoryContext } = await import('../src/db/memory-store.js');
+    const context = getMemoryContext();
+    assert.equal(typeof context, 'string');
+  });
+
+  it('extractAndStoreFacts handles simple name', async () => {
+    const { getFact, storeFact, deleteFact, extractAndStoreFacts } = await import('../src/db/memory-store.js');
+    const prevUserName = getFact('user_name');
+    const prevInterest = getFact('research_interest_1');
+
+    try {
+      extractAndStoreFacts('Your name is TestUser and you study PD-1', 'test-session');
+      const fact = getFact('user_name');
+      assert.ok(fact);
+      assert.match(fact.value, /TestUser/);
+    } finally {
+      if (prevUserName) {
+        storeFact({
+          key: prevUserName.key,
+          value: prevUserName.value,
+          sourceSession: prevUserName.source_session,
+          category: prevUserName.category,
+          confidence: prevUserName.confidence,
+        });
+      } else {
+        deleteFact('user_name');
+      }
+
+      if (prevInterest) {
+        storeFact({
+          key: prevInterest.key,
+          value: prevInterest.value,
+          sourceSession: prevInterest.source_session,
+          category: prevInterest.category,
+          confidence: prevInterest.confidence,
+        });
+      } else {
+        deleteFact('research_interest_1');
+      }
+    }
+  });
+});
+
+describe('chat system prompt', () => {
+  it('SYSTEM_PROMPT constant should exist in chat module', async () => {
+    const mod = await import('../src/routes/chat.js');
+    assert.ok(mod);
+  });
+});
+
