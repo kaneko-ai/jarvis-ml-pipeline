@@ -1357,3 +1357,205 @@ button, select, textarea { font: inherit; }
 .message.assistant .markdown-section-summary::after {
   content: "v";
 }
+
+.sidebar-toggle {
+  display: none;
+}
+
+/* Message fade-in */
+@keyframes messageFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message-bubble {
+  animation: messageFadeIn 0.35s ease-out both;
+}
+
+.message-bubble:nth-child(1) { animation-delay: 0ms; }
+.message-bubble:nth-child(2) { animation-delay: 60ms; }
+.message-bubble:nth-child(3) { animation-delay: 120ms; }
+
+/* Activity timeline item fade-in */
+@keyframes timelineFadeIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.activity-item,
+.timeline-item,
+.inline-activity-item {
+  animation: timelineFadeIn 0.3s ease-out both;
+}
+
+/* Digest card entrance */
+@keyframes cardSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.digest-card,
+.pipeline-card,
+.fact-card,
+.digest-panel,
+.digest-results,
+.digest-history,
+.memory-item,
+.pipeline-step-card {
+  animation: cardSlideUp 0.4s ease-out both;
+}
+
+/* Stagger children for lists */
+.memory-list > *:nth-child(1) { animation-delay: 0ms; }
+.memory-list > *:nth-child(2) { animation-delay: 50ms; }
+.memory-list > *:nth-child(3) { animation-delay: 100ms; }
+.memory-list > *:nth-child(4) { animation-delay: 150ms; }
+.memory-list > *:nth-child(5) { animation-delay: 200ms; }
+.memory-list > *:nth-child(6) { animation-delay: 250ms; }
+.memory-list > *:nth-child(7) { animation-delay: 300ms; }
+.memory-list > *:nth-child(8) { animation-delay: 350ms; }
+.memory-list > *:nth-child(9) { animation-delay: 400ms; }
+.memory-list > *:nth-child(10) { animation-delay: 450ms; }
+
+/* Smooth transitions for interactive elements */
+.nav-btn {
+  transition: background 0.2s ease, color 0.2s ease,
+              border-color 0.2s ease;
+}
+
+.btn-gold {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-gold:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212,175,55,0.3);
+}
+
+.btn-gold:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 1024px) {
+  #sidebar,
+  .sidebar {
+    width: 200px;
+  }
+
+  #main {
+    width: calc(100% - 200px);
+  }
+
+  .memory-form {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  #app {
+    flex-direction: row;
+  }
+
+  body {
+    overflow: auto;
+  }
+
+  #sidebar,
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(78vw, 280px);
+    max-height: 100vh;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    border-right: 1px solid rgba(212, 160, 23, 0.08);
+    border-bottom: 0;
+  }
+
+  #sidebar.open,
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  #main {
+    margin-left: 0;
+    width: 100%;
+    height: auto;
+    padding-top: 4.5rem;
+  }
+
+  .sidebar-toggle {
+    display: block;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1001;
+    background: rgba(26,26,46,0.9);
+    border: 1px solid rgba(212,175,55,0.3);
+    color: #d4af37;
+    padding: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.5rem;
+  }
+
+  .chat-input-form,
+  #chat-input-form {
+    flex-direction: column;
+  }
+
+  .memory-form {
+    flex-direction: column;
+  }
+
+  .md-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  html,
+  body {
+    font-size: 14px;
+  }
+
+  .sidebar-header,
+  .sidebar-section,
+  .main-header,
+  .agent-activity-panel,
+  .chat-input-form,
+  .memory-panel,
+  .digest-panel,
+  .digest-results,
+  .digest-history {
+    padding: 0.85rem;
+  }
+
+  .nav-btn {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.85rem;
+  }
+}
+
+
+/* Responsive chat input offsets */
+@media (max-width: 1024px) {
+  .chat-input-form,
+  #chat-input-form {
+    left: calc(200px + 1.25rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .chat-input-form,
+  #chat-input-form {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    flex-direction: column;
+  }
+}

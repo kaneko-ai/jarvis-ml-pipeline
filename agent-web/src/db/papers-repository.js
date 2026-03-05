@@ -238,10 +238,26 @@ export function countPapers() {
   }
 }
 
-export function deletePaper(id) {
+export function deletePaper(identifier) {
   try {
+    if (identifier === null || identifier === undefined) {
+      return false;
+    }
+
     const db = getDb();
-    const result = db.prepare("DELETE FROM papers WHERE id = ?").run(id);
+    const rawIdentifier = String(identifier).trim();
+    if (!rawIdentifier) {
+      return false;
+    }
+
+    const isNumericId =
+      typeof identifier === "number" ||
+      (typeof identifier === "string" && /^\d+$/.test(rawIdentifier));
+
+    const result = isNumericId
+      ? db.prepare("DELETE FROM papers WHERE id = ?").run(Number(rawIdentifier))
+      : db.prepare("DELETE FROM papers WHERE doi = ?").run(rawIdentifier);
+
     return result.changes > 0;
   } catch (error) {
     console.error("Failed to delete paper:", error);
@@ -250,3 +266,4 @@ export function deletePaper(id) {
 }
 
 init();
+

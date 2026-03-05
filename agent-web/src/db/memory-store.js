@@ -124,11 +124,16 @@ export function deleteFact(key) {
 export function setPreference(key, value) {
   const safeKey = normalizeText(key);
   const safeValue = normalizeText(value);
-  if (!safeKey || !safeValue) {
+  if (!safeKey) {
     return null;
   }
 
   const db = getDb();
+  if (!safeValue) {
+    db.prepare("DELETE FROM user_preferences WHERE key = ?").run(safeKey);
+    return null;
+  }
+
   db.prepare(`
     INSERT OR REPLACE INTO user_preferences (key, value, updated_at)
     VALUES (?, ?, datetime('now'))
@@ -254,4 +259,5 @@ export function extractAndStoreFacts(assistantResponse, sessionId) {
 }
 
 getDb();
+
 

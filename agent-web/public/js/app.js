@@ -410,12 +410,12 @@ function upsertActivity(step, status, time, extra) {
   var node = state.activityItems.get(step);
   if (!node) {
     node = document.createElement("div");
-    node.className = "inline-activity-item " + status;
+    node.className = "inline-activity-item activity-item " + status;
     node.innerHTML = '<span class="ia-dot activity-dot"></span><div class="ia-content"><div class="ia-title"></div><div class="ia-meta"></div></div>';
     state.activityItems.set(step, node);
     timeline.appendChild(node);
   }
-  node.className = "inline-activity-item " + status;
+  node.className = "inline-activity-item activity-item " + status;
   var dot = node.querySelector(".activity-dot");
   if (dot) dot.className = "ia-dot activity-dot " + status;
   var label = step.split("_").map(function(t) { return t.charAt(0).toUpperCase() + t.slice(1); }).join(" ");
@@ -430,7 +430,7 @@ function renderToolCall(payload) {
   ensureInlineActivity();
   var timeline = document.getElementById("inline-timeline");
   var details = document.createElement("details");
-  details.className = "inline-activity-item done";
+  details.className = "inline-activity-item activity-item done";
   var preview = String(payload.result || "").slice(0, 200);
   details.innerHTML =
     '<summary style="display:flex;align-items:center;gap:8px;cursor:pointer;">' +
@@ -521,7 +521,7 @@ function applyStreamingTextReveal(bubble, contentEl, addedLength) {
 
 function renderMessage(role, content) {
   var bubble = document.createElement("article");
-  bubble.className = "message " + role;
+  bubble.className = "message message-bubble " + role;
   var contentEl = document.createElement("div");
   contentEl.className = "message-content";
   contentEl.innerHTML = formatMarkdown(content);
@@ -2130,12 +2130,25 @@ if (document.readyState === "loading") {
   bootDigestUI();
 }
 
+var sidebarToggle = document.getElementById("sidebarToggle");
+var sidebar = document.querySelector(".sidebar") || document.getElementById("sidebar");
 
+if (sidebarToggle && sidebar) {
+  sidebarToggle.addEventListener("click", function() {
+    sidebar.classList.toggle("open");
+  });
 
+  document.querySelectorAll(".nav-btn, .tab-btn").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove("open");
+      }
+    });
+  });
 
-
-
-
-
-
-
+  window.addEventListener("resize", function() {
+    if (window.innerWidth > 768) {
+      sidebar.classList.remove("open");
+    }
+  });
+}
