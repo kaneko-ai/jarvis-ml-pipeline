@@ -197,7 +197,10 @@ function createCitationTokenStore() {
 function buildDoiLink(doi) {
   var safeDoi = String(doi || "").trim();
   if (!safeDoi) return "";
-  return '<a href="https://doi.org/' + safeDoi + '" class="cite-link" target="_blank" rel="noreferrer noopener">DOI:' + safeDoi + '</a>';
+  return (
+    '<a href="https://doi.org/' + safeDoi + '" class="cite-link" target="_blank" rel="noreferrer noopener">DOI:' + safeDoi + "</a>" +
+    '<a href="https://api.unpaywall.org/v2/' + encodeURIComponent(safeDoi) + '?email=jarvis@example.com" class="pdf-lookup" target="_blank" rel="noreferrer noopener" title="Check Unpaywall">📥</a>'
+  );
 }
 
 function buildPmidLink(pmid) {
@@ -221,6 +224,85 @@ function linkifyCitations(text) {
     });
 
   return citationTokens.restore(linked);
+}
+
+function splitTrailingPunctuation(rawText) {
+  var text = String(rawText || "");
+  var trailing = "";
+  while (/[.,;)\]]$/.test(text)) {
+    trailing = text.slice(-1) + trailing;
+    text = text.slice(0, -1);
+  }
+  return { text: text, trailing: trailing };
+}
+
+function isPdfCardCandidate(rawText) {
+  var text = String(rawText || "");
+  if (/^https?:\/\//i.test(text)) {
+    return /\.pdf(?:$|[?#])/i.test(text);
+  }
+  if (/^[A-Za-z]:\\/.test(text)) {
+    return /\\pdf-archive\\/i.test(text) && /\.pdf$/i.test(text);
+  }
+  if (/^\/?data\/pdf-archive\//i.test(text)) {
+    return /\.pdf$/i.test(text);
+  }
+  return false;
+}
+
+function normalizePdfHref(rawText) {
+  var text = String(rawText || "").trim();
+  if (!text) return "";
+  if (/^https?:\/\//i.test(text)) return text;
+  if (/^\/?data\/pdf-archive\//i.test(text)) {
+    return text.startsWith("/") ? text : "/" + text;
+  }
+  if (/^[A-Za-z]:\\/.test(text)) {
+    return "file:///" + text.replaceAll("\\", "/");
+  }
+  return text;
+}
+
+function getPdfFilename(rawText) {
+  var text = String(rawText || "").split("#")[0].split("?")[0].replaceAll("\\", "/");
+  var parts = text.split("/");
+  return parts[parts.length - 1] || "document.pdf";
+}
+
+function buildPdfCard(rawText) {
+  var href = normalizePdfHref(rawText);
+  var title = getPdfFilename(rawText);
+  return (
+    '<div class="pdf-card">' +
+    '<span class="pdf-icon">📄</span>' +
+    '<div class="pdf-info">' +
+    '<span class="pdf-title">' + escapeHtml(title) + "</span>" +
+    '<span class="pdf-size">PDF Document</span>' +
+    "</div>" +
+    '<div class="pdf-actions">' +
+    '<a href="' + escapeHtml(href) + '" target="_blank" rel="noreferrer noopener" class="btn-pdf">Open</a>' +
+    "</div>" +
+    "</div>"
+  );
+}
+
+function replacePdfCards(text) {
+  if (!text) return "";
+  var pattern = /https?:\/\/[^\s<>"']+|[A-Za-z]:\\[^\s<>"']+|\/data\/pdf-archive\/[^\s<>"']+|data\/pdf-archive\/[^\s<>"']+/gi;
+  return String(text).replace(pattern, function(match) {
+    var split = splitTrailingPunctuation(match);
+    if (!isPdfCardCandidate(split.text)) return match;
+    return buildPdfCard(split.text) + split.trailing;
+  });
+}
+
+function replacePdfArchivedBadge(text) {
+  if (!text) return "";
+  var badge = '<span class="pdf-badge">📁 PDF Archived</span>';
+  var withPhraseBadge = String(text).replace(/\bPDF archived\b/gi, badge);
+  return withPhraseBadge.replace(/(^|[^\/\\\w-])(pdf-archive)(?=$|[^\/\\\w-])/gi, function(_, prefix) {
+    return prefix + badge;
+  });
 }
 
 /* ===== Markdown Rendering ===== */
@@ -274,7 +356,9 @@ function applyInlineMarkdownStyles(text) {
     inlineCodeTokens.push({ token: token, html: '<code class="inline-code">' + code + '</code>' });
     return token;
   });
-  var styled = linkifyCitations(withoutInlineCode).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  var styled = replacePdfCards(withoutInlineCode);
+  styled = replacePdfArchivedBadge(styled);
+  styled = linkifyCitations(styled).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
   for (var i = 0; i < inlineCodeTokens.length; i += 1) {
     styled = styled.replaceAll(inlineCodeTokens[i].token, inlineCodeTokens[i].html);
   }
