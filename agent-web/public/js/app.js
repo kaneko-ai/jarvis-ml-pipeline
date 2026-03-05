@@ -1334,3 +1334,381 @@ if (document.readyState === "loading") {
 window.refreshMonitorStatus = refreshMonitorStatus;
 
 
+/* ===== Daily Digest ===== */
+var digestState = {
+  eventSource: null,
+  running: false,
+  historyLoaded: false,
+};
+
+function setDigestRunButtonState(running) {
+  var button = document.getElementById("digest-run-btn");
+  if (!button) return;
+  button.disabled = Boolean(running);
+  button.textContent = running ? "Running..." : "Run Daily Digest";
+}
+
+function setDigestStatusMessage(message, type) {
+  var el = document.getElementById("digest-status-message");
+  if (!el) return;
+  el.classList.remove("error", "success");
+  if (type) el.classList.add(type);
+  el.textContent = message || "";
+}
+
+function normalizeDigestUrl(rawUrl) {
+  if (!rawUrl) return "";
+  var url = String(rawUrl).trim();
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  if (url.startsWith("10.")) return "https://doi.org/" + url;
+  return "";
+}
+
+function parseDigestKeywordStats(summary) {
+  if (!summary || typeof summary !== "object") return [];
+  if (Array.isArray(summary.keywordStats)) {
+    return summary.keywordStats
+      .map(function(entry) {
+        if (!entry || typeof entry !== "object") return null;
+        var keyword = String(entry.keyword || entry.term || "").trim();
+        if (!keyword) return null;
+        var count = Number(entry.count ?? entry.paperCount ?? 0);
+        return {
+          keyword: keyword,
+          count: Number.isFinite(count) ? count : 0,
+        };
+      })
+      .filter(Boolean);
+  }
+
+  if (summary.keywordStats && typeof summary.keywordStats === "object") {
+    return Object.entries(summary.keywordStats).map(function(tuple) {
+      var keyword = String(tuple[0] || "").trim();
+      var count = Number(tuple[1] ?? 0);
+      return {
+        keyword: keyword,
+        count: Number.isFinite(count) ? count : 0,
+      };
+    });
+  }
+
+  return [];
+}
+
+function parseDigestTopPapers(summary, result) {
+  var source = [];
+  if (summary && Array.isArray(summary.topPapers)) {
+    source = summary.topPapers;
+  } else if (result && Array.isArray(result.topPapers)) {
+    source = result.topPapers;
+  } else if (result && Array.isArray(result.papers)) {
+    source = result.papers;
+  } else if (result && Array.isArray(result.results)) {
+    source = result.results;
+  }
+
+  return source
+    .map(function(paper) {
+      if (!paper || typeof paper !== "object") return null;
+      var title = String(paper.title || paper.paperTitle || "").trim();
+      if (!title) return null;
+      return {
+        title: title,
+        keyword: String(paper.keyword || paper.term || "").trim(),
+        source: String(paper.source || paper.journal || "").trim(),
+        year: Number(paper.year) || null,
+        score: Number(paper.score) || null,
+        url: normalizeDigestUrl(paper.url || paper.link || paper.doi),
+      };
+    })
+    .filter(Boolean)
+    .slice(0, 10);
+}
+
+function renderDigestKeywordStats(summary) {
+  var container = document.getElementById("digest-results-keywords");
+  if (!container) return;
+
+  var stats = parseDigestKeywordStats(summary);
+  if (!stats.length) {
+    container.innerHTML = "";
+    return;
+  }
+
+  container.innerHTML = stats
+    .map(function(entry) {
+      return '<span class="digest-keyword-chip">' +
+        escapeHtml(entry.keyword) +
+        ': ' +
+        escapeHtml(String(entry.count)) +
+        "</span>";
+    })
+    .join("");
+}
+
+function renderDigestTopPapers(summary, result) {
+  var list = document.getElementById("digest-top-papers-list");
+  if (!list) return;
+
+  var papers = parseDigestTopPapers(summary, result);
+  if (!papers.length) {
+    list.innerHTML = '<li class="pipeline-empty-row">Top papers will appear here.</li>';
+    return;
+  }
+
+  list.innerHTML = papers
+    .map(function(paper) {
+      var titleHtml = escapeHtml(paper.title);
+      if (paper.url) {
+        titleHtml =
+          '<a class="digest-top-paper-title" target="_blank" rel="noopener noreferrer" href="' +
+          escapeHtml(paper.url) +
+          '">' +
+          titleHtml +
+          "</a>";
+      } else {
+        titleHtml = '<span class="digest-top-paper-title">' + titleHtml + "</span>";
+      }
+
+      var meta = [paper.keyword, paper.source, paper.year, paper.score ? ("score " + paper.score.toFixed(1)) : ""]
+        .filter(Boolean)
+        .map(function(value) { return escapeHtml(String(value)); })
+        .join(" | ");
+
+      return '<li class="digest-top-paper-item">' +
+        titleHtml +
+        '<div class="digest-top-paper-meta">' + (meta || "-") + "</div>" +
+        "</li>";
+    })
+    .join("");
+}
+
+function renderDigestSummary(summary, result) {
+  var summaryEl = document.getElementById("digest-results-summary");
+  if (!summaryEl) return;
+
+  var safeSummary = summary && typeof summary === "object" ? summary : {};
+  var keywordCount = Number(safeSummary.keywordCount ?? parseDigestKeywordStats(safeSummary).length ?? 0);
+  var totalPapers = Number(
+    safeSummary.totalPapers ??
+      safeSummary.total_papers ??
+      (Array.isArray(result && result.papers) ? result.papers.length : 0)
+  );
+
+  summaryEl.textContent =
+    "Keywords: " + (Number.isFinite(keywordCount) ? keywordCount : 0) +
+    " | Total papers: " +
+    (Number.isFinite(totalPapers) ? totalPapers : 0);
+
+  renderDigestKeywordStats(safeSummary);
+  renderDigestTopPapers(safeSummary, result);
+}
+
+function formatDigestHistoryDate(rawDate) {
+  if (!rawDate) return "--";
+  var parsed = new Date(rawDate);
+  if (Number.isNaN(parsed.getTime())) return String(rawDate);
+  return parsed.toLocaleString("ja-JP");
+}
+
+function renderDigestHistory(items) {
+  var body = document.getElementById("digest-history-body");
+  if (!body) return;
+
+  if (!Array.isArray(items) || !items.length) {
+    body.innerHTML = '<tr><td colspan="5" class="pipeline-empty-row">No digest history yet.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = items
+    .map(function(item) {
+      var filename = String(item.filename || "").trim();
+      var encodedName = encodeURIComponent(filename);
+      return (
+        "<tr>" +
+          "<td>" + escapeHtml(formatDigestHistoryDate(item.date)) + "</td>" +
+          "<td>" + escapeHtml(String(item.keywordCount ?? "-")) + "</td>" +
+          "<td>" + escapeHtml(String(item.totalPapers ?? "-")) + "</td>" +
+          "<td>" + escapeHtml(String(item.sizeKB ?? "-")) + "</td>" +
+          '<td><button type="button" class="digest-history-link" data-digest-report="' + encodedName + '">Download</button></td>' +
+        "</tr>"
+      );
+    })
+    .join("");
+}
+
+async function loadDigestHistory(force) {
+  if (digestState.historyLoaded && !force) return;
+  try {
+    var history = await fetchJson("/api/digest/history");
+    renderDigestHistory(history);
+    digestState.historyLoaded = true;
+  } catch (error) {
+    renderDigestHistory([]);
+    setDigestStatusMessage("Failed to load digest history: " + error.message, "error");
+  }
+}
+
+function stopDigestStream() {
+  if (digestState.eventSource) {
+    digestState.eventSource.close();
+    digestState.eventSource = null;
+  }
+  digestState.running = false;
+  setDigestRunButtonState(false);
+}
+
+function buildDigestStreamUrl() {
+  var keywordInput = document.getElementById("digest-keywords-input");
+  var rawKeywords = keywordInput ? keywordInput.value.trim() : "";
+  var query = rawKeywords ? ("?keywords=" + encodeURIComponent(rawKeywords)) : "";
+  return "/api/digest/run" + query;
+}
+
+async function handleDigestPayload(payload, sourceRef) {
+  if (digestState.eventSource !== sourceRef) return;
+
+  if (payload.error) {
+    setDigestStatusMessage("Digest error: " + payload.error, "error");
+    stopDigestStream();
+    return;
+  }
+
+  if (payload.done) {
+    renderDigestSummary(payload.summary, payload.result);
+    setDigestStatusMessage("Daily Digest completed.", "success");
+    digestState.historyLoaded = false;
+    await loadDigestHistory(true);
+    stopDigestStream();
+    return;
+  }
+
+  if (payload.message) {
+    setDigestStatusMessage(payload.message);
+  }
+}
+
+function runDailyDigestFromUI() {
+  if (digestState.running) return;
+
+  stopDigestStream();
+  digestState.running = true;
+  setDigestRunButtonState(true);
+  setDigestStatusMessage("Daily Digest is running...");
+
+  var summaryEl = document.getElementById("digest-results-summary");
+  if (summaryEl) summaryEl.textContent = "Digest running...";
+  var statsEl = document.getElementById("digest-results-keywords");
+  if (statsEl) statsEl.innerHTML = "";
+  var topList = document.getElementById("digest-top-papers-list");
+  if (topList) topList.innerHTML = '<li class="pipeline-empty-row">Digest running...</li>';
+
+  var streamUrl = buildDigestStreamUrl();
+  var eventSource = new EventSource(streamUrl);
+  digestState.eventSource = eventSource;
+
+  eventSource.onmessage = function(event) {
+    if (digestState.eventSource !== eventSource) return;
+    try {
+      var payload = JSON.parse(event.data);
+      Promise.resolve(handleDigestPayload(payload, eventSource)).catch(function(error) {
+        setDigestStatusMessage("Digest stream error: " + error.message, "error");
+        stopDigestStream();
+      });
+    } catch (error) {
+      setDigestStatusMessage("Invalid digest stream payload.", "error");
+      stopDigestStream();
+    }
+  };
+
+  eventSource.onerror = function() {
+    if (digestState.eventSource !== eventSource) return;
+    setDigestStatusMessage("Digest stream disconnected.", "error");
+    stopDigestStream();
+  };
+}
+
+async function downloadDigestReport(filename) {
+  var safeFilename = String(filename || "").trim();
+  if (!safeFilename) return;
+
+  var endpoint = "/api/digest/report/" + encodeURIComponent(safeFilename);
+  var response = await fetch(endpoint);
+  if (!response.ok) {
+    throw new Error(response.status + " " + response.statusText);
+  }
+
+  var blob = await response.blob();
+  var blobUrl = window.URL.createObjectURL(blob);
+  var anchor = document.createElement("a");
+  anchor.href = blobUrl;
+  anchor.download = safeFilename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.URL.revokeObjectURL(blobUrl);
+}
+
+function bindDigestEvents() {
+  var runButton = document.getElementById("digest-run-btn");
+  var refreshButton = document.getElementById("digest-refresh-history-btn");
+  var historyBody = document.getElementById("digest-history-body");
+
+  if (runButton) {
+    runButton.addEventListener("click", function() {
+      runDailyDigestFromUI();
+    });
+  }
+
+  if (refreshButton) {
+    refreshButton.addEventListener("click", function() {
+      digestState.historyLoaded = false;
+      loadDigestHistory(true).catch(function(error) {
+        showToast(error.message || "Failed to load digest history");
+      });
+    });
+  }
+
+  if (historyBody) {
+    historyBody.addEventListener("click", function(event) {
+      var target = event.target.closest("[data-digest-report]");
+      if (!target) return;
+      var filename = decodeURIComponent(target.getAttribute("data-digest-report") || "");
+      downloadDigestReport(filename).catch(function(error) {
+        showToast("Download failed: " + (error.message || "unknown"));
+      });
+    });
+  }
+
+  var pipelineTabButton = document.querySelector('.tab-btn[data-tab="pipeline-container"]');
+  if (pipelineTabButton) {
+    pipelineTabButton.addEventListener("click", function() {
+      loadDigestHistory().catch(function() {});
+    });
+  }
+
+  window.addEventListener("beforeunload", stopDigestStream);
+}
+
+function initializeDigestUI() {
+  setDigestRunButtonState(false);
+  setDigestStatusMessage('Click "Run Daily Digest" to start.');
+  renderDigestHistory([]);
+  var activePipelineTab = document.querySelector('.tab-btn.active[data-tab="pipeline-container"]');
+  if (activePipelineTab) {
+    loadDigestHistory().catch(function() {});
+  }
+}
+
+function bootDigestUI() {
+  bindDigestEvents();
+  initializeDigestUI();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bootDigestUI);
+} else {
+  bootDigestUI();
+}
+

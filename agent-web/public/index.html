@@ -200,6 +200,61 @@
                 <li class="pipeline-empty-row">No history yet.</li>
               </ul>
             </section>
+
+            <section class="digest-panel" aria-label="Daily Digest">
+              <div class="digest-head">
+                <h3>Daily Digest</h3>
+                <button id="digest-run-btn" type="button">Run Daily Digest</button>
+              </div>
+              <div class="digest-controls">
+                <label for="digest-keywords-input">Keywords (comma separated, optional)</label>
+                <input
+                  id="digest-keywords-input"
+                  type="text"
+                  placeholder="llm safety, alignment, agentic workflows"
+                  autocomplete="off"
+                />
+              </div>
+              <div id="digest-status-message" class="digest-status-message">
+                Click "Run Daily Digest" to start.
+              </div>
+
+              <section class="digest-results" aria-label="Digest Results">
+                <h4>Latest Digest Result</h4>
+                <div id="digest-results-summary" class="digest-results-summary">
+                  No digest results yet.
+                </div>
+                <div id="digest-results-keywords" class="digest-results-keywords"></div>
+                <ul id="digest-top-papers-list" class="digest-top-papers-list">
+                  <li class="pipeline-empty-row">Top papers will appear here.</li>
+                </ul>
+              </section>
+
+              <section class="digest-history" aria-label="Digest History">
+                <div class="digest-history-head">
+                  <h4>Digest History</h4>
+                  <button id="digest-refresh-history-btn" type="button">Refresh</button>
+                </div>
+                <div class="digest-history-table-wrap">
+                  <table class="digest-history-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Keywords</th>
+                        <th>Papers</th>
+                        <th>Size (KB)</th>
+                        <th>Download</th>
+                      </tr>
+                    </thead>
+                    <tbody id="digest-history-body">
+                      <tr>
+                        <td colspan="5" class="pipeline-empty-row">No digest history yet.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </section>
           </section>
         </div>
         <div id="monitor-container" class="tab-panel"></div>
@@ -210,6 +265,7 @@
     <script type="module" src="./js/app.js"></script>
   </body>
 </html>
+
 
 
 
