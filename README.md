@@ -1,4 +1,4 @@
-﻿# JARVIS Research OS
+# JARVIS Research OS
 
 [![CI](https://github.com/kaneko-ai/jarvis-ml-pipeline/actions/workflows/eval.yml/badge.svg)](https://github.com/kaneko-ai/jarvis-ml-pipeline/actions)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -10,8 +10,7 @@ JARVIS Research OS is a local-first, AI-powered research assistant that automate
 
 ## Release Status
 
-- **Current version**: `v1.3.0` (2026-03-04)
-- **Target version**: `v2.0.0`
+- **Current version**: `v2.0.0` (2026-03-06)
 - **CLI Commands**: 22
 
 ## Features
@@ -50,30 +49,33 @@ JARVIS Research OS is a local-first, AI-powered research assistant that automate
 - **Skills System**: Task-specific workflows via `SKILL.md`
 - **Streamlit Dashboard**: 5-page web UI (Overview/Search/Citation/ChromaDB/Storage) (D6)
 
-## Agent-Web (Chat UI)
+## Agent-Web (Chat UI + Research Pipeline)
 
-JARVIS includes a browser-based chat interface (gent-web/) that connects to GitHub Copilot API and LLM fallbacks, providing a rich research assistant experience.
+JARVIS includes a browser-based `agent-web/` app that unifies chat, research pipeline automation, and local data management on top of Express + SQLite.
 
 ### Features
 
-- **Real-time SSE Streaming**: Server-Sent Events for live response streaming with inline activity timeline
-- **Multi-Model Support**: claude-sonnet-4.6 (default), gpt-4.1, o4-mini, gemini-2.0-flash fallback
-- **Session Management**: SQLite-backed chat history with full CRUD
-- **Dark/Gold RPG Theme**: Particle background, frosted-glass sidebar, four-pointed star logo (Phase 1 UI)
-- **Code Highlighting**: highlight.js integration with one-click copy button
-- **Inline Activity Timeline**: Real-time display of thinking/searching/generating steps
-- **Tool Integration**: Semantic search (ChromaDB), URL browsing, Python CLI bridge
-- **Skills Display**: 8 research skills accessible from sidebar
+- **Real-time SSE Chat**: streaming responses with inline activity timeline
+- **Daily Digest**: scheduled multi-keyword paper collection, Gemini summary, SQLite persistence, and Obsidian export
+- **Papers CRUD**: local paper repository APIs for create/read/update/delete workflows
+- **Pipeline Execution**: end-to-end 7-step research pipeline with SSE progress events
+- **PDF Archive**: automatic PDF download and archive flow from collected papers
+- **Zotero Sync**: Zotero Web API integration for bibliography synchronization
+- **ChromaDB Bridge**: Python bridge for semantic indexing and vector retrieval
+- **H-2 Session Memory**: recent conversation context injection per session
+- **H-3 Persistent Memory**: cross-session memory via `facts` and `user_preferences`
+- **Memory API**: `/api/memory/*` endpoints for facts, preferences, and context
+- **Test Coverage**: **47 tests passed** (latest verification: 2026-03-06)
 
 ### Tech Stack
 
-- **Backend**: Express v5, better-sqlite3, copilot-api proxy
-- **Frontend**: Vanilla JS SPA (652 lines), CSS3 with glassmorphism, Canvas particle engine
-- **Tests**: 5 CRUD tests (node:test) + 10 category integration tests
+- **Backend**: Express v5, better-sqlite3, SSE, Copilot proxy + model fallbacks
+- **Frontend**: Vanilla JS SPA, dark/gold UI, animated timeline interactions
+- **Data Layer**: chat/session/papers/memory SQLite tables + bridge modules
 
 ### Quick Start (Agent-Web)
 
-`ash
+```bash
 # Terminal A: Start Copilot API proxy
 cd agent-web
 npx copilot-api@latest start --port 4141
@@ -81,36 +83,44 @@ npx copilot-api@latest start --port 4141
 # Terminal B: Start Agent-Web server
 cd agent-web
 npm run dev
-# => JARVIS Agent Web v1.0.0 running at http://localhost:3000
+# => http://localhost:3000
 
 # Terminal C: Run tests
 cd agent-web
-node --test tests/database.test.js
-`
+npm test
+```
 
 ### Agent-Web Architecture
 
-`
+```text
 agent-web/
   src/
-    server.js              # Express v5 entry point
+    server.js                  # Express entry point
     routes/
-      chat.js              # /api/chat/stream (SSE)
-      models.js            # /api/models
-      sessions.js          # /api/sessions CRUD
-      skills.js            # /api/skills
-    services/
-      copilot-bridge.js    # Copilot API proxy
-      jarvis-bridge.js     # Python CLI bridge
-      database.js          # SQLite chat-history.db
+      chat.js                  # /api/chat/stream (SSE)
+      pipeline.js              # /api/pipeline/*
+      sessions.js              # /api/sessions CRUD
+      papers.js                # /api/papers CRUD
+      memory.js                # /api/memory/*
+      models.js                # /api/models
+      skills.js                # /api/skills
+    db/
+      database.js              # SQLite bootstrap
+      papers-repository.js     # papers CRUD repository
+      memory-store.js          # H-3 persistent memory store
+      chroma-bridge.js         # ChromaDB Python subprocess bridge
+    skills/
+      daily-digest.js          # digest orchestrator
+      digest-to-obsidian.js    # Obsidian exporter
+      pdf-archiver.js          # PDF archive helper
+      zotero-sync.js           # Zotero sync helper
   public/
-    index.html             # SPA shell
-    css/styles.css         # Dark/gold theme
-    js/app.js              # 652-line UI engine
+    index.html
+    css/styles.css
+    js/app.js
   tests/
-    database.test.js       # 5 CRUD tests
-`
-
+    *.test.js
+```
 ## Quick Start
 
 ```bash
@@ -207,6 +217,7 @@ python -m pytest tests/test_imports.py tests/test_citation_graph.py tests/test_s
 python -m jarvis_cli --help
 Version History
 Version	Date	Highlights
+v2.0.0	2026-03-06	Agent-Web: Daily Digest, Papers CRUD, PDF archive, Zotero sync, ChromaDB bridge, H-2/H-3 memory, Memory API, 47 tests
 v1.3.0	2026-03-04	D5: Obsidian/storage H: migration, citation network, 22 CLI commands
 v1.2.0	2026-03-03	D3: ChromaDB, LightRAG, PDF-to-Markdown
 v1.1.0	2026-03-03	D2: Jina Reader, MCP handlers, browse enhancement
@@ -215,4 +226,5 @@ License
 MIT License - see LICENSE for details.
 
 Handover
-See HANDOVER_v11.md for complete development context and continuation instructions.
+See HANDOVER_v16.md for complete development context.
+
