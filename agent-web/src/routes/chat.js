@@ -1,5 +1,6 @@
 import express from "express";
 import { addMessage, createSession, getMessages } from "../db/database.js";
+import { searchPapers } from "../db/papers-repository.js";
 import { callCopilotLLMStream, callCopilotLLM } from "../llm/copilot-bridge.js";
 
 let callPythonLLM;
@@ -25,6 +26,13 @@ try {
 }
 
 const router = express.Router();
+
+const SYSTEM_PROMPT = `You are JARVIS, an AI research assistant specializing in biomedical literature review.
+You help with: paper search, evidence grading, systematic reviews, and research synthesis.
+You have access to tools: semantic search (ChromaDB, 36+ papers), live paper search (PubMed, Semantic Scholar, OpenAlex), PDF extraction, and citation analysis.
+When discussing papers, cite titles, authors, years, and DOIs when available.
+Respond in the same language the user uses (Japanese or English).
+Be concise but thorough. Use markdown formatting for structured responses.`;
 
 function sendSSE(res, event, data) {
   res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
@@ -60,7 +68,9 @@ function isResearchQuery(message) {
 
 function isLiteLLMModel(model) {
   return model && model.includes("/") && !model.startsWith("[copilot]");
-}function buildHistory(sessionId) {
+}
+
+function buildHistory(sessionId) {
   if (!sessionId) return [];
   try {
     const allMsgs = getMessages(sessionId);
@@ -95,6 +105,7 @@ router.post("/stream", async (req, res) => {
       const session = createSession(message.substring(0, 50), model);
       sessionId = session.id;
     }
+    const history = buildHistory(sessionId);
     sendSSE(res, "session", { sessionId });
     addMessage(sessionId, "user", message, null, null);
 
@@ -196,11 +207,27 @@ router.post("/stream", async (req, res) => {
     let usedModel = model;
     let usedProvider = isLiteLLMModel(model) ? "litellm" : "copilot";
     const cleanMessage = augmentedMessage.replace(/[\uD800-\uDFFF]/g, "");
+    let systemPrompt = SYSTEM_PROMPT;
+
+    if (isResearchQuery(message)) {
+      try {
+        const relatedPapers = searchPapers(message.substring(0, 100)).slice(0, 3);
+        if (relatedPapers.length > 0) {
+          systemPrompt += "\n\nRelevant papers in your database:\n" + relatedPapers
+            .map((paper) => `- ${paper.title || "Untitled"} (${paper.year ?? "n/a"}) [${paper.source || "unknown"}]`)
+            .join("\n");
+        }
+      } catch (paperErr) {
+        console.warn("papers lookup skipped:", paperErr.message);
+      }
+    }
+
+    const litellmHistory = [{ role: "system", content: systemPrompt }, ...history];
 
     if (isLiteLLMModel(model)) {
       if (callPythonLLM) {
         try {
-          const pyResult = await callPythonLLM({ message: cleanMessage, model });
+          const pyResult = await callPythonLLM({ message: cleanMessage, model, history: litellmHistory });
           if (pyResult.success) {
             fullContent = pyResult.content;
             for (const char of fullContent) {
@@ -223,8 +250,7 @@ router.post("/stream", async (req, res) => {
       }
     } else {
       try {
-        const history = buildHistory(sessionId);
-        const stream = await callCopilotLLMStream({ message: cleanMessage, model, history });
+        const stream = await callCopilotLLMStream({ message: cleanMessage, model, history, systemPrompt });
         const reader = stream.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
@@ -255,7 +281,7 @@ router.post("/stream", async (req, res) => {
       } catch (streamErr) {
         // Streaming failed — try non-streaming fallback
         try {
-          const result = await callCopilotLLM({ message: cleanMessage, model });
+          const result = await callCopilotLLM({ message: cleanMessage, model, history, systemPrompt });
           if (result.success && result.content) {
             fullContent = result.content;
             for (const char of fullContent) {
@@ -305,3 +331,5 @@ router.post("/stream", async (req, res) => {
 });
 
 export default router;
+
+

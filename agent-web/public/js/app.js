@@ -320,11 +320,13 @@ function upsertActivity(step, status, time, extra) {
   if (!node) {
     node = document.createElement("div");
     node.className = "inline-activity-item " + status;
-    node.innerHTML = '<span class="ia-dot"></span><div class="ia-content"><div class="ia-title"></div><div class="ia-meta"></div></div>';
+    node.innerHTML = '<span class="ia-dot activity-dot"></span><div class="ia-content"><div class="ia-title"></div><div class="ia-meta"></div></div>';
     state.activityItems.set(step, node);
     timeline.appendChild(node);
   }
   node.className = "inline-activity-item " + status;
+  var dot = node.querySelector(".activity-dot");
+  if (dot) dot.className = "ia-dot activity-dot " + status;
   var label = step.split("_").map(function(t) { return t.charAt(0).toUpperCase() + t.slice(1); }).join(" ");
   node.querySelector(".ia-title").textContent = label;
   var elapsed = time || "";
@@ -341,7 +343,7 @@ function renderToolCall(payload) {
   var preview = String(payload.result || "").slice(0, 200);
   details.innerHTML =
     '<summary style="display:flex;align-items:center;gap:8px;cursor:pointer;">' +
-    '<span class="ia-dot"></span>' +
+    '<span class="ia-dot activity-dot done"></span>' +
     '<span class="ia-title">\u2728 [tool] ' + escapeHtml(payload.name || "tool_call") + '</span></summary>' +
     '<div class="ia-meta" style="margin-left:20px;">' + escapeHtml(payload.time || "") + '</div>' +
     '<div style="margin:4px 0 0 20px;font-size:0.8rem;color:var(--text-muted);white-space:pre-wrap;word-break:break-word;">' + escapeHtml(preview) + '</div>';
@@ -371,10 +373,69 @@ function setStreaming(v) {
   elements.sendButton.disabled = v;
 }
 
+function getMessageContentElement(bubble) {
+  if (!bubble) return null;
+  var contentEl = bubble.querySelector(".message-content");
+  if (contentEl) return contentEl;
+  contentEl = document.createElement("div");
+  contentEl.className = "message-content";
+  contentEl.innerHTML = bubble.innerHTML;
+  bubble.innerHTML = "";
+  bubble.appendChild(contentEl);
+  return contentEl;
+}
+
+function wrapTextSliceWithClass(node, start, end, className) {
+  if (!node || !node.parentNode) return false;
+  var text = node.nodeValue || "";
+  if (start < 0 || end > text.length || start >= end) return false;
+  var before = text.slice(0, start);
+  var middle = text.slice(start, end);
+  var after = text.slice(end);
+  var fragment = document.createDocumentFragment();
+  if (before) fragment.appendChild(document.createTextNode(before));
+  var marker = document.createElement("span");
+  marker.className = className;
+  marker.textContent = middle;
+  fragment.appendChild(marker);
+  if (after) fragment.appendChild(document.createTextNode(after));
+  node.parentNode.replaceChild(fragment, node);
+  return true;
+}
+
+function applyStreamingTextReveal(bubble, contentEl, addedLength) {
+  if (!bubble || !contentEl) return;
+  if (bubble._textRevealTimer) clearTimeout(bubble._textRevealTimer);
+  var remaining = Number(addedLength) || 0;
+  var nodes = [];
+  var walker = document.createTreeWalker(contentEl, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  for (var i = nodes.length - 1; i >= 0 && remaining > 0; i -= 1) {
+    var node = nodes[i];
+    var len = (node.nodeValue || "").length;
+    if (!len) continue;
+    var take = Math.min(len, remaining);
+    var start = len - take;
+    var applied = wrapTextSliceWithClass(node, start, len, "text-reveal");
+    if (applied) remaining -= take;
+  }
+  if (remaining > 0) contentEl.classList.add("text-reveal");
+  bubble._textRevealTimer = setTimeout(function() {
+    var highlighted = contentEl.querySelectorAll(".text-reveal");
+    for (var mark of highlighted) mark.classList.remove("text-reveal");
+    contentEl.classList.remove("text-reveal");
+    bubble._textRevealTimer = null;
+  }, 300);
+}
+
 function renderMessage(role, content) {
   var bubble = document.createElement("article");
   bubble.className = "message " + role;
-  bubble.innerHTML = formatMarkdown(content);
+  var contentEl = document.createElement("div");
+  contentEl.className = "message-content";
+  contentEl.innerHTML = formatMarkdown(content);
+  bubble.appendChild(contentEl);
+  bubble.dataset.renderedTextLength = String((contentEl.textContent || "").length);
   elements.chatMessages.appendChild(bubble);
   scrollChatToBottom();
   return bubble;
@@ -941,9 +1002,14 @@ function ensureAssistantBubble() {
 function appendAssistantDelta(content) {
   var bubble = ensureAssistantBubble();
   var cur = bubble.dataset.rawContent || "";
+  var previousRenderedLength = Number(bubble.dataset.renderedTextLength || "0");
   var next = cur + content;
   bubble.dataset.rawContent = next;
-  bubble.innerHTML = formatMarkdown(next);
+  var contentEl = getMessageContentElement(bubble);
+  contentEl.innerHTML = formatMarkdown(next);
+  var nextRenderedLength = (contentEl.textContent || "").length;
+  bubble.dataset.renderedTextLength = String(nextRenderedLength);
+  applyStreamingTextReveal(bubble, contentEl, Math.max(nextRenderedLength - previousRenderedLength, 0));
   scrollChatToBottom();
 }
 
