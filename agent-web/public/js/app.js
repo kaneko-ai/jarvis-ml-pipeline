@@ -110,6 +110,119 @@ function scrollChatToBottom() {
   elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
 }
 
+function formatElapsedTime(ms) {
+  if (!Number.isFinite(ms) || ms < 0) return "";
+  return (ms / 1000).toFixed(1) + "s";
+}
+
+function parseDurationMs(value) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (!value) return null;
+  var text = String(value).trim();
+  var match = text.match(/^([\d.]+)\s*(ms|s)$/i);
+  if (!match) return null;
+  var amount = Number(match[1]);
+  if (!Number.isFinite(amount)) return null;
+  return match[2].toLowerCase() === "s" ? amount * 1000 : amount;
+}
+
+function tryParseJson(value) {
+  var trimmed = String(value || "").trim();
+  if (!trimmed || !/^[\[{]/.test(trimmed)) return null;
+  try {
+    return JSON.parse(trimmed);
+  } catch (error) {
+    return null;
+  }
+}
+
+function highlightJsonString(prettyJson) {
+  var source = String(prettyJson || "");
+  var html = "";
+  var lastIndex = 0;
+  var tokenPattern = /("(?:\\.|[^\\"])*")(?=\s*:)|("(?:\\.|[^\\"])*")|\b(?:true|false|null)\b|-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?/g;
+
+  source.replace(tokenPattern, function(match, keyToken, stringToken, offset) {
+    html += escapeHtml(source.slice(lastIndex, offset));
+    var className = "json-number";
+    if (keyToken) {
+      className = "json-key";
+    } else if (stringToken) {
+      className = "json-string";
+    } else if (/^(true|false|null)$/.test(match)) {
+      className = "json-bool";
+    }
+    html += '<span class="' + className + '">' + escapeHtml(match) + "</span>";
+    lastIndex = offset + match.length;
+    return match;
+  });
+
+  html += escapeHtml(source.slice(lastIndex));
+  return html;
+}
+
+function formatJsonBlock(jsonString) {
+  var parsed = tryParseJson(jsonString);
+  if (parsed === null) return "";
+  var prettyJson = JSON.stringify(parsed, null, 2);
+  var lineCount = prettyJson.split("\n").length;
+  var block =
+    '<pre class="json-formatted"><code class="language-json">' +
+    highlightJsonString(prettyJson) +
+    "</code></pre>";
+  if (lineCount > 10) {
+    return '<details class="json-collapse" open><summary>JSON (' + lineCount + ' lines)</summary>' + block + '</details>';
+  }
+  return block;
+}
+
+function createCitationTokenStore() {
+  var store = [];
+  return {
+    push: function(html) {
+      var token = "@@CITE_LINK_" + store.length + "@@";
+      store.push({ token: token, html: html });
+      return token;
+    },
+    restore: function(text) {
+      var restored = String(text || "");
+      for (var i = 0; i < store.length; i += 1) {
+        restored = restored.replaceAll(store[i].token, store[i].html);
+      }
+      return restored;
+    },
+  };
+}
+
+function buildDoiLink(doi) {
+  var safeDoi = String(doi || "").trim();
+  if (!safeDoi) return "";
+  return '<a href="https://doi.org/' + safeDoi + '" class="cite-link" target="_blank" rel="noreferrer noopener">DOI:' + safeDoi + '</a>';
+}
+
+function buildPmidLink(pmid) {
+  var safePmid = String(pmid || "").trim();
+  if (!safePmid) return "";
+  return '<a href="https://pubmed.ncbi.nlm.nih.gov/' + safePmid + '" class="cite-link" target="_blank" rel="noreferrer noopener">PMID:' + safePmid + '</a>';
+}
+
+function linkifyCitations(text) {
+  if (!text) return "";
+  var citationTokens = createCitationTokenStore();
+  var linked = String(text)
+    .replace(/\bPMID:\s*(\d{4,9})\b/gi, function(_, pmid) {
+      return citationTokens.push(buildPmidLink(pmid));
+    })
+    .replace(/\bDOI:\s*(10\.\d{4,9}\/[\-._;()/:A-Z0-9]+?)([.,;)\]]?)(?=\s|$)/gi, function(_, doi, trailing) {
+      return citationTokens.push(buildDoiLink(doi)) + (trailing || "");
+    })
+    .replace(/\b(10\.\d{4,9}\/[\-._;()/:A-Z0-9]+?)([.,;)\]]?)(?=\s|$)/gi, function(_, doi, trailing) {
+      return citationTokens.push(buildDoiLink(doi)) + (trailing || "");
+    });
+
+  return citationTokens.restore(linked);
+}
+
 /* ===== Markdown Rendering ===== */
 function formatMarkdown(raw) {
   if (!raw) return "";
@@ -118,21 +231,32 @@ function formatMarkdown(raw) {
   var withoutCode = normalized.replace(/```([^\n`]*)\n([\s\S]*?)```/g, function(_, rawLang, rawCode) {
     var lang = (rawLang || "").trim() || "plaintext";
     var code = String(rawCode || "");
+    var jsonHtml = "";
+    if (lang.toLowerCase() === "json" || (!rawLang && tryParseJson(code) !== null)) {
+      jsonHtml = formatJsonBlock(code);
+    }
+
     var highlighted = escapeHtml(code);
-    if (typeof hljs !== "undefined" && lang !== "plaintext" && hljs.getLanguage(lang)) {
+    if (!jsonHtml && typeof hljs !== "undefined" && lang !== "plaintext" && hljs.getLanguage(lang)) {
       try { highlighted = hljs.highlight(code, { language: lang }).value; } catch (e) {}
     }
 
-    var html =
+    var html = jsonHtml || (
       '<div class="code-block-wrapper">' +
       '<div class="code-block-header"><span>' + escapeHtml(lang) + '</span>' +
       '<button class="code-copy-btn" onclick="copyCode(this)" type="button">copy</button></div>' +
-      '<pre><code class="hljs language-' + escapeHtml(lang) + '">' + highlighted + '</code></pre></div>';
+      '<pre><code class="hljs language-' + escapeHtml(lang) + '">' + highlighted + '</code></pre></div>'
+    );
 
     var token = "@@CODE_BLOCK_" + codeBlocks.length + "@@";
     codeBlocks.push({ token: token, html: html });
     return token;
   });
+
+  if (!codeBlocks.length) {
+    var standaloneJson = formatJsonBlock(withoutCode);
+    if (standaloneJson) return standaloneJson;
+  }
 
   var result = formatInlineText(withoutCode);
   for (var i = 0; i < codeBlocks.length; i += 1) {
@@ -144,9 +268,17 @@ function formatMarkdown(raw) {
 
 function applyInlineMarkdownStyles(text) {
   if (!text) return "";
-  return text
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/`([^`]+)`/g, '<code>$1</code>');
+  var inlineCodeTokens = [];
+  var withoutInlineCode = String(text).replace(/`([^`]+)`/g, function(_, code) {
+    var token = "@@INLINE_CODE_" + inlineCodeTokens.length + "@@";
+    inlineCodeTokens.push({ token: token, html: '<code class="inline-code">' + code + '</code>' });
+    return token;
+  });
+  var styled = linkifyCitations(withoutInlineCode).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  for (var i = 0; i < inlineCodeTokens.length; i += 1) {
+    styled = styled.replaceAll(inlineCodeTokens[i].token, inlineCodeTokens[i].html);
+  }
+  return styled;
 }
 
 function formatInlineText(text) {
@@ -249,6 +381,218 @@ function buildCollapsibleMarkdownSections(container) {
 function enhanceAssistantMarkdown(contentEl) {
   if (!contentEl) return;
   buildCollapsibleMarkdownSections(contentEl);
+}
+
+function normalizeReasoningKind(value) {
+  var raw = String(value || "").trim().toLowerCase();
+  if (!raw) return "Thinking";
+  if (raw.indexOf("think") !== -1) return "Thinking";
+  if (raw.indexOf("search") !== -1) return "Searching";
+  if (raw.indexOf("analy") !== -1 || raw.indexOf("evidence") !== -1) return "Analyzing";
+  if (raw.indexOf("read") !== -1 || raw.indexOf("browse") !== -1) return "Reading";
+  if (raw.indexOf("generat") !== -1 || raw.indexOf("write") !== -1 || raw.indexOf("respond") !== -1) return "Generating";
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+}
+
+function getReasoningIcon(kind) {
+  switch (normalizeReasoningKind(kind)) {
+    case "Thinking": return "💭";
+    case "Searching": return "🔍";
+    case "Analyzing": return "📊";
+    case "Reading": return "📖";
+    case "Generating": return "✍️";
+    default: return "⚡";
+  }
+}
+
+function formatReasoningLabel(stepName) {
+  var step = String(stepName || "").trim().toLowerCase();
+  var labels = {
+    thinking: "Thinking through the request",
+    browse_url: "Reading URL content",
+    semantic_search: "Searching semantic index",
+    live_paper_search: "Searching live papers",
+    evidence_grade: "Analyzing evidence strength",
+    generate_response: "Generating response",
+  };
+  if (labels[step]) return labels[step];
+  var humanized = step.split("_").filter(Boolean).map(function(part) {
+    return part.charAt(0).toUpperCase() + part.slice(1);
+  }).join(" ");
+  return humanized || "Processing step";
+}
+
+function createReasoningTrace(steps) {
+  var details = document.createElement("details");
+  details.className = "reasoning-trace";
+  details.open = true;
+
+  var summary = document.createElement("summary");
+  summary.innerHTML =
+    '<span class="trace-icon">⚡</span>' +
+    'Reasoning (<span class="trace-count">0</span> steps)' +
+    '<span class="trace-time"></span>';
+  details.appendChild(summary);
+
+  var traceSteps = document.createElement("div");
+  traceSteps.className = "trace-steps";
+  details.appendChild(traceSteps);
+
+  (steps || []).forEach(function(step) {
+    if (step && step.node) traceSteps.appendChild(step.node);
+  });
+
+  return details;
+}
+
+function renderReasoningStep(step) {
+  var node = document.createElement("div");
+  node.className = "trace-step";
+  node.innerHTML =
+    '<span class="trace-step-icon">' + getReasoningIcon(step.kind) + '</span>' +
+    '<span class="trace-step-text">' + escapeHtml(step.text) + '</span>' +
+    '<span class="trace-step-time"></span>';
+  step.node = node;
+  return node;
+}
+
+function updateReasoningTraceMeta(bubble, totalMs) {
+  if (!bubble || !bubble._reasoningTrace) return;
+  var trace = bubble._reasoningTrace;
+  var countEl = trace.querySelector(".trace-count");
+  var timeEl = trace.querySelector(".trace-time");
+  if (countEl) countEl.textContent = String((bubble._reasoningSteps || []).length);
+  if (timeEl) timeEl.textContent = totalMs && totalMs > 0 ? formatElapsedTime(totalMs) : "";
+}
+
+function ensureReasoningTraceState(bubble) {
+  if (!bubble) return null;
+  if (!bubble._reasoningTrace) {
+    bubble._reasoningTrace = createReasoningTrace([]);
+    bubble._reasoningSteps = [];
+    bubble._reasoningStartedAt = Date.now();
+    bubble._reasoningLineBuffer = "";
+    var contentEl = getMessageContentElement(bubble);
+    bubble.insertBefore(bubble._reasoningTrace, contentEl);
+  }
+  return bubble._reasoningTrace;
+}
+
+function updateReasoningStepDuration(step) {
+  if (!step || !step.node) return;
+  var timeEl = step.node.querySelector(".trace-step-time");
+  if (!timeEl) return;
+  timeEl.textContent = step.durationMs ? formatElapsedTime(step.durationMs) : "";
+}
+
+function finalizeReasoningStep(step, endedAt, explicitDurationMs) {
+  if (!step || step.endedAt) return;
+  var finishedAt = Number.isFinite(endedAt) ? endedAt : Date.now();
+  var computedDuration = explicitDurationMs;
+  if (!Number.isFinite(computedDuration)) {
+    computedDuration = Math.max(finishedAt - step.startedAt, 0);
+  }
+  step.endedAt = finishedAt;
+  step.durationMs = computedDuration;
+  updateReasoningStepDuration(step);
+}
+
+function getOpenReasoningStep(bubble, key) {
+  if (!bubble || !bubble._reasoningSteps) return null;
+  for (var i = bubble._reasoningSteps.length - 1; i >= 0; i -= 1) {
+    var step = bubble._reasoningSteps[i];
+    if (!step.endedAt && (!key || step.key === key)) return step;
+  }
+  return null;
+}
+
+function appendReasoningStep(stepPayload) {
+  var bubble = ensureAssistantBubble();
+  var trace = ensureReasoningTraceState(bubble);
+  if (!trace) return null;
+  var now = Date.now();
+  var existing = stepPayload.key ? getOpenReasoningStep(bubble, stepPayload.key) : null;
+  if (existing) return existing;
+
+  var previous = getOpenReasoningStep(bubble);
+  if (previous) finalizeReasoningStep(previous, now);
+
+  var step = {
+    key: stepPayload.key || ("step_" + bubble._reasoningSteps.length),
+    kind: normalizeReasoningKind(stepPayload.kind),
+    text: stepPayload.text || "Processing step",
+    startedAt: now,
+    durationMs: 0,
+    endedAt: null,
+    node: null,
+  };
+  bubble._reasoningSteps.push(step);
+  renderReasoningStep(step);
+  var container = trace.querySelector(".trace-steps");
+  if (container) container.appendChild(step.node);
+  updateReasoningTraceMeta(bubble, now - bubble._reasoningStartedAt);
+  return step;
+}
+
+function handleReasoningActivity(payload) {
+  if (!payload || (!payload.step && !payload.type)) return;
+  var bubble = ensureAssistantBubble();
+  var kind = normalizeReasoningKind(payload.type || payload.step);
+  var label = payload.message || payload.text || formatReasoningLabel(payload.step || payload.type);
+  var key = String(payload.step || payload.type || label).trim().toLowerCase();
+
+  if (payload.status === "running" || !payload.status) {
+    appendReasoningStep({ key: key, kind: kind, text: label });
+    return;
+  }
+
+  var durationMs = parseDurationMs(payload.time);
+  var step = getOpenReasoningStep(bubble, key);
+  if (!step) {
+    step = appendReasoningStep({ key: key, kind: kind, text: label });
+  }
+  finalizeReasoningStep(step, Date.now(), durationMs);
+  updateReasoningTraceMeta(bubble, Date.now() - bubble._reasoningStartedAt);
+}
+
+function consumeReasoningDelta(content) {
+  if (!content) return;
+  var bubble = ensureAssistantBubble();
+  if (typeof bubble._reasoningLineBuffer !== "string") bubble._reasoningLineBuffer = "";
+  bubble._reasoningLineBuffer += String(content);
+  var lines = bubble._reasoningLineBuffer.split(/\r?\n/);
+  bubble._reasoningLineBuffer = lines.pop() || "";
+
+  lines.forEach(function(line) {
+    var match = line.trim().match(/^(Thinking|Searching|Analyzing|Reading|Generating):\s*(.+)$/i);
+    if (!match) return;
+    appendReasoningStep({
+      key: "line_" + match[1].toLowerCase() + "_" + ((bubble._reasoningSteps || []).length),
+      kind: match[1],
+      text: match[2] || match[1],
+    });
+  });
+}
+
+function finalizeReasoningTrace(bubble) {
+  if (!bubble) return;
+  var trailingLine = String(bubble._reasoningLineBuffer || "").trim();
+  if (trailingLine) {
+    var trailingMatch = trailingLine.match(/^(Thinking|Searching|Analyzing|Reading|Generating):\s*(.+)$/i);
+    if (trailingMatch) {
+      appendReasoningStep({
+        key: "line_" + trailingMatch[1].toLowerCase() + "_" + ((bubble._reasoningSteps || []).length),
+        kind: trailingMatch[1],
+        text: trailingMatch[2] || trailingMatch[1],
+      });
+    }
+    bubble._reasoningLineBuffer = "";
+  }
+  if (!bubble._reasoningTrace || !bubble._reasoningSteps || !bubble._reasoningSteps.length) return;
+  var endedAt = Date.now();
+  var openStep = getOpenReasoningStep(bubble);
+  if (openStep) finalizeReasoningStep(openStep, endedAt);
+  updateReasoningTraceMeta(bubble, endedAt - bubble._reasoningStartedAt);
 }
 
 window.copyCode = function(btn) {
@@ -1342,6 +1686,7 @@ function ensureAssistantBubble() {
 }
 
 function appendAssistantDelta(content) {
+  consumeReasoningDelta(content);
   var bubble = ensureAssistantBubble();
   var cur = bubble.dataset.rawContent || "";
   var previousRenderedLength = Number(bubble.dataset.renderedTextLength || "0");
@@ -1395,10 +1740,17 @@ async function sendMessage(content) {
         if (!data) continue;
         var payload = JSON.parse(data);
         if (eventName === "session") state.currentSessionId = payload.sessionId;
-        if (eventName === "activity") upsertActivity(payload.step, payload.status, payload.time);
+        if (eventName === "activity") {
+          upsertActivity(payload.step, payload.status, payload.time);
+          handleReasoningActivity(payload);
+        }
+        if (eventName !== "activity" && eventName !== "delta" && payload && (payload.step || payload.type)) {
+          handleReasoningActivity(payload);
+        }
         if (eventName === "delta") appendAssistantDelta(payload.content);
         if (eventName === "tool_call") { state.researchMode = true; syncResearchBadge(); renderToolCall(payload); }
         if (eventName === "done") {
+          finalizeReasoningTrace(state.assistantMessageElement);
           state.messages.push({ role: "assistant", content: payload.fullContent });
           state.assistantMessageElement = null;
           finalizeInlineActivity();
@@ -1408,6 +1760,7 @@ async function sendMessage(content) {
           await refreshSessions();
         }
         if (eventName === "error") {
+          finalizeReasoningTrace(state.assistantMessageElement);
           if (payload.message && payload.message.includes("not supported")) {
             renderMessage("system", "This model requires Pro+. Use claude-sonnet-4.6 or gpt-4.1.");
           } else {
@@ -1419,9 +1772,11 @@ async function sendMessage(content) {
       }
     }
   } catch (error) {
+    finalizeReasoningTrace(state.assistantMessageElement);
     upsertActivity("error", "error", "", error.message);
     showToast(error.message);
   } finally {
+    finalizeReasoningTrace(state.assistantMessageElement);
     setStreaming(false);
     elements.chatInput.value = "";
     autoResizeTextarea();
@@ -2152,3 +2507,39 @@ if (sidebarToggle && sidebar) {
     }
   });
 }
+
+
+
+
+
+var themeToggle = document.getElementById("themeToggle");
+var themeIcon = themeToggle ? themeToggle.querySelector(".theme-icon") : null;
+
+function setTheme(theme) {
+  var nextTheme = theme === "light" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", nextTheme);
+  try {
+    localStorage.setItem("jarvis-theme", nextTheme);
+  } catch (error) {
+    // Ignore storage failures in restricted environments.
+  }
+  if (themeIcon) themeIcon.textContent = nextTheme === "light" ? "☀️" : "🌙";
+}
+
+var savedTheme = "dark";
+try {
+  savedTheme = localStorage.getItem("jarvis-theme") || "dark";
+} catch (error) {
+  savedTheme = "dark";
+}
+setTheme(savedTheme);
+
+if (themeToggle) {
+  themeToggle.addEventListener("click", function() {
+    var current = document.documentElement.getAttribute("data-theme");
+    setTheme(current === "light" ? "dark" : "light");
+  });
+}
+
+
+
