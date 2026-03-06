@@ -2058,6 +2058,198 @@ function initializePipelineUI() {
   setPipelineStatusMessage("Enter a query and run the pipeline.");
   setPipelineRunButtonState(false);
 }
+function normalizeSearchAuthors(rawAuthors) {
+  if (Array.isArray(rawAuthors)) return rawAuthors.join(", ");
+  if (rawAuthors === null || rawAuthors === undefined) return "Unknown authors";
+  var text = String(rawAuthors).trim();
+  return text || "Unknown authors";
+}
+
+function getSearchAbstractExcerpt(rawAbstract) {
+  var text = String(rawAbstract || "").trim();
+  if (!text) return "";
+  return text.length > 250 ? text.slice(0, 250) + "..." : text;
+}
+
+function renderSearchResults(papers, container, statusEl, query) {
+  var results = Array.isArray(papers) ? papers : [];
+  if (statusEl) {
+    statusEl.innerHTML = 'Found <strong>' + results.length + '</strong> papers for "<em>' + escapeHtml(query || "") + '</em>"';
+  }
+
+  if (!container) return;
+
+  if (!results.length) {
+    container.innerHTML = '<p class="no-results">No papers found. Try different keywords.</p>';
+    return;
+  }
+
+  container.innerHTML = results.map(function(paper, index) {
+    var score = Number.isFinite(Number(paper && paper.score)) ? Number(paper.score).toFixed(1) : "-";
+    var title = escapeHtml(paper && paper.title ? String(paper.title) : "Untitled");
+    var authors = escapeHtml(normalizeSearchAuthors(paper && paper.authors));
+    var journalMeta = escapeHtml([paper && paper.journal, paper && paper.year].filter(Boolean).join(", "));
+    var abstract = getSearchAbstractExcerpt(paper && paper.abstract);
+    var links = [];
+
+    if (paper && paper.doi) {
+      links.push('<a href="https://doi.org/' + encodeURIComponent(String(paper.doi).trim()) + '" class="cite-link" target="_blank" rel="noreferrer noopener">DOI</a>');
+    }
+    if (paper && paper.pmid) {
+      links.push('<a href="https://pubmed.ncbi.nlm.nih.gov/' + encodeURIComponent(String(paper.pmid).trim()) + '" class="cite-link" target="_blank" rel="noreferrer noopener">PMID</a>');
+    }
+    if (paper && paper.source) {
+      links.push('<span class="paper-source">' + escapeHtml(String(paper.source)) + '</span>');
+    }
+
+    return '' +
+      '<div class="paper-card" style="animation-delay: ' + String(index * 60) + 'ms">' +
+        '<div class="paper-score">' + escapeHtml(score) + '</div>' +
+        '<div class="paper-content">' +
+          '<h4 class="paper-title">' + title + '</h4>' +
+          '<p class="paper-authors">' + authors + '</p>' +
+          '<p class="paper-journal">' + journalMeta + '</p>' +
+          (abstract ? '<p class="paper-abstract">' + escapeHtml(abstract) + '</p>' : '') +
+          '<div class="paper-links">' + links.join("") + '</div>' +
+        '</div>' +
+      '</div>';
+  }).join("");
+}
+
+async function handleSearchSubmit(event) {
+  event.preventDefault();
+
+  var queryInput = document.getElementById("search-query");
+  var limitInput = document.getElementById("search-limit");
+  var yearFromInput = document.getElementById("search-year-from");
+  var yearToInput = document.getElementById("search-year-to");
+  var statusEl = document.getElementById("search-status");
+  var resultsEl = document.getElementById("search-results");
+  var sources = Array.from(document.querySelectorAll('input[name="source"]:checked')).map(function(checkbox) {
+    return checkbox.value;
+  });
+  var query = queryInput ? queryInput.value.trim() : "";
+  var limit = limitInput ? limitInput.value : "10";
+  var yearFrom = yearFromInput ? yearFromInput.value : "";
+  var yearTo = yearToInput ? yearToInput.value : "";
+
+  if (!query) {
+    if (statusEl) statusEl.innerHTML = '<span class="health-err">Query is required.</span>';
+    return;
+  }
+
+  if (!sources.length) {
+    if (statusEl) statusEl.innerHTML = '<span class="health-err">Select at least one source.</span>';
+    return;
+  }
+
+  if (statusEl) statusEl.innerHTML = '<span class="activity-dot running"></span> Searching...';
+  if (resultsEl) resultsEl.innerHTML = "";
+
+  try {
+    var params = new URLSearchParams({
+      query: query,
+      limit: String(limit),
+      sources: sources.join(","),
+    });
+    if (yearFrom) params.set("yearFrom", yearFrom);
+    if (yearTo) params.set("yearTo", yearTo);
+
+    var response = await fetch("/api/pipeline/run?" + params.toString(), {
+      headers: {
+        Accept: "text/event-stream, application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(response.status + " " + response.statusText);
+    }
+
+    var papers = [];
+    var finalPayload = null;
+    var contentType = response.headers.get("content-type") || "";
+
+    if (contentType.includes("text/event-stream")) {
+      if (!response.body) {
+        throw new Error("Readable stream is not available.");
+      }
+
+      var reader = response.body.getReader();
+      var decoder = new TextDecoder();
+      var buffer = "";
+
+      while (true) {
+        var chunk = await reader.read();
+        if (chunk.done) break;
+
+        buffer += decoder.decode(chunk.value, { stream: true });
+        var lines = buffer.split(/\r?\n/);
+        buffer = lines.pop() || "";
+
+        for (var line of lines) {
+          if (!line.startsWith("data: ")) continue;
+
+          try {
+            var data = JSON.parse(line.slice(6));
+            if (data.type === "papers" || Array.isArray(data.papers)) {
+              papers = data.papers || data.results || [];
+            }
+            if (data.results && Array.isArray(data.results.papers)) {
+              papers = data.results.papers;
+            }
+            if (data.type === "step" || data.step) {
+              if (statusEl) {
+                statusEl.innerHTML = '<span class="activity-dot running"></span> ' + escapeHtml(data.step || data.message || "Processing...");
+              }
+            }
+            if (data.type === "complete" || data.type === "done" || data.done) {
+              finalPayload = data;
+              if (Array.isArray(data.papers)) {
+                papers = data.papers;
+              } else if (data.results && Array.isArray(data.results.papers)) {
+                papers = data.results.papers;
+              }
+            }
+          } catch (error) {
+          }
+        }
+      }
+
+      if (!papers.length && finalPayload && finalPayload.file) {
+        try {
+          var resultFile = await fetchPipelineResultFile(finalPayload.file);
+          papers = Array.isArray(resultFile.papers) ? resultFile.papers : [];
+        } catch (error) {
+        }
+      }
+    } else {
+      var data = await response.json();
+      finalPayload = data;
+      if (Array.isArray(data.papers)) {
+        papers = data.papers;
+      } else if (data.results && Array.isArray(data.results.papers)) {
+        papers = data.results.papers;
+      } else if (Array.isArray(data.results)) {
+        papers = data.results;
+      }
+
+      if (!papers.length && data.file) {
+        try {
+          var searchResultFile = await fetchPipelineResultFile(data.file);
+          papers = Array.isArray(searchResultFile.papers) ? searchResultFile.papers : [];
+        } catch (error) {
+        }
+      }
+    }
+
+    renderSearchResults(papers, resultsEl, statusEl, query);
+  } catch (error) {
+    if (statusEl) {
+      statusEl.innerHTML = '<span class="health-err">Error: ' + escapeHtml(error.message || "unknown") + '</span>';
+    }
+  }
+}
+
 /* ===== Session Management ===== */
 function renderSessionList(sessions) {
   elements.sessionHistory.innerHTML = "";
@@ -2310,13 +2502,14 @@ function autoResizeTextarea() {
 
 function bindTabNavigation() {
   var tabButtons = document.querySelectorAll(".tab-btn");
-  var tabPanels = document.querySelectorAll(".tab-panel");
+  var tabPanels = document.querySelectorAll(".tab-panel, .view");
   if (!tabButtons.length || !tabPanels.length) return;
 
   tabButtons.forEach(function(btn) {
     btn.addEventListener("click", function() {
       var requestedTab = btn.dataset.tab;
       var targetTab = requestedTab;
+      if (requestedTab === "search") targetTab = "search-view";
       if (requestedTab === "memory") targetTab = "memory-view";
       if (requestedTab === "dashboard") targetTab = "dashboard-view";
       tabButtons.forEach(function(button) {
@@ -2345,10 +2538,13 @@ function bindTabNavigation() {
           renderRecentDigests([]);
         });
       }
+      if (targetTab === "search-view") {
+        var searchInput = document.getElementById("search-query");
+        if (searchInput) searchInput.focus();
+      }
     });
   });
 }
-
 function bindEvents() {
   elements.modelSelector.addEventListener("change", function() {
     var a = state.models.find(function(m) { return m.id === elements.modelSelector.value; });
@@ -2401,6 +2597,17 @@ function bindEvents() {
   }
   bindPipelineEvents();
   bindMemoryPanelEvents();
+  var searchForm = document.getElementById("search-form");
+  if (searchForm) {
+    searchForm.addEventListener("submit", function(event) {
+      handleSearchSubmit(event).catch(function(error) {
+        var statusEl = document.getElementById("search-status");
+        if (statusEl) {
+          statusEl.innerHTML = '<span class="health-err">Error: ' + escapeHtml(error.message || "unknown") + '</span>';
+        }
+      });
+    });
+  }
   window.addEventListener("beforeunload", stopPipelineStream);
 }
 

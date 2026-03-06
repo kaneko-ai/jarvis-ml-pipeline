@@ -64,6 +64,9 @@
         <nav class="tab-nav" aria-label="Main tabs">
           <button type="button" class="tab-btn active" data-tab="chat-container">Chat</button>
           <button type="button" class="tab-btn" data-tab="pipeline-container">Pipeline</button>
+          <button class="tab-btn nav-btn" data-tab="search" id="searchTab">
+            <span class="nav-icon">🔎</span> Search
+          </button>
           <button type="button" class="tab-btn" data-tab="monitor-container">Monitor</button>
           <button class="tab-btn nav-btn" data-tab="dashboard" id="dashboardTab">
             <span class="nav-icon">📊</span> Dashboard
@@ -280,6 +283,68 @@
           </section>
         </div>
         <div id="monitor-container" class="tab-panel"></div>
+
+        <section id="search-view" class="view hidden">
+          <div class="search-panel">
+            <h2>Paper Search</h2>
+            <form id="search-form" class="search-form">
+              <div class="search-row">
+                <input
+                  type="text"
+                  id="search-query"
+                  class="search-input"
+                  placeholder="Search query (e.g. CRISPR gene therapy)"
+                  required
+                  autofocus
+                />
+                <button type="submit" class="btn-gold">Search</button>
+              </div>
+              <div class="search-filters">
+                <div class="filter-group">
+                  <label>Sources</label>
+                  <div class="checkbox-group">
+                    <label><input type="checkbox" name="source" value="pubmed" checked> PubMed</label>
+                    <label><input type="checkbox" name="source" value="semantic_scholar" checked> Semantic Scholar</label>
+                    <label><input type="checkbox" name="source" value="openalex" checked> OpenAlex</label>
+                  </div>
+                </div>
+                <div class="filter-group">
+                  <label>Max Results</label>
+                  <select id="search-limit" class="filter-select">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                  </select>
+                </div>
+                <div class="filter-group">
+                  <label>Year From</label>
+                  <input
+                    type="number"
+                    id="search-year-from"
+                    class="filter-input"
+                    placeholder="2020"
+                    min="1900"
+                    max="2030"
+                  />
+                </div>
+                <div class="filter-group">
+                  <label>Year To</label>
+                  <input
+                    type="number"
+                    id="search-year-to"
+                    class="filter-input"
+                    placeholder="2026"
+                    min="1900"
+                    max="2030"
+                  />
+                </div>
+              </div>
+            </form>
+            <div id="search-status" class="search-status"></div>
+            <div id="search-results" class="search-results"></div>
+          </div>
+        </section>
 
         <section id="dashboard-view" class="tab-panel view hidden">
           <div class="dashboard-panel">
