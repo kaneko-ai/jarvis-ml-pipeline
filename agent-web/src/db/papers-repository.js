@@ -83,6 +83,38 @@ export function init() {
 
       CREATE INDEX IF NOT EXISTS idx_paper_tags_tag
       ON paper_tags(tag);
+
+      CREATE TABLE IF NOT EXISTS paper_annotations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        paper_id INTEGER NOT NULL,
+        text TEXT NOT NULL,
+        note TEXT DEFAULT '',
+        color TEXT DEFAULT '#ffeb3b',
+        page INTEGER DEFAULT 0,
+        position_json TEXT DEFAULT '{}',
+        created_at TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_annotations_paper
+      ON paper_annotations(paper_id);
+
+      CREATE TABLE IF NOT EXISTS reading_list (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        paper_id INTEGER NOT NULL UNIQUE,
+        status TEXT DEFAULT 'unread' CHECK(status IN ('unread','reading','done')),
+        priority INTEGER DEFAULT 0,
+        notes TEXT DEFAULT '',
+        due_date TEXT,
+        started_at TEXT,
+        finished_at TEXT,
+        created_at TEXT DEFAULT (datetime('now')),
+        updated_at TEXT DEFAULT (datetime('now')),
+        FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_reading_list_status
+      ON reading_list(status);
     `);
   } catch (error) {
     console.error("Failed to initialize papers table:", error);
@@ -323,7 +355,114 @@ export function getPapersByTag(tag, limit = 50) {
     LIMIT ?
   `).all(tag, limit);
 }
+export function addAnnotation(
+  paperId,
+  text,
+  note = "",
+  color = "#ffeb3b",
+  page = 0,
+  positionJson = "{}"
+) {
+  const db = getDb();
+  const result = db.prepare(
+    "INSERT INTO paper_annotations (paper_id, text, note, color, page, position_json) VALUES (?, ?, ?, ?, ?, ?)"
+  ).run(paperId, text, note, color, page, positionJson);
+  return { id: Number(result.lastInsertRowid), inserted: result.changes > 0 };
+}
+
+export function getAnnotationsForPaper(paperId) {
+  const db = getDb();
+  return db.prepare(
+    "SELECT id, paper_id, text, note, color, page, position_json, created_at FROM paper_annotations WHERE paper_id = ? ORDER BY page, id"
+  ).all(paperId);
+}
+
+export function deleteAnnotation(annotationId) {
+  const db = getDb();
+  return db.prepare("DELETE FROM paper_annotations WHERE id = ?").run(annotationId).changes > 0;
+}
+
+export function searchAnnotations(query) {
+  const db = getDb();
+  const pattern = `%${String(query).trim()}%`;
+  return db.prepare(`
+    SELECT a.id, a.paper_id, a.text, a.note, a.color, a.page, a.created_at, p.title as paper_title, p.doi
+    FROM paper_annotations a
+    JOIN papers p ON a.paper_id = p.id
+    WHERE a.text LIKE ? OR a.note LIKE ?
+    ORDER BY a.created_at DESC LIMIT 100
+  `).all(pattern, pattern);
+}
+
+export function addToReadingList(paperId, priority = 0, dueDate = null) {
+  const db = getDb();
+  const result = db.prepare(
+    "INSERT OR IGNORE INTO reading_list (paper_id, priority, due_date) VALUES (?, ?, ?)"
+  ).run(paperId, priority, dueDate);
+  return { added: result.changes > 0 };
+}
+
+export function updateReadingStatus(paperId, status, notes = null) {
+  const db = getDb();
+  const now = new Date().toISOString();
+  let extra = "";
+  const params = [status, now];
+  if (status === "reading") {
+    extra = ", started_at = COALESCE(started_at, ?)";
+    params.push(now);
+  }
+  if (status === "done") {
+    extra += ", finished_at = ?";
+    params.push(now);
+  }
+  if (notes !== null) {
+    extra += ", notes = ?";
+    params.push(notes);
+  }
+  params.push(paperId);
+  const result = db.prepare(
+    `UPDATE reading_list SET status = ?, updated_at = ?${extra} WHERE paper_id = ?`
+  ).run(...params);
+  return { updated: result.changes > 0 };
+}
+
+export function getReadingList(status = null, limit = 50) {
+  const db = getDb();
+  let sql = `
+    SELECT r.*, p.title, p.authors, p.year, p.doi, p.source, p.score
+    FROM reading_list r
+    JOIN papers p ON r.paper_id = p.id
+  `;
+  const params = [];
+  if (status) {
+    sql += " WHERE r.status = ?";
+    params.push(status);
+  }
+  sql += " ORDER BY r.priority DESC, r.created_at DESC LIMIT ?";
+  params.push(limit);
+  return db.prepare(sql).all(...params);
+}
+
+export function removeFromReadingList(paperId) {
+  const db = getDb();
+  return db.prepare("DELETE FROM reading_list WHERE paper_id = ?").run(paperId).changes > 0;
+}
+
+export function getReadingStats() {
+  const db = getDb();
+  const rows = db.prepare(
+    "SELECT status, COUNT(*) as count FROM reading_list GROUP BY status"
+  ).all();
+  const stats = { unread: 0, reading: 0, done: 0, total: 0 };
+  for (const row of rows) {
+    stats[row.status] = row.count;
+    stats.total += row.count;
+  }
+  return stats;
+}
+
 init();
+
 
 
 

@@ -51,6 +51,7 @@ function renderSearchResults(papers, container, statusElement, query) {
   if (!container) return;
   if (!results.length) {
     container.innerHTML = `<p class="no-results">${t('search.noResults')}</p>`;
+    document.getElementById('compare-bar')?.classList.add('hidden');
     return;
   }
 
@@ -80,6 +81,9 @@ function renderSearchResults(papers, container, statusElement, query) {
         `<p class="paper-journal">${journalMeta}</p>` +
         (abstract ? `<p class="paper-abstract">${escapeHtml(abstract)}</p>` : '') +
         `<div class="paper-links">${links.join('')}</div>` +
+        `<div class="paper-compare-checkbox">
+          <label><input type="checkbox" class="compare-check" data-paper-id="${paper?.id || ''}" /> Compare</label>
+        </div>` +
         `<div class="paper-tags-section" data-paper-id="${paper?.id ? escapeHtml(String(paper.id)) : ''}">
           <div class="paper-tags-list"></div>
           ${paper?.id ? `
@@ -131,6 +135,56 @@ function renderSearchResults(papers, container, statusElement, query) {
     } catch {
     }
   });
+
+  let compareBar = document.getElementById('compare-bar');
+  if (!compareBar) {
+    compareBar = document.createElement('div');
+    compareBar.id = 'compare-bar';
+    compareBar.className = 'compare-bar hidden';
+    compareBar.innerHTML = '<span id="compare-count">0 selected</span> <button id="compare-btn" class="btn-gold">Compare Selected</button>';
+    container.parentElement?.appendChild(compareBar);
+  }
+
+  function updateCompareBar() {
+    const checked = container.querySelectorAll('.compare-check:checked');
+    const bar = document.getElementById('compare-bar');
+    const countEl = document.getElementById('compare-count');
+    if (bar) bar.classList.toggle('hidden', checked.length < 2);
+    if (countEl) countEl.textContent = `${checked.length} selected`;
+  }
+
+  container.querySelectorAll('.compare-check').forEach((checkbox) => {
+    checkbox.addEventListener('change', updateCompareBar);
+  });
+
+  const compareButton = document.getElementById('compare-btn');
+  if (compareButton) {
+    compareButton.onclick = async () => {
+      const ids = Array.from(container.querySelectorAll('.compare-check:checked'))
+        .map((checkbox) => Number(checkbox.dataset.paperId))
+        .filter(Boolean);
+      if (ids.length < 2) return;
+      try {
+        const res = await fetch('/api/compare', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paperIds: ids }),
+        });
+        const data = await res.json();
+        if (data.markdown) {
+          const win = window.open('', '_blank');
+          if (win) {
+            win.document.write(`<pre style="font-family:monospace;padding:2rem;">${data.markdown.replace(/</g, '&lt;')}</pre>`);
+            win.document.title = 'Paper Comparison';
+          }
+        }
+      } catch (e) {
+        console.warn('Compare failed:', e);
+      }
+    };
+  }
+
+  updateCompareBar();
 }
 
 async function handleSearchSubmit(event) {
@@ -308,3 +362,5 @@ export async function init() {
 export async function onActivate() {
   document.getElementById('search-query')?.focus();
 }
+
+

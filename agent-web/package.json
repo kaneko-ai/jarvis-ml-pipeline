@@ -8,7 +8,7 @@
     "start": "node src/server.js",
     "build": "echo 'No build step needed'",
     "test": "node --test --test-isolation=none tests/*.test.js",
-    "test:ci": "node --test --test-isolation=none tests/api.test.js tests/auth.test.js tests/database.test.js tests/digest.test.js tests/e2e.test.js tests/i18n.test.js tests/pipeline.test.js tests/ws.test.js tests/pwa.test.js tests/keybinds.test.js tests/import.test.js tests/graph.test.js tests/tags.test.js tests/chart.test.js tests/discord.test.js tests/semantic-search.test.js tests/security.test.js"
+    "test:ci": "node --test --test-isolation=none tests/api.test.js tests/auth.test.js tests/database.test.js tests/digest.test.js tests/e2e.test.js tests/i18n.test.js tests/pipeline.test.js tests/ws.test.js tests/pwa.test.js tests/keybinds.test.js tests/import.test.js tests/graph.test.js tests/tags.test.js tests/chart.test.js tests/discord.test.js tests/semantic-search.test.js tests/security.test.js tests/annotations.test.js tests/reading-list.test.js tests/compare.test.js"
   },
   "dependencies": {
     "better-sqlite3": "^11.10.0",
@@ -26,3 +26,4 @@
     "nodemon": "^3.1.0"
   }
 }
+

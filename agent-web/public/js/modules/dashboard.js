@@ -302,6 +302,39 @@ export async function loadDashboard() {
     } else {
       setDashboardStatValue('stat-papers-count', '-', 'Run a pipeline to populate');
     }
+
+    try {
+      const [statsRes, itemsRes] = await Promise.all([
+        fetch('/api/reading-list/stats'),
+        fetch('/api/reading-list?status=unread&limit=5'),
+      ]);
+      const readingStats = await statsRes.json();
+      const readingItems = await itemsRes.json();
+
+      const statsEl = document.getElementById('reading-stats');
+      if (statsEl && readingStats) {
+        statsEl.innerHTML =
+          `<span class="reading-stat">📖 Unread: <strong>${readingStats.unread || 0}</strong></span>` +
+          `<span class="reading-stat">📚 Reading: <strong>${readingStats.reading || 0}</strong></span>` +
+          `<span class="reading-stat">✅ Done: <strong>${readingStats.done || 0}</strong></span>`;
+      }
+
+      const itemsEl = document.getElementById('reading-items');
+      if (itemsEl) {
+        if (Array.isArray(readingItems) && readingItems.length > 0) {
+          itemsEl.innerHTML = readingItems.map((item) =>
+            `<div class="reading-item">` +
+              `<span class="reading-item-title">${escapeHtml(item.title || 'Untitled')}</span>` +
+              `<span class="reading-item-meta">${escapeHtml([item.authors, item.year].filter(Boolean).join(', '))}</span>` +
+            `</div>`
+          ).join('');
+        } else {
+          itemsEl.innerHTML = '<p class="pipeline-empty-row">No papers in reading list.</p>';
+        }
+      }
+    } catch (e) {
+      console.warn('[Dashboard] Reading list load failed:', e.message);
+    }
   } catch (error) {
     showToast(error.message || 'Failed to load dashboard', 'error');
   } finally {
@@ -318,3 +351,4 @@ export async function onActivate() {
   await loadDashboard();
   await loadCharts();
 }
+

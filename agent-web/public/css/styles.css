@@ -2496,3 +2496,50 @@ button, select, textarea { font: inherit; }
 /* ===== Semantic Search ===== */
 .health-warn { color: #f4c430; font-size: 0.82rem; }
 input[name="searchType"] { accent-color: var(--accent); }
+/* ===== Reading List Widget ===== */
+.reading-widget {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem;
+  margin: 0 1.5rem 1rem;
+}
+.reading-widget h3 { margin: 0 0 0.75rem; color: var(--accent); }
+.reading-stats {
+  display: flex; gap: 1rem; margin-bottom: 0.75rem; flex-wrap: wrap;
+}
+.reading-stat {
+  font-size: 0.85rem; color: var(--text-secondary);
+}
+.reading-stat strong { color: var(--text-primary); }
+.reading-items {
+  display: flex; flex-direction: column; gap: 0.5rem;
+  max-height: 200px; overflow-y: auto;
+}
+.reading-item {
+  padding: 0.6rem; border-radius: 10px;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+}
+.reading-item-title {
+  display: block; font-weight: 600; font-size: 0.88rem;
+  color: var(--text-primary);
+}
+.reading-item-meta {
+  display: block; font-size: 0.76rem; color: var(--text-secondary); margin-top: 0.2rem;
+}
+
+/* ===== Paper Comparison ===== */
+.paper-compare-checkbox {
+  margin-top: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+.paper-compare-checkbox input { accent-color: var(--accent); margin-right: 0.3rem; }
+.compare-bar {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 0.75rem 1rem; margin-top: 1rem;
+  background: var(--bg-tertiary); border: 1px solid var(--accent-dim);
+  border-radius: 12px;
+}
+.compare-bar.hidden { display: none; }
+#compare-count { font-size: 0.88rem; color: var(--text-primary); font-weight: 600; }

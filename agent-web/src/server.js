@@ -24,6 +24,9 @@ import memoryRouter from './routes/memory.js';
 import papersRouter from './routes/papers.js';
 import notificationsRouter from './routes/notifications.js';
 import semanticSearchRouter from './routes/semantic-search.js';
+import annotationsRouter from './routes/annotations.js';
+import readingListRouter from './routes/reading-list.js';
+import compareRouter from './routes/compare.js';
 import { getClientCount, initWebSocket } from './ws/websocket-manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -68,7 +71,7 @@ app.locals.paths = {
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') {
     return res.sendStatus(204);
@@ -98,6 +101,9 @@ app.use('/api/memory', memoryRouter);
 app.use('/api/papers', papersRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/semantic-search', semanticSearchRouter);
+app.use('/api/annotations', annotationsRouter);
+app.use('/api/reading-list', readingListRouter);
+app.use('/api/compare', compareRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({

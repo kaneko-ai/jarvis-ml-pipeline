@@ -36,6 +36,7 @@ const translations = {
     'dashboard.totalSessions': 'Total Sessions',
     'dashboard.digestHistory': 'Digest History',
     'dashboard.systemHealth': 'System Health',
+    'dashboard.readingList': 'Reading List',
     'memory.title': 'Memory',
     'memory.facts': 'Facts',
     'memory.preferences': 'Preferences',
@@ -109,6 +110,7 @@ const translations = {
     'dashboard.totalSessions': 'セッション数',
     'dashboard.digestHistory': 'ダイジェスト履歴',
     'dashboard.systemHealth': 'システム状態',
+    'dashboard.readingList': 'リーディングリスト',
     'memory.title': 'メモリ',
     'memory.facts': 'ファクト',
     'memory.preferences': '設定',
@@ -191,4 +193,5 @@ export function init() {
   document.documentElement.setAttribute('lang', currentLang);
   applyTranslations();
 }
+
 
