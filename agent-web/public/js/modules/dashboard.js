@@ -1,8 +1,152 @@
+/* global Chart */
+
 import { escapeHtml, fetchJson, fetchPipelineResultFile, showToast } from './utils.js';
 
 const dashboardState = {
   loading: false,
 };
+
+let chartInstances = {};
+
+function destroyCharts() {
+  for (const key of Object.keys(chartInstances)) {
+    chartInstances[key]?.destroy();
+    delete chartInstances[key];
+  }
+}
+
+function getChartColors(count) {
+  const palette = [
+    '#d4af37', '#4caf50', '#2196f3', '#ff9800', '#e91e63',
+    '#9c27b0', '#00bcd4', '#ff5722', '#8bc34a', '#3f51b5',
+    '#ffc107', '#607d8b', '#795548', '#cddc39', '#f44336',
+  ];
+  return Array.from({ length: count }, (_, i) => palette[i % palette.length]);
+}
+
+function getThemeColors() {
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  return {
+    text: isDark ? '#e0e0e0' : '#333333',
+    grid: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.08)',
+    bg: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+  };
+}
+
+function renderBarChart(canvasId, data, label) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || !data || typeof Chart === 'undefined') return;
+  const labels = Object.keys(data).sort();
+  const values = labels.map((k) => data[k]);
+  const colors = getChartColors(labels.length);
+  const theme = getThemeColors();
+
+  chartInstances[canvasId] = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: label || 'Count',
+        data: values,
+        backgroundColor: colors.map((c) => c + '99'),
+        borderColor: colors,
+        borderWidth: 1,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        x: { ticks: { color: theme.text, maxRotation: 45 }, grid: { color: theme.grid } },
+        y: { ticks: { color: theme.text }, grid: { color: theme.grid }, beginAtZero: true },
+      },
+    },
+  });
+}
+
+function renderDoughnutChart(canvasId, data) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || !data || typeof Chart === 'undefined') return;
+  const labels = Object.keys(data);
+  const values = labels.map((k) => data[k]);
+  const colors = getChartColors(labels.length);
+  const theme = getThemeColors();
+
+  chartInstances[canvasId] = new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: colors.map((c) => c + 'cc'),
+        borderColor: colors,
+        borderWidth: 2,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { color: theme.text, font: { size: 11 } },
+        },
+      },
+    },
+  });
+}
+
+function renderHorizontalBarChart(canvasId, data, label) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || !data || typeof Chart === 'undefined') return;
+  const labels = Object.keys(data);
+  const values = labels.map((k) => data[k]);
+  const colors = getChartColors(labels.length);
+  const theme = getThemeColors();
+
+  chartInstances[canvasId] = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: label || 'Count',
+        data: values,
+        backgroundColor: colors.map((c) => c + '99'),
+        borderColor: colors,
+        borderWidth: 1,
+      }],
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: theme.text }, grid: { color: theme.grid }, beginAtZero: true },
+        y: { ticks: { color: theme.text, font: { size: 10 } }, grid: { color: theme.grid } },
+      },
+    },
+  });
+}
+
+async function loadCharts() {
+  try {
+    const res = await fetch('/api/papers/stats');
+    if (!res.ok) return;
+    const stats = await res.json();
+
+    destroyCharts();
+    renderBarChart('chart-by-year', stats.byYear, 'Papers');
+    renderDoughnutChart('chart-by-source', stats.bySource);
+    renderBarChart('chart-by-keyword', stats.byKeyword, 'Papers');
+    renderHorizontalBarChart('chart-by-journal', stats.topJournals, 'Papers');
+  } catch (e) {
+    console.warn('[Dashboard] Charts failed:', e.message);
+  }
+}
 
 function setDashboardStatValue(elementId, value, title) {
   const element = document.getElementById(elementId);
@@ -167,8 +311,10 @@ export async function loadDashboard() {
 
 export async function init() {
   await loadDashboard();
+  await loadCharts();
 }
 
 export async function onActivate() {
   await loadDashboard();
+  await loadCharts();
 }

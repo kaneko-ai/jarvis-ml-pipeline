@@ -20,6 +20,7 @@ import monitorRouter from './routes/monitor.js';
 import digestRouter from './routes/digest.js';
 import importRouter from './routes/import.js';
 import memoryRouter from './routes/memory.js';
+import papersRouter from './routes/papers.js';
 import { getClientCount, initWebSocket } from './ws/websocket-manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -89,6 +90,7 @@ app.use('/api/monitor', monitorRouter);
 app.use('/api/digest', digestRouter);
 app.use('/api/import', importRouter);
 app.use('/api/memory', memoryRouter);
+app.use('/api/papers', papersRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({
@@ -121,4 +123,5 @@ if (isMainModule()) {
 
 export { app, httpServer, server };
 export default app;
+
 

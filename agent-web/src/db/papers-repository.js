@@ -67,6 +67,22 @@ export function init() {
 
       CREATE INDEX IF NOT EXISTS idx_papers_pmid
       ON papers(pmid);
+
+      CREATE TABLE IF NOT EXISTS paper_tags (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        paper_id INTEGER NOT NULL,
+        tag TEXT NOT NULL,
+        color TEXT DEFAULT '#d4af37',
+        created_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(paper_id, tag),
+        FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_paper_tags_paper
+      ON paper_tags(paper_id);
+
+      CREATE INDEX IF NOT EXISTS idx_paper_tags_tag
+      ON paper_tags(tag);
     `);
   } catch (error) {
     console.error("Failed to initialize papers table:", error);
@@ -145,7 +161,7 @@ export function getPapers({ keyword, source, limit = 20, offset = 0 } = {}) {
       params.push(source);
     }
 
-    const safeLimit = Number.isFinite(Number(limit)) ? Math.max(1, Math.min(200, Number(limit))) : 20;
+    const safeLimit = Number.isFinite(Number(limit)) ? Math.max(1, Math.min(500, Number(limit))) : 20;
     const safeOffset = Number.isFinite(Number(offset)) ? Math.max(0, Number(offset)) : 0;
 
     let sql = `
@@ -265,5 +281,51 @@ export function deletePaper(identifier) {
   }
 }
 
+export function addTag(paperId, tag, color) {
+  const db = getDb();
+  const result = db.prepare(
+    "INSERT OR IGNORE INTO paper_tags (paper_id, tag, color) VALUES (?, ?, ?)"
+  ).run(paperId, tag, color || "#d4af37");
+  return result.changes > 0;
+}
+
+export function removeTag(paperId, tag) {
+  const db = getDb();
+  const result = db.prepare(
+    "DELETE FROM paper_tags WHERE paper_id = ? AND tag = ?"
+  ).run(paperId, tag);
+  return result.changes > 0;
+}
+
+export function getTagsForPaper(paperId) {
+  const db = getDb();
+  return db.prepare(
+    "SELECT tag, color FROM paper_tags WHERE paper_id = ? ORDER BY tag"
+  ).all(paperId);
+}
+
+export function getAllTags() {
+  const db = getDb();
+  return db.prepare(
+    "SELECT tag, color, COUNT(*) as count FROM paper_tags GROUP BY tag, color ORDER BY count DESC"
+  ).all();
+}
+
+export function getPapersByTag(tag, limit = 50) {
+  const db = getDb();
+  return db.prepare(`
+    SELECT p.*, GROUP_CONCAT(pt.tag || ':' || pt.color) as tags
+    FROM papers p
+    JOIN paper_tags pt ON p.id = pt.paper_id
+    WHERE pt.tag = ?
+    GROUP BY p.id
+    ORDER BY p.created_at DESC
+    LIMIT ?
+  `).all(tag, limit);
+}
 init();
+
+
+
+
 

@@ -4,6 +4,7 @@ const translations = {
     'nav.pipeline': 'Pipeline',
     'nav.monitor': 'Monitor',
     'nav.dashboard': 'Dashboard',
+    'nav.graph': 'Graph',
     'nav.memory': 'Memory',
     'nav.search': 'Search',
     'sidebar.newSession': 'New Session',
@@ -75,6 +76,7 @@ const translations = {
     'nav.pipeline': 'パイプライン',
     'nav.monitor': 'モニター',
     'nav.dashboard': 'ダッシュボード',
+    'nav.graph': 'グラフ',
     'nav.memory': 'メモリ',
     'nav.search': '検索',
     'sidebar.newSession': '新規セッション',
@@ -187,3 +189,4 @@ export function init() {
   document.documentElement.setAttribute('lang', currentLang);
   applyTranslations();
 }
+

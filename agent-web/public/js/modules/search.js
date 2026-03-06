@@ -18,6 +18,30 @@ function getSearchAbstractExcerpt(rawAbstract) {
   return text.length > 250 ? `${text.slice(0, 250)}...` : text;
 }
 
+function renderTagsForCard(section, tags) {
+  const list = section.querySelector('.paper-tags-list');
+  if (!list) return;
+
+  list.innerHTML = (tags || []).map((tItem) => {
+    const safeTag = escapeHtml(tItem.tag || '');
+    const safeColor = escapeHtml(tItem.color || '#d4af37');
+    return `<span class="paper-tag" style="background:${safeColor}20;border-color:${safeColor};color:${safeColor}">
+      ${safeTag}
+      <button class="tag-remove-btn" data-tag="${safeTag}" data-paper-id="${escapeHtml(section.dataset.paperId || '')}">&times;</button>
+    </span>`;
+  }).join('');
+
+  list.querySelectorAll('.tag-remove-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const paperId = btn.dataset.paperId;
+      const tag = btn.dataset.tag;
+      if (!paperId || !tag) return;
+      await fetch(`/api/papers/${paperId}/tags/${encodeURIComponent(tag)}`, { method: 'DELETE' });
+      btn.closest('.paper-tag')?.remove();
+    });
+  });
+}
+
 function renderSearchResults(papers, container, statusElement, query) {
   const results = Array.isArray(papers) ? papers : [];
   if (statusElement) {
@@ -56,9 +80,57 @@ function renderSearchResults(papers, container, statusElement, query) {
         `<p class="paper-journal">${journalMeta}</p>` +
         (abstract ? `<p class="paper-abstract">${escapeHtml(abstract)}</p>` : '') +
         `<div class="paper-links">${links.join('')}</div>` +
+        `<div class="paper-tags-section" data-paper-id="${paper?.id ? escapeHtml(String(paper.id)) : ''}">
+          <div class="paper-tags-list"></div>
+          ${paper?.id ? `
+            <div class="paper-tag-add">
+              <input type="text" class="tag-input" placeholder="Add tag..."
+                maxlength="30">
+              <input type="color" class="tag-color-picker" value="#d4af37">
+              <button class="tag-add-btn" title="Add tag">+</button>
+            </div>
+          ` : ''}
+        </div>` +
       '</div>' +
     '</div>';
   }).join('');
+
+  container.querySelectorAll('.tag-add-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const section = btn.closest('.paper-tags-section');
+      const paperId = section?.dataset.paperId;
+      if (!paperId) return;
+      const input = section.querySelector('.tag-input');
+      const colorPicker = section.querySelector('.tag-color-picker');
+      const tag = input?.value?.trim();
+      if (!tag) return;
+      try {
+        const res = await fetch(`/api/papers/${paperId}/tags`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tag, color: colorPicker?.value }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          input.value = '';
+          renderTagsForCard(section, data.tags);
+        }
+      } catch (e) {
+        console.warn('Tag add failed:', e);
+      }
+    });
+  });
+
+  container.querySelectorAll('.paper-tags-section[data-paper-id]').forEach(async (section) => {
+    const paperId = section.dataset.paperId;
+    if (!paperId) return;
+    try {
+      const res = await fetch(`/api/papers/${paperId}/tags`);
+      const tags = await res.json();
+      renderTagsForCard(section, tags);
+    } catch {
+    }
+  });
 }
 
 async function handleSearchSubmit(event) {

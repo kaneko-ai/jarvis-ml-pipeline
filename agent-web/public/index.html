@@ -9,6 +9,8 @@
     <title>JARVIS Research OS</title>
     <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="/icons/icon.svg" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.7/chart.umd.min.js"></script>
     <link rel="stylesheet" href="./css/styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
   </head>
@@ -105,6 +107,9 @@
           </button>
           <button type="button" class="tab-btn nav-btn" data-tab="dashboard" id="dashboardTab">
             <span class="nav-icon">📊</span> <span data-i18n="nav.dashboard">Dashboard</span>
+          </button>
+          <button type="button" class="tab-btn nav-btn" data-tab="graph" id="graphTab">
+            <span class="nav-icon">🕸️</span> <span data-i18n="nav.graph">Graph</span>
           </button>
           <button type="button" class="tab-btn nav-btn" data-tab="memory" id="memoryTab">
             <span class="nav-icon">🧠</span> <span data-i18n="nav.memory">Memory</span>
@@ -411,10 +416,54 @@
                 <span class="stat-label" data-i18n="dashboard.digestHistory">Digest History</span>
               </div>
             </div>
+            <div class="chart-grid">
+              <div class="chart-card">
+                <h4>Papers by Year</h4>
+                <canvas id="chart-by-year"></canvas>
+              </div>
+              <div class="chart-card">
+                <h4>Papers by Source</h4>
+                <canvas id="chart-by-source"></canvas>
+              </div>
+              <div class="chart-card">
+                <h4>Papers by Keyword</h4>
+                <canvas id="chart-by-keyword"></canvas>
+              </div>
+              <div class="chart-card">
+                <h4>Top Journals</h4>
+                <canvas id="chart-by-journal"></canvas>
+              </div>
+            </div>
             <h3 data-i18n="dashboard.digestHistory">Digest History</h3>
             <div id="recent-digests" class="digest-timeline"></div>
             <h3 data-i18n="dashboard.systemHealth">System Health</h3>
             <div id="system-health" class="health-panel"></div>
+          </div>
+        </section>
+
+        <section id="graph-view" class="tab-panel view hidden">
+          <div class="graph-panel">
+            <div class="graph-toolbar">
+              <h2 data-i18n="nav.graph">Citation Graph</h2>
+              <div class="graph-controls">
+                <select id="graph-keyword-filter" class="filter-select">
+                  <option value="">All Keywords</option>
+                </select>
+                <label class="graph-limit-label">
+                  Nodes:
+                  <input type="number" id="graph-limit" class="filter-input"
+                    value="80" min="10" max="300" step="10">
+                </label>
+                <button id="graph-refresh-btn" type="button" class="btn-gold">Refresh</button>
+              </div>
+            </div>
+            <div id="graph-container" class="graph-container">
+              <svg id="graph-svg"></svg>
+            </div>
+            <div id="graph-tooltip" class="graph-tooltip hidden"></div>
+            <div id="graph-info" class="graph-info">
+              <p>Click a node to see details. Scroll to zoom. Drag to pan.</p>
+            </div>
           </div>
         </section>
 
@@ -448,3 +497,7 @@
     <script type="module" src="js/app.js"></script>
   </body>
 </html>
+
+
+
+
