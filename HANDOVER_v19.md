@@ -1,6 +1,6 @@
 # HANDOVER_v19.md — JARVIS ML Pipeline 引き継ぎ書
 
-> **Date**: 2026-03-06 21:00 JST
+> **Date**: 2026-03-06 22:30 JST
 >
 > **Authors**: Claude Opus 4.6 + kaneko yu
 >
@@ -37,8 +37,9 @@ v1 → v16 → v17 → v18 → v19
 
 ### 1-B. Agent-Web フロントエンド (Node.js/Express)
 
-- Express v5 + better-sqlite3 + SSE（後方互換維持）+ WebSocket
-- Agent-Web テスト **72/72 pass**
+- Express v5 + better-sqlite3 + WebSocket（SSE も継続利用）
+- Agent-Web テスト **80/80 pass**
+- 単一ユーザー向けローカルツール（multi-user 前提は不要）
 - 完了済み主要機能:
   - Memory UI
   - Dashboard
@@ -52,16 +53,18 @@ v1 → v16 → v17 → v18 → v19
   - DOI/PMID auto-links
   - PDF cards
   - Pipeline progress UI
-  - PERF-1: Lazy-loaded tab modules（`app.js` を 8 モジュールへ分割）
-  - AUTH-1: Token-based authentication（login UI + cookie session）
-  - I18N-1: Japanese/English internationalization with toggle
-  - WS-1: WebSocket support with auto-reconnect and status indicator
-  - PWA-1: Progressive Web App with service worker and offline cache
+  - PERF-1: Lazy-loaded tab modules（`app.js` → 8 modules）
+  - AUTH-1: Token auth（デフォルト: `JARVIS_AUTH=disabled` for single user）
+  - I18N-1: Japanese/English toggle
+  - WS-1: WebSocket with auto-reconnect + status indicator
+  - PWA-1: Service worker + offline cache + manifest
+  - KEYBIND-1: Keyboard shortcuts（Ctrl+1-6 tabs, Ctrl+K chat, ? help）
+  - IMPORT-1: BibTeX/RIS file import with drag-and-drop
 - Daily Digest: 5 キーワード自動論文収集 → Gemini 要約 → SQLite 保存 → Obsidian 出力
 - パイプライン: 7 ステップ SSE（検索→重複除去→スコアリング→ソート→Gemini 要約→JSON 生成→DB 保存+PDF アーカイブ）
 - セッションメモリ（H-2）: 直近 20 メッセージをコンテキストとして送信
 - 永続メモリ（H-3）: `facts` / `user_preferences` テーブルでクロスセッション記憶
-- Memory API, export API, Dashboard analytics, Search UI, Auth, I18N, WebSocket, PWA まで実装済み
+- Memory API, export API, Dashboard analytics, Search UI, Auth, I18N, WebSocket, PWA, Keybinds, Import まで実装済み
 
 ---
 
@@ -85,12 +88,13 @@ v1 → v16 → v17 → v18 → v19
 | Codex App | 3 エージェント（explorer, worker, reviewer）定義済み |
 | C: ドライブ空き | ~45 GB |
 | H: ドライブ | Google Drive 2 TB（使用 57 GB） |
+| .env | `JARVIS_AUTH=disabled`（single-user default） |
 
 ### .env ファイル（プロジェクトルート直下、1 ファイルのみ — .gitignore 済み）
 
 Copy
 
-ZOTERO_API_KEY=... ZOTERO_USER_ID=16956010 OPENAI_API_KEY=（空） DEEPSEEK_API_KEY=（空） LLM_MODEL=gemini/gemini-2.0-flash DATALAB_API_KEY=... GEMINI_API_KEY=...（実値は `.env` 参照）
+ZOTERO_API_KEY=... ZOTERO_USER_ID=16956010 OPENAI_API_KEY=（空） DEEPSEEK_API_KEY=（空） LLM_MODEL=gemini/gemini-2.0-flash DATALAB_API_KEY=... GEMINI_API_KEY=... JARVIS_AUTH=disabled（実値は `.env` 参照）
 
 ### config.yaml（プロジェクトルート直下）
 
@@ -189,13 +193,15 @@ jarvis-ml-pipeline/
     │           ├── search.js
     │           ├── utils.js
     │           ├── i18n.js
-    │           └── ws-client.js
+    │           ├── ws-client.js
+    │           └── keybinds.js
     ├── src/
     │   ├── server.js
     │   ├── middleware/
     │   │   └── auth.js
     │   ├── routes/
-    │   │   └── auth.js
+    │   │   ├── auth.js
+    │   │   └── import.js
     │   ├── ws/
     │   │   └── websocket-manager.js
     │   ├── db/
@@ -209,7 +215,9 @@ jarvis-ml-pipeline/
         ├── i18n.test.js
         ├── pipeline.test.js
         ├── ws.test.js
-        └── pwa.test.js
+        ├── pwa.test.js
+        ├── keybinds.test.js
+        └── import.test.js
 ```
 
 新規/更新ファイル（v18→v19 で特に重要）:
@@ -223,8 +231,10 @@ jarvis-ml-pipeline/
 - `agent-web/public/js/modules/utils.js`
 - `agent-web/public/js/modules/i18n.js`
 - `agent-web/public/js/modules/ws-client.js`
+- `agent-web/public/js/modules/keybinds.js`
 - `agent-web/src/middleware/auth.js`
 - `agent-web/src/routes/auth.js`
+- `agent-web/src/routes/import.js`
 - `agent-web/src/ws/websocket-manager.js`
 - `agent-web/public/manifest.json`
 - `agent-web/public/sw.js`
@@ -233,6 +243,8 @@ jarvis-ml-pipeline/
 - `agent-web/tests/i18n.test.js`
 - `agent-web/tests/ws.test.js`
 - `agent-web/tests/pwa.test.js`
+- `agent-web/tests/keybinds.test.js`
+- `agent-web/tests/import.test.js`
 - `agent-web/data/.gitignore`
 - `HANDOVER_v19.md`
 
@@ -264,11 +276,13 @@ jarvis-ml-pipeline/
 | GET | /api/memory/preferences | 全 preferences 取得 | ✅ |
 | POST | /api/memory/preferences | preference 保存 | ✅ |
 | GET | /api/memory/context | メモリコンテキスト取得 | ✅ |
-| POST | /api/auth/login | token 認証、cookie session 発行 | ✅ |
-| GET | /api/auth/status | 認証状態確認 | ✅ |
-| POST | /api/auth/logout | session cookie 破棄 | ✅ |
-| GET | /api/health | 簡易ヘルス（`wsClients` を含む） | ✅ |
-| WS | /ws | 双方向リアルタイム通信 | ✅ |
+| POST | /api/auth/login | authenticate with token | ✅ |
+| GET | /api/auth/status | check auth status | ✅ |
+| POST | /api/auth/logout | clear session | ✅ |
+| POST | /api/import/bibtex | import papers from BibTeX text | ✅ |
+| POST | /api/import/ris | import papers from RIS text | ✅ |
+| GET | /api/health | 簡易ヘルス | ✅ |
+| WS | /ws | WebSocket real-time communication | ✅ |
 | — | /data/* | 静的 JSON 配信 | ✅ |
 
 ---
@@ -335,7 +349,7 @@ Session 2026-03-06 Afternoon (v17→v18) ✅
 - THEME-1: Light/dark theme toggle with CSS custom properties
 - CHAT-1: JSON syntax highlight, DOI/PMID auto-links
 - CHAT-2: PDF card display, Unpaywall lookup
-- PIPE-UI: Pipeline progress bar, paper cards, summary
+- PIPE-UI: Pipeline progress bar, paper cards, summary display
 - DASH-1: Dashboard analytics (stats, digest timeline, health)
 - EXPORT-1: Chat history Markdown export + download
 - NOTIF-1: Browser notifications + toast system
@@ -344,16 +358,17 @@ Session 2026-03-06 Afternoon (v17→v18) ✅
 
 Session 2026-03-06 Evening (v18→v19) ✅
 
-- PERF-1: `app.js` split into 8 lazy-loaded modules（chat, pipeline, monitor, dashboard, memory, search, utils, i18n）
-- AUTH-1: Token-based authentication middleware, login UI overlay, cookie session, `/api/auth/*` routes
-- I18N-1: Japanese/English internationalization with `data-i18n` attributes and `localStorage` persistence
-- WS-1: WebSocket server（`ws` package）、auto-reconnect client、heartbeat、session broadcast、status indicator
-- PWA-1: Service worker with cache strategy、`manifest.json`、SVG icon、offline support
+- PERF-1: `app.js` split into 8 lazy-loaded modules
+- AUTH-1: Token auth（disabled by default for single-user）
+- I18N-1: Japanese/English i18n with `data-i18n` + `localStorage`
+- WS-1: WebSocket server + browser client with auto-reconnect
+- PWA-1: Service worker, `manifest.json`, offline cache
+- KEYBIND-1: 12 keyboard shortcuts with help overlay（Shift+?）
+- IMPORT-1: BibTeX/RIS parser + drag-and-drop import UI
 
 テスト状況 ✅
 
-- agent-web: **72/72 pass**（2026-03-06 21:00 JST 時点）
-- 補足: `HANDOVER_v18.md` には 55 tests と記載されているが、その後 `0ad8ef79` で PERF/AUTH/I18N により 63 へ増加し、今回の WS/PWA 追加で 72 に到達
+- agent-web: **80/80 pass**（2026-03-06 22:30 JST 時点）
 - Python: 6944 passed / 64 known failures（agent-web 無関係）
 
 ---
@@ -362,30 +377,30 @@ Session 2026-03-06 Evening (v18→v19) ✅
 
 高優先度 🔴
 
-- （なし — PERF-1, AUTH-1, I18N-1 は完了）
+- （なし）
 
 中優先度 🟡
 
 | ID | タスク | 備考 |
 |---|---|---|
 | P3-6 | LightRAG Web bridge | `asyncio.CancelledError` unresolved |
-| COLLAB-1 | Multi-user session sharing | WebSocket 基盤は利用可能 |
+| WS-MIGRATE | Migrate SSE endpoints to WebSocket fully | SSE 互換は現状維持 |
 
 低優先度 🟢
 
 | ID | タスク | 備考 |
 |---|---|---|
 | RC-1 | Remote control API | 外部制御用 API |
-| PLUGIN-1 | Plugin system | custom skills 拡張 |
+| PLUGIN-1 | Plugin system for custom skills | custom skills 拡張 |
 | OFFLINE-1 | Full offline mode | PWA foundation ready |
-| WS-MIGRATE | SSE → WebSocket migration | WS infrastructure ready |
 
 新規アイデア 💡
 
-- CHART-1: Dashboard 用インタラクティブチャート（D3.js / Chart.js）
-- KEYBIND-1: Keyboard shortcuts（Ctrl+K search, Ctrl+N new session）
-- IMPORT-1: BibTeX / RIS から論文取り込み
-- VOICE-1: Web Speech API による音声入力
+- CHART-1: Interactive charts（D3.js / Chart.js）for dashboard
+- ANNOTATE-1: Paper annotation and highlighting
+- TAG-1: Custom paper tagging and filtering
+- BACKUP-1: One-click DB export/import for backup
+- TEMPLATE-1: Custom research note templates
 
 ---
 
@@ -400,10 +415,10 @@ Session 2026-03-06 Evening (v18→v19) ✅
 - `bf0a9155` feat(agent-web): add Memory management UI panel (MEM-1)
 - `2b964cbb` temporary / placeholder commit (`-`)
 - `e3ab473a` feat(agent-web): responsive layout, fade-in animations, E2E tests (UI-3, UI-5, E2E-1)
-- `7cbdb627` feat(agent-web): reasoning trace, light/dark theme toggle, JSON highlight + DOI/PMID links
+- `7cbdb627` feat(agent-web): reasoning trace, light/dark theme toggle, JSON highlight + DOI/PMID links (UI-6, THEME-1, CHAT-1)
 - `38636d79` feat(agent-web): PDF card display, Unpaywall lookup link, PDF badge in chat (CHAT-2)
 - `cce277fd` feat(agent-web): pipeline progress bar, paper cards, summary display (PIPE-UI)
-- `d6cb5633` docs: HANDOVER_v17.md – session 2026-03-06
+- `d6cb5633` docs: HANDOVER_v17.md – session 2026-03-06 (MEM-1, UI-3~6, THEME-1, CHAT-1, E2E-1, 54 tests)
 - `57fa9dbe` feat(agent-web): PDF cards, pipeline progress UI, HANDOVER_v17 (CHAT-2, PIPE-UI) - 54 tests
 - `5456f62a` chore: remove worktrees/ temp files and add to .gitignore
 - `a75c19a2` feat(agent-web): add Dashboard analytics view with stats and digest timeline (DASH-1)
@@ -411,10 +426,14 @@ Session 2026-03-06 Evening (v18→v19) ✅
 - `81b06837` feat(agent-web): browser notifications and toast system for digest/pipeline events (NOTIF-1)
 - `408f8f1a` feat(agent-web): advanced search panel with source/year filters (SEARCH-UI)
 - `b7f9290f` fix(agent-web): make api.test.js server-independent with in-process test server (TEST-FIX)
+- `a06ca147` docs: HANDOVER_v18.md – full session 2026-03-06 (15 tasks, 55 tests)
 - `0ad8ef79` feat(agent-web): lazy-load tabs, add token auth, and add Japanese/English i18n
 - `71d6ef5a` feat(agent-web): WebSocket support with auto-reconnect client and status indicator (WS-1)
 - `086a1bf6` feat(agent-web): PWA support with service worker, manifest, and offline cache (PWA-1)
-- `(this commit)` docs: HANDOVER_v19.md – evening session 2026-03-06 (PERF+AUTH+I18N+WS+PWA, 71+ tests)
+- `34a2088e` docs: HANDOVER_v19.md – evening session 2026-03-06 (PERF+AUTH+I18N+WS+PWA, 71+ tests)
+- `20cb1edf` feat(agent-web): keyboard shortcuts with help overlay (KEYBIND-1)
+- `aea9e191` feat(agent-web): BibTeX/RIS file import with drag-and-drop (IMPORT-1)
+- `(pending)` docs: HANDOVER_v19.md – evening session (PERF+AUTH+I18N+WS+PWA+KEYBIND+IMPORT)
 
 ---
 
@@ -441,9 +460,9 @@ Session 2026-03-06 Evening (v18→v19) ✅
 | git-credential-manager rename warning | 低 | cosmetic only |
 | Python pytest 64 failures | 中 | `ContradictionDetector` signature, MCP Hub, ChromaDB `google.rpc` 系。agent-web とは無関係 |
 | Codex worktrees / temp files | 低 | `.gitignore` 追加済みだが一時ファイル残骸に注意 |
-| PWA: service worker 更新 | 低 | 配布後に更新が反映されない場合は cache clear か `CACHE_NAME` 更新 |
-| Auth: token の平文保存 | 中 | `data/.auth-token` 保存は local-first 用。production では不可 |
-| WebSocket: 接続失敗時 | 低 | WS が失敗しても SSE は継続利用可能 |
+| Service worker cache | 低 | 変更後は `CACHE_NAME` version を bump する |
+| Auth token in plaintext | 低 | ローカル single-user 用としては許容、production では不可 |
+| WebSocket reconnect | 低 | ページリロード時に brief red dot が表示されることがある |
 
 ---
 
@@ -506,7 +525,7 @@ npm test
 
 （spawn EPERM の場合: `node --test --test-isolation=none tests/*.test.js`）
 
-期待結果: **72 passed, 0 failed**
+期待結果: **80 passed, 0 failed**
 
 Step 4: サーバー起動
 
@@ -518,15 +537,15 @@ npm run dev
 Step 5: ブラウザ確認
 
 - `http://localhost:3000` を開く
-- Login 画面が出ることを確認（または `JARVIS_AUTH=disabled` で無効化）
-- Language toggle で EN / JA が切り替わること
 - Chat タブ: メッセージ送信→応答確認
 - Pipeline タブ: 進捗表示、paper cards、history 表示確認
 - Dashboard タブ: stats / digest timeline / health が表示されること
 - Memory タブ: fact / preference / context の表示確認
 - Theme toggle: light/dark が切り替わること
-- Sidebar の WS ステータス dot が green になること
-- Chrome で PWA install prompt / install menu が表示されること
+- Verify language toggle（EN/JA）
+- Check WebSocket green dot in sidebar
+- Press Shift+? to verify shortcuts help overlay
+- Drag a `.bib` file onto Pipeline tab to test import
 
 Step 6: papers-repository 確認
 
@@ -570,18 +589,19 @@ schtasks /query /tn "JARVIS-DailyDigest"
 - ESM: agent-web 全体が ESM（import/export）。`package.json` に `"type": "module"` 設定済み
 - dotenv: `server.js` 起動時に `../.env` を読み込み。CLI 実行時は各スクリプト内で個別に `dotenv.config()`
 - SSE パターン: `pipeline.js` / `digest.js` が Server-Sent Events で進捗送信。フロントは EventSource / fetch stream の併用
-- better-sqlite3: 同期 API のため SQLITE_BUSY リスク低。WAL モード未設定
+- better-sqlite3: 同期 API のため SQLITE_BUSY リスク低。WAL モード有効
 - Copilot API: `copilot-api`（localhost:4141）経由で GitHub Copilot にアクセス
 - フォールバックチェーン: Copilot API → Gemini API（LiteLLM 経由）
 - PDF アーカイブ: Unpaywall API（doi ベース）→ 直接 URL → 失敗時スキップ
 - Toast notification system: `showToast()` + `showNotification()`
 - Theme: CSS custom properties + `data-theme` attribute + `localStorage`
 - Export: `/api/sessions/:id/export` は `Content-Disposition` 付き download を返す
-- Module system: `public/js/app.js` は thin orchestrator、各タブは `public/js/modules/*.js` で lazy-load
-- Auth flow: 初回起動時 token 生成 → `data/.auth-token` 保存 → login 後は cookie session
-- I18N: `data-i18n` 属性 + `localStorage` の言語設定 + `window` の `lang-changed` event
-- WebSocket: server は `ws` package、browser は native WebSocket、3 秒 backoff で自動再接続
-- PWA: `sw.js` が static asset を cache し、API は network-only、static は stale-while-revalidate 相当
+- Module system: `app.js` は thin orchestrator、タブの実装は `modules/*.js` に分離
+- Auth: `JARVIS_AUTH=disabled` が single-user のデフォルト
+- Keybinds: `keybinds.js` が document `keydown` を監視し、入力中は非 Ctrl ショートカットを無視
+- Import: BibTeX regex parser + RIS tag-based parser を server-side で処理
+- WebSocket: `ws` package、heartbeat 30s、client-side auto-reconnect 3s
+- PWA: static は stale-while-revalidate、`/api/` は network-only
 
 ---
 
@@ -615,9 +635,9 @@ Python
 
 ## 14. Next Actions
 
-1. COLLAB-1: Multi-user session sharing（WebSocket broadcast を活用）
-2. CHART-1: Dashboard 用インタラクティブチャート
-3. KEYBIND-1: パワーユーザー向けキーボードショートカット
+1. CHART-1: Interactive dashboard charts
+2. TAG-1: Paper tagging system
+3. BACKUP-1: DB export/import
 
 ---
 
@@ -635,6 +655,7 @@ Python
 - `agent-web/public/js/modules/chat.js`
 - `agent-web/public/js/modules/dashboard.js`
 - `agent-web/public/js/modules/i18n.js`
+- `agent-web/public/js/modules/keybinds.js`
 - `agent-web/public/js/modules/memory.js`
 - `agent-web/public/js/modules/monitor.js`
 - `agent-web/public/js/modules/pipeline.js`
@@ -645,15 +666,17 @@ Python
 - `agent-web/public/sw.js`
 - `agent-web/src/middleware/auth.js`
 - `agent-web/src/routes/auth.js`
+- `agent-web/src/routes/import.js`
 - `agent-web/src/server.js`
 - `agent-web/src/ws/websocket-manager.js`
 - `agent-web/tests/auth.test.js`
 - `agent-web/tests/i18n.test.js`
+- `agent-web/tests/import.test.js`
+- `agent-web/tests/keybinds.test.js`
 - `agent-web/tests/pwa.test.js`
 - `agent-web/tests/ws.test.js`
-- `agent-web/data/.gitignore`
 
-この引き継ぎ書は 2026-03-06 21:00 JST 時点の状態を反映している。
+この引き継ぎ書は 2026-03-06 22:30 JST 時点の状態を反映している。
 
 ---
 
@@ -671,13 +694,13 @@ GitHub: https://github.com/kaneko-ai/jarvis-ml-pipeline (main ブランチ)
 
 引き継ぎ書: https://github.com/kaneko-ai/jarvis-ml-pipeline/blob/main/HANDOVER_v19.md
 
-現在の状態（2026-03-06 21:00 JST 時点）
+現在の状態（2026-03-06 22:30 JST 時点）
 
 Python CLI v2.0.0: 22 コマンド、pytest 6944 passed / 64 known failures（agent-web とは無関係）
 
-Agent-Web: Express v5 + better-sqlite3 + SSE/WebSocket、72/72 テスト合格
+Agent-Web: Express v5 + better-sqlite3 + WebSocket、80/80 テスト合格、single-user local tool
 
-2026-03-06 追加完了: PERF-1、AUTH-1、I18N-1、WS-1、PWA-1
+2026-03-06 追加完了: PERF-1、AUTH-1、I18N-1、WS-1、PWA-1、KEYBIND-1、IMPORT-1
 
 既存完了: Dashboard、Export、Notifications、Search UI、Memory UI、responsive layout、theme toggle、reasoning trace、JSON highlight、DOI/PMID auto-links、PDF cards、pipeline progress UI
 
@@ -691,7 +714,7 @@ Windows 11, Node v24.13.1, Python 3.11.9
 
 LLM: gemini-2.0-flash（デフォルト）, claude-sonnet-4.6（チャット）
 
-.env に API キー設定済み（GEMINI_API_KEY, ZOTERO_API_KEY 等）
+.env に API キー設定済み（GEMINI_API_KEY, ZOTERO_API_KEY 等）+ `JARVIS_AUTH=disabled`
 
 Codex App: explorer / worker / reviewer の 3 エージェント
 
