@@ -1,8 +1,26 @@
 import { getLang, init as initI18n, t, toggleLang } from './modules/i18n.js';
 import { initParticles } from './modules/utils.js';
+import { connect as wsConnect, on as wsOn } from './modules/ws-client.js';
 
 const moduleCache = {};
 let activeTab = null;
+
+function setupWebSocketStatus() {
+  wsOn('connected', () => {
+    const dot = document.getElementById('ws-status');
+    if (dot) {
+      dot.className = 'ws-dot connected';
+      dot.title = 'WebSocket connected';
+    }
+  });
+  wsOn('disconnected', () => {
+    const dot = document.getElementById('ws-status');
+    if (dot) {
+      dot.className = 'ws-dot disconnected';
+      dot.title = 'WebSocket disconnected';
+    }
+  });
+}
 
 async function checkAuth() {
   try {
@@ -123,7 +141,7 @@ function setupLangToggle() {
 }
 
 function getView(tabName) {
-  return document.getElementById(`${tabName}-view`);
+  return document.getElementById(tabName + '-view');
 }
 
 function showLoadingSpinner(view) {
@@ -152,16 +170,16 @@ async function activateTab(tabName) {
   }
 
   document.querySelectorAll('.nav-btn').forEach((button) => button.classList.remove('active'));
-  document.querySelector(`[data-tab="${tabName}"]`)?.classList.add('active');
+  document.querySelector('[data-tab="' + tabName + '"]')?.classList.add('active');
 
   if (!moduleCache[tabName]) {
     const spinner = showLoadingSpinner(view);
     try {
-      const mod = await import(`./modules/${tabName}.js`);
+      const mod = await import('./modules/' + tabName + '.js');
       if (mod.init) await mod.init();
       moduleCache[tabName] = mod;
     } catch (error) {
-      console.warn(`Module ${tabName} not found, skipping:`, error.message);
+      console.warn('Module ' + tabName + ' not found, skipping:', error.message);
     } finally {
       spinner?.remove();
     }
@@ -177,7 +195,7 @@ function bindTabNavigation() {
   document.querySelectorAll('.nav-btn').forEach((button) => {
     button.addEventListener('click', () => {
       activateTab(button.dataset.tab).catch((error) => {
-        console.warn(`Failed to activate tab ${button.dataset.tab}:`, error.message);
+        console.warn('Failed to activate tab ' + button.dataset.tab + ':', error.message);
       });
     });
   });
@@ -186,10 +204,12 @@ function bindTabNavigation() {
 async function initialize() {
   initParticles();
   initI18n();
+  setupWebSocketStatus();
   setupThemeToggle();
   setupSidebarToggle();
   setupLangToggle();
   bindTabNavigation();
+  wsConnect('default');
   await activateTab('chat');
 }
 

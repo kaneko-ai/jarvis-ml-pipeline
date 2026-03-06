@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import fs from 'node:fs';
+import { createServer } from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
@@ -18,6 +19,7 @@ import pipelineRouter from './routes/pipeline.js';
 import monitorRouter from './routes/monitor.js';
 import digestRouter from './routes/digest.js';
 import memoryRouter from './routes/memory.js';
+import { getClientCount, initWebSocket } from './ws/websocket-manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,7 +40,7 @@ function loadConfig() {
     const raw = fs.readFileSync(configPath, 'utf8');
     return yaml.load(raw) ?? {};
   } catch (error) {
-    console.warn(`Failed to load config.yaml: ${error.message}`);
+    console.warn('Failed to load config.yaml: ' + error.message);
     return {};
   }
 }
@@ -47,7 +49,7 @@ const config = loadConfig();
 getDb();
 
 const app = express();
-const port = Number(process.env.PORT || 3000);
+const PORT = Number(process.env.PORT || 3000);
 
 app.locals.config = config;
 app.locals.version = '1.0.0';
@@ -91,18 +93,29 @@ app.get('/api/health', (req, res) => {
     status: 'ok',
     version: app.locals.version,
     timestamp: new Date().toISOString(),
+    wsClients: getClientCount(),
   });
 });
 
-const server = app.listen(port, () => {
-  console.log(`JARVIS Agent Web v1.0.0 running on http://localhost:${port}`);
-  if (!isTestEnvironment() && !isAuthBypassed()) {
-    const token = getOrCreateToken();
-    console.log(`Auth token: ${token}`);
-    console.log('  (Set JARVIS_AUTH=disabled to skip auth)');
-    console.log('  (Token saved in data/.auth-token)');
-  }
-});
+const httpServer = createServer(app);
+const server = httpServer;
 
-export { app, server };
+function isMainModule() {
+  return Boolean(process.argv[1]) && path.resolve(process.argv[1]) === __filename;
+}
+
+if (isMainModule()) {
+  initWebSocket(httpServer);
+  httpServer.listen(PORT, () => {
+    console.log('JARVIS Agent Web v1.0.0 running on http://localhost:' + PORT);
+    if (!isTestEnvironment() && !isAuthBypassed()) {
+      const token = getOrCreateToken();
+      console.log('Auth token: ' + token);
+      console.log('  (Set JARVIS_AUTH=disabled to skip auth)');
+      console.log('  (Token saved in data/.auth-token)');
+    }
+  });
+}
+
+export { app, httpServer, server };
 export default app;

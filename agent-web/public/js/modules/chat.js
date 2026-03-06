@@ -1,4 +1,5 @@
 import { autoLinkDOI, escapeHtml, fetchJson, formatElapsedTime, formatJsonBlock, formatTimestamp, parseDurationMs, requestNotificationPermission, showToast, updateNotificationToggleState } from './utils.js';
+import { connect as syncWebSocketSession } from './ws-client.js';
 
 const state = {
   currentSessionId: null,
@@ -278,7 +279,7 @@ function renderReasoningStep(step) {
   node.innerHTML = `<span class="trace-step-icon">${getReasoningIcon(step.kind)}</span><span class="trace-step-text">${escapeHtml(step.text)}</span><span class="trace-step-time"></span>`;
   step.node = node;
   return node;
-}
+}
 function updateReasoningTraceMeta(bubble, totalMs) {
   if (!bubble?._reasoningTrace) return;
   const countElement = bubble._reasoningTrace.querySelector('.trace-count');
@@ -641,7 +642,7 @@ function applyStreamingTextReveal(bubble, contentElement, addedLength) {
     contentElement.classList.remove('text-reveal');
     bubble._textRevealTimer = null;
   }, 300);
-}
+}
 function renderSessionList(sessions) {
   elements.sessionHistory.innerHTML = '';
   if (!sessions.length) {
@@ -722,6 +723,10 @@ async function updateSystemStatus() {
   }
 }
 
+function syncSessionChannel(sessionId) {
+  syncWebSocketSession(sessionId || 'default');
+}
+
 async function loadModels() {
   state.models = await fetchJson('/api/models');
   renderModelSelector(state.models);
@@ -740,6 +745,7 @@ async function loadModels() {
 async function loadSession(id) {
   const session = await fetchJson(`/api/sessions/${id}`);
   state.currentSessionId = session.id;
+  syncSessionChannel(state.currentSessionId);
   state.messages = session.messages || [];
   state.assistantMessageElement = null;
   resetActivity();
@@ -754,6 +760,7 @@ async function loadSession(id) {
 
 function newSession() {
   state.currentSessionId = null;
+  syncSessionChannel(null);
   state.messages = [];
   state.assistantMessageElement = null;
   elements.chatMessages.innerHTML = '';
@@ -824,7 +831,10 @@ async function sendMessage(content) {
         }
         if (!data) continue;
         const payload = JSON.parse(data);
-        if (eventName === 'session') state.currentSessionId = payload.sessionId;
+        if (eventName === 'session') {
+          state.currentSessionId = payload.sessionId;
+          syncSessionChannel(state.currentSessionId);
+        }
         if (eventName === 'activity') {
           upsertActivity(payload.step, payload.status, payload.time);
           handleReasoningActivity(payload);
@@ -949,4 +959,4 @@ export async function init() {
 
 export async function onActivate() {
   elements.chatInput?.focus();
-}
+}
