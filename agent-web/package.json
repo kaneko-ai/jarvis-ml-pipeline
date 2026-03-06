@@ -8,7 +8,7 @@
     "start": "node src/server.js",
     "build": "echo 'No build step needed'",
     "test": "node --test tests/*.test.js",
-    "test:ci": "node --test tests/database.test.js tests/api.test.js tests/digest.test.js tests/pipeline.test.js tests/monitor.test.js tests/gemini-summarizer.test.js tests/parallel-runner.test.js tests/e2e.test.js"
+    "test:ci": "node --test --test-isolation=none tests/*.test.js"
   },
   "dependencies": {
     "better-sqlite3": "^11.10.0",
@@ -23,3 +23,4 @@
     "nodemon": "^3.1.0"
   }
 }
+

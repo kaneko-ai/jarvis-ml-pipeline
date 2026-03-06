@@ -8,6 +8,28 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
   </head>
   <body>
+    <div id="login-overlay" class="login-overlay hidden">
+      <div class="login-card">
+        <h2 data-i18n="auth.title">JARVIS Authentication</h2>
+        <p data-i18n="auth.prompt">Enter your auth token to continue</p>
+        <form id="login-form">
+          <input
+            type="password"
+            id="login-token"
+            class="search-input"
+            data-i18n-placeholder="auth.placeholder"
+            placeholder="Paste auth token"
+            required
+          />
+          <button type="submit" class="btn-gold" style="width:100%;margin-top:0.75rem;" data-i18n="auth.submit">
+            Authenticate
+          </button>
+        </form>
+        <p id="login-error" class="health-err" style="display:none;margin-top:0.5rem;"></p>
+        <p class="login-hint" data-i18n="auth.hint">Token is displayed in the server console on startup.</p>
+      </div>
+    </div>
+
     <button class="sidebar-toggle" id="sidebarToggle" aria-label="Menu">&#9776;</button>
     <canvas id="particle-canvas"></canvas>
     <div id="app">
@@ -22,38 +44,39 @@
               </div>
             </div>
             <div class="sidebar-header-actions">
-              <button id="notifToggle" class="notif-toggle" title="Notification settings">
-                🔔
-              </button>
+              <button id="notifToggle" class="notif-toggle" title="Notification settings">🔔</button>
               <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
                 <span class="theme-icon">🌙</span>
               </button>
+              <button id="langToggle" class="lang-toggle" title="日本語/English">
+                <span id="langLabel">EN</span>
+              </button>
             </div>
           </div>
-          <button id="new-session-btn" type="button">+ New Session</button>
+          <button id="new-session-btn" type="button" data-i18n="sidebar.newSession">New Session</button>
         </div>
 
         <section class="sidebar-section">
-          <label for="model-selector">Model</label>
+          <label for="model-selector" data-i18n="sidebar.model">Model</label>
           <select id="model-selector"></select>
         </section>
 
         <section class="sidebar-section">
           <div class="section-title-row">
-            <h2>Session History</h2>
+            <h2 data-i18n="sidebar.sessionHistory">Session History</h2>
           </div>
           <div id="session-history" class="session-history"></div>
         </section>
 
         <section class="sidebar-section">
-          <h2>System Status</h2>
+          <h2 data-i18n="sidebar.systemStatus">System Status</h2>
           <div id="status-panel" class="status-panel">
             <div class="status-group">
-              <h3>MCP Servers</h3>
+              <h3 data-i18n="sidebar.mcpServers">MCP Servers</h3>
               <div id="mcp-status"></div>
             </div>
             <div class="status-group">
-              <h3>Skills</h3>
+              <h3 data-i18n="sidebar.skills">Skills</h3>
               <div id="skills-status"></div>
             </div>
           </div>
@@ -62,29 +85,35 @@
 
       <main id="main">
         <nav class="tab-nav" aria-label="Main tabs">
-          <button type="button" class="tab-btn active" data-tab="chat-container">Chat</button>
-          <button type="button" class="tab-btn" data-tab="pipeline-container">Pipeline</button>
-          <button class="tab-btn nav-btn" data-tab="search" id="searchTab">
-            <span class="nav-icon">🔎</span> Search
+          <button type="button" class="tab-btn nav-btn active" data-tab="chat" id="chatTab">
+            <span class="nav-icon">💬</span> <span data-i18n="nav.chat">Chat</span>
           </button>
-          <button type="button" class="tab-btn" data-tab="monitor-container">Monitor</button>
-          <button class="tab-btn nav-btn" data-tab="dashboard" id="dashboardTab">
-            <span class="nav-icon">📊</span> Dashboard
+          <button type="button" class="tab-btn nav-btn" data-tab="pipeline" id="pipelineTab">
+            <span class="nav-icon">⚙️</span> <span data-i18n="nav.pipeline">Pipeline</span>
           </button>
-          <button class="tab-btn nav-btn" data-tab="memory" id="memoryTab">
-            <span class="nav-icon">&#129504;</span> Memory
+          <button type="button" class="tab-btn nav-btn" data-tab="search" id="searchTab">
+            <span class="nav-icon">🔎</span> <span data-i18n="nav.search">Search</span>
+          </button>
+          <button type="button" class="tab-btn nav-btn" data-tab="monitor" id="monitorTab">
+            <span class="nav-icon">🖥️</span> <span data-i18n="nav.monitor">Monitor</span>
+          </button>
+          <button type="button" class="tab-btn nav-btn" data-tab="dashboard" id="dashboardTab">
+            <span class="nav-icon">📊</span> <span data-i18n="nav.dashboard">Dashboard</span>
+          </button>
+          <button type="button" class="tab-btn nav-btn" data-tab="memory" id="memoryTab">
+            <span class="nav-icon">🧠</span> <span data-i18n="nav.memory">Memory</span>
           </button>
         </nav>
 
-        <div id="chat-container" class="tab-panel active">
+        <section id="chat-view" class="tab-panel view active">
           <header class="main-header">
             <div>
               <p class="eyebrow">Active Model</p>
               <h2 id="current-model-label">Loading...</h2>
             </div>
             <div class="main-header-actions">
-              <button id="exportCurrentSession" class="btn-export" title="Export this chat">
-                📥 Export
+              <button id="exportCurrentSession" class="btn-export" title="Export this chat" data-i18n="chat.export">
+                Export Chat
               </button>
             </div>
           </header>
@@ -95,24 +124,27 @@
             <textarea
               id="chat-input"
               rows="1"
-              placeholder="Message JARVIS... &#10024;"
+              data-i18n-placeholder="chat.placeholder"
+              placeholder="Ask JARVIS anything..."
               autocomplete="off"
             ></textarea>
-            <button id="send-button" type="submit">&#10024; Send</button>
+            <button id="send-button" type="submit" data-i18n="chat.send">Send</button>
           </form>
-        </div>
+        </section>
 
-        <div id="pipeline-container" class="tab-panel">
+        <section id="pipeline-view" class="tab-panel view hidden">
           <section class="pipeline-shell" aria-label="Pipeline Runner">
+            <h2 data-i18n="pipeline.title">Research Pipeline</h2>
             <form id="pipeline-form" class="pipeline-form">
               <input
                 id="pipeline-query-input"
                 type="text"
-                placeholder="Enter research topic..."
+                data-i18n-placeholder="pipeline.query"
+                placeholder="Search query (e.g. CRISPR gene therapy)"
                 autocomplete="off"
                 required
               />
-              <button id="pipeline-run-btn" type="submit">Run</button>
+              <button id="pipeline-run-btn" type="submit" data-i18n="pipeline.run">Run Pipeline</button>
             </form>
 
             <div id="pipeline-status-message" class="pipeline-status-message">
@@ -161,7 +193,7 @@
                     <div class="pipeline-step-progress-fill" data-step-fill></div>
                   </div>
                 </article>
-                                <article class="pipeline-step-card" data-step="5">
+                <article class="pipeline-step-card" data-step="5">
                   <div class="pipeline-step-head">
                     <span class="pipeline-step-index">Step 5</span>
                     <span class="pipeline-step-percent" data-step-percent>0%</span>
@@ -195,7 +227,7 @@
             </section>
 
             <section class="pipeline-results" aria-label="Pipeline Results">
-              <h3>Results</h3>
+              <h3 data-i18n="pipeline.results">Results</h3>
               <div class="pipeline-results-table-wrap">
                 <table class="pipeline-results-table">
                   <thead>
@@ -218,8 +250,8 @@
 
             <section class="pipeline-history" aria-label="Pipeline Run History">
               <div class="pipeline-history-head">
-                <h3>History</h3>
-                <button id="pipeline-refresh-history-btn" type="button">Refresh</button>
+                <h3 data-i18n="pipeline.history">Pipeline History</h3>
+                <button id="pipeline-refresh-history-btn" type="button" data-i18n="pipeline.refresh">Refresh</button>
               </div>
               <ul id="pipeline-history-list" class="pipeline-history-list">
                 <li class="pipeline-empty-row">No history yet.</li>
@@ -281,35 +313,37 @@
               </section>
             </section>
           </section>
-        </div>
-        <div id="monitor-container" class="tab-panel"></div>
+        </section>
 
-        <section id="search-view" class="view hidden">
+        <section id="monitor-view" class="tab-panel view hidden"></section>
+
+        <section id="search-view" class="tab-panel view hidden">
           <div class="search-panel">
-            <h2>Paper Search</h2>
+            <h2 data-i18n="search.title">Paper Search</h2>
             <form id="search-form" class="search-form">
               <div class="search-row">
                 <input
                   type="text"
                   id="search-query"
                   class="search-input"
+                  data-i18n-placeholder="search.placeholder"
                   placeholder="Search query (e.g. CRISPR gene therapy)"
                   required
                   autofocus
                 />
-                <button type="submit" class="btn-gold">Search</button>
+                <button type="submit" class="btn-gold" data-i18n="search.button">Search</button>
               </div>
               <div class="search-filters">
                 <div class="filter-group">
-                  <label>Sources</label>
+                  <label data-i18n="search.sources">Sources</label>
                   <div class="checkbox-group">
-                    <label><input type="checkbox" name="source" value="pubmed" checked> PubMed</label>
-                    <label><input type="checkbox" name="source" value="semantic_scholar" checked> Semantic Scholar</label>
-                    <label><input type="checkbox" name="source" value="openalex" checked> OpenAlex</label>
+                    <label><input type="checkbox" name="source" value="pubmed" checked /> PubMed</label>
+                    <label><input type="checkbox" name="source" value="semantic_scholar" checked /> Semantic Scholar</label>
+                    <label><input type="checkbox" name="source" value="openalex" checked /> OpenAlex</label>
                   </div>
                 </div>
                 <div class="filter-group">
-                  <label>Max Results</label>
+                  <label data-i18n="search.maxResults">Max Results</label>
                   <select id="search-limit" class="filter-select">
                     <option value="5">5</option>
                     <option value="10" selected>10</option>
@@ -318,7 +352,7 @@
                   </select>
                 </div>
                 <div class="filter-group">
-                  <label>Year From</label>
+                  <label data-i18n="search.yearFrom">Year From</label>
                   <input
                     type="number"
                     id="search-year-from"
@@ -329,7 +363,7 @@
                   />
                 </div>
                 <div class="filter-group">
-                  <label>Year To</label>
+                  <label data-i18n="search.yearTo">Year To</label>
                   <input
                     type="number"
                     id="search-year-to"
@@ -348,54 +382,54 @@
 
         <section id="dashboard-view" class="tab-panel view hidden">
           <div class="dashboard-panel">
-            <h2>JARVIS Dashboard</h2>
+            <h2 data-i18n="dashboard.title">Dashboard</h2>
             <div class="dashboard-grid">
               <div class="stat-card" id="stat-papers">
                 <span class="stat-icon">📄</span>
                 <span class="stat-value" id="stat-papers-count">-</span>
-                <span class="stat-label">Papers in DB</span>
+                <span class="stat-label" data-i18n="dashboard.totalPapers">Total Papers</span>
               </div>
               <div class="stat-card" id="stat-sessions">
                 <span class="stat-icon">💬</span>
                 <span class="stat-value" id="stat-sessions-count">-</span>
-                <span class="stat-label">Chat Sessions</span>
+                <span class="stat-label" data-i18n="dashboard.totalSessions">Total Sessions</span>
               </div>
               <div class="stat-card" id="stat-facts">
                 <span class="stat-icon">🧠</span>
                 <span class="stat-value" id="stat-facts-count">-</span>
-                <span class="stat-label">Memory Facts</span>
+                <span class="stat-label" data-i18n="memory.facts">Facts</span>
               </div>
               <div class="stat-card" id="stat-digests">
                 <span class="stat-icon">📰</span>
                 <span class="stat-value" id="stat-digests-count">-</span>
-                <span class="stat-label">Digest Reports</span>
+                <span class="stat-label" data-i18n="dashboard.digestHistory">Digest History</span>
               </div>
             </div>
-            <h3>Recent Digests</h3>
+            <h3 data-i18n="dashboard.digestHistory">Digest History</h3>
             <div id="recent-digests" class="digest-timeline"></div>
-            <h3>System Health</h3>
+            <h3 data-i18n="dashboard.systemHealth">System Health</h3>
             <div id="system-health" class="health-panel"></div>
           </div>
         </section>
 
         <section id="memory-view" class="tab-panel view hidden">
           <div class="memory-panel">
-            <h2>Facts</h2>
+            <h2 data-i18n="memory.facts">Facts</h2>
             <div id="facts-list" class="memory-list"></div>
             <form id="add-fact-form" class="memory-form">
-              <input type="text" id="fact-key" name="key" placeholder="Key" required>
-              <input type="text" id="fact-value" name="value" placeholder="Value" required>
-              <input type="text" id="fact-category" name="category" placeholder="Category" value="general">
-              <button type="submit" class="btn-gold">Add Fact</button>
+              <input type="text" id="fact-key" name="key" data-i18n-placeholder="memory.key" placeholder="Key" required />
+              <input type="text" id="fact-value" name="value" data-i18n-placeholder="memory.value" placeholder="Value" required />
+              <input type="text" id="fact-category" name="category" placeholder="Category" value="general" />
+              <button type="submit" class="btn-gold" data-i18n="memory.addFact">Add Fact</button>
             </form>
-            <h2>Preferences</h2>
+            <h2 data-i18n="memory.preferences">Preferences</h2>
             <div id="prefs-list" class="memory-list"></div>
             <form id="add-pref-form" class="memory-form">
-              <input type="text" id="pref-key" name="key" placeholder="Key" required>
-              <input type="text" id="pref-value" name="value" placeholder="Value" required>
-              <button type="submit" class="btn-gold">Set Preference</button>
+              <input type="text" id="pref-key" name="key" data-i18n-placeholder="memory.key" placeholder="Key" required />
+              <input type="text" id="pref-value" name="value" data-i18n-placeholder="memory.value" placeholder="Value" required />
+              <button type="submit" class="btn-gold" data-i18n="memory.addPreference">Add Preference</button>
             </form>
-            <h2>Memory Context</h2>
+            <h2 data-i18n="memory.context">Context</h2>
             <pre id="memory-context" class="memory-context-box"></pre>
           </div>
         </section>
@@ -405,22 +439,6 @@
     <div id="toast-container"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script type="module" src="./js/app.js"></script>
+    <script type="module" src="js/app.js"></script>
   </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

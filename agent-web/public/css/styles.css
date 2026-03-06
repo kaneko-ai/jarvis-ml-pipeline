@@ -620,7 +620,7 @@ button, select, textarea { font: inherit; }
 
 
 /* ===== Pipeline Tab ===== */
-#pipeline-container {
+#pipeline-view {
   min-height: 0;
   padding: 0.2rem;
   background: var(--bg-secondary);
@@ -2208,4 +2208,82 @@ button, select, textarea { font: inherit; }
 @media (max-width: 768px) {
   .search-row { flex-direction: column; }
   .search-filters { flex-direction: column; }
+}
+
+
+.lang-toggle {
+  background: var(--glass, rgba(255,255,255,0.03));
+  border: 1px solid var(--border, rgba(255,255,255,0.08));
+  color: var(--accent, #d4af37);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.05em;
+}
+
+.lang-toggle:hover {
+  background: var(--accent, #d4af37);
+  color: var(--bg-primary, #0d0d1a);
+}
+
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-primary, #0d0d1a);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.login-overlay.hidden {
+  display: none;
+}
+
+.login-card {
+  background: var(--glass, rgba(255,255,255,0.03));
+  border: 1px solid var(--border, rgba(255,255,255,0.08));
+  border-radius: 12px;
+  padding: 2.5rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.login-card h2 {
+  color: var(--accent, #d4af37);
+  margin-bottom: 0.5rem;
+}
+
+.login-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #a0a0a0);
+  margin-top: 1rem;
+}
+
+.tab-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  color: var(--text-secondary, #a0a0a0);
+  font-size: 0.9rem;
+}
+
+.tab-loading::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border, rgba(255,255,255,0.08));
+  border-top-color: var(--accent, #d4af37);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 0.75rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

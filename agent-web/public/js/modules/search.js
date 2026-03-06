@@ -1,0 +1,201 @@
+import { t } from './i18n.js';
+import { escapeHtml, fetchPipelineResultFile } from './utils.js';
+
+const searchState = {
+  bound: false,
+};
+
+function normalizeSearchAuthors(rawAuthors) {
+  if (Array.isArray(rawAuthors)) return rawAuthors.join(', ');
+  if (rawAuthors === null || rawAuthors === undefined) return 'Unknown authors';
+  const text = String(rawAuthors).trim();
+  return text || 'Unknown authors';
+}
+
+function getSearchAbstractExcerpt(rawAbstract) {
+  const text = String(rawAbstract || '').trim();
+  if (!text) return '';
+  return text.length > 250 ? `${text.slice(0, 250)}...` : text;
+}
+
+function renderSearchResults(papers, container, statusElement, query) {
+  const results = Array.isArray(papers) ? papers : [];
+  if (statusElement) {
+    statusElement.innerHTML = `${t('search.found')} <strong>${results.length}</strong> ${t('search.papersFor')} "<em>${escapeHtml(query || '')}</em>"`;
+  }
+
+  if (!container) return;
+  if (!results.length) {
+    container.innerHTML = `<p class="no-results">${t('search.noResults')}</p>`;
+    return;
+  }
+
+  container.innerHTML = results.map((paper, index) => {
+    const score = Number.isFinite(Number(paper?.score)) ? Number(paper.score).toFixed(1) : '-';
+    const title = escapeHtml(paper?.title ? String(paper.title) : t('common.untitled'));
+    const authors = escapeHtml(normalizeSearchAuthors(paper?.authors));
+    const journalMeta = escapeHtml([paper?.journal, paper?.year].filter(Boolean).join(', '));
+    const abstract = getSearchAbstractExcerpt(paper?.abstract);
+    const links = [];
+
+    if (paper?.doi) {
+      links.push(`<a href="https://doi.org/${encodeURIComponent(String(paper.doi).trim())}" class="cite-link" target="_blank" rel="noreferrer noopener">DOI</a>`);
+    }
+    if (paper?.pmid) {
+      links.push(`<a href="https://pubmed.ncbi.nlm.nih.gov/${encodeURIComponent(String(paper.pmid).trim())}" class="cite-link" target="_blank" rel="noreferrer noopener">PMID</a>`);
+    }
+    if (paper?.source) {
+      links.push(`<span class="paper-source">${escapeHtml(String(paper.source))}</span>`);
+    }
+
+    return '<div class="paper-card" style="animation-delay: ' + String(index * 60) + 'ms">' +
+      `<div class="paper-score">${escapeHtml(score)}</div>` +
+      '<div class="paper-content">' +
+        `<h4 class="paper-title">${title}</h4>` +
+        `<p class="paper-authors">${authors}</p>` +
+        `<p class="paper-journal">${journalMeta}</p>` +
+        (abstract ? `<p class="paper-abstract">${escapeHtml(abstract)}</p>` : '') +
+        `<div class="paper-links">${links.join('')}</div>` +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+async function handleSearchSubmit(event) {
+  event.preventDefault();
+
+  const queryInput = document.getElementById('search-query');
+  const limitInput = document.getElementById('search-limit');
+  const yearFromInput = document.getElementById('search-year-from');
+  const yearToInput = document.getElementById('search-year-to');
+  const statusElement = document.getElementById('search-status');
+  const resultsElement = document.getElementById('search-results');
+  const sources = Array.from(document.querySelectorAll('input[name="source"]:checked')).map((checkbox) => checkbox.value);
+  const query = queryInput ? queryInput.value.trim() : '';
+  const limit = limitInput ? limitInput.value : '10';
+  const yearFrom = yearFromInput ? yearFromInput.value : '';
+  const yearTo = yearToInput ? yearToInput.value : '';
+
+  if (!query) {
+    if (statusElement) statusElement.innerHTML = '<span class="health-err">Query is required.</span>';
+    return;
+  }
+
+  if (!sources.length) {
+    if (statusElement) statusElement.innerHTML = '<span class="health-err">Select at least one source.</span>';
+    return;
+  }
+
+  if (statusElement) statusElement.innerHTML = '<span class="activity-dot running"></span> Searching...';
+  if (resultsElement) resultsElement.innerHTML = '';
+
+  try {
+    const params = new URLSearchParams({
+      query,
+      limit: String(limit),
+      sources: sources.join(','),
+    });
+    if (yearFrom) params.set('yearFrom', yearFrom);
+    if (yearTo) params.set('yearTo', yearTo);
+
+    const response = await fetch(`/api/pipeline/run?${params.toString()}`, {
+      headers: { Accept: 'text/event-stream, application/json' },
+    });
+
+    if (!response.ok) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
+
+    let papers = [];
+    let finalPayload = null;
+    const contentType = response.headers.get('content-type') || '';
+
+    if (contentType.includes('text/event-stream')) {
+      if (!response.body) {
+        throw new Error('Readable stream is not available.');
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const chunk = await reader.read();
+        if (chunk.done) break;
+
+        buffer += decoder.decode(chunk.value, { stream: true });
+        const lines = buffer.split(/\r?\n/);
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const data = JSON.parse(line.slice(6));
+            if (data.type === 'papers' || Array.isArray(data.papers)) {
+              papers = data.papers || data.results || [];
+            }
+            if (data.results && Array.isArray(data.results.papers)) {
+              papers = data.results.papers;
+            }
+            if (data.type === 'step' || data.step) {
+              if (statusElement) {
+                statusElement.innerHTML = `<span class="activity-dot running"></span> ${escapeHtml(data.step || data.message || 'Processing...')}`;
+              }
+            }
+            if (data.type === 'complete' || data.type === 'done' || data.done) {
+              finalPayload = data;
+              if (Array.isArray(data.papers)) {
+                papers = data.papers;
+              } else if (data.results && Array.isArray(data.results.papers)) {
+                papers = data.results.papers;
+              }
+            }
+          } catch {
+          }
+        }
+      }
+
+      if (!papers.length && finalPayload?.file) {
+        try {
+          const resultFile = await fetchPipelineResultFile(finalPayload.file);
+          papers = Array.isArray(resultFile.papers) ? resultFile.papers : [];
+        } catch {
+        }
+      }
+    } else {
+      const data = await response.json();
+      finalPayload = data;
+      if (Array.isArray(data.papers)) {
+        papers = data.papers;
+      } else if (data.results && Array.isArray(data.results.papers)) {
+        papers = data.results.papers;
+      } else if (Array.isArray(data.results)) {
+        papers = data.results;
+      }
+
+      if (!papers.length && data.file) {
+        try {
+          const resultFile = await fetchPipelineResultFile(data.file);
+          papers = Array.isArray(resultFile.papers) ? resultFile.papers : [];
+        } catch {
+        }
+      }
+    }
+
+    renderSearchResults(papers, resultsElement, statusElement, query);
+  } catch (error) {
+    if (statusElement) {
+      statusElement.innerHTML = `<span class="health-err">Error: ${escapeHtml(error.message || 'unknown')}</span>`;
+    }
+  }
+}
+
+export async function init() {
+  if (searchState.bound) return;
+  searchState.bound = true;
+  document.getElementById('search-form')?.addEventListener('submit', handleSearchSubmit);
+}
+
+export async function onActivate() {
+  document.getElementById('search-query')?.focus();
+}
