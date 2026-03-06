@@ -142,6 +142,7 @@ async function handleSearchSubmit(event) {
   const yearToInput = document.getElementById('search-year-to');
   const statusElement = document.getElementById('search-status');
   const resultsElement = document.getElementById('search-results');
+  const searchType = document.querySelector('input[name="searchType"]:checked')?.value || 'keyword';
   const sources = Array.from(document.querySelectorAll('input[name="source"]:checked')).map((checkbox) => checkbox.value);
   const query = queryInput ? queryInput.value.trim() : '';
   const limit = limitInput ? limitInput.value : '10';
@@ -153,8 +154,44 @@ async function handleSearchSubmit(event) {
     return;
   }
 
-  if (!sources.length) {
+  if (searchType !== 'semantic' && !sources.length) {
     if (statusElement) statusElement.innerHTML = '<span class="health-err">Select at least one source.</span>';
+    return;
+  }
+
+  if (searchType === 'semantic') {
+    if (statusElement) statusElement.innerHTML = '<span class="activity-dot running"></span> Semantic searching (ChromaDB)...';
+    if (resultsElement) resultsElement.innerHTML = '';
+
+    try {
+      const params = new URLSearchParams({ query, limit: String(limit) });
+      const response = await fetch(`/api/semantic-search?${params.toString()}`);
+      const data = await response.json();
+
+      if (data.error) {
+        console.warn('[SemanticSearch] Server note:', data.error);
+      }
+
+      const papers = (data.results || []).map((result) => ({
+        title: result.title || result.text?.slice(0, 80) || 'Untitled',
+        authors: result.authors || 'Unknown',
+        year: result.year || '',
+        doi: result.doi || '',
+        source: result.source || 'chromadb',
+        score: result.similarity != null ? (result.similarity * 100).toFixed(1) : '-',
+        abstract: result.text || '',
+      }));
+
+      renderSearchResults(papers, resultsElement, statusElement, query);
+      if (data.error && statusElement) {
+        statusElement.innerHTML += ` <span class="health-warn">(${escapeHtml(data.hint || data.error)})</span>`;
+      }
+    } catch (error) {
+      if (statusElement) {
+        statusElement.innerHTML = `<span class="health-err">Error: ${escapeHtml(error.message || 'unknown')}</span>`;
+      }
+    }
+
     return;
   }
 

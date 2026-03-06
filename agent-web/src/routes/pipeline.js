@@ -8,6 +8,7 @@ import { ParallelRunner } from "../llm/parallel-runner.js";
 import { summarizeBatch } from "../llm/gemini-summarizer.js";
 import { insertPapers } from "../db/papers-repository.js";
 import { archivePapers } from "../skills/pdf-archiver.js";
+import { notifyPipelineComplete } from "../skills/discord-notify.js";
 
 const router = express.Router();
 const TOTAL_STEPS = 7;
@@ -152,6 +153,18 @@ function createPipelineTimeoutError() {
 
 function isPipelineTimeoutError(error) {
   return error?.code === "PIPELINE_TIMEOUT";
+}
+
+function formatDuration(elapsedMs) {
+  const totalSeconds = Math.max(0, Math.round(elapsedMs / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  if (minutes > 0) {
+    return `${minutes}m ${seconds}s`;
+  }
+
+  return `${seconds}s`;
 }
 
 ensureDataDirectory();
@@ -590,6 +603,18 @@ router.get("/run", async (req, res) => {
       donePayload.results = output;
     }
     sendSSE(res, donePayload);
+
+    Promise.resolve()
+      .then(() =>
+        notifyPipelineComplete({
+          query,
+          paperCount: papersWithSummaries.length,
+          duration: formatDuration(Date.now() - pipelineStartedAt),
+        })
+      )
+      .catch((notifyError) => {
+        console.warn("[Pipeline] Discord notification skipped:", notifyError.message);
+      });
   } catch (error) {
     if (!clientClosed) {
       const message = isPipelineTimeoutError(error)

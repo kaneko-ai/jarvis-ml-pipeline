@@ -2493,3 +2493,6 @@ button, select, textarea { font: inherit; }
 @media (max-width: 768px) {
   .chart-grid { grid-template-columns: 1fr; }
 }
+/* ===== Semantic Search ===== */
+.health-warn { color: #f4c430; font-size: 0.82rem; }
+input[name="searchType"] { accent-color: var(--accent); }

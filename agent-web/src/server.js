@@ -8,6 +8,7 @@ import yaml from 'js-yaml';
 
 import { getDb } from './db/database.js';
 import authMiddleware, { getOrCreateToken, isAuthBypassed } from './middleware/auth.js';
+import { createApiRateLimiter, createHelmetMiddleware, createLlmRateLimiter } from './middleware/security.js';
 import authRouter from './routes/auth.js';
 import chatRouter from './routes/chat.js';
 import sessionsRouter from './routes/sessions.js';
@@ -21,6 +22,8 @@ import digestRouter from './routes/digest.js';
 import importRouter from './routes/import.js';
 import memoryRouter from './routes/memory.js';
 import papersRouter from './routes/papers.js';
+import notificationsRouter from './routes/notifications.js';
+import semanticSearchRouter from './routes/semantic-search.js';
 import { getClientCount, initWebSocket } from './ws/websocket-manager.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -73,24 +76,28 @@ app.use((req, res, next) => {
   return next();
 });
 
+app.use(createHelmetMiddleware());
+app.use(createApiRateLimiter());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(publicDir));
 app.use('/data', express.static(path.join(agentWebRoot, 'data')));
 
 app.use(authMiddleware);
 app.use('/api/auth', authRouter);
-app.use('/api/chat', chatRouter);
+app.use('/api/chat', createLlmRateLimiter(), chatRouter);
 app.use('/api/sessions', sessionsRouter);
 app.use('/api/models', modelsRouter);
 app.use('/api/skills', skillsRouter);
 app.use('/api/mcp', mcpRouter);
 app.use('/api/usage', usageRouter);
-app.use('/api/pipeline', pipelineRouter);
+app.use('/api/pipeline', createLlmRateLimiter(), pipelineRouter);
 app.use('/api/monitor', monitorRouter);
 app.use('/api/digest', digestRouter);
 app.use('/api/import', importRouter);
 app.use('/api/memory', memoryRouter);
 app.use('/api/papers', papersRouter);
+app.use('/api/notifications', notificationsRouter);
+app.use('/api/semantic-search', semanticSearchRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({
@@ -123,5 +130,3 @@ if (isMainModule()) {
 
 export { app, httpServer, server };
 export default app;
-
-

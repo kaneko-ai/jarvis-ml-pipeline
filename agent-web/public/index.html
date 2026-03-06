@@ -346,6 +346,13 @@
               </div>
               <div class="search-filters">
                 <div class="filter-group">
+                  <label data-i18n="search.searchType">Search Type</label>
+                  <div class="checkbox-group">
+                    <label><input type="radio" name="searchType" value="keyword" checked /> Keyword</label>
+                    <label><input type="radio" name="searchType" value="semantic" /> Semantic (ChromaDB)</label>
+                  </div>
+                </div>
+                <div class="filter-group">
                   <label data-i18n="search.sources">Sources</label>
                   <div class="checkbox-group">
                     <label><input type="checkbox" name="source" value="pubmed" checked /> PubMed</label>

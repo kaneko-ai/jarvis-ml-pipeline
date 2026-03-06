@@ -4,6 +4,8 @@ import fsp from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { notifyDigestComplete } from "../skills/discord-notify.js";
+
 const router = express.Router();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -397,18 +399,32 @@ async function handleDigestRun(req, res) {
       }
     });
 
-    if (clientClosed) {
-      return;
-    }
-
     const summary = summarizeDigestResult(result, keywords);
-    sendSSE(res, {
-      done: true,
-      status: "completed",
-      completedAt: new Date().toISOString(),
-      summary,
-      result: result ?? null,
-    });
+    const digestNotificationPayload = {
+      date:
+        result?.payload?.date ||
+        result?.date ||
+        new Date().toISOString().slice(0, 10),
+      keywordCounts: summary.keywordStats,
+      totalDeduped: summary.totalPapers,
+      topPapers: summary.topPapers,
+    };
+
+    Promise.resolve()
+      .then(() => notifyDigestComplete(digestNotificationPayload))
+      .catch((notifyError) => {
+        console.warn("[Digest] Discord notification skipped:", notifyError.message);
+      });
+
+    if (!clientClosed) {
+      sendSSE(res, {
+        done: true,
+        status: "completed",
+        completedAt: new Date().toISOString(),
+        summary,
+        result: result ?? null,
+      });
+    }
   } catch (error) {
     if (!clientClosed) {
       sendSSE(res, {
