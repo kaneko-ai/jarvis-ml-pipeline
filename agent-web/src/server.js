@@ -18,6 +18,7 @@ import usageRouter from './routes/usage.js';
 import pipelineRouter from './routes/pipeline.js';
 import monitorRouter from './routes/monitor.js';
 import digestRouter from './routes/digest.js';
+import importRouter from './routes/import.js';
 import memoryRouter from './routes/memory.js';
 import { getClientCount, initWebSocket } from './ws/websocket-manager.js';
 
@@ -86,6 +87,7 @@ app.use('/api/usage', usageRouter);
 app.use('/api/pipeline', pipelineRouter);
 app.use('/api/monitor', monitorRouter);
 app.use('/api/digest', digestRouter);
+app.use('/api/import', importRouter);
 app.use('/api/memory', memoryRouter);
 
 app.get('/api/health', (req, res) => {
@@ -119,3 +121,4 @@ if (isMainModule()) {
 
 export { app, httpServer, server };
 export default app;
+

@@ -17,6 +17,83 @@ const digestState = {
   running: false,
   historyLoaded: false,
 };
+function ensureImportSection() {
+  const pipelineView = document.getElementById('pipeline-view');
+  if (!pipelineView || document.getElementById('import-dropzone')) return;
+
+  const importSection = document.createElement('div');
+  importSection.className = 'import-zone';
+  importSection.innerHTML = `
+    <div class="import-dropzone" id="import-dropzone">
+      <p>📂 Drop .bib or .ris files here to import papers</p>
+      <p class="import-hint">or <label class="import-file-label">
+        browse files<input type="file" id="import-file" accept=".bib,.ris,.txt" hidden>
+      </label></p>
+    </div>
+    <div id="import-status" class="import-status"></div>
+  `;
+  pipelineView.insertBefore(importSection, pipelineView.firstChild);
+
+  const dropzone = document.getElementById('import-dropzone');
+  const fileInput = document.getElementById('import-file');
+
+  dropzone?.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    dropzone.classList.add('drag-over');
+  });
+
+  dropzone?.addEventListener('dragleave', () => {
+    dropzone.classList.remove('drag-over');
+  });
+
+  dropzone?.addEventListener('drop', (event) => {
+    event.preventDefault();
+    dropzone.classList.remove('drag-over');
+    const [file] = Array.from(event.dataTransfer?.files || []);
+    if (file) handleImportFile(file);
+  });
+
+  fileInput?.addEventListener('change', (event) => {
+    const [file] = Array.from(event.target.files || []);
+    if (file) handleImportFile(file);
+  });
+}
+
+async function handleImportFile(file) {
+  const statusElement = document.getElementById('import-status');
+  if (statusElement) {
+    statusElement.textContent = `Importing ${file.name}...`;
+  }
+
+  const content = await file.text();
+  const isBib = file.name.toLowerCase().endsWith('.bib') || content.trimStart().startsWith('@');
+  const endpoint = isBib ? '/api/import/bibtex' : '/api/import/ris';
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content }),
+    });
+    const data = await response.json();
+
+    if (!statusElement) return;
+
+    if (response.ok) {
+      statusElement.innerHTML = `✅ Imported <strong>${data.imported}</strong> of ${data.total} papers (DB total: ${data.dbCount})`;
+      pipelineState.historyLoaded = false;
+      await loadPipelineHistory(true);
+      await refreshDashboard();
+      return;
+    }
+
+    statusElement.innerHTML = `❌ ${escapeHtml(data.error || 'Import failed')}`;
+  } catch (error) {
+    if (statusElement) {
+      statusElement.innerHTML = `❌ ${escapeHtml(error.message || 'Import failed')}`;
+    }
+  }
+}
 
 const pipelineStepDefaults = [
   'Waiting for search start...',
@@ -744,6 +821,7 @@ function initializePipelineUI() {
 }
 
 export async function init() {
+  ensureImportSection();
   bindPipelineEvents();
   initializePipelineUI();
 }
@@ -751,3 +829,7 @@ export async function init() {
 export async function onActivate() {
   await Promise.allSettled([loadPipelineHistory(), loadDigestHistory()]);
 }
+
+
+
+
