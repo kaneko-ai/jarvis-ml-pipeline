@@ -967,18 +967,278 @@ function renderEmptyState(msg) {
   elements.chatMessages.innerHTML = '<div class="empty-state">' + msg + '</div>';
 }
 
-function showToast(msg) {
-  var t = document.createElement("div");
-  t.className = "toast";
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(function() { t.remove(); }, 3000);
+function createToastContainer() {
+  var existing = document.getElementById("toast-container");
+  if (existing) return existing;
+  var container = document.createElement("div");
+  container.id = "toast-container";
+  document.body.appendChild(container);
+  return container;
+}
+
+function showToast(message, type) {
+  var container = document.getElementById("toast-container") || createToastContainer();
+  var toast = document.createElement("div");
+  toast.className = "toast toast-" + (type || "info");
+  toast.textContent = message;
+  container.appendChild(toast);
+  requestAnimationFrame(function() {
+    toast.classList.add("toast-show");
+  });
+  setTimeout(function() {
+    toast.classList.remove("toast-show");
+    setTimeout(function() {
+      toast.remove();
+    }, 300);
+  }, 5000);
+}
+
+function updateNotificationToggleState() {
+  var toggle = document.getElementById("notifToggle");
+  if (!toggle) return;
+  if (!("Notification" in window)) {
+    toggle.disabled = true;
+    toggle.title = "Notifications unsupported";
+    return;
+  }
+  if (Notification.permission === "granted") {
+    toggle.title = "Notifications enabled";
+    return;
+  }
+  if (Notification.permission === "denied") {
+    toggle.title = "Notifications blocked";
+    return;
+  }
+  toggle.title = "Notification settings";
+}
+
+async function requestNotificationPermission() {
+  if (!("Notification" in window)) {
+    updateNotificationToggleState();
+    return "unsupported";
+  }
+  var permission = Notification.permission;
+  if (permission === "default") {
+    permission = await Notification.requestPermission();
+  }
+  updateNotificationToggleState();
+  return permission;
+}
+
+function showNotification(title, options) {
+  if (!("Notification" in window)) return;
+  if (Notification.permission !== "granted") return;
+
+  var safeOptions = options || {};
+  var clickHandler = safeOptions.onclick;
+  var defaults = {
+    icon: "/css/favicon.ico",
+    badge: "/css/favicon.ico",
+    tag: "jarvis-" + Date.now(),
+    requireInteraction: false,
+  };
+  var notificationOptions = Object.assign({}, defaults, safeOptions);
+  delete notificationOptions.onclick;
+
+  try {
+    var notification = new Notification(title, notificationOptions);
+    notification.onclick = function() {
+      window.focus();
+      notification.close();
+      if (typeof clickHandler === "function") clickHandler();
+    };
+    setTimeout(function() {
+      notification.close();
+    }, 8000);
+    return notification;
+  } catch (error) {
+    showToast(title + (safeOptions.body ? ": " + safeOptions.body : ""), "info");
+  }
 }
 
 async function fetchJson(url, opts) {
   var r = await fetch(url, opts || {});
   if (!r.ok) throw new Error(r.status + " " + r.statusText);
   return r.json();
+}
+
+/* ===== Dashboard ===== */
+var dashboardState = {
+  loading: false,
+};
+
+function setDashboardStatValue(elementId, value, title) {
+  var el = document.getElementById(elementId);
+  if (!el) return;
+  el.textContent = value;
+  if (title) {
+    el.title = title;
+  } else {
+    el.removeAttribute("title");
+  }
+}
+
+function formatDashboardHealthKey(key) {
+  return String(key || "")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, function(char) { return char.toUpperCase(); });
+}
+
+function dashboardHealthClass(value) {
+  if (value === true) return "health-ok";
+  if (value === false || value == null) return "health-err";
+  var normalized = String(value).trim().toLowerCase();
+  if (normalized === "ok" || normalized === "online" || normalized === "up" || normalized === "healthy" || normalized === "true") {
+    return "health-ok";
+  }
+  if (normalized === "error" || normalized === "offline" || normalized === "down" || normalized === "false" || normalized === "unhealthy") {
+    return "health-err";
+  }
+  return "";
+}
+
+function renderDashboardHealth(status) {
+  var container = document.getElementById("system-health");
+  if (!container) return;
+  if (!status || typeof status !== "object") {
+    container.innerHTML = '<div class="health-row"><span class="health-key">Status</span><span class="health-val health-err">Unavailable</span></div>';
+    return;
+  }
+
+  var rows = [
+    '<div class="health-row"><span class="health-key">Status</span><span class="health-val health-ok">Online</span></div>'
+  ];
+
+  Object.keys(status).forEach(function(key) {
+    var rawValue = status[key];
+    var renderedValue = rawValue;
+    if (rawValue && typeof rawValue === "object") {
+      renderedValue = JSON.stringify(rawValue);
+    }
+    rows.push(
+      '<div class="health-row">' +
+        '<span class="health-key">' + escapeHtml(formatDashboardHealthKey(key)) + '</span>' +
+        '<span class="health-val ' + dashboardHealthClass(rawValue) + '">' + escapeHtml(String(renderedValue)) + '</span>' +
+      '</div>'
+    );
+  });
+
+  container.innerHTML = rows.join("");
+}
+
+function formatDashboardDigestDate(rawDate) {
+  if (!rawDate) return "--";
+  var parsed = new Date(rawDate);
+  if (Number.isNaN(parsed.getTime())) return String(rawDate).slice(0, 10);
+  return parsed.toISOString().slice(0, 10);
+}
+
+function renderRecentDigests(items) {
+  var container = document.getElementById("recent-digests");
+  if (!container) return;
+  if (!Array.isArray(items) || !items.length) {
+    container.innerHTML = '<div class="digest-timeline-item"><span class="digest-date">--</span><span class="digest-info">No digests yet</span></div>';
+    return;
+  }
+
+  container.innerHTML = items.slice(0, 5).map(function(item) {
+    var filename = String(item.filename || "").trim();
+    var reportName = filename ? filename.replace(/.json$/i, ".md") : filename;
+    var totalPapers = Number(item.totalPapers ?? item.paperCount ?? 0);
+    var info = Number.isFinite(totalPapers) ? (totalPapers + " papers") : "Digest report";
+    var link = reportName
+      ? '<a href="/api/digest/report/' + encodeURIComponent(reportName) + '" target="_blank" class="btn-gold btn-sm">View</a>'
+      : "";
+    return (
+      '<div class="digest-timeline-item">' +
+        '<span class="digest-date">' + escapeHtml(formatDashboardDigestDate(item.date)) + '</span>' +
+        '<span class="digest-info">' + escapeHtml(info) + '</span>' +
+        link +
+      '</div>'
+    );
+  }).join("");
+}
+
+function inferDashboardPaperCount(status) {
+  if (!status || typeof status !== "object") return null;
+  var keys = Object.keys(status);
+  for (var i = 0; i < keys.length; i += 1) {
+    var key = keys[i];
+    if (key.toLowerCase().indexOf("paper") === -1) continue;
+    var parsed = Number(status[key]);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return null;
+}
+
+function buildDashboardPaperKey(paper) {
+  if (!paper || typeof paper !== "object") return "";
+  return String(paper.doi || paper.pmid || paper.title || paper.id || "").trim().toLowerCase();
+}
+
+async function resolveDashboardPaperCount(historyItems) {
+  if (!Array.isArray(historyItems) || !historyItems.length) return null;
+  var uniquePapers = new Set();
+  var results = await Promise.allSettled(historyItems.map(function(item) {
+    if (!item || !item.filename) return Promise.resolve(null);
+    return fetchPipelineResultFile("data/" + item.filename);
+  }));
+
+  results.forEach(function(result) {
+    if (result.status !== "fulfilled" || !result.value || !Array.isArray(result.value.papers)) return;
+    result.value.papers.forEach(function(paper) {
+      var key = buildDashboardPaperKey(paper);
+      if (key) uniquePapers.add(key);
+    });
+  });
+
+  return uniquePapers.size || null;
+}
+
+async function loadDashboard() {
+  if (dashboardState.loading) return;
+  dashboardState.loading = true;
+
+  try {
+    var results = await Promise.allSettled([
+      fetchJson("/api/monitor/status"),
+      fetchJson("/api/sessions"),
+      fetchJson("/api/memory/facts"),
+      fetchJson("/api/digest/history"),
+      fetchJson("/api/pipeline/history"),
+    ]);
+
+    var statusResult = results[0].status === "fulfilled" ? results[0].value : null;
+    var sessionsResult = results[1].status === "fulfilled" && Array.isArray(results[1].value) ? results[1].value : null;
+    var factsResult = results[2].status === "fulfilled" && Array.isArray(results[2].value) ? results[2].value : null;
+    var digestsResult = results[3].status === "fulfilled" && Array.isArray(results[3].value) ? results[3].value : null;
+    var pipelineHistoryResult = results[4].status === "fulfilled" && Array.isArray(results[4].value) ? results[4].value : null;
+
+    renderDashboardHealth(statusResult);
+    renderRecentDigests(digestsResult || []);
+
+    setDashboardStatValue("stat-sessions-count", sessionsResult ? String(sessionsResult.length) : "-");
+    setDashboardStatValue("stat-facts-count", factsResult ? String(factsResult.length) : "-");
+    setDashboardStatValue("stat-digests-count", digestsResult ? String(digestsResult.length) : "-");
+
+    var paperCount = inferDashboardPaperCount(statusResult);
+    if (!Number.isFinite(paperCount)) {
+      try {
+        paperCount = await resolveDashboardPaperCount(pipelineHistoryResult || []);
+      } catch (error) {
+        paperCount = null;
+      }
+    }
+
+    if (Number.isFinite(paperCount)) {
+      setDashboardStatValue("stat-papers-count", String(paperCount));
+    } else {
+      setDashboardStatValue("stat-papers-count", "-", "Run a pipeline to populate");
+    }
+  } finally {
+    dashboardState.loading = false;
+  }
 }
 
 /* ===== Memory ===== */
@@ -1673,6 +1933,7 @@ async function handlePipelineMessage(payload, sourceRef) {
 
   if (payload.error) {
     setPipelineStatusMessage("Pipeline error: " + payload.error, "error");
+    showToast("Pipeline error: " + payload.error, "error");
     stopPipelineStream();
     return;
   }
@@ -1705,6 +1966,12 @@ async function handlePipelineMessage(payload, sourceRef) {
 
     pipelineState.historyLoaded = false;
     await loadPipelineHistory(true);
+    loadDashboard().catch(function() {});
+    showNotification("Pipeline Complete", {
+      body: "Research pipeline has finished.",
+      tag: "jarvis-pipeline"
+    });
+    showToast("Pipeline completed!", "success");
     stopPipelineStream();
     return;
   }
@@ -1741,10 +2008,12 @@ function runPipelineQuery(query) {
       var payload = JSON.parse(event.data);
       Promise.resolve(handlePipelineMessage(payload, eventSource)).catch(function(error) {
         setPipelineStatusMessage("Pipeline error: " + error.message, "error");
+        showToast("Pipeline error: " + error.message, "error");
         stopPipelineStream();
       });
     } catch (error) {
       setPipelineStatusMessage("Invalid stream payload", "error");
+      showToast("Pipeline error: Invalid stream payload", "error");
       stopPipelineStream();
     }
   };
@@ -1752,6 +2021,7 @@ function runPipelineQuery(query) {
   eventSource.onerror = function() {
     if (pipelineState.eventSource !== eventSource) return;
     setPipelineStatusMessage("Pipeline stream disconnected.", "error");
+    showToast("Pipeline stream disconnected.", "error");
     stopPipelineStream();
   };
 }
@@ -1796,19 +2066,32 @@ function renderSessionList(sessions) {
     return;
   }
   for (var s of sessions) {
-    var item = document.createElement("button");
-    item.type = "button";
+    var item = document.createElement("div");
     item.className = "session-item " + (s.id === state.currentSessionId ? "active" : "");
+    item.tabIndex = 0;
     item.innerHTML =
-      '<div class="session-title-row"><div>' +
-      '<div class="session-title">' + escapeHtml(s.title || "Untitled") + '</div>' +
-      '<div class="session-meta">' + escapeHtml(s.model || "") + '</div>' +
-      '<div class="session-meta">' + formatTimestamp(s.updated_at) + '</div>' +
-      '</div><span class="delete-session-btn" data-sid="' + s.id + '">x</span></div>';
+      '<div class="session-title-row">' +
+        '<div class="session-main">' +
+          '<div class="session-title">' + escapeHtml(s.title || "Untitled") + '</div>' +
+          '<div class="session-meta">' + escapeHtml(s.model || "") + '</div>' +
+          '<div class="session-meta">' + formatTimestamp(s.updated_at) + '</div>' +
+        '</div>' +
+        '<div class="session-actions">' +
+          '<button type="button" class="btn-export" title="Export as Markdown" onclick="event.stopPropagation(); exportSession(&quot;' + s.id + '&quot;)">📥</button>' +
+          '<button type="button" class="delete-session-btn" data-sid="' + s.id + '">x</button>' +
+        '</div>' +
+      '</div>';
     item.addEventListener("click", (function(sid) {
       return async function(ev) {
         var del = ev.target.closest("[data-sid]");
         if (del) { ev.stopPropagation(); await deleteSession(del.dataset.sid); return; }
+        await loadSession(sid);
+      };
+    })(s.id));
+    item.addEventListener("keydown", (function(sid) {
+      return async function(ev) {
+        if (ev.key !== "Enter" && ev.key !== " ") return;
+        ev.preventDefault();
         await loadSession(sid);
       };
     })(s.id));
@@ -1819,6 +2102,14 @@ function renderSessionList(sessions) {
 async function refreshSessions() {
   renderSessionList(await fetchJson("/api/sessions"));
 }
+
+function exportSession(sessionId) {
+  var safeSessionId = String(sessionId || "").trim();
+  if (!safeSessionId) return;
+  window.open("/api/sessions/" + encodeURIComponent(safeSessionId) + "/export", "_blank");
+}
+
+window.exportSession = exportSession;
 
 function resolveStatusContainer() {
   return document.getElementById("status-panel") || document.querySelector("h3 + div");
@@ -1993,15 +2284,15 @@ async function sendMessage(content) {
           } else {
             renderMessage("system", "Error: " + (payload.message || "Stream error"));
           }
-          showToast(payload.message || "Stream error");
+          showToast("Connection error: " + (payload.message || "Stream error"), "error");
         }
-        if (eventName === "warning") showToast(payload.message || "Warning");
+        if (eventName === "warning") showToast(payload.message || "Warning", "info");
       }
     }
   } catch (error) {
     finalizeReasoningTrace(state.assistantMessageElement);
     upsertActivity("error", "error", "", error.message);
-    showToast(error.message);
+    showToast("Connection error: " + error.message, "error");
   } finally {
     finalizeReasoningTrace(state.assistantMessageElement);
     setStreaming(false);
@@ -2025,7 +2316,9 @@ function bindTabNavigation() {
   tabButtons.forEach(function(btn) {
     btn.addEventListener("click", function() {
       var requestedTab = btn.dataset.tab;
-      var targetTab = requestedTab === "memory" ? "memory-view" : requestedTab;
+      var targetTab = requestedTab;
+      if (requestedTab === "memory") targetTab = "memory-view";
+      if (requestedTab === "dashboard") targetTab = "dashboard-view";
       tabButtons.forEach(function(button) {
         button.classList.toggle("active", button === btn);
       });
@@ -2039,7 +2332,17 @@ function bindTabNavigation() {
       }
       if (targetTab === "memory-view") {
         loadMemoryPanel().catch(function(error) {
-          showToast("Failed to load memory panel: " + (error.message || "unknown"));
+          showToast("Failed to load memory panel: " + (error.message || "unknown"), "error");
+        });
+      }
+      if (targetTab === "dashboard-view") {
+        loadDashboard().catch(function() {
+          setDashboardStatValue("stat-papers-count", "-", "Run a pipeline to populate");
+          setDashboardStatValue("stat-sessions-count", "-");
+          setDashboardStatValue("stat-facts-count", "-");
+          setDashboardStatValue("stat-digests-count", "-");
+          renderDashboardHealth(null);
+          renderRecentDigests([]);
         });
       }
     });
@@ -2061,6 +2364,41 @@ function bindEvents() {
     if (ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); await sendMessage(elements.chatInput.value); }
   });
   elements.newSessionBtn.addEventListener("click", newSession);
+  var exportCurrentSessionBtn = document.getElementById("exportCurrentSession");
+  if (exportCurrentSessionBtn) {
+    exportCurrentSessionBtn.addEventListener("click", function() {
+      if (!state.currentSessionId) {
+        showToast("No active session to export.", "info");
+        return;
+      }
+      exportSession(state.currentSessionId);
+    });
+  }
+  var notifToggle = document.getElementById("notifToggle");
+  if (notifToggle) {
+    notifToggle.addEventListener("click", async function() {
+      if (!("Notification" in window)) {
+        showToast("Browser notifications are not supported.", "error");
+        updateNotificationToggleState();
+        return;
+      }
+      if (Notification.permission === "default") {
+        var permission = await requestNotificationPermission();
+        if (permission === "granted") {
+          showToast("Browser notifications enabled.", "success");
+        } else if (permission === "denied") {
+          showToast("Browser notifications blocked.", "error");
+        }
+        return;
+      }
+      if (Notification.permission === "granted") {
+        showToast("Browser notifications are enabled.", "success");
+      } else {
+        showToast("Browser notifications are blocked in this browser.", "error");
+      }
+      updateNotificationToggleState();
+    });
+  }
   bindPipelineEvents();
   bindMemoryPanelEvents();
   window.addEventListener("beforeunload", stopPipelineStream);
@@ -2075,6 +2413,7 @@ async function initialize() {
   ensureCopilotBadge();
   ensureUsageDisplay();
   initializePipelineUI();
+  updateNotificationToggleState();
   renderEmptyState("\u2728 Loading...");
   try {
     await Promise.all([loadModels(), refreshSessions(), updateSystemStatus()]);
@@ -2082,9 +2421,10 @@ async function initialize() {
     setInterval(updateUsage, 60000);
     renderEmptyState("\u2728 Start a new conversation");
   } catch (error) {
-    showToast(error.message);
+    showToast(error.message, "error");
     renderEmptyState("Failed to load");
   }
+  requestNotificationPermission().catch(function() {});
 }
 
 initialize();
@@ -2571,6 +2911,7 @@ async function handleDigestPayload(payload, sourceRef) {
 
   if (payload.error) {
     setDigestStatusMessage("Digest error: " + payload.error, "error");
+    showToast("Digest error: " + payload.error, "error");
     stopDigestStream();
     return;
   }
@@ -2580,6 +2921,12 @@ async function handleDigestPayload(payload, sourceRef) {
     setDigestStatusMessage("Daily Digest completed.", "success");
     digestState.historyLoaded = false;
     await loadDigestHistory(true);
+    loadDashboard().catch(function() {});
+    showNotification("Daily Digest Complete", {
+      body: "New papers have been collected and summarized.",
+      tag: "jarvis-digest"
+    });
+    showToast("Daily Digest completed successfully!", "success");
     stopDigestStream();
     return;
   }
@@ -2614,10 +2961,12 @@ function runDailyDigestFromUI() {
       var payload = JSON.parse(event.data);
       Promise.resolve(handleDigestPayload(payload, eventSource)).catch(function(error) {
         setDigestStatusMessage("Digest stream error: " + error.message, "error");
+        showToast("Digest stream error: " + error.message, "error");
         stopDigestStream();
       });
     } catch (error) {
       setDigestStatusMessage("Invalid digest stream payload.", "error");
+      showToast("Digest stream error: Invalid digest stream payload.", "error");
       stopDigestStream();
     }
   };
@@ -2625,6 +2974,7 @@ function runDailyDigestFromUI() {
   eventSource.onerror = function() {
     if (digestState.eventSource !== eventSource) return;
     setDigestStatusMessage("Digest stream disconnected.", "error");
+    showToast("Digest stream disconnected.", "error");
     stopDigestStream();
   };
 }

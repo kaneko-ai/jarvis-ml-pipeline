@@ -21,9 +21,14 @@
                 <p>Agent Web Interface</p>
               </div>
             </div>
-            <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
-              <span class="theme-icon">🌙</span>
-            </button>
+            <div class="sidebar-header-actions">
+              <button id="notifToggle" class="notif-toggle" title="Notification settings">
+                🔔
+              </button>
+              <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+                <span class="theme-icon">🌙</span>
+              </button>
+            </div>
           </div>
           <button id="new-session-btn" type="button">+ New Session</button>
         </div>
@@ -60,6 +65,9 @@
           <button type="button" class="tab-btn active" data-tab="chat-container">Chat</button>
           <button type="button" class="tab-btn" data-tab="pipeline-container">Pipeline</button>
           <button type="button" class="tab-btn" data-tab="monitor-container">Monitor</button>
+          <button class="tab-btn nav-btn" data-tab="dashboard" id="dashboardTab">
+            <span class="nav-icon">📊</span> Dashboard
+          </button>
           <button class="tab-btn nav-btn" data-tab="memory" id="memoryTab">
             <span class="nav-icon">&#129504;</span> Memory
           </button>
@@ -70,6 +78,11 @@
             <div>
               <p class="eyebrow">Active Model</p>
               <h2 id="current-model-label">Loading...</h2>
+            </div>
+            <div class="main-header-actions">
+              <button id="exportCurrentSession" class="btn-export" title="Export this chat">
+                📥 Export
+              </button>
             </div>
           </header>
 
@@ -268,6 +281,38 @@
         </div>
         <div id="monitor-container" class="tab-panel"></div>
 
+        <section id="dashboard-view" class="tab-panel view hidden">
+          <div class="dashboard-panel">
+            <h2>JARVIS Dashboard</h2>
+            <div class="dashboard-grid">
+              <div class="stat-card" id="stat-papers">
+                <span class="stat-icon">📄</span>
+                <span class="stat-value" id="stat-papers-count">-</span>
+                <span class="stat-label">Papers in DB</span>
+              </div>
+              <div class="stat-card" id="stat-sessions">
+                <span class="stat-icon">💬</span>
+                <span class="stat-value" id="stat-sessions-count">-</span>
+                <span class="stat-label">Chat Sessions</span>
+              </div>
+              <div class="stat-card" id="stat-facts">
+                <span class="stat-icon">🧠</span>
+                <span class="stat-value" id="stat-facts-count">-</span>
+                <span class="stat-label">Memory Facts</span>
+              </div>
+              <div class="stat-card" id="stat-digests">
+                <span class="stat-icon">📰</span>
+                <span class="stat-value" id="stat-digests-count">-</span>
+                <span class="stat-label">Digest Reports</span>
+              </div>
+            </div>
+            <h3>Recent Digests</h3>
+            <div id="recent-digests" class="digest-timeline"></div>
+            <h3>System Health</h3>
+            <div id="system-health" class="health-panel"></div>
+          </div>
+        </section>
+
         <section id="memory-view" class="tab-panel view hidden">
           <div class="memory-panel">
             <h2>Facts</h2>
@@ -292,10 +337,17 @@
       </main>
     </div>
 
+    <div id="toast-container"></div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script type="module" src="./js/app.js"></script>
   </body>
 </html>
+
+
+
+
+
 
 
 

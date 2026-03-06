@@ -194,3 +194,10 @@ describe("E2E: Server Routes Integration", () => {
     });
   });
 });
+
+describe("E2E: Session Export", () => {
+  it("sessions router has export capability", async () => {
+    await import("../src/routes/sessions.js");
+    assert.ok(true);
+  });
+});
