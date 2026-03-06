@@ -1,6 +1,7 @@
 import { getLang, init as initI18n, t, toggleLang } from './modules/i18n.js';
 import { initParticles } from './modules/utils.js';
 import { connect as wsConnect, on as wsOn } from './modules/ws-client.js';
+import { init as initKeybinds } from './modules/keybinds.js';
 
 const moduleCache = {};
 let activeTab = null;
@@ -217,9 +218,11 @@ async function initialize() {
   setupSidebarToggle();
   setupLangToggle();
   bindTabNavigation();
+  initKeybinds();
   wsConnect('default');
   await activateTab('chat');
 }
 
 await checkAuth();
 await initialize();
+
