@@ -5,6 +5,13 @@ import { connect as wsConnect, on as wsOn } from './modules/ws-client.js';
 const moduleCache = {};
 let activeTab = null;
 
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('/sw.js')
+    .then((registration) => console.log('[SW] Registered:', registration.scope))
+    .catch((error) => console.warn('[SW] Registration failed:', error));
+}
+
 function setupWebSocketStatus() {
   wsOn('connected', () => {
     const dot = document.getElementById('ws-status');
@@ -204,6 +211,7 @@ function bindTabNavigation() {
 async function initialize() {
   initParticles();
   initI18n();
+  registerServiceWorker();
   setupWebSocketStatus();
   setupThemeToggle();
   setupSidebarToggle();
