@@ -1231,10 +1231,22 @@ function bindMemoryPanelEvents() {
 
 /* ===== Pipeline ===== */
 const PIPELINE_TOTAL_STEPS = 7;
+const PIPELINE_PROGRESS_STEPS = [
+  "Search",
+  "Fetch",
+  "Score",
+  "Summarize",
+  "Store",
+  "Archive",
+  "Export",
+];
 const pipelineState = {
   eventSource: null,
   running: false,
   historyLoaded: false,
+  startedAt: 0,
+  storedCount: 0,
+  archivedCount: 0,
 };
 
 const pipelineStepDefaults = [
@@ -1249,6 +1261,10 @@ const pipelineStepDefaults = [
 
 function getPipelineStepCards() {
   return Array.from(document.querySelectorAll(".pipeline-step-card"));
+}
+
+function getPipelineProgressSteps() {
+  return Array.from(document.querySelectorAll(".pipeline-progress .pipeline-step"));
 }
 
 function clampNumber(value, min, max) {
@@ -1273,9 +1289,44 @@ function setPipelineStatusMessage(message, type) {
 function renderPipelineEmptyResults(message) {
   var body = document.getElementById("pipeline-results-body");
   if (!body) return;
+  var table = body.closest(".pipeline-results-table");
+  if (table) {
+    table.classList.remove("pipeline-results-table-rich");
+  }
   var rowMessage = message || "No results yet.";
   body.innerHTML =
     '<tr><td colspan="5" class="pipeline-empty-row">' + escapeHtml(rowMessage) + '</td></tr>';
+}
+
+function ensurePipelineProgressBar() {
+  var shell = document.querySelector(".pipeline-shell");
+  var statusEl = document.getElementById("pipeline-status-message");
+  if (!shell || !statusEl) return null;
+
+  var existing = document.getElementById("pipeline-progress");
+  if (existing) return existing;
+
+  var progress = document.createElement("div");
+  progress.id = "pipeline-progress";
+  progress.className = "pipeline-progress";
+  progress.setAttribute("aria-label", "Pipeline Progress Overview");
+
+  for (var i = 0; i < PIPELINE_PROGRESS_STEPS.length; i += 1) {
+    var step = document.createElement("div");
+    step.className = "pipeline-step";
+    step.dataset.step = String(i + 1);
+    step.innerHTML =
+      '<span class="step-num">' + String(i + 1) + '</span>' +
+      '<span class="step-label">' + escapeHtml(PIPELINE_PROGRESS_STEPS[i]) + '</span>';
+    progress.appendChild(step);
+  }
+
+  if (statusEl.nextSibling) {
+    shell.insertBefore(progress, statusEl.nextSibling);
+  } else {
+    shell.appendChild(progress);
+  }
+  return progress;
 }
 
 function resetPipelineSteps() {
@@ -1299,6 +1350,11 @@ function resetPipelineSteps() {
       percentEl.textContent = "0%";
     }
   }
+
+  var progressSteps = getPipelineProgressSteps();
+  for (var j = 0; j < progressSteps.length; j += 1) {
+    progressSteps[j].classList.remove("active", "completed");
+  }
 }
 
 function deriveStepLocalProgress(step, globalProgress) {
@@ -1309,6 +1365,24 @@ function deriveStepLocalProgress(step, globalProgress) {
   if (progress <= start) return 0;
   if (progress >= end) return 100;
   return clampNumber(((progress - start) / (end - start)) * 100, 0, 100);
+}
+
+function inferPipelineProgressStep(step, message) {
+  var text = String(message || "").toLowerCase();
+  if (text.indexOf("saving result file") !== -1 || text.indexOf("pipeline completed") !== -1) return 7;
+  if (text.indexOf("archiv") !== -1) return 6;
+  if (text.indexOf("database") !== -1 || text.indexOf("structured json") !== -1 || text.indexOf("formatting") !== -1) return 5;
+  if (text.indexOf("summar") !== -1 || text.indexOf("gemini") !== -1) return 4;
+  if (text.indexOf("score") !== -1 || text.indexOf("ranking") !== -1 || text.indexOf("selected") !== -1) return 3;
+  if (text.indexOf("dedup") !== -1 || text.indexOf("fetch") !== -1) return 2;
+  if (text.indexOf("search") !== -1) return 1;
+
+  var numericStep = clampNumber(step, 1, PIPELINE_TOTAL_STEPS);
+  if (numericStep <= 3) return numericStep;
+  if (numericStep === 4) return 3;
+  if (numericStep === 5) return 4;
+  if (numericStep === 6) return 5;
+  return 7;
 }
 
 function updatePipelineSteps(step, progress, message) {
@@ -1348,6 +1422,15 @@ function updatePipelineSteps(step, progress, message) {
       messageEl.textContent = message;
     }
   }
+
+  var visualStep = inferPipelineProgressStep(currentStep, message);
+  var progressSteps = getPipelineProgressSteps();
+  for (var j = 0; j < progressSteps.length; j += 1) {
+    var progressStep = progressSteps[j];
+    var progressIndex = j + 1;
+    progressStep.classList.toggle("completed", progressIndex < visualStep || (visualStep === PIPELINE_TOTAL_STEPS && safeProgress >= 100));
+    progressStep.classList.toggle("active", progressIndex === visualStep && !(visualStep === PIPELINE_TOTAL_STEPS && safeProgress >= 100));
+  }
 }
 
 function normalizePipelineUrl(rawUrl) {
@@ -1371,60 +1454,109 @@ function normalizePipelineScore(rawScore) {
   return Number(rawScore).toFixed(1);
 }
 
+function formatPipelineDuration() {
+  if (!pipelineState.startedAt) return "-";
+  return formatElapsedTime(Date.now() - pipelineState.startedAt);
+}
+
+function buildPipelineResultMeta(paper) {
+  var journal = paper.journal ? String(paper.journal).trim() : "";
+  var year = paper.year ? String(paper.year).trim() : "";
+  if (journal && year) return journal + ", " + year;
+  return journal || year || (paper.source ? String(paper.source) : "-");
+}
+
+function getPipelinePaperExcerpt(paper) {
+  var value = paper.abstract || paper.summary || "";
+  var text = String(value || "").trim();
+  if (!text) return "No abstract available.";
+  return text.length > 320 ? text.slice(0, 317) + "..." : text;
+}
+
+function buildPipelinePaperLink(paper) {
+  if (paper.doi) {
+    return buildDoiLink(paper.doi);
+  }
+
+  var url = normalizePipelineUrl(paper.url || paper.link);
+  if (!url) return "";
+  return '<a href="' + escapeHtml(url) + '" class="cite-link" target="_blank" rel="noopener noreferrer">Open</a>';
+}
+
+function buildPipelineSummary(papers) {
+  var foundCount = Array.isArray(papers) ? papers.length : 0;
+  var storedCount = pipelineState.storedCount || foundCount;
+  return (
+    '<div class="pipeline-summary">' +
+    '<span>Found <strong>' + escapeHtml(String(foundCount)) + '</strong> papers</span>' +
+    '<span>Stored <strong>' + escapeHtml(String(storedCount)) + '</strong> to database</span>' +
+    '<span>Duration: <strong>' + escapeHtml(formatPipelineDuration()) + '</strong></span>' +
+    '</div>'
+  );
+}
+
 function renderPipelineResults(papers) {
   var body = document.getElementById("pipeline-results-body");
   if (!body) return;
   body.innerHTML = "";
+
+  var table = body.closest(".pipeline-results-table");
+  if (table) {
+    table.classList.add("pipeline-results-table-rich");
+  }
 
   if (!Array.isArray(papers) || !papers.length) {
     renderPipelineEmptyResults("No papers returned by pipeline.");
     return;
   }
 
+  var row = document.createElement("tr");
+  var cell = document.createElement("td");
+  cell.colSpan = 5;
+  cell.className = "pipeline-results-rich-cell";
+
+  var resultsWrapper = document.createElement("div");
+  resultsWrapper.className = "pipeline-results-cards";
+
   for (var paper of papers) {
-    var row = document.createElement("tr");
+    var paperCard = document.createElement("div");
+    paperCard.className = "paper-card";
+    paperCard.innerHTML =
+      '<div class="paper-score">' + escapeHtml(normalizePipelineScore(paper.score)) + '</div>' +
+      '<div class="paper-content">' +
+      '<h4 class="paper-title">' + escapeHtml(paper.title ? String(paper.title) : "-") + '</h4>' +
+      '<p class="paper-authors">' + escapeHtml(normalizePipelineAuthors(paper.authors)) + '</p>' +
+      '<p class="paper-journal">' + escapeHtml(buildPipelineResultMeta(paper)) + '</p>' +
+      '<p class="paper-abstract">' + escapeHtml(getPipelinePaperExcerpt(paper)) + '</p>' +
+      '<div class="paper-links">' +
+      (buildPipelinePaperLink(paper) || "") +
+      '<span class="paper-source">' + escapeHtml(String(paper.source || "Pipeline")) + '</span>' +
+      '</div>' +
+      '</div>';
+    resultsWrapper.appendChild(paperCard);
+  }
 
-    var titleCell = document.createElement("td");
-    var authorsCell = document.createElement("td");
-    var yearCell = document.createElement("td");
-    var sourceCell = document.createElement("td");
-    var scoreCell = document.createElement("td");
+  cell.appendChild(resultsWrapper);
+  var summaryHost = document.createElement("div");
+  summaryHost.innerHTML = buildPipelineSummary(papers);
+  if (summaryHost.firstChild) {
+    cell.appendChild(summaryHost.firstChild);
+  }
+  row.appendChild(cell);
+  body.appendChild(row);
+}
 
-    var title = paper.title ? String(paper.title) : "-";
-    var url = normalizePipelineUrl(paper.url || paper.link || paper.doi);
-    if (url) {
-      var link = document.createElement("a");
-      link.className = "pipeline-results-title-link";
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.href = url;
-      link.textContent = title;
-      titleCell.appendChild(link);
-    } else {
-      titleCell.textContent = title;
-    }
+function updatePipelineDerivedState(payload) {
+  if (!payload || !payload.message) return;
+  var message = String(payload.message);
+  var storedMatch = message.match(/Saved\s+(\d+)\s+papers?\s+to\s+database/i);
+  if (storedMatch) {
+    pipelineState.storedCount = Number(storedMatch[1]) || pipelineState.storedCount;
+  }
 
-    authorsCell.textContent = normalizePipelineAuthors(paper.authors);
-    yearCell.textContent = paper.year ? String(paper.year) : "-";
-    sourceCell.textContent = paper.source || paper.journal || "-";
-    scoreCell.textContent = normalizePipelineScore(paper.score);
-
-    row.appendChild(titleCell);
-    row.appendChild(authorsCell);
-    row.appendChild(yearCell);
-    row.appendChild(sourceCell);
-    row.appendChild(scoreCell);
-    body.appendChild(row);
-
-    if (paper.summary) {
-      var summaryRow = document.createElement("tr");
-      var summaryCell = document.createElement("td");
-      summaryCell.colSpan = 5;
-      summaryCell.style.cssText = "padding:8px 16px;color:#aaa;font-size:0.85em;border-bottom:1px solid #333;background:#0d0d0d;";
-      summaryCell.textContent = paper.summary;
-      summaryRow.appendChild(summaryCell);
-      body.appendChild(summaryRow);
-    }
+  var archivedMatch = message.match(/Archived\s+(\d+)\s+PDFs?/i);
+  if (archivedMatch) {
+    pipelineState.archivedCount = Number(archivedMatch[1]) || pipelineState.archivedCount;
   }
 }
 
@@ -1562,6 +1694,11 @@ async function handlePipelineMessage(payload, sourceRef) {
       }
     }
 
+    if (!rendered && payload.results && Array.isArray(payload.results.papers)) {
+      renderPipelineResults(payload.results.papers || []);
+      rendered = true;
+    }
+
     if (!rendered) {
       renderPipelineEmptyResults("Completed. Result details are not available from API response.");
     }
@@ -1573,6 +1710,7 @@ async function handlePipelineMessage(payload, sourceRef) {
   }
 
   if (typeof payload.step === "number") {
+    updatePipelineDerivedState(payload);
     updatePipelineSteps(payload.step, payload.progress, payload.message || "Running...");
     setPipelineStatusMessage(payload.message || ("Step " + payload.step + " in progress"));
   }
@@ -1584,7 +1722,11 @@ function runPipelineQuery(query) {
 
   stopPipelineStream();
   pipelineState.running = true;
+  pipelineState.startedAt = Date.now();
+  pipelineState.storedCount = 0;
+  pipelineState.archivedCount = 0;
   setPipelineRunButtonState(true);
+  ensurePipelineProgressBar();
   resetPipelineSteps();
   renderPipelineEmptyResults("Pipeline running...");
   setPipelineStatusMessage("Running pipeline for: " + trimmedQuery);
@@ -1640,6 +1782,7 @@ function bindPipelineEvents() {
 }
 
 function initializePipelineUI() {
+  ensurePipelineProgressBar();
   resetPipelineSteps();
   renderPipelineEmptyResults("No results yet.");
   setPipelineStatusMessage("Enter a query and run the pipeline.");
