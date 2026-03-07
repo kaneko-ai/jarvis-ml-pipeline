@@ -1,0 +1,974 @@
+{
+  "query": "(CD73[Title/Abstract] OR NT5E[Title/Abstract]) AND free full text[filter]",
+  "date_from": null,
+  "date_to": null,
+  "max_results": 50,
+  "num_hit": 50,
+  "records": [
+    {
+      "pmid": "33463071",
+      "pmcid": "PMC7774461",
+      "title": "CD73 alleviates GSDMD-mediated microglia pyroptosis in spinal cord injury through PI3K/AKT/Foxo1 signaling.",
+      "journal": "Clinical and translational medicine",
+      "pubdate": "2021 Jan",
+      "doi_or_elocation": "doi: 10.1002/ctm2.269",
+      "authors": [
+        "Xu S",
+        "Wang J",
+        "Zhong J",
+        "Shao M",
+        "Jiang J",
+        "Song J",
+        "Zhu W",
+        "Zhang F",
+        "Xu H",
+        "Xu G",
+        "Zhang Y",
+        "Ma X",
+        "Lyu F"
+      ]
+    },
+    {
+      "pmid": "38530357",
+      "pmcid": "PMC11093616",
+      "title": "Pharmacological suppression of the OTUD4/CD73 proteolytic axis revives antitumor immunity against immune-suppressive breast cancers.",
+      "journal": "The Journal of clinical investigation",
+      "pubdate": "2024 Mar 26",
+      "doi_or_elocation": "doi: 10.1172/JCI176390",
+      "authors": [
+        "Zhu Y",
+        "Banerjee A",
+        "Xie P",
+        "Ivanov AA",
+        "Uddin A",
+        "Jiao Q",
+        "Chi JJ",
+        "Zeng L",
+        "Lee JY",
+        "Xue Y",
+        "Lu X",
+        "Cristofanilli M",
+        "Gradishar WJ",
+        "Henry CJ",
+        "Gillespie TW",
+        "Bhave MA",
+        "Kalinsky K",
+        "Fu H",
+        "Bahar I",
+        "Zhang B",
+        "Wan Y"
+      ]
+    },
+    {
+      "pmid": "32024555",
+      "pmcid": "PMC7003355",
+      "title": "CD73 sustained cancer-stem-cell traits by promoting SOX9 expression and stability in hepatocellular carcinoma.",
+      "journal": "Journal of hematology & oncology",
+      "pubdate": "2020 Feb 5",
+      "doi_or_elocation": "doi: 10.1186/s13045-020-0845-z",
+      "authors": [
+        "Ma XL",
+        "Hu B",
+        "Tang WG",
+        "Xie SH",
+        "Ren N",
+        "Guo L",
+        "Lu RQ"
+      ]
+    },
+    {
+      "pmid": "40229283",
+      "pmcid": "PMC11997035",
+      "title": "MGAT1-Guided complex N-Glycans on CD73 regulate immune evasion in triple-negative breast cancer.",
+      "journal": "Nature communications",
+      "pubdate": "2025 Apr 15",
+      "doi_or_elocation": "doi: 10.1038/s41467-025-58524-9",
+      "authors": [
+        "Chi JJ",
+        "Xie P",
+        "Cheng MH",
+        "Zhu Y",
+        "Cui X",
+        "Watson J",
+        "Zeng L",
+        "Uddin A",
+        "Nguyen H",
+        "Li L",
+        "Moremen K",
+        "Reedy A",
+        "Wyatt M",
+        "Marcus A",
+        "Dai M",
+        "Paulos CM",
+        "Cristofanilli M",
+        "Gradishar WJ",
+        "Zhao S",
+        "Kalinsky K",
+        "Hung MC",
+        "Bahar I",
+        "Zhang B",
+        "Wan Y"
+      ]
+    },
+    {
+      "pmid": "29720980",
+      "pmcid": "PMC5915482",
+      "title": "Controlling the Immune Suppressor: Transcription Factors and MicroRNAs Regulating CD73/NT5E.",
+      "journal": "Frontiers in immunology",
+      "pubdate": "2018",
+      "doi_or_elocation": "doi: 10.3389/fimmu.2018.00813",
+      "authors": [
+        "Kordaß T",
+        "Osen W",
+        "Eichmüller SB"
+      ]
+    },
+    {
+      "pmid": "34253638",
+      "pmcid": "PMC8276303",
+      "title": "Single-cell RNA sequencing reveals distinct cellular factors for response to immunotherapy targeting CD73 and PD-1 in colorectal cancer.",
+      "journal": "Journal for immunotherapy of cancer",
+      "pubdate": "2021 Jul",
+      "doi_or_elocation": "doi: 10.1136/jitc-2021-002503",
+      "authors": [
+        "Kim M",
+        "Min YK",
+        "Jang J",
+        "Park H",
+        "Lee S",
+        "Lee CH"
+      ]
+    },
+    {
+      "pmid": "39738003",
+      "pmcid": "PMC11685497",
+      "title": "An antibody cocktail targeting two different CD73 epitopes enhances enzyme inhibition and tumor control.",
+      "journal": "Nature communications",
+      "pubdate": "2024 Dec 30",
+      "doi_or_elocation": "doi: 10.1038/s41467-024-55207-9",
+      "authors": [
+        "Xu JG",
+        "Chen S",
+        "He Y",
+        "Zhu X",
+        "Wang Y",
+        "Ye Z",
+        "Zhou JC",
+        "Wu X",
+        "Zhang L",
+        "Ren X",
+        "Jia H",
+        "Yu H",
+        "Wei X",
+        "Feng Y",
+        "Chen X",
+        "Cui X",
+        "Pan X",
+        "Wang S",
+        "Xia S",
+        "Shang H",
+        "Pu Y",
+        "Xu W",
+        "Li H",
+        "Chen Q",
+        "Chen Z",
+        "Wang M",
+        "Yan X",
+        "Shi H",
+        "Li M",
+        "Xia Y",
+        "Bellelli R",
+        "Dong S",
+        "He J",
+        "Huang J",
+        "Cai CL",
+        "Zhu X",
+        "Zhan Y",
+        "Wan L"
+      ]
+    },
+    {
+      "pmid": "40582491",
+      "pmcid": null,
+      "title": "Multi-omics analysis of polyamine metabolism implicates NT5E/CD73 in the progression of pancreatic cancer.",
+      "journal": "Cancer letters",
+      "pubdate": "2025 Oct 10",
+      "doi_or_elocation": "doi: 10.1016/j.canlet.2025.217887",
+      "authors": [
+        "Zhang E",
+        "Ding X",
+        "Zhang J",
+        "Liu W",
+        "Liu G",
+        "Li M",
+        "Liu X",
+        "Wang Y",
+        "Zhang F",
+        "Li B",
+        "Zhu Y",
+        "Yan Y",
+        "Liu J",
+        "Wang Y",
+        "Tian X",
+        "Ma Y",
+        "Yang Y"
+      ]
+    },
+    {
+      "pmid": "36409930",
+      "pmcid": "PMC9812927",
+      "title": "CD73 Inhibits cGAS-STING and Cooperates with CD39 to Promote Pancreatic Cancer.",
+      "journal": "Cancer immunology research",
+      "pubdate": "2023 Jan 3",
+      "doi_or_elocation": "doi: 10.1158/2326-6066.CIR-22-0260",
+      "authors": [
+        "Jacoberger-Foissac C",
+        "Cousineau I",
+        "Bareche Y",
+        "Allard D",
+        "Chrobak P",
+        "Allard B",
+        "Pommey S",
+        "Messaoudi N",
+        "McNicoll Y",
+        "Soucy G",
+        "Koseoglu S",
+        "Masia R",
+        "Lake AC",
+        "Seo H",
+        "Eeles CB",
+        "Rohatgi N",
+        "Robson SC",
+        "Turcotte S",
+        "Haibe-Kains B",
+        "Stagg J"
+      ]
+    },
+    {
+      "pmid": "37409119",
+      "pmcid": "PMC10318900",
+      "title": "Novel microRNAs modulating ecto-5'-nucleotidase expression.",
+      "journal": "Frontiers in immunology",
+      "pubdate": "2023",
+      "doi_or_elocation": "doi: 10.3389/fimmu.2023.1199374",
+      "authors": [
+        "Kordaß T",
+        "Chao TY",
+        "Osen W",
+        "Eichmüller SB"
+      ]
+    },
+    {
+      "pmid": "39910337",
+      "pmcid": "PMC11799229",
+      "title": "NT5E (CD73) as a prognostic biomarker and therapeutic target associated with immune infiltration in lung adenocarcinoma.",
+      "journal": "Scientific reports",
+      "pubdate": "2025 Feb 5",
+      "doi_or_elocation": "doi: 10.1038/s41598-025-88964-8",
+      "authors": [
+        "Chen L",
+        "Qi T",
+        "Zhang B",
+        "Wang X",
+        "Zheng M"
+      ]
+    },
+    {
+      "pmid": "36719675",
+      "pmcid": "PMC10261920",
+      "title": "ENPP1 Immunobiology as a Therapeutic Target.",
+      "journal": "Clinical cancer research : an official journal of the American Association for Cancer Research",
+      "pubdate": "2023 Jun 13",
+      "doi_or_elocation": "doi: 10.1158/1078-0432.CCR-22-1681",
+      "authors": [
+        "Ruiz-Fernández de Córdoba B",
+        "Martínez-Monge R",
+        "Lecanda F"
+      ]
+    },
+    {
+      "pmid": "32777746",
+      "pmcid": "PMC7669683",
+      "title": "Targeting CD73 to augment cancer immunotherapy.",
+      "journal": "Current opinion in pharmacology",
+      "pubdate": "2020 Aug",
+      "doi_or_elocation": "doi: 10.1016/j.coph.2020.07.001",
+      "authors": [
+        "Roh M",
+        "Wainwright DA",
+        "Wu JD",
+        "Wan Y",
+        "Zhang B"
+      ]
+    },
+    {
+      "pmid": "36503240",
+      "pmcid": "PMC9902218",
+      "title": "Ecto-5'-nucleotidase (Nt5e/CD73)-mediated adenosine signaling attenuates TGFβ-2 induced elastin and cellular contraction.",
+      "journal": "American journal of physiology. Cell physiology",
+      "pubdate": "2023 Feb 1",
+      "doi_or_elocation": "doi: 10.1152/ajpcell.00054.2022",
+      "authors": [
+        "Cuevas RA",
+        "Wong R",
+        "Joolharzadeh P",
+        "Moorhead WJ 3rd",
+        "Chu CC",
+        "Callahan J 4th",
+        "Crane A",
+        "Boufford CK",
+        "Parise AM",
+        "Parwal A",
+        "Behzadi P",
+        "St Hilaire C"
+      ]
+    },
+    {
+      "pmid": "41188606",
+      "pmcid": "PMC12586806",
+      "title": "CD39 and CD73: biological functions, diseases and therapy.",
+      "journal": "Molecular biomedicine",
+      "pubdate": "2025 Nov 5",
+      "doi_or_elocation": "doi: 10.1186/s43556-025-00345-9",
+      "authors": [
+        "Shen J",
+        "Liao B",
+        "Gong L",
+        "Li S",
+        "Zhao J",
+        "Yang H",
+        "Gong Y",
+        "Li Y"
+      ]
+    },
+    {
+      "pmid": "36563135",
+      "pmcid": "PMC9951332",
+      "title": "CD73, a Promising Therapeutic Target of Diclofenac, Promotes Metastasis of Pancreatic Cancer through a Nucleotidase Independent Mechanism.",
+      "journal": "Advanced science (Weinheim, Baden-Wurttemberg, Germany)",
+      "pubdate": "2023 Feb",
+      "doi_or_elocation": "doi: 10.1002/advs.202206335",
+      "authors": [
+        "Liu W",
+        "Yu X",
+        "Yuan Y",
+        "Feng Y",
+        "Wu C",
+        "Huang C",
+        "Xie P",
+        "Li S",
+        "Li X",
+        "Wang Z",
+        "Qi L",
+        "Chen Y",
+        "Shi L",
+        "Li MJ",
+        "Huang Z",
+        "Tang B",
+        "Chang A",
+        "Hao J"
+      ]
+    },
+    {
+      "pmid": "37620936",
+      "pmcid": "PMC10463398",
+      "title": "5'-Ectonucleotidase CD73/NT5E supports EGFR-mediated invasion of HPV-negative head and neck carcinoma cells.",
+      "journal": "Journal of biomedical science",
+      "pubdate": "2023 Aug 24",
+      "doi_or_elocation": "doi: 10.1186/s12929-023-00968-6",
+      "authors": [
+        "Shi E",
+        "Wu Z",
+        "Karaoglan BS",
+        "Schwenk-Zieger S",
+        "Kranz G",
+        "Abdul Razak N",
+        "Reichel CA",
+        "Canis M",
+        "Baumeister P",
+        "Zeidler R",
+        "Gires O"
+      ]
+    },
+    {
+      "pmid": "35813221",
+      "pmcid": "PMC9259339",
+      "title": "CD73 (NT5E) Promotes the Proliferation and Metastasis of Lung Adenocarcinoma through the EGFR/AKT/mTOR Pathway.",
+      "journal": "BioMed research international",
+      "pubdate": "2022",
+      "doi_or_elocation": "doi: 10.1155/2022/9944847",
+      "authors": [
+        "Zhang H",
+        "Cao Y",
+        "Tang J",
+        "Wang R"
+      ]
+    },
+    {
+      "pmid": "37402102",
+      "pmcid": "PMC11189379",
+      "title": "ENTPD1 (CD39) and NT5E (CD73) expression in human glioblastoma: an in silico analysis.",
+      "journal": "Purinergic signalling",
+      "pubdate": "2024 Jun",
+      "doi_or_elocation": "doi: 10.1007/s11302-023-09951-0",
+      "authors": [
+        "Braganhol E",
+        "de Andrade GPB",
+        "Santos GT",
+        "Stefani MA"
+      ]
+    },
+    {
+      "pmid": "36982618",
+      "pmcid": "PMC10056814",
+      "title": "CD73: Friend or Foe in Lung Injury.",
+      "journal": "International journal of molecular sciences",
+      "pubdate": "2023 Mar 14",
+      "doi_or_elocation": "doi: 10.3390/ijms24065545",
+      "authors": [
+        "Hu XM",
+        "Shi NR",
+        "Zhang JZ",
+        "Zuo YQ",
+        "Wang X",
+        "Zhao YF",
+        "Wu JS"
+      ]
+    },
+    {
+      "pmid": "36778123",
+      "pmcid": "PMC9909992",
+      "title": "CD73/NT5E-mediated ubiquitination of AURKA regulates alcohol-related liver fibrosis via modulating hepatic stellate cell senescence.",
+      "journal": "International journal of biological sciences",
+      "pubdate": "2023",
+      "doi_or_elocation": "doi: 10.7150/ijbs.80461",
+      "authors": [
+        "Liu Z",
+        "Wu B",
+        "Liu X",
+        "Wu X",
+        "Du J",
+        "Xia G",
+        "Cai J",
+        "Zhu H",
+        "Sheng X",
+        "Zhang M",
+        "Xu J",
+        "Xu T",
+        "Lv X"
+      ]
+    },
+    {
+      "pmid": "37511518",
+      "pmcid": "PMC10380759",
+      "title": "The Clinical Significance of CD73 in Cancer.",
+      "journal": "International journal of molecular sciences",
+      "pubdate": "2023 Jul 21",
+      "doi_or_elocation": "doi: 10.3390/ijms241411759",
+      "authors": [
+        "Bach N",
+        "Winzer R",
+        "Tolosa E",
+        "Fiedler W",
+        "Brauneck F"
+      ]
+    },
+    {
+      "pmid": "25126561",
+      "pmcid": "PMC4121992",
+      "title": "The roles of CD73 in cancer.",
+      "journal": "BioMed research international",
+      "pubdate": "2014",
+      "doi_or_elocation": "doi: 10.1155/2014/460654",
+      "authors": [
+        "Gao ZW",
+        "Dong K",
+        "Zhang HZ"
+      ]
+    },
+    {
+      "pmid": "39430133",
+      "pmcid": "PMC11490838",
+      "title": "CD73 alleviates osteoarthritis by maintaining anabolism and suppressing catabolism of chondrocytes extracellular matrix.",
+      "journal": "Journal of orthopaedic translation",
+      "pubdate": "2024 Nov",
+      "doi_or_elocation": "doi: 10.1016/j.jot.2024.08.014",
+      "authors": [
+        "Guo H",
+        "Lv Z",
+        "Wang M",
+        "Li W",
+        "Xie Y",
+        "Liu Z",
+        "Chen F",
+        "Jiang R",
+        "Liu Y",
+        "Wu R",
+        "Li J",
+        "Sun Z",
+        "Tan G",
+        "Shi D"
+      ]
+    },
+    {
+      "pmid": "26629888",
+      "pmcid": null,
+      "title": "A Systems Oncology Approach Identifies NT5E as a Key Metabolic Regulator in Tumor Cells and Modulator of Platinum Sensitivity.",
+      "journal": "Journal of proteome research",
+      "pubdate": "2016 Jan 4",
+      "doi_or_elocation": "doi: 10.1021/acs.jproteome.5b00793",
+      "authors": [
+        "Nevedomskaya E",
+        "Perryman R",
+        "Solanki S",
+        "Syed N",
+        "Mayboroda OA",
+        "Keun HC"
+      ]
+    },
+    {
+      "pmid": "37033953",
+      "pmcid": "PMC10079876",
+      "title": "Tumor intrinsic and extrinsic functions of CD73 and the adenosine pathway in lung cancer.",
+      "journal": "Frontiers in immunology",
+      "pubdate": "2023",
+      "doi_or_elocation": "doi: 10.3389/fimmu.2023.1130358",
+      "authors": [
+        "Kowash RR",
+        "Akbay EA"
+      ]
+    },
+    {
+      "pmid": "40114928",
+      "pmcid": "PMC11922907",
+      "title": "CD73: a new immune checkpoint for leukemia treatment.",
+      "journal": "Frontiers in immunology",
+      "pubdate": "2025",
+      "doi_or_elocation": "doi: 10.3389/fimmu.2025.1486868",
+      "authors": [
+        "Gao H",
+        "Zhang T",
+        "Li K",
+        "Li X"
+      ]
+    },
+    {
+      "pmid": "38392293",
+      "pmcid": "PMC10886499",
+      "title": "The Purinergic Nature of Pseudoxanthoma Elasticum.",
+      "journal": "Biology",
+      "pubdate": "2024 Jan 26",
+      "doi_or_elocation": "doi: 10.3390/biology13020074",
+      "authors": [
+        "Kauffenstein G",
+        "Martin L",
+        "Le Saux O"
+      ]
+    },
+    {
+      "pmid": "40612859",
+      "pmcid": "PMC12215589",
+      "title": "Tumor-expressing PD-L1 regulates NT5E expression through MAPK/ERK pathway in triple-negative breast cancer.",
+      "journal": "Oncology research",
+      "pubdate": "2025",
+      "doi_or_elocation": "doi: 10.32604/or.2025.061637",
+      "authors": [
+        "Cheng C",
+        "Shi C",
+        "Wu S",
+        "Wu W",
+        "Li J",
+        "Gao S",
+        "Han M",
+        "Wang Y",
+        "Zhang X",
+        "Liu Y"
+      ]
+    },
+    {
+      "pmid": "39735551",
+      "pmcid": "PMC11672340",
+      "title": "CD73: agent development potential and its application in diabetes and atherosclerosis.",
+      "journal": "Frontiers in immunology",
+      "pubdate": "2024",
+      "doi_or_elocation": "doi: 10.3389/fimmu.2024.1515875",
+      "authors": [
+        "Liu D",
+        "Zhao J",
+        "Li L",
+        "Wang J",
+        "Wang C",
+        "Wu Y",
+        "Huang Y",
+        "Xing D",
+        "Chen W"
+      ]
+    },
+    {
+      "pmid": "31404305",
+      "pmcid": "PMC6676417",
+      "title": "Generation and Function of Non-cell-bound CD73 in Inflammation.",
+      "journal": "Frontiers in immunology",
+      "pubdate": "2019",
+      "doi_or_elocation": "doi: 10.3389/fimmu.2019.01729",
+      "authors": [
+        "Schneider E",
+        "Rissiek A",
+        "Winzer R",
+        "Puig B",
+        "Rissiek B",
+        "Haag F",
+        "Mittrücker HW",
+        "Magnus T",
+        "Tolosa E"
+      ]
+    },
+    {
+      "pmid": "38227654",
+      "pmcid": "PMC10823247",
+      "title": "CD73 contributes to the pathogenesis of fusion-negative rhabdomyosarcoma through the purinergic signaling pathway.",
+      "journal": "Proceedings of the National Academy of Sciences of the United States of America",
+      "pubdate": "2024 Jan 23",
+      "doi_or_elocation": "doi: 10.1073/pnas.2315925121",
+      "authors": [
+        "Hernandez KC",
+        "Shah AM",
+        "Lopez VA",
+        "Tagliabracci VS",
+        "Chen K",
+        "Xu L",
+        "Bassel-Duby R",
+        "Olson EN",
+        "Liu N"
+      ]
+    },
+    {
+      "pmid": "35235138",
+      "pmcid": "PMC9123135",
+      "title": "NT5E gene and CD38 protein as potential prognostic biomarkers for childhood B-acute lymphoblastic leukemia.",
+      "journal": "Purinergic signalling",
+      "pubdate": "2022 Jun",
+      "doi_or_elocation": "doi: 10.1007/s11302-022-09841-x",
+      "authors": [
+        "da Silva Nunes VB",
+        "Dias CK",
+        "De Bastiani MA",
+        "Farias MG",
+        "Spagnol F",
+        "Alegretti AP",
+        "Daudt LE",
+        "Michalowski MB",
+        "Battastini AMO",
+        "Paz AA",
+        "Figueiró F"
+      ]
+    },
+    {
+      "pmid": "31461341",
+      "pmcid": "PMC6957383",
+      "title": "Cell type- and tissue-specific functions of ecto-5'-nucleotidase (CD73).",
+      "journal": "American journal of physiology. Cell physiology",
+      "pubdate": "2019 Dec 1",
+      "doi_or_elocation": "doi: 10.1152/ajpcell.00285.2019",
+      "authors": [
+        "Minor M",
+        "Alcedo KP",
+        "Battaglia RA",
+        "Snider NT"
+      ]
+    },
+    {
+      "pmid": "39423241",
+      "pmcid": "PMC11513981",
+      "title": "CD73 promotes non-small cell lung cancer metastasis by regulating Axl signaling independent of GAS6.",
+      "journal": "Proceedings of the National Academy of Sciences of the United States of America",
+      "pubdate": "2024 Oct 22",
+      "doi_or_elocation": "doi: 10.1073/pnas.2404709121",
+      "authors": [
+        "Zhu J",
+        "Du W",
+        "Zeng Y",
+        "Liu T",
+        "Li J",
+        "Wang A",
+        "Li Y",
+        "Zhang W",
+        "Huang JA",
+        "Liu Z"
+      ]
+    },
+    {
+      "pmid": "36946270",
+      "pmcid": null,
+      "title": "Sarcoma - correlation between CD73 and PD-L1 and their relationship with prognosis.",
+      "journal": "Polish journal of pathology : official journal of the Polish Society of Pathologists",
+      "pubdate": "2022",
+      "doi_or_elocation": "doi: 10.5114/pjp.2022.125537",
+      "authors": [
+        "Yetişir AE",
+        "Paydaş S",
+        "Gönlüşen G",
+        "Erdoğan KE",
+        "Büyükşimşek M",
+        "Oğul A",
+        "Tohumcuoğlu M",
+        "Mirili C",
+        "Yetişir A"
+      ]
+    },
+    {
+      "pmid": "29514610",
+      "pmcid": "PMC5842577",
+      "title": "Comprehensive evaluation of NT5E/CD73 expression and its prognostic significance in distinct types of cancers.",
+      "journal": "BMC cancer",
+      "pubdate": "2018 Mar 7",
+      "doi_or_elocation": "doi: 10.1186/s12885-018-4073-7",
+      "authors": [
+        "Jiang T",
+        "Xu X",
+        "Qiao M",
+        "Li X",
+        "Zhao C",
+        "Zhou F",
+        "Gao G",
+        "Wu F",
+        "Chen X",
+        "Su C",
+        "Ren S",
+        "Zhai C",
+        "Zhou C"
+      ]
+    },
+    {
+      "pmid": "35620732",
+      "pmcid": "PMC9130010",
+      "title": "The Effects of CD73 on Gastrointestinal Cancer Progression and Treatment.",
+      "journal": "Journal of oncology",
+      "pubdate": "2022",
+      "doi_or_elocation": "doi: 10.1155/2022/4330329",
+      "authors": [
+        "Sun P",
+        "Zheng X",
+        "Li X"
+      ]
+    },
+    {
+      "pmid": "39086479",
+      "pmcid": "PMC11288852",
+      "title": "Protective role of the CD73-A2AR axis in cirrhotic cardiomyopathy through negative feedback regulation of the NF-κB pathway.",
+      "journal": "Frontiers in immunology",
+      "pubdate": "2024",
+      "doi_or_elocation": "doi: 10.3389/fimmu.2024.1428551",
+      "authors": [
+        "Zhao N",
+        "Shao Z",
+        "Xia G",
+        "Liu H",
+        "Zhang L",
+        "Zhao X",
+        "Dang S",
+        "Qian L",
+        "Xu W",
+        "Yu Z",
+        "Wang R"
+      ]
+    },
+    {
+      "pmid": "39624281",
+      "pmcid": "PMC11609644",
+      "title": "Comprehensive pan-cancer analysis of CD73: Explore its association with prognosis and tumor immune microenvironment.",
+      "journal": "Heliyon",
+      "pubdate": "2024 Nov 30",
+      "doi_or_elocation": "doi: 10.1016/j.heliyon.2024.e40329",
+      "authors": [
+        "Chen C",
+        "Liu S",
+        "Ma Y"
+      ]
+    },
+    {
+      "pmid": "22454080",
+      "pmcid": "PMC3326678",
+      "title": "NT5E (CD73) is epigenetically regulated in malignant melanoma and associated with metastatic site specificity.",
+      "journal": "British journal of cancer",
+      "pubdate": "2012 Apr 10",
+      "doi_or_elocation": "doi: 10.1038/bjc.2012.95",
+      "authors": [
+        "Wang H",
+        "Lee S",
+        "Nigro CL",
+        "Lattanzio L",
+        "Merlano M",
+        "Monteverde M",
+        "Matin R",
+        "Purdie K",
+        "Mladkova N",
+        "Bergamaschi D",
+        "Harwood C",
+        "Syed N",
+        "Szlosarek P",
+        "Briasoulis E",
+        "McHugh A",
+        "Thompson A",
+        "Evans A",
+        "Leigh I",
+        "Fleming C",
+        "Inman GJ",
+        "Hatzimichael E",
+        "Proby C",
+        "Crook T"
+      ]
+    },
+    {
+      "pmid": "39090604",
+      "pmcid": "PMC11292923",
+      "title": "Regulation of CD73 on NAD metabolism: Unravelling the interplay between tumour immunity and tumour metabolism.",
+      "journal": "Cell communication and signaling : CCS",
+      "pubdate": "2024 Aug 1",
+      "doi_or_elocation": "doi: 10.1186/s12964-024-01755-y",
+      "authors": [
+        "Zhan J",
+        "Huang L",
+        "Niu L",
+        "Lu W",
+        "Sun C",
+        "Liu S",
+        "Ding Z",
+        "Li E"
+      ]
+    },
+    {
+      "pmid": "37122331",
+      "pmcid": "PMC10130655",
+      "title": "CD73, a significant protein in liver diseases.",
+      "journal": "Frontiers in medicine",
+      "pubdate": "2023",
+      "doi_or_elocation": "doi: 10.3389/fmed.2023.1147782",
+      "authors": [
+        "Shi H",
+        "Dai H",
+        "Sun Q",
+        "Wang S",
+        "Chen Y"
+      ]
+    },
+    {
+      "pmid": "35804900",
+      "pmcid": "PMC9264813",
+      "title": "CD73 Promotes Chronic Lymphocytic Leukemia.",
+      "journal": "Cancers",
+      "pubdate": "2022 Jun 26",
+      "doi_or_elocation": "doi: 10.3390/cancers14133130",
+      "authors": [
+        "Allard D",
+        "Chrobak P",
+        "Bareche Y",
+        "Allard B",
+        "Tessier P",
+        "Bergeron MA",
+        "Johnson NA",
+        "Stagg J"
+      ]
+    },
+    {
+      "pmid": "40166277",
+      "pmcid": "PMC11957119",
+      "title": "Tracing LYVE1(+) peritoneal fluid macrophages unveils two paths to resident macrophage repopulation with differing reliance on monocytes.",
+      "journal": "bioRxiv : the preprint server for biology",
+      "pubdate": "2025 Mar 19",
+      "doi_or_elocation": "pii: 2025.03.19.644175. doi: 10.1101/2025.03.19.644175",
+      "authors": [
+        "Gallerand A",
+        "Han J",
+        "Mintz RL",
+        "Chen J",
+        "Lee DD",
+        "Chan MM",
+        "Harmon TT",
+        "Lin X",
+        "Huckstep CG",
+        "Du S",
+        "Liu T",
+        "Kipnis J",
+        "Lavine KJ",
+        "Schilling JD",
+        "Morley SC",
+        "Zinselmeyer BH",
+        "Murphy KM",
+        "Randolph GJ"
+      ]
+    },
+    {
+      "pmid": "33430239",
+      "pmcid": "PMC7825701",
+      "title": "CD73, Tumor Plasticity and Immune Evasion in Solid Cancers.",
+      "journal": "Cancers",
+      "pubdate": "2021 Jan 7",
+      "doi_or_elocation": "doi: 10.3390/cancers13020177",
+      "authors": [
+        "Yang H",
+        "Yao F",
+        "Davis PF",
+        "Tan ST",
+        "Hall SRR"
+      ]
+    },
+    {
+      "pmid": "39762204",
+      "pmcid": "PMC11707834",
+      "title": "Adenosinergic Signalling in Cervical Cancer Microenvironment.",
+      "journal": "Expert reviews in molecular medicine",
+      "pubdate": "2025 Jan 7",
+      "doi_or_elocation": "doi: 10.1017/erm.2024.30",
+      "authors": [
+        "Iser IC",
+        "Bertoni APS",
+        "Beckenkamp LR",
+        "Consolaro MEL",
+        "Maria-Engler SS",
+        "Wink MR"
+      ]
+    },
+    {
+      "pmid": "31547570",
+      "pmcid": "PMC6832588",
+      "title": "NT5E/CD73 as Correlative Factor of Patient Survival and Natural Killer Cell Infiltration in Glioblastoma.",
+      "journal": "Journal of clinical medicine",
+      "pubdate": "2019 Sep 23",
+      "doi_or_elocation": "doi: 10.3390/jcm8101526",
+      "authors": [
+        "Wang J",
+        "Matosevic S"
+      ]
+    },
+    {
+      "pmid": "40106690",
+      "pmcid": "PMC11998006",
+      "title": "Development of CD73 Inhibitors in Tumor Immunotherapy and Opportunities in Imaging and Combination Therapy.",
+      "journal": "Journal of medicinal chemistry",
+      "pubdate": "2025 Apr 10",
+      "doi_or_elocation": "doi: 10.1021/acs.jmedchem.4c02151",
+      "authors": [
+        "Bi C",
+        "Patel JS",
+        "Liang SH"
+      ]
+    },
+    {
+      "pmid": "38652041",
+      "pmcid": "PMC11321403",
+      "title": "Regulatory role of CD39 and CD73 in tumor immunity.",
+      "journal": "Future oncology (London, England)",
+      "pubdate": "2024",
+      "doi_or_elocation": "doi: 10.2217/fon-2023-0871",
+      "authors": [
+        "Kaplinsky N",
+        "Williams K",
+        "Watkins D",
+        "Adams M",
+        "Stanbery L",
+        "Nemunaitis J"
+      ]
+    }
+  ]
+}

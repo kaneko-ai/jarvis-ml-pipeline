@@ -1,0 +1,1106 @@
+{
+  "snapshot_version": 1,
+  "run_id": "22805037611_CDH13",
+  "created_at": "2026-03-07T18:49:34.545815+00:00",
+  "metadata": {
+    "query": "(CDH13[Title/Abstract] OR T-cadherin[Title/Abstract]) AND free full text[filter]",
+    "date_from": null,
+    "date_to": null,
+    "max_results": 50
+  },
+  "sources": [
+    {
+      "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=%28CDH13%5BTitle%2FAbstract%5D+OR+T-cadherin%5BTitle%2FAbstract%5D%29+AND+free+full+text%5Bfilter%5D&retmax=50&retmode=json&sort=relevance&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pubmed_esearch",
+      "status": "success",
+      "requested_at": "2026-03-07T18:49:34.546173+00:00",
+      "completed_at": "2026-03-07T18:49:37.966671+00:00",
+      "http_status": 200,
+      "hash": "caf222193f8488c6289963fcedd9805e49501078b6f26474a8b1826ab0cefddd",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "query": "(CDH13[Title/Abstract] OR T-cadherin[Title/Abstract]) AND free full text[filter]",
+        "date_from": null,
+        "date_to": null,
+        "max_results": 50,
+        "params": {
+          "db": "pubmed",
+          "term": "(CDH13[Title/Abstract] OR T-cadherin[Title/Abstract]) AND free full text[filter]",
+          "retmax": "50",
+          "retmode": "json",
+          "sort": "relevance",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=40649905%2C34456860%2C24417948%2C34959666%2C27578166%2C27153114%2C28121942%2C34798557%2C39545598%2C38791932%2C28387990%2C31915248%2C34615771%2C16177988%2C40894025%2C24297186%2C41388436%2C41645736%2C37524131%2C30355852%2C24417946%2C40779984%2C28183249%2C27900031%2C36802732%2C21975561%2C12177241%2C30165120%2C36381315%2C34680515%2C28647701%2C38123991%2C20457567%2C40368888%2C29669945%2C25382980%2C28138401%2C24142632%2C37762507%2C36439986%2C34759445%2C35259280%2C25565774%2C27904857%2C28245897%2C40230838%2C22815927%2C40422909%2C40652274%2C38074818&retmode=json&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pubmed_esummary",
+      "status": "success",
+      "requested_at": "2026-03-07T18:49:37.968631+00:00",
+      "completed_at": "2026-03-07T18:49:38.383044+00:00",
+      "http_status": 200,
+      "hash": "cdc6e7ff0550793a4697b9379d9428fc98206c5a8cf49d079d0ccbafaacad20d",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmids": [
+          "40649905",
+          "34456860",
+          "24417948",
+          "34959666",
+          "27578166",
+          "27153114",
+          "28121942",
+          "34798557",
+          "39545598",
+          "38791932",
+          "28387990",
+          "31915248",
+          "34615771",
+          "16177988",
+          "40894025",
+          "24297186",
+          "41388436",
+          "41645736",
+          "37524131",
+          "30355852",
+          "24417946",
+          "40779984",
+          "28183249",
+          "27900031",
+          "36802732",
+          "21975561",
+          "12177241",
+          "30165120",
+          "36381315",
+          "34680515",
+          "28647701",
+          "38123991",
+          "20457567",
+          "40368888",
+          "29669945",
+          "25382980",
+          "28138401",
+          "24142632",
+          "37762507",
+          "36439986",
+          "34759445",
+          "35259280",
+          "25565774",
+          "27904857",
+          "28245897",
+          "40230838",
+          "22815927",
+          "40422909",
+          "40652274",
+          "38074818"
+        ],
+        "params": {
+          "db": "pubmed",
+          "id": "40649905,34456860,24417948,34959666,27578166,27153114,28121942,34798557,39545598,38791932,28387990,31915248,34615771,16177988,40894025,24297186,41388436,41645736,37524131,30355852,24417946,40779984,28183249,27900031,36802732,21975561,12177241,30165120,36381315,34680515,28647701,38123991,20457567,40368888,29669945,25382980,28138401,24142632,37762507,36439986,34759445,35259280,25565774,27904857,28245897,40230838,22815927,40422909,40652274,38074818",
+          "retmode": "json",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12250294&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:49:38.385873+00:00",
+      "completed_at": "2026-03-07T18:49:38.535205+00:00",
+      "http_status": 200,
+      "hash": "36af5a420368bd07f174783d0e473a18a80840673258107f3b4a52db89d1833c",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC12250294",
+        "params": {
+          "id": "PMC12250294",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8387580&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:49:38.537196+00:00",
+      "completed_at": "2026-03-07T18:49:38.624570+00:00",
+      "http_status": 200,
+      "hash": "d8fe13f0e3faaac63047d66a39891a2863f6914675e5edf9a39ee666d767ce8f",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC8387580",
+        "params": {
+          "id": "PMC8387580",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC3905311&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:49:38.626547+00:00",
+      "completed_at": "2026-03-07T18:49:38.712083+00:00",
+      "http_status": 200,
+      "hash": "758af22004a87418c07fde1c11b03d9daffd2a6fadf27190dfa01a3e10e2ab1c",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC3905311",
+        "params": {
+          "id": "PMC3905311",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8703455&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:49:38.714030+00:00",
+      "completed_at": "2026-03-07T18:49:38.802106+00:00",
+      "http_status": 200,
+      "hash": "c27a932401a9d3b944354539009704aaae1bc7527ffe2501e0a39b66b883b0c0",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC8703455",
+        "params": {
+          "id": "PMC8703455",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5004266&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:49:38.804295+00:00",
+      "completed_at": "2026-03-07T18:49:38.893391+00:00",
+      "http_status": 200,
+      "hash": "e199d4c86d10aeb46f644576087011e0bf6b07ddb871a1bfecf96c26682ba4e8",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC5004266",
+        "params": {
+          "id": "PMC5004266",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC4859545&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:49:38.895794+00:00",
+      "completed_at": "2026-03-07T18:49:38.987838+00:00",
+      "http_status": 200,
+      "hash": "29fea78a8ad7fa67261ffc5f16f6e3221baf54c3af51569ed880abb84274c9a7",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC4859545",
+        "params": {
+          "id": "PMC4859545",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5287966&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:49:38.989990+00:00",
+      "completed_at": "2026-03-07T18:49:39.083235+00:00",
+      "http_status": 200,
+      "hash": "bcc477b66350160ac7e74574d01a14297a27bf527db96d446303c0f3788fe3a0",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC5287966",
+        "params": {
+          "id": "PMC5287966",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_pdf/a9/f2/medi-96-e5956.PMC5287966.pdf",
+      "type": "pmc_pdf",
+      "status": "success",
+      "requested_at": "2026-03-07T18:49:39.085474+00:00",
+      "completed_at": "2026-03-07T18:50:09.736713+00:00",
+      "http_status": null,
+      "hash": "6724839a56ef4b1e039ec7e13ebef455696a300768c5305917b03e1cd04e2072",
+      "output_path": "public/runs/22805037611_CDH13/raw/pmc/Role of CDH13 promoter methylation in the carcinogenesis_ progression_ and progn.pdf",
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC5287966",
+        "title": "Role of CDH13 promoter methylation in the carcinogenesis, progression, and prognosis of colorectal cancer: A systematic meta-analysis under PRISMA guidelines."
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC11572284&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:50:09.737488+00:00",
+      "completed_at": "2026-03-07T18:50:09.825450+00:00",
+      "http_status": 200,
+      "hash": "ee1efe9546441f022a529d9a3d4efbcf87febbc261d34c26dd3675dbdff2a0e7",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC11572284",
+        "params": {
+          "id": "PMC11572284",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC11119778&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:50:09.827702+00:00",
+      "completed_at": "2026-03-07T18:50:09.915753+00:00",
+      "http_status": 200,
+      "hash": "54007431b2bf79f0abe98a86dad0105fae828b9882b395ea3d15a4306bbc6f36",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC11119778",
+        "params": {
+          "id": "PMC11119778",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5595635&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:50:09.917957+00:00",
+      "completed_at": "2026-03-07T18:50:10.001844+00:00",
+      "http_status": 200,
+      "hash": "2f68692c98e876b0fbb017a3d138f30c085cf8142588bf6b6b3184e0d0b6f331",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC5595635",
+        "params": {
+          "id": "PMC5595635",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC7049961&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:50:10.004198+00:00",
+      "completed_at": "2026-03-07T18:50:10.088832+00:00",
+      "http_status": 200,
+      "hash": "6017f5e2b750eb8bfacc1617350581613604a50501680b451290d0fdf23cbb55",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC7049961",
+        "params": {
+          "id": "PMC7049961",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC9047493&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:50:10.091103+00:00",
+      "completed_at": "2026-03-07T18:50:10.181308+00:00",
+      "http_status": 200,
+      "hash": "dacf3488929baae30397ff8e514f563687c2af22ee439eb6e572d129ddec3c6b",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC9047493",
+        "params": {
+          "id": "PMC9047493",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_pdf/d8/b3/bt-30-3-221.PMC9047493.pdf",
+      "type": "pmc_pdf",
+      "status": "success",
+      "requested_at": "2026-03-07T18:50:10.183787+00:00",
+      "completed_at": "2026-03-07T18:50:40.481717+00:00",
+      "http_status": null,
+      "hash": "496722182fb35b73d002610b05b3931bd6d90ded182c692788d0b5c4b94b1cdc",
+      "output_path": "public/runs/22805037611_CDH13/raw/pmc/The Role of Adiponectin in the Skin..pdf",
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC9047493",
+        "title": "The Role of Adiponectin in the Skin."
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12393607&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:50:40.482591+00:00",
+      "completed_at": "2026-03-07T18:50:40.577975+00:00",
+      "http_status": 200,
+      "hash": "fd71ad7d1297abfb1183b4f7f4fd177216eba9b6d9a9cbd6dea238858060116c",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC12393607",
+        "params": {
+          "id": "PMC12393607",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC4152934&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:50:40.580427+00:00",
+      "completed_at": "2026-03-07T18:50:40.665788+00:00",
+      "http_status": 200,
+      "hash": "513b8c2fde6f0204919a257c5256969b2f5d14acfcb5859183fc6cb8d0fccc57",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC4152934",
+        "params": {
+          "id": "PMC4152934",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12817644&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:50:40.668420+00:00",
+      "completed_at": "2026-03-07T18:50:40.757649+00:00",
+      "http_status": 200,
+      "hash": "f166375b1137b778ba35bc8621a14868464197d6a2292db88295d0f242fab271",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC12817644",
+        "params": {
+          "id": "PMC12817644",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_pdf/02/8f/40001_2025_Article_3667.PMC12817644.pdf",
+      "type": "pmc_pdf",
+      "status": "success",
+      "requested_at": "2026-03-07T18:50:40.760192+00:00",
+      "completed_at": "2026-03-07T18:51:11.365979+00:00",
+      "http_status": null,
+      "hash": "a9fb1f6f8850cbc47194e71880fe465dc526cfa9c536c101f11cd71427c6632b",
+      "output_path": "public/runs/22805037611_CDH13/raw/pmc/Multimodal analysis reveals potential association of CDH13 with endothelial cell.pdf",
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC12817644",
+        "title": "Multimodal analysis reveals potential association of CDH13 with endothelial cells and its overexpression in hepatocellular carcinoma."
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12902817&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:11.366912+00:00",
+      "completed_at": "2026-03-07T18:51:11.460319+00:00",
+      "http_status": 200,
+      "hash": "52b4915736f78af637256c761d7457810cc35cb371c86c54576d0bc97b4d25ca",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC12902817",
+        "params": {
+          "id": "PMC12902817",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_pdf/d0/80/mmr-33-04-13820.PMC12902817.pdf",
+      "type": "pmc_pdf",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:11.462905+00:00",
+      "completed_at": "2026-03-07T18:51:41.781744+00:00",
+      "http_status": null,
+      "hash": "aefa1c7d282d8ceee84bf95a5b84c56806d119cc4969d7b91cdf046aeb6bf618",
+      "output_path": "public/runs/22805037611_CDH13/raw/pmc/T_cadherin and its impact on human diseases _Review_..pdf",
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC12902817",
+        "title": "T‑cadherin and its impact on human diseases (Review)."
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC10474463&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:41.782666+00:00",
+      "completed_at": "2026-03-07T18:51:41.872997+00:00",
+      "http_status": 200,
+      "hash": "1dc81b6b048a3d664842e3882f03241e1a72090d2372394fc77ee857d8aad5b6",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC10474463",
+        "params": {
+          "id": "PMC10474463",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC6283827&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:41.875345+00:00",
+      "completed_at": "2026-03-07T18:51:41.961136+00:00",
+      "http_status": 200,
+      "hash": "1b87ac2a6d125b7bbc38d1c480f0db2bba5df70ba206b612b1c09721af766a6f",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC6283827",
+        "params": {
+          "id": "PMC6283827",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC4007141&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:41.963624+00:00",
+      "completed_at": "2026-03-07T18:51:42.048158+00:00",
+      "http_status": 200,
+      "hash": "28273a6c8258a02e21c012a605ddc92dfa19777a43b296092d192a7a37cbc0be",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC4007141",
+        "params": {
+          "id": "PMC4007141",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5831726&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:42.050674+00:00",
+      "completed_at": "2026-03-07T18:51:42.134374+00:00",
+      "http_status": 200,
+      "hash": "28c315fa4ba752530998570052b6ddcdb568d9b7c6519120deaf23bdff169180",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC5831726",
+        "params": {
+          "id": "PMC5831726",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5103978&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:42.136912+00:00",
+      "completed_at": "2026-03-07T18:51:42.221749+00:00",
+      "http_status": 200,
+      "hash": "b9e8a7568130ab530f64afe838f0ce89fb5d789f1262ffc7d15e538a98e72267",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC5103978",
+        "params": {
+          "id": "PMC5103978",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC3329514&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:42.224391+00:00",
+      "completed_at": "2026-03-07T18:51:42.310191+00:00",
+      "http_status": 200,
+      "hash": "1fbc041c8106d3d8f28a0423db759bd2058477542bc760de05486ed6155660f6",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC3329514",
+        "params": {
+          "id": "PMC3329514",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC9641392&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:42.312787+00:00",
+      "completed_at": "2026-03-07T18:51:42.398833+00:00",
+      "http_status": 200,
+      "hash": "8c111dc6f9f0c8c842a551fcaa11c5b74730a11e5a0c4a18a7795af968ff258f",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC9641392",
+        "params": {
+          "id": "PMC9641392",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8533356&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:42.401631+00:00",
+      "completed_at": "2026-03-07T18:51:42.498054+00:00",
+      "http_status": 200,
+      "hash": "246760b6eb8cffce35738200c50280fa9910b5955df2950cf52f6fa65009c359",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC8533356",
+        "params": {
+          "id": "PMC8533356",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5572305&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:42.500879+00:00",
+      "completed_at": "2026-03-07T18:51:42.593242+00:00",
+      "http_status": 200,
+      "hash": "5ccaafb8ac6b5db9361cd36f15c516f95c0de58fc9d716bebaaf18478afd16c3",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC5572305",
+        "params": {
+          "id": "PMC5572305",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC10860569&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:42.595929+00:00",
+      "completed_at": "2026-03-07T18:51:42.681233+00:00",
+      "http_status": 200,
+      "hash": "86fda8bf8e108afc7fdaa9129032b33ab1d4b78f451c70c6583b7c1747f14e1f",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC10860569",
+        "params": {
+          "id": "PMC10860569",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC2882122&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:42.683926+00:00",
+      "completed_at": "2026-03-07T18:51:42.771081+00:00",
+      "http_status": 200,
+      "hash": "07fcab94d6f4b50eaf74a0b74b4b16d268d9c4a5fc124040136e384b1d9e1f9e",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC2882122",
+        "params": {
+          "id": "PMC2882122",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12078473&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:42.773869+00:00",
+      "completed_at": "2026-03-07T18:51:42.863804+00:00",
+      "http_status": 200,
+      "hash": "5c1cc6996d5ffe9aeca0d25573a058cc9c4ab358b53132e206b4d45c64f897a1",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC12078473",
+        "params": {
+          "id": "PMC12078473",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5931116&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:42.866552+00:00",
+      "completed_at": "2026-03-07T18:51:42.954885+00:00",
+      "http_status": 200,
+      "hash": "9bf8090c19856a8659aa2f1318f3e0fd877a8034a5a80d9a60b835cb663a4777",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC5931116",
+        "params": {
+          "id": "PMC5931116",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC4222896&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:42.957673+00:00",
+      "completed_at": "2026-03-07T18:51:43.048300+00:00",
+      "http_status": 200,
+      "hash": "c4124fe0c02af3bc24fe57c6805e02c8986982d24ebf0855cb239f4d4d5f8a3e",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC4222896",
+        "params": {
+          "id": "PMC4222896",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_pdf/45/79/ott-7-1987.PMC4222896.pdf",
+      "type": "pmc_pdf",
+      "status": "success",
+      "requested_at": "2026-03-07T18:51:43.051139+00:00",
+      "completed_at": "2026-03-07T18:52:13.330244+00:00",
+      "http_status": null,
+      "hash": "ac70ff613c29c2382268bd0166f63c8ed6e31f4ccfb018a8676169cfcac61dfe",
+      "output_path": "public/runs/22805037611_CDH13/raw/pmc/Prognostic significance of CDH13 hypermethylation and mRNA in NSCLC..pdf",
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC4222896",
+        "title": "Prognostic significance of CDH13 hypermethylation and mRNA in NSCLC."
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5259566&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:52:13.331676+00:00",
+      "completed_at": "2026-03-07T18:52:13.420176+00:00",
+      "http_status": 200,
+      "hash": "c1f89bef544bd89f9a74cfc7173e43da209d1901fc537ca4a9d3a08ce4423c9d",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC5259566",
+        "params": {
+          "id": "PMC5259566",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_pdf/41/34/CJP2-3-44.PMC5259566.pdf",
+      "type": "pmc_pdf",
+      "status": "success",
+      "requested_at": "2026-03-07T18:52:13.423042+00:00",
+      "completed_at": "2026-03-07T18:52:43.700821+00:00",
+      "http_status": null,
+      "hash": "839996e8183f7b08bbc42b9652caeb56fb6ec9f71aa4dbcdf4785a891c3f2775",
+      "output_path": "public/runs/22805037611_CDH13/raw/pmc/T-cadherin in prostate cancer_ relationship with cancer progression_ differentia.pdf",
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC5259566",
+        "title": "T-cadherin in prostate cancer: relationship with cancer progression, differentiation and drug resistance."
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC3809859&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:52:43.702280+00:00",
+      "completed_at": "2026-03-07T18:52:43.792260+00:00",
+      "http_status": 200,
+      "hash": "b21fceaf0e08b81cc64f64a59badfc58fce3a00e3a2b9f39259adde71a19a257",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC3809859",
+        "params": {
+          "id": "PMC3809859",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_pdf/86/50/ymj-54-1305.PMC3809859.pdf",
+      "type": "pmc_pdf",
+      "status": "success",
+      "requested_at": "2026-03-07T18:52:43.795336+00:00",
+      "completed_at": "2026-03-07T18:53:15.242625+00:00",
+      "http_status": null,
+      "hash": "4916bf8e34bcf67028da992c1b3df897a506e94e183780fc17ca1ff3eb9926af",
+      "output_path": "public/runs/22805037611_CDH13/raw/pmc/Association between CDH13 variants and cardiometabolic and vascular phenotypes i.pdf",
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC3809859",
+        "title": "Association between CDH13 variants and cardiometabolic and vascular phenotypes in a Korean population."
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC10531645&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:53:15.244080+00:00",
+      "completed_at": "2026-03-07T18:53:15.332906+00:00",
+      "http_status": 200,
+      "hash": "6e9975207813624f028dc8893f53c6e6178476dd61d8eb1c12ef82a4f53a2b9d",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC10531645",
+        "params": {
+          "id": "PMC10531645",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC9684056&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:53:15.335863+00:00",
+      "completed_at": "2026-03-07T18:53:15.426484+00:00",
+      "http_status": 200,
+      "hash": "ed949c0b064e583faf21f80e2fe5fe0b3793f7d43d7c126e48db8510bd6d4b95",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC9684056",
+        "params": {
+          "id": "PMC9684056",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_pdf/c4/cc/main.PMC9684056.pdf",
+      "type": "pmc_pdf",
+      "status": "success",
+      "requested_at": "2026-03-07T18:53:15.429450+00:00",
+      "completed_at": "2026-03-07T18:53:45.755799+00:00",
+      "http_status": null,
+      "hash": "65ea46ef3cbf761a4ae72a1663b92e33d5f69f99068124fbe50b900528693112",
+      "output_path": "public/runs/22805037611_CDH13/raw/pmc/Soluble T-cadherin promotes pancreatic β-cell proliferation by upregulating Notc.pdf",
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC9684056",
+        "title": "Soluble T-cadherin promotes pancreatic β-cell proliferation by upregulating Notch signaling."
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8563038&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:53:45.757423+00:00",
+      "completed_at": "2026-03-07T18:53:45.847924+00:00",
+      "http_status": 200,
+      "hash": "ca1b8f106f775e94ca21d7a2e618953fd882186e754b17614e567b543e8fa833",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC8563038",
+        "params": {
+          "id": "PMC8563038",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_pdf/5b/0d/medarch-75-262.PMC8563038.pdf",
+      "type": "pmc_pdf",
+      "status": "success",
+      "requested_at": "2026-03-07T18:53:45.850882+00:00",
+      "completed_at": "2026-03-07T18:54:17.275609+00:00",
+      "http_status": null,
+      "hash": "eba077bf0c4d54e288704a7e43d99e1619c2250162a29452ceba6fc66bab9ed0",
+      "output_path": "public/runs/22805037611_CDH13/raw/pmc/Association of CDH13 Gene Polymorphism and Metabolic Syndrome in Gambian Populat.pdf",
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC8563038",
+        "title": "Association of CDH13 Gene Polymorphism and Metabolic Syndrome in Gambian Population."
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8929526&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:54:17.277299+00:00",
+      "completed_at": "2026-03-07T18:54:17.375481+00:00",
+      "http_status": 200,
+      "hash": "e74af701bc14051891275535dfd136ba6d6f82263c75d73a39e0a995d9fa7e8d",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC8929526",
+        "params": {
+          "id": "PMC8929526",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_pdf/b8/12/szab021.PMC8929526.pdf",
+      "type": "pmc_pdf",
+      "status": "success",
+      "requested_at": "2026-03-07T18:54:17.378619+00:00",
+      "completed_at": "2026-03-07T18:54:49.377109+00:00",
+      "http_status": null,
+      "hash": "bccb7e1bba1622bcb584ef5e3e61aa196d2e49f7a3ddacbd87db935a8227b3b4",
+      "output_path": "public/runs/22805037611_CDH13/raw/pmc/T-cadherin Expressing Cells in the Stromal Vascular Fraction of Human Adipose Ti.pdf",
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC8929526",
+        "title": "T-cadherin Expressing Cells in the Stromal Vascular Fraction of Human Adipose Tissue: Role in Osteogenesis and Angiogenesis."
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC4278732&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:54:49.378861+00:00",
+      "completed_at": "2026-03-07T18:54:49.485853+00:00",
+      "http_status": 200,
+      "hash": "f13d729cae0674c46727b20a8d19babefbeb9fb7850816970ed298bf05a2e5fd",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC4278732",
+        "params": {
+          "id": "PMC4278732",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_pdf/77/68/dddt-9-207.PMC4278732.pdf",
+      "type": "pmc_pdf",
+      "status": "success",
+      "requested_at": "2026-03-07T18:54:49.489061+00:00",
+      "completed_at": "2026-03-07T18:55:19.880933+00:00",
+      "http_status": null,
+      "hash": "bb0afd976b6e5ee69df06ea7a908bbd951289e54de39be5ec3bed3acf6a5595a",
+      "output_path": "public/runs/22805037611_CDH13/raw/pmc/Clinicopathological significance and potential drug target of T-cadherin in NSCL.pdf",
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC4278732",
+        "title": "Clinicopathological significance and potential drug target of T-cadherin in NSCLC."
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5121566&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:55:19.882646+00:00",
+      "completed_at": "2026-03-07T18:55:19.985643+00:00",
+      "http_status": 200,
+      "hash": "af645ba6c48646894c424b2b48669df1f6575435528f1528b63795cfda6ab8d9",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC5121566",
+        "params": {
+          "id": "PMC5121566",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_pdf/50/ed/dpa-0003-0068.PMC5121566.pdf",
+      "type": "pmc_pdf",
+      "status": "success",
+      "requested_at": "2026-03-07T18:55:19.989378+00:00",
+      "completed_at": "2026-03-07T18:55:50.317120+00:00",
+      "http_status": null,
+      "hash": "8fe271046d1722d4def8f11a0f5f6ab79718b9355476fe4c7fc9d3191398533c",
+      "output_path": "public/runs/22805037611_CDH13/raw/pmc/T-Cadherin Expression in the Epidermis and Adnexal Structures of Normal Skin..pdf",
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC5121566",
+        "title": "T-Cadherin Expression in the Epidermis and Adnexal Structures of Normal Skin."
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC11994602&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:55:50.318968+00:00",
+      "completed_at": "2026-03-07T18:55:50.427919+00:00",
+      "http_status": 200,
+      "hash": "f5748ac01d27ea25c55bf9f70caf86640a655d8dd001ae4fd120b4eebe965495",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC11994602",
+        "params": {
+          "id": "PMC11994602",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC3398886&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:55:50.431304+00:00",
+      "completed_at": "2026-03-07T18:55:50.519001+00:00",
+      "http_status": 200,
+      "hash": "771f7cd3a3d8963e123ab74f7c9ca041d1410b44e3932501c3047408b5769338",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC3398886",
+        "params": {
+          "id": "PMC3398886",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12113554&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:55:50.522005+00:00",
+      "completed_at": "2026-03-07T18:55:50.609526+00:00",
+      "http_status": 200,
+      "hash": "d5151deb38bf6a2919a3abcac0192349b9d59d6ae2237645185c0cefcffa9e09",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC12113554",
+        "params": {
+          "id": "PMC12113554",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12255986&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:55:50.612567+00:00",
+      "completed_at": "2026-03-07T18:55:50.702444+00:00",
+      "http_status": 200,
+      "hash": "6a35f1617f238fecea7ea113ca2ef0ff5c97e0a7865e68bdc6ae399e9be7e940",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC12255986",
+        "params": {
+          "id": "PMC12255986",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC10703641&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "success",
+      "requested_at": "2026-03-07T18:55:50.705618+00:00",
+      "completed_at": "2026-03-07T18:55:50.789891+00:00",
+      "http_status": 200,
+      "hash": "507c00a30b08e208a426cf5b6249f551f23d87be61edace08728e2d7f5205f94",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmcid": "PMC10703641",
+        "params": {
+          "id": "PMC10703641",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    }
+  ]
+}

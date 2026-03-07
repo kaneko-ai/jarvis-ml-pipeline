@@ -1,0 +1,903 @@
+{
+  "query": "(CDH13[Title/Abstract] OR T-cadherin[Title/Abstract]) AND free full text[filter]",
+  "date_from": null,
+  "date_to": null,
+  "max_results": 50,
+  "num_hit": 50,
+  "records": [
+    {
+      "pmid": "40649905",
+      "pmcid": "PMC12250294",
+      "title": "T-Cadherin (CDH13) and Non-Coding RNAs: The Crosstalk Between Health and Disease.",
+      "journal": "International journal of molecular sciences",
+      "pubdate": "2025 Jun 26",
+      "doi_or_elocation": "doi: 10.3390/ijms26136127",
+      "authors": [
+        "Rubina K",
+        "Maier A",
+        "Klimovich P",
+        "Sysoeva V",
+        "Romashin D",
+        "Semina E",
+        "Tkachuk V"
+      ]
+    },
+    {
+      "pmid": "34456860",
+      "pmcid": "PMC8387580",
+      "title": "Adipocyte-Endothelium Crosstalk in Obesity.",
+      "journal": "Frontiers in endocrinology",
+      "pubdate": "2021",
+      "doi_or_elocation": "doi: 10.3389/fendo.2021.681290",
+      "authors": [
+        "Sabaratnam R",
+        "Svenningsen P"
+      ]
+    },
+    {
+      "pmid": "24417948",
+      "pmcid": "PMC3905311",
+      "title": "Cardiometabolic effects of adiponectin.",
+      "journal": "Best practice & research. Clinical endocrinology & metabolism",
+      "pubdate": "2014 Jan",
+      "doi_or_elocation": "doi: 10.1016/j.beem.2013.09.001",
+      "authors": [
+        "Parker-Duffen JL",
+        "Walsh K"
+      ]
+    },
+    {
+      "pmid": "34959666",
+      "pmcid": "PMC8703455",
+      "title": "An Explanation for the Adiponectin Paradox.",
+      "journal": "Pharmaceuticals (Basel, Switzerland)",
+      "pubdate": "2021 Dec 4",
+      "doi_or_elocation": "doi: 10.3390/ph14121266",
+      "authors": [
+        "Kalkman HO"
+      ]
+    },
+    {
+      "pmid": "27578166",
+      "pmcid": "PMC5004266",
+      "title": "Clinical significance of CDH13 promoter methylation as a biomarker for bladder cancer: a meta-analysis.",
+      "journal": "BMC urology",
+      "pubdate": "2016 Aug 30",
+      "doi_or_elocation": "doi: 10.1186/s12894-016-0171-5",
+      "authors": [
+        "Chen F",
+        "Huang T",
+        "Ren Y",
+        "Wei J",
+        "Lou Z",
+        "Wang X",
+        "Fan X",
+        "Chen Y",
+        "Weng G",
+        "Yao X"
+      ]
+    },
+    {
+      "pmid": "27153114",
+      "pmcid": "PMC4859545",
+      "title": "A Systematic Analysis of the Relationship of CDH13 Promoter Methylation and Breast Cancer Risk and Prognosis.",
+      "journal": "PloS one",
+      "pubdate": "2016",
+      "doi_or_elocation": "doi: 10.1371/journal.pone.0149185",
+      "authors": [
+        "Yang J",
+        "Niu H",
+        "Huang Y",
+        "Yang K"
+      ]
+    },
+    {
+      "pmid": "28121942",
+      "pmcid": "PMC5287966",
+      "title": "Role of CDH13 promoter methylation in the carcinogenesis, progression, and prognosis of colorectal cancer: A systematic meta-analysis under PRISMA guidelines.",
+      "journal": "Medicine",
+      "pubdate": "2017 Jan",
+      "doi_or_elocation": "doi: 10.1097/MD.0000000000005956",
+      "authors": [
+        "Ye M",
+        "Huang T",
+        "Li J",
+        "Zhou C",
+        "Yang P",
+        "Ni C",
+        "Chen S"
+      ]
+    },
+    {
+      "pmid": "34798557",
+      "pmcid": null,
+      "title": "Revisiting the multiple roles of T-cadherin in health and disease.",
+      "journal": "European journal of cell biology",
+      "pubdate": "2021 Sep-Nov",
+      "doi_or_elocation": "doi: 10.1016/j.ejcb.2021.151183",
+      "authors": [
+        "Rubina KA",
+        "Semina EV",
+        "Kalinina NI",
+        "Sysoeva VY",
+        "Balatskiy AV",
+        "Tkachuk VA"
+      ]
+    },
+    {
+      "pmid": "39545598",
+      "pmcid": "PMC11572284",
+      "title": "CDH2 and CDH13 as potential prognostic and therapeutic targets for adrenocortical carcinoma.",
+      "journal": "Cancer biology & therapy",
+      "pubdate": "2024 Dec 31",
+      "doi_or_elocation": "doi: 10.1080/15384047.2024.2428469",
+      "authors": [
+        "Situ Y",
+        "Deng L",
+        "Huang Z",
+        "Jiang X",
+        "Zhao L",
+        "Zhang J",
+        "Lu L",
+        "Liang Q",
+        "Xu Q",
+        "Shao Z",
+        "Liang M"
+      ]
+    },
+    {
+      "pmid": "38791932",
+      "pmcid": "PMC11119778",
+      "title": "The Role of T-Cadherin (CDH13) in Treatment Options with Garcinol in Melanoma.",
+      "journal": "Cancers",
+      "pubdate": "2024 May 12",
+      "doi_or_elocation": "doi: 10.3390/cancers16101853",
+      "authors": [
+        "Staebler S",
+        "Hoechst S",
+        "Thongmao A",
+        "Schneider N",
+        "Bosserhoff AK",
+        "Kuphal S"
+      ]
+    },
+    {
+      "pmid": "28387990",
+      "pmcid": "PMC5595635",
+      "title": "Cdh13 and AdipoQ gene knockout alter instrumental and Pavlovian drug conditioning.",
+      "journal": "Genes, brain, and behavior",
+      "pubdate": "2017 Sep",
+      "doi_or_elocation": "doi: 10.1111/gbb.12382",
+      "authors": [
+        "King CP",
+        "Militello L",
+        "Hart A",
+        "St Pierre CL",
+        "Leung E",
+        "Versaggi CL",
+        "Roberson N",
+        "Catlin J",
+        "Palmer AA",
+        "Richards JB",
+        "Meyer PJ"
+      ]
+    },
+    {
+      "pmid": "31915248",
+      "pmcid": "PMC7049961",
+      "title": "Mapping and engineering the interaction between adiponectin and T-cadherin.",
+      "journal": "The Journal of biological chemistry",
+      "pubdate": "2020 Feb 28",
+      "doi_or_elocation": "doi: 10.1074/jbc.RA119.010970",
+      "authors": [
+        "Pascolutti R",
+        "Erlandson SC",
+        "Burri DJ",
+        "Zheng S",
+        "Kruse AC"
+      ]
+    },
+    {
+      "pmid": "34615771",
+      "pmcid": "PMC9047493",
+      "title": "The Role of Adiponectin in the Skin.",
+      "journal": "Biomolecules & therapeutics",
+      "pubdate": "2022 May 1",
+      "doi_or_elocation": "doi: 10.4062/biomolther.2021.089",
+      "authors": [
+        "Oh J",
+        "Lee Y",
+        "Oh SW",
+        "Li T",
+        "Shin J",
+        "Park SH",
+        "Lee J"
+      ]
+    },
+    {
+      "pmid": "16177988",
+      "pmcid": null,
+      "title": "Aberrant methylation of H-cadherin (CDH13) promoter is associated with tumor progression in primary nonsmall cell lung carcinoma.",
+      "journal": "Cancer",
+      "pubdate": "2005 Nov 1",
+      "doi_or_elocation": "",
+      "authors": [
+        "Kim JS",
+        "Han J",
+        "Shim YM",
+        "Park J",
+        "Kim DH"
+      ]
+    },
+    {
+      "pmid": "40894025",
+      "pmcid": "PMC12393607",
+      "title": "An interplay of non-coding RNAs regulates CDH13 expression and affects endothelial function and coronary artery disease risk.",
+      "journal": "Research square",
+      "pubdate": "2025 Aug 20",
+      "doi_or_elocation": "pii: rs.3.rs-7333062. doi: 10.21203/rs.3.rs-7333062/v1",
+      "authors": [
+        "Li S",
+        "Song X",
+        "Diagel A",
+        "Li L",
+        "Moggio A",
+        "Chen Y",
+        "Li Z",
+        "Dang T",
+        "Li M",
+        "Shen R",
+        "Ma A",
+        "Schwab M",
+        "Barbera N",
+        "Lehertshuber C",
+        "Romer A",
+        "Brizzi LF",
+        "Krefting J",
+        "Krüger N",
+        "Sager H",
+        "Boon R",
+        "Civelek M",
+        "Romanoski C",
+        "Lusis A",
+        "Schober A",
+        "Kessler T",
+        "von Scheidt M",
+        "Björkegren J",
+        "Maegdefessel L",
+        "Nazari-Jahantigh M",
+        "Schunkert H",
+        "Chen Z"
+      ]
+    },
+    {
+      "pmid": "24297186",
+      "pmcid": "PMC4152934",
+      "title": "Adiponectin signaling in the liver.",
+      "journal": "Reviews in endocrine & metabolic disorders",
+      "pubdate": "2014 Jun",
+      "doi_or_elocation": "doi: 10.1007/s11154-013-9280-6",
+      "authors": [
+        "Combs TP",
+        "Marliss EB"
+      ]
+    },
+    {
+      "pmid": "41388436",
+      "pmcid": "PMC12817644",
+      "title": "Multimodal analysis reveals potential association of CDH13 with endothelial cells and its overexpression in hepatocellular carcinoma.",
+      "journal": "European journal of medical research",
+      "pubdate": "2025 Dec 12",
+      "doi_or_elocation": "doi: 10.1186/s40001-025-03667-0",
+      "authors": [
+        "Wu KJ",
+        "Yang LH",
+        "Li DM",
+        "He RQ",
+        "Qin DY",
+        "Li SD",
+        "Li JD",
+        "Dang YW",
+        "Li MJ",
+        "Li Q",
+        "Li JJ",
+        "Zhang L",
+        "He H",
+        "He JF",
+        "Chen G",
+        "Jiang XB"
+      ]
+    },
+    {
+      "pmid": "41645736",
+      "pmcid": "PMC12902817",
+      "title": "T‑cadherin and its impact on human diseases (Review).",
+      "journal": "Molecular medicine reports",
+      "pubdate": "2026 Apr",
+      "doi_or_elocation": "pii: 110. doi: 10.3892/mmr.2026.13820",
+      "authors": [
+        "Song Y",
+        "Wang X",
+        "Bian Y"
+      ]
+    },
+    {
+      "pmid": "37524131",
+      "pmcid": "PMC10474463",
+      "title": "ER stress decreases exosome production through adiponectin/T-cadherin-dependent and -independent pathways.",
+      "journal": "The Journal of biological chemistry",
+      "pubdate": "2023 Sep",
+      "doi_or_elocation": "doi: 10.1016/j.jbc.2023.105114",
+      "authors": [
+        "Fukuoka K",
+        "Mineo R",
+        "Kita S",
+        "Fukuda S",
+        "Okita T",
+        "Kawada-Horitani E",
+        "Iioka M",
+        "Fujii K",
+        "Kawada K",
+        "Fujishima Y",
+        "Nishizawa H",
+        "Maeda N",
+        "Shimomura I"
+      ]
+    },
+    {
+      "pmid": "30355852",
+      "pmcid": "PMC6283827",
+      "title": "Cell-free plasma hypermethylated CASZ1, CDH13 and ING2 are promising biomarkers of esophageal cancer.",
+      "journal": "Journal of biomedical research",
+      "pubdate": "2018 Nov 20",
+      "doi_or_elocation": "doi: 10.7555/JBR.32.20170065",
+      "authors": [
+        "Wang HQ",
+        "Yang CY",
+        "Wang SY",
+        "Wang T",
+        "Han JL",
+        "Wei K",
+        "Liu FC",
+        "Xu JD",
+        "Peng XZ",
+        "Wang JM"
+      ]
+    },
+    {
+      "pmid": "24417946",
+      "pmcid": "PMC4007141",
+      "title": "Multifaceted roles of adiponectin in cancer.",
+      "journal": "Best practice & research. Clinical endocrinology & metabolism",
+      "pubdate": "2014 Jan",
+      "doi_or_elocation": "doi: 10.1016/j.beem.2013.11.005",
+      "authors": [
+        "Hebbard L",
+        "Ranscht B"
+      ]
+    },
+    {
+      "pmid": "40779984",
+      "pmcid": null,
+      "title": "Soluble T-cadherin ameliorates pressure overload-induced heart failure and cardiac fibrosis in mice.",
+      "journal": "Biochemical and biophysical research communications",
+      "pubdate": "2025 Sep 12",
+      "doi_or_elocation": "doi: 10.1016/j.bbrc.2025.152459",
+      "authors": [
+        "Kondo Y",
+        "Fukuda S",
+        "Kawada K",
+        "Kita S",
+        "Nakamura Y",
+        "Nagao H",
+        "Obata Y",
+        "Fujishima Y",
+        "Maeda N",
+        "Nishizawa H",
+        "Shimomura I"
+      ]
+    },
+    {
+      "pmid": "28183249",
+      "pmcid": "PMC5831726",
+      "title": "Adiponectin as a Potential Therapeutic Target for Prostate Cancer.",
+      "journal": "Current pharmaceutical design",
+      "pubdate": "2017",
+      "doi_or_elocation": "doi: 10.2174/1381612823666170208123553",
+      "authors": [
+        "Karnati HK",
+        "Panigrahi MK",
+        "Li Y",
+        "Tweedie D",
+        "Greig NH"
+      ]
+    },
+    {
+      "pmid": "27900031",
+      "pmcid": "PMC5103978",
+      "title": "Chromosome 16q genes CDH1, CDH13 and ADAMTS18 are correlated and frequently methylated in human lymphoma.",
+      "journal": "Oncology letters",
+      "pubdate": "2016 Nov",
+      "doi_or_elocation": "",
+      "authors": [
+        "Alkebsi L",
+        "Handa H",
+        "Yokohama A",
+        "Saitoh T",
+        "Tsukamoto N",
+        "Murakami H"
+      ]
+    },
+    {
+      "pmid": "36802732",
+      "pmcid": null,
+      "title": "T-cadherin is a novel regulator of pericyte function during angiogenesis.",
+      "journal": "American journal of physiology. Cell physiology",
+      "pubdate": "2023 Apr 1",
+      "doi_or_elocation": "doi: 10.1152/ajpcell.00326.2022",
+      "authors": [
+        "Dasen B",
+        "Pigeot S",
+        "Born GM",
+        "Verrier S",
+        "Rivero O",
+        "Dittrich PS",
+        "Martin I",
+        "Filippova M"
+      ]
+    },
+    {
+      "pmid": "21975561",
+      "pmcid": "PMC3329514",
+      "title": "T-cadherin (Cdh13) in association with pancreatic β-cell granules contributes to second phase insulin secretion.",
+      "journal": "Islets",
+      "pubdate": "2011 Nov-Dec",
+      "doi_or_elocation": "doi: 10.4161/isl.3.6.17705",
+      "authors": [
+        "Tyrberg B",
+        "Miles P",
+        "Azizian KT",
+        "Denzel MS",
+        "Nieves ML",
+        "Monosov EZ",
+        "Levine F",
+        "Ranscht B"
+      ]
+    },
+    {
+      "pmid": "12177241",
+      "pmcid": null,
+      "title": "Loss of T-cadherin (CDH13, H-cadherin) expression in cutaneous squamous cell carcinoma.",
+      "journal": "Laboratory investigation; a journal of technical methods and pathology",
+      "pubdate": "2002 Aug",
+      "doi_or_elocation": "",
+      "authors": [
+        "Takeuchi T",
+        "Liang SB",
+        "Matsuyoshi N",
+        "Zhou S",
+        "Miyachi Y",
+        "Sonobe H",
+        "Ohtsuki Y"
+      ]
+    },
+    {
+      "pmid": "30165120",
+      "pmcid": null,
+      "title": "Early-life stress impairs developmental programming in Cadherin 13 (CDH13)-deficient mice.",
+      "journal": "Progress in neuro-psychopharmacology & biological psychiatry",
+      "pubdate": "2019 Mar 8",
+      "doi_or_elocation": "doi: 10.1016/j.pnpbp.2018.08.010",
+      "authors": [
+        "Kiser DP",
+        "Popp S",
+        "Schmitt-Böhrer AG",
+        "Strekalova T",
+        "van den Hove DL",
+        "Lesch KP",
+        "Rivero O"
+      ]
+    },
+    {
+      "pmid": "36381315",
+      "pmcid": "PMC9641392",
+      "title": "CDH13 is a prognostic biomarker and a potential therapeutic target for patients with clear cell renal cell carcinoma.",
+      "journal": "American journal of cancer research",
+      "pubdate": "2022",
+      "doi_or_elocation": "",
+      "authors": [
+        "Shao Y",
+        "Li W",
+        "Zhang L",
+        "Xue B",
+        "Chen Y",
+        "Zhang Z",
+        "Wang D",
+        "Wu B"
+      ]
+    },
+    {
+      "pmid": "34680515",
+      "pmcid": "PMC8533356",
+      "title": "T-Cadherin and the Ratio of Its Ligands as Predictors of Carotid Atherosclerosis: A Pilot Study.",
+      "journal": "Biomedicines",
+      "pubdate": "2021 Oct 5",
+      "doi_or_elocation": "doi: 10.3390/biomedicines9101398",
+      "authors": [
+        "Balatskiy A",
+        "Teterina M",
+        "Pisaryuk A",
+        "Balabanenko I",
+        "Kadrev A",
+        "Tishuk A",
+        "Balatskaya M",
+        "Samokhodskaya L",
+        "Boytsov S",
+        "Kalinina N",
+        "Tkachuk V"
+      ]
+    },
+    {
+      "pmid": "28647701",
+      "pmcid": "PMC5572305",
+      "title": "Aberrant Methylation of T-cadherin Can Be a Diagnostic Biomarker for Colorectal Cancer.",
+      "journal": "Cancer genomics & proteomics",
+      "pubdate": "2017 Jul-Aug",
+      "doi_or_elocation": "",
+      "authors": [
+        "Duan BS",
+        "Xie LF",
+        "Wang Y"
+      ]
+    },
+    {
+      "pmid": "38123991",
+      "pmcid": "PMC10860569",
+      "title": "Cadherin-13 Maintains Retinotectal Synapses via Transneuronal Interactions.",
+      "journal": "The Journal of neuroscience : the official journal of the Society for Neuroscience",
+      "pubdate": "2024 Jan 31",
+      "doi_or_elocation": "doi: 10.1523/JNEUROSCI.1310-23.2023",
+      "authors": [
+        "Matcham AC",
+        "Toma K",
+        "Tsai NY",
+        "Sze CJ",
+        "Lin PY",
+        "Stewart IF",
+        "Duan X"
+      ]
+    },
+    {
+      "pmid": "20457567",
+      "pmcid": "PMC2882122",
+      "title": "Involvement of members of the cadherin superfamily in cancer.",
+      "journal": "Cold Spring Harbor perspectives in biology",
+      "pubdate": "2009 Dec",
+      "doi_or_elocation": "doi: 10.1101/cshperspect.a003129",
+      "authors": [
+        "Berx G",
+        "van Roy F"
+      ]
+    },
+    {
+      "pmid": "40368888",
+      "pmcid": "PMC12078473",
+      "title": "Cadherins orchestrate specific patterns of perisomatic inhibition onto distinct pyramidal cell populations.",
+      "journal": "Nature communications",
+      "pubdate": "2025 May 14",
+      "doi_or_elocation": "doi: 10.1038/s41467-025-59635-z",
+      "authors": [
+        "Jézéquel J",
+        "Condomitti G",
+        "Kroon T",
+        "Hamid F",
+        "Sanalidou S",
+        "Garcés T",
+        "Maeso P",
+        "Balia M",
+        "Hu Z",
+        "Sahara S",
+        "Rico B"
+      ]
+    },
+    {
+      "pmid": "29669945",
+      "pmcid": "PMC5931116",
+      "title": "Adiponectin/T-cadherin system enhances exosome biogenesis and decreases cellular ceramides by exosomal release.",
+      "journal": "JCI insight",
+      "pubdate": "2018 Apr 19",
+      "doi_or_elocation": "pii: 99680. doi: 10.1172/jci.insight.99680",
+      "authors": [
+        "Obata Y",
+        "Kita S",
+        "Koyama Y",
+        "Fukuda S",
+        "Takeda H",
+        "Takahashi M",
+        "Fujishima Y",
+        "Nagao H",
+        "Masuda S",
+        "Tanaka Y",
+        "Nakamura Y",
+        "Nishizawa H",
+        "Funahashi T",
+        "Ranscht B",
+        "Izumi Y",
+        "Bamba T",
+        "Fukusaki E",
+        "Hanayama R",
+        "Shimada S",
+        "Maeda N",
+        "Shimomura I"
+      ]
+    },
+    {
+      "pmid": "25382980",
+      "pmcid": "PMC4222896",
+      "title": "Prognostic significance of CDH13 hypermethylation and mRNA in NSCLC.",
+      "journal": "OncoTargets and therapy",
+      "pubdate": "2014",
+      "doi_or_elocation": "doi: 10.2147/OTT.S67355",
+      "authors": [
+        "Xue R",
+        "Yang C",
+        "Zhao F",
+        "Li D"
+      ]
+    },
+    {
+      "pmid": "28138401",
+      "pmcid": "PMC5259566",
+      "title": "T-cadherin in prostate cancer: relationship with cancer progression, differentiation and drug resistance.",
+      "journal": "The journal of pathology. Clinical research",
+      "pubdate": "2017 Jan",
+      "doi_or_elocation": "doi: 10.1002/cjp2.61",
+      "authors": [
+        "Dasen B",
+        "Vlajnic T",
+        "Mengus C",
+        "Ruiz C",
+        "Bubendorf L",
+        "Spagnoli G",
+        "Wyler S",
+        "Erne P",
+        "Resink TJ",
+        "Philippova M"
+      ]
+    },
+    {
+      "pmid": "24142632",
+      "pmcid": "PMC3809859",
+      "title": "Association between CDH13 variants and cardiometabolic and vascular phenotypes in a Korean population.",
+      "journal": "Yonsei medical journal",
+      "pubdate": "2013 Nov",
+      "doi_or_elocation": "doi: 10.3349/ymj.2013.54.6.1305",
+      "authors": [
+        "Lee JH",
+        "Shin DJ",
+        "Park S",
+        "Kang SM",
+        "Jang Y",
+        "Lee SH"
+      ]
+    },
+    {
+      "pmid": "37762507",
+      "pmcid": "PMC10531645",
+      "title": "T-Cadherin Deficiency Is Associated with Increased Blood Pressure after Physical Activity.",
+      "journal": "International journal of molecular sciences",
+      "pubdate": "2023 Sep 17",
+      "doi_or_elocation": "doi: 10.3390/ijms241814204",
+      "authors": [
+        "Popov VS",
+        "Brodsky IB",
+        "Balatskaya MN",
+        "Balatskiy AV",
+        "Ozhimalov ID",
+        "Kulebyakina MA",
+        "Semina EV",
+        "Arbatskiy MS",
+        "Isakova VS",
+        "Klimovich PS",
+        "Sysoeva VY",
+        "Kalinina NI",
+        "Tkachuk VA",
+        "Rubina KA"
+      ]
+    },
+    {
+      "pmid": "36439986",
+      "pmcid": "PMC9684056",
+      "title": "Soluble T-cadherin promotes pancreatic β-cell proliferation by upregulating Notch signaling.",
+      "journal": "iScience",
+      "pubdate": "2022 Nov 18",
+      "doi_or_elocation": "doi: 10.1016/j.isci.2022.105404",
+      "authors": [
+        "Okita T",
+        "Kita S",
+        "Fukuda S",
+        "Fukuoka K",
+        "Kawada-Horitani E",
+        "Iioka M",
+        "Nakamura Y",
+        "Fujishima Y",
+        "Nishizawa H",
+        "Kawamori D",
+        "Matsuoka TA",
+        "Norikazu M",
+        "Shimomura I"
+      ]
+    },
+    {
+      "pmid": "34759445",
+      "pmcid": "PMC8563038",
+      "title": "Association of CDH13 Gene Polymorphism and Metabolic Syndrome in Gambian Population.",
+      "journal": "Medical archives (Sarajevo, Bosnia and Herzegovina)",
+      "pubdate": "2021 Aug",
+      "doi_or_elocation": "doi: 10.5455/medarh.2021.75.262-268",
+      "authors": [
+        "Bojang KS",
+        "Lyrawati D",
+        "Sujuti H",
+        "Wahono D"
+      ]
+    },
+    {
+      "pmid": "35259280",
+      "pmcid": "PMC8929526",
+      "title": "T-cadherin Expressing Cells in the Stromal Vascular Fraction of Human Adipose Tissue: Role in Osteogenesis and Angiogenesis.",
+      "journal": "Stem cells translational medicine",
+      "pubdate": "2022 Mar 17",
+      "doi_or_elocation": "doi: 10.1093/stcltm/szab021",
+      "authors": [
+        "Guerrero J",
+        "Dasen B",
+        "Frismantiene A",
+        "Pigeot S",
+        "Ismail T",
+        "Schaefer DJ",
+        "Philippova M",
+        "Resink TJ",
+        "Martin I",
+        "Scherberich A"
+      ]
+    },
+    {
+      "pmid": "25565774",
+      "pmcid": "PMC4278732",
+      "title": "Clinicopathological significance and potential drug target of T-cadherin in NSCLC.",
+      "journal": "Drug design, development and therapy",
+      "pubdate": "2015",
+      "doi_or_elocation": "doi: 10.2147/DDDT.S74259",
+      "authors": [
+        "Wang Z",
+        "Wang B",
+        "Guo H",
+        "Shi G",
+        "Hong X"
+      ]
+    },
+    {
+      "pmid": "27904857",
+      "pmcid": "PMC5121566",
+      "title": "T-Cadherin Expression in the Epidermis and Adnexal Structures of Normal Skin.",
+      "journal": "Dermatopathology (Basel, Switzerland)",
+      "pubdate": "2016 Sep-Dec",
+      "doi_or_elocation": "",
+      "authors": [
+        "Buechner S",
+        "Erne P",
+        "Resink TJ"
+      ]
+    },
+    {
+      "pmid": "28245897",
+      "pmcid": null,
+      "title": "CDH13 Genetic Polymorphisms, Adiponectin and Ischemic Stroke: a Chinese Family-based Sib-pair Study.",
+      "journal": "Biomedical and environmental sciences : BES",
+      "pubdate": "2017 Jan",
+      "doi_or_elocation": "doi: 10.3967/bes2017.004",
+      "authors": [
+        "Chen L",
+        "Sun KX",
+        "Juan J",
+        "Fang K",
+        "Liu K",
+        "Wang XY",
+        "Wang L",
+        "Yang C",
+        "Liu XQ",
+        "Li J",
+        "Tang X",
+        "Wu YQ",
+        "Qin XY",
+        "Wu T",
+        "Chen DF",
+        "Hu YH"
+      ]
+    },
+    {
+      "pmid": "40230838",
+      "pmcid": "PMC11994602",
+      "title": "Decoding the enigmatic role of T-cadherin in tumor angiogenesis.",
+      "journal": "Frontiers in immunology",
+      "pubdate": "2025",
+      "doi_or_elocation": "doi: 10.3389/fimmu.2025.1564130",
+      "authors": [
+        "Wen Y",
+        "Ma L",
+        "Liu Y",
+        "Xiong H",
+        "Shi D"
+      ]
+    },
+    {
+      "pmid": "22815927",
+      "pmcid": "PMC3398886",
+      "title": "Role of the adiponectin binding protein, T-cadherin (Cdh13), in allergic airways responses in mice.",
+      "journal": "PloS one",
+      "pubdate": "2012",
+      "doi_or_elocation": "doi: 10.1371/journal.pone.0041088",
+      "authors": [
+        "Williams AS",
+        "Kasahara DI",
+        "Verbout NG",
+        "Fedulov AV",
+        "Zhu M",
+        "Si H",
+        "Wurmbrand AP",
+        "Hug C",
+        "Ranscht B",
+        "Shore SA"
+      ]
+    },
+    {
+      "pmid": "40422909",
+      "pmcid": "PMC12113554",
+      "title": "Dietary Nicotinamide Mononucleotide, a Key NAD(+) Intermediate, Alleviates Body Fat Mass and Hypertriglyceridemia by Enhancing Energy Expenditure with Promotion of Fat Oxidation and Hepatic Lipolysis and Suppressing Hepatic Lipogenesis in db/db Mice.",
+      "journal": "Metabolites",
+      "pubdate": "2025 May 18",
+      "doi_or_elocation": "doi: 10.3390/metabo15050333",
+      "authors": [
+        "Shirouchi B",
+        "Mitsuta S",
+        "Higuchi M",
+        "Okumura M",
+        "Tanaka K"
+      ]
+    },
+    {
+      "pmid": "40652274",
+      "pmcid": "PMC12255986",
+      "title": "Harnessing adiponectin for sepsis: current knowledge, clinical insights and future therapies.",
+      "journal": "Critical care (London, England)",
+      "pubdate": "2025 Jul 12",
+      "doi_or_elocation": "doi: 10.1186/s13054-025-05516-2",
+      "authors": [
+        "Gianoli S",
+        "Tang J",
+        "Odegard KC",
+        "Yuki K",
+        "Koutsogiannaki S"
+      ]
+    },
+    {
+      "pmid": "38074818",
+      "pmcid": "PMC10703641",
+      "title": "Association of the CDH13 gene variant rs9940180 with schizophrenia risk in North Indian population.",
+      "journal": "American journal of translational research",
+      "pubdate": "2023",
+      "doi_or_elocation": "",
+      "authors": [
+        "Gupta S",
+        "Priya I",
+        "Arora M",
+        "Singh H",
+        "Sharma I",
+        "Sharma S",
+        "Mahajan R",
+        "Kapoor N"
+      ]
+    }
+  ]
+}
