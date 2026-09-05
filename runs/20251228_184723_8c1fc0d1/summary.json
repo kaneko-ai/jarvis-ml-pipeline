@@ -1,0 +1,14 @@
+{
+  "run_id": "20251228_184723_8c1fc0d1",
+  "query": "test",
+  "status": "failed",
+  "papers": 0,
+  "claims": 0,
+  "evidence": 0,
+  "started_at": "2025-12-28T09:47:23.540134+00:00",
+  "finished_at": "2025-12-28T09:47:24.056153+00:00",
+  "artifacts": {
+    "report_md": null,
+    "meta_json": null
+  }
+}

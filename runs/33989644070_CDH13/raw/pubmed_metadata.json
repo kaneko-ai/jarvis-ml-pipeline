@@ -1,0 +1,993 @@
+{
+  "query": "(CDH13[Title/Abstract] OR T-cadherin[Title/Abstract]) AND free full text[filter]",
+  "date_from": null,
+  "date_to": null,
+  "max_results": 50,
+  "num_hit": 50,
+  "records": [
+    {
+      "pmid": "30725726",
+      "pmcid": null,
+      "title": "Biochemistry, Adiponectin.",
+      "journal": "",
+      "pubdate": "2026 Jan",
+      "doi_or_elocation": "",
+      "authors": [
+        "Ramakrishnan N",
+        "Auger K",
+        "Rahimi N",
+        "Jialal I"
+      ]
+    },
+    {
+      "pmid": "40368888",
+      "pmcid": "PMC12078473",
+      "title": "Cadherins orchestrate specific patterns of perisomatic inhibition onto distinct pyramidal cell populations.",
+      "journal": "Nature communications",
+      "pubdate": "2025 May 14",
+      "doi_or_elocation": "doi: 10.1038/s41467-025-59635-z",
+      "authors": [
+        "Jézéquel J",
+        "Condomitti G",
+        "Kroon T",
+        "Hamid F",
+        "Sanalidou S",
+        "Garcés T",
+        "Maeso P",
+        "Balia M",
+        "Hu Z",
+        "Sahara S",
+        "Rico B"
+      ]
+    },
+    {
+      "pmid": "40791538",
+      "pmcid": "PMC12338582",
+      "title": "Hypoxia-Induced Metabolic Reprogramming and Markings of Cell Fate in Concentric Arterial Hypertrophy.",
+      "journal": "bioRxiv : the preprint server for biology",
+      "pubdate": "2025 Jul 14",
+      "doi_or_elocation": "pii: 2025.07.09.663881. doi: 10.1101/2025.07.09.663881",
+      "authors": [
+        "de Almeida LF",
+        "Smith JP",
+        "Yamaguchi M",
+        "Medrano S",
+        "Martini A",
+        "Matsuoka D",
+        "Juśkiewicz ZJ",
+        "Isakson BE",
+        "Yamaguchi H",
+        "Silva DT",
+        "Wagamon T",
+        "Sequeira-Lopez MLS",
+        "Gomez RA"
+      ]
+    },
+    {
+      "pmid": "40826981",
+      "pmcid": "PMC12361875",
+      "title": "Comparative Analysis of Two Digital PCR Platforms for Detecting DNA Methylation in Patient Samples.",
+      "journal": "Cell biochemistry and function",
+      "pubdate": "2025 Aug",
+      "doi_or_elocation": "doi: 10.1002/cbf.70112",
+      "authors": [
+        "Samec M",
+        "Baranova I",
+        "Dvorska D",
+        "Biringer K",
+        "Kalman M",
+        "Pec M",
+        "Dankova Z"
+      ]
+    },
+    {
+      "pmid": "41706877",
+      "pmcid": "PMC12933100",
+      "title": "T-cadherin, a major adiponectin binding partner, suppresses ERK signaling in metabolic tissues.",
+      "journal": "Proceedings of the National Academy of Sciences of the United States of America",
+      "pubdate": "2026 Feb 24",
+      "doi_or_elocation": "doi: 10.1073/pnas.2530597123",
+      "authors": [
+        "Nagao H",
+        "Kondo Y",
+        "Kawada K",
+        "Fujishima Y",
+        "Shiode S",
+        "Uehara Y",
+        "Fukuda S",
+        "Obata Y",
+        "Kita S",
+        "Nishizawa H",
+        "Shimomura I"
+      ]
+    },
+    {
+      "pmid": "41665935",
+      "pmcid": "PMC13038215",
+      "title": "Proteogenomic characterization of cervical cancer identifies molecular subtypes predictive of clinical outcomes and subtype-specific targets.",
+      "journal": "The Journal of clinical investigation",
+      "pubdate": "2026 Apr 1",
+      "doi_or_elocation": "doi: 10.1172/JCI199497",
+      "authors": [
+        "Tian X",
+        "Li M",
+        "Wang Z",
+        "Fang T",
+        "Liu Y",
+        "Fang J",
+        "Wang L",
+        "Jiang Z",
+        "Zhao X",
+        "Cao C",
+        "Yu Z",
+        "Yang M",
+        "Wu S",
+        "Wu Y",
+        "Tian R",
+        "Wang H",
+        "Zhu Y",
+        "Hu Z"
+      ]
+    },
+    {
+      "pmid": "31915248",
+      "pmcid": "PMC7049961",
+      "title": "Mapping and engineering the interaction between adiponectin and T-cadherin.",
+      "journal": "The Journal of biological chemistry",
+      "pubdate": "2020 Feb 28",
+      "doi_or_elocation": "doi: 10.1074/jbc.RA119.010970",
+      "authors": [
+        "Pascolutti R",
+        "Erlandson SC",
+        "Burri DJ",
+        "Zheng S",
+        "Kruse AC"
+      ]
+    },
+    {
+      "pmid": "40779984",
+      "pmcid": null,
+      "title": "Soluble T-cadherin ameliorates pressure overload-induced heart failure and cardiac fibrosis in mice.",
+      "journal": "Biochemical and biophysical research communications",
+      "pubdate": "2025 Sep 12",
+      "doi_or_elocation": "doi: 10.1016/j.bbrc.2025.152459",
+      "authors": [
+        "Kondo Y",
+        "Fukuda S",
+        "Kawada K",
+        "Kita S",
+        "Nakamura Y",
+        "Nagao H",
+        "Obata Y",
+        "Fujishima Y",
+        "Maeda N",
+        "Nishizawa H",
+        "Shimomura I"
+      ]
+    },
+    {
+      "pmid": "41407005",
+      "pmcid": "PMC13527628",
+      "title": "Integrating Multi-Omics Summary Data Identifies Candidate Molecular Mechanisms for Major Depression.",
+      "journal": "Biological psychiatry",
+      "pubdate": "2026 Jun 15",
+      "doi_or_elocation": "doi: 10.1016/j.biopsych.2025.11.024",
+      "authors": [
+        "Nisbet L",
+        "Wu Y",
+        "Adams M",
+        "Lynall ME",
+        "Hjerling-Leffler J",
+        "Psychiatric Genomics Consortium Functional Genomics Working Group",
+        "Wray NR",
+        "McIntosh AM",
+        "Shen X"
+      ]
+    },
+    {
+      "pmid": "40649905",
+      "pmcid": "PMC12250294",
+      "title": "T-Cadherin (CDH13) and Non-Coding RNAs: The Crosstalk Between Health and Disease.",
+      "journal": "International journal of molecular sciences",
+      "pubdate": "2025 Jun 26",
+      "doi_or_elocation": "doi: 10.3390/ijms26136127",
+      "authors": [
+        "Rubina K",
+        "Maier A",
+        "Klimovich P",
+        "Sysoeva V",
+        "Romashin D",
+        "Semina E",
+        "Tkachuk V"
+      ]
+    },
+    {
+      "pmid": "32632018",
+      "pmcid": "PMC7382265",
+      "title": "Adiponectin and related C1q/TNF-related proteins bind selectively to anionic phospholipids and sphingolipids.",
+      "journal": "Proceedings of the National Academy of Sciences of the United States of America",
+      "pubdate": "2020 Jul 21",
+      "doi_or_elocation": "doi: 10.1073/pnas.1922270117",
+      "authors": [
+        "Ye JJ",
+        "Bian X",
+        "Lim J",
+        "Medzhitov R"
+      ]
+    },
+    {
+      "pmid": "36439986",
+      "pmcid": "PMC9684056",
+      "title": "Soluble T-cadherin promotes pancreatic β-cell proliferation by upregulating Notch signaling.",
+      "journal": "iScience",
+      "pubdate": "2022 Nov 18",
+      "doi_or_elocation": "doi: 10.1016/j.isci.2022.105404",
+      "authors": [
+        "Okita T",
+        "Kita S",
+        "Fukuda S",
+        "Fukuoka K",
+        "Kawada-Horitani E",
+        "Iioka M",
+        "Nakamura Y",
+        "Fujishima Y",
+        "Nishizawa H",
+        "Kawamori D",
+        "Matsuoka TA",
+        "Norikazu M",
+        "Shimomura I"
+      ]
+    },
+    {
+      "pmid": "34680515",
+      "pmcid": "PMC8533356",
+      "title": "T-Cadherin and the Ratio of Its Ligands as Predictors of Carotid Atherosclerosis: A Pilot Study.",
+      "journal": "Biomedicines",
+      "pubdate": "2021 Oct 5",
+      "doi_or_elocation": "doi: 10.3390/biomedicines9101398",
+      "authors": [
+        "Balatskiy A",
+        "Teterina M",
+        "Pisaryuk A",
+        "Balabanenko I",
+        "Kadrev A",
+        "Tishuk A",
+        "Balatskaya M",
+        "Samokhodskaya L",
+        "Boytsov S",
+        "Kalinina N",
+        "Tkachuk V"
+      ]
+    },
+    {
+      "pmid": "36802732",
+      "pmcid": null,
+      "title": "T-cadherin is a novel regulator of pericyte function during angiogenesis.",
+      "journal": "American journal of physiology. Cell physiology",
+      "pubdate": "2023 Apr 1",
+      "doi_or_elocation": "doi: 10.1152/ajpcell.00326.2022",
+      "authors": [
+        "Dasen B",
+        "Pigeot S",
+        "Born GM",
+        "Verrier S",
+        "Rivero O",
+        "Dittrich PS",
+        "Martin I",
+        "Filippova M"
+      ]
+    },
+    {
+      "pmid": "31049318",
+      "pmcid": "PMC6489029",
+      "title": "T-Cadherin Expression in Actinic Keratosis Transforming to Invasive Squamous Cell Carcinoma.",
+      "journal": "Dermatopathology (Basel, Switzerland)",
+      "pubdate": "2019 Jan-Mar",
+      "doi_or_elocation": "doi: 10.1159/000495609",
+      "authors": [
+        "Buechner SA",
+        "Resink TJ"
+      ]
+    },
+    {
+      "pmid": "39047402",
+      "pmcid": null,
+      "title": "Soluble T-cadherin secretion from endothelial cells is regulated via insulin/PI3K/Akt signalling.",
+      "journal": "Biochemical and biophysical research communications",
+      "pubdate": "2024 Nov 5",
+      "doi_or_elocation": "doi: 10.1016/j.bbrc.2024.150403",
+      "authors": [
+        "Okita T",
+        "Kita S",
+        "Fukuda S",
+        "Kondo Y",
+        "Sakaue TA",
+        "Iioka M",
+        "Fukuoka K",
+        "Kawada K",
+        "Nagao H",
+        "Obata Y",
+        "Fujishima Y",
+        "Ebihara T",
+        "Matsumoto H",
+        "Nakagawa S",
+        "Kimura T",
+        "Nishizawa H",
+        "Shimomura I"
+      ]
+    },
+    {
+      "pmid": "29896272",
+      "pmcid": "PMC5995936",
+      "title": "Genomic and epigenetic signatures associated with survival rate in oral squamous cell carcinoma patients.",
+      "journal": "Journal of Cancer",
+      "pubdate": "2018",
+      "doi_or_elocation": "doi: 10.7150/jca.23239",
+      "authors": [
+        "Ribeiro IP",
+        "Caramelo F",
+        "Esteves L",
+        "Oliveira C",
+        "Marques F",
+        "Barroso L",
+        "Melo JB",
+        "Carreira IM"
+      ]
+    },
+    {
+      "pmid": "28513775",
+      "pmcid": "PMC5479391",
+      "title": "Adiponectin inhibits oxidization-induced differentiation of T helper cells through inhibiting costimulatory CD40 and CD80.",
+      "journal": "Brazilian journal of medical and biological research = Revista brasileira de pesquisas medicas e biologicas",
+      "pubdate": "2017 May 15",
+      "doi_or_elocation": "doi: 10.1590/1414-431X20176227",
+      "authors": [
+        "Xiao Y",
+        "Deng T",
+        "Shang Z",
+        "Wang D"
+      ]
+    },
+    {
+      "pmid": "28103886",
+      "pmcid": "PMC5244578",
+      "title": "T-cadherin deficiency increases vascular vulnerability in T2DM through impaired NO bioactivity.",
+      "journal": "Cardiovascular diabetology",
+      "pubdate": "2017 Jan 19",
+      "doi_or_elocation": "doi: 10.1186/s12933-016-0488-0",
+      "authors": [
+        "Wang H",
+        "Tao L",
+        "Ambrosio A",
+        "Yan W",
+        "Summer R",
+        "Lau WB",
+        "Wang Y",
+        "Ma X"
+      ]
+    },
+    {
+      "pmid": "32127937",
+      "pmcid": "PMC7052920",
+      "title": "Cadherin 13 Inhibits Pancreatic Cancer Progression and Epithelial-mesenchymal Transition by Wnt/β-Catenin Signaling.",
+      "journal": "Journal of Cancer",
+      "pubdate": "2020",
+      "doi_or_elocation": "doi: 10.7150/jca.37762",
+      "authors": [
+        "Xu D",
+        "Yuan H",
+        "Meng Z",
+        "Yang C",
+        "Li Z",
+        "Li M",
+        "Zhang Z",
+        "Gan Y",
+        "Tu H"
+      ]
+    },
+    {
+      "pmid": "34456860",
+      "pmcid": "PMC8387580",
+      "title": "Adipocyte-Endothelium Crosstalk in Obesity.",
+      "journal": "Frontiers in endocrinology",
+      "pubdate": "2021",
+      "doi_or_elocation": "doi: 10.3389/fendo.2021.681290",
+      "authors": [
+        "Sabaratnam R",
+        "Svenningsen P"
+      ]
+    },
+    {
+      "pmid": "37768324",
+      "pmcid": "PMC10564453",
+      "title": "Status and physiological significance of circulating adiponectin in the very old and centenarians: an observational study.",
+      "journal": "eLife",
+      "pubdate": "2023 Sep 28",
+      "doi_or_elocation": "doi: 10.7554/eLife.86309",
+      "authors": [
+        "Sasaki T",
+        "Nishimoto Y",
+        "Hirata T",
+        "Abe Y",
+        "Hirose N",
+        "Takayama M",
+        "Takebayashi T",
+        "Okano H",
+        "Arai Y"
+      ]
+    },
+    {
+      "pmid": "24297186",
+      "pmcid": "PMC4152934",
+      "title": "Adiponectin signaling in the liver.",
+      "journal": "Reviews in endocrine & metabolic disorders",
+      "pubdate": "2014 Jun",
+      "doi_or_elocation": "doi: 10.1007/s11154-013-9280-6",
+      "authors": [
+        "Combs TP",
+        "Marliss EB"
+      ]
+    },
+    {
+      "pmid": "29669945",
+      "pmcid": "PMC5931116",
+      "title": "Adiponectin/T-cadherin system enhances exosome biogenesis and decreases cellular ceramides by exosomal release.",
+      "journal": "JCI insight",
+      "pubdate": "2018 Apr 19",
+      "doi_or_elocation": "pii: 99680. doi: 10.1172/jci.insight.99680",
+      "authors": [
+        "Obata Y",
+        "Kita S",
+        "Koyama Y",
+        "Fukuda S",
+        "Takeda H",
+        "Takahashi M",
+        "Fujishima Y",
+        "Nagao H",
+        "Masuda S",
+        "Tanaka Y",
+        "Nakamura Y",
+        "Nishizawa H",
+        "Funahashi T",
+        "Ranscht B",
+        "Izumi Y",
+        "Bamba T",
+        "Fukusaki E",
+        "Hanayama R",
+        "Shimada S",
+        "Maeda N",
+        "Shimomura I"
+      ]
+    },
+    {
+      "pmid": "28138401",
+      "pmcid": "PMC5259566",
+      "title": "T-cadherin in prostate cancer: relationship with cancer progression, differentiation and drug resistance.",
+      "journal": "The journal of pathology. Clinical research",
+      "pubdate": "2017 Jan",
+      "doi_or_elocation": "doi: 10.1002/cjp2.61",
+      "authors": [
+        "Dasen B",
+        "Vlajnic T",
+        "Mengus C",
+        "Ruiz C",
+        "Bubendorf L",
+        "Spagnoli G",
+        "Wyler S",
+        "Erne P",
+        "Resink TJ",
+        "Philippova M"
+      ]
+    },
+    {
+      "pmid": "31886853",
+      "pmcid": null,
+      "title": "T-cadherin inhibits invasion and migration of endometrial stromal cells in endometriosis.",
+      "journal": "Human reproduction (Oxford, England)",
+      "pubdate": "2020 Jan 1",
+      "doi_or_elocation": "doi: 10.1093/humrep/dez252",
+      "authors": [
+        "Lu Q",
+        "Huang Y",
+        "Wu J",
+        "Guan Y",
+        "Du M",
+        "Wang F",
+        "Liu Z",
+        "Zhu Y",
+        "Gong G",
+        "Hou H",
+        "Zhang M",
+        "Zhang JY",
+        "Ning F",
+        "Chen L",
+        "Wang L",
+        "Lash GE"
+      ]
+    },
+    {
+      "pmid": "41234274",
+      "pmcid": "PMC12607027",
+      "title": "Multisite, Multiancestry Genome-Wide Association Study Meta-Analysis of Functional Seizure Disorder in a Hospital Sample of 675,680 Patients.",
+      "journal": "Biological psychiatry global open science",
+      "pubdate": "2026 Jan",
+      "doi_or_elocation": "doi: 10.1016/j.bpsgos.2025.100604",
+      "authors": [
+        "Goleva SB",
+        "Leu C",
+        "Anne Feng YC",
+        "Burstein D",
+        "Venkatesh S",
+        "Birnbaum R",
+        "Rajagopal VM",
+        "Straub P",
+        "Christensen J",
+        "Bautista JF",
+        "Busch RM",
+        "Najm IM",
+        "Grove J",
+        "Børglum AD",
+        "Voloudakis G",
+        "Roussos P",
+        "Smoller J",
+        "Lal D",
+        "Davis LK"
+      ]
+    },
+    {
+      "pmid": "37762507",
+      "pmcid": "PMC10531645",
+      "title": "T-Cadherin Deficiency Is Associated with Increased Blood Pressure after Physical Activity.",
+      "journal": "International journal of molecular sciences",
+      "pubdate": "2023 Sep 17",
+      "doi_or_elocation": "doi: 10.3390/ijms241814204",
+      "authors": [
+        "Popov VS",
+        "Brodsky IB",
+        "Balatskaya MN",
+        "Balatskiy AV",
+        "Ozhimalov ID",
+        "Kulebyakina MA",
+        "Semina EV",
+        "Arbatskiy MS",
+        "Isakova VS",
+        "Klimovich PS",
+        "Sysoeva VY",
+        "Kalinina NI",
+        "Tkachuk VA",
+        "Rubina KA"
+      ]
+    },
+    {
+      "pmid": "34386506",
+      "pmcid": "PMC8353102",
+      "title": "PTEN Hamartoma Tumor Syndrome: Skin Manifestations and Insights Into Their Molecular Pathogenesis.",
+      "journal": "Frontiers in medicine",
+      "pubdate": "2021",
+      "doi_or_elocation": "doi: 10.3389/fmed.2021.688105",
+      "authors": [
+        "Innella G",
+        "Bonora E",
+        "Neri I",
+        "Virdi A",
+        "Guglielmo A",
+        "Pradella LM",
+        "Ceccarelli C",
+        "Amato LB",
+        "Lanzoni A",
+        "Miccoli S",
+        "Gasparre G",
+        "Zuntini R",
+        "Turchetti D"
+      ]
+    },
+    {
+      "pmid": "41026459",
+      "pmcid": "PMC12644238",
+      "title": "Elucidate biomarkers and the molecular pathways associated with genetic variants that contribute to the etiology of Parkinson's disease.",
+      "journal": "Acta neurologica Belgica",
+      "pubdate": "2025 Dec",
+      "doi_or_elocation": "doi: 10.1007/s13760-025-02897-7",
+      "authors": [
+        "Nguyen HD"
+      ]
+    },
+    {
+      "pmid": "41490662",
+      "pmcid": null,
+      "title": "Essential role of endothelial T-cadherin in the transcytosis of circulating high-molecular-weight adiponectin to sub-vascular tissues.",
+      "journal": "Metabolism: clinical and experimental",
+      "pubdate": "2026 Apr",
+      "doi_or_elocation": "doi: 10.1016/j.metabol.2025.156488",
+      "authors": [
+        "Shiode S",
+        "Fujishima Y",
+        "Fukuoka K",
+        "Inoue S",
+        "Shirono A",
+        "Shirakura K",
+        "Okada Y",
+        "Koyama Y",
+        "Kondo Y",
+        "Fujii K",
+        "Kawada K",
+        "Nagao H",
+        "Obata Y",
+        "Fukuda S",
+        "Kita S",
+        "Shimada S",
+        "Maeda N",
+        "Nishizawa H",
+        "Shimomura I"
+      ]
+    },
+    {
+      "pmid": "37577021",
+      "pmcid": "PMC10419680",
+      "title": "Epigenetic methylation changes: implication as biomarkers in oral and maxillofacial area cancers.",
+      "journal": "Medicine and pharmacy reports",
+      "pubdate": "2023 Jul",
+      "doi_or_elocation": "doi: 10.15386/mpr-2570",
+      "authors": [
+        "Aghiorghiesei O",
+        "Irimie AI",
+        "Braicu C",
+        "Raduly L",
+        "Nutu A",
+        "Balint E",
+        "Mehterov N",
+        "Vladimirov B",
+        "Sarafian V",
+        "Lucaciu O",
+        "Campian R",
+        "Berindan-Neagoe I"
+      ]
+    },
+    {
+      "pmid": "34959666",
+      "pmcid": "PMC8703455",
+      "title": "An Explanation for the Adiponectin Paradox.",
+      "journal": "Pharmaceuticals (Basel, Switzerland)",
+      "pubdate": "2021 Dec 4",
+      "doi_or_elocation": "doi: 10.3390/ph14121266",
+      "authors": [
+        "Kalkman HO"
+      ]
+    },
+    {
+      "pmid": "39717846",
+      "pmcid": "PMC11663858",
+      "title": "T-cadherin modulates adipogenic differentiation in mesenchymal stem cells: insights into ligand interactions.",
+      "journal": "Frontiers in cell and developmental biology",
+      "pubdate": "2024",
+      "doi_or_elocation": "doi: 10.3389/fcell.2024.1446363",
+      "authors": [
+        "Sysoeva V",
+        "Semina E",
+        "Klimovich P",
+        "Kulebyakin K",
+        "Dzreyan V",
+        "Sotskaya E",
+        "Shchipova A",
+        "Popov V",
+        "Shilova A",
+        "Brodsky I",
+        "Khabibullin N",
+        "Voloshin N",
+        "Tkachuk V",
+        "Rubina K"
+      ]
+    },
+    {
+      "pmid": "37291913",
+      "pmcid": "PMC10258065",
+      "title": "[Genotype-environment interaction on arterial stiffness: A pedigree-based study].",
+      "journal": "Beijing da xue xue bao. Yi xue ban = Journal of Peking University. Health sciences",
+      "pubdate": "2023 Jun 18",
+      "doi_or_elocation": "",
+      "authors": [
+        "Wang XH",
+        "Wang SY",
+        "Peng HX",
+        "Fan M",
+        "Guo HD",
+        "Hou TJ",
+        "Wang MY",
+        "Wu YQ",
+        "Qin XY",
+        "Tang X",
+        "Li J",
+        "Chen DF",
+        "Hu YH",
+        "Wu T"
+      ]
+    },
+    {
+      "pmid": "19726744",
+      "pmcid": null,
+      "title": "T-cadherin is located in the nucleus and centrosomes in endothelial cells.",
+      "journal": "American journal of physiology. Cell physiology",
+      "pubdate": "2009 Nov",
+      "doi_or_elocation": "doi: 10.1152/ajpcell.00237.2009",
+      "authors": [
+        "Andreeva AV",
+        "Kutuzov MA",
+        "Tkachuk VA",
+        "Voyno-Yasenetskaya TA"
+      ]
+    },
+    {
+      "pmid": "27579475",
+      "pmcid": "PMC5082297",
+      "title": "Cadherin 13: human cis-regulation and selectively-altered addiction phenotypes and cerebral cortical dopamine in knockout mice.",
+      "journal": "Molecular medicine (Cambridge, Mass.)",
+      "pubdate": "2016 Oct",
+      "doi_or_elocation": "doi: 10.2119/molmed.2015.00170",
+      "authors": [
+        "Drgonova J",
+        "Walther D",
+        "Hartstein GL",
+        "Bukhari MO",
+        "Baumann MH",
+        "Katz J",
+        "Hall FS",
+        "Arnold ER",
+        "Flax S",
+        "Riley A",
+        "Rivero-Martin O",
+        "Lesch KP",
+        "Troncoso J",
+        "Ranscht B",
+        "Uhl GR"
+      ]
+    },
+    {
+      "pmid": "33818827",
+      "pmcid": "PMC8360034",
+      "title": "microRNA-377-3p downregulates the oncosuppressor T-cadherin in colorectal adenocarcinoma cells.",
+      "journal": "Cell biology international",
+      "pubdate": "2021 Aug",
+      "doi_or_elocation": "doi: 10.1002/cbin.11605",
+      "authors": [
+        "Di Palo A",
+        "Siniscalchi C",
+        "Polito R",
+        "Nigro E",
+        "Russo A",
+        "Daniele A",
+        "Potenza N"
+      ]
+    },
+    {
+      "pmid": "36082629",
+      "pmcid": null,
+      "title": "Twin Study: Genetic and Epigenetic Factors Affecting Circulating Adiponectin Levels.",
+      "journal": "The Journal of clinical endocrinology and metabolism",
+      "pubdate": "2022 Dec 17",
+      "doi_or_elocation": "doi: 10.1210/clinem/dgac532",
+      "authors": [
+        "Hasegawa M",
+        "Taniguchi J",
+        "Ueda H",
+        "Watanabe M"
+      ]
+    },
+    {
+      "pmid": "40892706",
+      "pmcid": "PMC12404459",
+      "title": "Gut fungi are associated with human genetic variation and disease risk.",
+      "journal": "PLoS biology",
+      "pubdate": "2025 Sep",
+      "doi_or_elocation": "doi: 10.1371/journal.pbio.3003339",
+      "authors": [
+        "Van Syoc EP",
+        "Davenport ER",
+        "Bordenstein SR"
+      ]
+    },
+    {
+      "pmid": "29854012",
+      "pmcid": "PMC5975622",
+      "title": "Urine cell-based DNA methylation classifier for monitoring bladder cancer.",
+      "journal": "Clinical epigenetics",
+      "pubdate": "2018",
+      "doi_or_elocation": "doi: 10.1186/s13148-018-0496-x",
+      "authors": [
+        "van der Heijden AG",
+        "Mengual L",
+        "Ingelmo-Torres M",
+        "Lozano JJ",
+        "van Rijt-van de Westerlo CCM",
+        "Baixauli M",
+        "Geavlete B",
+        "Moldoveanud C",
+        "Ene C",
+        "Dinney CP",
+        "Czerniak B",
+        "Schalken JA",
+        "Kiemeney LALM",
+        "Ribal MJ",
+        "Witjes JA",
+        "Alcaraz A"
+      ]
+    },
+    {
+      "pmid": "28386779",
+      "pmcid": "PMC5676827",
+      "title": "Protective role of Cadherin 13 in interneuron development.",
+      "journal": "Brain structure & function",
+      "pubdate": "2017 Nov",
+      "doi_or_elocation": "doi: 10.1007/s00429-017-1418-y",
+      "authors": [
+        "Killen AC",
+        "Barber M",
+        "Paulin JJW",
+        "Ranscht B",
+        "Parnavelas JG",
+        "Andrews WD"
+      ]
+    },
+    {
+      "pmid": "27904857",
+      "pmcid": "PMC5121566",
+      "title": "T-Cadherin Expression in the Epidermis and Adnexal Structures of Normal Skin.",
+      "journal": "Dermatopathology (Basel, Switzerland)",
+      "pubdate": "2016 Sep-Dec",
+      "doi_or_elocation": "",
+      "authors": [
+        "Buechner S",
+        "Erne P",
+        "Resink TJ"
+      ]
+    },
+    {
+      "pmid": "23824191",
+      "pmcid": "PMC3750183",
+      "title": "T-cadherin is essential for adiponectin-mediated revascularization.",
+      "journal": "The Journal of biological chemistry",
+      "pubdate": "2013 Aug 23",
+      "doi_or_elocation": "doi: 10.1074/jbc.M113.454835",
+      "authors": [
+        "Parker-Duffen JL",
+        "Nakamura K",
+        "Silver M",
+        "Kikuchi R",
+        "Tigges U",
+        "Yoshida S",
+        "Denzel MS",
+        "Ranscht B",
+        "Walsh K"
+      ]
+    },
+    {
+      "pmid": "41217272",
+      "pmcid": "PMC13003588",
+      "title": "T-cadherin deprivation in endothelial cells promotes vascular injury in Kawasaki disease through SOD2/ROS/NLRP3 pathway-mediated pyroptosis.",
+      "journal": "Journal of molecular cell biology",
+      "pubdate": "2026 Mar 19",
+      "doi_or_elocation": "doi: 10.1093/jmcb/mjaf039",
+      "authors": [
+        "Lin Y",
+        "Wang F",
+        "Luo X",
+        "Yang X",
+        "Yang W",
+        "Lu Z",
+        "Wang Z",
+        "Zhou H",
+        "Ruan M",
+        "Chen K",
+        "Fu L",
+        "Pi L",
+        "Che D",
+        "Yu H",
+        "Gu X"
+      ]
+    },
+    {
+      "pmid": "37524131",
+      "pmcid": "PMC10474463",
+      "title": "ER stress decreases exosome production through adiponectin/T-cadherin-dependent and -independent pathways.",
+      "journal": "The Journal of biological chemistry",
+      "pubdate": "2023 Sep",
+      "doi_or_elocation": "doi: 10.1016/j.jbc.2023.105114",
+      "authors": [
+        "Fukuoka K",
+        "Mineo R",
+        "Kita S",
+        "Fukuda S",
+        "Okita T",
+        "Kawada-Horitani E",
+        "Iioka M",
+        "Fujii K",
+        "Kawada K",
+        "Fujishima Y",
+        "Nishizawa H",
+        "Maeda N",
+        "Shimomura I"
+      ]
+    },
+    {
+      "pmid": "33808741",
+      "pmcid": "PMC8003554",
+      "title": "The Missing Protein: Is T-Cadherin a Previously Unknown GPI-Anchored Receptor on Platelets?",
+      "journal": "Membranes",
+      "pubdate": "2021 Mar 19",
+      "doi_or_elocation": "doi: 10.3390/membranes11030218",
+      "authors": [
+        "Balatskaya MN",
+        "Baglay AI",
+        "Balatskiy AV"
+      ]
+    },
+    {
+      "pmid": "20887962",
+      "pmcid": "PMC2948810",
+      "title": "Adiponectin concentrations: a genome-wide association study.",
+      "journal": "American journal of human genetics",
+      "pubdate": "2010 Oct 8",
+      "doi_or_elocation": "doi: 10.1016/j.ajhg.2010.09.004",
+      "authors": [
+        "Jee SH",
+        "Sull JW",
+        "Lee JE",
+        "Shin C",
+        "Park J",
+        "Kimm H",
+        "Cho EY",
+        "Shin ES",
+        "Yun JE",
+        "Park JW",
+        "Kim SY",
+        "Lee SJ",
+        "Jee EJ",
+        "Baik I",
+        "Kao L",
+        "Yoon SK",
+        "Jang Y",
+        "Beaty TH"
+      ]
+    },
+    {
+      "pmid": "33539522",
+      "pmcid": "PMC8063249",
+      "title": "Identification and Clinical Associations of 3 Forms of Circulating T-cadherin in Human Serum.",
+      "journal": "The Journal of clinical endocrinology and metabolism",
+      "pubdate": "2021 Apr 23",
+      "doi_or_elocation": "doi: 10.1210/clinem/dgab066",
+      "authors": [
+        "Fukuda S",
+        "Kita S",
+        "Miyashita K",
+        "Iioka M",
+        "Murai J",
+        "Nakamura T",
+        "Nishizawa H",
+        "Fujishima Y",
+        "Morinaga J",
+        "Oike Y",
+        "Maeda N",
+        "Shimomura I"
+      ]
+    },
+    {
+      "pmid": "36401196",
+      "pmcid": "PMC9673343",
+      "title": "Relevance of the pyroptosis-related inflammasome drug targets in the Chuanxiong to improve diabetic nephropathy.",
+      "journal": "Molecular medicine (Cambridge, Mass.)",
+      "pubdate": "2022 Nov 18",
+      "doi_or_elocation": "doi: 10.1186/s10020-022-00567-5",
+      "authors": [
+        "Li C",
+        "Ma J",
+        "Mali N",
+        "Zhang L",
+        "Wei T",
+        "Shi L",
+        "Liu F",
+        "WenXing F",
+        "Yang J"
+      ]
+    }
+  ]
+}
