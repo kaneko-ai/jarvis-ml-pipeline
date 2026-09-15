@@ -1,0 +1,1 @@
+{"run_id": "fixture_run_001", "created_at": "2025-01-01T00:00:00Z", "status": "success", "papers_found": 12, "gate_passed": true, "archived_at": "2026-09-15T21:17:47.839354+00:00", "reason": "keep_days=14, keep_last=50"}

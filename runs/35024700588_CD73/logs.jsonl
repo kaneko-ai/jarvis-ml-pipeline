@@ -1,0 +1,5 @@
+{"type": "event", "stage": "start", "message": "Pipeline start", "at": "2026-09-15T21:17:13.550897+00:00"}
+{"type": "progress", "percent": 25, "stage": "config", "message": "Creating pipeline configuration", "counters": {"query": "(CD73[Title/Abstract] OR NT5E[Title/Abstract]) AND free full text[filter]"}, "at": "2026-09-15T21:17:13.551012+00:00"}
+{"type": "progress", "percent": 30, "stage": "pipeline", "message": "Running paper collection pipeline", "counters": {}, "at": "2026-09-15T21:17:13.553858+00:00"}
+{"type": "event", "stage": "pipeline", "message": "Pipeline completed", "at": "2026-09-15T21:17:23.768206+00:00"}
+{"type": "progress", "percent": 85, "stage": "artifacts", "message": "Generating artifacts", "counters": {}, "at": "2026-09-15T21:17:23.768538+00:00"}

@@ -1,0 +1,18 @@
+{
+  "run_id": "35024700588_CD73",
+  "query": "(CD73[Title/Abstract] OR NT5E[Title/Abstract]) AND free full text[filter]",
+  "status": "success",
+  "started_at": "2026-09-15T21:17:13.547312+00:00",
+  "finished_at": "2026-09-15T21:17:23.768779+00:00",
+  "updated_at": "2026-09-15T21:17:23.769789+00:00",
+  "index_version": "35024700588_CD73",
+  "pmids": 50,
+  "meta": 50,
+  "pmcids": 45,
+  "pdf_ok": 0,
+  "pdf_fail": 45,
+  "chunks": 0,
+  "index_ok": 1,
+  "failed": false,
+  "error": ""
+}

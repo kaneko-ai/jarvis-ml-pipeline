@@ -1,0 +1,907 @@
+{
+  "snapshot_version": 1,
+  "run_id": "35024700588_CDH13",
+  "created_at": "2026-09-15T21:17:19.881350+00:00",
+  "metadata": {
+    "query": "(CDH13[Title/Abstract] OR T-cadherin[Title/Abstract]) AND free full text[filter]",
+    "date_from": null,
+    "date_to": null,
+    "max_results": 50
+  },
+  "sources": [
+    {
+      "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=%28CDH13%5BTitle%2FAbstract%5D+OR+T-cadherin%5BTitle%2FAbstract%5D%29+AND+free+full+text%5Bfilter%5D&retmax=50&retmode=json&sort=relevance&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pubmed_esearch",
+      "status": "success",
+      "requested_at": "2026-09-15T21:17:19.881738+00:00",
+      "completed_at": "2026-09-15T21:17:20.307399+00:00",
+      "http_status": 200,
+      "hash": "668724f5c6339e136e790f2b521e4236846645420cec12916474f0da87cfdee7",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "query": "(CDH13[Title/Abstract] OR T-cadherin[Title/Abstract]) AND free full text[filter]",
+        "date_from": null,
+        "date_to": null,
+        "max_results": 50,
+        "params": {
+          "db": "pubmed",
+          "term": "(CDH13[Title/Abstract] OR T-cadherin[Title/Abstract]) AND free full text[filter]",
+          "retmax": "50",
+          "retmode": "json",
+          "sort": "relevance",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=30725726%2C40368888%2C40954501%2C40826981%2C40791538%2C41665935%2C31915248%2C40779984%2C41407005%2C36439986%2C34680515%2C36802732%2C33983957%2C31049318%2C39047402%2C29896272%2C28513775%2C28103886%2C32127937%2C34456860%2C37768324%2C24297186%2C29669945%2C28138401%2C31886853%2C40892706%2C41234274%2C37762507%2C34386506%2C41026459%2C41490662%2C37577021%2C34959666%2C40649905%2C39717846%2C37291913%2C19726744%2C27579475%2C33818827%2C36082629%2C29854012%2C28386779%2C27904857%2C23824191%2C41217272%2C37524131%2C33808741%2C20887962%2C33539522%2C36401196&retmode=json&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pubmed_esummary",
+      "status": "success",
+      "requested_at": "2026-09-15T21:17:20.309568+00:00",
+      "completed_at": "2026-09-15T21:17:20.805134+00:00",
+      "http_status": 200,
+      "hash": "18925b4bfd97ae3aab94728edf2da591e3f14d92f5f6c1d4598011bc30a528af",
+      "output_path": null,
+      "error": null,
+      "metadata": {
+        "pmids": [
+          "30725726",
+          "40368888",
+          "40954501",
+          "40826981",
+          "40791538",
+          "41665935",
+          "31915248",
+          "40779984",
+          "41407005",
+          "36439986",
+          "34680515",
+          "36802732",
+          "33983957",
+          "31049318",
+          "39047402",
+          "29896272",
+          "28513775",
+          "28103886",
+          "32127937",
+          "34456860",
+          "37768324",
+          "24297186",
+          "29669945",
+          "28138401",
+          "31886853",
+          "40892706",
+          "41234274",
+          "37762507",
+          "34386506",
+          "41026459",
+          "41490662",
+          "37577021",
+          "34959666",
+          "40649905",
+          "39717846",
+          "37291913",
+          "19726744",
+          "27579475",
+          "33818827",
+          "36082629",
+          "29854012",
+          "28386779",
+          "27904857",
+          "23824191",
+          "41217272",
+          "37524131",
+          "33808741",
+          "20887962",
+          "33539522",
+          "36401196"
+        ],
+        "params": {
+          "db": "pubmed",
+          "id": "30725726,40368888,40954501,40826981,40791538,41665935,31915248,40779984,41407005,36439986,34680515,36802732,33983957,31049318,39047402,29896272,28513775,28103886,32127937,34456860,37768324,24297186,29669945,28138401,31886853,40892706,41234274,37762507,34386506,41026459,41490662,37577021,34959666,40649905,39717846,37291913,19726744,27579475,33818827,36082629,29854012,28386779,27904857,23824191,41217272,37524131,33808741,20887962,33539522,36401196",
+          "retmode": "json",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12078473&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:20.807990+00:00",
+      "completed_at": "2026-09-15T21:17:21.049624+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12078473&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC12078473",
+        "params": {
+          "id": "PMC12078473",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12434922&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:21.051588+00:00",
+      "completed_at": "2026-09-15T21:17:21.202105+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12434922&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC12434922",
+        "params": {
+          "id": "PMC12434922",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12361875&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:21.204128+00:00",
+      "completed_at": "2026-09-15T21:17:21.489828+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12361875&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC12361875",
+        "params": {
+          "id": "PMC12361875",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12338582&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:21.491861+00:00",
+      "completed_at": "2026-09-15T21:17:21.645014+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12338582&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC12338582",
+        "params": {
+          "id": "PMC12338582",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC13038215&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:21.647088+00:00",
+      "completed_at": "2026-09-15T21:17:21.925694+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC13038215&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC13038215",
+        "params": {
+          "id": "PMC13038215",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC7049961&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:21.927886+00:00",
+      "completed_at": "2026-09-15T21:17:22.212503+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC7049961&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC7049961",
+        "params": {
+          "id": "PMC7049961",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC13527628&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:22.214682+00:00",
+      "completed_at": "2026-09-15T21:17:22.502656+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC13527628&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC13527628",
+        "params": {
+          "id": "PMC13527628",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC9684056&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:22.505121+00:00",
+      "completed_at": "2026-09-15T21:17:22.793728+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC9684056&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC9684056",
+        "params": {
+          "id": "PMC9684056",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8533356&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:22.795850+00:00",
+      "completed_at": "2026-09-15T21:17:23.084338+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8533356&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC8533356",
+        "params": {
+          "id": "PMC8533356",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8118531&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:23.086507+00:00",
+      "completed_at": "2026-09-15T21:17:23.241473+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8118531&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC8118531",
+        "params": {
+          "id": "PMC8118531",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC6489029&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:23.243647+00:00",
+      "completed_at": "2026-09-15T21:17:23.397005+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC6489029&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC6489029",
+        "params": {
+          "id": "PMC6489029",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5995936&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:23.399324+00:00",
+      "completed_at": "2026-09-15T21:17:23.558751+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5995936&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC5995936",
+        "params": {
+          "id": "PMC5995936",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5479391&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:23.561123+00:00",
+      "completed_at": "2026-09-15T21:17:23.719298+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5479391&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC5479391",
+        "params": {
+          "id": "PMC5479391",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5244578&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:23.723644+00:00",
+      "completed_at": "2026-09-15T21:17:24.028337+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5244578&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC5244578",
+        "params": {
+          "id": "PMC5244578",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC7052920&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:24.032037+00:00",
+      "completed_at": "2026-09-15T21:17:24.232049+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC7052920&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC7052920",
+        "params": {
+          "id": "PMC7052920",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8387580&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:24.234776+00:00",
+      "completed_at": "2026-09-15T21:17:24.518158+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8387580&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC8387580",
+        "params": {
+          "id": "PMC8387580",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC10564453&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:24.521076+00:00",
+      "completed_at": "2026-09-15T21:17:24.802087+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC10564453&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC10564453",
+        "params": {
+          "id": "PMC10564453",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC4152934&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:24.804560+00:00",
+      "completed_at": "2026-09-15T21:17:24.962355+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC4152934&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC4152934",
+        "params": {
+          "id": "PMC4152934",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5931116&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:24.964904+00:00",
+      "completed_at": "2026-09-15T21:17:25.252669+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5931116&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC5931116",
+        "params": {
+          "id": "PMC5931116",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5259566&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:25.255181+00:00",
+      "completed_at": "2026-09-15T21:17:25.541373+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5259566&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC5259566",
+        "params": {
+          "id": "PMC5259566",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12404459&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:25.543885+00:00",
+      "completed_at": "2026-09-15T21:17:25.839114+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12404459&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC12404459",
+        "params": {
+          "id": "PMC12404459",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12607027&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:25.841620+00:00",
+      "completed_at": "2026-09-15T21:17:26.002343+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12607027&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC12607027",
+        "params": {
+          "id": "PMC12607027",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC10531645&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:26.004978+00:00",
+      "completed_at": "2026-09-15T21:17:26.294130+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC10531645&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC10531645",
+        "params": {
+          "id": "PMC10531645",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8353102&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:26.296702+00:00",
+      "completed_at": "2026-09-15T21:17:26.473149+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8353102&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC8353102",
+        "params": {
+          "id": "PMC8353102",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12644238&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:26.475745+00:00",
+      "completed_at": "2026-09-15T21:17:26.632561+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12644238&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC12644238",
+        "params": {
+          "id": "PMC12644238",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC10419680&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:26.635274+00:00",
+      "completed_at": "2026-09-15T21:17:26.802104+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC10419680&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC10419680",
+        "params": {
+          "id": "PMC10419680",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8703455&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:26.804743+00:00",
+      "completed_at": "2026-09-15T21:17:27.104647+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8703455&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC8703455",
+        "params": {
+          "id": "PMC8703455",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12250294&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:27.107552+00:00",
+      "completed_at": "2026-09-15T21:17:27.255551+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC12250294&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC12250294",
+        "params": {
+          "id": "PMC12250294",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC11663858&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:27.258349+00:00",
+      "completed_at": "2026-09-15T21:17:27.416146+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC11663858&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC11663858",
+        "params": {
+          "id": "PMC11663858",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC10258065&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:27.418941+00:00",
+      "completed_at": "2026-09-15T21:17:27.581184+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC10258065&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC10258065",
+        "params": {
+          "id": "PMC10258065",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5082297&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:27.584013+00:00",
+      "completed_at": "2026-09-15T21:17:27.741714+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5082297&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC5082297",
+        "params": {
+          "id": "PMC5082297",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8360034&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:27.744583+00:00",
+      "completed_at": "2026-09-15T21:17:27.904664+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8360034&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC8360034",
+        "params": {
+          "id": "PMC8360034",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5975622&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:27.908869+00:00",
+      "completed_at": "2026-09-15T21:17:28.063685+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5975622&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC5975622",
+        "params": {
+          "id": "PMC5975622",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5676827&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:28.067209+00:00",
+      "completed_at": "2026-09-15T21:17:28.227492+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5676827&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC5676827",
+        "params": {
+          "id": "PMC5676827",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5121566&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:28.230516+00:00",
+      "completed_at": "2026-09-15T21:17:28.379055+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC5121566&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC5121566",
+        "params": {
+          "id": "PMC5121566",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC3750183&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:28.382012+00:00",
+      "completed_at": "2026-09-15T21:17:28.540522+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC3750183&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC3750183",
+        "params": {
+          "id": "PMC3750183",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC13003588&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:28.543527+00:00",
+      "completed_at": "2026-09-15T21:17:28.701626+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC13003588&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC13003588",
+        "params": {
+          "id": "PMC13003588",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC10474463&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:28.704632+00:00",
+      "completed_at": "2026-09-15T21:17:28.989187+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC10474463&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC10474463",
+        "params": {
+          "id": "PMC10474463",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8003554&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:28.992358+00:00",
+      "completed_at": "2026-09-15T21:17:29.142434+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8003554&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC8003554",
+        "params": {
+          "id": "PMC8003554",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC2948810&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:29.145587+00:00",
+      "completed_at": "2026-09-15T21:17:29.304181+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC2948810&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC2948810",
+        "params": {
+          "id": "PMC2948810",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8063249&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:29.307271+00:00",
+      "completed_at": "2026-09-15T21:17:29.468913+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC8063249&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC8063249",
+        "params": {
+          "id": "PMC8063249",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    },
+    {
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC9673343&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "type": "pmc_oa_lookup",
+      "status": "failed",
+      "requested_at": "2026-09-15T21:17:29.472053+00:00",
+      "completed_at": "2026-09-15T21:17:29.632364+00:00",
+      "http_status": 404,
+      "hash": null,
+      "output_path": null,
+      "error": "404 Client Error: Not Found for url: https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC9673343&format=pdf&api_key=27edd9515da1f046dce86cd97d2902b08d09",
+      "metadata": {
+        "pmcid": "PMC9673343",
+        "params": {
+          "id": "PMC9673343",
+          "format": "pdf",
+          "api_key": "27edd9515da1f046dce86cd97d2902b08d09"
+        }
+      }
+    }
+  ]
+}
