@@ -1,0 +1,918 @@
+{
+  "query": "(CDH13[Title/Abstract] OR T-cadherin[Title/Abstract]) AND free full text[filter]",
+  "date_from": null,
+  "date_to": null,
+  "max_results": 50,
+  "num_hit": 50,
+  "records": [
+    {
+      "pmid": "34456860",
+      "pmcid": "PMC8387580",
+      "title": "Adipocyte-Endothelium Crosstalk in Obesity.",
+      "journal": "Frontiers in endocrinology",
+      "pubdate": "2021",
+      "doi_or_elocation": "doi: 10.3389/fendo.2021.681290",
+      "authors": [
+        "Sabaratnam R",
+        "Svenningsen P"
+      ]
+    },
+    {
+      "pmid": "24297186",
+      "pmcid": "PMC4152934",
+      "title": "Adiponectin signaling in the liver.",
+      "journal": "Reviews in endocrine & metabolic disorders",
+      "pubdate": "2014 Jun",
+      "doi_or_elocation": "doi: 10.1007/s11154-013-9280-6",
+      "authors": [
+        "Combs TP",
+        "Marliss EB"
+      ]
+    },
+    {
+      "pmid": "24417946",
+      "pmcid": "PMC4007141",
+      "title": "Multifaceted roles of adiponectin in cancer.",
+      "journal": "Best practice & research. Clinical endocrinology & metabolism",
+      "pubdate": "2014 Jan",
+      "doi_or_elocation": "doi: 10.1016/j.beem.2013.11.005",
+      "authors": [
+        "Hebbard L",
+        "Ranscht B"
+      ]
+    },
+    {
+      "pmid": "21718299",
+      "pmcid": "PMC3268187",
+      "title": "Adiponectin receptor signalling in the brain.",
+      "journal": "British journal of pharmacology",
+      "pubdate": "2012 Jan",
+      "doi_or_elocation": "doi: 10.1111/j.1476-5381.2011.01560.x",
+      "authors": [
+        "Thundyil J",
+        "Pavlovski D",
+        "Sobey CG",
+        "Arumugam TV"
+      ]
+    },
+    {
+      "pmid": "28422056",
+      "pmcid": "PMC5412447",
+      "title": "Adiponectin and Intelectin-1: Important Adipokine Players in Obesity-Related Colorectal Carcinogenesis.",
+      "journal": "International journal of molecular sciences",
+      "pubdate": "2017 Apr 19",
+      "doi_or_elocation": "doi: 10.3390/ijms18040866",
+      "authors": [
+        "Kawashima K",
+        "Maeda K",
+        "Saigo C",
+        "Kito Y",
+        "Yoshida K",
+        "Takeuchi T"
+      ]
+    },
+    {
+      "pmid": "23850004",
+      "pmcid": "PMC3770746",
+      "title": "Adiponectin in inflammatory and immune-mediated diseases.",
+      "journal": "Cytokine",
+      "pubdate": "2013 Oct",
+      "doi_or_elocation": "doi: 10.1016/j.cyto.2013.06.317",
+      "authors": [
+        "Fantuzzi G"
+      ]
+    },
+    {
+      "pmid": "24035864",
+      "pmcid": "PMC3943596",
+      "title": "Genetic and epigenetic mutations of tumor suppressive genes in sporadic pituitary adenoma.",
+      "journal": "Molecular and cellular endocrinology",
+      "pubdate": "2014 Apr 5",
+      "doi_or_elocation": "doi: 10.1016/j.mce.2013.09.006",
+      "authors": [
+        "Zhou Y",
+        "Zhang X",
+        "Klibanski A"
+      ]
+    },
+    {
+      "pmid": "31121868",
+      "pmcid": "PMC6566909",
+      "title": "Adiponectin, Obesity, and Cancer: Clash of the Bigwigs in Health and Disease.",
+      "journal": "International journal of molecular sciences",
+      "pubdate": "2019 May 22",
+      "doi_or_elocation": "doi: 10.3390/ijms20102519",
+      "authors": [
+        "Parida S",
+        "Siddharth S",
+        "Sharma D"
+      ]
+    },
+    {
+      "pmid": "24417948",
+      "pmcid": "PMC3905311",
+      "title": "Cardiometabolic effects of adiponectin.",
+      "journal": "Best practice & research. Clinical endocrinology & metabolism",
+      "pubdate": "2014 Jan",
+      "doi_or_elocation": "doi: 10.1016/j.beem.2013.09.001",
+      "authors": [
+        "Parker-Duffen JL",
+        "Walsh K"
+      ]
+    },
+    {
+      "pmid": "34959666",
+      "pmcid": "PMC8703455",
+      "title": "An Explanation for the Adiponectin Paradox.",
+      "journal": "Pharmaceuticals (Basel, Switzerland)",
+      "pubdate": "2021 Dec 4",
+      "doi_or_elocation": "doi: 10.3390/ph14121266",
+      "authors": [
+        "Kalkman HO"
+      ]
+    },
+    {
+      "pmid": "32632018",
+      "pmcid": "PMC7382265",
+      "title": "Adiponectin and related C1q/TNF-related proteins bind selectively to anionic phospholipids and sphingolipids.",
+      "journal": "Proceedings of the National Academy of Sciences of the United States of America",
+      "pubdate": "2020 Jul 21",
+      "doi_or_elocation": "doi: 10.1073/pnas.1922270117",
+      "authors": [
+        "Ye JJ",
+        "Bian X",
+        "Lim J",
+        "Medzhitov R"
+      ]
+    },
+    {
+      "pmid": "22105624",
+      "pmcid": "PMC3449233",
+      "title": "The genetics of attention deficit/hyperactivity disorder in adults, a review.",
+      "journal": "Molecular psychiatry",
+      "pubdate": "2012 Oct",
+      "doi_or_elocation": "doi: 10.1038/mp.2011.138",
+      "authors": [
+        "Franke B",
+        "Faraone SV",
+        "Asherson P",
+        "Buitelaar J",
+        "Bau CH",
+        "Ramos-Quiroga JA",
+        "Mick E",
+        "Grevet EH",
+        "Johansson S",
+        "Haavik J",
+        "Lesch KP",
+        "Cormand B",
+        "Reif A",
+        "International Multicentre persistent ADHD CollaboraTion"
+      ]
+    },
+    {
+      "pmid": "29567312",
+      "pmcid": "PMC5993934",
+      "title": "Preclinical Strategies to Identify Off-Target Toxicity of High-Affinity TCRs.",
+      "journal": "Molecular therapy : the journal of the American Society of Gene Therapy",
+      "pubdate": "2018 May 2",
+      "doi_or_elocation": "doi: 10.1016/j.ymthe.2018.02.017",
+      "authors": [
+        "Bijen HM",
+        "van der Steen DM",
+        "Hagedoorn RS",
+        "Wouters AK",
+        "Wooldridge L",
+        "Falkenburg JHF",
+        "Heemskerk MHM"
+      ]
+    },
+    {
+      "pmid": "30395268",
+      "pmcid": "PMC6488972",
+      "title": "Genome-wide meta-analysis and replication studies in multiple ethnicities identify novel adolescent idiopathic scoliosis susceptibility loci.",
+      "journal": "Human molecular genetics",
+      "pubdate": "2018 Nov 15",
+      "doi_or_elocation": "doi: 10.1093/hmg/ddy306",
+      "authors": [
+        "Khanshour AM",
+        "Kou I",
+        "Fan Y",
+        "Einarsdottir E",
+        "Makki N",
+        "Kidane YH",
+        "Kere J",
+        "Grauers A",
+        "Johnson TA",
+        "Paria N",
+        "Patel C",
+        "Singhania R",
+        "Kamiya N",
+        "Takeda K",
+        "Otomo N",
+        "Watanabe K",
+        "Luk KDK",
+        "Cheung KMC",
+        "Herring JA",
+        "Rios JJ",
+        "Ahituv N",
+        "Gerdhem P",
+        "Gurnett CA",
+        "Song YQ",
+        "Ikegawa S",
+        "Wise CA"
+      ]
+    },
+    {
+      "pmid": "28176268",
+      "pmcid": "PMC6233883",
+      "title": "No genetic association between attention-deficit/hyperactivity disorder (ADHD) and Parkinson's disease in nine ADHD candidate SNPs.",
+      "journal": "Attention deficit and hyperactivity disorders",
+      "pubdate": "2017 Jun",
+      "doi_or_elocation": "doi: 10.1007/s12402-017-0219-8",
+      "authors": [
+        "Geissler JM",
+        "International Parkinson Disease Genomics Consortium members",
+        "Romanos M",
+        "Gerlach M",
+        "Berg D",
+        "Schulte C"
+      ]
+    },
+    {
+      "pmid": "31483293",
+      "pmcid": "PMC6763291",
+      "title": "Interorgan communication by exosomes, adipose tissue, and adiponectin in metabolic syndrome.",
+      "journal": "The Journal of clinical investigation",
+      "pubdate": "2019 Oct 1",
+      "doi_or_elocation": "doi: 10.1172/JCI129193",
+      "authors": [
+        "Kita S",
+        "Maeda N",
+        "Shimomura I"
+      ]
+    },
+    {
+      "pmid": "31539648",
+      "pmcid": "PMC6960343",
+      "title": "Insulin and adipokine signaling and their cross-regulation in postmortem human brain.",
+      "journal": "Neurobiology of aging",
+      "pubdate": "2019 Dec",
+      "doi_or_elocation": "doi: 10.1016/j.neurobiolaging.2019.08.012",
+      "authors": [
+        "Wang HY",
+        "Capuano AW",
+        "Khan A",
+        "Pei Z",
+        "Lee KC",
+        "Bennett DA",
+        "Ahima RS",
+        "Arnold SE",
+        "Arvanitakis Z"
+      ]
+    },
+    {
+      "pmid": "32396872",
+      "pmcid": "PMC7244053",
+      "title": "Plasma proteomic profiling of young and old mice reveals cadherin-13 prevents age-related bone loss.",
+      "journal": "Aging",
+      "pubdate": "2020 May 12",
+      "doi_or_elocation": "doi: 10.18632/aging.103184",
+      "authors": [
+        "Yang YR",
+        "Kabir MH",
+        "Park JH",
+        "Park JI",
+        "Kang JS",
+        "Ju S",
+        "Shin YJ",
+        "Lee SM",
+        "Lee J",
+        "Kim S",
+        "Lee KP",
+        "Lee SY",
+        "Lee C",
+        "Kwon KS"
+      ]
+    },
+    {
+      "pmid": "26503814",
+      "pmcid": "PMC4848212",
+      "title": "A genome-wide analysis of the response to inhaled β2-agonists in chronic obstructive pulmonary disease.",
+      "journal": "The pharmacogenomics journal",
+      "pubdate": "2016 Aug",
+      "doi_or_elocation": "doi: 10.1038/tpj.2015.65",
+      "authors": [
+        "Hardin M",
+        "Cho MH",
+        "McDonald ML",
+        "Wan E",
+        "Lomas DA",
+        "Coxson HO",
+        "MacNee W",
+        "Vestbo J",
+        "Yates JC",
+        "Agusti A",
+        "Calverley PM",
+        "Celli B",
+        "Crim C",
+        "Rennard S",
+        "Wouters E",
+        "Bakke P",
+        "Bhatt SP",
+        "Kim V",
+        "Ramsdell J",
+        "Regan EA",
+        "Make BJ",
+        "Hokanson JE",
+        "Crapo JD",
+        "Beaty TH",
+        "Hersh CP",
+        "ECLIPSE and COPDGene Investigators",
+        "COPDGene Investigators—clinical centers"
+      ]
+    },
+    {
+      "pmid": "29203642",
+      "pmcid": "PMC5809686",
+      "title": "Nuclear Phosphatidylinositol-Phosphate Type I Kinase α-Coupled Star-PAP Polyadenylation Regulates Cell Invasion.",
+      "journal": "Molecular and cellular biology",
+      "pubdate": "2018 Mar 1",
+      "doi_or_elocation": "doi: 10.1128/MCB.00457-17",
+      "authors": [
+        "A P S",
+        "Laishram RS"
+      ]
+    },
+    {
+      "pmid": "26681200",
+      "pmcid": "PMC4683008",
+      "title": "Role of Epithelial-Mesenchyme Transition in Chlamydia Pathogenesis.",
+      "journal": "PloS one",
+      "pubdate": "2015",
+      "doi_or_elocation": "doi: 10.1371/journal.pone.0145198",
+      "authors": [
+        "Igietseme JU",
+        "Omosun Y",
+        "Stuchlik O",
+        "Reed MS",
+        "Partin J",
+        "He Q",
+        "Joseph K",
+        "Ellerson D",
+        "Bollweg B",
+        "George Z",
+        "Eko FO",
+        "Bandea C",
+        "Liu H",
+        "Yang G",
+        "Shieh WJ",
+        "Pohl J",
+        "Karem K",
+        "Black CM"
+      ]
+    },
+    {
+      "pmid": "40368888",
+      "pmcid": "PMC12078473",
+      "title": "Cadherins orchestrate specific patterns of perisomatic inhibition onto distinct pyramidal cell populations.",
+      "journal": "Nature communications",
+      "pubdate": "2025 May 14",
+      "doi_or_elocation": "doi: 10.1038/s41467-025-59635-z",
+      "authors": [
+        "Jézéquel J",
+        "Condomitti G",
+        "Kroon T",
+        "Hamid F",
+        "Sanalidou S",
+        "Garcés T",
+        "Maeso P",
+        "Balia M",
+        "Hu Z",
+        "Sahara S",
+        "Rico B"
+      ]
+    },
+    {
+      "pmid": "36082629",
+      "pmcid": null,
+      "title": "Twin Study: Genetic and Epigenetic Factors Affecting Circulating Adiponectin Levels.",
+      "journal": "The Journal of clinical endocrinology and metabolism",
+      "pubdate": "2022 Dec 17",
+      "doi_or_elocation": "doi: 10.1210/clinem/dgac532",
+      "authors": [
+        "Hasegawa M",
+        "Taniguchi J",
+        "Ueda H",
+        "Watanabe M"
+      ]
+    },
+    {
+      "pmid": "24387639",
+      "pmcid": "PMC3897941",
+      "title": "Epicardial adipose excision slows the progression of porcine coronary atherosclerosis.",
+      "journal": "Journal of cardiothoracic surgery",
+      "pubdate": "2014 Jan 3",
+      "doi_or_elocation": "doi: 10.1186/1749-8090-9-2",
+      "authors": [
+        "McKenney ML",
+        "Schultz KA",
+        "Boyd JH",
+        "Byrd JP",
+        "Alloosh M",
+        "Teague SD",
+        "Arce-Esquivel AA",
+        "Fain JN",
+        "Laughlin MH",
+        "Sacks HS",
+        "Sturek M"
+      ]
+    },
+    {
+      "pmid": "20887962",
+      "pmcid": "PMC2948810",
+      "title": "Adiponectin concentrations: a genome-wide association study.",
+      "journal": "American journal of human genetics",
+      "pubdate": "2010 Oct 8",
+      "doi_or_elocation": "doi: 10.1016/j.ajhg.2010.09.004",
+      "authors": [
+        "Jee SH",
+        "Sull JW",
+        "Lee JE",
+        "Shin C",
+        "Park J",
+        "Kimm H",
+        "Cho EY",
+        "Shin ES",
+        "Yun JE",
+        "Park JW",
+        "Kim SY",
+        "Lee SJ",
+        "Jee EJ",
+        "Baik I",
+        "Kao L",
+        "Yoon SK",
+        "Jang Y",
+        "Beaty TH"
+      ]
+    },
+    {
+      "pmid": "28386779",
+      "pmcid": "PMC5676827",
+      "title": "Protective role of Cadherin 13 in interneuron development.",
+      "journal": "Brain structure & function",
+      "pubdate": "2017 Nov",
+      "doi_or_elocation": "doi: 10.1007/s00429-017-1418-y",
+      "authors": [
+        "Killen AC",
+        "Barber M",
+        "Paulin JJW",
+        "Ranscht B",
+        "Parnavelas JG",
+        "Andrews WD"
+      ]
+    },
+    {
+      "pmid": "32566092",
+      "pmcid": "PMC7260649",
+      "title": "Molecular Mechanisms of Adiponectin-Induced Attenuation of Mechanical Stretch-Mediated Vascular Remodeling.",
+      "journal": "Oxidative medicine and cellular longevity",
+      "pubdate": "2020",
+      "doi_or_elocation": "doi: 10.1155/2020/6425782",
+      "authors": [
+        "Ghantous CM",
+        "Farhat R",
+        "Djouhri L",
+        "Alashmar S",
+        "Anlar G",
+        "Korashy HM",
+        "Agouni A",
+        "Zeidan A"
+      ]
+    },
+    {
+      "pmid": "25543204",
+      "pmcid": "PMC4318987",
+      "title": "CDH13 promoter SNPs with pleiotropic effect on cardiometabolic parameters represent methylation QTLs.",
+      "journal": "Human genetics",
+      "pubdate": "2015 Mar",
+      "doi_or_elocation": "doi: 10.1007/s00439-014-1521-6",
+      "authors": [
+        "Putku M",
+        "Kals M",
+        "Inno R",
+        "Kasela S",
+        "Org E",
+        "Kožich V",
+        "Milani L",
+        "Laan M"
+      ]
+    },
+    {
+      "pmid": "24164743",
+      "pmcid": null,
+      "title": "CpG island methylator phenotype and its relationship with prognosis in adult acute leukemia patients.",
+      "journal": "Hematology (Amsterdam, Netherlands)",
+      "pubdate": "2014 Sep",
+      "doi_or_elocation": "doi: 10.1179/1607845413Y.0000000137",
+      "authors": [
+        "Fu HY",
+        "Wu DS",
+        "Zhou HR",
+        "Shen JZ"
+      ]
+    },
+    {
+      "pmid": "22369086",
+      "pmcid": "PMC3333183",
+      "title": "Genetic copy number variants in myocardial infarction patients with hyperlipidemia.",
+      "journal": "BMC genomics",
+      "pubdate": "2011 Nov 30",
+      "doi_or_elocation": "doi: 10.1186/1471-2164-12-S3-S23",
+      "authors": [
+        "Shia WC",
+        "Ku TH",
+        "Tsao YM",
+        "Hsia CH",
+        "Chang YM",
+        "Huang CH",
+        "Chung YC",
+        "Hsu SL",
+        "Liang KW",
+        "Hsu FR"
+      ]
+    },
+    {
+      "pmid": "25826459",
+      "pmcid": "PMC4380427",
+      "title": "Quantitative DNA methylation analysis of candidate genes in cervical cancer.",
+      "journal": "PloS one",
+      "pubdate": "2015",
+      "doi_or_elocation": "doi: 10.1371/journal.pone.0122495",
+      "authors": [
+        "Siegel EM",
+        "Riggs BM",
+        "Delmas AL",
+        "Koch A",
+        "Hakam A",
+        "Brown KD"
+      ]
+    },
+    {
+      "pmid": "32127937",
+      "pmcid": "PMC7052920",
+      "title": "Cadherin 13 Inhibits Pancreatic Cancer Progression and Epithelial-mesenchymal Transition by Wnt/β-Catenin Signaling.",
+      "journal": "Journal of Cancer",
+      "pubdate": "2020",
+      "doi_or_elocation": "doi: 10.7150/jca.37762",
+      "authors": [
+        "Xu D",
+        "Yuan H",
+        "Meng Z",
+        "Yang C",
+        "Li Z",
+        "Li M",
+        "Zhang Z",
+        "Gan Y",
+        "Tu H"
+      ]
+    },
+    {
+      "pmid": "26744416",
+      "pmcid": "PMC4839215",
+      "title": "Environmental Correlation Analysis for Genes Associated with Protection against Malaria.",
+      "journal": "Molecular biology and evolution",
+      "pubdate": "2016 May",
+      "doi_or_elocation": "doi: 10.1093/molbev/msw004",
+      "authors": [
+        "Mackinnon MJ",
+        "Ndila C",
+        "Uyoga S",
+        "Macharia A",
+        "Snow RW",
+        "Band G",
+        "Rautanen A",
+        "Rockett KA",
+        "Kwiatkowski DP",
+        "Williams TN"
+      ]
+    },
+    {
+      "pmid": "29854012",
+      "pmcid": "PMC5975622",
+      "title": "Urine cell-based DNA methylation classifier for monitoring bladder cancer.",
+      "journal": "Clinical epigenetics",
+      "pubdate": "2018",
+      "doi_or_elocation": "doi: 10.1186/s13148-018-0496-x",
+      "authors": [
+        "van der Heijden AG",
+        "Mengual L",
+        "Ingelmo-Torres M",
+        "Lozano JJ",
+        "van Rijt-van de Westerlo CCM",
+        "Baixauli M",
+        "Geavlete B",
+        "Moldoveanud C",
+        "Ene C",
+        "Dinney CP",
+        "Czerniak B",
+        "Schalken JA",
+        "Kiemeney LALM",
+        "Ribal MJ",
+        "Witjes JA",
+        "Alcaraz A"
+      ]
+    },
+    {
+      "pmid": "33560471",
+      "pmcid": "PMC7914246",
+      "title": "Serotonin-specific neurons differentiated from human iPSCs form distinct subtypes with synaptic protein assembly.",
+      "journal": "Journal of neural transmission (Vienna, Austria : 1996)",
+      "pubdate": "2021 Feb",
+      "doi_or_elocation": "doi: 10.1007/s00702-021-02303-5",
+      "authors": [
+        "Jansch C",
+        "Ziegler GC",
+        "Forero A",
+        "Gredy S",
+        "Wäldchen S",
+        "Vitale MR",
+        "Svirin E",
+        "Zöller JEM",
+        "Waider J",
+        "Günther K",
+        "Edenhofer F",
+        "Sauer M",
+        "Wischmeyer E",
+        "Lesch KP"
+      ]
+    },
+    {
+      "pmid": "30204798",
+      "pmcid": "PMC6133349",
+      "title": "Correlating blood-based DNA methylation markers and prostate cancer risk in African-American men.",
+      "journal": "PloS one",
+      "pubdate": "2018",
+      "doi_or_elocation": "doi: 10.1371/journal.pone.0203322",
+      "authors": [
+        "Moses-Fynn E",
+        "Tang W",
+        "Beyene D",
+        "Apprey V",
+        "Copeland R",
+        "Kanaan Y",
+        "Kwabi-Addo B"
+      ]
+    },
+    {
+      "pmid": "26114387",
+      "pmcid": "PMC4519845",
+      "title": "Gene-Diet Interaction between SIRT6 and Soybean Intake for Different Levels of Pulse Wave Velocity.",
+      "journal": "International journal of molecular sciences",
+      "pubdate": "2015 Jun 24",
+      "doi_or_elocation": "doi: 10.3390/ijms160714338",
+      "authors": [
+        "Sun K",
+        "Xiang X",
+        "Li N",
+        "Huang S",
+        "Qin X",
+        "Wu Y",
+        "Tang X",
+        "Gao P",
+        "Li J",
+        "Wu T",
+        "Chen D",
+        "Hu Y"
+      ]
+    },
+    {
+      "pmid": "33899544",
+      "pmcid": "PMC8719037",
+      "title": "Systemic analysis of the expression levels and prognosis of breast cancer-related cadherins.",
+      "journal": "Experimental biology and medicine (Maywood, N.J.)",
+      "pubdate": "2021 Aug",
+      "doi_or_elocation": "doi: 10.1177/15353702211010417",
+      "authors": [
+        "Xu M",
+        "Liu C",
+        "Pu L",
+        "Lai J",
+        "Li J",
+        "Ning Q",
+        "Liu X",
+        "Deng S"
+      ]
+    },
+    {
+      "pmid": "34759445",
+      "pmcid": "PMC8563038",
+      "title": "Association of CDH13 Gene Polymorphism and Metabolic Syndrome in Gambian Population.",
+      "journal": "Medical archives (Sarajevo, Bosnia and Herzegovina)",
+      "pubdate": "2021 Aug",
+      "doi_or_elocation": "doi: 10.5455/medarh.2021.75.262-268",
+      "authors": [
+        "Bojang KS",
+        "Lyrawati D",
+        "Sujuti H",
+        "Wahono D"
+      ]
+    },
+    {
+      "pmid": "24957699",
+      "pmcid": "PMC4230016",
+      "title": "Adiponectin: a manifold therapeutic target for metabolic syndrome, diabetes, and coronary disease?",
+      "journal": "Cardiovascular diabetology",
+      "pubdate": "2014 Jun 23",
+      "doi_or_elocation": "doi: 10.1186/1475-2840-13-103",
+      "authors": [
+        "Fisman EZ",
+        "Tenenbaum A"
+      ]
+    },
+    {
+      "pmid": "28183249",
+      "pmcid": "PMC5831726",
+      "title": "Adiponectin as a Potential Therapeutic Target for Prostate Cancer.",
+      "journal": "Current pharmaceutical design",
+      "pubdate": "2017",
+      "doi_or_elocation": "doi: 10.2174/1381612823666170208123553",
+      "authors": [
+        "Karnati HK",
+        "Panigrahi MK",
+        "Li Y",
+        "Tweedie D",
+        "Greig NH"
+      ]
+    },
+    {
+      "pmid": "26245647",
+      "pmcid": "PMC4918335",
+      "title": "MEF2B mutations in non-Hodgkin lymphoma dysregulate cell migration by decreasing MEF2B target gene activation.",
+      "journal": "Nature communications",
+      "pubdate": "2015 Aug 6",
+      "doi_or_elocation": "doi: 10.1038/ncomms8953",
+      "authors": [
+        "Pon JR",
+        "Wong J",
+        "Saberi S",
+        "Alder O",
+        "Moksa M",
+        "Grace Cheng SW",
+        "Morin GB",
+        "Hoodless PA",
+        "Hirst M",
+        "Marra MA"
+      ]
+    },
+    {
+      "pmid": "26556563",
+      "pmcid": "PMC5410384",
+      "title": "Genetic association of left ventricular mass assessed by M-mode and two-dimensional echocardiography.",
+      "journal": "Journal of hypertension",
+      "pubdate": "2016 Jan",
+      "doi_or_elocation": "doi: 10.1097/HJH.0000000000000765",
+      "authors": [
+        "Barve RA",
+        "Gu CC",
+        "Yang W",
+        "Chu J",
+        "Dávila-Román VG",
+        "de las Fuentes L"
+      ]
+    },
+    {
+      "pmid": "32283840",
+      "pmcid": "PMC7178193",
+      "title": "Adiponectin and Its Mimics on Skeletal Muscle: Insulin Sensitizers, Fat Burners, Exercise Mimickers, Muscling Pills … or Everything Together?",
+      "journal": "International journal of molecular sciences",
+      "pubdate": "2020 Apr 9",
+      "doi_or_elocation": "doi: 10.3390/ijms21072620",
+      "authors": [
+        "Abou-Samra M",
+        "Selvais CM",
+        "Dubuisson N",
+        "Brichard SM"
+      ]
+    },
+    {
+      "pmid": "26862732",
+      "pmcid": "PMC4891122",
+      "title": "Aberrant gene methylation in non-neoplastic mucosa as a predictive marker of ulcerative colitis-associated CRC.",
+      "journal": "Oncotarget",
+      "pubdate": "2016 Mar 1",
+      "doi_or_elocation": "doi: 10.18632/oncotarget.7188",
+      "authors": [
+        "Scarpa M",
+        "Scarpa M",
+        "Castagliuolo I",
+        "Erroi F",
+        "Kotsafti A",
+        "Basato S",
+        "Brun P",
+        "D'Incà R",
+        "Rugge M",
+        "Angriman I",
+        "Castoro C"
+      ]
+    },
+    {
+      "pmid": "33948387",
+      "pmcid": "PMC8085850",
+      "title": "The shifting landscape of genetic alterations separating endometriosis and ovarian endometrioid carcinoma.",
+      "journal": "American journal of cancer research",
+      "pubdate": "2021",
+      "doi_or_elocation": "",
+      "authors": [
+        "Gaia-Oltean AI",
+        "Pop LA",
+        "Cojocneanu RM",
+        "Buse M",
+        "Zimta AA",
+        "Kubelac P",
+        "Irimie A",
+        "Coza OF",
+        "Roman H",
+        "Berindan-Neagoe I"
+      ]
+    },
+    {
+      "pmid": "23976997",
+      "pmcid": "PMC3747203",
+      "title": "The common variant rs11646213 is associated with preeclampsia in Han Chinese women.",
+      "journal": "PloS one",
+      "pubdate": "2013",
+      "doi_or_elocation": "doi: 10.1371/journal.pone.0071202",
+      "authors": [
+        "Wan JP",
+        "Zhao H",
+        "Li T",
+        "Li CZ",
+        "Wang XT",
+        "Chen ZJ"
+      ]
+    },
+    {
+      "pmid": "34386506",
+      "pmcid": "PMC8353102",
+      "title": "PTEN Hamartoma Tumor Syndrome: Skin Manifestations and Insights Into Their Molecular Pathogenesis.",
+      "journal": "Frontiers in medicine",
+      "pubdate": "2021",
+      "doi_or_elocation": "doi: 10.3389/fmed.2021.688105",
+      "authors": [
+        "Innella G",
+        "Bonora E",
+        "Neri I",
+        "Virdi A",
+        "Guglielmo A",
+        "Pradella LM",
+        "Ceccarelli C",
+        "Amato LB",
+        "Lanzoni A",
+        "Miccoli S",
+        "Gasparre G",
+        "Zuntini R",
+        "Turchetti D"
+      ]
+    },
+    {
+      "pmid": "18523155",
+      "pmcid": "PMC2515110",
+      "title": "Aberrant CpG island methylation in acute myeloid leukemia is accentuated at relapse.",
+      "journal": "Blood",
+      "pubdate": "2008 Aug 15",
+      "doi_or_elocation": "doi: 10.1182/blood-2007-11-126227",
+      "authors": [
+        "Kroeger H",
+        "Jelinek J",
+        "Estécio MR",
+        "He R",
+        "Kondo K",
+        "Chung W",
+        "Zhang L",
+        "Shen L",
+        "Kantarjian HM",
+        "Bueso-Ramos CE",
+        "Issa JP"
+      ]
+    },
+    {
+      "pmid": "24585548",
+      "pmcid": "PMC4100002",
+      "title": "Long-term epigenetic effects of exposure to low doses of 56Fe in the mouse lung.",
+      "journal": "Journal of radiation research",
+      "pubdate": "2014 Jul",
+      "doi_or_elocation": "doi: 10.1093/jrr/rru010",
+      "authors": [
+        "Nzabarushimana E",
+        "Miousse IR",
+        "Shao L",
+        "Chang J",
+        "Allen AR",
+        "Turner J",
+        "Stewart B",
+        "Raber J",
+        "Koturbash I"
+      ]
+    }
+  ]
+}
