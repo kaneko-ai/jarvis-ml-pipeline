@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS Dashboard - Complete</title>
+    <meta name="description" content="JARVIS Research OS - Literature Survey & Evidence Extraction Platform">
+    <!-- Cloudflare Turnstile -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <style>
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #16213e;
+            --accent: #00d4ff;
+            --accent-dark: #0a9ec7;
+            --text-primary: #e8e8e8;
+            --text-secondary: #a0a0a0;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-tab:hover,
+        .nav-tab.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+            padding: 25px 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        header h1 {
+            font-size: 2em;
+            background: linear-gradient(135deg, var(--accent) 0%, #00ff88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* KPI Grid - Fixed Definition (S-02) */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent);
+        }
+
+        .kpi-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .kpi-label {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+
+        .kpi-trend {
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+
+        .kpi-trend.up {
+            color: var(--success);
+        }
+
+        .kpi-trend.down {
+            color: var(--danger);
+        }
+
+        /* Sections */
+        .section {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Form Controls */
+        .form-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-primary);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1em;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .data-table th {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+
+        .data-table tr:hover {
+            background: rgba(0, 212, 255, 0.05);
+            cursor: pointer;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+
+        .badge-success {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(255, 170, 0, 0.2);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(255, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        /* Search Results */
+        .search-results {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .search-result {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .search-result-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .search-result-meta {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+        }
+
+        .search-result-snippet {
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .search-pagination {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-pagination button {
+            padding: 8px 14px;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+        }
+
+        .search-pagination button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .search-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-top: 6px;
+        }
+
+        .highlight {
+            background: rgba(0, 212, 255, 0.3);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent);
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--success);
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 900px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        /* Progress */
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            transition: width 0.5s;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+            animation: slideIn 0.3s;
+            z-index: 2000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--bg-secondary);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div>
+                <h1>🧬 JARVIS Research OS</h1>
+                <p style="color: var(--text-secondary);">Literature Survey & Evidence Extraction Platform</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="refreshAll()">🔄 更新</button>
+                <button class="btn btn-primary" onclick="showTab('new-query')">+ 新規クエリ</button>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="showTab('overview')">📊 概要</div>
+            <div class="nav-tab" onclick="showTab('new-query')">🔍 新規クエリ</div>
+            <div class="nav-tab" onclick="showTab('search')">📑 検索</div>
+            <div class="nav-tab local-only-tab" style="display:none;" onclick="showTab('schedule')">🗓️ スケジューラ</div>
+            <div class="nav-tab local-only-tab" style="display:none;" onclick="showTab('upload')">📁 アップロード</div>
+            <div class="nav-tab" onclick="showTab('runs')">📋 実行履歴</div>
+            <span id="server-mode-indicator"
+                style="margin-left:auto;padding:12px;color:var(--text-secondary);font-size:0.85em;">☁️ Serverless</span>
+        </div>
+
+        <!-- KPI Grid (S-02: Fixed Definition) -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi-runs">-</div>
+                <div class="kpi-label">Total Runs</div>
+                <div class="kpi-trend" id="kpi-runs-trend"></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi-success">-</div>
+                <div class="kpi-label">Success Rate</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="success-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi-coverage">-</div>
+                <div class="kpi-label">Avg Evidence Coverage</div>
+                <div class="kpi-trend" id="kpi-coverage-trend"></div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi-contract">-</div>
+                <div class="kpi-label">Gate Passed</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi-papers">-</div>
+                <div class="kpi-label">Total Papers</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value" id="kpi-claims">-</div>
+                <div class="kpi-label">Total Claims</div>
+            </div>
+        </div>
+
+        <!-- Tab: Overview -->
+        <div id="tab-overview" class="tab-content active">
+            <div class="section">
+                <div class="section-header">
+                    <h2>📋 最近の実行</h2>
+                </div>
+                <div id="recent-runs-container">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: New Query -->
+        <div id="tab-new-query" class="tab-content">
+            <div class="section">
+                <h2>🔍 新規クエリ実行</h2>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 3;">
+                        <label>検索クエリ</label>
+                        <input type="text" id="query-input" placeholder="例: CD73 immunotherapy in solid tumors">
+                    </div>
+                    <div class="form-group">
+                        <label>最大論文数</label>
+                        <select id="max-papers">
+                            <option value="5">5件</option>
+                            <option value="10" selected>10件</option>
+                            <option value="20">20件</option>
+                            <option value="50">50件</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ドメイン</label>
+                        <select id="domain-select">
+                            <option value="immuno_onco_preclinical">免疫腫瘍学</option>
+                            <option value="antibody">抗体創薬</option>
+                            <option value="general">一般</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>OAのみ</label>
+                        <select id="oa-only">
+                            <option value="false">いいえ</option>
+                            <option value="true">はい</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Turnstile Widget -->
+                <div class="cf-turnstile" id="turnstile-widget" data-sitekey="0x4AAAAAACJZ1KI1ylp2m11j"
+                    data-callback="onTurnstileSuccess"></div>
+                <button class="btn btn-primary" id="run-query-btn" onclick="runQuery()" disabled>🚀 パイプライン実行</button>
+                <div id="query-status" style="margin-top: 15px;"></div>
+                <!-- Progress Bar -->
+                <div id="progress-container" style="display: none; margin-top: 20px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <span id="progress-stage" style="color: var(--accent); font-weight: bold;">待機中</span>
+                        <span id="progress-percent" style="color: var(--text-secondary);">0%</span>
+                    </div>
+                    <div style="background: var(--bg-secondary); border-radius: 8px; height: 12px; overflow: hidden;">
+                        <div id="progress-bar"
+                            style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent), var(--success)); transition: width 0.3s;">
+                        </div>
+                    </div>
+                    <div id="progress-message" style="margin-top: 8px; color: var(--text-secondary); font-size: 0.9em;">
+                    </div>
+                    <div id="progress-counters"
+                        style="margin-top: 8px; font-family: monospace; font-size: 0.85em; color: var(--text-secondary);">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Search -->
+        <div id="tab-search" class="tab-content">
+            <div class="section">
+                <h2>📑 コーパス検索（Serverless）</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 12px;">public/search/index.json を読み込み、ブラウザ内で検索します。</p>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 4;">
+                        <input type="text" id="search-input" placeholder="検索キーワード...">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <select id="search-page-size">
+                            <option value="10">10件/頁</option>
+                            <option value="20" selected>20件/頁</option>
+                            <option value="50">50件/頁</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="searchCorpus()">検索</button>
+                </div>
+                <div id="search-summary" class="search-meta-row"></div>
+                <div id="search-results" class="search-results"></div>
+                <div class="search-pagination" id="search-pagination">
+                    <button id="search-prev" onclick="changeSearchPage(-1)">◀ 前へ</button>
+                    <span id="search-page-info">0 / 0</span>
+                    <button id="search-next" onclick="changeSearchPage(1)">次へ ▶</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Upload -->
+        <div id="tab-upload" class="tab-content">
+            <div class="section">
+                <h2>📁 ファイルアップロード</h2>
+                <div class="upload-zone" id="upload-zone">
+                    <div style="font-size: 3em; margin-bottom: 15px;">📤</div>
+                    <p>ドラッグ&ドロップ または クリックして選択</p>
+                    <p style="font-size: 0.85em; color: var(--text-secondary);">PDF / BibTeX / ZIP（最大100ファイル）</p>
+                </div>
+                <input type="file" id="file-input" multiple accept=".pdf,.bib,.zip" style="display: none;">
+                <div id="upload-status" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+
+        <!-- Tab: Scheduler -->
+        <div id="tab-schedule" class="tab-content">
+            <div class="section">
+                <h2>🗓️ スケジューラ</h2>
+                <p style="color: var(--warning); margin-bottom: 12px;">⚠️ Local APIが必要です（Serverlessでは利用不可）</p>
+                <button class="btn btn-secondary" onclick="window.location.href='schedule.html'">スケジューラを開く</button>
+            </div>
+        </div>
+
+        <!-- Tab: Runs -->
+        <div id="tab-runs" class="tab-content">
+            <div class="section">
+                <div class="section-header">
+                    <h2>📋 全実行履歴</h2>
+                    <button class="btn btn-secondary" onclick="loadRuns(this)">更新</button>
+                </div>
+                <div id="runs-table-container"></div>
+            </div>
+        </div>
+
+        <!-- Run Detail Modal -->
+        <div class="modal" id="run-modal">
+            <div class="modal-content">
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+                <div id="modal-body"></div>
+            </div>
+        </div>
+
+        <footer>
+            JARVIS Research OS v4.3 | 10-File Contract Compliant | KPI Fixed (S-02)
+        </footer>
+    </div>
+
+    <script>
+        // ===  Configuration (ユーザーが設定する) ===
+        const WORKER_URL = 'https://jarvis-ml-pipeline.kanekiti1125.workers.dev'; // Serverless Mode
+        const LOCAL_API_URL = 'http://127.0.0.1:8000'; // Local Server Mode (uvicorn)
+        const TURNSTILE_SITE_KEY = '0x4AAAAAACJZ1KI1ylp2m11j';
+
+        let API_BASE = WORKER_URL; // Default to serverless
+        let localServerAvailable = false;
+        let runs = [];
+        let currentTab = 'overview';
+        let turnstileToken = null;
+        let searchIndex = null;
+        let searchResults = [];
+        let searchPage = 1;
+        let searchPageSize = 20;
+
+        // === Check Local Server Availability ===
+        async function checkLocalServer() {
+            try {
+                const res = await fetch(`${LOCAL_API_URL}/api/health`, { method: 'GET', mode: 'cors' });
+                if (res.ok) {
+                    localServerAvailable = true;
+                    API_BASE = LOCAL_API_URL;
+                    showToast('ローカルサーバー接続OK (収集・アップロード有効)', 'success');
+                    document.getElementById('server-mode-indicator').innerHTML = '🟢 ローカルサーバー';
+                    // Show local-only tabs
+                    document.querySelectorAll('.local-only-tab').forEach(el => el.style.display = 'block');
+                }
+            } catch (e) {
+                localServerAvailable = false;
+                API_BASE = WORKER_URL;
+                document.getElementById('server-mode-indicator').innerHTML = '☁️ Serverless';
+            }
+        }
+
+        // === Tab Navigation ===
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+
+            document.getElementById('tab-' + tabId).classList.add('active');
+            document.querySelector(`.nav-tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+            currentTab = tabId;
+        }
+
+        // === KPI Update (S-02: Fixed Definition) ===
+        function updateKPIs() {
+            const total = runs.length;
+            const successful = runs.filter(r => r.status === 'success').length;
+            const gatePassed = runs.filter(r => r.gate_passed).length;
+
+            // Total papers from all runs
+            let totalPapers = 0;
+            runs.forEach(r => {
+                totalPapers += r.papers_found || 0;
+            });
+
+            document.getElementById('kpi-runs').textContent = total;
+            document.getElementById('kpi-success').textContent = total > 0 ? `${((successful / total) * 100).toFixed(0)}%` : '-';
+            document.getElementById('kpi-coverage').textContent = '-';
+            document.getElementById('kpi-contract').textContent = `${gatePassed}/${total}`;
+            document.getElementById('kpi-papers').textContent = totalPapers || '-';
+            document.getElementById('kpi-claims').textContent = '-';
+
+            document.getElementById('success-bar').style.width = total > 0 ? `${(successful / total) * 100}%` : '0%';
+        }
+
+        // === Turnstile Callback ===
+        function onTurnstileSuccess(token) {
+            turnstileToken = token;
+            document.getElementById('run-query-btn').disabled = false;
+        }
+
+        // === Load Runs ===
+        async function loadRuns(btn = null) {
+            const originalText = btn ? btn.innerText : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = '更新中...';
+            }
+
+            try {
+                // cache: 'no-store' to ensure we get the latest data
+                const res = await fetch('runs/index.json', { cache: 'no-store' });
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        // Not found is normal for fresh deployment
+                        runs = [];
+                        document.getElementById('recent-runs-container').innerHTML = '<p style="color: var(--text-secondary);">実行履歴がまだありません (GitHub Pagesの反映待ちの可能性があります)</p>';
+                        document.getElementById('runs-table-container').innerHTML = '<p style="color: var(--text-secondary);">実行履歴がまだありません</p>';
+                        updateKPIs();
+                        if (btn) showToast('履歴はまだありません', 'info');
+                        return;
+                    }
+                    throw new Error(`Failed to load runs/index.json: ${res.status}`);
+                }
+
+                runs = await res.json();
+                renderRecentRuns();
+                renderRunsTable();
+                updateKPIs();
+                if (btn) showToast('履歴を更新しました', 'success');
+            } catch (e) {
+                console.error('Failed to load runs:', e);
+                document.getElementById('recent-runs-container').innerHTML = `<p style="color: var(--danger);">データ読み込みエラー: ${e.message}</p>`;
+                if (btn) showToast('更新に失敗しました: ' + e.message, 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
+            }
+        }
+
+        // === Render Recent Runs ===
+        function renderRecentRuns() {
+            const container = document.getElementById('recent-runs-container');
+            if (runs.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">実行履歴がありません</p>';
+                return;
+            }
+
+            let html = '<table class="data-table"><thead><tr><th>Run ID</th><th>Timestamp</th><th>Status</th><th>Gate</th><th>Coverage</th></tr></thead><tbody>';
+            runs.slice(0, 10).forEach(run => {
+                const statusClass = run.status === 'success' ? 'badge-success' : run.status === 'failed' ? 'badge-danger' : 'badge-warning';
+                const papersFound = run.papers_found ?? '-';
+                html += `<tr onclick="showRunDetail('${run.run_id}')">
+                    <td>${run.run_id?.substring(0, 16) || '-'}...</td>
+                    <td>${run.created_at || '-'}</td>
+                    <td><span class="badge ${statusClass}">${run.status || 'unknown'}</span></td>
+                    <td>${run.gate_passed ? '✅' : '❌'}</td>
+                    <td>${papersFound}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // === Render Runs Table ===
+        function renderRunsTable() {
+            const container = document.getElementById('runs-table-container');
+            if (runs.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">実行履歴がありません</p>';
+                return;
+            }
+
+            let html = '<table class="data-table"><thead><tr><th>Run ID</th><th>Timestamp</th><th>Status</th><th>Gate</th><th>Papers</th></tr></thead><tbody>';
+            runs.forEach(run => {
+                const statusClass = run.status === 'success' ? 'badge-success' : run.status === 'failed' ? 'badge-danger' : 'badge-warning';
+                const papersFound = run.papers_found ?? '-';
+                html += `<tr onclick="showRunDetail('${run.run_id}')">
+                    <td>${run.run_id?.substring(0, 20) || '-'}...</td>
+                    <td>${run.created_at || '-'}</td>
+                    <td><span class="badge ${statusClass}">${run.status || 'unknown'}</span></td>
+                    <td>${run.gate_passed ? '✅' : '❌'}</td>
+                    <td>${papersFound}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // === Run Query ===
+        let activeRunId = null;
+        let statusPollInterval = null;
+
+        function generateClientRunId() {
+            const now = new Date();
+            const timestamp = now.toISOString().slice(0, 19).replace(/[-:T]/g, '').slice(0, 14);
+            const rand = Math.random().toString(36).substring(2, 10);
+            return `${timestamp}_${rand}`;
+        }
+
+        async function pollRunStatus() {
+            if (!activeRunId) return;
+
+            try {
+                const res = await fetch(`${WORKER_URL}/status?run_id=${encodeURIComponent(activeRunId)}`);
+                const data = await res.json();
+
+                if (data.ok && data.status) {
+                    const st = data.status;
+                    document.getElementById('progress-bar').style.width = `${st.percent}%`;
+                    document.getElementById('progress-percent').textContent = `${st.percent}%`;
+                    document.getElementById('progress-stage').textContent = st.stage || 'processing';
+                    document.getElementById('progress-message').textContent = st.message || '';
+
+                    if (st.counters && Object.keys(st.counters).length > 0) {
+                        document.getElementById('progress-counters').textContent = JSON.stringify(st.counters, null, 2);
+                    }
+
+                    if (st.percent >= 100 || st.stage === 'done' || st.stage === 'failed') {
+                        clearInterval(statusPollInterval);
+                        statusPollInterval = null;
+                        activeRunId = null;
+
+                        if (st.stage === 'done') {
+                            showToast('パイプライン完了！', 'success');
+                            document.getElementById('progress-stage').textContent = '✅ 完了';
+                        } else if (st.stage === 'failed') {
+                            showToast('パイプライン失敗', 'danger');
+                            document.getElementById('progress-stage').textContent = '❌ 失敗';
+                        }
+
+                        // Refresh runs list
+                        setTimeout(() => loadRuns(), 3000);
+                    }
+                }
+            } catch (e) {
+                console.error('Status polling error:', e);
+            }
+        }
+
+        async function runQuery() {
+            const query = document.getElementById('query-input').value;
+            if (!query) { showToast('クエリを入力してください', 'warning'); return; }
+            if (!turnstileToken) { showToast('Turnstile検証が必要です', 'warning'); return; }
+
+            const btn = document.getElementById('run-query-btn');
+            const status = document.getElementById('query-status');
+            const progressContainer = document.getElementById('progress-container');
+
+            btn.disabled = true;
+            status.innerHTML = '<div class="spinner"></div><p>実行キューに追加中...</p>';
+
+            // Generate client_run_id for tracking
+            const clientRunId = generateClientRunId();
+            activeRunId = clientRunId;
+
+            try {
+                const res = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        turnstile_token: turnstileToken,
+                        action: 'pipeline',
+                        query,
+                        max_results: parseInt(document.getElementById('max-papers').value),
+                        client_run_id: clientRunId, // Pass client_run_id to worker
+                    })
+                });
+
+                if (!res.ok) {
+                    let errorMessage = `Worker error: ${res.status}`;
+                    try {
+                        const errorData = await res.json();
+                        if (errorData.error) errorMessage = errorData.error;
+                    } catch (e) { }
+                    throw new Error(errorMessage);
+                }
+
+                const result = await res.json();
+                const returnedRunId = result.run_id || clientRunId;
+                activeRunId = returnedRunId;
+
+                status.innerHTML = `<p style="color: var(--success);">✅ キュー追加成功: run_id=${returnedRunId}</p>`;
+                showToast('GitHub Actionsが開始されました', 'success');
+
+                // Show progress bar and start polling
+                progressContainer.style.display = 'block';
+                document.getElementById('progress-bar').style.width = '0%';
+                document.getElementById('progress-percent').textContent = '0%';
+                document.getElementById('progress-stage').textContent = 'queued';
+                document.getElementById('progress-message').textContent = 'Waiting for GitHub Actions to start...';
+                document.getElementById('progress-counters').textContent = '';
+
+                // Start polling status
+                if (statusPollInterval) clearInterval(statusPollInterval);
+                statusPollInterval = setInterval(pollRunStatus, 2000); // Poll every 2 seconds
+
+                // Reset Turnstile
+                turnstileToken = null;
+                btn.disabled = true;
+                if (window.turnstile) window.turnstile.reset();
+
+            } catch (e) {
+                status.innerHTML = `<p style="color: var(--danger);">❌ エラー: ${e.message}</p>`;
+                showToast('実行エラー', 'danger');
+                btn.disabled = false;
+                activeRunId = null;
+            }
+        }
+
+        // === Poll Runs Update ===
+        function pollRunsUpdate(maxAttempts, interval) {
+            let attempts = 0;
+            const poll = setInterval(() => {
+                attempts++;
+                loadRuns();
+                if (attempts >= maxAttempts) {
+                    clearInterval(poll);
+                }
+            }, interval);
+        }
+
+        // === Search Corpus (Serverless) ===
+        async function loadSearchIndex() {
+            if (searchIndex) return searchIndex;
+            const res = await fetch('search/index.json', { cache: 'no-store' });
+            if (!res.ok) {
+                throw new Error('search/index.json が見つかりません');
+            }
+            const data = await res.json();
+            const docs = Array.isArray(data.docs) ? data.docs : [];
+
+            const stopwords = new Set([
+                'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has', 'he', 'in', 'is', 'it', 'its',
+                'of', 'on', 'that', 'the', 'to', 'was', 'were', 'will', 'with', 'this', 'these', 'those', 'we', 'you',
+                'your', 'our', 'or', 'not', 'can', 'may', 'might', 'also', 'into', 'over', 'under', 'within'
+            ]);
+
+            const tokenCounts = [];
+            const docFreqs = {};
+
+            docs.forEach(doc => {
+                const sourceText = [
+                    doc.title || '',
+                    doc.abstract_snippet || '',
+                    doc.content || '',
+                    Array.isArray(doc.keywords) ? doc.keywords.join(' ') : ''
+                ].join(' ');
+                const tokens = (sourceText.toLowerCase().match(/[a-z0-9_]+/g) || [])
+                    .filter(token => token.length > 2 && !stopwords.has(token));
+                const counts = {};
+                tokens.forEach(token => {
+                    counts[token] = (counts[token] || 0) + 1;
+                });
+                tokenCounts.push({ counts, length: tokens.length });
+                const uniqueTokens = new Set(tokens);
+                uniqueTokens.forEach(token => {
+                    docFreqs[token] = (docFreqs[token] || 0) + 1;
+                });
+            });
+
+            const totalDocs = docs.length;
+            const idf = {};
+            Object.keys(docFreqs).forEach(token => {
+                idf[token] = Math.log((totalDocs + 1) / (docFreqs[token] + 1)) + 1;
+            });
+
+            searchIndex = { docs, tokenCounts, idf, totalDocs, stopwords };
+            return searchIndex;
+        }
+
+        function computeScores(query, index) {
+            const tokens = (query.toLowerCase().match(/[a-z0-9_]+/g) || [])
+                .filter(token => token.length > 2 && !index.stopwords.has(token));
+            if (tokens.length === 0) return [];
+            const queryCounts = {};
+            tokens.forEach(token => {
+                queryCounts[token] = (queryCounts[token] || 0) + 1;
+            });
+
+            const results = index.docs.map((doc, idx) => {
+                const { counts, length } = index.tokenCounts[idx];
+                if (length === 0) return null;
+                let score = 0;
+                Object.keys(queryCounts).forEach(token => {
+                    const tf = counts[token] || 0;
+                    if (!tf) return;
+                    const tfNorm = tf / length;
+                    const boost = 1 + Math.log(1 + queryCounts[token]);
+                    score += tfNorm * (index.idf[token] || 0) * boost;
+                });
+                if (score <= 0) return null;
+                return { doc, score };
+            }).filter(Boolean);
+
+            results.sort((a, b) => b.score - a.score);
+            return results;
+        }
+
+        function updateSearchSummary() {
+            const summary = document.getElementById('search-summary');
+            const totalPages = Math.max(1, Math.ceil(searchResults.length / searchPageSize));
+            if (searchResults.length === 0) {
+                summary.textContent = '結果がありません';
+                return;
+            }
+            summary.textContent = `${searchResults.length} 件中 ${searchPage} / ${totalPages} ページ`;
+        }
+
+        function updateSearchPagination() {
+            const totalPages = Math.max(1, Math.ceil(searchResults.length / searchPageSize));
+            const prevBtn = document.getElementById('search-prev');
+            const nextBtn = document.getElementById('search-next');
+            const info = document.getElementById('search-page-info');
+            info.textContent = `${searchPage} / ${totalPages}`;
+            prevBtn.disabled = searchPage <= 1;
+            nextBtn.disabled = searchPage >= totalPages;
+        }
+
+        function renderSearchResults() {
+            const container = document.getElementById('search-results');
+            container.innerHTML = '';
+            if (searchResults.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">結果がありません</p>';
+                updateSearchPagination();
+                return;
+            }
+
+            const start = (searchPage - 1) * searchPageSize;
+            const end = Math.min(searchResults.length, start + searchPageSize);
+            const slice = searchResults.slice(start, end);
+
+            let index = 0;
+            const chunkSize = 6;
+
+            const renderChunk = () => {
+                const chunk = slice.slice(index, index + chunkSize);
+                chunk.forEach(result => {
+                    const doc = result.doc;
+                    const snippet = doc.abstract_snippet || (doc.content || '').slice(0, 300);
+                    const keywords = Array.isArray(doc.keywords) ? doc.keywords.join(', ') : '-';
+                    const score = result.score.toFixed(3);
+                    const card = document.createElement('div');
+                    card.className = 'search-result';
+                    card.innerHTML = `
+                        <div class="search-result-title">${doc.title || 'Untitled'}</div>
+                        <div class="search-result-meta">Run: ${doc.run_id || '-'} | Score: ${score}</div>
+                        <div class="search-result-snippet">${highlightText(snippet, document.getElementById('search-input').value)}</div>
+                        <div class="search-result-meta">Keywords: ${keywords}</div>
+                    `;
+                    container.appendChild(card);
+                });
+                index += chunkSize;
+                if (index < slice.length) {
+                    requestAnimationFrame(renderChunk);
+                }
+            };
+
+            renderChunk();
+            updateSearchPagination();
+        }
+
+        async function searchCorpus() {
+            const query = document.getElementById('search-input').value.trim();
+            if (!query) { showToast('検索キーワードを入力', 'warning'); return; }
+
+            const container = document.getElementById('search-results');
+            container.innerHTML = '<div class="spinner"></div>';
+
+            try {
+                const index = await loadSearchIndex();
+                searchPageSize = parseInt(document.getElementById('search-page-size').value, 10);
+                searchResults = computeScores(query, index);
+                searchPage = 1;
+                updateSearchSummary();
+                renderSearchResults();
+            } catch (e) {
+                container.innerHTML = `<p style="color: var(--danger);">検索エラー: ${e.message}</p>`;
+            }
+        }
+
+        function changeSearchPage(delta) {
+            const totalPages = Math.max(1, Math.ceil(searchResults.length / searchPageSize));
+            searchPage = Math.min(Math.max(1, searchPage + delta), totalPages);
+            updateSearchSummary();
+            renderSearchResults();
+        }
+
+        function highlightText(text, query) {
+            const words = query.toLowerCase().split(/\s+/);
+            let result = text;
+            words.forEach(w => {
+                if (w.length > 2) {
+                    const regex = new RegExp(`(${w})`, 'gi');
+                    result = result.replace(regex, '<span class="highlight">$1</span>');
+                }
+            });
+            return result;
+        }
+
+        // === Upload ===
+        const uploadZone = document.getElementById('upload-zone');
+        const fileInput = document.getElementById('file-input');
+
+        uploadZone.onclick = () => fileInput.click();
+        uploadZone.ondragover = e => { e.preventDefault(); uploadZone.classList.add('dragover'); };
+        uploadZone.ondragleave = () => uploadZone.classList.remove('dragover');
+        uploadZone.ondrop = async e => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            await handleUpload(e.dataTransfer.files);
+        };
+        fileInput.onchange = async e => await handleUpload(e.target.files);
+
+        async function handleUpload(files) {
+            if (files.length === 0) return;
+
+            const status = document.getElementById('upload-status');
+            status.innerHTML = '<div class="spinner"></div><p>アップロード中...</p>';
+
+            const formData = new FormData();
+            for (const file of files) formData.append('files', file);
+
+            try {
+                let endpoint = '/api/upload/pdf';
+                if (files[0].name.endsWith('.bib')) endpoint = '/api/upload/bibtex';
+                else if (files[0].name.endsWith('.zip')) endpoint = '/api/upload/zip';
+
+                const res = await fetch(`${API_BASE}${endpoint}`, { method: 'POST', body: formData });
+                const result = await res.json();
+
+                status.innerHTML = `<p style="color: var(--success);">✅ Accepted: ${result.accepted}, Duplicates: ${result.duplicates}, Rejected: ${result.rejected}</p>`;
+                showToast('アップロード完了', 'success');
+            } catch (e) {
+                status.innerHTML = `<p style="color: var(--danger);">❌ ${e.message}</p>`;
+            }
+        }
+
+        // === Run Detail Modal ===
+        function normalizeStatus(status) {
+            if (!status) return '-';
+            const normalized = status.toLowerCase();
+            if (['complete', 'completed', 'succeeded'].includes(normalized)) return 'success';
+            return normalized;
+        }
+
+        async function showRunDetail(runId) {
+            const modal = document.getElementById('run-modal');
+            const body = document.getElementById('modal-body');
+            body.innerHTML = '<div class="spinner"></div>';
+            modal.style.display = 'block';
+
+            try {
+                let run = null;
+                let report = null;
+                let meta = null;
+                let logsText = '';
+                const errors = [];
+
+                let manifest = null;
+                const manifestPath = `runs/${runId}/manifest.json`;
+                const manifestRes = await fetch(manifestPath, { cache: 'no-store' });
+                if (manifestRes.ok) {
+                    manifest = await manifestRes.json();
+                } else if (manifestRes.status === 404 && localServerAvailable) {
+                    const res = await fetch(`${API_BASE}/api/runs/${runId}`);
+                    if (!res.ok) {
+                        throw new Error(`manifest 取得失敗 (${manifestRes.status})`);
+                    }
+                    run = await res.json();
+                    report = run.report || null;
+                } else {
+                    throw new Error(`manifest 取得失敗 (${manifestRes.status})`);
+                }
+
+                if (manifest) {
+                    const baseUrl = new URL(`runs/${runId}/`, window.location.href);
+                    const resolveArtifactPath = path => new URL(path, baseUrl).toString();
+                    const reportPath = manifest?.artifacts?.report_md;
+                    if (reportPath) {
+                        try {
+                            const reportRes = await fetch(resolveArtifactPath(reportPath), { cache: 'no-store' });
+                            if (!reportRes.ok) {
+                                throw new Error(`report 取得失敗 (${reportRes.status})`);
+                            }
+                            report = await reportRes.text();
+                        } catch (e) {
+                            errors.push(e.message);
+                        }
+                    }
+
+                    const metaPath = manifest?.artifacts?.meta_json;
+                    if (metaPath) {
+                        try {
+                            const metaRes = await fetch(resolveArtifactPath(metaPath), { cache: 'no-store' });
+                            if (!metaRes.ok) {
+                                throw new Error(`meta 取得失敗 (${metaRes.status})`);
+                            }
+                            meta = await metaRes.json();
+                        } catch (e) {
+                            errors.push(e.message);
+                        }
+                    }
+
+                    const logsPath = manifest?.artifacts?.logs_jsonl;
+                    if (logsPath) {
+                        try {
+                            const logsRes = await fetch(resolveArtifactPath(logsPath), { cache: 'no-store' });
+                            if (!logsRes.ok) {
+                                throw new Error(`logs 取得失敗 (${logsRes.status})`);
+                            }
+                            const rawLogs = await logsRes.text();
+                            logsText = formatLogs(rawLogs);
+                        } catch (e) {
+                            errors.push(e.message);
+                        }
+                    }
+
+                    run = {
+                        status: manifest.status,
+                        gate_passed: manifest?.quality?.gate_passed ?? null,
+                        gate_reason: manifest?.quality?.gate_reason ?? null,
+                        contract_valid: null,
+                        timestamp: manifest.created_at || '-',
+                        metrics: {
+                            papers_found: manifest?.quality?.papers_found ?? 0,
+                            papers_processed: manifest?.quality?.papers_processed ?? 0,
+                            citations_attached: manifest?.quality?.citations_attached ?? false
+                        },
+                        artifacts: Object.fromEntries(
+                            Object.entries(manifest?.artifacts || {}).map(([name, path]) => [
+                                name,
+                                path ? resolveArtifactPath(path) : path
+                            ])
+                        )
+                    };
+                }
+
+                const normalizedStatus = normalizeStatus(run.status);
+                const artifactRows = Object.entries(run.artifacts || {}).map(([name, path]) => {
+                    if (!path) {
+                        return `<tr><td>${escapeHtml(name)}</td><td>-</td></tr>`;
+                    }
+                    return `<tr><td>${escapeHtml(name)}</td><td><a href="${escapeHtml(path)}" target="_blank" rel="noopener">${escapeHtml(path)}</a></td></tr>`;
+                }).join('');
+
+                body.innerHTML = `
+                    <h2>Run: ${runId}</h2>
+                    <table class="data-table" style="margin: 20px 0;">
+                        <tr><th>Status</th><td><span class="badge ${normalizedStatus === 'success' ? 'badge-success' : 'badge-danger'}">${normalizedStatus}</span></td></tr>
+                        <tr><th>Gate Passed</th><td>${run.gate_passed === null ? '-' : run.gate_passed ? '✅' : '❌'}</td></tr>
+                        <tr><th>Gate Reason</th><td>${run.gate_reason ? escapeHtml(run.gate_reason) : '-'}</td></tr>
+                        <tr><th>Contract Valid</th><td>${run.contract_valid === null ? '-' : run.contract_valid ? '✅ 10/10' : '❌ Missing files'}</td></tr>
+                        <tr><th>Timestamp</th><td>${run.timestamp || '-'}</td></tr>
+                    </table>
+                    
+                    <h3>📊 Metrics</h3>
+                    <table class="data-table" style="margin: 20px 0;">
+                        ${Object.entries(run.metrics || {}).map(([k, v]) =>
+                    `<tr><th>${k}</th><td>${typeof v === 'number' ? v.toFixed(4) : v}</td></tr>`
+                ).join('')}
+                    </table>
+
+                    <h3>📁 Artifacts</h3>
+                    <table class="data-table" style="margin: 20px 0;">
+                        ${artifactRows || '<tr><td colspan="2">No artifacts</td></tr>'}
+                    </table>
+
+                    <h3>🧾 Logs</h3>
+                    <pre style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(logsText || 'No logs available')}</pre>
+
+                    ${report ? `<h3>📝 Report</h3><pre style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(report)}</pre>` : ''}
+                    ${meta ? `<h3>🧾 Meta</h3><pre style="max-height: 300px; overflow: auto; background: var(--bg-primary); padding: 15px; border-radius: 8px; white-space: pre-wrap;">${escapeHtml(JSON.stringify(meta, null, 2))}</pre>` : ''}
+                    ${errors.length ? `<p style="color: var(--warning);">⚠️ 取得失敗: ${escapeHtml(errors.join(', '))}</p>` : ''}
+                `;
+            } catch (e) {
+                body.innerHTML = `<p style="color: var(--danger);">読み込みエラー: ${escapeHtml(e.message)}</p>`;
+            }
+        }
+
+        function closeModal() { document.getElementById('run-modal').style.display = 'none'; }
+        window.onclick = e => { if (e.target === document.getElementById('run-modal')) closeModal(); };
+
+        // === Utilities ===
+        function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+        function formatLogs(rawText) {
+            if (!rawText || !rawText.trim()) return '';
+            const lines = rawText.split('\n').map(line => line.trim()).filter(Boolean);
+            const formatted = lines.map(line => {
+                try {
+                    const entry = JSON.parse(line);
+                    const parts = [];
+                    if (entry.at) parts.push(entry.at);
+                    if (entry.percent !== undefined) parts.push(`${entry.percent}%`);
+                    if (entry.stage) parts.push(entry.stage);
+                    if (entry.type) parts.push(`(${entry.type})`);
+                    if (entry.message) parts.push(entry.message);
+                    return parts.length ? parts.join(' ') : JSON.stringify(entry);
+                } catch {
+                    return line;
+                }
+            });
+            return formatted.join('\n');
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderLeftColor = type === 'success' ? 'var(--success)' : type === 'danger' ? 'var(--danger)' : 'var(--warning)';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function refreshAll() {
+            loadRuns();
+            showToast('更新しました');
+        }
+
+        function initializeSearch() {
+            const input = document.getElementById('search-input');
+            const pageSizeSelect = document.getElementById('search-page-size');
+            if (input) {
+                input.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter') {
+                        searchCorpus();
+                    }
+                });
+            }
+            if (pageSizeSelect) {
+                pageSizeSelect.addEventListener('change', () => {
+                    searchPageSize = parseInt(pageSizeSelect.value, 10);
+                    searchPage = 1;
+                    updateSearchSummary();
+                    renderSearchResults();
+                });
+            }
+        }
+
+        // === Initialize ===
+        checkLocalServer(); // Check if local server is running
+        loadRuns();
+        initializeSearch();
+    </script>
+</body>
+
+</html>
