@@ -1,0 +1,972 @@
+{
+  "query": "(CDH13[Title/Abstract] OR T-cadherin[Title/Abstract]) AND free full text[filter]",
+  "date_from": null,
+  "date_to": null,
+  "max_results": 50,
+  "num_hit": 50,
+  "records": [
+    {
+      "pmid": "30725726",
+      "pmcid": null,
+      "title": "Biochemistry, Adiponectin.",
+      "journal": "",
+      "pubdate": "2026 Jan",
+      "doi_or_elocation": "",
+      "authors": [
+        "Warner D",
+        "Rogers B",
+        "Rahimi N",
+        "Jialal I"
+      ]
+    },
+    {
+      "pmid": "34456860",
+      "pmcid": "PMC8387580",
+      "title": "Adipocyte-Endothelium Crosstalk in Obesity.",
+      "journal": "Frontiers in endocrinology",
+      "pubdate": "2021",
+      "doi_or_elocation": "doi: 10.3389/fendo.2021.681290",
+      "authors": [
+        "Sabaratnam R",
+        "Svenningsen P"
+      ]
+    },
+    {
+      "pmid": "24417948",
+      "pmcid": "PMC3905311",
+      "title": "Cardiometabolic effects of adiponectin.",
+      "journal": "Best practice & research. Clinical endocrinology & metabolism",
+      "pubdate": "2014 Jan",
+      "doi_or_elocation": "doi: 10.1016/j.beem.2013.09.001",
+      "authors": [
+        "Parker-Duffen JL",
+        "Walsh K"
+      ]
+    },
+    {
+      "pmid": "34959666",
+      "pmcid": "PMC8703455",
+      "title": "An Explanation for the Adiponectin Paradox.",
+      "journal": "Pharmaceuticals (Basel, Switzerland)",
+      "pubdate": "2021 Dec 4",
+      "doi_or_elocation": "doi: 10.3390/ph14121266",
+      "authors": [
+        "Kalkman HO"
+      ]
+    },
+    {
+      "pmid": "38123991",
+      "pmcid": "PMC10860569",
+      "title": "Cadherin-13 Maintains Retinotectal Synapses via Transneuronal Interactions.",
+      "journal": "The Journal of neuroscience : the official journal of the Society for Neuroscience",
+      "pubdate": "2024 Jan 31",
+      "doi_or_elocation": "doi: 10.1523/JNEUROSCI.1310-23.2023",
+      "authors": [
+        "Matcham AC",
+        "Toma K",
+        "Tsai NY",
+        "Sze CJ",
+        "Lin PY",
+        "Stewart IF",
+        "Duan X"
+      ]
+    },
+    {
+      "pmid": "24297186",
+      "pmcid": "PMC4152934",
+      "title": "Adiponectin signaling in the liver.",
+      "journal": "Reviews in endocrine & metabolic disorders",
+      "pubdate": "2014 Jun",
+      "doi_or_elocation": "doi: 10.1007/s11154-013-9280-6",
+      "authors": [
+        "Combs TP",
+        "Marliss EB"
+      ]
+    },
+    {
+      "pmid": "34615771",
+      "pmcid": "PMC9047493",
+      "title": "The Role of Adiponectin in the Skin.",
+      "journal": "Biomolecules & therapeutics",
+      "pubdate": "2022 May 1",
+      "doi_or_elocation": "doi: 10.4062/biomolther.2021.089",
+      "authors": [
+        "Oh J",
+        "Lee Y",
+        "Oh SW",
+        "Li T",
+        "Shin J",
+        "Park SH",
+        "Lee J"
+      ]
+    },
+    {
+      "pmid": "35205252",
+      "pmcid": "PMC8871846",
+      "title": "Mutational Landscape of Autism Spectrum Disorder Brain Tissue.",
+      "journal": "Genes",
+      "pubdate": "2022 Jan 24",
+      "doi_or_elocation": "doi: 10.3390/genes13020207",
+      "authors": [
+        "Woodbury-Smith M",
+        "Lamoureux S",
+        "Begum G",
+        "Nassir N",
+        "Akter H",
+        "O'Rielly DD",
+        "Rahman P",
+        "Wintle RF",
+        "Scherer SW",
+        "Uddin M"
+      ]
+    },
+    {
+      "pmid": "35205240",
+      "pmcid": "PMC8871947",
+      "title": "Investigation of the Genetic Architecture of Pigs Subjected to Breeding Intensification.",
+      "journal": "Genes",
+      "pubdate": "2022 Jan 22",
+      "doi_or_elocation": "doi: 10.3390/genes13020197",
+      "authors": [
+        "Kolosov A",
+        "Getmantseva L",
+        "Kolosova M",
+        "Romanets T",
+        "Bakoev N",
+        "Romanets E",
+        "Bakoeva I",
+        "Kostyunina O",
+        "Prytkov Y",
+        "Tretiakova O",
+        "Bakoev S"
+      ]
+    },
+    {
+      "pmid": "39104319",
+      "pmcid": "PMC11482465",
+      "title": "Adiponectin suppresses stiffness-dependent, profibrotic activation of lung fibroblasts.",
+      "journal": "American journal of physiology. Lung cellular and molecular physiology",
+      "pubdate": "2024 Oct 1",
+      "doi_or_elocation": "doi: 10.1152/ajplung.00037.2024",
+      "authors": [
+        "Nemeth J",
+        "Skronska-Wasek W",
+        "Keppler S",
+        "Schundner A",
+        "Groß A",
+        "Schoenberger T",
+        "Quast K",
+        "El Kasmi KC",
+        "Ruppert C",
+        "Günther A",
+        "Frick M"
+      ]
+    },
+    {
+      "pmid": "27578166",
+      "pmcid": "PMC5004266",
+      "title": "Clinical significance of CDH13 promoter methylation as a biomarker for bladder cancer: a meta-analysis.",
+      "journal": "BMC urology",
+      "pubdate": "2016 Aug 30",
+      "doi_or_elocation": "doi: 10.1186/s12894-016-0171-5",
+      "authors": [
+        "Chen F",
+        "Huang T",
+        "Ren Y",
+        "Wei J",
+        "Lou Z",
+        "Wang X",
+        "Fan X",
+        "Chen Y",
+        "Weng G",
+        "Yao X"
+      ]
+    },
+    {
+      "pmid": "20190754",
+      "pmcid": "PMC2872554",
+      "title": "Two-step adhesive binding by classical cadherins.",
+      "journal": "Nature structural & molecular biology",
+      "pubdate": "2010 Mar",
+      "doi_or_elocation": "doi: 10.1038/nsmb.1784",
+      "authors": [
+        "Harrison OJ",
+        "Bahna F",
+        "Katsamba PS",
+        "Jin X",
+        "Brasch J",
+        "Vendome J",
+        "Ahlsen G",
+        "Carroll KJ",
+        "Price SR",
+        "Honig B",
+        "Shapiro L"
+      ]
+    },
+    {
+      "pmid": "36628559",
+      "pmcid": null,
+      "title": "DNA methylation of selected tumor suppressor genes in endometrial hyperplasia.",
+      "journal": "Biomedical papers of the Medical Faculty of the University Palacky, Olomouc, Czechoslovakia",
+      "pubdate": "2024 Mar",
+      "doi_or_elocation": "doi: 10.5507/bp.2022.053",
+      "authors": [
+        "Dvorak O",
+        "Ndukwe M",
+        "Slavickova M",
+        "Laco J",
+        "Spacek J"
+      ]
+    },
+    {
+      "pmid": "38791932",
+      "pmcid": "PMC11119778",
+      "title": "The Role of T-Cadherin (CDH13) in Treatment Options with Garcinol in Melanoma.",
+      "journal": "Cancers",
+      "pubdate": "2024 May 12",
+      "doi_or_elocation": "doi: 10.3390/cancers16101853",
+      "authors": [
+        "Staebler S",
+        "Hoechst S",
+        "Thongmao A",
+        "Schneider N",
+        "Bosserhoff AK",
+        "Kuphal S"
+      ]
+    },
+    {
+      "pmid": "20887962",
+      "pmcid": "PMC2948810",
+      "title": "Adiponectin concentrations: a genome-wide association study.",
+      "journal": "American journal of human genetics",
+      "pubdate": "2010 Oct 8",
+      "doi_or_elocation": "doi: 10.1016/j.ajhg.2010.09.004",
+      "authors": [
+        "Jee SH",
+        "Sull JW",
+        "Lee JE",
+        "Shin C",
+        "Park J",
+        "Kimm H",
+        "Cho EY",
+        "Shin ES",
+        "Yun JE",
+        "Park JW",
+        "Kim SY",
+        "Lee SJ",
+        "Jee EJ",
+        "Baik I",
+        "Kao L",
+        "Yoon SK",
+        "Jang Y",
+        "Beaty TH"
+      ]
+    },
+    {
+      "pmid": "25349169",
+      "pmcid": "PMC4776744",
+      "title": "Genetic background of extreme violent behavior.",
+      "journal": "Molecular psychiatry",
+      "pubdate": "2015 Jun",
+      "doi_or_elocation": "doi: 10.1038/mp.2014.130",
+      "authors": [
+        "Tiihonen J",
+        "Rautiainen MR",
+        "Ollila HM",
+        "Repo-Tiihonen E",
+        "Virkkunen M",
+        "Palotie A",
+        "Pietiläinen O",
+        "Kristiansson K",
+        "Joukamaa M",
+        "Lauerma H",
+        "Saarela J",
+        "Tyni S",
+        "Vartiainen H",
+        "Paananen J",
+        "Goldman D",
+        "Paunio T"
+      ]
+    },
+    {
+      "pmid": "32652045",
+      "pmcid": "PMC7351027",
+      "title": "Adiponectin Stimulates Exosome Release to Enhance Mesenchymal Stem-Cell-Driven Therapy of Heart Failure in Mice.",
+      "journal": "Molecular therapy : the journal of the American Society of Gene Therapy",
+      "pubdate": "2020 Oct 7",
+      "doi_or_elocation": "doi: 10.1016/j.ymthe.2020.06.026",
+      "authors": [
+        "Nakamura Y",
+        "Kita S",
+        "Tanaka Y",
+        "Fukuda S",
+        "Obata Y",
+        "Okita T",
+        "Nishida H",
+        "Takahashi Y",
+        "Kawachi Y",
+        "Tsugawa-Shimizu Y",
+        "Fujishima Y",
+        "Nishizawa H",
+        "Takakura Y",
+        "Miyagawa S",
+        "Sawa Y",
+        "Maeda N",
+        "Shimomura I"
+      ]
+    },
+    {
+      "pmid": "36082629",
+      "pmcid": null,
+      "title": "Twin Study: Genetic and Epigenetic Factors Affecting Circulating Adiponectin Levels.",
+      "journal": "The Journal of clinical endocrinology and metabolism",
+      "pubdate": "2022 Dec 17",
+      "doi_or_elocation": "doi: 10.1210/clinem/dgac532",
+      "authors": [
+        "Hasegawa M",
+        "Taniguchi J",
+        "Ueda H",
+        "Watanabe M"
+      ]
+    },
+    {
+      "pmid": "38791465",
+      "pmcid": "PMC11121485",
+      "title": "Plasma Proteins Associated with COVID-19 Severity in Puerto Rico.",
+      "journal": "International journal of molecular sciences",
+      "pubdate": "2024 May 16",
+      "doi_or_elocation": "doi: 10.3390/ijms25105426",
+      "authors": [
+        "Rosario-Rodríguez LJ",
+        "Cantres-Rosario YM",
+        "Carrasquillo-Carrión K",
+        "Rosa-Díaz A",
+        "Rodríguez-De Jesús AE",
+        "Rivera-Nieves V",
+        "Tosado-Rodríguez EL",
+        "Méndez LB",
+        "Roche-Lima A",
+        "Bertrán J",
+        "Meléndez LM"
+      ]
+    },
+    {
+      "pmid": "35071744",
+      "pmcid": "PMC8760463",
+      "title": "The miR-23a/27a/24-2 cluster promotes postoperative progression of early-stage non-small cell lung cancer.",
+      "journal": "Molecular therapy oncolytics",
+      "pubdate": "2022 Mar 17",
+      "doi_or_elocation": "doi: 10.1016/j.omto.2021.12.014",
+      "authors": [
+        "Fan X",
+        "Tao S",
+        "Li Q",
+        "Deng B",
+        "Tan QY",
+        "Jin H"
+      ]
+    },
+    {
+      "pmid": "41814412",
+      "pmcid": "PMC13088641",
+      "title": "Targeting CDH13 as a therapeutic strategy to mitigate pathological ocular angiogenesis.",
+      "journal": "Journal of translational medicine",
+      "pubdate": "2026 Mar 11",
+      "doi_or_elocation": "doi: 10.1186/s12967-026-07972-y",
+      "authors": [
+        "Yin W",
+        "Xu M",
+        "Niu Z",
+        "Gao Y",
+        "Su N",
+        "Song Y",
+        "Liu Q"
+      ]
+    },
+    {
+      "pmid": "33798449",
+      "pmcid": "PMC8072070",
+      "title": "Characterization of hiPSC-Derived Muscle Progenitors Reveals Distinctive Markers for Myogenic Cell Purification Toward Cell Therapy.",
+      "journal": "Stem cell reports",
+      "pubdate": "2021 Apr 13",
+      "doi_or_elocation": "doi: 10.1016/j.stemcr.2021.03.004",
+      "authors": [
+        "Nalbandian M",
+        "Zhao M",
+        "Sasaki-Honda M",
+        "Jonouchi T",
+        "Lucena-Cacace A",
+        "Mizusawa T",
+        "Yasuda M",
+        "Yoshida Y",
+        "Hotta A",
+        "Sakurai H"
+      ]
+    },
+    {
+      "pmid": "28183249",
+      "pmcid": "PMC5831726",
+      "title": "Adiponectin as a Potential Therapeutic Target for Prostate Cancer.",
+      "journal": "Current pharmaceutical design",
+      "pubdate": "2017",
+      "doi_or_elocation": "doi: 10.2174/1381612823666170208123553",
+      "authors": [
+        "Karnati HK",
+        "Panigrahi MK",
+        "Li Y",
+        "Tweedie D",
+        "Greig NH"
+      ]
+    },
+    {
+      "pmid": "33927218",
+      "pmcid": "PMC8084951",
+      "title": "KLK3 SNP-SNP interactions for prediction of prostate cancer aggressiveness.",
+      "journal": "Scientific reports",
+      "pubdate": "2021 Apr 29",
+      "doi_or_elocation": "doi: 10.1038/s41598-021-85169-7",
+      "authors": [
+        "Lin HY",
+        "Huang PY",
+        "Cheng CH",
+        "Tung HY",
+        "Fang Z",
+        "Berglund AE",
+        "Chen A",
+        "French-Kwawu J",
+        "Harris D",
+        "Pow-Sang J",
+        "Yamoah K",
+        "Cleveland JL",
+        "Awasthi S",
+        "Rounbehler RJ",
+        "Gerke T",
+        "Dhillon J",
+        "Eeles R",
+        "Kote-Jarai Z",
+        "Muir K",
+        "UKGPCS collaborators",
+        "Schleutker J",
+        "Pashayan N",
+        "APCB (Australian Prostate Cancer BioResource)",
+        "Neal DE",
+        "Nielsen SF",
+        "Nordestgaard BG",
+        "Gronberg H",
+        "Wiklund F",
+        "Giles GG",
+        "Haiman CA",
+        "Travis RC",
+        "Stanford JL",
+        "Kibel AS",
+        "Cybulski C",
+        "Khaw KT",
+        "Maier C",
+        "Thibodeau SN",
+        "Teixeira MR",
+        "Cannon-Albright L",
+        "Brenner H",
+        "Kaneva R",
+        "Pandha H",
+        "PRACTICAL consortium",
+        "Srinivasan S",
+        "Clements J",
+        "Batra J",
+        "Park JY"
+      ]
+    },
+    {
+      "pmid": "37185277",
+      "pmcid": "PMC10130005",
+      "title": "Early life nutrition affects the molecular ontogeny of testicular development in the young bull calf.",
+      "journal": "Scientific reports",
+      "pubdate": "2023 Apr 25",
+      "doi_or_elocation": "doi: 10.1038/s41598-022-23743-3",
+      "authors": [
+        "Coen S",
+        "Keogh K",
+        "Lonergan P",
+        "Fair S",
+        "Kenny DA"
+      ]
+    },
+    {
+      "pmid": "40649905",
+      "pmcid": "PMC12250294",
+      "title": "T-Cadherin (CDH13) and Non-Coding RNAs: The Crosstalk Between Health and Disease.",
+      "journal": "International journal of molecular sciences",
+      "pubdate": "2025 Jun 26",
+      "doi_or_elocation": "doi: 10.3390/ijms26136127",
+      "authors": [
+        "Rubina K",
+        "Maier A",
+        "Klimovich P",
+        "Sysoeva V",
+        "Romashin D",
+        "Semina E",
+        "Tkachuk V"
+      ]
+    },
+    {
+      "pmid": "31125082",
+      "pmcid": "PMC6635898",
+      "title": "Taste Receptor Cells in Mice Express Receptors for the Hormone Adiponectin.",
+      "journal": "Chemical senses",
+      "pubdate": "2019 Jul 17",
+      "doi_or_elocation": "doi: 10.1093/chemse/bjz030",
+      "authors": [
+        "Crosson SM",
+        "Marques A",
+        "Dib P",
+        "Dotson CD",
+        "Munger SD",
+        "Zolotukhin S"
+      ]
+    },
+    {
+      "pmid": "27301293",
+      "pmcid": null,
+      "title": "Glycosylphosphatidylinositol-Anchored Proteins as Regulators of Cortical Cytoskeleton.",
+      "journal": "Biochemistry. Biokhimiia",
+      "pubdate": "2016 Jun",
+      "doi_or_elocation": "doi: 10.1134/S0006297916060110",
+      "authors": [
+        "Sharonov GV",
+        "Balatskaya MN",
+        "Tkachuk VA"
+      ]
+    },
+    {
+      "pmid": "37660920",
+      "pmcid": "PMC10558802",
+      "title": "Proteomic mapping reveals dysregulated angiogenesis in the cerebral arteries of rats with early-onset hypertension.",
+      "journal": "The Journal of biological chemistry",
+      "pubdate": "2023 Oct",
+      "doi_or_elocation": "doi: 10.1016/j.jbc.2023.105221",
+      "authors": [
+        "Bastrup JA",
+        "Jepps TA"
+      ]
+    },
+    {
+      "pmid": "33972691",
+      "pmcid": "PMC8960401",
+      "title": "Cadherin-13 is a critical regulator of GABAergic modulation in human stem-cell-derived neuronal networks.",
+      "journal": "Molecular psychiatry",
+      "pubdate": "2022 Jan",
+      "doi_or_elocation": "doi: 10.1038/s41380-021-01117-x",
+      "authors": [
+        "Mossink B",
+        "van Rhijn JR",
+        "Wang S",
+        "Linda K",
+        "Vitale MR",
+        "Zöller JEM",
+        "van Hugte EJH",
+        "Bak J",
+        "Verboven AHA",
+        "Selten M",
+        "Negwer M",
+        "Latour BL",
+        "van der Werf I",
+        "Keller JM",
+        "Klein Gunnewiek TM",
+        "Schoenmaker C",
+        "Oudakker A",
+        "Anania A",
+        "Jansen S",
+        "Lesch KP",
+        "Frega M",
+        "van Bokhoven H",
+        "Schubert D",
+        "Nadif Kasri N"
+      ]
+    },
+    {
+      "pmid": "38629124",
+      "pmcid": "PMC11037505",
+      "title": "Mapping combinatorial expression of non-clustered protocadherins in the developing brain identifies novel PCDH19-mediated cell adhesion properties.",
+      "journal": "Open biology",
+      "pubdate": "2024 Apr",
+      "doi_or_elocation": "doi: 10.1098/rsob.230383",
+      "authors": [
+        "Mincheva-Tasheva S",
+        "Pfitzner C",
+        "Kumar R",
+        "Kurtsdotter I",
+        "Scherer M",
+        "Ritchie T",
+        "Muhr J",
+        "Gecz J",
+        "Thomas PQ"
+      ]
+    },
+    {
+      "pmid": "32979268",
+      "pmcid": null,
+      "title": "Stimulation of exosome biogenesis by adiponectin, a circulating factor secreted from adipocytes.",
+      "journal": "Journal of biochemistry",
+      "pubdate": "2021 Mar 5",
+      "doi_or_elocation": "doi: 10.1093/jb/mvaa105",
+      "authors": [
+        "Kita S",
+        "Shimomura I"
+      ]
+    },
+    {
+      "pmid": "39545598",
+      "pmcid": "PMC11572284",
+      "title": "CDH2 and CDH13 as potential prognostic and therapeutic targets for adrenocortical carcinoma.",
+      "journal": "Cancer biology & therapy",
+      "pubdate": "2024 Dec 31",
+      "doi_or_elocation": "doi: 10.1080/15384047.2024.2428469",
+      "authors": [
+        "Situ Y",
+        "Deng L",
+        "Huang Z",
+        "Jiang X",
+        "Zhao L",
+        "Zhang J",
+        "Lu L",
+        "Liang Q",
+        "Xu Q",
+        "Shao Z",
+        "Liang M"
+      ]
+    },
+    {
+      "pmid": "23850004",
+      "pmcid": "PMC3770746",
+      "title": "Adiponectin in inflammatory and immune-mediated diseases.",
+      "journal": "Cytokine",
+      "pubdate": "2013 Oct",
+      "doi_or_elocation": "doi: 10.1016/j.cyto.2013.06.317",
+      "authors": [
+        "Fantuzzi G"
+      ]
+    },
+    {
+      "pmid": "28422056",
+      "pmcid": "PMC5412447",
+      "title": "Adiponectin and Intelectin-1: Important Adipokine Players in Obesity-Related Colorectal Carcinogenesis.",
+      "journal": "International journal of molecular sciences",
+      "pubdate": "2017 Apr 19",
+      "doi_or_elocation": "doi: 10.3390/ijms18040866",
+      "authors": [
+        "Kawashima K",
+        "Maeda K",
+        "Saigo C",
+        "Kito Y",
+        "Yoshida K",
+        "Takeuchi T"
+      ]
+    },
+    {
+      "pmid": "27834691",
+      "pmcid": "PMC5172514",
+      "title": "Zebrafish Model for Functional Screening of Flow-Responsive Genes.",
+      "journal": "Arteriosclerosis, thrombosis, and vascular biology",
+      "pubdate": "2017 Jan",
+      "doi_or_elocation": "doi: 10.1161/ATVBAHA.116.308502",
+      "authors": [
+        "Serbanovic-Canic J",
+        "de Luca A",
+        "Warboys C",
+        "Ferreira PF",
+        "Luong LA",
+        "Hsiao S",
+        "Gauci I",
+        "Mahmoud M",
+        "Feng S",
+        "Souilhol C",
+        "Bowden N",
+        "Ashton JP",
+        "Walczak H",
+        "Firmin D",
+        "Krams R",
+        "Mason JC",
+        "Haskard DO",
+        "Sherwin S",
+        "Ridger V",
+        "Chico TJ",
+        "Evans PC"
+      ]
+    },
+    {
+      "pmid": "29567312",
+      "pmcid": "PMC5993934",
+      "title": "Preclinical Strategies to Identify Off-Target Toxicity of High-Affinity TCRs.",
+      "journal": "Molecular therapy : the journal of the American Society of Gene Therapy",
+      "pubdate": "2018 May 2",
+      "doi_or_elocation": "doi: 10.1016/j.ymthe.2018.02.017",
+      "authors": [
+        "Bijen HM",
+        "van der Steen DM",
+        "Hagedoorn RS",
+        "Wouters AK",
+        "Wooldridge L",
+        "Falkenburg JHF",
+        "Heemskerk MHM"
+      ]
+    },
+    {
+      "pmid": "40368888",
+      "pmcid": "PMC12078473",
+      "title": "Cadherins orchestrate specific patterns of perisomatic inhibition onto distinct pyramidal cell populations.",
+      "journal": "Nature communications",
+      "pubdate": "2025 May 14",
+      "doi_or_elocation": "doi: 10.1038/s41467-025-59635-z",
+      "authors": [
+        "Jézéquel J",
+        "Condomitti G",
+        "Kroon T",
+        "Hamid F",
+        "Sanalidou S",
+        "Garcés T",
+        "Maeso P",
+        "Balia M",
+        "Hu Z",
+        "Sahara S",
+        "Rico B"
+      ]
+    },
+    {
+      "pmid": "41665935",
+      "pmcid": "PMC13038215",
+      "title": "Proteogenomic characterization of cervical cancer identifies molecular subtypes predictive of clinical outcomes and subtype-specific targets.",
+      "journal": "The Journal of clinical investigation",
+      "pubdate": "2026 Apr 1",
+      "doi_or_elocation": "doi: 10.1172/JCI199497",
+      "authors": [
+        "Tian X",
+        "Li M",
+        "Wang Z",
+        "Fang T",
+        "Liu Y",
+        "Fang J",
+        "Wang L",
+        "Jiang Z",
+        "Zhao X",
+        "Cao C",
+        "Yu Z",
+        "Yang M",
+        "Wu S",
+        "Wu Y",
+        "Tian R",
+        "Wang H",
+        "Zhu Y",
+        "Hu Z"
+      ]
+    },
+    {
+      "pmid": "21718299",
+      "pmcid": "PMC3268187",
+      "title": "Adiponectin receptor signalling in the brain.",
+      "journal": "British journal of pharmacology",
+      "pubdate": "2012 Jan",
+      "doi_or_elocation": "doi: 10.1111/j.1476-5381.2011.01560.x",
+      "authors": [
+        "Thundyil J",
+        "Pavlovski D",
+        "Sobey CG",
+        "Arumugam TV"
+      ]
+    },
+    {
+      "pmid": "39791197",
+      "pmcid": "PMC12143369",
+      "title": "Potential Adaptive Introgression From Dogs in Iberian Grey Wolves (Canis lupus).",
+      "journal": "Molecular ecology",
+      "pubdate": "2025 Jun",
+      "doi_or_elocation": "doi: 10.1111/mec.17639",
+      "authors": [
+        "Sarabia C",
+        "Salado I",
+        "Fernández-Gil A",
+        "vonHoldt BM",
+        "Hofreiter M",
+        "Vilà C",
+        "Leonard JA"
+      ]
+    },
+    {
+      "pmid": "29907817",
+      "pmcid": "PMC6003912",
+      "title": "Serum Proteomic Profiling to Identify Biomarkers of Premature Carotid Atherosclerosis.",
+      "journal": "Scientific reports",
+      "pubdate": "2018 Jun 15",
+      "doi_or_elocation": "doi: 10.1038/s41598-018-27265-9",
+      "authors": [
+        "Bhosale SD",
+        "Moulder R",
+        "Venäläinen MS",
+        "Koskinen JS",
+        "Pitkänen N",
+        "Juonala MT",
+        "Kähönen MAP",
+        "Lehtimäki TJ",
+        "Viikari JSA",
+        "Elo LL",
+        "Goodlett DR",
+        "Lahesmaa R",
+        "Raitakari OT"
+      ]
+    },
+    {
+      "pmid": "41164751",
+      "pmcid": "PMC12558736",
+      "title": "Identification of an anti-inflammatory action of exosome release in P2Y(4) loss-mediated cardioprotection.",
+      "journal": "Frontiers in pharmacology",
+      "pubdate": "2025",
+      "doi_or_elocation": "doi: 10.3389/fphar.2025.1664015",
+      "authors": [
+        "Diaz Villamil E",
+        "Rouvier P",
+        "Horckmans M",
+        "De Roeck L",
+        "Hendrickx E",
+        "Conrard L",
+        "Communi D"
+      ]
+    },
+    {
+      "pmid": "40779984",
+      "pmcid": null,
+      "title": "Soluble T-cadherin ameliorates pressure overload-induced heart failure and cardiac fibrosis in mice.",
+      "journal": "Biochemical and biophysical research communications",
+      "pubdate": "2025 Sep 12",
+      "doi_or_elocation": "doi: 10.1016/j.bbrc.2025.152459",
+      "authors": [
+        "Kondo Y",
+        "Fukuda S",
+        "Kawada K",
+        "Kita S",
+        "Nakamura Y",
+        "Nagao H",
+        "Obata Y",
+        "Fujishima Y",
+        "Maeda N",
+        "Nishizawa H",
+        "Shimomura I"
+      ]
+    },
+    {
+      "pmid": "37239828",
+      "pmcid": "PMC10218110",
+      "title": "Differentially Expressed Genes Induced by Erythropoietin Receptor Overexpression in Rat Mammary Adenocarcinoma RAMA 37-28 Cells.",
+      "journal": "International journal of molecular sciences",
+      "pubdate": "2023 May 9",
+      "doi_or_elocation": "doi: 10.3390/ijms24108482",
+      "authors": [
+        "Tóthová Z",
+        "Šemeláková M",
+        "Bhide K",
+        "Bhide M",
+        "Kováč A",
+        "Majerová P",
+        "Kvaková M",
+        "Štofilová J",
+        "Solárová Z",
+        "Solár P"
+      ]
+    },
+    {
+      "pmid": "32915782",
+      "pmcid": "PMC7511027",
+      "title": "Adiponectin GWAS loci harboring extensive allelic heterogeneity exhibit distinct molecular consequences.",
+      "journal": "PLoS genetics",
+      "pubdate": "2020 Sep",
+      "doi_or_elocation": "doi: 10.1371/journal.pgen.1009019",
+      "authors": [
+        "Spracklen CN",
+        "Iyengar AK",
+        "Vadlamudi S",
+        "Raulerson CK",
+        "Jackson AU",
+        "Brotman SM",
+        "Wu Y",
+        "Cannon ME",
+        "Davis JP",
+        "Crain AT",
+        "Currin KW",
+        "Perrin HJ",
+        "Narisu N",
+        "Stringham HM",
+        "Fuchsberger C",
+        "Locke AE",
+        "Welch RP",
+        "Kuusisto JK",
+        "Pajukanta P",
+        "Scott LJ",
+        "Li Y",
+        "Collins FS",
+        "Boehnke M",
+        "Laakso M",
+        "Mohlke KL"
+      ]
+    },
+    {
+      "pmid": "24417946",
+      "pmcid": "PMC4007141",
+      "title": "Multifaceted roles of adiponectin in cancer.",
+      "journal": "Best practice & research. Clinical endocrinology & metabolism",
+      "pubdate": "2014 Jan",
+      "doi_or_elocation": "doi: 10.1016/j.beem.2013.11.005",
+      "authors": [
+        "Hebbard L",
+        "Ranscht B"
+      ]
+    },
+    {
+      "pmid": "34798557",
+      "pmcid": null,
+      "title": "Revisiting the multiple roles of T-cadherin in health and disease.",
+      "journal": "European journal of cell biology",
+      "pubdate": "2021 Sep-Nov",
+      "doi_or_elocation": "doi: 10.1016/j.ejcb.2021.151183",
+      "authors": [
+        "Rubina KA",
+        "Semina EV",
+        "Kalinina NI",
+        "Sysoeva VY",
+        "Balatskiy AV",
+        "Tkachuk VA"
+      ]
+    },
+    {
+      "pmid": "30921768",
+      "pmcid": null,
+      "title": "Promoter hypermethylation in ductal carcinoma in situ of the male breast.",
+      "journal": "Endocrine-related cancer",
+      "pubdate": "2019 Jun",
+      "doi_or_elocation": "doi: 10.1530/ERC-18-0485",
+      "authors": [
+        "Vermeulen MA",
+        "van Deurzen CHM",
+        "Doebar SC",
+        "de Leng WWJ",
+        "Martens JWM",
+        "van Diest PJ",
+        "Moelans CB"
+      ]
+    },
+    {
+      "pmid": "32566092",
+      "pmcid": "PMC7260649",
+      "title": "Molecular Mechanisms of Adiponectin-Induced Attenuation of Mechanical Stretch-Mediated Vascular Remodeling.",
+      "journal": "Oxidative medicine and cellular longevity",
+      "pubdate": "2020",
+      "doi_or_elocation": "doi: 10.1155/2020/6425782",
+      "authors": [
+        "Ghantous CM",
+        "Farhat R",
+        "Djouhri L",
+        "Alashmar S",
+        "Anlar G",
+        "Korashy HM",
+        "Agouni A",
+        "Zeidan A"
+      ]
+    }
+  ]
+}
